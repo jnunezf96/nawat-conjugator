@@ -11,7 +11,11 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
     //   composeObj1Chain, normalizeValenceMarkerOrder
     //   getTotalVowelCountFromSyllables, getSyllables (phonology.js)
 
+    function normalizeMorphologySupportTenseValue(tenseValue = "") {
+      return String(tenseValue || "").trim();
+    }
     function applyTenseSuffixRules(tense, pers2) {
+      tense = normalizeMorphologySupportTenseValue(tense);
       if (tense === "preterito") {
         return pers2;
       }
@@ -138,7 +142,7 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
       const baseObj3 = String(meta.obj3 || meta.thirdObjectMarker || "");
       const directionalRuleMode = String(meta.directionalRuleMode || "");
       const directionalInputPrefix = String(meta.directionalInputPrefix || "wal");
-      const tense = String(meta.tense || "");
+      const tense = normalizeMorphologySupportTenseValue(meta.tense || "");
       const isIntransitiveVerb = meta.isIntransitiveVerb === true;
       const hasSubjectValent = meta.hasSubjectValent !== false;
       const isTaFusion = meta.isTaFusion === true;
@@ -216,8 +220,8 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
         realizedPers1 = "k";
       }
       if (isMainlineThirdPersonObject) {
-        const isImperativeSecondPlural = tense === "imperativo" && basePers1 === "an" && basePers2 === "t";
-        const dropLeadK = isFirstPersonSubject || isSecondPersonSubject || isImperativeSecondPlural || effectiveDirectionalRuleMode === "intransitive" || effectiveDirectionalRuleMode === "nonspecific";
+        const isOptativeSecondPlural = tense === "optativo" && basePers1 === "an" && basePers2 === "t";
+        const dropLeadK = isFirstPersonSubject || isSecondPersonSubject || isOptativeSecondPlural || effectiveDirectionalRuleMode === "intransitive" || effectiveDirectionalRuleMode === "nonspecific";
         const primaryBase = `${dropLeadK ? "" : "k"}${baseObj1 === "kin" ? "in" : ""}`;
         const markerHead = buildDirectionalMarkerChain({
           obj1Base: primaryBase,
@@ -264,10 +268,10 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
           syllablePosition: "after-i-object"
         }, beforeTronco, realizedTronco, "tronco");
       }
-      const isImperativeSecondPersonBase = tense === "imperativo" && (basePers1 === "ti" && basePers2 === "" || basePers1 === "an" && basePers2 === "t");
-      if (isImperativeSecondPersonBase && realizedPers1 === "shi" && realizedObj1.startsWith("al")) {
+      const isOptativeSecondPersonBase = tense === "optativo" && (basePers1 === "ti" && basePers2 === "" || basePers1 === "an" && basePers2 === "t");
+      if (isOptativeSecondPersonBase && realizedPers1 === "shi" && realizedObj1.startsWith("al")) {
         pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
-          ruleId: "imperative-shi-before-al-sh",
+          ruleId: "optative-shi-before-al-sh",
           source: "shi",
           target: "sh",
           slot: "pers1",
@@ -379,6 +383,7 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
     }
 
     const api = {};
+    api.normalizeMorphologySupportTenseValue = normalizeMorphologySupportTenseValue;
     api.applyTenseSuffixRules = applyTenseSuffixRules;
     Object.defineProperty(api, "AGENTIVO_NUMBER_SUFFIX_BY_SLOT", {
         configurable: true,

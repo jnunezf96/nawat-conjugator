@@ -73,8 +73,16 @@ function run(ctx) {
         {
             stepNumber: 5,
             aimStatus: "closest-pass",
-            plannedArrowIds: ["lesson-5-intransitive-vnc-audit"],
-            firedArrowIds: [["lesson-5-intransitive-vnc-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-5-intransitive-vnc-audit",
+                "lesson-5-optative-formula-authority-audit",
+                "lesson-5-tense-morph-formula-authority-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-5-intransitive-vnc-audit", "hit"],
+                ["lesson-5-optative-formula-authority-audit", "hit"],
+                ["lesson-5-tense-morph-formula-authority-audit", "hit"],
+            ],
             pdfRefs: [
                 "Andrews Lesson 5.1",
                 "Andrews Lesson 5.2",
@@ -110,6 +118,7 @@ function run(ctx) {
             featureDistribution: lesson5Pursuit.subjectSlotFrame.featureDistribution,
             pluralBridge: lesson5Pursuit.subjectFillerParadigms[0].nawatPluralBridge,
             mainNawatTenses: lesson5Pursuit.subjectFillerParadigms[0].currentNawatTenses,
+            tenseInventory: lesson5Pursuit.tenseMorphFrame.currentNawatTenseInventory,
             tenseSlot: lesson5Pursuit.tenseMorphFrame.visibleSlot,
             tenseIsNotTime: lesson5Pursuit.tenseMorphFrame.tenseIsNotTime,
         },
@@ -126,9 +135,36 @@ function run(ctx) {
             },
             pluralBridge: { classicalCarrier: "h", adaptedCarrier: "t" },
             mainNawatTenses: ["presente", "presente-habitual", "imperfecto", "pasado-remoto"],
+            tenseInventory: [
+                "presente",
+                "presente-habitual",
+                "presente-desiderativo",
+                "imperfecto",
+                "futuro",
+                "preterito",
+                "pasado-remoto",
+                "condicional",
+                "optativo",
+                "perfecto",
+                "pluscuamperfecto",
+                "condicional-perfecto",
+            ],
             tenseSlot: "tiempo",
             tenseIsNotTime: true,
         }
+    );
+    const lesson5ProbeText = [
+        ...lesson5Pursuit.plannedArrows.map((arrow) => arrow.aim),
+        ...lesson5Pursuit.firedArrows.map((arrow) => arrow.correction),
+    ].join(" ");
+    s.ok(
+        "Lesson 5 pursuit frame carries correctness-before-existence miss probe",
+        /Correcci[oó]n antes de existencia/.test(lesson5ProbeText)
+            && /ruta de entrada a salida/.test(lesson5ProbeText)
+            && /comportamiento/.test(lesson5ProbeText)
+            && /sonda de fallo/.test(lesson5ProbeText)
+            && /shi/.test(lesson5ProbeText)
+            && /ti\/an|ti o an/.test(lesson5ProbeText)
     );
     const lesson6Pursuit = ctx.buildVncLesson6PursuitFrame();
     s.eq(
@@ -140,6 +176,21 @@ function run(ctx) {
             firedArrowIds: lesson6Pursuit.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             pdfRefs: lesson6Pursuit.pdfRefs,
             subsectionRefs: lesson6Pursuit.subsectionInventory.map((entry) => entry.pdfRef),
+            shotRefs: lesson6Pursuit.shotReport.map((entry) => entry.andrewsRef),
+            shotStatuses: Array.from(new Set(lesson6Pursuit.shotReport.map((entry) => entry.shotStatus))),
+            invalidFinalShotStatuses: lesson6Pursuit.shotReport
+                .filter((entry) => !["hit-no-edit", "hit-edit"].includes(entry.shotStatus))
+                .map((entry) => [entry.andrewsRef, entry.shotStatus]),
+            reportCompleteness: lesson6Pursuit.shotReport.every((entry) => (
+                entry.requirementEs
+                && entry.missProbeEs
+                && Array.isArray(entry.changedFiles)
+                && Array.isArray(entry.validationRefs)
+                && entry.validationRefs.includes("src/tests/vnc.test.js")
+            )),
+            editedShotRefs: lesson6Pursuit.shotReport
+                .filter((entry) => entry.shotStatus === "hit-edit")
+                .map((entry) => [entry.andrewsRef, entry.changedFiles.includes("src/core/vnc/vnc.js")]),
             categories: lesson6Pursuit.subsectionInventory.map((entry) => entry.category),
             closestPass: lesson6Pursuit.closestPass,
             remainingGaps: lesson6Pursuit.remainingGaps,
@@ -147,8 +198,16 @@ function run(ctx) {
         {
             stepNumber: 6,
             aimStatus: "closest-pass",
-            plannedArrowIds: ["lesson-6-transitive-vnc-audit"],
-            firedArrowIds: [["lesson-6-transitive-vnc-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-6-transitive-vnc-audit",
+                "lesson-6-valence-formula-authority-audit",
+                "lesson-6-shuntline-ne-direct-generation-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-6-transitive-vnc-audit", "hit"],
+                ["lesson-6-valence-formula-authority-audit", "hit"],
+                ["lesson-6-shuntline-ne-direct-generation-audit", "hit"],
+            ],
             pdfRefs: [
                 "Andrews Lesson 6.1",
                 "Andrews Lesson 6.2",
@@ -166,6 +225,33 @@ function run(ctx) {
                 "Andrews Lesson 6.5",
                 "Andrews Lesson 6.6",
                 "Andrews Lesson 6.7",
+            ],
+            shotRefs: [
+                "Andrews Lesson 6.1",
+                "Andrews Lesson 6.2",
+                "Andrews Lesson 6.2.1",
+                "Andrews Lesson 6.2.2a",
+                "Andrews Lesson 6.2.2b",
+                "Andrews Lesson 6.3",
+                "Andrews Lesson 6.4",
+                "Andrews Lesson 6.4.1",
+                "Andrews Lesson 6.4.1a",
+                "Andrews Lesson 6.4.1b",
+                "Andrews Lesson 6.4.2",
+                "Andrews Lesson 6.4.2a",
+                "Andrews Lesson 6.4.2b",
+                "Andrews Lesson 6.5",
+                "Andrews Lesson 6.6",
+                "Andrews Lesson 6.6.1",
+                "Andrews Lesson 6.6.2",
+                "Andrews Lesson 6.7",
+            ],
+            shotStatuses: ["hit-no-edit", "hit-edit"],
+            invalidFinalShotStatuses: [],
+            reportCompleteness: true,
+            editedShotRefs: [
+                ["Andrews Lesson 6.4.2a", true],
+                ["Andrews Lesson 6.5", true],
             ],
             categories: [
                 "transitive-vnc-formulas",
@@ -190,16 +276,21 @@ function run(ctx) {
             monadicFillers: lesson6Pursuit.monadicValenceFillers.map((entry) => [
                 entry.classicalCarrier,
                 entry.currentNawatSlotValue,
+                entry.currentNawatSlotStatus || "confirmed",
                 entry.specificity,
                 entry.humanness || entry.trajectory,
             ]),
             projectivePrefixes: lesson6Pursuit.projectiveObjectParadigm.map((entry) => [
                 entry.person,
                 entry.classicalDyad,
+                entry.currentNawatDyad,
                 entry.currentNawatPrefix,
             ]),
             dyadicSpecificPrefixes: lesson6Pursuit.dyadicObjectFrame.currentNawatSpecificPrefixes,
+            directDyads: lesson6Pursuit.dyadicObjectFrame.directNawatDyadByPrefix,
             reflexiveSlot: lesson6Pursuit.reflexiveObjectFrame.currentNawatReflexiveSlot,
+            directReflexive: lesson6Pursuit.reflexiveObjectFrame.directNawatReflexiveParadigm,
+            directReflexiveCondition: lesson6Pursuit.reflexiveObjectFrame.directNawatReflexiveCondition,
             reflexiveBehavior: lesson6Pursuit.reflexiveObjectFrame.engineBehavior,
         },
         {
@@ -207,22 +298,48 @@ function run(ctx) {
             dyadicFormula: "#pers1-pers2+val1-val2(base)tiempo+núm1-núm2#",
             objectiveDistinctions: ["trajectory", "specificity", "prominence"],
             monadicFillers: [
-                ["ne", "mu", "specific", "reflexive-reciprocative"],
-                ["te", "te", "nonspecific", "human"],
-                ["tla", "ta", "nonspecific", "nonhuman"],
+                ["ne", "ne", "direct-nawat-generation", "specific", "reflexive-reciprocative"],
+                ["te", "te", "confirmed", "nonspecific", "human"],
+                ["tla", "ta", "confirmed", "nonspecific", "nonhuman"],
             ],
             projectivePrefixes: [
-                ["1sg", "n-ech", "nech"],
-                ["1pl", "t-ech", "tech"],
-                ["2sg", "m-itz", "metz"],
-                ["2pl", "am-ech", "metzin"],
-                ["3sg", "c-0/qu-0/qui-0", "ki/k"],
-                ["3pl", "qu-im", "kin"],
+                ["1sg", "n-ech", "n-ech", "nech"],
+                ["1pl", "t-ech", "t-ech", "tech"],
+                ["2sg", "m-itz", "m-etz", "metz"],
+                ["2pl", "am-ech", "m-etz-in", "metzin"],
+                ["3sg", "c-0/qu-0/qui-0", "ki-0/k-0", "ki/k"],
+                ["3pl", "qu-im", "k-in", "kin"],
             ],
-            dyadicSpecificPrefixes: ["nech", "tech", "metz", "metzin", "ki", "kin"],
+            dyadicSpecificPrefixes: ["nech", "tech", "metz", "metzin", "ki", "k", "kin"],
+            directDyads: {
+                nech: "n-ech",
+                tech: "t-ech",
+                metz: "m-etz",
+                metzin: "m-etz-in",
+                ki: "ki-0",
+                k: "k-0",
+                kin: "k-in",
+            },
             reflexiveSlot: "mu",
-            reflexiveBehavior: "same-person specific objects are redirected to mu by reflexive slot logic",
+            directReflexive: "m-u/m-0",
+            directReflexiveCondition: "m-u cuando la alomorfía conserva mu; m-0 cuando obj1-mu-before-vowel-m reduce mu a m",
+            reflexiveBehavior: "same-person specific objects are redirected to dyadic mainline mu by reflexive slot logic",
         }
+    );
+    const lesson6ProbeText = [
+        ...lesson6Pursuit.plannedArrows.map((arrow) => arrow.aim),
+        ...lesson6Pursuit.firedArrows.map((arrow) => arrow.correction),
+    ].join(" ");
+    s.ok(
+        "Lesson 6 pursuit frame carries formula authority miss probes",
+        /Correcci[oó]n antes de existencia/.test(lesson6ProbeText)
+            && /ruta de entrada a salida/.test(lesson6ProbeText)
+            && /sonda de fallo/.test(lesson6ProbeText)
+            && /ki como mon[aá]dico/.test(lesson6ProbeText)
+            && /ta como di[aá]dico/.test(lesson6ProbeText)
+            && /mu-mu/.test(lesson6ProbeText)
+            && /ne de l[ií]nea secundaria/.test(lesson6ProbeText)
+            && /bloquear ne/.test(lesson6ProbeText)
     );
     const lesson7Pursuit = ctx.buildVncLesson7PursuitFrame();
     s.eq(
@@ -338,6 +455,16 @@ function run(ctx) {
         analysisVerb: "ilnamiqui",
         obj1: "mu",
     });
+    const muBeforeAjsiAllomorphy = ctx.applyObj1Allomorphy({
+        verb: "ajsi",
+        analysisVerb: "ajsi",
+        obj1: "mu",
+    });
+    const muBeforeAltiaAllomorphy = ctx.applyObj1Allomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+    });
     const supportiveIAllomorphy = ctx.applyObj1Allomorphy({
         verb: "ilnamiqui",
         analysisVerb: "ilnamiqui",
@@ -371,6 +498,49 @@ function run(ctx) {
                 sourceSegment: "mu",
                 targetSegment: "m",
             }],
+        }
+    );
+    s.eq(
+        "obj1 allomorphy distinguishes mu+ajsi from mu+altia",
+        {
+            ajsi: {
+                obj1: muBeforeAjsiAllomorphy.obj1,
+                morphologyObj1: muBeforeAjsiAllomorphy.morphologyObj1,
+                frameCount: muBeforeAjsiAllomorphy.soundSpellingFrames.length,
+            },
+            altia: {
+                obj1: muBeforeAltiaAllomorphy.obj1,
+                morphologyObj1: muBeforeAltiaAllomorphy.morphologyObj1,
+                frames: muBeforeAltiaAllomorphy.soundSpellingFrames.map((frame) => ({
+                    ruleId: frame.ruleId,
+                    source: frame.sourceSurface,
+                    target: frame.target,
+                    slot: frame.grammarSlot,
+                    position: frame.syllablePosition,
+                    sourceSegment: frame.sourceSegmentValue,
+                    targetSegment: frame.targetSegmentValue,
+                })),
+            },
+        },
+        {
+            ajsi: {
+                obj1: "mu",
+                morphologyObj1: "mu",
+                frameCount: 0,
+            },
+            altia: {
+                obj1: "m",
+                morphologyObj1: "m",
+                frames: [{
+                    ruleId: "obj1-mu-before-vowel-m",
+                    source: "mu",
+                    target: "m",
+                    slot: "obj1",
+                    position: "before-al-stem",
+                    sourceSegment: "mu",
+                    targetSegment: "m",
+                }],
+            },
         }
     );
     s.eq(
@@ -793,7 +963,706 @@ function run(ctx) {
             pers2: "t",
             num2: "t",
             poseedor: "tu",
+            obj2: "",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "",
         }
+    );
+    s.eq(
+        "surface-producing path uses Andrews CNV formula slots directly",
+        (() => {
+            const bridge = ctx.buildNuclearClauseSurfaceSlotNameBridge({
+                pers1: "ti",
+                obj1: "ki",
+                tronco: "(maka)",
+                pers2: "t",
+                num2: "t",
+                poseedor: "tu",
+                obj2: "tech",
+                obj3: "kin",
+                reflexivo: "",
+                tiempo: "presente",
+            });
+            const bySurfaceSlot = Object.fromEntries(
+                bridge.slots.map((slot) => [slot.surfaceSlot, slot])
+            );
+            return {
+                surfaceProducingSlotCount: bridge.surfaceProducingSlotCount,
+                cnvFormulaSlotCount: bridge.cnvFormulaSlotCount,
+                surfaceProducingSlots: bridge.surfaceProducingSlots,
+                cnvFormulaSlots: bridge.cnvFormulaSlots,
+                pers2: {
+                    formulaSlot: bySurfaceSlot.pers2.cnvFormulaSlot,
+                    formulaName: bySurfaceSlot.pers2.cnvFormulaName,
+                    surfaceRole: bySurfaceSlot.pers2.surfaceSegmentRole,
+                },
+                va1: {
+                    formulaSlot: bySurfaceSlot.va1.cnvFormulaSlot,
+                    formulaName: bySurfaceSlot.va1.cnvFormulaName,
+                    surfaceRole: bySurfaceSlot.va1.surfaceSegmentRole,
+                },
+                va2: {
+                    formulaSlot: bySurfaceSlot.va2.cnvFormulaSlot,
+                    formulaName: bySurfaceSlot.va2.cnvFormulaName,
+                    surfaceRole: bySurfaceSlot.va2.surfaceSegmentRole,
+                },
+                base: {
+                    formulaSlot: bySurfaceSlot.base.cnvFormulaSlot,
+                    formulaName: bySurfaceSlot.base.cnvFormulaName,
+                    surfaceRole: bySurfaceSlot.base.surfaceSegmentRole,
+                },
+            };
+        })(),
+        {
+            surfaceProducingSlotCount: 8,
+            cnvFormulaSlotCount: 8,
+            surfaceProducingSlots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+            cnvFormulaSlots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+            pers2: {
+                formulaSlot: "pers2",
+                formulaName: "pers2",
+                surfaceRole: "pers2",
+            },
+            va1: {
+                formulaSlot: "va1",
+                formulaName: "va1",
+                surfaceRole: "obj1",
+            },
+            va2: {
+                formulaSlot: "va2",
+                formulaName: "va2",
+                surfaceRole: "obj1",
+            },
+            base: {
+                formulaSlot: "base",
+                formulaName: "base",
+                surfaceRole: "tronco",
+            },
+        }
+    );
+    s.eq(
+        "CNV formula path exposes all base surface realizations for piya preterit variants",
+        (() => {
+            const nuclearClauseShell = {
+                formulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0#",
+                formulaSlots: {
+                    pers1Pers2: { displayPrefix: "Ø", displayCase: "Ø" },
+                    obj1: { displayPrefix: "ki-0" },
+                    reflexivo: { displayPrefix: "Ø" },
+                    predicateStem: { displayStem: "piya" },
+                    tensePosition: { displayMorph: "Ø" },
+                    num1Num2: { displayConnector: "ki-0" },
+                },
+            };
+            const surfaceRecords = [
+                {
+                    surface: "kipishki",
+                    segments: [
+                        { role: "obj1", slot: "obj1", value: "ki" },
+                        { role: "tronco", slot: "tronco", value: "pish" },
+                        { role: "pers2", slot: "pers2", value: "ki" },
+                    ],
+                },
+                {
+                    surface: "kipiyak",
+                    segments: [
+                        { role: "obj1", slot: "obj1", value: "ki" },
+                        { role: "tronco", slot: "tronco", value: "piya" },
+                        { role: "pers2", slot: "pers2", value: "k" },
+                    ],
+                },
+            ];
+            const path = ctx.buildGeneratedCnvFormulaSurfacePath({
+                nuclearClauseShell,
+                surfaceRecord: surfaceRecords[0],
+                surfaceRecords,
+            });
+            const basePath = Object.fromEntries(
+                (path.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+            ).base || {};
+            return {
+                formulaEcho: path.formulaEcho,
+                primarySurface: path.surface,
+                formulaBase: basePath.formulaMorph,
+                primaryBaseSurface: basePath.surfaceValue,
+                baseSurfaceRealizations: basePath.surfaceRealizations,
+                topLevelBaseSurfaceRealizations: path.surfaceStemRealizations,
+                pathsBySurface: (path.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        formulaBase: bySlot.base?.formulaMorph || "",
+                        surfaceBase: bySlot.base?.surfaceValue || "",
+                        baseStatus: bySlot.base?.status || "",
+                        num1Surface: bySlot.num1?.surfaceValue || "",
+                    };
+                }),
+            };
+        })(),
+        {
+            formulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0#",
+            primarySurface: "kipishki",
+            formulaBase: "piya",
+            primaryBaseSurface: "pish",
+            baseSurfaceRealizations: ["pish", "piya"],
+            topLevelBaseSurfaceRealizations: ["pish", "piya"],
+            pathsBySurface: [
+                {
+                    surface: "kipishki",
+                    formulaBase: "piya",
+                    surfaceBase: "pish",
+                    baseStatus: "surface-rule-required",
+                    num1Surface: "ki",
+                },
+                {
+                    surface: "kipiyak",
+                    formulaBase: "piya",
+                    surfaceBase: "piya",
+                    baseStatus: "matched",
+                    num1Surface: "k",
+                },
+            ],
+        }
+    );
+    s.eq(
+        "CNV formula path splits piya preterit stem variants from number connector",
+        (() => {
+            const result = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "",
+                            tronco: "piya",
+                            pers2: "",
+                            num2: "",
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "piya",
+                    pers2: "",
+                    num2: "",
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                connectorRealizations: result.cnvFormulaSurfacePath?.surfaceNumberConnectorRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        num1: bySlot.num1?.surfaceValue || "",
+                        num2: bySlot.num2?.surfaceValue || "",
+                    };
+                }),
+            };
+        })(),
+        {
+            surfaceForms: ["pishki", "piyak"],
+            formula: "#Ø-Ø(piya)Ø+ki-0#",
+            baseRealizations: ["pish", "piya"],
+            connectorRealizations: ["ki-0", "k-0"],
+            pathsBySurface: [
+                { surface: "pishki", base: "pish", num1: "ki", num2: "" },
+                { surface: "piyak", base: "piya", num1: "k", num2: "" },
+            ],
+        }
+    );
+    s.eq(
+        "CNV formula path keeps transitive object outside piya preterit stem variants",
+        (() => {
+            const buildProbe = (pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "ki",
+                            tronco: "piya",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ki",
+                    tronco: "piya",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => ({
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                object: result.nuclearClauseShell?.formulaSlots?.obj1?.displayPrefix,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                connectorRealizations: result.cnvFormulaSurfacePath?.surfaceNumberConnectorRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    const va1Surface = bySlot.va1?.surfaceValue || "";
+                    const va2Surface = bySlot.va2?.surfaceValue || "";
+                    return {
+                        surface: record.surface,
+                        object: va2Surface ? `${va1Surface}-${va2Surface}` : va1Surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                    };
+                }),
+            });
+            return [summarize(buildProbe("")), summarize(buildProbe("t"))];
+        })(),
+        [
+            {
+                surfaceForms: ["kipishki", "kipiyak"],
+                formula: "#Ø-Ø+ki-0(piya)Ø+ki-0#",
+                object: "ki-0",
+                baseRealizations: ["pish", "piya"],
+                connectorRealizations: ["ki-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "kipishki", object: "ki-0", base: "pish", connector: "ki-0" },
+                    { surface: "kipiyak", object: "ki-0", base: "piya", connector: "k-0" },
+                ],
+            },
+            {
+                surfaceForms: ["kipishket", "kipiyaket"],
+                formula: "#Ø-Ø+ki-0(piya)Ø+k-et#",
+                object: "ki-0",
+                baseRealizations: ["pish", "piya"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "kipishket", object: "ki-0", base: "pish", connector: "k-et" },
+                    { surface: "kipiyaket", object: "ki-0", base: "piya", connector: "k-et" },
+                ],
+            },
+        ]
+    );
+    s.eq(
+        "CNV formula path strips copied valence residue from piya preterit base",
+        (() => {
+            const buildProbe = (obj1 = "", pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1,
+                            tronco: "piya",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1,
+                    tronco: "piya",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => ({
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        va1: bySlot.va1?.surfaceValue || "",
+                        va2: bySlot.va2?.surfaceValue || "",
+                        base: bySlot.base?.surfaceValue || "",
+                        copyRelations: bySlot.base?.surfaceCopyRelations || [],
+                    };
+                }),
+            });
+            return [
+                summarize(buildProbe("kin")),
+                summarize(buildProbe("metzin")),
+                summarize(buildProbe("kin", "t")),
+                summarize(buildProbe("metzin", "t")),
+            ];
+        })(),
+        [
+            {
+                surfaceForms: ["kinpishki", "kinpiyak"],
+                formula: "#Ø-Ø+k-in(piya)Ø+ki-0#",
+                baseRealizations: ["pish", "piya"],
+                pathsBySurface: [
+                    {
+                        surface: "kinpishki",
+                        va1: "k-0",
+                        va2: "in",
+                        base: "pish",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "k-in",
+                            surfacePrefix: "kin",
+                        }],
+                    },
+                    {
+                        surface: "kinpiyak",
+                        va1: "k-0",
+                        va2: "in",
+                        base: "piya",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "k-in",
+                            surfacePrefix: "kin",
+                        }],
+                    },
+                ],
+            },
+            {
+                surfaceForms: ["metzinpishki", "metzinpiyak"],
+                formula: "#Ø-Ø+m-etz-in(piya)Ø+ki-0#",
+                baseRealizations: ["pish", "piya"],
+                pathsBySurface: [
+                    {
+                        surface: "metzinpishki",
+                        va1: "m-in",
+                        va2: "etz",
+                        base: "pish",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "m-etz-in",
+                            surfacePrefix: "metzin",
+                        }],
+                    },
+                    {
+                        surface: "metzinpiyak",
+                        va1: "m-in",
+                        va2: "etz",
+                        base: "piya",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "m-etz-in",
+                            surfacePrefix: "metzin",
+                        }],
+                    },
+                ],
+            },
+            {
+                surfaceForms: ["kinpishket", "kinpiyaket"],
+                formula: "#Ø-Ø+k-in(piya)Ø+k-et#",
+                baseRealizations: ["pish", "piya"],
+                pathsBySurface: [
+                    {
+                        surface: "kinpishket",
+                        va1: "k-0",
+                        va2: "in",
+                        base: "pish",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "k-in",
+                            surfacePrefix: "kin",
+                        }],
+                    },
+                    {
+                        surface: "kinpiyaket",
+                        va1: "k-0",
+                        va2: "in",
+                        base: "piya",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "k-in",
+                            surfacePrefix: "kin",
+                        }],
+                    },
+                ],
+            },
+            {
+                surfaceForms: ["metzinpishket", "metzinpiyaket"],
+                formula: "#Ø-Ø+m-etz-in(piya)Ø+k-et#",
+                baseRealizations: ["pish", "piya"],
+                pathsBySurface: [
+                    {
+                        surface: "metzinpishket",
+                        va1: "m-in",
+                        va2: "etz",
+                        base: "pish",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "m-etz-in",
+                            surfacePrefix: "metzin",
+                        }],
+                    },
+                    {
+                        surface: "metzinpiyaket",
+                        va1: "m-in",
+                        va2: "etz",
+                        base: "piya",
+                        copyRelations: [{
+                            sourceSlot: "val1-val2",
+                            targetSlot: "base",
+                            relation: "copied-into-base",
+                            formulaPrefix: "m-etz-in",
+                            surfacePrefix: "metzin",
+                        }],
+                    },
+                ],
+            },
+        ]
+    );
+    s.eq(
+        "surface-producing path resolves Andrews future preterit number connector options",
+        (() => {
+            const bridge = ctx.buildNuclearClauseSurfaceSlotNameBridge({
+                pers1: "",
+                obj1: "",
+                tronco: "(miki)",
+                pers2: "t",
+                num2: "t",
+                tiempo: "preterito",
+            });
+            const bySurfaceSlot = Object.fromEntries(
+                bridge.slots.map((slot) => [slot.surfaceSlot, slot])
+            );
+            return {
+                slots: bridge.surfaceProducingSlots,
+                num1: {
+                    value: bySurfaceSlot.num1?.value || "",
+                    options: bySurfaceSlot.num1?.formulaOptions || [],
+                    dyads: bySurfaceSlot.num1?.formulaDyadOptions || [],
+                    andrews: bySurfaceSlot.num1?.andrewsConnectorPattern || "",
+                    nawat: bySurfaceSlot.num1?.nawatConnectorPattern || "",
+                },
+                num2: {
+                    value: bySurfaceSlot.num2?.value || "",
+                    options: bySurfaceSlot.num2?.formulaOptions || [],
+                    dyads: bySurfaceSlot.num2?.formulaDyadOptions || [],
+                    andrews: bySurfaceSlot.num2?.andrewsConnectorPattern || "",
+                    nawat: bySurfaceSlot.num2?.nawatConnectorPattern || "",
+                },
+            };
+        })(),
+        {
+            slots: ["pers1", "pers2", "base", "tns", "num1", "num2"],
+            num1: {
+                value: "k",
+                options: ["ki", "k", "0"],
+                dyads: ["ki-0", "k-et", "0-et"],
+                andrews: "c/qu/qui~0 + 0/eh",
+                nawat: "k~ki~0 + 0/et",
+            },
+            num2: {
+                value: "et",
+                options: ["0", "et"],
+                dyads: ["ki-0", "k-et", "0-et"],
+                andrews: "c/qu/qui~0 + 0/eh",
+                nawat: "k~ki~0 + 0/et",
+            },
+        }
+    );
+    s.eq(
+        "surface-producing path resolves Andrews 6.4 object subslots with surface-scoped ki allomorphy",
+        (() => {
+            const summarize = (posicionesFormula) => {
+                const bridge = ctx.buildNuclearClauseSurfaceSlotNameBridge({
+                    tronco: "piya",
+                    pers2: "",
+                    num2: "",
+                    tiempo: "presente",
+                    ...posicionesFormula,
+                });
+                const bySurfaceSlot = Object.fromEntries(
+                    bridge.slots.map((slot) => [slot.surfaceSlot, slot])
+                );
+                return {
+                    slots: bridge.surfaceProducingSlots,
+                    va1: {
+                        value: bySurfaceSlot.va1?.value || "",
+                        features: bySurfaceSlot.va1?.formulaFeatures || null,
+                        visibleLinearMorph: bySurfaceSlot.va1?.visibleLinearMorph || "",
+                    },
+                    va2: {
+                        value: bySurfaceSlot.va2?.value || "",
+                        features: bySurfaceSlot.va2?.formulaFeatures || null,
+                        visibleLinearMorph: bySurfaceSlot.va2?.visibleLinearMorph || "",
+                    },
+                };
+            };
+            return {
+                thirdSubjectKi: summarize({ pers1: "", obj1: "ki" }),
+                firstSubjectKi: summarize({ pers1: "ni", obj1: "ki" }),
+                secondSubjectKi: summarize({ pers1: "ti", obj1: "ki" }),
+                explicitK: summarize({ pers1: "", obj1: "k" }),
+                thirdPlural: summarize({ pers1: "", obj1: "kin" }),
+                secondPluralObject: summarize({ pers1: "", obj1: "metzin" }),
+            };
+        })(),
+        {
+            thirdSubjectKi: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: { value: "ki-0", features: { person: "ki", objective: "0" }, visibleLinearMorph: "ki-0" },
+                va2: { value: "0", features: { number: "0" }, visibleLinearMorph: "ki-0" },
+            },
+            firstSubjectKi: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: { value: "k-0", features: { person: "k", objective: "0" }, visibleLinearMorph: "k-0" },
+                va2: { value: "0", features: { number: "0" }, visibleLinearMorph: "k-0" },
+            },
+            secondSubjectKi: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: { value: "k-0", features: { person: "k", objective: "0" }, visibleLinearMorph: "k-0" },
+                va2: { value: "0", features: { number: "0" }, visibleLinearMorph: "k-0" },
+            },
+            explicitK: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: { value: "k-0", features: { person: "k", objective: "0" }, visibleLinearMorph: "k-0" },
+                va2: { value: "0", features: { number: "0" }, visibleLinearMorph: "k-0" },
+            },
+            thirdPlural: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: { value: "k-0", features: { person: "k", objective: "0" }, visibleLinearMorph: "k-in" },
+                va2: { value: "in", features: { number: "in" }, visibleLinearMorph: "k-in" },
+            },
+            secondPluralObject: {
+                slots: ["pers1", "pers2", "va1", "va2", "base", "tns", "num1", "num2"],
+                va1: {
+                    value: "m-in",
+                    features: { person: "m", number: "in" },
+                    visibleLinearMorph: "m-etz-in",
+                },
+                va2: {
+                    value: "etz",
+                    features: { objective: "etz" },
+                    visibleLinearMorph: "m-etz-in",
+                },
+            },
+        }
+    );
+    s.eq(
+        "surface-producing path resolves Andrews main indicative and optative connector options",
+        (() => {
+            const summarize = (tiempo, num2) => {
+                const bridge = ctx.buildNuclearClauseSurfaceSlotNameBridge({
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(miki)",
+                    pers2: num2,
+                    num2,
+                    tiempo,
+                });
+                const bySurfaceSlot = Object.fromEntries(
+                    bridge.slots.map((slot) => [slot.surfaceSlot, slot])
+                );
+                return {
+                    tiempo,
+                    num1: {
+                        value: bySurfaceSlot.num1?.value || "",
+                        options: bySurfaceSlot.num1?.formulaOptions || [],
+                        dyads: bySurfaceSlot.num1?.formulaDyadOptions || [],
+                        andrews: bySurfaceSlot.num1?.andrewsConnectorPattern || "",
+                        nawat: bySurfaceSlot.num1?.nawatConnectorPattern || "",
+                    },
+                    num2: {
+                        value: bySurfaceSlot.num2?.value || "",
+                        options: bySurfaceSlot.num2?.formulaOptions || [],
+                        dyads: bySurfaceSlot.num2?.formulaDyadOptions || [],
+                        andrews: bySurfaceSlot.num2?.andrewsConnectorPattern || "",
+                        nawat: bySurfaceSlot.num2?.nawatConnectorPattern || "",
+                    },
+                };
+            };
+            return [
+                summarize("presente", "t"),
+                summarize("presente-habitual", "t"),
+                summarize("imperfecto", "t"),
+                summarize("pasado-remoto", "t"),
+                summarize("optativo", "t"),
+            ];
+        })(),
+        [
+            {
+                tiempo: "presente",
+                num1: { value: "0", options: ["0"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+                num2: { value: "t", options: ["0", "t"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+            },
+            {
+                tiempo: "presente-habitual",
+                num1: { value: "0", options: ["0"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+                num2: { value: "t", options: ["0", "t"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+            },
+            {
+                tiempo: "imperfecto",
+                num1: { value: "0", options: ["0"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+                num2: { value: "t", options: ["0", "t"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+            },
+            {
+                tiempo: "pasado-remoto",
+                num1: { value: "0", options: ["0"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+                num2: { value: "t", options: ["0", "t"], dyads: ["0-0", "0-t"], andrews: "0 + 0/h", nawat: "0 + 0/t" },
+            },
+            {
+                tiempo: "optativo",
+                num1: { value: "k", options: ["0", "k"], dyads: ["0-0", "k-an"], andrews: "0-0 / c-an", nawat: "0-0 / k-an" },
+                num2: { value: "an", options: ["0", "an"], dyads: ["0-0", "k-an"], andrews: "0-0 / c-an", nawat: "0-0 / k-an" },
+            },
+        ]
     );
     const canonicalSurfaceResult = ctx.generateNuclearClauseSurface({
         silent: true,
@@ -830,6 +1699,7 @@ function run(ctx) {
                 poseedor: "",
                 obj2: "",
                 obj3: "",
+                reflexivo: "",
                 tiempo: "presente",
             },
         }
@@ -1107,6 +1977,11 @@ function run(ctx) {
             result: executeEngineSlotInputResult.result,
             posicionesFormula: executeEngineSlotInputResult.posicionesFormula,
             framePosicionesFormula: executeEngineSlotInputResult.grammarFrame?.participantFrame?.posicionesFormula || null,
+            slotNameBridge: {
+                surfaceProducingSlotCount: executeEngineSlotInputResult.slotNameBridge?.surfaceProducingSlotCount,
+                cnvFormulaSlotCount: executeEngineSlotInputResult.grammarFrame?.participantFrame?.slotNameBridge?.cnvFormulaSlotCount,
+                surfaceProducingSlots: executeEngineSlotInputResult.slotNameBridge?.surfaceProducingSlots,
+            },
         },
         {
             result: "nemi",
@@ -1119,6 +1994,7 @@ function run(ctx) {
                 poseedor: "",
                 obj2: "",
                 obj3: "",
+                reflexivo: "",
                 tiempo: "presente",
             },
             framePosicionesFormula: {
@@ -1130,7 +2006,13 @@ function run(ctx) {
                 poseedor: "",
                 obj2: "",
                 obj3: "",
+                reflexivo: "",
                 tiempo: "presente",
+            },
+            slotNameBridge: {
+                surfaceProducingSlotCount: 6,
+                cnvFormulaSlotCount: 6,
+                surfaceProducingSlots: ["pers1", "pers2", "base", "tns", "num1", "num2"],
             },
         }
     );
@@ -1171,10 +2053,10 @@ function run(ctx) {
             displayLabel: "cláusula nuclear verbal (CNV)",
             hasTensePosition: true,
             generationAllowed: false,
-            predicateStem: "(nemi)",
+            predicateStem: "nemi",
             tenseValue: "presente",
-            formulaEcho: "#Ø-Ø-Ø-Ø(nemi)-Ø-presente#",
-            formulaSlotKeys: ["pers1Pers2", "obj1", "obj2", "obj3", "reflexivo", "predicateStem", "tensePosition"],
+            formulaEcho: "#Ø-Ø(nemi)Ø+Ø-Ø#",
+            formulaSlotKeys: ["pers1Pers2", "obj1", "obj2", "obj3", "reflexivo", "predicateStem", "tensePosition", "num1Num2"],
             valencyKind: "vnc-valency-frame",
             valency: "intransitive",
             pers1Pers2Slot: "pers1-pers2",
@@ -1184,6 +2066,832 @@ function run(ctx) {
             obj1Display: "Ø",
         }
     );
+    {
+        const buildFormulaProbe = (
+            tiempo,
+            derivationMode = ctx.DERIVATION_MODE.active,
+            { pers1 = "", pers2 = "t" } = {}
+        ) => ctx.executeGenerateWordRequest({
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: ctx.TENSE_MODE.verbo,
+                    derivationMode,
+                    voiceMode: derivationMode === ctx.DERIVATION_MODE.nonactive ? ctx.VOICE_MODE.passive : ctx.VOICE_MODE.active,
+                    tiempo,
+                    posicionesFormula: {
+                        pers1,
+                        obj1: "",
+                        tronco: "miki",
+                        pers2,
+                        num2: pers2,
+                        tiempo,
+                    },
+                },
+            },
+            posicionesFormula: {
+                pers1,
+                obj1: "",
+                tronco: "miki",
+                pers2,
+                num2: pers2,
+                tiempo,
+            },
+            entradaTronco: {
+                tieneControlTronco: false,
+                valorTronco: "",
+            },
+        });
+        const activePreterit = buildFormulaProbe("preterito");
+        const activePreteritFirstPlural = buildFormulaProbe("preterito", ctx.DERIVATION_MODE.active, {
+            pers1: "ti",
+            pers2: "t",
+        });
+        const nonactivePreterit = buildFormulaProbe("preterito", ctx.DERIVATION_MODE.nonactive);
+        s.eq(
+            "VNC formula echo keeps perfective/nonactive stems inside predicate and subject/number outside it",
+            {
+                activeSurface: activePreterit.result,
+                activeFormula: activePreterit.nuclearClauseShell?.formulaEcho,
+                activePredicate: activePreterit.nuclearClauseShell?.slots?.predicateStem?.stem,
+                activeConnector: activePreterit.nuclearClauseShell?.slots?.num1Num2?.displayConnector,
+                activeFirstPluralSurface: activePreteritFirstPlural.result,
+                activeFirstPluralFormula: activePreteritFirstPlural.nuclearClauseShell?.formulaEcho,
+                activeFirstPluralPredicate: activePreteritFirstPlural.nuclearClauseShell?.slots?.predicateStem?.stem,
+                activeFirstPluralSubject: activePreteritFirstPlural.nuclearClauseShell?.slots?.pers1Pers2?.displayPrefix,
+                activeFirstPluralConnector: activePreteritFirstPlural.nuclearClauseShell?.slots?.num1Num2?.displayConnector,
+                nonactiveSurface: nonactivePreterit.result,
+                nonactiveFormula: nonactivePreterit.nuclearClauseShell?.formulaEcho,
+                nonactivePredicate: nonactivePreterit.nuclearClauseShell?.slots?.predicateStem?.stem,
+                nonactiveConnector: nonactivePreterit.nuclearClauseShell?.slots?.num1Num2?.displayConnector,
+            },
+            {
+                activeSurface: "mikiket",
+                activeFormula: "#Ø-Ø(miki)Ø+k-et#",
+                activePredicate: "miki",
+                activeConnector: "k-et",
+                activeFirstPluralSurface: "timikiket",
+                activeFirstPluralFormula: "#ti-Ø(miki)Ø+k-et#",
+                activeFirstPluralPredicate: "miki",
+                activeFirstPluralSubject: "ti",
+                activeFirstPluralConnector: "k-et",
+                nonactiveSurface: "mikiwak / mikuwak",
+                nonactiveFormula: "#Ø-Ø(mikiwa)Ø+k-et#",
+                nonactivePredicate: "mikiwa",
+                nonactiveConnector: "k-et",
+            }
+        );
+        const formulaSummary = (result) => {
+            const connectorOptions = result.nuclearClauseShell?.formulaSlots?.num1Num2?.connectorOptions || [];
+            const num1Options = result.nuclearClauseShell?.formulaSlots?.num1Num2?.num1Options || [];
+            const num2Options = result.nuclearClauseShell?.formulaSlots?.num1Num2?.num2Options || [];
+            const pathNum1 = result.cnvFormulaSurfacePath?.paths
+                ?.find((path) => path.formulaSlotKey === "num1") || {};
+            const pathNum2 = result.cnvFormulaSurfacePath?.paths
+                ?.find((path) => path.formulaSlotKey === "num2") || {};
+            const summary = {
+                routeFamily: result.grammarFrame?.routeContract?.routeFamily,
+                clauseKind: result.nuclearClauseShell?.clauseKind,
+                formulaType: result.nuclearClauseShell?.formulaType,
+                category: result.nuclearClauseShell?.formulaAbbreviation,
+                tenseSlot: result.nuclearClauseShell?.formulaSlots?.tensePosition?.slot,
+                numSlot: result.nuclearClauseShell?.formulaSlots?.num1Num2?.slot,
+                connectorOwner: result.nuclearClauseShell?.formulaSlots?.num1Num2?.belongsTo,
+                connectorNotTense: result.nuclearClauseShell?.formulaSlots?.num1Num2?.notTense,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                tenseLabel: result.nuclearClauseShell?.formulaSlots?.tensePosition?.label,
+                compatibilityLabel: result.nuclearClauseShell?.formulaSlots?.tensePosition?.compatibilityLabel,
+                morph: result.nuclearClauseShell?.formulaSlots?.tensePosition?.displayMorph,
+                mood: result.nuclearClauseShell?.formulaSlots?.tensePosition?.mood,
+                andrewsTense: result.nuclearClauseShell?.formulaSlots?.tensePosition?.andrewsTense,
+                connector: result.nuclearClauseShell?.formulaSlots?.num1Num2?.displayConnector,
+                num1: result.nuclearClauseShell?.formulaSlots?.num1Num2?.num1,
+                num2: result.nuclearClauseShell?.formulaSlots?.num1Num2?.num2,
+            };
+            if (connectorOptions.length) {
+                summary.connectorOptions = connectorOptions;
+                summary.num1Options = num1Options;
+                summary.num2Options = num2Options;
+                summary.pathNum1Options = pathNum1.formulaOptions || [];
+                summary.pathNum2Options = pathNum2.formulaOptions || [];
+                summary.pathDyadOptions = pathNum1.formulaDyadOptions || [];
+            }
+            return summary;
+        };
+        const vncFormulaAuthorityBase = {
+            routeFamily: "vnc",
+            clauseKind: "verbal-nuclear-clause",
+            formulaType: "VNC",
+            category: "CNV",
+            tenseSlot: "tns",
+            numSlot: "num1-num2",
+            connectorOwner: "subject",
+            connectorNotTense: true,
+        };
+        const mainIndicativeOptions = {
+            connectorOptions: ["0-0", "0-t"],
+            num1Options: ["0"],
+            num2Options: ["0", "t"],
+            pathNum1Options: ["0"],
+            pathNum2Options: ["0", "t"],
+            pathDyadOptions: ["0-0", "0-t"],
+        };
+        const futurePreteritOptions = {
+            connectorOptions: ["ki-0", "k-et", "0-et"],
+            num1Options: ["ki", "k", "0"],
+            num2Options: ["0", "et"],
+            pathNum1Options: ["ki", "k", "0"],
+            pathNum2Options: ["0", "et"],
+            pathDyadOptions: ["ki-0", "k-et", "0-et"],
+        };
+        const optativeOptions = {
+            connectorOptions: ["0-0", "k-an"],
+            num1Options: ["0", "k"],
+            num2Options: ["0", "an"],
+            pathNum1Options: ["0", "k"],
+            pathNum2Options: ["0", "an"],
+            pathDyadOptions: ["0-0", "k-an"],
+        };
+        s.eq(
+            "Lesson 5 CNV formula compares each implemented tense against Andrews tense morphs and number dyads",
+            [
+                ["presente sg", formulaSummary(buildFormulaProbe("presente", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "" }))],
+                ["presente pl", formulaSummary(buildFormulaProbe("presente", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["presente habitual pl", formulaSummary(buildFormulaProbe("presente-habitual", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["presente desiderativo pl", formulaSummary(buildFormulaProbe("presente-desiderativo", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["imperfecto pl", formulaSummary(buildFormulaProbe("imperfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["futuro pl", formulaSummary(buildFormulaProbe("futuro", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["preterito pl", formulaSummary(buildFormulaProbe("preterito", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["pasado remoto pl", formulaSummary(buildFormulaProbe("pasado-remoto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["condicional pl", formulaSummary(buildFormulaProbe("condicional", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["optativo no pasado 1pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "ti", pers2: "t" }))],
+                ["optativo no pasado 2pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "an", pers2: "t" }))],
+                ["optativo no pasado 3pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["perfecto sg", formulaSummary(buildFormulaProbe("perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "" }))],
+                ["perfecto pl", formulaSummary(buildFormulaProbe("perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["pluscuamperfecto pl", formulaSummary(buildFormulaProbe("pluscuamperfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+                ["condicional perfecto pl", formulaSummary(buildFormulaProbe("condicional-perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
+            ],
+            [
+                ["presente sg", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+Ø-Ø#", tenseLabel: "indicativo presente", compatibilityLabel: "presente", morph: "Ø", mood: "indicative", andrewsTense: "present", connector: "Ø-Ø", num1: "", num2: "" }],
+                ["presente pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+Ø-t#", tenseLabel: "indicativo presente", compatibilityLabel: "presente", morph: "Ø", mood: "indicative", andrewsTense: "present", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
+                ["presente habitual pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ni+Ø-t#", tenseLabel: "indicativo presente habitual", compatibilityLabel: "presente-habitual", morph: "ni", mood: "indicative", andrewsTense: "customary-present", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
+                ["presente desiderativo pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)sneki+Ø-t#", tenseLabel: "desiderativo presente", compatibilityLabel: "presente-desiderativo", morph: "sneki", mood: "desiderative", andrewsTense: "present-desiderative", connector: "Ø-t", num1: "", num2: "t" }],
+                ["imperfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ya+Ø-t#", tenseLabel: "indicativo imperfecto", compatibilityLabel: "imperfecto", morph: "ya", mood: "indicative", andrewsTense: "imperfect", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
+                ["futuro pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)s+k-et#", tenseLabel: "indicativo futuro", compatibilityLabel: "futuro", morph: "s", mood: "indicative", andrewsTense: "future", connector: "k-et", num1: "k", num2: "et", ...futurePreteritOptions }],
+                ["preterito pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+k-et#", tenseLabel: "indicativo pretérito", compatibilityLabel: "preterito", morph: "Ø", mood: "indicative", andrewsTense: "preterit", connector: "k-et", num1: "k", num2: "et", ...futurePreteritOptions }],
+                ["pasado remoto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ka+Ø-t#", tenseLabel: "indicativo pasado remoto", compatibilityLabel: "pasado-remoto", morph: "ka", mood: "indicative", andrewsTense: "distant-past", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
+                ["condicional pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)skia+Ø-t#", tenseLabel: "condicional", compatibilityLabel: "condicional", morph: "skia", mood: "conditional", andrewsTense: "conditional", connector: "Ø-t", num1: "", num2: "t" }],
+                ["optativo no pasado 1pl", { ...vncFormulaAuthorityBase, formula: "#ti-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
+                ["optativo no pasado 2pl", { ...vncFormulaAuthorityBase, formula: "#shi-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
+                ["optativo no pasado 3pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
+                ["perfecto sg", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuk+Ø-Ø#", tenseLabel: "perfecto", compatibilityLabel: "perfecto", morph: "tuk", mood: "perfect", andrewsTense: "perfect", connector: "Ø-Ø", num1: "", num2: "" }],
+                ["perfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tiwi+Ø-t#", tenseLabel: "perfecto", compatibilityLabel: "perfecto", morph: "tiwi", mood: "perfect", andrewsTense: "perfect", connector: "Ø-t", num1: "", num2: "t" }],
+                ["pluscuamperfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuya+Ø-t#", tenseLabel: "pluscuamperfecto", compatibilityLabel: "pluscuamperfecto", morph: "tuya", mood: "pluperfect", andrewsTense: "pluperfect", connector: "Ø-t", num1: "", num2: "t" }],
+                ["condicional perfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuskia+Ø-t#", tenseLabel: "condicional perfecto", compatibilityLabel: "condicional-perfecto", morph: "tuskia", mood: "conditional-perfect", andrewsTense: "conditional-perfect", connector: "Ø-t", num1: "", num2: "t" }],
+            ]
+        );
+        const optativeConnectorProbe = (subjectPrefix, numberConnector) => {
+            const shell = ctx.buildNuclearClauseShellMetadata({
+                clauseKind: "vnc",
+                subject: {
+                    prefix: subjectPrefix,
+                    suffix: "",
+                    numberConnector,
+                },
+                predicate: { stem: "miki" },
+                tenseValue: "optativo",
+                tenseLabel: "optativo",
+            });
+            return {
+                inputConnector: numberConnector,
+                formula: shell.formulaEcho,
+                connector: shell.formulaSlots?.num1Num2?.displayConnector,
+                num1: shell.formulaSlots?.num1Num2?.num1,
+                num2: shell.formulaSlots?.num1Num2?.num2,
+                tenseMorph: shell.formulaSlots?.tensePosition?.displayMorph,
+                mood: shell.formulaSlots?.tensePosition?.mood,
+            };
+        };
+        s.eq(
+            "Andrews formula authority rewrites plural optative number probes to k-an",
+            [
+                optativeConnectorProbe("ti", "t"),
+                optativeConnectorProbe("shi", "Ø-t"),
+                optativeConnectorProbe("", "k-et"),
+                optativeConnectorProbe("", "k-an"),
+                optativeConnectorProbe("ti", "Ø-Ø"),
+            ],
+            [
+                { inputConnector: "t", formula: "#ti-Ø(miki)Ø+k-an#", connector: "k-an", num1: "k", num2: "an", tenseMorph: "Ø", mood: "optative" },
+                { inputConnector: "Ø-t", formula: "#shi-Ø(miki)Ø+k-an#", connector: "k-an", num1: "k", num2: "an", tenseMorph: "Ø", mood: "optative" },
+                { inputConnector: "k-et", formula: "#Ø-Ø(miki)Ø+k-an#", connector: "k-an", num1: "k", num2: "an", tenseMorph: "Ø", mood: "optative" },
+                { inputConnector: "k-an", formula: "#Ø-Ø(miki)Ø+k-an#", connector: "k-an", num1: "k", num2: "an", tenseMorph: "Ø", mood: "optative" },
+                { inputConnector: "Ø-Ø", formula: "#ti-Ø(miki)Ø+Ø-Ø#", connector: "Ø-Ø", num1: "", num2: "", tenseMorph: "Ø", mood: "optative" },
+            ]
+        );
+        const buildObjectFormulaProbe = (obj1, tronco = "miki", pers1 = "", pers2 = "t") => ctx.executeGenerateWordRequest({
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: ctx.TENSE_MODE.verbo,
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    voiceMode: ctx.VOICE_MODE.active,
+                    tiempo: "presente",
+                    posicionesFormula: {
+                        pers1,
+                        obj1,
+                        tronco,
+                        pers2,
+                        num2: pers2,
+                        tiempo: "presente",
+                    },
+                },
+            },
+            posicionesFormula: {
+                pers1,
+                obj1,
+                tronco,
+                pers2,
+                num2: pers2,
+                tiempo: "presente",
+            },
+            entradaTronco: {
+                tieneControlTronco: false,
+                valorTronco: "",
+            },
+        });
+        const objectFormulaSummary = (obj1) => {
+            const result = buildObjectFormulaProbe(obj1);
+            return {
+                inputObject: obj1,
+                formulaKind: result.nuclearClauseShell?.formula,
+                predicatePositionStatus: result.nuclearClauseShell?.predicatePositionStatus,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                obj1: result.nuclearClauseShell?.formulaSlots?.obj1?.displayPrefix,
+                reflexive: result.nuclearClauseShell?.formulaSlots?.reflexivo?.displayPrefix,
+                connector: result.nuclearClauseShell?.formulaSlots?.num1Num2?.displayConnector,
+                valencePosition: result.vncValencyFrame?.lesson6ValencePosition || "",
+                visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+            };
+        };
+        const reflexiveStemFormulaSummary = (tronco) => {
+            const result = buildObjectFormulaProbe("mu", tronco);
+            return {
+                tronco,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                reflexive: result.nuclearClauseShell?.formulaSlots?.reflexivo?.displayPrefix,
+                visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+            };
+        };
+        s.eq(
+            "Lesson 6 formula follows realized ki/k object slot for piya",
+            (() => {
+                const firstPerson = buildObjectFormulaProbe("ki", "piya", "ni", "");
+                const thirdPerson = buildObjectFormulaProbe("ki", "piya", "", "");
+                const summarize = (result) => ({
+                    surface: result.surface,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    formulaObj: result.nuclearClauseShell?.formulaSlots?.obj1?.displayPrefix,
+                    visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                    pathObject: (() => {
+                        const pathBySlot = Object.fromEntries(
+                            (result.cnvFormulaSurfacePath?.paths || [])
+                                .map((entry) => [entry.formulaSlotKey, entry])
+                        );
+                        const framePathBySlot = Object.fromEntries(
+                            (result.grammarFrame?.morphBoundaryFrame?.cnvFormulaSurfacePath?.paths || [])
+                                .map((entry) => [entry.formulaSlotKey, entry])
+                        );
+                        return {
+                            va1: {
+                                formulaMorph: pathBySlot.va1?.formulaMorph || "",
+                                expectedSurfaceMorph: pathBySlot.va1?.expectedSurfaceMorph || "",
+                                surfaceValue: pathBySlot.va1?.surfaceValue || "",
+                                status: pathBySlot.va1?.status || "",
+                                grammarFrameFormulaMorph: framePathBySlot.va1?.formulaMorph || "",
+                                grammarFrameSurfaceValue: framePathBySlot.va1?.surfaceValue || "",
+                            },
+                            va2: {
+                                formulaMorph: pathBySlot.va2?.formulaMorph || "",
+                                expectedSurfaceMorph: pathBySlot.va2?.expectedSurfaceMorph || "",
+                                surfaceValue: pathBySlot.va2?.surfaceValue || "",
+                                status: pathBySlot.va2?.status || "",
+                                grammarFrameFormulaMorph: framePathBySlot.va2?.formulaMorph || "",
+                                grammarFrameSurfaceValue: framePathBySlot.va2?.surfaceValue || "",
+                            },
+                        };
+                    })(),
+                    frames: (result.grammarFrame?.orthographyFrame?.soundSpellingFrames || [])
+                        .filter((frame) => frame.ruleId === "obj1-ki-after-ni-ti-k")
+                        .map((frame) => ({
+                            ruleId: frame.ruleId,
+                            slot: frame.grammarSlot,
+                            source: frame.sourceSurface,
+                            target: frame.target,
+                            sourceSegment: frame.sourceSegmentValue,
+                            targetSegment: frame.targetSegmentValue,
+                        })),
+                });
+                return [summarize(firstPerson), summarize(thirdPerson)];
+            })(),
+            [
+                {
+                    surface: "nikpiya",
+                    formula: "#ni-Ø+k-0(piya)Ø+Ø-Ø#",
+                    formulaObj: "k-0",
+                    visibleFormulaObject: "k-0",
+                    pathObject: {
+                        va1: {
+                            formulaMorph: "k-0",
+                            expectedSurfaceMorph: "k",
+                            surfaceValue: "k-0",
+                            status: "matched",
+                            grammarFrameFormulaMorph: "k-0",
+                            grammarFrameSurfaceValue: "k-0",
+                        },
+                        va2: {
+                            formulaMorph: "0",
+                            expectedSurfaceMorph: "",
+                            surfaceValue: "",
+                            status: "matched-zero",
+                            grammarFrameFormulaMorph: "0",
+                            grammarFrameSurfaceValue: "",
+                        },
+                    },
+                    frames: [{
+                        ruleId: "obj1-ki-after-ni-ti-k",
+                        slot: "obj1",
+                        source: "ki",
+                        target: "k",
+                        sourceSegment: "ki",
+                        targetSegment: "k",
+                    }],
+                },
+                {
+                    surface: "kipiya",
+                    formula: "#Ø-Ø+ki-0(piya)Ø+Ø-Ø#",
+                    formulaObj: "ki-0",
+                    visibleFormulaObject: "ki-0",
+                    pathObject: {
+                        va1: {
+                            formulaMorph: "ki-0",
+                            expectedSurfaceMorph: "ki",
+                            surfaceValue: "ki-0",
+                            status: "matched",
+                            grammarFrameFormulaMorph: "ki-0",
+                            grammarFrameSurfaceValue: "ki-0",
+                        },
+                        va2: {
+                            formulaMorph: "0",
+                            expectedSurfaceMorph: "",
+                            surfaceValue: "",
+                            status: "matched-zero",
+                            grammarFrameFormulaMorph: "0",
+                            grammarFrameSurfaceValue: "",
+                        },
+                    },
+                    frames: [],
+                },
+            ]
+        );
+        s.eq(
+            "Lesson 6 formula authority separates direct Nawat dyads monadic objects and reflexive mu",
+            [
+                objectFormulaSummary("nech"),
+                objectFormulaSummary("tech"),
+                objectFormulaSummary("metz"),
+                objectFormulaSummary("metzin"),
+                objectFormulaSummary("ki"),
+                objectFormulaSummary("k"),
+                objectFormulaSummary("kin"),
+                objectFormulaSummary("ne"),
+                objectFormulaSummary("ta"),
+                objectFormulaSummary("te"),
+                objectFormulaSummary("mu"),
+            ],
+            [
+                {
+                    inputObject: "nech",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+n-ech(miki)Ø+Ø-t#",
+                    obj1: "n-ech",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "n-ech",
+                },
+                {
+                    inputObject: "tech",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+t-ech(miki)Ø+Ø-t#",
+                    obj1: "t-ech",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "t-ech",
+                },
+                {
+                    inputObject: "metz",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+m-etz(miki)Ø+Ø-t#",
+                    obj1: "m-etz",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "m-etz",
+                },
+                {
+                    inputObject: "metzin",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+m-etz-in(miki)Ø+Ø-t#",
+                    obj1: "m-etz-in",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "m-etz-in",
+                },
+                {
+                    inputObject: "ki",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+ki-0(miki)Ø+Ø-t#",
+                    obj1: "ki-0",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "ki-0",
+                },
+                {
+                    inputObject: "k",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+k-0(miki)Ø+Ø-t#",
+                    obj1: "k-0",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "k-0",
+                },
+                {
+                    inputObject: "kin",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+k-in(miki)Ø+Ø-t#",
+                    obj1: "k-in",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "k-in",
+                },
+                {
+                    inputObject: "ne",
+                    formulaKind: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "monadic",
+                    formula: "#Ø-Ø+ne(miki)Ø+Ø-t#",
+                    obj1: "ne",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va",
+                    visibleFormulaObject: "ne",
+                },
+                {
+                    inputObject: "ta",
+                    formulaKind: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "monadic",
+                    formula: "#Ø-Ø+ta(miki)Ø+Ø-t#",
+                    obj1: "ta",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va",
+                    visibleFormulaObject: "ta",
+                },
+                {
+                    inputObject: "te",
+                    formulaKind: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "monadic",
+                    formula: "#Ø-Ø+te(miki)Ø+Ø-t#",
+                    obj1: "te",
+                    reflexive: "Ø",
+                    connector: "Ø-t",
+                    valencePosition: "va",
+                    visibleFormulaObject: "te",
+                },
+                {
+                    inputObject: "mu",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    predicatePositionStatus: "dyadic",
+                    formula: "#Ø-Ø+m-u(miki)Ø+Ø-t#",
+                    obj1: "Ø",
+                    reflexive: "m-u",
+                    connector: "Ø-t",
+                    valencePosition: "va1-va2",
+                    visibleFormulaObject: "m-u",
+                },
+            ]
+        );
+        s.eq(
+            "CNV formula-surface path assigns 2pl object in to val1 number not val2",
+            (() => {
+                const result = buildObjectFormulaProbe("metzin");
+                const pathBySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const bridgeBySlot = Object.fromEntries(
+                    (result.slotNameBridge?.slots || [])
+                        .map((entry) => [entry.surfaceSlot, entry])
+                );
+                return {
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    visibleObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                    formulaSlotFunctional: result.nuclearClauseShell?.formulaSlots?.obj1?.functionalSubslots || null,
+                    cnvPath: {
+                        va1: {
+                            morph: pathBySlot.va1?.formulaMorph || "",
+                            surface: pathBySlot.va1?.surfaceValue || "",
+                            features: pathBySlot.va1?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va1?.visibleLinearMorph || "",
+                            status: pathBySlot.va1?.status || "",
+                        },
+                        va2: {
+                            morph: pathBySlot.va2?.formulaMorph || "",
+                            surface: pathBySlot.va2?.surfaceValue || "",
+                            features: pathBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va2?.visibleLinearMorph || "",
+                            status: pathBySlot.va2?.status || "",
+                        },
+                    },
+                    uiPath: {
+                        va1: {
+                            value: bridgeBySlot.va1?.value || "",
+                            features: bridgeBySlot.va1?.formulaFeatures || null,
+                            visibleLinearMorph: bridgeBySlot.va1?.visibleLinearMorph || "",
+                        },
+                        va2: {
+                            value: bridgeBySlot.va2?.value || "",
+                            features: bridgeBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: bridgeBySlot.va2?.visibleLinearMorph || "",
+                        },
+                    },
+                };
+            })(),
+            {
+                formula: "#Ø-Ø+m-etz-in(miki)Ø+Ø-t#",
+                visibleObject: "m-etz-in",
+                formulaSlotFunctional: {
+                    va1: "m-in",
+                    va2: "etz",
+                    val1Features: { person: "m", number: "in" },
+                    val2Features: { objective: "etz" },
+                    visibleLinearMorph: "m-etz-in",
+                },
+                cnvPath: {
+                    va1: {
+                        morph: "m-in",
+                        surface: "m-in",
+                        features: { person: "m", number: "in" },
+                        visibleLinearMorph: "m-etz-in",
+                        status: "matched",
+                    },
+                    va2: {
+                        morph: "etz",
+                        surface: "etz",
+                        features: { objective: "etz" },
+                        visibleLinearMorph: "m-etz-in",
+                        status: "matched",
+                    },
+                },
+                uiPath: {
+                    va1: {
+                        value: "m-in",
+                        features: { person: "m", number: "in" },
+                        visibleLinearMorph: "m-etz-in",
+                    },
+                    va2: {
+                        value: "etz",
+                        features: { objective: "etz" },
+                        visibleLinearMorph: "m-etz-in",
+                    },
+                },
+            }
+        );
+        s.eq(
+            "CNV formula-surface path assigns 3pl object in to val2 number",
+            (() => {
+                const result = buildObjectFormulaProbe("kin");
+                const pathBySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const bridgeBySlot = Object.fromEntries(
+                    (result.slotNameBridge?.slots || [])
+                        .map((entry) => [entry.surfaceSlot, entry])
+                );
+                return {
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    visibleObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                    formulaSlotFunctional: result.nuclearClauseShell?.formulaSlots?.obj1?.functionalSubslots || null,
+                    cnvPath: {
+                        va1: {
+                            morph: pathBySlot.va1?.formulaMorph || "",
+                            surface: pathBySlot.va1?.surfaceValue || "",
+                            features: pathBySlot.va1?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va1?.visibleLinearMorph || "",
+                            status: pathBySlot.va1?.status || "",
+                        },
+                        va2: {
+                            morph: pathBySlot.va2?.formulaMorph || "",
+                            surface: pathBySlot.va2?.surfaceValue || "",
+                            features: pathBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va2?.visibleLinearMorph || "",
+                            status: pathBySlot.va2?.status || "",
+                        },
+                    },
+                    uiPath: {
+                        va1: {
+                            value: bridgeBySlot.va1?.value || "",
+                            features: bridgeBySlot.va1?.formulaFeatures || null,
+                            visibleLinearMorph: bridgeBySlot.va1?.visibleLinearMorph || "",
+                        },
+                        va2: {
+                            value: bridgeBySlot.va2?.value || "",
+                            features: bridgeBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: bridgeBySlot.va2?.visibleLinearMorph || "",
+                        },
+                    },
+                };
+            })(),
+            {
+                formula: "#Ø-Ø+k-in(miki)Ø+Ø-t#",
+                visibleObject: "k-in",
+                formulaSlotFunctional: {
+                    va1: "k-0",
+                    va2: "in",
+                    val1Features: { person: "k", objective: "0" },
+                    val2Features: { number: "in" },
+                    visibleLinearMorph: "k-in",
+                },
+                cnvPath: {
+                    va1: {
+                        morph: "k-0",
+                        surface: "k-0",
+                        features: { person: "k", objective: "0" },
+                        visibleLinearMorph: "k-in",
+                        status: "matched",
+                    },
+                    va2: {
+                        morph: "in",
+                        surface: "in",
+                        features: { number: "in" },
+                        visibleLinearMorph: "k-in",
+                        status: "matched",
+                    },
+                },
+                uiPath: {
+                    va1: {
+                        value: "k-0",
+                        features: { person: "k", objective: "0" },
+                        visibleLinearMorph: "k-in",
+                    },
+                    va2: {
+                        value: "in",
+                        features: { number: "in" },
+                        visibleLinearMorph: "k-in",
+                    },
+                },
+            }
+        );
+        s.eq(
+            "Lesson 6 reflexive formula uses m-u or m-0 conditionally by stem",
+            [
+                reflexiveStemFormulaSummary("ajsi"),
+                reflexiveStemFormulaSummary("altia"),
+                reflexiveStemFormulaSummary("ilwia"),
+                reflexiveStemFormulaSummary("awiltia"),
+            ],
+            [
+                {
+                    tronco: "ajsi",
+                    formula: "#Ø-Ø+m-u(ajsi)Ø+Ø-t#",
+                    reflexive: "m-u",
+                    visibleFormulaObject: "m-u",
+                },
+                {
+                    tronco: "altia",
+                    formula: "#Ø-Ø+m-0(altia)Ø+Ø-t#",
+                    reflexive: "m-0",
+                    visibleFormulaObject: "m-0",
+                },
+                {
+                    tronco: "ilwia",
+                    formula: "#Ø-Ø+m-u(ilwia)Ø+Ø-t#",
+                    reflexive: "m-u",
+                    visibleFormulaObject: "m-u",
+                },
+                {
+                    tronco: "awiltia",
+                    formula: "#Ø-Ø+m-0(awiltia)Ø+Ø-t#",
+                    reflexive: "m-0",
+                    visibleFormulaObject: "m-0",
+                },
+            ]
+        );
+        const reflexiveFormulaSurfaceCouplingSummary = (tronco) => {
+            const result = buildObjectFormulaProbe("mu", tronco);
+            const frames = result.grammarFrame?.orthographyFrame?.soundSpellingFrames || [];
+            return {
+                tronco,
+                surface: result.result,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                reflexive: result.nuclearClauseShell?.formulaSlots?.reflexivo?.displayPrefix,
+                visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                muAllomorphyFrames: frames
+                    .filter((frame) => frame.ruleId === "obj1-mu-before-vowel-m")
+                    .map((frame) => ({
+                        ruleId: frame.ruleId,
+                        source: frame.sourceSurface,
+                        target: frame.target,
+                        slot: frame.grammarSlot,
+                        sourceSegment: frame.sourceSegmentValue,
+                        targetSegment: frame.targetSegmentValue,
+                    })),
+            };
+        };
+        s.eq(
+            "Lesson 6 couples reflexive formula slots to the same mu allomorphy that renders output",
+            [
+                reflexiveFormulaSurfaceCouplingSummary("ajsi"),
+                reflexiveFormulaSurfaceCouplingSummary("altia"),
+            ],
+            [
+                {
+                    tronco: "ajsi",
+                    surface: "muajsit",
+                    formula: "#Ø-Ø+m-u(ajsi)Ø+Ø-t#",
+                    reflexive: "m-u",
+                    visibleFormulaObject: "m-u",
+                    muAllomorphyFrames: [],
+                },
+                {
+                    tronco: "altia",
+                    surface: "maltiat",
+                    formula: "#Ø-Ø+m-0(altia)Ø+Ø-t#",
+                    reflexive: "m-0",
+                    visibleFormulaObject: "m-0",
+                    muAllomorphyFrames: [{
+                        ruleId: "obj1-mu-before-vowel-m",
+                        source: "mu",
+                        target: "m",
+                        slot: "obj1",
+                        sourceSegment: "mu",
+                        targetSegment: "m",
+                    }],
+                },
+            ]
+        );
+        const shuntlineNeProbe = buildObjectFormulaProbe("ne");
+        const shuntlineNeShell = shuntlineNeProbe.nuclearClauseShell
+            || shuntlineNeProbe.grammarFrame?.nuclearClauseFrame
+            || {};
+        s.eq(
+            "Lesson 6 generates shuntline ne surface while preserving monadic formula diagnostics",
+            {
+                blocked: Boolean(shuntlineNeProbe.error),
+                result: shuntlineNeProbe.result,
+                surface: shuntlineNeProbe.surface,
+                formulaKind: shuntlineNeShell.formula,
+                predicatePositionStatus: shuntlineNeShell.predicatePositionStatus,
+                formula: shuntlineNeShell.formulaEcho,
+                obj1: shuntlineNeShell.formulaSlots?.obj1?.displayPrefix,
+                reflexive: shuntlineNeShell.formulaSlots?.reflexivo?.displayPrefix,
+                connector: shuntlineNeShell.formulaSlots?.num1Num2?.displayConnector,
+                generationAllowed: shuntlineNeProbe.grammarFrame?.routeContract?.generationAllowed,
+                valencePosition: shuntlineNeProbe.vncValencyFrame?.lesson6ValencePosition || "",
+                diagnosticCount: shuntlineNeProbe.diagnostics?.length || 0,
+            },
+            {
+                blocked: false,
+                result: "nemikit",
+                surface: "nemikit",
+                formulaKind: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                predicatePositionStatus: "monadic",
+                formula: "#Ø-Ø+ne(miki)Ø+Ø-t#",
+                obj1: "ne",
+                reflexive: "Ø",
+                connector: "Ø-t",
+                generationAllowed: true,
+                valencePosition: "va",
+                diagnosticCount: 0,
+            }
+        );
+    }
     s.eq(
         "executeGenerateWordRequest also exposes the LCM grammar frame for VNC output",
         {
@@ -1752,7 +3460,7 @@ function run(ctx) {
             num2: "",
             poseedor: "",
 
-            tiempo: "imperativo",
+            tiempo: "optativo",
 
             },
         entradaTronco: {

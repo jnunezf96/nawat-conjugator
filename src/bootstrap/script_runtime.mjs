@@ -798,7 +798,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         const yawiCausative = yawiData.causative && typeof yawiData.causative === "object" ? yawiData.causative : null;
         const yawiTenses = yawiData.tenses && typeof yawiData.tenses === "object" ? yawiData.tenses : {};
         const yawiPresent = yawiTenses.presente && typeof yawiTenses.presente === "object" ? yawiTenses.presente : {};
-        const yawiImperative = yawiTenses.imperativo && typeof yawiTenses.imperativo === "object" ? yawiTenses.imperativo : {};
+        const yawiOptative = yawiTenses.optativo && typeof yawiTenses.optativo === "object" ? yawiTenses.optativo : {};
         const yawiHabitual = yawiTenses["presente-habitual"] && typeof yawiTenses["presente-habitual"] === "object" ? yawiTenses["presente-habitual"] : {};
         const canonical = typeof yawiData.canonical === "string" ? yawiData.canonical : yawiPresent.long;
         const shortForm = typeof yawiData.short === "string" ? yawiData.short : yawiPresent.short;
@@ -824,14 +824,14 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
             targetObject.SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE = yawiCausative.nonactive;
           }
         }
-        if (typeof yawiImperative.long === "string" && !targetObject.SUPPLETIVE_YAWI_CANONICAL) {
-          targetObject.SUPPLETIVE_YAWI_CANONICAL = yawiImperative.long;
+        if (typeof yawiOptative.long === "string" && !targetObject.SUPPLETIVE_YAWI_CANONICAL) {
+          targetObject.SUPPLETIVE_YAWI_CANONICAL = yawiOptative.long;
         }
-        if (typeof yawiImperative.short === "string" && !targetObject.SUPPLETIVE_YAWI_SHORT) {
-          targetObject.SUPPLETIVE_YAWI_SHORT = yawiImperative.short;
+        if (typeof yawiOptative.short === "string" && !targetObject.SUPPLETIVE_YAWI_SHORT) {
+          targetObject.SUPPLETIVE_YAWI_SHORT = yawiOptative.short;
         }
-        if (typeof yawiImperative.yuVariant === "string" && !targetObject.SUPPLETIVE_YAWI_YU_VARIANT) {
-          targetObject.SUPPLETIVE_YAWI_YU_VARIANT = yawiImperative.yuVariant;
+        if (typeof yawiOptative.yuVariant === "string" && !targetObject.SUPPLETIVE_YAWI_YU_VARIANT) {
+          targetObject.SUPPLETIVE_YAWI_YU_VARIANT = yawiOptative.yuVariant;
         }
       }
       const witziData = data.suppletiveWitzi && typeof data.suppletiveWitzi === "object" ? data.suppletiveWitzi : null;
@@ -846,9 +846,9 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
           targetObject.SUPPLETIVE_WITZI_PERFECTIVE = witziData.perfective;
         }
         const witziTenses = witziData.tenses && typeof witziData.tenses === "object" ? witziData.tenses : {};
-        const witziImperative = witziTenses.imperativo && typeof witziTenses.imperativo === "object" ? witziTenses.imperativo : {};
-        if (typeof witziImperative.verb === "string") {
-          targetObject.SUPPLETIVE_WITZI_IMPERATIVE = witziImperative.verb;
+        const witziOptative = witziTenses.optativo && typeof witziTenses.optativo === "object" ? witziTenses.optativo : {};
+        if (typeof witziOptative.verb === "string") {
+          targetObject.SUPPLETIVE_WITZI_OPTATIVE = witziOptative.verb;
         }
         const witziNonactive = witziData.nonactive && typeof witziData.nonactive === "object" ? witziData.nonactive : {};
         if (typeof witziNonactive.imperfective === "string") {
@@ -935,7 +935,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         suppletiveWitziNonactive: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE,
         suppletiveWitziNonactiveImperfective: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE,
         suppletiveWitziNonactivePerfective: () => targetObject.SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE || targetObject.SUPPLETIVE_WITZI_NONACTIVE,
-        suppletiveWitziImperative: () => targetObject.SUPPLETIVE_WITZI_IMPERATIVE
+        suppletiveWitziOptative: () => targetObject.SUPPLETIVE_WITZI_OPTATIVE
       };
       const setLookup = {
         suppletiveKatiForms: () => targetObject.SUPPLETIVE_KATI_FORMS,

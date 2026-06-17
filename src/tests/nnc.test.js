@@ -881,7 +881,7 @@ function run(ctx) {
         hasTensePosition: false,
         generationAllowed: false,
         connector: "Ø",
-        formulaEcho: "#Ø...Ø(nemiwani)Ø#",
+        formulaEcho: "#Ø-Ø(nemiwani)Ø#",
     });
     s.eq("generateWord instrumentivo exposes derived nominalization profile", summarizeNominalizationProfile(generatedInstrumentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -1165,7 +1165,7 @@ function run(ctx) {
             forms: ["tumikka"],
             predicateState: "possessive",
             possessorPrefix: "tu",
-            formulaEcho: "#Ø...Ø(mikka)Ø#",
+            formulaEcho: "#Ø-Ø(mikka)Ø#",
         }
     );
     s.eq(
@@ -1380,7 +1380,7 @@ function run(ctx) {
         formulaEcho: generatedPossessedInstrumentivo.nuclearClauseShell?.formulaEcho || "",
     }, {
         connector: "Ø",
-        formulaEcho: "#Ø...Ø(tapiyaya)Ø#",
+        formulaEcho: "#Ø-Ø(tapiyaya)Ø#",
     });
     s.eq("generateWord possessed instrumentivo profile marks possessive predicate state", summarizeNominalizationProfile(generatedPossessedInstrumentivo.nominalizationProfile).predicateState, {
         value: "possessive",
@@ -1723,7 +1723,7 @@ function run(ctx) {
             formulaLabel: "Fórmula CNN",
             displayLabel: "cláusula nuclear nominal (CNN)",
             formula: "#pers1-pers2(STEM)num1-num2#",
-            formulaEcho: "#Ø...Ø(kal)Ø#",
+            formulaEcho: "#Ø-Ø(kal)Ø#",
             hasTensePosition: false,
             generationAllowed: false,
             predicateStem: "kal",
@@ -1974,7 +1974,7 @@ function run(ctx) {
                 pluralType: "",
             },
         },
-        formulaEcho: "#Ø...Ø(kal)Ø#",
+        formulaEcho: "#Ø-Ø(kal)Ø#",
         predicateFormula: "(kal)",
         hasTensePosition: false,
         tense: null,
@@ -2111,7 +2111,7 @@ function run(ctx) {
                     pluralType: "",
                 },
             },
-            zeroEcho: "#ni...Ø(tapiyal)Ø#",
+            zeroEcho: "#ni-Ø(tapiyal)Ø#",
             zeroClass: "zero",
             zeroSourceKind: "open-stem",
             tSlots: {
@@ -2142,7 +2142,7 @@ function run(ctx) {
                     pluralType: "",
                 },
             },
-            tEcho: "#Ø...Ø(siwa)t#",
+            tEcho: "#Ø-Ø(siwa)t#",
         }
     );
     s.eq(
@@ -2168,7 +2168,7 @@ function run(ctx) {
                 }),
             },
         }),
-        "#Ø...Ø(frame-predicate)frame-connector#"
+        "#Ø-Ø(frame-predicate)frame-connector#"
     );
     s.eq(
         "ordinary NNC formula echo stops before stale slot text after an empty result frame",
@@ -2207,7 +2207,7 @@ function run(ctx) {
         },
         {
             emptyPredicate: "",
-            emptyConnector: "#Ø...Ø(frame-safe-predicate)Ø#",
+            emptyConnector: "#Ø-Ø(frame-safe-predicate)Ø#",
         }
     );
     s.eq(
@@ -2834,7 +2834,7 @@ function run(ctx) {
                 stem: "naka",
                 nounClass: "ti",
                 diagnostic: "ordinary-nnc-class-stem-incompatible",
-                formulaEcho: "#Ø...Ø(naka)ti#",
+                formulaEcho: "#Ø-Ø(naka)ti#",
             },
             {
                 input: "nakati",
@@ -2843,7 +2843,7 @@ function run(ctx) {
                 stem: "naka",
                 nounClass: "ti",
                 diagnostic: "ordinary-nnc-class-stem-incompatible",
-                formulaEcho: "#Ø...Ø(naka)ti#",
+                formulaEcho: "#Ø-Ø(naka)ti#",
             },
             {
                 input: "(naka)ti",
@@ -2852,7 +2852,7 @@ function run(ctx) {
                 stem: "naka",
                 nounClass: "ti",
                 diagnostic: "ordinary-nnc-class-stem-incompatible",
-                formulaEcho: "#Ø...Ø(naka)ti#",
+                formulaEcho: "#Ø-Ø(naka)ti#",
             },
             {
                 input: "tekpan",
@@ -2861,7 +2861,7 @@ function run(ctx) {
                 stem: "tekpan",
                 nounClass: "t",
                 diagnostic: "ordinary-nnc-class-stem-incompatible",
-                formulaEcho: "#Ø...Ø(tekpan)t#",
+                formulaEcho: "#Ø-Ø(tekpan)t#",
             },
             {
                 input: "siwa",
@@ -2870,7 +2870,7 @@ function run(ctx) {
                 stem: "siwa",
                 nounClass: "in",
                 diagnostic: "ordinary-nnc-class-stem-incompatible",
-                formulaEcho: "#Ø...Ø(siwa)in#",
+                formulaEcho: "#Ø-Ø(siwa)in#",
             },
         ]
     );
@@ -3067,7 +3067,7 @@ function run(ctx) {
                     spellingAuthority: "Nawat/Pipil orthography",
                     grammarAuthority: "Andrews PDF",
                 },
-                formulaEcho: "#Ø...Ø(nakayu)t#",
+                formulaEcho: "#Ø-Ø(nakayu)t#",
             },
             generated: {
                 result: "nunakayu",
@@ -3509,7 +3509,7 @@ function run(ctx) {
             derivedFromSlots: {
                 formulaSlot: "num1-num2",
                 categoryConnectorSlot: "num1-num2",
-                formulaEcho: "#Ø...Ø(mistun)Ø#",
+                formulaEcho: "#Ø-Ø(mistun)Ø#",
             },
         }
     );
@@ -3616,13 +3616,13 @@ function run(ctx) {
             shuchi: {
                 sourceKind: "fixture",
                 nounClass: "t",
-                formulaEcho: "#Ø...Ø(shuchi)t#",
+                formulaEcho: "#Ø-Ø(shuchi)t#",
                 connectorClass: "t",
             },
             kal: {
                 sourceKind: "fixture",
                 nounClass: "zero",
-                formulaEcho: "#Ø...Ø(kal)Ø#",
+                formulaEcho: "#Ø-Ø(kal)Ø#",
                 markingAvailable: true,
                 possessorPrefix: "nu",
             },
@@ -3653,7 +3653,7 @@ function run(ctx) {
                 sourceKind: "open-stem",
                 openStem: true,
                 nounClass: "ti",
-                formulaEcho: "#Ø...Ø(xilun)ti#",
+                formulaEcho: "#Ø-Ø(xilun)ti#",
                 connectorClass: "ti",
             },
             tekpanOpen: {
@@ -3661,7 +3661,7 @@ function run(ctx) {
                 sourceKind: "open-stem",
                 openStem: true,
                 nounClass: "in",
-                formulaEcho: "#Ø...Ø(tekpan)in#",
+                formulaEcho: "#Ø-Ø(tekpan)in#",
                 connectorClass: "in",
             },
             nounClasses: ["t", "zero", "zero", "zero", "ti", "in"],

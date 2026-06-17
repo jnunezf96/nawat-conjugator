@@ -8,6 +8,10 @@
 
 const MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
 
+function normalizeMorphologyTenseValue(tenseValue = "") {
+    return String(tenseValue || "").trim();
+}
+
 function buildMorphologyApplicationDiagnostic({
     id = "morphology-application-blocked",
     message = MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE,
@@ -834,6 +838,7 @@ function applyMorphologyRules({
     subjectSuffix = typeof subjectSuffix === "string" ? subjectSuffix : "";
     verb = typeof verb === "string" ? verb : "";
     analysisVerb = typeof analysisVerb === "string" ? analysisVerb : "";
+    tense = normalizeMorphologyTenseValue(tense);
     const soundSpellingFrames = [];
     const baseSubjectSuffix = subjectSuffix;
     const baseSubjectPrefix = subjectPrefix;
@@ -1038,11 +1043,25 @@ function applyMorphologyRules({
     let nounContextPrimaryFormSpec = null;
     let nounContextPrimaryTrailingSuffix = "";
     const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
+    const objectPrefixBeforeComposition = objectPrefix;
     objectPrefix = composeObj1Chain({
         obj1: objectPrefix,
         markers: markerChain,
         pers1: baseSubjectPrefix,
     });
+    if (
+        objectPrefixBeforeComposition === "ki"
+        && objectPrefix === "k"
+        && ["ni", "ti"].includes(baseSubjectPrefix)
+    ) {
+        pushMorphologyLesson2SoundSpellingFrame(soundSpellingFrames, {
+            ruleId: "obj1-ki-after-ni-ti-k",
+            source: "ki",
+            target: "k",
+            slot: "obj1",
+            syllablePosition: "pers1-obj1-boundary",
+        }, objectPrefixBeforeComposition, objectPrefix, "obj1");
+    }
     const shouldApplyEarlyContactElision = !isPerfectiveTense(tense);
 
     subjectSuffix = applyTenseSuffixRules(morphologyTense, subjectSuffix);
@@ -1136,14 +1155,14 @@ function applyMorphologyRules({
         });
         return true;
     };
-    if (tense === "imperativo") {
-        const isImperativeSecondSingular =
+    if (tense === "optativo") {
+        const isOptativeSecondSingular =
             baseSubjectPrefix === "ti"
             && baseSubjectSuffix === "";
-        const isImperativeSecondPlural =
+        const isOptativeSecondPlural =
             baseSubjectPrefix === "an"
             && baseSubjectSuffix === "t";
-        if (isImperativeSecondSingular || isImperativeSecondPlural) {
+        if (isOptativeSecondSingular || isOptativeSecondPlural) {
             subjectPrefix = "shi";
         }
     }
@@ -2524,14 +2543,14 @@ function applyMorphologyRules({
     objectPrefix = normalizeValenceMarkerOrder(objectPrefix);
     const surfaceRuleMeta = {
         sourceOuterPrefix: sourceOuterPrefixForNominalOutput,
-        imperativeKiReduction: tense === "imperativo"
+        optativeKiReduction: tense === "optativo"
             && (
                 (baseSubjectPrefix === "ti" && baseSubjectSuffix === "")
                 || (baseSubjectPrefix === "an" && baseSubjectSuffix === "t")
             ),
         dropVerbInitialIAfterObjectI: shouldApplyEarlyContactElision,
         dropInitialIFromIskaliaAfterMu: objectPrefix === "mu" || markerChain.includes("mu"),
-        trimFinalIAUAVowel: tense === "imperativo" || dropClassCNucleusTenses.has(tense),
+        trimFinalIAUAVowel: tense === "optativo" || dropClassCNucleusTenses.has(tense),
         patientivoSourceStageFrame,
         patientivoSourceStageFrames,
         patientivoMultipleDerivationContract,

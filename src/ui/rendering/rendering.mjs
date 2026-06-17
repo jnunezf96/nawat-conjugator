@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/rendering/rendering.js.
 
-export function createUiRenderingApi(targetObject = globalThis) {
+export function createUiRenderingModule(targetObject = globalThis) {
     var ActiveNawatDenominalAndrewsContractRouteRenderContext = null;
     function getNawatDenominalAndrewsRenderContextComparableInputs(context = null) {
       const targetInput = String(context?.targetInput || "").trim();
@@ -211,6 +211,102 @@ export function createUiRenderingApi(targetObject = globalThis) {
         text = text.replace(pattern, replacement);
       });
       return text;
+    }
+    function getVisibleCnvFormulaSurfacePath(source = null) {
+      if (!source || typeof source !== "object") {
+        return null;
+      }
+      return source.cnvFormulaSurfacePath || source.grammarFrame?.morphBoundaryFrame?.cnvFormulaSurfacePath || source.frames?.morphBoundaryFrame?.cnvFormulaSurfacePath || null;
+    }
+    function getVisibleCnvFormulaBaseRealizations(source = null) {
+      const path = getVisibleCnvFormulaSurfacePath(source);
+      const directRealizations = Array.isArray(path?.surfaceStemRealizations) ? path.surfaceStemRealizations : [];
+      const pathRealizations = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).map(record => (Array.isArray(record?.paths) ? record.paths : []).find(entry => entry?.formulaSlotKey === "base")?.surfaceValue || "").filter(Boolean);
+      const primaryRealizations = (Array.isArray(path?.paths) ? path.paths : []).filter(entry => entry?.formulaSlotKey === "base").flatMap(entry => [...(Array.isArray(entry.surfaceRealizations) ? entry.surfaceRealizations : []), entry.surfaceValue || ""]);
+      return [...directRealizations, ...pathRealizations, ...primaryRealizations].map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getVisibleCnvFormulaConnectorRealizations(source = null) {
+      const path = getVisibleCnvFormulaSurfacePath(source);
+      const directRealizations = Array.isArray(path?.surfaceNumberConnectorRealizations) ? path.surfaceNumberConnectorRealizations : [];
+      const pathRealizations = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).map(record => {
+        const bySlot = Object.fromEntries((Array.isArray(record?.paths) ? record.paths : []).map(entry => [entry.formulaSlotKey, entry]));
+        const num1 = String(bySlot.num1?.surfaceValue || "");
+        const num2 = String(bySlot.num2?.surfaceValue || "");
+        if (!num1 && !num2) {
+          return "";
+        }
+        return `${num1 || "0"}-${num2 || "0"}`;
+      });
+      return [...directRealizations, ...pathRealizations].map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getVisibleCnvFormulaPathRecordValue(record = null, slotKey = "") {
+      const match = (Array.isArray(record?.paths) ? record.paths : []).find(entry => entry?.formulaSlotKey === slotKey);
+      return String(match?.surfaceValue || "");
+    }
+    function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
+      let formula = String(formulaEcho || "").trim();
+      if (!formula) {
+        return "";
+      }
+      const base = getVisibleCnvFormulaPathRecordValue(record, "base");
+      const num1 = getVisibleCnvFormulaPathRecordValue(record, "num1");
+      const num2 = getVisibleCnvFormulaPathRecordValue(record, "num2");
+      if (base) {
+        formula = formula.replace(/\(([^)]*)\)/, `(${base})`);
+      }
+      if (num1 || num2) {
+        formula = formula.replace(/\+([^+#]*)#$/, `+${num1 || "0"}-${num2 || "0"}#`);
+      }
+      return formula;
+    }
+    function getVisibleCnvFormulaEchoes(formulaEcho = "", source = null) {
+      const formula = String(formulaEcho || "").trim();
+      if (!formula) {
+        return [];
+      }
+      const path = getVisibleCnvFormulaSurfacePath(source);
+      const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
+      if (pathRecords.length) {
+        return pathRecords.map(record => formatVisibleCnvFormulaEchoForPath(formula, record)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
+      return [formula];
+    }
+    function formatVisibleCnvFormulaEcho(formulaEcho = "", source = null) {
+      const formulaEchoes = getVisibleCnvFormulaEchoes(formulaEcho, source);
+      if (formulaEchoes.length > 1) {
+        return formulaEchoes.join(" / ");
+      }
+      let formula = formulaEchoes[0] || String(formulaEcho || "").trim();
+      if (!formula) {
+        return "";
+      }
+      const baseRealizations = getVisibleCnvFormulaBaseRealizations(source);
+      if (baseRealizations.length) {
+        formula = formula.replace(/\(([^)]*)\)/, `(${baseRealizations.join("/")})`);
+      }
+      const connectorRealizations = getVisibleCnvFormulaConnectorRealizations(source);
+      if (connectorRealizations.length) {
+        formula = formula.replace(/\+([^+#]*)#$/, `+${connectorRealizations.join("/")}#`);
+      }
+      return formula;
+    }
+    function buildVisibleCnvFormulaEchoChips(formulaEcho = "", source = null) {
+      const formula = String(formulaEcho || "").trim();
+      if (!formula) {
+        return [];
+      }
+      const path = getVisibleCnvFormulaSurfacePath(source);
+      const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
+      if (!pathRecords.length) {
+        return [{
+          value: formatVisibleCnvFormulaEcho(formula, source),
+          surface: ""
+        }];
+      }
+      return pathRecords.map(record => ({
+        value: formatVisibleCnvFormulaEchoForPath(formula, record),
+        surface: String(record?.surface || "").trim()
+      })).filter((entry, index, list) => entry.value && list.findIndex(candidate => candidate.value === entry.value && candidate.surface === entry.surface) === index);
     }
     function createLesson4InspectorPanel(title = "", sourceLabel = "") {
       const panel = targetObject.document.createElement("div");
@@ -684,7 +780,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       tenseValue: "condicional"
     }, {
       sourceCombinedMode: "active",
-      tenseValue: "imperativo"
+      tenseValue: "optativo"
     }, {
       sourceCombinedMode: "nonactive",
       tenseValue: "presente"
@@ -720,11 +816,11 @@ export function createUiRenderingApi(targetObject = globalThis) {
       tenseValue: "condicional"
     }, {
       sourceCombinedMode: "nonactive",
-      tenseValue: "imperativo"
+      tenseValue: "optativo"
     }];
     const NAWAT_PATIENTIVO_SOURCE_TENSE_MENU_GROUPS = [{
-      label: "imperativo",
-      tenseValues: ["imperativo"]
+      label: "optativo",
+      tenseValues: ["optativo"]
     }, {
       label: "presente",
       tenseValues: ["presente", "presente-habitual", "presente-desiderativo"]
@@ -2015,7 +2111,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         };
       });
     }
-    function buildNuclearClauseShellSubLabels(shell = null) {
+    function buildNuclearClauseShellSubLabels(shell = null, source = null) {
       if (!shell || shell.kind !== "nuclear-clause-shell") {
         return [];
       }
@@ -2026,12 +2122,12 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const predicateLabel = activeFormula?.predicatePositionLabel && activeFormula?.predicatePositionStatusLabel ? `§4.5 ${activeFormula.predicatePositionLabel}: ${activeFormula.predicatePositionStatusLabel}` : "";
       const layers = Array.isArray(lesson4?.organizationalLayers) ? lesson4.organizationalLayers : Array.isArray(shell.organizationalLayers) ? shell.organizationalLayers : [];
       const layerLabel = layers.length ? `jerarquía ${getVisibleNuclearClauseShellLabel(shell)}: ${layers.map(layer => layer.labelEs || layer.label || layer.key || "").filter(Boolean).join(" > ")}` : "";
-      const formulaEcho = String(shell.formulaEcho || "").trim();
+      const formulaEcho = formatVisibleCnvFormulaEcho(shell.formulaEcho || "", source || shell);
       const formulaEchoLabel = formulaEcho && shell.formulaType === "VNC" ? `${ANDREWS_RENDERING_TERMS.vncFormula}: ${formulaEcho}` : "";
       return [formula ? `${label}: ${formatVisibleAndrewsFormula(formula)}` : label, predicateLabel, layerLabel, formulaEchoLabel].filter(Boolean);
     }
-    function appendNuclearClauseShellSubLabels(baseLabel = "", shell = null) {
-      return [baseLabel, ...buildNuclearClauseShellSubLabels(shell)].filter(Boolean).join(" · ");
+    function appendNuclearClauseShellSubLabels(baseLabel = "", shell = null, source = null) {
+      return [baseLabel, ...buildNuclearClauseShellSubLabels(shell, source)].filter(Boolean).join(" · ");
     }
     function normalizeGeneratedOutputSlotChipValue(value = "", fallback = "") {
       const normalized = String(value ?? "").trim();
@@ -2054,6 +2150,14 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const prefix = normalizeGeneratedOutputSlotChipValue(subjectSlot.displayPrefix || subjectSlot.prefix || "", "Ø");
       const suffix = normalizeGeneratedOutputSlotChipValue(subjectSlot.displaySuffix || subjectSlot.suffix || "", "Ø");
       return `${prefix || "Ø"}...${suffix || "Ø"}`;
+    }
+    function buildGeneratedOutputVncSubjectValue(subjectSlot = null) {
+      if (!subjectSlot || typeof subjectSlot !== "object") {
+        return "";
+      }
+      const prefix = normalizeGeneratedOutputSlotChipValue(subjectSlot.displayPrefix || subjectSlot.prefix || "", "Ø");
+      const caseSlot = normalizeGeneratedOutputSlotChipValue(subjectSlot.displayCase || subjectSlot.case || subjectSlot.pers2 || "", "Ø");
+      return `${prefix || "Ø"}-${caseSlot || "Ø"}`;
     }
     function getGeneratedOutputFormulaSlot(slots = null, canonicalKey = "") {
       if (!slots || typeof slots !== "object") {
@@ -2096,7 +2200,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       futuro: "fut",
       condicional: "cond",
       "condicional-perfecto": "cond-perf",
-      imperativo: "impv"
+      optativo: "opt"
     });
     function getGeneratedOutputCompactTenseValue(value = "") {
       const fullValue = normalizeGeneratedOutputSlotChipValue(value, "");
@@ -2133,6 +2237,56 @@ export function createUiRenderingApi(targetObject = globalThis) {
         return null;
       }
       const inner = echo.slice(1, -1);
+      const newPredicateOpenIndex = inner.indexOf("(");
+      const newPredicateCloseIndex = inner.lastIndexOf(")");
+      const postPredicate = newPredicateCloseIndex >= 0 ? inner.slice(newPredicateCloseIndex + 1) : "";
+      const numberSeparatorIndex = postPredicate.lastIndexOf("+");
+      if (newPredicateOpenIndex >= 0 && newPredicateCloseIndex > newPredicateOpenIndex && numberSeparatorIndex >= 0) {
+        const predicateStart = newPredicateOpenIndex > 0 && inner[newPredicateOpenIndex - 1] === "-" ? newPredicateOpenIndex - 1 : newPredicateOpenIndex;
+        const head = inner.slice(0, predicateStart).trim();
+        const predicateDisplay = inner.slice(predicateStart, newPredicateCloseIndex + 1).trim();
+        const tenseDisplay = postPredicate.slice(0, numberSeparatorIndex).trim() || "Ø";
+        const rawNumberDisplay = postPredicate.slice(numberSeparatorIndex + 1).trim() || "Ø-Ø";
+        const numberDisplay = rawNumberDisplay.includes("-") ? rawNumberDisplay : `Ø-${rawNumberDisplay}`;
+        const plusIndex = head.indexOf("+");
+        const subjectDisplay = (plusIndex >= 0 ? head.slice(0, plusIndex) : head).trim() || "Ø-Ø";
+        const objectDisplay = plusIndex >= 0 ? head.slice(plusIndex + 1).trim() : "";
+        const subjectParts = subjectDisplay.split("-");
+        const subjectPrefixDisplay = subjectParts[0] || "Ø";
+        const subjectCaseDisplay = subjectParts.slice(1).join("-") || "Ø";
+        const numberParts = numberDisplay.split("-");
+        return {
+          pers1Pers2: {
+            displayPrefix: subjectPrefixDisplay,
+            prefix: subjectPrefixDisplay === "Ø" ? "" : subjectPrefixDisplay,
+            displayCase: subjectCaseDisplay,
+            case: subjectCaseDisplay === "Ø" ? "" : subjectCaseDisplay,
+            displaySuffix: "Ø",
+            suffix: "",
+            slot: "pers1-pers2"
+          },
+          obj1: {
+            displayPrefix: objectDisplay || "Ø",
+            prefix: !objectDisplay || objectDisplay === "Ø" ? "" : objectDisplay.split("-")[0],
+            slot: "obj1"
+          },
+          predicateStem: {
+            displayStem: predicateDisplay,
+            stem: predicateDisplay,
+            slot: "STEM"
+          },
+          tensePosition: {
+            label: tenseDisplay,
+            tenseValue: tenseDisplay,
+            slot: "tiempo"
+          },
+          num1Num2: {
+            displayConnector: numberDisplay,
+            connector: numberParts.filter(part => part && part !== "Ø").join("-"),
+            slot: "num1-num2"
+          }
+        };
+      }
       const subjectSeparatorIndex = inner.indexOf("-");
       const tenseSeparatorIndex = inner.lastIndexOf("-");
       if (subjectSeparatorIndex <= 0 || tenseSeparatorIndex <= subjectSeparatorIndex) {
@@ -2358,9 +2512,16 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const primarySlots = getGeneratedOutputShellSlots(result);
       const formulaType = getGeneratedOutputSlotFormulaType(result, primarySlots);
       const formulaEcho = normalizeGeneratedOutputSlotChipValue(shell?.formulaEcho || result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "", "");
+      const visibleFormulaEcho = formulaType === "VNC" ? formatVisibleCnvFormulaEcho(formulaEcho, result) : formulaEcho;
       const slots = mergeGeneratedOutputFormulaSlots(primarySlots, formulaType === "VNC" ? parseGeneratedOutputVncFormulaEchoSlots(formulaEcho) : null);
-      if (includeFormula && formulaEcho && formulaType) {
-        pushChip("formula", formulaType === "VNC" ? ANDREWS_RENDERING_TERMS.vncFormula : ANDREWS_RENDERING_TERMS.nncFormula, formulaEcho);
+      if (includeFormula && formulaEcho && formulaType === "VNC") {
+        buildVisibleCnvFormulaEchoChips(formulaEcho, result).forEach(entry => {
+          pushChip("formula", ANDREWS_RENDERING_TERMS.vncFormula, entry.value, {
+            title: entry.surface ? `${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value} · salida: ${entry.surface}` : `${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value}`
+          });
+        });
+      } else if (includeFormula && formulaEcho && formulaType) {
+        pushChip("formula", ANDREWS_RENDERING_TERMS.nncFormula, visibleFormulaEcho);
       }
       if (formulaType === "VNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.vncValencyFrame?.pers1Pers2 || null;
@@ -2370,7 +2531,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const reflexiveSlot = getGeneratedOutputFormulaSlot(slots, "reflexivo") || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || null;
         const tenseSlot = getGeneratedOutputFormulaSlot(slots, "tensePosition") || null;
-        pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputSlotSubjectValue(subjectSlot));
+        const connectorSlot = getGeneratedOutputFormulaSlot(slots, "num1Num2") || null;
+        pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVncSubjectValue(subjectSlot));
         pushChip("obj1", ANDREWS_RENDERING_TERMS.obj1, normalizeGeneratedOutputSlotChipValue(objectSlot?.displayPrefix || objectSlot?.prefix || "", "Ø"));
         pushChip("obj2", ANDREWS_RENDERING_TERMS.obj2, object2Slot?.prefix || "");
         pushChip("obj3", ANDREWS_RENDERING_TERMS.obj3, object3Slot?.prefix || "");
@@ -2382,6 +2544,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         pushChip("tiempo", ANDREWS_RENDERING_TERMS.tiempo, getGeneratedOutputCompactTenseValue(tenseValue), {
           title: tenseValue ? `${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}` : ANDREWS_RENDERING_TERMS.tiempo
         });
+        pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, normalizeGeneratedOutputSlotChipValue(connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "", "Ø-Ø"));
       } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || result.nncBasic?.formulaSlots?.predicateStem || null;
@@ -3032,6 +3195,15 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const objectDisplay = String(frame.obj1?.displayPrefix || frame.object?.displayPrefix || "").trim();
       if (objectDisplay) {
         labels.push(`objeto 1 verbal: ${objectDisplay}`);
+      }
+      const lesson6Object = frame.lesson6DirectNawatObject || frame.obj1?.lesson6DirectNawatDyad || null;
+      const formulaPosition = String(lesson6Object?.formulaPosition || frame.lesson6ValencePosition || frame.obj1?.formulaPosition || "").trim();
+      const visibleFormulaPrefix = String(lesson6Object?.visibleFormulaPrefix || frame.lesson6VisibleFormulaObjectPrefix || frame.obj1?.formulaPrefix || "").trim();
+      if (formulaPosition) {
+        labels.push(`posición de valencia: ${formulaPosition === "va" ? "val" : "val1-val2"}`);
+      }
+      if (visibleFormulaPrefix) {
+        labels.push(`subcasillas Nawat: ${visibleFormulaPrefix}`);
       }
       return labels;
     }
@@ -4167,7 +4339,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const rowReferenceLabel = rowCategoryProfile?.reference?.label || (state.number === "plural" ? "plural" : "singular");
       const rowPossessiveState = rowCategoryProfile?.possessiveState || null;
       const rowPossessiveMarkingLabel = rowPossessiveState?.isPossessive ? `marcacion posesiva: ${rowPossessiveState.markingAvailable ? "disponible" : "no disponible"}` : "";
-      personSub.textContent = appendGrammarFrameSubLabels([...buildNuclearClauseShellSubLabels(result.nuclearClauseShell), ...buildSentenceLayerSubLabels(result.sentenceLayer), rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "", rowPredicateFormula, rowNounClassLabel ? `clase sustantiva ${rowNounClassLabel}` : "", rowConnectorSlotLabel, `${ANDREWS_RENDERING_TERMS.predicateState}: ${rowPredicateStateLabel}`, `animacidad: ${rowAnimacyLabel}`, `referencia: ${rowReferenceLabel}`, rowPossessiveMarkingLabel, state.state === "possessive" ? `poseedor ${result.possessor?.prefix || state.possessor || "nu"}` : ""].filter(Boolean).join(" · "), result, {
+      personSub.textContent = appendGrammarFrameSubLabels([...buildNuclearClauseShellSubLabels(result.nuclearClauseShell, result), ...buildSentenceLayerSubLabels(result.sentenceLayer), rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "", rowPredicateFormula, rowNounClassLabel ? `clase sustantiva ${rowNounClassLabel}` : "", rowConnectorSlotLabel, `${ANDREWS_RENDERING_TERMS.predicateState}: ${rowPredicateStateLabel}`, `animacidad: ${rowAnimacyLabel}`, `referencia: ${rowReferenceLabel}`, rowPossessiveMarkingLabel, state.state === "possessive" ? `poseedor ${result.possessor?.prefix || state.possessor || "nu"}` : ""].filter(Boolean).join(" · "), result, {
         maxDiagnostics: 1
       });
       renderGeneratedOutputSlotChips(personSub, result);
@@ -4877,11 +5049,22 @@ export function createUiRenderingApi(targetObject = globalThis) {
           overridePayload.subjectSuffix = subjectOverride.pers2;
           overridePayload.preservePassiveSubject = true;
         }
+        const subjectPers1 = subjectOverride?.pers1 || "";
+        const subjectPers2 = subjectOverride?.pers2 || "";
         const result = targetObject.getCachedSilentGenerateWord({
           silent: true,
           skipValidation: true,
           allowPassiveObject: isDirectGroup && allowObjectToggle,
-          override: overridePayload
+          override: overridePayload,
+          posicionesFormula: {
+            pers1: subjectPers1,
+            obj1: prefix,
+            tronco: verb,
+            pers2: subjectPers2,
+            num2: subjectPers2,
+            poseedor: "",
+            tiempo: tenseValue
+          }
         }) || {};
         const mappedSubjectInfo = subjectOverride ? targetObject.getPers1Pers2Info(subjectOverride.pers1 || "", subjectOverride.pers2 || "") : null;
         const shouldBypassPassiveMappedConstraints = isDirectGroup && !!subjectOverride && mappedSubjectInfo?.person === 3;
@@ -4906,14 +5089,19 @@ export function createUiRenderingApi(targetObject = globalThis) {
           maxDiagnostics: 1
         });
         renderGeneratedOutputSlotChips(personSub, result);
+        const renderedValue = targetObject.formatConjugationDisplay(getConjugationDisplaySurface(result));
+        value.dataset.exportForm = renderedValue;
         targetObject.applyConjugationEvaluationPresentation({
           row,
           value,
           evaluation,
-          formattedValue: targetObject.formatConjugationDisplay(getConjugationDisplaySurface(result))
+          formattedValue: renderedValue
         });
         applyGrammarFrameRouteDataset(row, result);
         row.dataset.objectPrefix = targetObject.getZeroObjectDisplayValue(prefix || "");
+        row.appendChild(label);
+        row.appendChild(value);
+        list.appendChild(row);
         if (typeof afterRowRendered === "function") {
           afterRowRendered({
             row,
@@ -4924,15 +5112,12 @@ export function createUiRenderingApi(targetObject = globalThis) {
             subjectOverride
           });
         }
-        row.appendChild(label);
-        row.appendChild(value);
-        list.appendChild(row);
         if (typeof buildOutputRowEntry === "function") {
           buildOutputRowEntry({
             row,
             person: labelText,
             personSub: subText,
-            form: value.textContent.trim(),
+            form: renderedValue,
             grammarMetadata: typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {},
             slotValuesById: {
               object: targetObject.getZeroObjectDisplayValue(prefix || "")
@@ -6048,11 +6233,22 @@ export function createUiRenderingApi(targetObject = globalThis) {
           overridePayload.subjectSuffix = subjectOverride.pers2;
           overridePayload.preservePassiveSubject = true;
         }
+        const subjectPers1 = subjectOverride?.pers1 || "";
+        const subjectPers2 = subjectOverride?.pers2 || "";
         const result = targetObject.getCachedSilentGenerateWord({
           silent: true,
           skipValidation: true,
           allowPassiveObject: isDirectGroup && allowObjectToggle,
-          override: overridePayload
+          override: overridePayload,
+          posicionesFormula: {
+            pers1: subjectPers1,
+            obj1: objectPrefixCandidate,
+            tronco: verb,
+            pers2: subjectPers2,
+            num2: subjectPers2,
+            poseedor: "",
+            tiempo: tenseValue
+          }
         }) || {};
         const mappedSubjectInfo = subjectOverride ? targetObject.getPers1Pers2Info(subjectOverride.pers1 || "", subjectOverride.pers2 || "") : null;
         const shouldBypassPassiveMappedConstraints = isDirectGroup && !!subjectOverride && mappedSubjectInfo?.person === 3;
@@ -6288,7 +6484,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
             roleParts.push(`${slotModel.roleLabel} ${slotLabel}`.trim());
           });
           const rowPersonSub = useObjectOnlyPersonSub ? targetObject.formatActiveValence3PlusPersonSub(basePersonSub, objectOnlyParts, isNawat) : roleParts.length ? [basePersonSub, ...roleParts].filter(Boolean).join(" · ") : [basePersonSub].filter(Boolean).join(" · ");
-          personSub.textContent = appendGrammarFrameSubLabels(appendSentenceLayerSubLabels(appendVncVerbstemClassProfileSubLabels(appendCompoundFrameSubLabels(appendForwardDerivationFrameSubLabels(appendDerivedVoiceFrameSubLabels(appendVncValencyFrameSubLabels(appendNuclearClauseShellSubLabels(rowPersonSub, evaluation.result?.nuclearClauseShell), evaluation.result?.vncValencyFrame), evaluation.result?.derivedVoiceFrame), evaluation.result?.forwardDerivationFrame), evaluation.result?.compoundFrame), evaluation.result?.verbstemClassProfile || evaluation.result?.stemProvenance?.verbstemClassProfile || null), evaluation.result?.sentenceLayer), evaluation.result, {
+          personSub.textContent = appendGrammarFrameSubLabels(appendSentenceLayerSubLabels(appendVncVerbstemClassProfileSubLabels(appendCompoundFrameSubLabels(appendForwardDerivationFrameSubLabels(appendDerivedVoiceFrameSubLabels(appendVncValencyFrameSubLabels(appendNuclearClauseShellSubLabels(rowPersonSub, evaluation.result?.nuclearClauseShell, evaluation.result), evaluation.result?.vncValencyFrame), evaluation.result?.derivedVoiceFrame), evaluation.result?.forwardDerivationFrame), evaluation.result?.compoundFrame), evaluation.result?.verbstemClassProfile || evaluation.result?.stemProvenance?.verbstemClassProfile || null), evaluation.result?.sentenceLayer), evaluation.result, {
             maxDiagnostics: 1
           });
           renderGeneratedOutputSlotChips(personSub, evaluation.result);
@@ -6307,7 +6503,11 @@ export function createUiRenderingApi(targetObject = globalThis) {
             evaluation,
             formattedValue: renderedValue
           });
+          value.dataset.exportForm = renderedValue;
           applyGrammarFrameRouteDataset(row, evaluation.result);
+          row.appendChild(label);
+          row.appendChild(value);
+          list.appendChild(row);
           if (!activeDenominalAndrewsContinuationRendered) {
             activeDenominalAndrewsContinuationRendered = renderDenominalAndrewsContractRouteContinuationForValue({
               value,
@@ -6332,13 +6532,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
             evaluation,
             sourceObjectPrefix: displaySlotValues.object || ""
           });
-          row.appendChild(label);
-          row.appendChild(value);
-          list.appendChild(row);
           appendBlockOutputRow({
             person: personLabel.textContent.trim(),
             personSub: personSub.textContent.trim(),
-            form: value.textContent.trim(),
+            form: renderedValue,
             slotValuesById: displaySlotValues,
             grammarMetadata: typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {}
           });
@@ -6454,7 +6651,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const blockLabel = block.querySelector(".tense-block__label")?.textContent?.trim() || "";
         const person = row.querySelector(".person-label")?.textContent?.trim() || "";
         const personSub = row.querySelector(".person-sub")?.textContent?.trim() || "";
-        const form = row.querySelector(".conjugation-value")?.textContent?.trim() || "";
+        const form = typeof targetObject.getVisibleConjugationValueExportText === "function" ? targetObject.getVisibleConjugationValueExportText(row) : row.querySelector(".conjugation-value")?.textContent?.trim() || "";
         const object = row.dataset.objectPrefix || "";
         const object2 = row.dataset.indirectObjectPrefix || "";
         const object3 = row.dataset.thirdObjectPrefix || "";
@@ -7483,7 +7680,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
                 objectLabel
               }), evaluation.result?.nominalizationProfile, {
                 isNawat
-              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer), evaluation.result, {
+              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell, evaluation.result), evaluation.result?.sentenceLayer), evaluation.result, {
                 maxDiagnostics: 1
               });
               renderGeneratedOutputSlotChips(personSub, evaluation.result);
@@ -11437,7 +11634,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
                 objectLabel
               }), evaluation.result?.nominalizationProfile, {
                 isNawat
-              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell), evaluation.result?.sentenceLayer), evaluation.result, {
+              }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell, evaluation.result), evaluation.result?.sentenceLayer), evaluation.result, {
                 maxDiagnostics: 1
               });
               renderGeneratedOutputSlotChips(personSub, evaluation.result);
@@ -11987,6 +12184,14 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.getVisibleNuclearClauseShellLabel = getVisibleNuclearClauseShellLabel;
     api.formatVisibleAndrewsSlotToken = formatVisibleAndrewsSlotToken;
     api.formatVisibleAndrewsFormula = formatVisibleAndrewsFormula;
+    api.getVisibleCnvFormulaSurfacePath = getVisibleCnvFormulaSurfacePath;
+    api.getVisibleCnvFormulaBaseRealizations = getVisibleCnvFormulaBaseRealizations;
+    api.getVisibleCnvFormulaConnectorRealizations = getVisibleCnvFormulaConnectorRealizations;
+    api.getVisibleCnvFormulaPathRecordValue = getVisibleCnvFormulaPathRecordValue;
+    api.formatVisibleCnvFormulaEchoForPath = formatVisibleCnvFormulaEchoForPath;
+    api.getVisibleCnvFormulaEchoes = getVisibleCnvFormulaEchoes;
+    api.formatVisibleCnvFormulaEcho = formatVisibleCnvFormulaEcho;
+    api.buildVisibleCnvFormulaEchoChips = buildVisibleCnvFormulaEchoChips;
     api.createLesson4InspectorPanel = createLesson4InspectorPanel;
     api.collectLesson4TreeNodes = collectLesson4TreeNodes;
     api.appendLesson4CompactDiagram = appendLesson4CompactDiagram;
@@ -12080,6 +12285,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.normalizeGeneratedOutputSlotChipValue = normalizeGeneratedOutputSlotChipValue;
     api.buildGeneratedOutputSlotPredicateValue = buildGeneratedOutputSlotPredicateValue;
     api.buildGeneratedOutputSlotSubjectValue = buildGeneratedOutputSlotSubjectValue;
+    api.buildGeneratedOutputVncSubjectValue = buildGeneratedOutputVncSubjectValue;
     api.getGeneratedOutputFormulaSlot = getGeneratedOutputFormulaSlot;
     Object.defineProperty(api, "ANDREWS_RENDERING_TERMS", {
         configurable: true,
@@ -12260,7 +12466,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
 }
 
 export function installUiRenderingGlobals(targetObject = globalThis) {
-    const api = createUiRenderingApi(targetObject);
+    const api = createUiRenderingModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

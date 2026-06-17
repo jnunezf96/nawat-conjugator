@@ -31,8 +31,8 @@ function buildReduplicatedSurfaceForm(value = "", options = {}) {
     if (!source) {
         return source;
     }
-    const imperativePrefix = source.startsWith("ma ") ? "ma " : "";
-    const bareSource = imperativePrefix ? source.slice(3).trim() : source;
+    const optativePrefix = source.startsWith("ma ") ? "ma " : "";
+    const bareSource = optativePrefix ? source.slice(3).trim() : source;
     const requestedPrefixChain = String(options.prefixChain || "");
     let surfacePrefix = "";
     let stem = bareSource;
@@ -51,7 +51,7 @@ function buildReduplicatedSurfaceForm(value = "", options = {}) {
     if (!redupPrefix) {
         return source;
     }
-    return `${imperativePrefix}${surfacePrefix}${redupPrefix}${stem}`;
+    return `${optativePrefix}${surfacePrefix}${redupPrefix}${stem}`;
 }
 
 function reduplicateConjugationDisplay(value = "", options = {}) {
@@ -1120,7 +1120,7 @@ const NAWAT_PATIENTIVO_IMPERFECTIVE_SOURCE_TENSES = new Set([
     "pasado-remoto",
     "futuro",
     "condicional",
-    "imperativo",
+    "optativo",
 ]);
 
 const NAWAT_PATIENTIVO_PERFECTIVE_SOURCE_TENSES = new Set([
@@ -1144,7 +1144,7 @@ const NAWAT_ROUTE_PATIENTIVO_ACTIVE_SUFFIX_BY_TENSE = Object.freeze({
     "condicional-perfecto": "ti",
     futuro: "ti",
     condicional: "ti",
-    imperativo: "t",
+    optativo: "t",
 });
 
 const NAWAT_ROUTE_PATIENTIVO_NONACTIVE_SUFFIX_BY_TENSE = Object.freeze({
@@ -1160,7 +1160,7 @@ const NAWAT_ROUTE_PATIENTIVO_NONACTIVE_SUFFIX_BY_TENSE = Object.freeze({
     "condicional-perfecto": "t",
     futuro: "ti",
     condicional: "ti",
-    imperativo: "t",
+    optativo: "t",
 });
 
 const NAWAT_ROUTE_NONACTIVE_CORE_PATIENTIVO_TENSES = new Set([
@@ -1170,7 +1170,7 @@ const NAWAT_ROUTE_NONACTIVE_CORE_PATIENTIVO_TENSES = new Set([
     "perfecto",
     "pluscuamperfecto",
     "condicional-perfecto",
-    "imperativo",
+    "optativo",
 ]);
 
 function getCanonicalNawatPatientivoSourceTenseValue(patientivoSource = "") {
@@ -1802,7 +1802,7 @@ function deriveNawatRouteActivePatientivoStem(sourceSurface = "", sourceTenseVal
     const surface = stripNawatRoutePreposedParticle(sourceSurface);
     switch (sourceTenseValue) {
         case "presente":
-        case "imperativo":
+        case "optativo":
             return stripNawatRouteIaUaPatientivoStemFinalA(surface);
         case "presente-desiderativo":
             return replaceNawatRouteSurfaceEnding(surface, [["sneki", "s"], ["neki", ""]]);
@@ -1826,7 +1826,7 @@ function deriveNawatRouteNonactivePatientivoStem(sourceSurface = "", sourceTense
     const surface = stripNawatRoutePreposedParticle(sourceSurface);
     switch (sourceTenseValue) {
         case "presente":
-        case "imperativo":
+        case "optativo":
             return replaceNawatRouteSurfaceEnding(surface, [["wa", ""]]);
         case "presente-desiderativo":
             return replaceNawatRouteSurfaceEnding(surface, [["sneki", "s"], ["neki", ""]]);

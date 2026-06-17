@@ -3,8 +3,8 @@
     "verbo": {
       "left": [
         {
-          "heading": { "labelEs": "Modo · imperativo", "labelNa": "Modo · imperativo" },
-          "tenses": ["imperativo"]
+          "heading": { "labelEs": "Modo · optativo", "labelNa": "Modo · optativo" },
+          "tenses": ["optativo"]
         },
         {
           "heading": { "labelEs": "No pasado · imperfectivo", "labelNa": "No pasado · imperfectivo" },

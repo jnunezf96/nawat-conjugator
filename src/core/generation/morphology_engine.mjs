@@ -8,6 +8,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
     // script.js and other extracted modules.
 
     const MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
+    function normalizeMorphologyTenseValue(tenseValue = "") {
+      return String(tenseValue || "").trim();
+    }
     function buildMorphologyApplicationDiagnostic({
       id = "morphology-application-blocked",
       message = MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE,
@@ -755,6 +758,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       subjectSuffix = typeof subjectSuffix === "string" ? subjectSuffix : "";
       verb = typeof verb === "string" ? verb : "";
       analysisVerb = typeof analysisVerb === "string" ? analysisVerb : "";
+      tense = normalizeMorphologyTenseValue(tense);
       const soundSpellingFrames = [];
       const baseSubjectSuffix = subjectSuffix;
       const baseSubjectPrefix = subjectPrefix;
@@ -906,11 +910,21 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       let nounContextPrimaryFormSpec = null;
       let nounContextPrimaryTrailingSuffix = "";
       const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
+      const objectPrefixBeforeComposition = objectPrefix;
       objectPrefix = targetObject.composeObj1Chain({
         obj1: objectPrefix,
         markers: markerChain,
         pers1: baseSubjectPrefix
       });
+      if (objectPrefixBeforeComposition === "ki" && objectPrefix === "k" && ["ni", "ti"].includes(baseSubjectPrefix)) {
+        pushMorphologyLesson2SoundSpellingFrame(soundSpellingFrames, {
+          ruleId: "obj1-ki-after-ni-ti-k",
+          source: "ki",
+          target: "k",
+          slot: "obj1",
+          syllablePosition: "pers1-obj1-boundary"
+        }, objectPrefixBeforeComposition, objectPrefix, "obj1");
+      }
       const shouldApplyEarlyContactElision = !targetObject.isPerfectiveTense(tense);
       subjectSuffix = targetObject.applyTenseSuffixRules(morphologyTense, subjectSuffix);
       if (suppletiveTenseSuffixes && Object.prototype.hasOwnProperty.call(suppletiveTenseSuffixes, morphologyTense)) {
@@ -993,10 +1007,10 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         });
         return true;
       };
-      if (tense === "imperativo") {
-        const isImperativeSecondSingular = baseSubjectPrefix === "ti" && baseSubjectSuffix === "";
-        const isImperativeSecondPlural = baseSubjectPrefix === "an" && baseSubjectSuffix === "t";
-        if (isImperativeSecondSingular || isImperativeSecondPlural) {
+      if (tense === "optativo") {
+        const isOptativeSecondSingular = baseSubjectPrefix === "ti" && baseSubjectSuffix === "";
+        const isOptativeSecondPlural = baseSubjectPrefix === "an" && baseSubjectSuffix === "t";
+        if (isOptativeSecondSingular || isOptativeSecondPlural) {
           subjectPrefix = "shi";
         }
       }
@@ -2155,10 +2169,10 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       objectPrefix = targetObject.normalizeValenceMarkerOrder(objectPrefix);
       const surfaceRuleMeta = {
         sourceOuterPrefix: sourceOuterPrefixForNominalOutput,
-        imperativeKiReduction: tense === "imperativo" && (baseSubjectPrefix === "ti" && baseSubjectSuffix === "" || baseSubjectPrefix === "an" && baseSubjectSuffix === "t"),
+        optativeKiReduction: tense === "optativo" && (baseSubjectPrefix === "ti" && baseSubjectSuffix === "" || baseSubjectPrefix === "an" && baseSubjectSuffix === "t"),
         dropVerbInitialIAfterObjectI: shouldApplyEarlyContactElision,
         dropInitialIFromIskaliaAfterMu: objectPrefix === "mu" || markerChain.includes("mu"),
-        trimFinalIAUAVowel: tense === "imperativo" || dropClassCNucleusTenses.has(tense),
+        trimFinalIAUAVowel: tense === "optativo" || dropClassCNucleusTenses.has(tense),
         patientivoSourceStageFrame,
         patientivoSourceStageFrames,
         patientivoMultipleDerivationContract
@@ -2218,6 +2232,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         enumerable: true,
         get() { return MORPHOLOGY_APPLICATION_NO_OUTPUT_MESSAGE; },
     });
+    api.normalizeMorphologyTenseValue = normalizeMorphologyTenseValue;
     api.buildMorphologyApplicationDiagnostic = buildMorphologyApplicationDiagnostic;
     api.getMorphologyApplicationDiagnosticLayerContract = getMorphologyApplicationDiagnosticLayerContract;
     api.normalizeMorphologyApplicationDiagnostics = normalizeMorphologyApplicationDiagnostics;

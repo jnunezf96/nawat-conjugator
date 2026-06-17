@@ -236,6 +236,10 @@ function run(ctx) {
     // m→n coda assimilation: [m] in coda position (before any consonant onset or word-finally) → [n]
     const mFinal = ctx.buildSurfaceChainState({ pers1: "ni", tronco: "chinam" });
     s.eq("realize: coda m → n (word-final)", ctx.joinSurfaceChain(ctx.realizeSurfaceChain(mFinal)), "nichinan");
+    const mBeforeVowel = ctx.buildSurfaceChainState({ obj1: "m", tronco: "altia" });
+    s.eq("realize: obj1 m stays m before vowel-initial tronco", ctx.joinSurfaceChain(ctx.realizeSurfaceChain(mBeforeVowel)), "maltia");
+    s.eq("output: mu+ajsi = muajsi", ctx.buildOutputWordText({ obj1: "mu", tronco: "ajsi" }), "muajsi");
+    s.eq("output: m+altia = maltia", ctx.buildOutputWordText({ obj1: "m", tronco: "altia" }), "maltia");
     s.eq(
         "surface chain records Lesson 2 phonotactic frames for realized output changes",
         (() => {
@@ -406,7 +410,7 @@ function run(ctx) {
                         directionalPlan: { shouldUseAl: true, effectiveDirectionalRuleMode: "" },
                         pers1Base: "ti",
                         obj1Base: "ta",
-                        tense: "imperativo",
+                        tense: "optativo",
                     },
                 }),
             ];
@@ -439,7 +443,7 @@ function run(ctx) {
             },
             {
                 surface: "shaltaita",
-                ruleId: "imperative-shi-before-al-sh",
+                ruleId: "optative-shi-before-al-sh",
                 sourceSurface: "shi",
                 target: "sh",
                 grammarSlot: "pers1",

@@ -531,12 +531,12 @@ function run(ctx) {
         diagnosticContractLayer: "stemFrame",
     });
 
-    const imperative = ctx.applyMorphologyRules({
+    const optative = ctx.applyMorphologyRules({
         subjectPrefix: "ti",
         objectPrefix: "",
         subjectSuffix: "",
         verb: "nemi",
-        tense: "imperativo",
+        tense: "optativo",
         analysisVerb: "nemi",
         rawAnalysisVerb: "nemi",
         analysisExactVerb: "nemi",
@@ -544,10 +544,10 @@ function run(ctx) {
         isWeya: false,
         directionalPrefix: "",
     });
-    s.eq("applyMorphologyRules imperative rewrites second person prefix to shi", imperative.subjectPrefix, "shi");
-    s.eq("applyMorphologyRules imperative keeps nemi stem", imperative.verb, "nemi");
+    s.eq("applyMorphologyRules optative rewrites second person prefix to shi", optative.subjectPrefix, "shi");
+    s.eq("applyMorphologyRules optative keeps nemi stem", optative.verb, "nemi");
 
-    const nemiImperativeSecondSingular = ctx.generateWord({
+    const nemiOptativeSecondSingular = ctx.generateWord({
         silent: true,
         skipValidation: true,
         override: {
@@ -559,12 +559,27 @@ function run(ctx) {
             pers2: "",
             num2: "",
             poseedor: "",
-            tiempo: "imperativo",
+            tiempo: "optativo",
         },
     });
-    s.eq("generateWord imperative 2sg suppresses ma after shi rewrite", nemiImperativeSecondSingular.surfaceForms, ["shinemi"]);
+    s.eq("generateWord optative 2sg suppresses ma after shi rewrite", nemiOptativeSecondSingular.surfaceForms, ["shinemi"]);
+    s.eq(
+        "generateWord optative 2sg formula shell uses adapted Lesson 5 subject filler",
+        {
+            formulaEcho: nemiOptativeSecondSingular.nuclearClauseShell?.formulaEcho,
+            subjectPrefix: nemiOptativeSecondSingular.nuclearClauseShell?.formulaSlots?.pers1Pers2?.prefix,
+            subjectDisplay: nemiOptativeSecondSingular.nuclearClauseShell?.formulaSlots?.pers1Pers2?.displayPrefix,
+            connector: nemiOptativeSecondSingular.nuclearClauseShell?.formulaSlots?.num1Num2?.displayConnector,
+        },
+        {
+            formulaEcho: "#shi-Ø(nemi)Ø+Ø-Ø#",
+            subjectPrefix: "shi",
+            subjectDisplay: "shi",
+            connector: "Ø-Ø",
+        }
+    );
 
-    const asiImperativeSecondPlural = ctx.generateWord({
+    const asiOptativeSecondPlural = ctx.generateWord({
         silent: true,
         skipValidation: true,
         override: {
@@ -576,12 +591,27 @@ function run(ctx) {
             pers2: "t",
             num2: "t",
             poseedor: "",
-            tiempo: "imperativo",
+            tiempo: "optativo",
         },
     });
-    s.eq("generateWord imperative 2pl suppresses ma after shi rewrite", asiImperativeSecondPlural.surfaceForms, ["shiasikan"]);
+    s.eq("generateWord optative 2pl suppresses ma after shi rewrite", asiOptativeSecondPlural.surfaceForms, ["shiasikan"]);
+    s.eq(
+        "generateWord optative 2pl formula shell keeps plural connector outside adapted pers1",
+        {
+            formulaEcho: asiOptativeSecondPlural.nuclearClauseShell?.formulaEcho,
+            subjectPrefix: asiOptativeSecondPlural.nuclearClauseShell?.formulaSlots?.pers1Pers2?.prefix,
+            subjectDisplay: asiOptativeSecondPlural.nuclearClauseShell?.formulaSlots?.pers1Pers2?.displayPrefix,
+            connector: asiOptativeSecondPlural.nuclearClauseShell?.formulaSlots?.num1Num2?.displayConnector,
+        },
+        {
+            formulaEcho: "#shi-Ø(asi)Ø+k-an#",
+            subjectPrefix: "shi",
+            subjectDisplay: "shi",
+            connector: "k-an",
+        }
+    );
 
-    const nemiImperativeThirdSingular = ctx.generateWord({
+    const nemiOptativeThirdSingular = ctx.generateWord({
         silent: true,
         skipValidation: true,
         override: {
@@ -593,10 +623,10 @@ function run(ctx) {
             pers2: "",
             num2: "",
             poseedor: "",
-            tiempo: "imperativo",
+            tiempo: "optativo",
         },
     });
-    s.eq("generateWord imperative 3sg keeps ma", nemiImperativeThirdSingular.surfaceForms, ["ma nemi"]);
+    s.eq("generateWord optative 3sg keeps ma", nemiOptativeThirdSingular.surfaceForms, ["ma nemi"]);
 
     const agentivo = ctx.applyMorphologyRules({
         subjectPrefix: "",
@@ -635,7 +665,7 @@ function run(ctx) {
         formulaEcho: generatedAgentivo.nuclearClauseShell?.formulaEcho || "",
     }, {
         connector: "Ø",
-        formulaEcho: "#Ø...Ø(nemini)Ø#",
+        formulaEcho: "#Ø-Ø(nemini)Ø#",
     });
     s.eq("generateWord agentivo exposes customary-present agentive nominalization profile", summarizeNominalizationProfile(generatedAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -673,7 +703,7 @@ function run(ctx) {
         formulaEcho: generatedPresentAgentivo.nuclearClauseShell?.formulaEcho || "",
     }, {
         connector: "Ø",
-        formulaEcho: "#Ø...Ø(nemi)Ø#",
+        formulaEcho: "#Ø-Ø(nemi)Ø#",
     });
     s.eq("Andrews 36.7 present-agentive profile stays distinct from customary-present agentive", summarizeNominalizationProfile(generatedPresentAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -712,7 +742,7 @@ function run(ctx) {
     }, {
         forms: ["tinemit"],
         connector: "t",
-        formulaEcho: "#ti...Ø(nemi)t#",
+        formulaEcho: "#ti-Ø(nemi)t#",
     });
     const generatedPresentAgentivoTransitive = ctx.generateWord({
         silent: true,
@@ -734,7 +764,7 @@ function run(ctx) {
         formulaEcho: generatedPresentAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["tamati"],
-        formulaEcho: "#Ø...Ø(tamati)Ø#",
+        formulaEcho: "#Ø-Ø(tamati)Ø#",
     });
     const generatedPresentAgentivoPossessiveProbe = ctx.generateWord({
         silent: true,
@@ -758,7 +788,7 @@ function run(ctx) {
     }, {
         forms: ["nemi"],
         predicateState: "absolutive",
-        formulaEcho: "#Ø...Ø(nemi)Ø#",
+        formulaEcho: "#Ø-Ø(nemi)Ø#",
     });
     const generatedPreteritAgentivo = ctx.generateWord({
         silent: true,
@@ -782,7 +812,7 @@ function run(ctx) {
     }, {
         forms: ["nenki", "nemik"],
         connector: "ki",
-        formulaEcho: "#Ø...Ø(nen)ki#",
+        formulaEcho: "#Ø-Ø(nen)ki#",
     });
     s.eq("Andrews 35 preterit-agentive profile stays distinct from customary, present, and future agentives", summarizeNominalizationProfile(generatedPreteritAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -821,7 +851,7 @@ function run(ctx) {
     }, {
         forms: ["tinenket", "tinemiket"],
         connector: "ket",
-        formulaEcho: "#ti...Ø(nen)ket#",
+        formulaEcho: "#ti-Ø(nen)ket#",
     });
     const generatedPreteritAgentivoTransitive = ctx.generateWord({
         silent: true,
@@ -843,7 +873,7 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["tamatki", "tamatik"],
-        formulaEcho: "#Ø...Ø(tamat)ki#",
+        formulaEcho: "#Ø-Ø(tamat)ki#",
     });
     const generatedPreteritAgentivoPossessive = ctx.generateWord({
         silent: true,
@@ -869,7 +899,7 @@ function run(ctx) {
         forms: ["nutamatkaw", "nutamatikaw"],
         connector: "w",
         predicateState: "possessive",
-        formulaEcho: "#Ø...Ø(tamatka)w#",
+        formulaEcho: "#Ø-Ø(tamatka)w#",
     });
     const generatedPreteritAgentivoReflexivePossessive = ctx.generateWord({
         silent: true,
@@ -891,7 +921,7 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoReflexivePossessive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["nunematkaw", "nunematikaw"],
-        formulaEcho: "#Ø...Ø(nematka)w#",
+        formulaEcho: "#Ø-Ø(nematka)w#",
     });
     const generatedPreteritAgentivoMikiPossessive = ctx.generateWord({
         silent: true,
@@ -916,7 +946,7 @@ function run(ctx) {
     }, {
         forms: ["ninumikikaw"],
         predicateState: "possessive",
-        formulaEcho: "#ni...Ø(mikika)w#",
+        formulaEcho: "#ni-Ø(mikika)w#",
         possessorSourceFrame: {
             grammarSource: "Andrews 36.12",
             possessorOrigin: "external",
@@ -949,7 +979,7 @@ function run(ctx) {
     }, {
         forms: ["nemiski"],
         connector: "ki",
-        formulaEcho: "#Ø...Ø(nemis)ki#",
+        formulaEcho: "#Ø-Ø(nemis)ki#",
     });
     s.eq("Andrews 36.8 future-agentive profile stays distinct from customary and present agentive", summarizeNominalizationProfile(generatedFutureAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -988,7 +1018,7 @@ function run(ctx) {
     }, {
         forms: ["tinemisket"],
         connector: "ket",
-        formulaEcho: "#ti...Ø(nemis)ket#",
+        formulaEcho: "#ti-Ø(nemis)ket#",
     });
     const generatedFutureAgentivoTransitive = ctx.generateWord({
         silent: true,
@@ -1010,7 +1040,7 @@ function run(ctx) {
         formulaEcho: generatedFutureAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["tamatiski"],
-        formulaEcho: "#Ø...Ø(tamatis)ki#",
+        formulaEcho: "#Ø-Ø(tamatis)ki#",
     });
     const generatedFutureAgentivoPossessive = ctx.generateWord({
         silent: true,
@@ -1036,7 +1066,7 @@ function run(ctx) {
         forms: ["nutamatiskaw"],
         connector: "w",
         predicateState: "possessive",
-        formulaEcho: "#Ø...Ø(tamatiska)w#",
+        formulaEcho: "#Ø-Ø(tamatiska)w#",
     });
 
     const nemiActionNominal = ctx.generateWord({
@@ -1658,7 +1688,7 @@ function run(ctx) {
             num1Num2: "Ø",
             nominalizerRole: "predicate.potential-patient-nominalizer",
             predicateDerivationalSuffix: "lis",
-            formulaEcho: "#Ø...Ø(mati)Ø#",
+            formulaEcho: "#Ø-Ø(mati)Ø#",
         }
     );
     const firstPersonPotentialPatient = ctx.generateWord({
@@ -1876,7 +1906,7 @@ function run(ctx) {
         {
             forms: ["tinemachunimet", "tinematunimet", "tinematilunimet"],
             connector: "met",
-            formulaEcho: "#ti...Ø(nematiluni)met#",
+            formulaEcho: "#ti-Ø(nematiluni)met#",
         }
     );
     const absolutiveInstrumentiveReflexive = ctx.generateWord({
@@ -1907,7 +1937,7 @@ function run(ctx) {
             forms: ["nemachuni", "nematuni", "nematiluni"],
             sourceTense: "presente-habitual",
             connector: "Ø",
-            formulaEcho: "#Ø...Ø(nemachuni)Ø#",
+            formulaEcho: "#Ø-Ø(nemachuni)Ø#",
         }
     );
     const possessedInstrumentiveReflexive = ctx.generateWord({
@@ -1942,7 +1972,7 @@ function run(ctx) {
             predicateState: "possessive",
             possessorPrefix: "nu",
             connector: "Ø",
-            formulaEcho: "#Ø...Ø(nematiya)Ø#",
+            formulaEcho: "#Ø-Ø(nematiya)Ø#",
         }
     );
     const generatedInstrumentiveSourceSubjectPossessive = ctx.generateWord({
@@ -1974,7 +2004,7 @@ function run(ctx) {
             forms: ["tutamatiya"],
             predicateState: "possessive",
             possessorPrefix: "tu",
-            formulaEcho: "#Ø...Ø(tamatiya)Ø#",
+            formulaEcho: "#Ø-Ø(tamatiya)Ø#",
         }
     );
 

@@ -1158,6 +1158,7 @@ function checkAndrewsTrajectoryDoc() {
         "Directing Rule",
         "Redirecting Rule",
         "Plan/Pursue Rule",
+        "Correctness Before Existence Rule",
     ].forEach((marker) => {
         if (!text.includes(marker)) {
             addError(`docs/ANDREWS_TRAJECTORY.md must include "${marker}".`);
@@ -1554,6 +1555,14 @@ function checkAndrewsTrajectoryRegistry() {
         });
     }
 
+    function carriesPlanPursueCorrectnessProbe(text) {
+        return /Correcci[oó]n antes de existencia/.test(text)
+            && /ruta de entrada a salida/.test(text)
+            && /comportamiento/.test(text)
+            && /existencia/.test(text)
+            && /sonda de fallo/.test(text);
+    }
+
     lessonRegistry.forEach((lesson, index) => {
         const where = `src/lessons/registry.js lesson ${lesson.id}.trajectory`;
         const trajectory = asObject(lesson.trajectory, where);
@@ -1645,6 +1654,20 @@ function checkAndrewsTrajectoryRegistry() {
             }
             checkArrowRefs(arrow, arrowWhere, "feedbackRefs");
         });
+        if (lesson.id >= 1 && lesson.id <= 5) {
+            plannedArrows.forEach((arrow, arrowIndex) => {
+                const text = arrow && typeof arrow.aim === "string" ? arrow.aim : "";
+                if (!carriesPlanPursueCorrectnessProbe(text)) {
+                    addError(`${where}.plannedArrows[${arrowIndex}].aim must carry the Lessons 1-5 Corrección antes de existencia probe.`);
+                }
+            });
+            firedArrows.forEach((arrow, arrowIndex) => {
+                const text = arrow && typeof arrow.correction === "string" ? arrow.correction : "";
+                if (!carriesPlanPursueCorrectnessProbe(text)) {
+                    addError(`${where}.firedArrows[${arrowIndex}].correction must carry the Lessons 1-5 Corrección antes de existencia probe.`);
+                }
+            });
+        }
         const hitCount = firedArrows.filter((arrow) => arrow && arrow.result === "hit").length;
         const missCount = firedArrows.filter((arrow) => arrow && arrow.result === "miss").length;
         if (trajectory.hitCount !== hitCount) {

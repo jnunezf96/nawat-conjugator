@@ -10,7 +10,7 @@
     "condicional": { "": "skia", "t": "skiat" },
     "presente-desiderativo": { "": "sneki", "t": "snekit" },
     "presente-habitual": { "": "ni", "t": "nit" },
-    "imperativo": { "": "", "t": "kan" },
+    "optativo": { "": "", "t": "kan" },
     "sustantivo-verbal": { "": "lis", "t": "lis" },
     "agentivo": { "": "", "t": "met", "p": "wan" }
   },

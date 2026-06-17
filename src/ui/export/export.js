@@ -115,6 +115,29 @@ function getUnifiedVerbOutputForm(source = {}, defaults = {}) {
     return normalizeUnifiedVerbOutputSurfaceValue(source.form || defaults.form || "");
 }
 
+function getVisibleConjugationValueExportText(row) {
+    const valueNode = row?.querySelector?.(".conjugation-value") || null;
+    if (!valueNode) {
+        return "";
+    }
+    if (Object.prototype.hasOwnProperty.call(valueNode.dataset || {}, "exportForm")) {
+        return String(valueNode.dataset.exportForm || "").trim();
+    }
+    const surfaceNode = valueNode.querySelector?.(".conjugation-conversion-surface");
+    if (surfaceNode) {
+        const surfaceLines = Array.from(surfaceNode.querySelectorAll?.(".conjugation-conversion-surface-line") || [])
+            .map((node) => node.textContent.trim())
+            .filter(Boolean);
+        if (surfaceLines.length) {
+            return surfaceLines.join("\n");
+        }
+        return surfaceNode.textContent.trim();
+    }
+    const clone = valueNode.cloneNode(true);
+    clone.querySelectorAll?.(".conjugation-conversion-actions").forEach((node) => node.remove());
+    return clone.textContent.trim();
+}
+
 function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
     const src = source && typeof source === "object" ? source : {};
     const fallback = defaults && typeof defaults === "object" ? defaults : {};
@@ -338,7 +361,7 @@ function collectVisibleConjugationRowsFromDom() {
         const rowNodes = Array.from(block.querySelectorAll(".conjugation-row"));
         rowNodes.forEach((row) => {
             const personLabel = row.querySelector(".person-label")?.textContent.trim() || "";
-            const value = row.querySelector(".conjugation-value")?.textContent.trim() || "";
+            const value = getVisibleConjugationValueExportText(row);
             if (!personLabel && !value) {
                 return;
             }

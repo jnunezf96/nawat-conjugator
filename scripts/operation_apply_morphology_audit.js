@@ -201,7 +201,7 @@ const records = [
         function: "applyMorphologyRules — surfaceRuleMeta construction",
         location: "script.js:36996–37006",
         category: "layer3_legitimate",
-        reason: "Builds a structured { sourceOuterPrefix, imperativeKiReduction, dropVerbInitialIAfterObjectI, dropInitialIFromIskaliaAfterMu, trimFinalIAUAVowel } metadata object. No display strings; all fields are boolean flags or string tokens consumed by the surface-chain realization layer.",
+        reason: "Builds a structured { sourceOuterPrefix, optativeKiReduction, dropVerbInitialIAfterObjectI, dropInitialIFromIskaliaAfterMu, trimFinalIAUAVowel } metadata object. No display strings; all fields are boolean flags or string tokens consumed by the surface-chain realization layer.",
         current_inputs: "computed boolean context from surrounding morphology decisions",
         current_output: "surfaceRuleMeta object (passed to buildOutputWordSegments via directionalChainMeta)",
         mutates_grammatical_authority: false,

@@ -481,12 +481,12 @@ function run(ctx) {
                     actualPredicateState: "absolutive",
                     sourceClauseKind: "nominal-nuclear-clause",
                     sourceFormulaSlots: directFormulaSlots("shuchi", "t"),
-                    sourceFormulaEcho: "#Ø...Ø(shuchi)t#",
+                    sourceFormulaEcho: "#Ø-Ø(shuchi)t#",
                     hasModificationAst: false,
                     spellingAuthority: "Nawat/Pipil orthography",
                     grammarAuthority: "Andrews PDF",
                 },
-                sourceFormula: "#Ø...Ø(shuchi)t#",
+                sourceFormula: "#Ø-Ø(shuchi)t#",
             },
             generated: {
                 result: "shuchit",
@@ -508,7 +508,7 @@ function run(ctx) {
                     actualPredicateState: "absolutive",
                     sourceClauseKind: "nominal-nuclear-clause",
                     sourceFormulaSlots: directFormulaSlots("shuchi", "t"),
-                    sourceFormulaEcho: "#Ø...Ø(shuchi)t#",
+                    sourceFormulaEcho: "#Ø-Ø(shuchi)t#",
                     hasModificationAst: false,
                     spellingAuthority: "Nawat/Pipil orthography",
                     grammarAuthority: "Andrews PDF",
@@ -617,7 +617,7 @@ function run(ctx) {
         })(),
         {
             sourceSurface: "tamachti",
-            sourceFormula: "#Ø...Ø(tamach)ti#",
+            sourceFormula: "#Ø-Ø(tamach)ti#",
             direct: {
                 supported: true,
                 result: "tamachti",
@@ -633,7 +633,7 @@ function run(ctx) {
                     generatedSurfacePreserved: true,
                     hasModificationAst: false,
                     patientivoSource: "nonactive",
-                    sourceFormulaEcho: "#Ø...Ø(tamach)ti#",
+                    sourceFormulaEcho: "#Ø-Ø(tamach)ti#",
                 },
             },
             routed: {
@@ -644,7 +644,7 @@ function run(ctx) {
                 topFramesIsGrammarFrame: true,
                 surfaceForms: ["tamachti"],
                 generationRoute: "adjectival-nnc",
-                formulaEcho: "#Ø...Ø(tamach)ti#",
+                formulaEcho: "#Ø-Ø(tamach)ti#",
                 functionKind: "patientive-adjectival",
             },
         }
@@ -669,7 +669,7 @@ function run(ctx) {
             const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
                 patientivoSurface: "tamachti",
                 patientivoSource: "nonactive",
-                formulaEcho: "#Ø...Ø(tamach)ti#",
+                formulaEcho: "#Ø-Ø(tamach)ti#",
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -907,7 +907,7 @@ function run(ctx) {
             routedSurface: "shuchit",
             routedResult: "shuchit",
             routedFunctionKind: "modifier-candidate",
-            routedSourceFormulaEcho: "#Ø...Ø(shuchi)t#",
+            routedSourceFormulaEcho: "#Ø-Ø(shuchi)t#",
             routedSourceStem: "shuchi",
             doubledSurfaceBlocked: true,
         }
@@ -918,7 +918,7 @@ function run(ctx) {
             const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
                 patientivoSurface: "tamachti",
                 patientivoSource: "nonactive",
-                formulaEcho: "#Ø...Ø(tamach)ti#",
+                formulaEcho: "#Ø-Ø(tamach)ti#",
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -1000,7 +1000,7 @@ function run(ctx) {
             const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
                 surface: "stale-clicked-surface",
                 formation: "patientive-adjectival",
-                formulaEcho: "#Ø...Ø(frame)#",
+                formulaEcho: "#Ø-Ø(frame)#",
                 patientivoSource: "nonactive",
                 grammarFrame: frame,
                 refresh: false,
@@ -1060,7 +1060,7 @@ function run(ctx) {
             const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
                 surface: "stale-clicked-surface",
                 formation: "patientive-adjectival",
-                formulaEcho: "#Ø...Ø(frame)#",
+                formulaEcho: "#Ø-Ø(frame)#",
                 patientivoSource: "nonactive",
                 grammarFrame: frame,
                 refresh: false,
@@ -1627,7 +1627,7 @@ function run(ctx) {
                 generationRoute: "adjectival-nnc",
                 shellKind: "verbal-nuclear-clause",
                 shellFormulaType: "VNC",
-                shellFormulaEcho: "#Ø-Ø-Ø-Ø(nemi)-Ø-presente#",
+                shellFormulaEcho: "#Ø-Ø(nemi)Ø+Ø-Ø#",
                 functionKind: "vnc-adjectival",
             },
         }
@@ -1823,7 +1823,7 @@ function run(ctx) {
         {
             customary: {
                 source: "nemini",
-                formula: "#Ø...Ø(nemini)Ø#",
+                formula: "#Ø-Ø(nemini)Ø#",
                 supported: true,
                 result: "nemini",
                 outputKind: "adjectival-nnc-nominalized-vnc-function",
@@ -1835,7 +1835,7 @@ function run(ctx) {
             },
             preterit: {
                 source: "mikik",
-                formula: "#Ø...Ø(miki)k#",
+                formula: "#Ø-Ø(miki)k#",
                 supported: true,
                 result: "mikik",
                 surfaceForms: ["mikik"],
@@ -1845,7 +1845,7 @@ function run(ctx) {
             },
             potentialPatient: {
                 source: "matilis",
-                formula: "#Ø...Ø(mati)Ø#",
+                formula: "#Ø-Ø(mati)Ø#",
                 supported: true,
                 result: "matilis",
                 lessonRef: "Andrews 40.4.2",
@@ -1854,7 +1854,7 @@ function run(ctx) {
             },
             customaryPatientive: {
                 source: "machuni",
-                formula: "#Ø...Ø(matiluni)Ø#",
+                formula: "#Ø-Ø(matiluni)Ø#",
                 supported: true,
                 result: "machuni",
                 lessonRef: "Andrews 40.7",
@@ -1964,7 +1964,7 @@ function run(ctx) {
                 nominalizationKind: "adjectival-surface",
                 generatedSurfacePreserved: true,
                 hasModificationAst: false,
-                sourceFormulaEcho: "#Ø...Ø(amikik)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(amikik)Ø#",
                 sourceMatrixStem: "miki",
                 sourceEmbedRoles: ["adjacent-core-embed"],
                 sourceEmbedValues: ["a"],
@@ -2033,7 +2033,7 @@ function run(ctx) {
                 supported: true,
                 result: "amikik",
                 outputKind: "adjectival-nnc-compound-source",
-                formulaEcho: "#Ø...Ø(amikik)Ø#",
+                formulaEcho: "#Ø-Ø(amikik)Ø#",
                 lessonRef: "Andrews 41.2",
                 functionKind: "compound-source-adjectival",
                 sourceCategory: "compound-verbstem",
@@ -2138,9 +2138,9 @@ function run(ctx) {
             overrideFormation: "compound-source-adjectival",
             overrideCompoundSurface: "amikik",
             overrideSourceMatrix: "miki",
-            overrideFormulaEcho: "#Ø...Ø(amikik)Ø#",
+            overrideFormulaEcho: "#Ø-Ø(amikik)Ø#",
             routedResult: "amikik",
-            routedFormulaEcho: "#Ø...Ø(amikik)Ø#",
+            routedFormulaEcho: "#Ø-Ø(amikik)Ø#",
             routedFunctionKind: "compound-source-adjectival",
             routedSourceMatrix: "miki",
             routedEmbedRoles: ["adjacent-core-embed"],
@@ -2197,7 +2197,7 @@ function run(ctx) {
             generated: {
                 supported: true,
                 result: "xilotzontik",
-                formulaEcho: "#Ø...Ø(xilotzonti)k#",
+                formulaEcho: "#Ø-Ø(xilotzonti)k#",
                 sourceFormationSubtype: "segmented-denominal-tiya",
                 sourceFrameKind: "denominal-compound-nounstem-frame",
                 sourceFrameLesson: "Andrews 41.3",
@@ -2212,7 +2212,7 @@ function run(ctx) {
                 supported: true,
                 result: "xilotzontik",
                 outputKind: "adjectival-nnc-denominal-compound-source",
-                formulaEcho: "#Ø...Ø(xilotzonti)k#",
+                formulaEcho: "#Ø-Ø(xilotzonti)k#",
                 lessonRef: "Andrews 41.3",
                 functionKind: "denominal-compound-adjectival",
                 sourceCategory: "compound-nounstem",
@@ -2296,9 +2296,9 @@ function run(ctx) {
             overrideFormation: "denominal-compound-adjectival",
             overrideDenominalSurface: "xilotzontik",
             overrideSourceMatrix: "tzon",
-            overrideFormulaEcho: "#Ø...Ø(xilotzonti)k#",
+            overrideFormulaEcho: "#Ø-Ø(xilotzonti)k#",
             routedResult: "xilotzontik",
-            routedFormulaEcho: "#Ø...Ø(xilotzonti)k#",
+            routedFormulaEcho: "#Ø-Ø(xilotzonti)k#",
             routedFunctionKind: "denominal-compound-adjectival",
             routedSourceMatrix: "tzon",
             routedEmbedRoles: ["adjacent-compound-noun-embed"],
@@ -2360,7 +2360,7 @@ function run(ctx) {
                 supported: true,
                 result: "istak",
                 surfaceForms: ["istak"],
-                formulaEcho: "#Ø...Ø(ista)k#",
+                formulaEcho: "#Ø-Ø(ista)k#",
                 outputKind: "adjectival-nnc-root-plus-ya",
                 formation: "root-plus-ya-obsolete-preterit",
                 sourceRootPlusYaBase: "ista",
@@ -2372,7 +2372,7 @@ function run(ctx) {
                 surfaceForms: ["istak"],
                 generationRoute: "adjectival-nnc",
                 outputKind: "adjectival-nnc-root-plus-ya",
-                formulaEcho: "#Ø...Ø(ista)k#",
+                formulaEcho: "#Ø-Ø(ista)k#",
             },
         }
     );
@@ -2399,7 +2399,7 @@ function run(ctx) {
                 }),
             },
         }),
-        "#Ø...Ø(frame-predicate)frame-connector#"
+        "#Ø-Ø(frame-predicate)frame-connector#"
     );
     s.eq(
         "adjectival NNC formula echo stops before stale slot text after an empty result frame",
@@ -2438,7 +2438,7 @@ function run(ctx) {
         },
         {
             emptyPredicate: "",
-            emptyConnector: "#Ø...Ø(frame-safe-predicate)Ø#",
+            emptyConnector: "#Ø-Ø(frame-safe-predicate)Ø#",
         }
     );
     s.eq(
@@ -2482,7 +2482,7 @@ function run(ctx) {
             const framed = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: "stale-source-surface",
                 sourceFormulaSlots: framedSlots,
-                sourceFormulaEcho: "#Ø...Ø(stale-predicate)t#",
+                sourceFormulaEcho: "#Ø-Ø(stale-predicate)t#",
             });
             const emptyPredicate = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: "stale-source-surface",
@@ -2517,7 +2517,7 @@ function run(ctx) {
                 result: "yejyektik",
                 surfaceForms: ["yejyektik"],
                 sourceStem: "yekti",
-                formulaEcho: "#Ø...Ø(yejyekti)k#",
+                formulaEcho: "#Ø-Ø(yejyekti)k#",
             },
             emptyPredicate: {
                 supported: false,
@@ -2527,7 +2527,7 @@ function run(ctx) {
             emptyConnector: {
                 result: "yejyekti",
                 surfaceForms: ["yejyekti"],
-                formulaEcho: "#Ø...Ø(yejyekti)Ø#",
+                formulaEcho: "#Ø-Ø(yejyekti)Ø#",
                 sourceStem: "yekti",
             },
         }
@@ -2642,7 +2642,7 @@ function run(ctx) {
             result: "istak",
             surfaceForms: ["istak"],
             outputKind: "adjectival-nnc-root-plus-ya",
-            formulaEcho: "#Ø...Ø(ista)k#",
+            formulaEcho: "#Ø-Ø(ista)k#",
             generationRoute: "adjectival-nnc",
             diagnostics: [],
         }
@@ -2683,19 +2683,19 @@ function run(ctx) {
             {
                 stem: "kukuya",
                 result: "kukuk",
-                formulaEcho: "#Ø...Ø(kuku)k#",
+                formulaEcho: "#Ø-Ø(kuku)k#",
                 outputKind: "adjectival-nnc-root-plus-ya",
             },
             {
                 stem: "seseya",
                 result: "sesek",
-                formulaEcho: "#Ø...Ø(sese)k#",
+                formulaEcho: "#Ø-Ø(sese)k#",
                 outputKind: "adjectival-nnc-root-plus-ya",
             },
             {
                 stem: "kwaistaya",
                 result: "kwaistak",
-                formulaEcho: "#Ø...Ø(kwaista)k#",
+                formulaEcho: "#Ø-Ø(kwaista)k#",
                 outputKind: "adjectival-nnc-root-plus-ya",
             },
         ]
@@ -2792,7 +2792,7 @@ function run(ctx) {
                     supported: true,
                     result: "itztik",
                     surfaceForms: ["itztik"],
-                    formulaEcho: "#Ø...Ø(itzti)k#",
+                    formulaEcho: "#Ø-Ø(itzti)k#",
                     sourceRootPlusYaBase: "itzti",
                     sourceFormationSubtype: "denominal-tiya",
                     slotSubtype: "denominal-tiya",
@@ -2801,7 +2801,7 @@ function run(ctx) {
                     result: "itztik",
                     surfaceForms: ["itztik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(itzti)k#",
+                    formulaEcho: "#Ø-Ø(itzti)k#",
                 },
             },
             {
@@ -2810,7 +2810,7 @@ function run(ctx) {
                     supported: true,
                     result: "yektik",
                     surfaceForms: ["yektik"],
-                    formulaEcho: "#Ø...Ø(yekti)k#",
+                    formulaEcho: "#Ø-Ø(yekti)k#",
                     sourceRootPlusYaBase: "yekti",
                     sourceFormationSubtype: "denominal-tiya",
                     slotSubtype: "denominal-tiya",
@@ -2819,7 +2819,7 @@ function run(ctx) {
                     result: "yektik",
                     surfaceForms: ["yektik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(yekti)k#",
+                    formulaEcho: "#Ø-Ø(yekti)k#",
                 },
             },
             {
@@ -2828,7 +2828,7 @@ function run(ctx) {
                     supported: true,
                     result: "chichiktik",
                     surfaceForms: ["chichiktik"],
-                    formulaEcho: "#Ø...Ø(chichikti)k#",
+                    formulaEcho: "#Ø-Ø(chichikti)k#",
                     sourceRootPlusYaBase: "chichikti",
                     sourceFormationSubtype: "denominal-tiya",
                     slotSubtype: "denominal-tiya",
@@ -2837,7 +2837,7 @@ function run(ctx) {
                     result: "chichiktik",
                     surfaceForms: ["chichiktik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(chichikti)k#",
+                    formulaEcho: "#Ø-Ø(chichikti)k#",
                 },
             },
             {
@@ -2846,7 +2846,7 @@ function run(ctx) {
                     supported: true,
                     result: "etik",
                     surfaceForms: ["etik"],
-                    formulaEcho: "#Ø...Ø(eti)k#",
+                    formulaEcho: "#Ø-Ø(eti)k#",
                     sourceRootPlusYaBase: "eti",
                     sourceFormationSubtype: "segmented-denominal-tiya",
                     slotSubtype: "segmented-denominal-tiya",
@@ -2855,7 +2855,7 @@ function run(ctx) {
                     result: "etik",
                     surfaceForms: ["etik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(eti)k#",
+                    formulaEcho: "#Ø-Ø(eti)k#",
                 },
             },
             {
@@ -2864,7 +2864,7 @@ function run(ctx) {
                     supported: true,
                     result: "tetik",
                     surfaceForms: ["tetik"],
-                    formulaEcho: "#Ø...Ø(teti)k#",
+                    formulaEcho: "#Ø-Ø(teti)k#",
                     sourceRootPlusYaBase: "teti",
                     sourceFormationSubtype: "segmented-denominal-tiya",
                     slotSubtype: "segmented-denominal-tiya",
@@ -2873,7 +2873,7 @@ function run(ctx) {
                     result: "tetik",
                     surfaceForms: ["tetik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(teti)k#",
+                    formulaEcho: "#Ø-Ø(teti)k#",
                 },
             },
             {
@@ -2882,7 +2882,7 @@ function run(ctx) {
                     supported: true,
                     result: "kwaltik",
                     surfaceForms: ["kwaltik"],
-                    formulaEcho: "#Ø...Ø(kwalti)k#",
+                    formulaEcho: "#Ø-Ø(kwalti)k#",
                     sourceRootPlusYaBase: "kwalti",
                     sourceFormationSubtype: "segmented-denominal-tiya",
                     slotSubtype: "segmented-denominal-tiya",
@@ -2891,7 +2891,7 @@ function run(ctx) {
                     result: "kwaltik",
                     surfaceForms: ["kwaltik"],
                     outputKind: "adjectival-nnc-root-plus-ya",
-                    formulaEcho: "#Ø...Ø(kwalti)k#",
+                    formulaEcho: "#Ø-Ø(kwalti)k#",
                 },
             },
         ]
@@ -3071,13 +3071,13 @@ function run(ctx) {
         {
             source: {
                 result: "yektik",
-                formulaEcho: "#Ø...Ø(yekti)k#",
+                formulaEcho: "#Ø-Ø(yekti)k#",
             },
             direct: {
                 supported: true,
                 result: "yejyektik",
                 outputKind: "adjectival-nnc-intensified",
-                formulaEcho: "#Ø...Ø(yejyekti)k#",
+                formulaEcho: "#Ø-Ø(yejyekti)k#",
                 sourceStem: "yekti",
                 intensifiedStem: "yejyekti",
                 lessonRef: "Andrews 41.1",
@@ -3090,8 +3090,8 @@ function run(ctx) {
                 result: "yejyektik",
                 surfaceForms: ["yejyektik"],
                 outputKind: "adjectival-nnc-intensified",
-                formulaEcho: "#Ø...Ø(yejyekti)k#",
-                shellFormulaEcho: "#Ø...Ø(yejyekti)k#",
+                formulaEcho: "#Ø-Ø(yejyekti)k#",
+                shellFormulaEcho: "#Ø-Ø(yejyekti)k#",
                 shellFormulaType: "NNC",
             },
         }
@@ -3158,13 +3158,13 @@ function run(ctx) {
         })(),
         {
             entrySurface: "yejyektik",
-            entrySourceFormulaEcho: "#Ø...Ø(yekti)k#",
+            entrySourceFormulaEcho: "#Ø-Ø(yekti)k#",
             overrideFormation: "intensified-adjectival",
             overrideTargetSurface: "yejyektik",
-            overrideSourceFormulaEcho: "#Ø...Ø(yekti)k#",
+            overrideSourceFormulaEcho: "#Ø-Ø(yekti)k#",
             overrideSourcePredicateStem: "yekti",
             routedResult: "yejyektik",
-            routedFormulaEcho: "#Ø...Ø(yejyekti)k#",
+            routedFormulaEcho: "#Ø-Ø(yejyekti)k#",
             routedSourceStem: "yekti",
             routedIntensifiedStem: "yejyekti",
         }

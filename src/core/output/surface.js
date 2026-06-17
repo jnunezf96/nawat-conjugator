@@ -249,12 +249,12 @@ function realizeSurfaceChainFinalIAUATrim(chain = null) {
     return nextChain;
 }
 
-function realizeSurfaceChainImperativeKiReduction(chain = null) {
+function realizeSurfaceChainOptativeKiReduction(chain = null) {
     const nextChain = cloneSurfaceChainState(chain);
     const ruleMeta = nextChain?.surfaceRuleMeta && typeof nextChain.surfaceRuleMeta === "object"
         ? nextChain.surfaceRuleMeta
         : null;
-    if (!ruleMeta || ruleMeta.imperativeKiReduction !== true) {
+    if (!ruleMeta || ruleMeta.optativeKiReduction !== true) {
         return nextChain;
     }
     const segments = Array.isArray(nextChain.segments) ? nextChain.segments : [];
@@ -279,7 +279,7 @@ function realizeSurfaceChainImperativeKiReduction(chain = null) {
     }
     segments[objectIndex].value = "k";
     appendSurfaceChainLesson2Frame(nextChain, "obj1", {
-        ruleId: "imperative-ki-before-c-k",
+        ruleId: "optative-ki-before-c-k",
         source: "ki",
         target: "k",
         slot: "obj1",
@@ -479,9 +479,15 @@ function realizeSurfaceChainMCodaAssimilation(chain = null) {
         if (!current || !current.includes("m")) {
             continue;
         }
+        const nextIndex = getSurfaceChainNextNonEmptyIndex(nextChain, index);
+        const nextValueAfterSegment = nextIndex >= 0 ? String(segments[nextIndex]?.value || "") : "";
+        const finalMBeforeVowel = current.endsWith("m") && VOWEL_START_RE.test(nextValueAfterSegment);
         // Phonotactic: coda [m] assimilates to [n] before any consonant onset (C) or word-finally.
         if (!_codaReM) { _codaReM = buildCodaRe("m"); }
-        const nextValue = current.replace(_codaReM, "n");
+        const nextValue = current.replace(_codaReM, (match, offset) => {
+            const isSegmentFinal = offset + match.length === current.length;
+            return isSegmentFinal && finalMBeforeVowel ? match : "n";
+        });
         if (nextValue !== current) {
             segments[index].value = nextValue;
             appendSurfaceChainLesson2Frame(nextChain, segments[index]?.role || segments[index]?.slot || "surface-segment", {
@@ -500,8 +506,8 @@ function realizeSurfaceChain(chain = null) {
     const afterFinalTrim = realizeSurfaceChainFinalIAUATrim(chain);
     const afterMuIskaliaReduction = realizeSurfaceChainMuIskaliaReduction(afterFinalTrim);
     const afterSubjectReduction = realizeSurfaceChainSubjectIInitialReduction(afterMuIskaliaReduction);
-    const afterImperativeKiReduction = realizeSurfaceChainImperativeKiReduction(afterSubjectReduction);
-    const afterIContactElision = realizeSurfaceChainObjectIInitialElision(afterImperativeKiReduction);
+    const afterOptativeKiReduction = realizeSurfaceChainOptativeKiReduction(afterSubjectReduction);
+    const afterIContactElision = realizeSurfaceChainObjectIInitialElision(afterOptativeKiReduction);
     const afterNhBeforeVowel = realizeSurfaceChainNhBeforeVowel(afterIContactElision);
     const afterKContact = realizeSurfaceChainKContact(afterNhBeforeVowel);
     const afterKwCoalescence = realizeSurfaceChainKwCoalescence(afterKContact);

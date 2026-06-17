@@ -3255,12 +3255,12 @@ function run(ctx = {}) {
                 kind: "nuclear-clause-shell",
                 formulaType: "VNC",
                 displayLabel: "cláusula nuclear verbal (CNV)",
-                formula: "#pers1-obj1-obj2-obj3-reflexivo(STEM)-pers2-tiempo#",
-                formulaEcho: "#ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#",
+                formula: "#pers1-pers2+obj1-obj2-obj3-reflexivo(STEM)tiempo+num1-num2#",
+                formulaEcho: "#ni-Ø+ki(nemi)Ø+Ø-Ø#",
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["cláusula verbal: #pers1-obj1-obj2-obj3-reflexivo(base)-pers2-tiempo#", "Fórmula CNV: #ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#"]
+            ? ["cláusula verbal: #pers1-pers2+obj1-obj2-obj3-reflexivo(base)tiempo+núm1-núm2#", "Fórmula CNV: #ni-Ø+ki(nemi)Ø+Ø-Ø#"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3281,23 +3281,94 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
+        "visible CNV formula renderer shows base surface realizations from formula path",
+        typeof ctx.formatVisibleCnvFormulaEcho === "function" && typeof ctx.buildGeneratedOutputSlotChips === "function"
+            ? (() => {
+                const result = {
+                    nuclearClauseShell: {
+                        kind: "nuclear-clause-shell",
+                        formulaType: "VNC",
+                        displayLabel: "cláusula nuclear verbal (CNV)",
+                        formula: "#pers1-pers2+val1-val2(STEM)tns+num1-num2#",
+                        formulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0#",
+                    },
+                    cnvFormulaSurfacePath: {
+                        surfaceStemRealizations: ["pish", "piya"],
+                        surfaceNumberConnectorRealizations: ["ki-0", "k-0"],
+                        pathsBySurface: [
+                            {
+                                surface: "pishki",
+                                paths: [
+                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "pish" },
+                                    { formulaSlotKey: "num1", formulaMorph: "ki", surfaceValue: "ki" },
+                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
+                                ],
+                            },
+                            {
+                                surface: "piyak",
+                                paths: [
+                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "piya" },
+                                    { formulaSlotKey: "num1", formulaMorph: "k", surfaceValue: "k" },
+                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
+                                ],
+                            },
+                        ],
+                    },
+                };
+                return {
+                    formula: ctx.formatVisibleCnvFormulaEcho(result.nuclearClauseShell.formulaEcho, result),
+                    shellLabels: ctx.buildNuclearClauseShellSubLabels(result.nuclearClauseShell, result),
+                    formulaChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "formula")
+                        .map((chip) => ({
+                            label: chip.label,
+                            value: chip.value,
+                            title: chip.title,
+                        })),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                formula: "#Ø-Ø+ki-0(pish)Ø+ki-0# / #Ø-Ø+ki-0(piya)Ø+k-0#",
+                shellLabels: [
+                    "cláusula verbal: #pers1-pers2+val1-val2(base)tiempo+núm1-núm2#",
+                    "Fórmula CNV: #Ø-Ø+ki-0(pish)Ø+ki-0# / #Ø-Ø+ki-0(piya)Ø+k-0#",
+                ],
+                formulaChips: [
+                    {
+                        label: "Fórmula CNV",
+                        value: "#Ø-Ø+ki-0(pish)Ø+ki-0#",
+                        title: "Fórmula CNV: #Ø-Ø+ki-0(pish)Ø+ki-0# · salida: pishki",
+                    },
+                    {
+                        label: "Fórmula CNV",
+                        value: "#Ø-Ø+ki-0(piya)Ø+k-0#",
+                        title: "Fórmula CNV: #Ø-Ø+ki-0(piya)Ø+k-0# · salida: piyak",
+                    },
+                ],
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
         "shared renderer derives VNC slot chips from formula echo when slot objects are absent",
         typeof ctx.buildGeneratedOutputSlotChips === "function"
             ? ctx.buildGeneratedOutputSlotChips({
                 nuclearClauseShell: {
                     kind: "nuclear-clause-shell",
                     formulaType: "VNC",
-                    formulaEcho: "#Ø-ki-(ilpia)-t-presente#",
+                    formulaEcho: "#Ø-Ø+ki-(ilpia)Ø+Ø-t#",
                 },
             }).map((chip) => [chip.kind, chip.label, chip.value])
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
-                ["formula", "Fórmula CNV", "#Ø-ki-(ilpia)-t-presente#"],
-                ["pers1-pers2", "persona1-persona2", "Ø...t"],
+                ["formula", "Fórmula CNV", "#Ø-Ø+ki-(ilpia)Ø+Ø-t#"],
+                ["pers1-pers2", "persona1-persona2", "Ø-Ø"],
                 ["obj1", "objeto 1", "ki"],
                 ["STEM", "base", "-(ilpia)"],
-                ["tiempo", "tiempo", "pres"],
+                ["tiempo", "tiempo", "Ø"],
+                ["num1-num2", "número1-número2", "Ø-t"],
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -3443,10 +3514,14 @@ function run(ctx = {}) {
                 kind: "vnc-valency-frame",
                 valencyLabel: "transitiva",
                 obj1: { displayPrefix: "ki" },
+                lesson6DirectNawatObject: {
+                    visibleFormulaPrefix: "ki-0",
+                    formulaPosition: "va1-va2",
+                },
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["valencia verbal: transitiva", "objeto 1 verbal: ki"]
+            ? ["valencia verbal: transitiva", "objeto 1 verbal: ki", "posición de valencia: val1-val2", "subcasillas Nawat: ki-0"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -3670,7 +3745,7 @@ function run(ctx = {}) {
                     nuclearClauseShell: {
                         kind: "nuclear-clause-shell",
                         formulaType: "VNC",
-                        formulaEcho: "#Ø-ki-(ilpia)-t-presente#",
+                        formulaEcho: "#Ø-Ø+ki-(ilpia)Ø+Ø-t#",
                     },
                 }).flatMap((chip) => [chip.label, chip.value, chip.title].filter(Boolean));
                 const bannedVisiblePattern = /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function|\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b|\btns\b|diagnostic-only|classify-boundary|authorityFrame|resultFrame|routeContract|needs-nawat-clause-evidence/i;
@@ -4060,6 +4135,58 @@ function run(ctx = {}) {
                 hasRouteValue: false,
                 hasDiagnosticValue: false,
             }
+    );
+    s.eq(
+        "view export reads conjugation surface without continuation action text",
+        ctx.__TEST_RUNTIME_MODE__ === "module" && typeof ctx.getVisibleConjugationValueExportText === "function"
+            ? (() => {
+                const row = {
+                    querySelector(selector) {
+                        if (selector !== ".conjugation-value") {
+                            return null;
+                        }
+                        return {
+                            dataset: {},
+                            querySelector(innerSelector) {
+                                if (innerSelector === ".conjugation-conversion-surface") {
+                                    return {
+                                        textContent: "nikpishkinikpiyak",
+                                        querySelectorAll(lineSelector) {
+                                            return lineSelector === ".conjugation-conversion-surface-line"
+                                                ? [
+                                                    { textContent: "nikpishki" },
+                                                    { textContent: "nikpiyak" },
+                                                ]
+                                                : [];
+                                        },
+                                    };
+                                }
+                                return null;
+                            },
+                            cloneNode() {
+                                return {
+                                    querySelectorAll() {
+                                        return [{ remove() {} }];
+                                    },
+                                    textContent: "nikpishki / nikpiyakAdjetivoContinuacion",
+                                };
+                            },
+                        };
+                    },
+                };
+                return ctx.getVisibleConjugationValueExportText(row);
+            })()
+            : "export-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? "nikpishki\nnikpiyak"
+            : "export-runtime-not-loaded"
+    );
+    s.ok(
+        "nonactive verb rows pass Andrews subject slots through posicionesFormula",
+        rendering.includes("posicionesFormula: {")
+            && rendering.includes("pers1: subjectPers1")
+            && rendering.includes("pers2: subjectPers2")
+            && rendering.includes("num2: subjectPers2")
     );
     s.eq(
         "Partícula view export uses Lesson 3 particle columns instead of conjugation slots",

@@ -10,7 +10,12 @@
 //   composeObj1Chain, normalizeValenceMarkerOrder
 //   getTotalVowelCountFromSyllables, getSyllables (phonology.js)
 
+function normalizeMorphologySupportTenseValue(tenseValue = "") {
+    return String(tenseValue || "").trim();
+}
+
 function applyTenseSuffixRules(tense, pers2) {
+    tense = normalizeMorphologySupportTenseValue(tense);
     if (tense === "preterito") {
         return pers2;
     }
@@ -188,7 +193,7 @@ function realizeWalDirectionalChain({
     const baseObj3 = String(meta.obj3 || meta.thirdObjectMarker || "");
     const directionalRuleMode = String(meta.directionalRuleMode || "");
     const directionalInputPrefix = String(meta.directionalInputPrefix || "wal");
-    const tense = String(meta.tense || "");
+    const tense = normalizeMorphologySupportTenseValue(meta.tense || "");
     const isIntransitiveVerb = meta.isIntransitiveVerb === true;
     const hasSubjectValent = meta.hasSubjectValent !== false;
     const isTaFusion = meta.isTaFusion === true;
@@ -280,14 +285,14 @@ function realizeWalDirectionalChain({
         realizedPers1 = "k";
     }
     if (isMainlineThirdPersonObject) {
-        const isImperativeSecondPlural =
-            tense === "imperativo"
+        const isOptativeSecondPlural =
+            tense === "optativo"
             && basePers1 === "an"
             && basePers2 === "t";
         const dropLeadK = (
             isFirstPersonSubject
             || isSecondPersonSubject
-            || isImperativeSecondPlural
+            || isOptativeSecondPlural
             || effectiveDirectionalRuleMode === "intransitive"
             || effectiveDirectionalRuleMode === "nonspecific"
         );
@@ -347,15 +352,15 @@ function realizeWalDirectionalChain({
             syllablePosition: "after-i-object",
         }, beforeTronco, realizedTronco, "tronco");
     }
-    const isImperativeSecondPersonBase =
-        tense === "imperativo"
+    const isOptativeSecondPersonBase =
+        tense === "optativo"
         && (
             (basePers1 === "ti" && basePers2 === "")
             || (basePers1 === "an" && basePers2 === "t")
         );
-    if (isImperativeSecondPersonBase && realizedPers1 === "shi" && realizedObj1.startsWith("al")) {
+    if (isOptativeSecondPersonBase && realizedPers1 === "shi" && realizedObj1.startsWith("al")) {
         pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
-            ruleId: "imperative-shi-before-al-sh",
+            ruleId: "optative-shi-before-al-sh",
             source: "shi",
             target: "sh",
             slot: "pers1",

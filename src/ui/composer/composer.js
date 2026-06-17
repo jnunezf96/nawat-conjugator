@@ -9741,8 +9741,8 @@ function getVerbSemanticTenseGroupKey(tenseValue = "") {
     if (!tense) {
         return "past";
     }
-    if (tense === "imperativo") {
-        return "imperative";
+    if (tense === "optativo") {
+        return "optative";
     }
     if (tense.startsWith("presente")) {
         return "present";
@@ -9755,7 +9755,7 @@ function getVerbSemanticTenseGroupKey(tenseValue = "") {
 
 function getVerbSemanticTenseGroups(visibleTenses = []) {
     const groups = [
-        { key: "imperative", heading: { labelEs: "imperativo", labelNa: "imperativo" }, tenses: [] },
+        { key: "optative", heading: { labelEs: "optativo", labelNa: "optativo" }, tenses: [] },
         { key: "present", heading: { labelEs: "presente", labelNa: "presente" }, tenses: [] },
         { key: "past", heading: { labelEs: "pasado", labelNa: "pasado" }, tenses: [] },
         { key: "future", heading: { labelEs: "futuro", labelNa: "futuro" }, tenses: [] },

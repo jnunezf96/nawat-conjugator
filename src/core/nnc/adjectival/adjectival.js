@@ -1396,7 +1396,7 @@ function buildAdjectivalNncFormulaEchoFromSlots(formulaSlots = null) {
     const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
     const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
     const connectorSurface = resolveAdjectivalNncFormulaSlotText(connector, ["connector", "surface"]) || "Ø";
-    return `#${prefix}...${suffix}(${stem})${connectorSurface}#`;
+    return `#${prefix}-${suffix}(${stem})${connectorSurface}#`;
 }
 
 function buildRootPlusYaAdjectivalNncFormulaSlots({

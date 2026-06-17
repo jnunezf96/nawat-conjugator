@@ -65,8 +65,8 @@ function run(ctx) {
                 pursuit: {
                     stepNumber: frame.pursuit.stepNumber,
                     aimStatus: frame.pursuit.aimStatus,
-                    plannedArrows: frame.pursuit.plannedArrows.map((arrow) => [arrow.id, arrow.andrewsRefs.length, arrow.expectedFeedbackRefs[0]]),
-                    firedArrows: frame.pursuit.firedArrows.map((arrow) => [arrow.id, arrow.result, arrow.andrewsRefs.length, arrow.feedbackRefs[0]]),
+                plannedArrows: frame.pursuit.plannedArrows.map((arrow) => [arrow.id, arrow.andrewsRefs.length, arrow.expectedFeedbackRefs[0]]),
+                firedArrows: frame.pursuit.firedArrows.map((arrow) => [arrow.id, arrow.result, arrow.andrewsRefs.length, arrow.feedbackRefs[0]]),
                     hitCount: frame.pursuit.hitCount,
                     missCount: frame.pursuit.missCount,
                     remainingGapCount: frame.pursuit.remainingGaps.length,
@@ -99,9 +99,15 @@ function run(ctx) {
             pursuit: {
                 stepNumber: 4,
                 aimStatus: "shooting",
-                plannedArrows: [["lesson-4-subsection-coverage-audit", 6, "src/tests/clause.test.js"]],
-                firedArrows: [["lesson-4-subsection-coverage-audit", "hit", 6, "src/tests/clause.test.js"]],
-                hitCount: 1,
+                plannedArrows: [
+                    ["lesson-4-subsection-coverage-audit", 6, "src/tests/clause.test.js"],
+                    ["lesson-4-formula-authority-audit", 6, "src/tests/clause.test.js"],
+                ],
+                firedArrows: [
+                    ["lesson-4-subsection-coverage-audit", "hit", 6, "src/tests/clause.test.js"],
+                    ["lesson-4-formula-authority-audit", "hit", 6, "src/tests/clause.test.js"],
+                ],
+                hitCount: 2,
                 missCount: 0,
                 remainingGapCount: 3,
                 closestPass: false,
@@ -161,6 +167,9 @@ function run(ctx) {
                 vacantPositionSymbol: "absence",
                 formulaRepresentsSlotCategories: true,
                 formulaRepresentsMorphicFillers: true,
+                formulaIsEngineContract: true,
+                surfaceGenerationAuthority: false,
+                nawatEvidenceCannotChangeSlotOrder: true,
                 stemDimensionsExplicit: true,
             },
             subjectFrame: {
@@ -360,8 +369,8 @@ function run(ctx) {
                 conceptId: "vnc",
                 legacyFormulaType: "VNC",
             },
-            formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
-            expandedFormula: "#pers1-obj1-obj2-obj3-reflexivo(STEM)-pers2-tiempo#",
+            formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+            expandedFormula: "#pers1-pers2+obj1-obj2-obj3-reflexivo(STEM)tiempo+num1-num2#",
             formulaSlots: {
                 pers1Pers2: {
                     slot: "pers1-pers2",
@@ -415,12 +424,31 @@ function run(ctx) {
                     slot: "tns",
                     role: "tense-position",
                     tenseValue: "presente",
-                    label: "presente",
+                    label: "indicativo presente",
+                    compatibilityLabel: "presente",
+                    morph: "Ø",
+                    displayMorph: "Ø",
+                    mood: "indicative",
+                    andrewsTense: "present",
                     isPresent: true,
                     notAvailableInOrdinaryNnc: true,
+                    andrewsSource: "Andrews §5.4.1/§5.5",
+                    compatibilityRoute: "",
+                },
+                num1Num2: {
+                    slot: "num1-num2",
+                    role: "subject-number-connector",
+                    connector: "",
+                    displayConnector: "Ø-Ø",
+                    num1: "",
+                    num2: "",
+                    belongsTo: "subject",
+                    notTense: true,
+                    andrewsSource: "Andrews §5.4",
+                    orthographyBridge: "",
                 },
             },
-            formulaEcho: "#ni-ki-Ø-Ø-Ø(nemi)-Ø-presente#",
+            formulaEcho: "#ni-Ø+ki(nemi)Ø+Ø-Ø#",
             lesson4ActiveFormula: {
                 stage: 3,
                 sourceSection: "Andrews §4.5",
@@ -428,10 +456,10 @@ function run(ctx) {
                 formulaAbbreviation: "CNV",
                 predicatePosition: "valence",
                 predicatePositionLabel: "valencia",
-                predicatePositionStatus: "monadic",
-                predicatePositionStatusLabel: "monádica",
-                predicatePositionSlot: "va",
-                formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                predicatePositionStatus: "dyadic",
+                predicatePositionStatusLabel: "diádica",
+                predicatePositionSlot: "va1-va2",
+                formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
                 generationAllowed: false,
             },
             organizationalLayers: [
@@ -500,9 +528,28 @@ function run(ctx) {
                     slot: "tns",
                     role: "tense-position",
                     tenseValue: "presente",
-                    label: "presente",
+                    label: "indicativo presente",
+                    compatibilityLabel: "presente",
+                    morph: "Ø",
+                    displayMorph: "Ø",
+                    mood: "indicative",
+                    andrewsTense: "present",
                     isPresent: true,
                     notAvailableInOrdinaryNnc: true,
+                    andrewsSource: "Andrews §5.4.1/§5.5",
+                    compatibilityRoute: "",
+                },
+                num1Num2: {
+                    slot: "num1-num2",
+                    role: "subject-number-connector",
+                    connector: "",
+                    displayConnector: "Ø-Ø",
+                    num1: "",
+                    num2: "",
+                    belongsTo: "subject",
+                    notTense: true,
+                    andrewsSource: "Andrews §5.4",
+                    orthographyBridge: "",
                 },
             },
         }
@@ -531,8 +578,8 @@ function run(ctx) {
             },
             {
                 formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
-                formulaEcho: "#ti-ki-ta-te-mu(ilpia)-t-presente#",
-                slotKeys: ["pers1Pers2", "obj1", "obj2", "obj3", "reflexivo", "predicateStem", "tensePosition"],
+                formulaEcho: "#ti-Ø+ki-ta-te-mu(ilpia)Ø+Ø-t#",
+                slotKeys: ["pers1Pers2", "obj1", "obj2", "obj3", "reflexivo", "predicateStem", "tensePosition", "num1Num2"],
                 obj2: "ta",
                 obj3: "te",
                 reflexivo: "mu",
@@ -568,7 +615,7 @@ function run(ctx) {
             formula: "#pers1-pers2(STEM)num1-num2#",
             expandedFormula: "#pers1-pers2(STEM)num1-num2#",
             formulaSlots: undefined,
-            formulaEcho: "#Ø...Ø(shuchi)t#",
+            formulaEcho: "#Ø-Ø(shuchi)t#",
             lesson4ActiveFormula: {
                 stage: 3,
                 sourceSection: "Andrews §4.5",
@@ -669,7 +716,7 @@ function run(ctx) {
             predicateDisplay: "frame-predicate",
             connector: "frame-connector",
             connectorDisplay: "frame-connector",
-            formulaEcho: "#Ø...Ø(frame-predicate)frame-connector#",
+            formulaEcho: "#Ø-Ø(frame-predicate)frame-connector#",
         }
     );
 
@@ -717,7 +764,7 @@ function run(ctx) {
             predicateDisplay: "∅",
             connector: "",
             connectorDisplay: "Ø",
-            formulaEcho: "#Ø...Ø(∅)Ø#",
+            formulaEcho: "#Ø-Ø(∅)Ø#",
         }
     );
 
@@ -727,9 +774,9 @@ function run(ctx) {
             pers1Pers2: { prefix: "ti", displayPrefix: "ti" },
             obj1: { prefix: "", displayPrefix: "Ø" },
             predicateStem: { stem: "kisa", displayStem: "kisa" },
-            tensePosition: { tenseValue: "preterito", label: "preterito" },
+            tensePosition: { tenseValue: "preterito", label: "preterito", morph: "Ø" },
         }),
-        "#ti-Ø(kisa)-Ø-preterito#"
+        "#ti-Ø(kisa)Ø+Ø-Ø#"
     );
 
     s.eq(
@@ -738,9 +785,9 @@ function run(ctx) {
             pers1Pers2: { prefix: "ni", displayPrefix: "ni" },
             obj1: { prefix: "mu", displayPrefix: "mu" },
             predicateStem: { stem: "-(ilpia)", displayStem: "-(ilpia)" },
-            tensePosition: { tenseValue: "presente", label: "presente" },
+            tensePosition: { tenseValue: "presente", label: "presente", morph: "Ø" },
         }),
-        "#ni-mu-(ilpia)-Ø-presente#"
+        "#ni-Ø+mu-(ilpia)Ø+Ø-Ø#"
     );
 
     s.eq(
@@ -749,9 +796,9 @@ function run(ctx) {
             pers1Pers2: { prefix: "", suffix: "t", displayPrefix: "Ø", displaySuffix: "t" },
             obj1: { prefix: "ki", displayPrefix: "ki" },
             predicateStem: { stem: "-(ilpia)", displayStem: "-(ilpia)" },
-            tensePosition: { tenseValue: "presente", label: "presente" },
+            tensePosition: { tenseValue: "presente", label: "presente", morph: "Ø" },
         }),
-        "#Ø-ki-(ilpia)-t-presente#"
+        "#Ø-Ø+ki-(ilpia)Ø+Ø-t#"
     );
 
     s.eq(
@@ -767,6 +814,7 @@ function run(ctx) {
             "possessive personal pronouns belong only in NNC predicates",
             "topic and supplementation are clause-level relations, not noun classes",
             "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
+            "Andrews formulas are engine contracts, not optional metadata",
         ]
     );
     const shell = ctx.buildNuclearClauseShellMetadata({

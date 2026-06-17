@@ -162,7 +162,7 @@
   },
   "tenseLabels": {
     "presente": { "labelEs": "presente", "labelNa": "ipan muchiwa" },
-    "imperativo": { "labelEs": "imperativo", "labelNa": "ipan ma muchiwa" },
+    "optativo": { "labelEs": "optativo no pasado", "labelNa": "ipan ma muchiwa" },
     "sustantivo-verbal": { "labelEs": "sustantivo verbal", "labelNa": "muchiwalis" },
     "potencial": { "labelEs": "potencial", "labelNa": "potencial" },
     "potencial-habitual": { "labelEs": "potencial habitual", "labelNa": "ipan muchiwani" },
@@ -196,7 +196,7 @@
   },
   "tenseDescriptions": {
     "presente": { "labelEs": "acciones actuales o en progreso", "labelNa": "keman taya muchiwa iwki ashkan" },
-    "imperativo": { "labelEs": "mandato, exhortación o petición", "labelNa": "keman taya mutuktia ma muchiwa" },
+    "optativo": { "labelEs": "modo optativo: deseo, mandato, exhortación o petición", "labelNa": "keman taya mutuktia ma muchiwa" },
     "presente-habitual": { "labelEs": "acción repetida o costumbre", "labelNa": "keman taya muchiwa sejsenpa" },
     "presente-desiderativo": { "labelEs": "deseo, intención o propósito", "labelNa": "keman taya kineki muchiwa" },
     "imperfecto": { "labelEs": "pasado en desarrollo o continuo", "labelNa": "keman taya muchiwa katka" },

@@ -2810,7 +2810,7 @@ export function createNncApi(targetObject = globalThis) {
       const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
       const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
       const connector = resolveOrdinaryNncFormulaSlotText(numberConnector, ["connector", "surface"]) || "Ø";
-      return `#${prefix}...${suffix}(${stem})${connector}#`;
+      return `#${prefix}-${suffix}(${stem})${connector}#`;
     }
     function buildOrdinaryNncPredicateStateFrame({
       state = ORDINARY_NNC_STATE.absolutive,

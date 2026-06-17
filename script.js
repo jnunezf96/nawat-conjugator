@@ -789,8 +789,8 @@ function applyStaticSuppletives(data) {
         const yawiPresent = yawiTenses.presente && typeof yawiTenses.presente === "object"
             ? yawiTenses.presente
             : {};
-        const yawiImperative = yawiTenses.imperativo && typeof yawiTenses.imperativo === "object"
-            ? yawiTenses.imperativo
+        const yawiOptative = yawiTenses.optativo && typeof yawiTenses.optativo === "object"
+            ? yawiTenses.optativo
             : {};
         const yawiHabitual = yawiTenses["presente-habitual"] && typeof yawiTenses["presente-habitual"] === "object"
             ? yawiTenses["presente-habitual"]
@@ -821,14 +821,14 @@ function applyStaticSuppletives(data) {
                 SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE = yawiCausative.nonactive;
             }
         }
-        if (typeof yawiImperative.long === "string" && !SUPPLETIVE_YAWI_CANONICAL) {
-            SUPPLETIVE_YAWI_CANONICAL = yawiImperative.long;
+        if (typeof yawiOptative.long === "string" && !SUPPLETIVE_YAWI_CANONICAL) {
+            SUPPLETIVE_YAWI_CANONICAL = yawiOptative.long;
         }
-        if (typeof yawiImperative.short === "string" && !SUPPLETIVE_YAWI_SHORT) {
-            SUPPLETIVE_YAWI_SHORT = yawiImperative.short;
+        if (typeof yawiOptative.short === "string" && !SUPPLETIVE_YAWI_SHORT) {
+            SUPPLETIVE_YAWI_SHORT = yawiOptative.short;
         }
-        if (typeof yawiImperative.yuVariant === "string" && !SUPPLETIVE_YAWI_YU_VARIANT) {
-            SUPPLETIVE_YAWI_YU_VARIANT = yawiImperative.yuVariant;
+        if (typeof yawiOptative.yuVariant === "string" && !SUPPLETIVE_YAWI_YU_VARIANT) {
+            SUPPLETIVE_YAWI_YU_VARIANT = yawiOptative.yuVariant;
         }
     }
     const witziData = data.suppletiveWitzi && typeof data.suppletiveWitzi === "object"
@@ -847,11 +847,11 @@ function applyStaticSuppletives(data) {
         const witziTenses = witziData.tenses && typeof witziData.tenses === "object"
             ? witziData.tenses
             : {};
-        const witziImperative = witziTenses.imperativo && typeof witziTenses.imperativo === "object"
-            ? witziTenses.imperativo
+        const witziOptative = witziTenses.optativo && typeof witziTenses.optativo === "object"
+            ? witziTenses.optativo
             : {};
-        if (typeof witziImperative.verb === "string") {
-            SUPPLETIVE_WITZI_IMPERATIVE = witziImperative.verb;
+        if (typeof witziOptative.verb === "string") {
+            SUPPLETIVE_WITZI_OPTATIVE = witziOptative.verb;
         }
         const witziNonactive = witziData.nonactive && typeof witziData.nonactive === "object"
             ? witziData.nonactive
@@ -938,7 +938,7 @@ function applyStaticSuppletivePaths(data) {
         suppletiveWitziNonactive: () => SUPPLETIVE_WITZI_NONACTIVE,
         suppletiveWitziNonactiveImperfective: () => SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE,
         suppletiveWitziNonactivePerfective: () => SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE || SUPPLETIVE_WITZI_NONACTIVE,
-        suppletiveWitziImperative: () => SUPPLETIVE_WITZI_IMPERATIVE,
+        suppletiveWitziOptative: () => SUPPLETIVE_WITZI_OPTATIVE,
     };
     const setLookup = {
         suppletiveKatiForms: () => SUPPLETIVE_KATI_FORMS,

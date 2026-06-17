@@ -78,7 +78,7 @@ const VNC_LESSON5_SUBJECT_FILLER_PARADIGMS = Object.freeze([
         id: "nonpast-optative-admonitive-boundary",
         sourceSections: Object.freeze(["Andrews §5.4.3", "Andrews §5.4.4"]),
         tenseFamily: Object.freeze(["nonpast-optative", "nonpast-admonitive"]),
-        currentNawatTenses: Object.freeze(["imperativo", "presente-desiderativo"]),
+        currentNawatTenses: Object.freeze(["optativo", "presente-desiderativo"]),
         implementationNote: "sentence-level optative/admonitive meanings remain Lessons 9-10; Lesson 5 only licenses finite-slot diagnostics",
     }),
 ]);
@@ -108,10 +108,14 @@ const VNC_LESSON5_TENSE_MORPH_FRAME = Object.freeze({
         "presente-habitual",
         "presente-desiderativo",
         "imperfecto",
+        "futuro",
         "preterito",
         "pasado-remoto",
-        "futuro",
-        "imperativo",
+        "condicional",
+        "optativo",
+        "perfecto",
+        "pluscuamperfecto",
+        "condicional-perfecto",
     ]),
     tenseIsNotTime: true,
 });
@@ -152,7 +156,7 @@ const VNC_LESSON5_SUBSECTION_INVENTORY = Object.freeze([
         andrewsSection: "5.4",
         category: "subject-pronoun-paradigms",
         directiveEs: "Agrupar los paradigmas de sujeto por correlación de tiempo con núm1/núm2; el sufijo plural clásico -h pasa por la ortografía nawat antes de mostrarse.",
-        engineSurface: "nonimperative and imperative subject-slot identity plus tense-sensitive suffix rules",
+        engineSurface: "indicative and optative subject-slot identity plus tense-sensitive suffix rules",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
@@ -225,11 +229,13 @@ const VNC_LESSON6_MONADIC_VALENCE_FILLERS = Object.freeze([
         id: "shuntline-reflexive-reciprocative",
         sourceSection: "Andrews §6.2.1",
         classicalCarrier: "ne",
-        currentNawatSlotValue: "mu",
+        currentNawatSlotValue: "ne",
+        currentNawatSlotStatus: "direct-nawat-generation",
         trajectory: "reflexive-reciprocative",
         prominence: "shuntline",
         specificity: "specific",
-        realizationSource: "repo reflexive object slot; later lessons govern shuntline derivations",
+        realizationSource: "Andrews Lección 6 con forma Nawat directa provista por el usuario; no se colapsa con mu de línea principal",
+        generationPolicy: "direct-nawat-generation",
     }),
     Object.freeze({
         id: "nonspecific-human-projective",
@@ -255,12 +261,12 @@ const VNC_LESSON6_MONADIC_VALENCE_FILLERS = Object.freeze([
 ]);
 
 const VNC_LESSON6_PROJECTIVE_OBJECT_PARADIGM = Object.freeze([
-    Object.freeze({ person: "1sg", classicalDyad: "n-ech", currentNawatPrefix: "nech", glossEs: "me" }),
-    Object.freeze({ person: "1pl", classicalDyad: "t-ech", currentNawatPrefix: "tech", glossEs: "nos" }),
-    Object.freeze({ person: "2sg", classicalDyad: "m-itz", currentNawatPrefix: "metz", glossEs: "te" }),
-    Object.freeze({ person: "2pl", classicalDyad: "am-ech", currentNawatPrefix: "metzin", glossEs: "los/las a ustedes" }),
-    Object.freeze({ person: "3sg", classicalDyad: "c-0/qu-0/qui-0", currentNawatPrefix: "ki/k", glossEs: "lo/la" }),
-    Object.freeze({ person: "3pl", classicalDyad: "qu-im", currentNawatPrefix: "kin", glossEs: "los/las" }),
+    Object.freeze({ person: "1sg", classicalDyad: "n-ech", currentNawatDyad: "n-ech", currentNawatPrefix: "nech", glossEs: "me" }),
+    Object.freeze({ person: "1pl", classicalDyad: "t-ech", currentNawatDyad: "t-ech", currentNawatPrefix: "tech", glossEs: "nos" }),
+    Object.freeze({ person: "2sg", classicalDyad: "m-itz", currentNawatDyad: "m-etz", currentNawatPrefix: "metz", glossEs: "te" }),
+    Object.freeze({ person: "2pl", classicalDyad: "am-ech", currentNawatDyad: "m-etz-in", currentNawatPrefix: "metzin", glossEs: "los/las a ustedes" }),
+    Object.freeze({ person: "3sg", classicalDyad: "c-0/qu-0/qui-0", currentNawatDyad: "ki-0/k-0", currentNawatPrefix: "ki/k", glossEs: "lo/la" }),
+    Object.freeze({ person: "3pl", classicalDyad: "qu-im", currentNawatDyad: "k-in", currentNawatPrefix: "kin", glossEs: "los/las" }),
 ]);
 
 const VNC_LESSON6_DYADIC_OBJECT_FRAME = Object.freeze({
@@ -281,8 +287,17 @@ const VNC_LESSON6_DYADIC_OBJECT_FRAME = Object.freeze({
             classicalVa2Variants: Object.freeze(["ech", "itz"]),
         }),
     }),
-    currentNawatSpecificPrefixes: Object.freeze(["nech", "tech", "metz", "metzin", "ki", "kin"]),
-    currentNawatAllomorphyNotes: Object.freeze(["ki may surface as k before vowel contact in current engine allomorphy"]),
+    currentNawatSpecificPrefixes: Object.freeze(["nech", "tech", "metz", "metzin", "ki", "k", "kin"]),
+    directNawatDyadByPrefix: Object.freeze({
+        nech: "n-ech",
+        tech: "t-ech",
+        metz: "m-etz",
+        metzin: "m-etz-in",
+        ki: "ki-0",
+        k: "k-0",
+        kin: "k-in",
+    }),
+    currentNawatAllomorphyNotes: Object.freeze(["ki-0 is the direct Nawat 3sg object dyad; k-0 is the reduced Nawat dyad when the object prefix surfaces as k"]),
 });
 
 const VNC_LESSON6_REFLEXIVE_OBJECT_FRAME = Object.freeze({
@@ -294,10 +309,12 @@ const VNC_LESSON6_REFLEXIVE_OBJECT_FRAME = Object.freeze({
     classicalDyads: Object.freeze([
         Object.freeze({ person: "1sg", dyad: "n-o/n-0", glossEs: "a mí mismo" }),
         Object.freeze({ person: "1pl", dyad: "t-o/t-0", glossEs: "a nosotros mismos / entre nosotros" }),
-        Object.freeze({ person: "nonfirst", dyad: "m-o/m-0", glossEs: "a sí mismo(s) / entre sí" }),
+        Object.freeze({ person: "nonfirst", dyad: "m-o/m-0", currentNawatDyad: "m-u/m-0", glossEs: "a sí mismo(s) / entre sí" }),
     ]),
     currentNawatReflexiveSlot: "mu",
-    engineBehavior: "same-person specific objects are redirected to mu by reflexive slot logic",
+    directNawatReflexiveParadigm: "m-u/m-0",
+    directNawatReflexiveCondition: "m-u cuando la alomorfía conserva mu; m-0 cuando obj1-mu-before-vowel-m reduce mu a m",
+    engineBehavior: "same-person specific objects are redirected to dyadic mainline mu by reflexive slot logic",
     generationAddsNoClassicalFixtures: true,
 });
 
@@ -317,7 +334,7 @@ const VNC_LESSON6_SUBSECTION_INVENTORY = Object.freeze([
         andrewsSection: "6.2",
         category: "monadic-valence-position",
         directiveEs: "La valencia monádica cubre reflexivo/recíproco de línea secundaria y objetos inespecíficos humanos/no humanos.",
-        engineSurface: "mu, te, and ta object-slot diagnostics with Classical-to-Nawat boundary",
+        engineSurface: "ne, te, and ta object-slot diagnostics with direct Nawat realization",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
@@ -346,8 +363,8 @@ const VNC_LESSON6_SUBSECTION_INVENTORY = Object.freeze([
         id: "lesson6-projective-object-summary",
         andrewsSection: "6.5",
         category: "projective-object-paradigm",
-        directiveEs: "El paradigma de objeto específico se conserva como mapa de función; las formas visibles son Nawat/Pipil confirmadas por el repo.",
-        engineSurface: "nech/tech/metz/metzin/ki/kin object-prefix set",
+        directiveEs: "El paradigma de objeto específico se conserva como mapa de función; la fórmula visible expone subcasillas Nawat directas.",
+        engineSurface: "n-ech/t-ech/m-etz/m-etz-in/ki-0~k-0/k-in formula dyads plus current surface prefix set",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
@@ -366,11 +383,164 @@ const VNC_LESSON6_SUBSECTION_INVENTORY = Object.freeze([
         id: "lesson6-mainline-reflexive-summary",
         andrewsSection: "6.7",
         category: "mainline-reflexive-paradigm",
-        directiveEs: "Los paradigmas reflexivos/recíprocos quedan vinculados al sujeto; la salida Nawat usa el slot reflexivo existente.",
-        engineSurface: "reflexivo slot metadata and unchanged finite output",
+        directiveEs: "Los paradigmas reflexivos/recíprocos quedan vinculados al sujeto; la fórmula visible expone m-u o m-0 según la alomorfía mu.",
+        engineSurface: "reflexivo slot metadata with conditional direct Nawat m-u/m-0 paradigm and unchanged finite output",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
+    }),
+]);
+
+const VNC_LESSON6_SHOT_REPORT = Object.freeze([
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.1",
+        requirementEs: "La CNV transitiva se distingue por la posicion de valencia objetiva y por trayectoria, especificidad y prominencia.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "La ruta renderiza un objeto, pero no distingue valencia monadica/diadica ni especifico/inespecifico/reflexivo.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.2",
+        requirementEs: "La formula monadica +va cubre ne de linea secundaria y objetos inespecificos te/ta.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "ne, te o ta aparecen como val1-val2 o quedan bloqueados.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.2.1",
+        requirementEs: "ne es reflexivo/reciproco de linea secundaria, no mu de linea principal.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "ne se colapsa en mu, se bloquea, o pierde la formula monadica.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.2.2a",
+        requirementEs: "te es proyectivo inespecifico humano.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "te se trata como objeto personal especifico o como valencia diadica.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.2.2b",
+        requirementEs: "tla corresponde estructuralmente a Nawat ta como proyectivo inespecifico no humano.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "ta se importa como superficie clasica tla o se trata como objeto especifico.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.3",
+        requirementEs: "Los objetos especificos de linea principal usan valencia diadica val1-val2.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "ki, kin, nech, tech, metz, metzin o mu aparecen como valencia monadica.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4",
+        requirementEs: "Los objetos proyectivos personales distribuyen persona, numero y caso entre val1 y val2.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "La superficie genera, pero la formula oculta la propiedad de subcasillas.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.1",
+        requirementEs: "val1 siempre manifiesta persona, nunca como unica informacion.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "val1 queda como persona desnuda sin caso objetivo o numero.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.1a",
+        requirementEs: "En tercera persona, val1 combina persona y caso objetivo.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "ki/k se presenta como monadico o como portador del numero.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.1b",
+        requirementEs: "En primera y segunda persona, val1 combina persona y numero.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "nech, tech, metz o metzin no exponen los dyads Nawat adaptados.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.2",
+        requirementEs: "val2 provee la categoria no contenida en val1.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "val2 queda vacio o se pliega en el prefijo superficial.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.2a",
+        requirementEs: "En tercera persona, val2 manifiesta numero: cero singular e in/im plural.",
+        shotStatus: "hit-edit",
+        missProbeEs: "nikpiya muestra ki-0 en vez de k-0, kipiya muestra k-0 en vez de ki-0, o kin no expone k-in.",
+        changedFiles: Object.freeze([
+            "docs/ANDREWS_TRAJECTORY.md",
+            "docs/GRAMMAR_SPEC.md",
+            "src/core/generation/engine.js",
+            "src/core/generation/engine.mjs",
+            "src/core/generation/morphology_engine.js",
+            "src/core/generation/morphology_engine.mjs",
+            "src/core/orthography/orthography.js",
+            "src/core/orthography/orthography.mjs",
+            "src/core/vnc/vnc.js",
+            "src/core/vnc/vnc.mjs",
+            "src/tests/vnc.test.js",
+        ]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.4.2b",
+        requirementEs: "En no tercera persona, val2 expresa caso objetivo.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "metz/metzin quedan sin division o importan itz sin adaptacion Nawat.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.5",
+        requirementEs: "El paradigma proyectivo especifico se muestra como dyads Nawat directos.",
+        shotStatus: "hit-edit",
+        missProbeEs: "Los prefijos generan, pero faltan n-ech, t-ech, m-etz, m-etz-in, ki-0/k-0 o k-in en la formula, o nikpiya no acopla superficie k con formula k-0.",
+        changedFiles: Object.freeze([
+            "docs/ANDREWS_TRAJECTORY.md",
+            "docs/GRAMMAR_SPEC.md",
+            "src/core/generation/engine.js",
+            "src/core/generation/engine.mjs",
+            "src/core/generation/morphology_engine.js",
+            "src/core/generation/morphology_engine.mjs",
+            "src/core/orthography/orthography.js",
+            "src/core/orthography/orthography.mjs",
+            "src/core/vnc/vnc.js",
+            "src/core/vnc/vnc.mjs",
+            "src/tests/vnc.test.js",
+        ]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.6",
+        requirementEs: "El reflexivo principal es diadico y refleja persona/numero del sujeto.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "mu se duplica como mu-mu o se analiza como valencia monadica.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.6.1",
+        requirementEs: "En reflexivo principal, val1 es el locus de persona y numero.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "La formula reflexiva no muestra m en val1 para no primera persona.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.6.2",
+        requirementEs: "En reflexivo principal, val2 expresa caso objetivo y alterna u/0 segun alomorfia.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "m-u/m-0 se elige por atajo amplio y no por la misma regla de superficie.",
+        changedFiles: Object.freeze([]),
+    }),
+    Object.freeze({
+        andrewsRef: "Andrews Lesson 6.7",
+        requirementEs: "El paradigma reflexivo Nawat visible usa m-u o m-0 acoplado a la superficie.",
+        shotStatus: "hit-no-edit",
+        missProbeEs: "mu+ajsi no da m-u/muajsit o mu+altia no da m-0/maltiat con marco de regla.",
+        changedFiles: Object.freeze([]),
     }),
 ]);
 
@@ -500,7 +670,7 @@ const VNC_LESSON7_PREDICATE_FORMATION_FRAME = Object.freeze({
     cooperatesWithSubjectPronounsFrom: "Andrews §5.4",
     indicativeSide: Object.freeze(["present", "customary-present", "imperfect", "future", "preterit", "distant-past"]),
     nonIndicativeSide: Object.freeze(["nonpast-optative", "past-optative", "nonpast-admonitive"]),
-    currentNawatImplementedTenses: Object.freeze(["presente", "presente-habitual", "imperfecto", "futuro", "preterito", "pasado-remoto", "imperativo", "presente-desiderativo"]),
+    currentNawatImplementedTenses: Object.freeze(["presente", "presente-habitual", "imperfecto", "futuro", "preterito", "pasado-remoto", "optativo", "presente-desiderativo"]),
     currentEngineSurfaces: "TENSE_SUFFIX_RULES plus preterit class routing and suppletive path gates",
 });
 
@@ -681,7 +851,7 @@ function getVncLesson5SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
-        generationPolicy: "solo por rutas CNV existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures",
+        generationPolicy: "solo por rutas de cláusula verbal existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures",
     }));
 }
 
@@ -696,7 +866,21 @@ function buildVncLesson5PursuitFrame() {
             {
                 id: "lesson-5-intransitive-vnc-audit",
                 type: "metadata-engine-test",
-                aim: "Audit Andrews Lesson 5.1-5.5 against the intransitive CNV engine, subject slots, tense morph routing, and Nawat orthography bridge.",
+                aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 5.1-5.5 por la ruta de entrada a salida como comportamiento de fórmula de cláusula verbal intransitiva, rellenos de sujeto y tiempo, con sonda de fallo para detectar superficie optativa shi con metadatos pers1 todavía ti o an.",
+                andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
+                expectedFeedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-5-optative-formula-authority-audit",
+                type: "formula-engine-test",
+                aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 5.4-5.5 por la ruta de entrada a salida como comportamiento de autoridad de fórmula optativa, con sonda de fallo para detectar existencia de salida plural optativa que conserve Ø-t, k-et o sufijo plegado en vez de k-an en num1-num2.",
+                andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
+                expectedFeedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-5-tense-morph-formula-authority-audit",
+                type: "formula-engine-test",
+                aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 5.5 por la ruta de entrada a salida como comportamiento de morfo en la ranura tiempo para cada tiempo finito implementado, con sonda de fallo para detectar existencia de fórmula que muestre presente-desiderativo, condicional, perfecto, pluscuamperfecto o condicional-perfecto como texto de ranura.",
                 andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
                 expectedFeedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
             },
@@ -705,7 +889,21 @@ function buildVncLesson5PursuitFrame() {
             {
                 id: "lesson-5-intransitive-vnc-audit",
                 result: "hit",
-                correction: "Lesson 5 now carries subsection PDF refs, Spanish directives, intransitive formula metadata, subject filler paradigms, tense morph inventory, and explicit Nawat realization policy.",
+                correction: "Corrección antes de existencia: la Lección 5 conserva referencias de PDF por subsección, directivas en español, fórmula intransitiva, paradigmas de sujeto, inventario de tiempo y política Nawat; la ruta de entrada a salida corrige el comportamiento del relleno de sujeto optativo shi, y la sonda de fallo contra existencia sola es una fórmula visible que deje ti/an en pers1 cuando la superficie generada usa shi.",
+                andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
+                feedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-5-optative-formula-authority-audit",
+                result: "hit",
+                correction: "Corrección antes de existencia: la autoridad de fórmula de Andrews ahora domina la ruta de entrada a salida como comportamiento de optativo plural; la sonda de fallo contra existencia sola es una salida o metadato plural optativo que deje Ø-t, k-et o sufijo plegado donde num1-num2 debe ser k-an.",
+                andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
+                feedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-5-tense-morph-formula-authority-audit",
+                result: "hit",
+                correction: "Corrección antes de existencia: la ranura tiempo de fórmula ahora usa morfos de tiempo por la ruta de entrada a salida como comportamiento de las rutas finitas implementadas; la sonda de fallo contra existencia sola es que una clave como condicional-perfecto aparezca en la fórmula donde debe estar el morfo tuskia.",
                 andrewsRefs: Array.from(VNC_LESSON5_PDF_REFS),
                 feedbackRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
             },
@@ -715,7 +913,7 @@ function buildVncLesson5PursuitFrame() {
         subjectSlotFrame: getVncLesson5SubjectSlotFrame(),
         subjectFillerParadigms: getVncLesson5SubjectFillerParadigms(),
         tenseMorphFrame: getVncLesson5TenseMorphFrame(),
-        hitCount: 1,
+        hitCount: 3,
         missCount: 0,
         remainingGaps: [],
         closestPass: true,
@@ -755,8 +953,17 @@ function getVncLesson6SubsectionInventory() {
     }));
 }
 
+function getVncLesson6ShotReport() {
+    return VNC_LESSON6_SHOT_REPORT.map((entry) => ({
+        ...entry,
+        changedFiles: Array.from(entry.changedFiles || []),
+        validationRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
+    }));
+}
+
 function buildVncLesson6PursuitFrame() {
     const inventory = getVncLesson6SubsectionInventory();
+    const shotReport = getVncLesson6ShotReport();
     return {
         mainTarget: "fully Andrews-directed Nawat Conjugador",
         stepNumber: 6,
@@ -766,7 +973,21 @@ function buildVncLesson6PursuitFrame() {
             {
                 id: "lesson-6-transitive-vnc-audit",
                 type: "metadata-engine-test",
-                aim: "Audit Andrews Lesson 6.1-6.7 against the transitive CNV engine, object categories, monadic/dyadic valence slots, and Nawat object-prefix realization.",
+                aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 6.1-6.7 por la ruta de entrada a salida como comportamiento de valencia transitiva, categorías de objeto y realización Nawat, con sonda de fallo para detectar metadatos que existan sin separar valencia monádica, diádica, específica, inespecífica y reflexiva.",
+                andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
+                expectedFeedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-6-valence-formula-authority-audit",
+                type: "formula-engine-test",
+                aim: "Aplicar autoridad de fórmula de Andrews: verificar por la ruta de entrada a salida que los objetos específicos y el reflexivo principal usen val1-val2, que te/ta inespecíficos usen val, y que mu no se duplique como objeto y reflexivo; la sonda de fallo es una salida que rinda ki como monádico, ta como diádico o mu-mu.",
+                andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
+                expectedFeedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-6-shuntline-ne-direct-generation-audit",
+                type: "formula-engine-test",
+                aim: "Aplicar autoridad de fórmula de Andrews: verificar por la ruta de entrada a salida que ne de línea secundaria conserve fórmula monádica y genere como Nawat directo; la sonda de fallo es bloquear ne o un metadato que lo llame mu de línea principal.",
                 andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
                 expectedFeedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
             },
@@ -775,19 +996,34 @@ function buildVncLesson6PursuitFrame() {
             {
                 id: "lesson-6-transitive-vnc-audit",
                 result: "hit",
-                correction: "Lesson 6 now carries subsection PDF refs, Spanish directives, monadic and dyadic valence formula metadata, object category frames, projective/reflexive paradigms, and explicit Nawat realization policy.",
+                correction: "Corrección antes de existencia: la Lección 6 conserva referencias de PDF por subsección, directivas en español, metadatos de valencia monádica y diádica, categorías de objeto, paradigmas proyectivo/reflexivo y política Nawat; la sonda de fallo contra existencia sola es que la ruta de entrada a salida no distinga comportamiento específico, inespecífico y reflexivo.",
+                andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
+                feedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-6-valence-formula-authority-audit",
+                result: "hit",
+                correction: "Corrección antes de existencia: la autoridad de fórmula de Andrews ahora decide la posición de valencia en la ruta de entrada a salida; los objetos específicos usan val1-val2, te/ta usan val, y mu no se duplica como mu-mu.",
+                andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
+                feedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-6-shuntline-ne-direct-generation-audit",
+                result: "hit",
+                correction: "Corrección antes de existencia: ne de línea secundaria queda como fórmula monádica activa por la ruta de entrada a salida; la sonda de fallo contra existencia sola es bloquear la superficie Nawat ne o confundirla con mu de línea principal.",
                 andrewsRefs: Array.from(VNC_LESSON6_PDF_REFS),
                 feedbackRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
             },
         ],
         subsectionInventory: inventory,
+        shotReport,
         formulaFrame: getVncLesson6TransitiveFormulaFrame(),
         objectCategoryFrame: getVncLesson6ObjectCategoryFrame(),
         monadicValenceFillers: getVncLesson6MonadicValenceFillers(),
         dyadicObjectFrame: getVncLesson6DyadicObjectFrame(),
         projectiveObjectParadigm: getVncLesson6ProjectiveObjectParadigm(),
         reflexiveObjectFrame: getVncLesson6ReflexiveObjectFrame(),
-        hitCount: 1,
+        hitCount: 3,
         missCount: 0,
         remainingGaps: [],
         closestPass: true,

@@ -21,7 +21,7 @@
     },
     "tenses": {
       "presente": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
-      "imperativo": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
+      "optativo": { "long": "yawi", "short": "yaw", "yuVariant": "yu" },
       "presente-habitual": { "verb": "ya" }
     }
   },

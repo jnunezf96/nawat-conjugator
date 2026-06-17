@@ -8566,8 +8566,8 @@ export function createUiComposerApi(targetObject = globalThis) {
       if (!tense) {
         return "past";
       }
-      if (tense === "imperativo") {
-        return "imperative";
+      if (tense === "optativo") {
+        return "optative";
       }
       if (tense.startsWith("presente")) {
         return "present";
@@ -8579,10 +8579,10 @@ export function createUiComposerApi(targetObject = globalThis) {
     }
     function getVerbSemanticTenseGroups(visibleTenses = []) {
       const groups = [{
-        key: "imperative",
+        key: "optative",
         heading: {
-          labelEs: "imperativo",
-          labelNa: "imperativo"
+          labelEs: "optativo",
+          labelNa: "optativo"
         },
         tenses: []
       }, {

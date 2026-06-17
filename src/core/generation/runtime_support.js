@@ -7,6 +7,10 @@
 const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
 const GENERATE_RUNTIME_ROUTE_FAMILY = "nuclear-clause-surface";
 
+function normalizeGenerateRuntimeTenseValue(tenseValue = "") {
+    return String(tenseValue || "").trim();
+}
+
 function buildGenerateRuntimeBlockedDiagnostic({
     id = "generate-runtime-no-output",
     message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE,
@@ -538,6 +542,7 @@ function resolveStemCandidateMorphologyResult({
     patientivoOwnership,
     isYawi,
 }) {
+    tense = normalizeGenerateRuntimeTenseValue(tense);
     const stem = (
         stemCandidate
         && typeof stemCandidate === "object"
@@ -635,7 +640,7 @@ function resolveStemCandidateMorphologyResult({
             });
         }
     }
-    const isYawiImperative = isYawi && tense === "imperativo" && localPers2 === "";
+    const isYawiOptative = isYawi && tense === "optativo" && localPers2 === "";
     const localAlternates = (applied.alternateForms || []).map((form) => {
         const normalizedForm = isNominalOutputProfile
             ? normalizeNominalFormEntry(form, { subjectSuffix: localPers2 })
@@ -684,6 +689,6 @@ function resolveStemCandidateMorphologyResult({
         alternateForms: localAlternates,
         directionalChainMeta: applied.directionalChainMeta || null,
         surfaceRuleMeta: applied.surfaceRuleMeta || null,
-        isYawiImperative,
+        isYawiOptative,
     };
 }

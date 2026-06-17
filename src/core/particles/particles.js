@@ -186,6 +186,7 @@ const PARTICLE_ANTI_CONFLATION_RULES = Object.freeze([
     "preposed output segment is not a Lesson 3 particle engine",
     "topic/focus label is not supplementation",
     "Andrews particle categories are architecture, not Nawat/Pipil form authority",
+    "particle categories do not occupy CNV/CNN formula slots",
 ]);
 
 const PARTICLE_LESSON3_INVENTORY_GROUPS = Object.freeze([
@@ -246,16 +247,23 @@ const PARTICLE_LESSON3_SEED_SOURCE_ENTRIES = Object.freeze([
     Object.freeze({ id: "l3-at", sourceForm: "at", functionScope: PARTICLE_FUNCTION_SCOPE.adverbialModifier, placementScope: PARTICLE_PLACEMENT_SCOPE.floating, gloss: "quizá; tal vez", section: "3.2.4", priority: 52 }),
     Object.freeze({ id: "l3-ac", sourceForm: "ac", functionScope: PARTICLE_FUNCTION_SCOPE.adverbialModifier, placementScope: PARTICLE_PLACEMENT_SCOPE.floating, gloss: "variante de quizá; tal vez", section: "3.2.4", priority: 53 }),
 
+    Object.freeze({ id: "l3-o-interjection", sourceForm: "o", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "¿ah sí?; ay; oye", section: "3.2.5", priority: 59 }),
     Object.freeze({ id: "l3-e-vocative", sourceForm: "#e", aliases: ["e"], functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.boundToPrevious, gloss: "vocativo", section: "3.2.5", priority: 60 }),
     Object.freeze({ id: "l3-a", sourceForm: "a", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 61 }),
-    Object.freeze({ id: "l3-ax", sourceForm: "ax", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay; au", section: "3.2.5", priority: 62 }),
+    Object.freeze({ id: "l3-ax", sourceForm: "ax", aliases: ["ax ax", "ax ax ax"], functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay; au", section: "3.2.5", priority: 62 }),
     Object.freeze({ id: "l3-hue", sourceForm: "hue", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 63 }),
     Object.freeze({ id: "l3-hueya", sourceForm: "hueya", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 64 }),
     Object.freeze({ id: "l3-yahua", sourceForm: "yahua", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 65 }),
     Object.freeze({ id: "l3-ihyo", sourceForm: "ihyo", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay de mí; ay", section: "3.2.5", priority: 66 }),
+    Object.freeze({ id: "l3-no-interjection", sourceForm: "no", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay de mí; ay (uso femenino)", section: "3.2.5", priority: 66.2 }),
+    Object.freeze({ id: "l3-auh-interjection", sourceForm: "auh", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "bien; bueno; sorpresa o resignación", section: "3.2.5", priority: 66.4 }),
     Object.freeze({ id: "l3-hui", sourceForm: "hui", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "vaya", section: "3.2.5", priority: 67 }),
     Object.freeze({ id: "l3-elele", sourceForm: "elele", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 68 }),
+    Object.freeze({ id: "l3-elele-ay", sourceForm: "elele ay ay ay", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 68.5 }),
     Object.freeze({ id: "l3-ahcua", sourceForm: "ahcua", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ay", section: "3.2.5", priority: 69 }),
+    Object.freeze({ id: "l3-ye-ye", sourceForm: "ye ye", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ajá; te atrapé", section: "3.2.5", priority: 69.5 }),
+    Object.freeze({ id: "l3-ih-i", sourceForm: "ih i", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ajá; te atrapé", section: "3.2.5", priority: 69.6 }),
+    Object.freeze({ id: "l3-yeya", sourceForm: "yeya", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "ajá; te atrapé", section: "3.2.5", priority: 69.7 }),
     Object.freeze({ id: "l3-xi", sourceForm: "xi", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "pst", section: "3.2.5", priority: 70 }),
     Object.freeze({ id: "l3-xiuh", sourceForm: "xiuh", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "fuera", section: "3.2.5", priority: 71 }),
     Object.freeze({ id: "l3-iye", sourceForm: "iye", functionScope: PARTICLE_FUNCTION_SCOPE.interjection, placementScope: PARTICLE_PLACEMENT_SCOPE.independentUtterance, gloss: "sí", section: "3.2.5", priority: 72 }),
@@ -307,6 +315,8 @@ const PARTICLE_LESSON3_SEED_SOURCE_ENTRIES = Object.freeze([
     Object.freeze({ id: "l3-ihyo-iyahua", sourceForm: "ihyo iyahua!", functionScope: PARTICLE_FUNCTION_SCOPE.collocation, placementScope: PARTICLE_PLACEMENT_SCOPE.collocationSequence, gloss: "¡ay de mí!; ¡qué desgracia!", section: "3.4", priority: 129 }),
     Object.freeze({ id: "l3-ahca-zo", sourceForm: "ahca zo", functionScope: PARTICLE_FUNCTION_SCOPE.collocation, placementScope: PARTICLE_PLACEMENT_SCOPE.collocationSequence, gloss: "quizá; tal vez", section: "3.4", priority: 130 }),
     Object.freeze({ id: "l3-ahzo-ca", sourceForm: "ahzo ca", functionScope: PARTICLE_FUNCTION_SCOPE.collocation, placementScope: PARTICLE_PLACEMENT_SCOPE.collocationSequence, gloss: "quizá; tal vez", section: "3.4", priority: 131 }),
+    Object.freeze({ id: "l3-ahca-zo-ah", sourceForm: "ahca zo ah#", functionScope: PARTICLE_FUNCTION_SCOPE.collocation, placementScope: PARTICLE_PLACEMENT_SCOPE.collocationSequence, gloss: "quizá no; tal vez no", section: "3.4", priority: 132 }),
+    Object.freeze({ id: "l3-ahzo-ca-ah", sourceForm: "ahzo ca ah#", functionScope: PARTICLE_FUNCTION_SCOPE.collocation, placementScope: PARTICLE_PLACEMENT_SCOPE.collocationSequence, gloss: "quizá no; tal vez no", section: "3.4", priority: 133 }),
 
     Object.freeze({ id: "l3-otzin", sourceForm: "otzin", functionScope: PARTICLE_FUNCTION_SCOPE.honorificized, placementScope: PARTICLE_PLACEMENT_SCOPE.floating, gloss: "mira; he aquí", section: "3.5", priority: 130 }),
     Object.freeze({ id: "l3-auhtzin", sourceForm: "auhtzin", functionScope: PARTICLE_FUNCTION_SCOPE.honorificized, placementScope: PARTICLE_PLACEMENT_SCOPE.floating, gloss: "bien, bien", section: "3.5", priority: 131 }),

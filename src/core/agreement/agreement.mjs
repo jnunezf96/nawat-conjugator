@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/agreement/agreement.js.
 
-export function createAgreementGlobals(targetObject = globalThis) {
+export function createAgreementApi(targetObject = globalThis) {
     function cloneAgreementLessonRecord(value) {
       if (Array.isArray(value)) {
         return value.map(entry => cloneAgreementLessonRecord(entry));
@@ -281,97 +281,97 @@ export function createAgreementGlobals(targetObject = globalThis) {
     }
 
     // === Person & Agreement ===
-    function getImperativePers1Pers2Info(pers1, pers2) {
+    function getOptativePers1Pers2Info(pers1, pers2) {
       const key = `${pers1}|${pers2}`;
       switch (key) {
         case "ni|":
           return {
             person: 1,
             number: "sg",
-            mode: "imperative"
+            mode: "optative"
           };
         case "shi|":
           return {
             person: 2,
             number: "sg",
-            mode: "imperative"
+            mode: "optative"
           };
         case "|":
           return {
             person: 3,
             number: "sg",
-            mode: "imperative"
+            mode: "optative"
           };
         case "ti|kan":
           return {
             person: 1,
             number: "pl",
-            mode: "imperative"
+            mode: "optative"
           };
         case "shi|kan":
           return {
             person: 2,
             number: "pl",
-            mode: "imperative"
+            mode: "optative"
           };
         case "|kan":
           return {
             person: 3,
             number: "pl",
-            mode: "imperative"
+            mode: "optative"
           };
         default:
           return null;
       }
     }
-    function getNonImperativePers1Pers2Info(pers1, pers2) {
+    function getNonOptativePers1Pers2Info(pers1, pers2) {
       const key = `${pers1}|${pers2}`;
       switch (key) {
         case "ni|":
           return {
             person: 1,
             number: "sg",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         case "ti|":
           return {
             person: 2,
             number: "sg",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         case "|":
           return {
             person: 3,
             number: "sg",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         case "ti|t":
           return {
             person: 1,
             number: "pl",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         case "an|t":
           return {
             person: 2,
             number: "pl",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         case "|t":
           return {
             person: 3,
             number: "pl",
-            mode: "nonimperative"
+            mode: "nonoptative"
           };
         default:
           return null;
       }
     }
-    function isImperativePers1Pers2IdentityContext(options = {}) {
-      return options?.mode === "imperative" || options?.tense === "imperativo";
+    function isOptativePers1Pers2IdentityContext(options = {}) {
+      return options?.mode === "optative" || options?.tense === "optativo";
     }
-    function isNonImperativePers1Pers2IdentityContext(options = {}) {
-      return options?.mode === "nonimperative" || options?.mode === "non-imperative" || typeof options?.tense === "string" && options.tense && options.tense !== "imperativo";
+    function isNonOptativePers1Pers2IdentityContext(options = {}) {
+      return options?.mode === "nonoptative" || options?.mode === "non-optative" || typeof options?.tense === "string" && options.tense && options.tense !== "optativo";
     }
     function stripPers1Pers2IdentityMode(info = null) {
       return info ? {
@@ -380,44 +380,52 @@ export function createAgreementGlobals(targetObject = globalThis) {
       } : null;
     }
     function getPers1Pers2Info(pers1, pers2, options = {}) {
-      const imperativeInfo = getImperativePers1Pers2Info(pers1, pers2);
-      if (imperativeInfo && (isImperativePers1Pers2IdentityContext(options) || pers1 === "shi" || pers2 === "kan")) {
-        return imperativeInfo;
+      const optativeInfo = getOptativePers1Pers2Info(pers1, pers2);
+      if (optativeInfo && (isOptativePers1Pers2IdentityContext(options) || pers1 === "shi" || pers2 === "kan")) {
+        return optativeInfo;
       }
-      const nonImperativeInfo = getNonImperativePers1Pers2Info(pers1, pers2);
-      if (nonImperativeInfo) {
-        return isNonImperativePers1Pers2IdentityContext(options) ? nonImperativeInfo : stripPers1Pers2IdentityMode(nonImperativeInfo);
+      const nonOptativeInfo = getNonOptativePers1Pers2Info(pers1, pers2);
+      if (nonOptativeInfo) {
+        return isNonOptativePers1Pers2IdentityContext(options) ? nonOptativeInfo : stripPers1Pers2IdentityMode(nonOptativeInfo);
       }
       return null;
     }
     function getObj1PersonInfo(obj1) {
       switch (obj1) {
         case "nech":
+        case "n-ech":
           return {
             person: 1,
             number: "sg"
           };
         case "tech":
+        case "t-ech":
           return {
             person: 1,
             number: "pl"
           };
         case "metz":
+        case "m-etz":
           return {
             person: 2,
             number: "sg"
           };
         case "metzin":
+        case "m-etz-in":
           return {
             person: 2,
             number: "pl"
           };
         case "ki":
+        case "k":
+        case "ki-0":
+        case "k-0":
           return {
             person: 3,
             number: "sg"
           };
         case "kin":
+        case "k-in":
           return {
             person: 3,
             number: "pl"
@@ -2212,10 +2220,10 @@ export function createAgreementGlobals(targetObject = globalThis) {
     });
     api.getLesson23VerbObjectsSubsectionInventory = getLesson23VerbObjectsSubsectionInventory;
     api.buildLesson23VerbObjectsPursuitFrame = buildLesson23VerbObjectsPursuitFrame;
-    api.getImperativePers1Pers2Info = getImperativePers1Pers2Info;
-    api.getNonImperativePers1Pers2Info = getNonImperativePers1Pers2Info;
-    api.isImperativePers1Pers2IdentityContext = isImperativePers1Pers2IdentityContext;
-    api.isNonImperativePers1Pers2IdentityContext = isNonImperativePers1Pers2IdentityContext;
+    api.getOptativePers1Pers2Info = getOptativePers1Pers2Info;
+    api.getNonOptativePers1Pers2Info = getNonOptativePers1Pers2Info;
+    api.isOptativePers1Pers2IdentityContext = isOptativePers1Pers2IdentityContext;
+    api.isNonOptativePers1Pers2IdentityContext = isNonOptativePers1Pers2IdentityContext;
     api.stripPers1Pers2IdentityMode = stripPers1Pers2IdentityMode;
     api.getPers1Pers2Info = getPers1Pers2Info;
     api.getObj1PersonInfo = getObj1PersonInfo;
@@ -2304,7 +2312,7 @@ export function createAgreementGlobals(targetObject = globalThis) {
 }
 
 export function installAgreementGlobals(targetObject = globalThis) {
-    const api = createAgreementGlobals(targetObject);
+    const api = createAgreementApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

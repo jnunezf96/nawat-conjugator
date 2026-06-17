@@ -181,19 +181,19 @@ function run(ctx) {
         weya: [
             ["presente", ["weya"]],
             ["presente-habitual", ["weyani"]],
-            ["imperativo", ["ma weya"]],
+            ["optativo", ["ma weya"]],
             ["futuro", ["weyas"]],
         ],
         weiya: [
             ["presente", ["weiya"]],
             ["presente-habitual", ["weiyani"]],
-            ["imperativo", ["ma weiya"]],
+            ["optativo", ["ma weiya"]],
             ["futuro", ["weiyas"]],
         ],
         weyya: [
             ["presente", ["weyya"]],
             ["presente-habitual", ["weyyani"]],
-            ["imperativo", ["ma weyya"]],
+            ["optativo", ["ma weyya"]],
             ["futuro", ["weyyas"]],
         ],
     };
@@ -235,8 +235,8 @@ function run(ctx) {
         ["futuro", "t", ["yesket"]],
         ["condicional", "", ["yeskia"]],
         ["condicional", "t", ["yeskiat"]],
-        ["imperativo", "", ["ma ye"]],
-        ["imperativo", "t", ["ma yekan"]],
+        ["optativo", "", ["ma ye"]],
+        ["optativo", "t", ["ma yekan"]],
     ];
     katiExpectedForms.forEach(([tense, subjectSuffix, expected]) => {
         const output = ctx.generateWord({
@@ -299,7 +299,7 @@ function run(ctx) {
         });
     });
 
-    const witziDefectiveActiveTenses = ["presente", "perfecto", "futuro", "imperativo"];
+    const witziDefectiveActiveTenses = ["presente", "perfecto", "futuro", "optativo"];
     ["witzi", "wi", "witz"].forEach((verb) => {
         witziDefectiveActiveTenses.forEach((tense) => {
             const output = ctx.generateWord({

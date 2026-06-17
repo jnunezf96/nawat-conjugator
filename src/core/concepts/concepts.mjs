@@ -8,7 +8,7 @@ export function createConceptsApi(targetObject = globalThis) {
       hierarchy: "hierarchy",
       boundary: "boundary"
     });
-    const CONCEPT_ANTI_CONFLATION_RULES = Object.freeze(["concept glossary is not generation", "notation token is not Nawat/Pipil surface evidence", "lesson heading is not an engine boundary", "VNC/NNC category label is not a complete sentence model", "Andrews terminology is architecture, not Nawat/Pipil form authority"]);
+    const CONCEPT_ANTI_CONFLATION_RULES = Object.freeze(["concept glossary is not generation", "notation token is not Nawat/Pipil surface evidence", "Andrews formula notation is an engine contract, not surface text", "lesson heading is not an engine boundary", "VNC/NNC category label is not a complete sentence model", "Andrews terminology is architecture, not Nawat/Pipil form authority"]);
     const NUCLEAR_CLAUSE_TERMINOLOGY = Object.freeze({
       nc: Object.freeze({
         english: "nuclear clause",
@@ -127,6 +127,24 @@ export function createConceptsApi(targetObject = globalThis) {
       definition: "Marks the predicate core inside a formula; connectors and tense positions may sit outside it.",
       appliesTo: ["VNC", "NNC"],
       displayOrder: 60
+    }), Object.freeze({
+      id: "position-boundary",
+      lesson: 1,
+      kind: CONCEPT_KIND.notation,
+      label: "+",
+      notationRole: "formula-position-boundary",
+      definition: "Separates major formula positions; it is a structural boundary, not a surface plus sign.",
+      appliesTo: ["VNC", "NNC"],
+      displayOrder: 60.2
+    }), Object.freeze({
+      id: "subposition-boundary",
+      lesson: 1,
+      kind: CONCEPT_KIND.notation,
+      label: "-",
+      notationRole: "formula-subposition-boundary",
+      definition: "Separates formula subpositions such as pers1-pers2 or num1-num2; it is not a literal hyphen requirement.",
+      appliesTo: ["VNC", "NNC"],
+      displayOrder: 60.4
     }), Object.freeze({
       id: "morpheme",
       lesson: 1,
@@ -290,6 +308,8 @@ export function createConceptsApi(targetObject = globalThis) {
       "#...#": "formula-boundary",
       "()": "predicate-boundary",
       "(...)": "predicate-boundary",
+      "+": "position-boundary",
+      "-": "subposition-boundary",
       "cn": "nuclear-clause",
       "clausula-nuclear": "nuclear-clause",
       "cláusula-nuclear": "nuclear-clause",

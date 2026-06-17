@@ -16,26 +16,25 @@ function run(ctx) {
     s.eq("pers1-pers2 ti/Ø = 2sg", ctx.getPers1Pers2Info("ti", ""), { person: 2, number: "sg" });
     s.eq("pers1-pers2 Ø/Ø = 3sg", ctx.getPers1Pers2Info("", ""), { person: 3, number: "sg" });
     s.eq("pers1-pers2 ti/t = 1pl", ctx.getPers1Pers2Info("ti", "t"), { person: 1, number: "pl" });
-    s.eq("pers1-pers2 shi/Ø = 2sg imperative", ctx.getPers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "imperative" });
-    s.eq("pers1-pers2 ti/kan = 1pl imperative", ctx.getPers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
-    s.eq("pers1-pers2 shi/kan = 2pl imperative", ctx.getPers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
-    s.eq("pers1-pers2 Ø/kan = 3pl imperative", ctx.getPers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "imperative" });
-    s.eq("imperative pers1-pers2 ni/Ø = 1sg", ctx.getImperativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "imperative" });
-    s.eq("imperative pers1-pers2 shi/Ø = 2sg", ctx.getImperativePers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "imperative" });
-    s.eq("imperative pers1-pers2 Ø/Ø = 3sg", ctx.getImperativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "imperative" });
-    s.eq("imperative pers1-pers2 ti/kan = 1pl", ctx.getImperativePers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "imperative" });
-    s.eq("imperative pers1-pers2 shi/kan = 2pl", ctx.getImperativePers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "imperative" });
-    s.eq("imperative pers1-pers2 Ø/kan = 3pl", ctx.getImperativePers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "imperative" });
-    s.eq("pers1-pers2 ni/Ø with imperative context = 1sg imperative", ctx.getPers1Pers2Info("ni", "", { tense: "imperativo" }), { person: 1, number: "sg", mode: "imperative" });
-    s.eq("pers1-pers2 Ø/Ø with imperative context = 3sg imperative", ctx.getPers1Pers2Info("", "", { mode: "imperative" }), { person: 3, number: "sg", mode: "imperative" });
-    s.eq("nonimperative pers1-pers2 ni/Ø = 1sg", ctx.getNonImperativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative pers1-pers2 ti/Ø = 2sg", ctx.getNonImperativePers1Pers2Info("ti", ""), { person: 2, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative pers1-pers2 Ø/Ø = 3sg", ctx.getNonImperativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "nonimperative" });
-    s.eq("nonimperative pers1-pers2 ti/t = 1pl", ctx.getNonImperativePers1Pers2Info("ti", "t"), { person: 1, number: "pl", mode: "nonimperative" });
-    s.eq("nonimperative pers1-pers2 an/t = 2pl", ctx.getNonImperativePers1Pers2Info("an", "t"), { person: 2, number: "pl", mode: "nonimperative" });
-    s.eq("nonimperative pers1-pers2 Ø/t = 3pl", ctx.getNonImperativePers1Pers2Info("", "t"), { person: 3, number: "pl", mode: "nonimperative" });
-    s.eq("pers1-pers2 an/t with nonimperative tense = 2pl", ctx.getPers1Pers2Info("an", "t", { tense: "presente" }), { person: 2, number: "pl", mode: "nonimperative" });
-    s.eq("pers1-pers2 ti/Ø with nonimperative mode = 2sg", ctx.getPers1Pers2Info("ti", "", { mode: "non-imperative" }), { person: 2, number: "sg", mode: "nonimperative" });
+    s.eq("pers1-pers2 shi/Ø = 2sg optative", ctx.getPers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "optative" });
+    s.eq("pers1-pers2 ti/kan = 1pl optative", ctx.getPers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "optative" });
+    s.eq("pers1-pers2 shi/kan = 2pl optative", ctx.getPers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "optative" });
+    s.eq("pers1-pers2 Ø/kan = 3pl optative", ctx.getPers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "optative" });
+    s.eq("optative pers1-pers2 ni/Ø = 1sg", ctx.getOptativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "optative" });
+    s.eq("optative pers1-pers2 shi/Ø = 2sg", ctx.getOptativePers1Pers2Info("shi", ""), { person: 2, number: "sg", mode: "optative" });
+    s.eq("optative pers1-pers2 Ø/Ø = 3sg", ctx.getOptativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "optative" });
+    s.eq("optative pers1-pers2 ti/kan = 1pl", ctx.getOptativePers1Pers2Info("ti", "kan"), { person: 1, number: "pl", mode: "optative" });
+    s.eq("optative pers1-pers2 shi/kan = 2pl", ctx.getOptativePers1Pers2Info("shi", "kan"), { person: 2, number: "pl", mode: "optative" });
+    s.eq("optative pers1-pers2 Ø/kan = 3pl", ctx.getOptativePers1Pers2Info("", "kan"), { person: 3, number: "pl", mode: "optative" });
+    s.eq("pers1-pers2 ni/Ø with optative context = 1sg optative", ctx.getPers1Pers2Info("ni", "", { tense: "optativo" }), { person: 1, number: "sg", mode: "optative" });
+    s.eq("nonoptative pers1-pers2 ni/Ø = 1sg", ctx.getNonOptativePers1Pers2Info("ni", ""), { person: 1, number: "sg", mode: "nonoptative" });
+    s.eq("nonoptative pers1-pers2 ti/Ø = 2sg", ctx.getNonOptativePers1Pers2Info("ti", ""), { person: 2, number: "sg", mode: "nonoptative" });
+    s.eq("nonoptative pers1-pers2 Ø/Ø = 3sg", ctx.getNonOptativePers1Pers2Info("", ""), { person: 3, number: "sg", mode: "nonoptative" });
+    s.eq("nonoptative pers1-pers2 ti/t = 1pl", ctx.getNonOptativePers1Pers2Info("ti", "t"), { person: 1, number: "pl", mode: "nonoptative" });
+    s.eq("nonoptative pers1-pers2 an/t = 2pl", ctx.getNonOptativePers1Pers2Info("an", "t"), { person: 2, number: "pl", mode: "nonoptative" });
+    s.eq("nonoptative pers1-pers2 Ø/t = 3pl", ctx.getNonOptativePers1Pers2Info("", "t"), { person: 3, number: "pl", mode: "nonoptative" });
+    s.eq("pers1-pers2 an/t with nonoptative tense = 2pl", ctx.getPers1Pers2Info("an", "t", { tense: "presente" }), { person: 2, number: "pl", mode: "nonoptative" });
+    s.eq("pers1-pers2 ti/Ø with nonoptative mode = 2sg", ctx.getPers1Pers2Info("ti", "", { mode: "non-optative" }), { person: 2, number: "sg", mode: "nonoptative" });
 
     // getObj1PersonInfo(obj1) -> {person, number} | null
     s.eq("obj1 ki = 3sg", ctx.getObj1PersonInfo("ki"), { person: 3, number: "sg" });
@@ -46,13 +45,13 @@ function run(ctx) {
 
     // isPers1Obj1SamePersonAcrossNumber: true when pers1-pers2 and obj1 share person but differ in number.
     s.ok("1sg pers1-pers2 + 1pl obj1 = same person across number", ctx.isPers1Obj1SamePersonAcrossNumber("ni", "", "tech"));
-    s.ok("imperative 2sg pers1-pers2 + 2pl obj1 = same person across number", ctx.isPers1Obj1SamePersonAcrossNumber("shi", "", "metzin"));
+    s.ok("optative 2sg pers1-pers2 + 2pl obj1 = same person across number", ctx.isPers1Obj1SamePersonAcrossNumber("shi", "", "metzin"));
     s.no("1sg pers1-pers2 + 3sg obj1 = different person", ctx.isPers1Obj1SamePersonAcrossNumber("ni", "", "ki"));
     s.no("2sg pers1-pers2 + 1sg obj1 = different person", ctx.isPers1Obj1SamePersonAcrossNumber("ti", "", "nech"));
 
     // isPers1Obj1Reflexivo: pers1-pers2 = obj1 in person+number (3rd person never reflexive here).
     s.ok("1sg pers1-pers2 + 1sg obj1 = reflexive", ctx.isPers1Obj1Reflexivo("ni", "", "nech"));
-    s.ok("imperative 2pl pers1-pers2 + 2pl obj1 = reflexive", ctx.isPers1Obj1Reflexivo("shi", "kan", "metzin"));
+    s.ok("optative 2pl pers1-pers2 + 2pl obj1 = reflexive", ctx.isPers1Obj1Reflexivo("shi", "kan", "metzin"));
     s.no("1sg pers1-pers2 + 3sg obj1 = not reflexive", ctx.isPers1Obj1Reflexivo("ni", "", "ki"));
     s.no("3sg pers1-pers2 + 3sg obj1 = not reflexive (3rd person excluded)", ctx.isPers1Obj1Reflexivo("", "", "ki"));
 

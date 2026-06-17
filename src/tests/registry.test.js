@@ -107,6 +107,9 @@ function run() {
         /Directing Rule/.test(trajectoryDoc)
             && /Redirecting Rule/.test(trajectoryDoc)
             && /Plan\/Pursue Rule/.test(trajectoryDoc)
+            && /Correctness Before Existence Rule/.test(trajectoryDoc)
+            && /Andrews Formula Authority Rule/.test(trajectoryDoc)
+            && /plural optative formula/.test(trajectoryDoc)
             && /Lessons 1-4/.test(trajectoryDoc)
             && /Lessons 51-58/.test(trajectoryDoc)
             && /block-generation/.test(trajectoryDoc)
@@ -230,9 +233,9 @@ function run() {
                 lesson.trajectory.validationRefs.some((ref) => /^src\/tests\/|^scripts\//.test(ref)),
             ]),
         [
-            [1, "implemented-audited", "keep", "closest-pass", true, "none", 1, 0, true],
-            [5, "implemented-audited", "keep", "closest-pass", true, "none", 1, 0, true],
-            [6, "implemented-audited", "keep", "closest-pass", true, "none", 1, 0, true],
+            [1, "implemented-audited", "keep", "closest-pass", true, "none", 2, 0, true],
+            [5, "implemented-audited", "keep", "closest-pass", true, "none", 3, 0, true],
+            [6, "implemented-audited", "keep", "closest-pass", true, "none", 3, 0, true],
             [7, "implemented-audited", "keep", "closest-pass", true, "none", 1, 0, true],
             [20, "implemented-audited", "keep", "closest-pass", true, "none", 1, 0, true],
         ]
@@ -279,6 +282,31 @@ function run() {
             [4, "Andrews Lesson 4.1-4.6", "reframe-metadata", "not-surface-bearing"],
         ]
     );
+    function carriesPlanPursueCorrectnessProbe(text) {
+        return /Correcci[oó]n antes de existencia/.test(text)
+            && /ruta de entrada a salida/.test(text)
+            && /comportamiento/.test(text)
+            && /existencia/.test(text)
+            && /sonda de fallo/.test(text);
+    }
+    s.eq(
+        "early Plan/Pursue shots require correctness before existence probes",
+        [1, 2, 3, 4, 5].map((lessonId) => {
+            const trajectory = lessons[lessonId].trajectory;
+            return [
+                lessonId,
+                trajectory.plannedArrows.every((arrow) => carriesPlanPursueCorrectnessProbe(arrow.aim)),
+                trajectory.firedArrows.every((arrow) => carriesPlanPursueCorrectnessProbe(arrow.correction)),
+            ];
+        }),
+        [
+            [1, true, true],
+            [2, true, true],
+            [3, true, true],
+            [4, true, true],
+            [5, true, true],
+        ]
+    );
     s.eq(
         "not-mapped lessons are redirected away from generation",
         lessonRegistry
@@ -308,8 +336,14 @@ function run() {
             closestPass: lessons[2].trajectory.closestPass,
         },
         {
-            plannedArrowIds: ["lesson-2-subsection-coverage-audit"],
-            firedArrowIds: [["lesson-2-subsection-coverage-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-2-subsection-coverage-audit",
+                "lesson-2-formula-orthography-authority-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-2-subsection-coverage-audit", "hit"],
+                ["lesson-2-formula-orthography-authority-audit", "hit"],
+            ],
             remainingGap: "Siguen bloqueadas, solo diagnósticas o pendientes de evidencia Nawat: longitud vocálica, acento/prosodia, consonantes largas, alternancia glotal y elecciones ortográficas sensibles a evidencia.",
             closestPass: false,
         }
@@ -323,8 +357,14 @@ function run() {
             closestPass: lessons[3].trajectory.closestPass,
         },
         {
-            plannedArrowIds: ["lesson-3-pdf-example-transfer-audit"],
-            firedArrowIds: [["lesson-3-pdf-example-transfer-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-3-pdf-example-transfer-audit",
+                "lesson-3-formula-boundary-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-3-pdf-example-transfer-audit", "hit"],
+                ["lesson-3-formula-boundary-audit", "hit"],
+            ],
             remainingGap: "Siguen pendientes de evidencia: inventario local confirmado de partículas Nawat/Pipil, evidencia de colocación y generación; modo Partícula permanece solo diagnóstico.",
             closestPass: false,
         }
@@ -339,8 +379,14 @@ function run() {
             closestPass: lessons[4].trajectory.closestPass,
         },
         {
-            plannedArrowIds: ["lesson-4-subsection-coverage-audit"],
-            firedArrowIds: [["lesson-4-subsection-coverage-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-4-subsection-coverage-audit",
+                "lesson-4-formula-authority-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-4-subsection-coverage-audit", "hit"],
+                ["lesson-4-formula-authority-audit", "hit"],
+            ],
             remainingGap: "Siguen parciales o pendientes de evidencia: sintaxis oracional, registro de datos de fórmula, contexto de referencia de tercera persona y paradigmas detallados de rellenador de cláusula verbal/nominal.",
             closestPass: false,
         }
@@ -362,9 +408,17 @@ function run() {
             pdfRefs: ["Andrews Lesson 5.1-5.5"],
             redirectAction: "keep",
             evidenceStatus: "direct-pdf-with-nawat-realization",
-            orthographyStatus: "nawat-evidence-required",
-            plannedArrowIds: ["lesson-5-intransitive-vnc-audit"],
-            firedArrowIds: [["lesson-5-intransitive-vnc-audit", "hit"]],
+            orthographyStatus: "nawat-direct-generation-for-lesson-6-object-dyads",
+            plannedArrowIds: [
+                "lesson-5-intransitive-vnc-audit",
+                "lesson-5-optative-formula-authority-audit",
+                "lesson-5-tense-morph-formula-authority-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-5-intransitive-vnc-audit", "hit"],
+                ["lesson-5-optative-formula-authority-audit", "hit"],
+                ["lesson-5-tense-morph-formula-authority-audit", "hit"],
+            ],
             remainingGap: "none",
             closestPass: true,
         }
@@ -386,8 +440,16 @@ function run() {
             redirectAction: "keep",
             evidenceStatus: "direct-pdf-with-nawat-realization",
             orthographyStatus: "nawat-evidence-required",
-            plannedArrowIds: ["lesson-6-transitive-vnc-audit"],
-            firedArrowIds: [["lesson-6-transitive-vnc-audit", "hit"]],
+            plannedArrowIds: [
+                "lesson-6-transitive-vnc-audit",
+                "lesson-6-valence-formula-authority-audit",
+                "lesson-6-shuntline-ne-direct-generation-audit",
+            ],
+            firedArrowIds: [
+                ["lesson-6-transitive-vnc-audit", "hit"],
+                ["lesson-6-valence-formula-authority-audit", "hit"],
+                ["lesson-6-shuntline-ne-direct-generation-audit", "hit"],
+            ],
             remainingGap: "none",
             closestPass: true,
         }
@@ -451,7 +513,7 @@ function run() {
             firedArrowIds: lessons[9].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[9].trajectory.aimStatus,
             closestPass: lessons[9].trajectory.closestPass,
-            remainingGapMentionsImperativo: /imperativo/.test(lessons[9].trajectory.remainingGap),
+            remainingGapMentionsOptative: /optativ/.test(lessons[9].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 9.1-9.9"],
@@ -462,7 +524,7 @@ function run() {
             firedArrowIds: [["lesson-9-optative-sentence-audit", "hit"]],
             aimStatus: "shooting",
             closestPass: false,
-            remainingGapMentionsImperativo: true,
+            remainingGapMentionsOptative: true,
         }
     );
     s.eq(
@@ -476,7 +538,7 @@ function run() {
             firedArrowIds: lessons[10].trajectory.firedArrows.map((arrow) => [arrow.id, arrow.result]),
             aimStatus: lessons[10].trajectory.aimStatus,
             closestPass: lessons[10].trajectory.closestPass,
-            remainingGapMentionsAdmonitive: /admonitivo/.test(lessons[10].trajectory.remainingGap),
+            remainingGapMentionsAdmonitive: /admonitiv/.test(lessons[10].trajectory.remainingGap),
         },
         {
             pdfRefs: ["Andrews Lesson 10.1-10.5"],

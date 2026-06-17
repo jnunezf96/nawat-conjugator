@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/nnc/adjectival/adjectival.js.
 
-export function createAdjectivalNncGlobals(targetObject = globalThis) {
+export function createAdjectivalNncApi(targetObject = globalThis) {
     const ADJECTIVAL_NNC_BOUNDARY_VERSION = 1;
     const ADJECTIVAL_NNC_GENERATION_VERSION = 1;
     const ADJECTIVAL_NNC_FUNCTION = Object.freeze({
@@ -1522,7 +1522,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
       const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
       const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
       const connectorSurface = resolveAdjectivalNncFormulaSlotText(connector, ["connector", "surface"]) || "Ø";
-      return `#${prefix}...${suffix}(${stem})${connectorSurface}#`;
+      return `#${prefix}-${suffix}(${stem})${connectorSurface}#`;
     }
     function buildRootPlusYaAdjectivalNncFormulaSlots({
       rootPlusYaBase = "",
@@ -3091,7 +3091,7 @@ export function createAdjectivalNncGlobals(targetObject = globalThis) {
 }
 
 export function installAdjectivalNncGlobals(targetObject = globalThis) {
-    const api = createAdjectivalNncGlobals(targetObject);
+    const api = createAdjectivalNncApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

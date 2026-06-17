@@ -311,58 +311,59 @@ function buildLesson23VerbObjectsPursuitFrame() {
 }
 
 // === Person & Agreement ===
-function getImperativePers1Pers2Info(pers1, pers2) {
+function getOptativePers1Pers2Info(pers1, pers2) {
     const key = `${pers1}|${pers2}`;
     switch (key) {
         case "ni|":
-            return { person: 1, number: "sg", mode: "imperative" };
+            return { person: 1, number: "sg", mode: "optative" };
         case "shi|":
-            return { person: 2, number: "sg", mode: "imperative" };
+            return { person: 2, number: "sg", mode: "optative" };
         case "|":
-            return { person: 3, number: "sg", mode: "imperative" };
+            return { person: 3, number: "sg", mode: "optative" };
         case "ti|kan":
-            return { person: 1, number: "pl", mode: "imperative" };
+            return { person: 1, number: "pl", mode: "optative" };
         case "shi|kan":
-            return { person: 2, number: "pl", mode: "imperative" };
+            return { person: 2, number: "pl", mode: "optative" };
         case "|kan":
-            return { person: 3, number: "pl", mode: "imperative" };
+            return { person: 3, number: "pl", mode: "optative" };
         default:
             return null;
     }
 }
 
-function getNonImperativePers1Pers2Info(pers1, pers2) {
+function getNonOptativePers1Pers2Info(pers1, pers2) {
     const key = `${pers1}|${pers2}`;
     switch (key) {
         case "ni|":
-            return { person: 1, number: "sg", mode: "nonimperative" };
+            return { person: 1, number: "sg", mode: "nonoptative" };
         case "ti|":
-            return { person: 2, number: "sg", mode: "nonimperative" };
+            return { person: 2, number: "sg", mode: "nonoptative" };
         case "|":
-            return { person: 3, number: "sg", mode: "nonimperative" };
+            return { person: 3, number: "sg", mode: "nonoptative" };
         case "ti|t":
-            return { person: 1, number: "pl", mode: "nonimperative" };
+            return { person: 1, number: "pl", mode: "nonoptative" };
         case "an|t":
-            return { person: 2, number: "pl", mode: "nonimperative" };
+            return { person: 2, number: "pl", mode: "nonoptative" };
         case "|t":
-            return { person: 3, number: "pl", mode: "nonimperative" };
+            return { person: 3, number: "pl", mode: "nonoptative" };
         default:
             return null;
     }
 }
 
-function isImperativePers1Pers2IdentityContext(options = {}) {
-    return options?.mode === "imperative" || options?.tense === "imperativo";
+function isOptativePers1Pers2IdentityContext(options = {}) {
+    return options?.mode === "optative"
+        || options?.tense === "optativo";
 }
 
-function isNonImperativePers1Pers2IdentityContext(options = {}) {
+function isNonOptativePers1Pers2IdentityContext(options = {}) {
     return (
-        options?.mode === "nonimperative"
-        || options?.mode === "non-imperative"
+        options?.mode === "nonoptative"
+        || options?.mode === "non-optative"
         || (
             typeof options?.tense === "string"
             && options.tense
-            && options.tense !== "imperativo"
+            && options.tense !== "optativo"
         )
     );
 }
@@ -372,22 +373,22 @@ function stripPers1Pers2IdentityMode(info = null) {
 }
 
 function getPers1Pers2Info(pers1, pers2, options = {}) {
-    const imperativeInfo = getImperativePers1Pers2Info(pers1, pers2);
+    const optativeInfo = getOptativePers1Pers2Info(pers1, pers2);
     if (
-        imperativeInfo
+        optativeInfo
         && (
-            isImperativePers1Pers2IdentityContext(options)
+            isOptativePers1Pers2IdentityContext(options)
             || pers1 === "shi"
             || pers2 === "kan"
         )
     ) {
-        return imperativeInfo;
+        return optativeInfo;
     }
-    const nonImperativeInfo = getNonImperativePers1Pers2Info(pers1, pers2);
-    if (nonImperativeInfo) {
-        return isNonImperativePers1Pers2IdentityContext(options)
-            ? nonImperativeInfo
-            : stripPers1Pers2IdentityMode(nonImperativeInfo);
+    const nonOptativeInfo = getNonOptativePers1Pers2Info(pers1, pers2);
+    if (nonOptativeInfo) {
+        return isNonOptativePers1Pers2IdentityContext(options)
+            ? nonOptativeInfo
+            : stripPers1Pers2IdentityMode(nonOptativeInfo);
     }
     return null;
 }
@@ -395,16 +396,24 @@ function getPers1Pers2Info(pers1, pers2, options = {}) {
 function getObj1PersonInfo(obj1) {
     switch (obj1) {
         case "nech":
+        case "n-ech":
             return { person: 1, number: "sg" };
         case "tech":
+        case "t-ech":
             return { person: 1, number: "pl" };
         case "metz":
+        case "m-etz":
             return { person: 2, number: "sg" };
         case "metzin":
+        case "m-etz-in":
             return { person: 2, number: "pl" };
         case "ki":
+        case "k":
+        case "ki-0":
+        case "k-0":
             return { person: 3, number: "sg" };
         case "kin":
+        case "k-in":
             return { person: 3, number: "pl" };
         default:
             return null;

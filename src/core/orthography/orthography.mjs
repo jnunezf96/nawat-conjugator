@@ -8,7 +8,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       classicalNahuatl: "classical-nahuatl",
       unknown: "unknown"
     });
-    const ORTHOGRAPHY_BRIDGE_ANTI_CONFLATION_RULES = Object.freeze(["letter normalization is not morphology", "orthography match is not lexical evidence", "Classical Nahuatl form is not Nawat/Pipil fixture", "open-stem is not fixture evidence", "sourceKind is not grammar class", "topic is not nounClass", "supplementation is not word generation", "pronominal NNC is not ordinary NNC", "nonactive stem derivation is not identical to passive output", "Andrews grammar authority is not Classical spelling authority for Nawat output"]);
+    const ORTHOGRAPHY_BRIDGE_ANTI_CONFLATION_RULES = Object.freeze(["letter normalization is not morphology", "orthography match is not lexical evidence", "Classical Nahuatl form is not Nawat/Pipil fixture", "open-stem is not fixture evidence", "sourceKind is not grammar class", "topic is not nounClass", "supplementation is not word generation", "pronominal NNC is not ordinary NNC", "nonactive stem derivation is not identical to passive output", "Andrews grammar authority is not Classical spelling authority for Nawat output", "orthography bridge cannot change Andrews formula slots or slot owners"]);
     const CLASSICAL_NAHUATL_LETTERS = Object.freeze("acehilmnopqtuxyz".split(""));
     const CLASSICAL_NAHUATL_DIGRAPHS = Object.freeze(["ch", "cu", "hu", "qu", "tz", "tl", "uc", "uh"]);
     const ORTHOGRAPHY_BRIDGE_RULES = Object.freeze([Object.freeze({
@@ -349,7 +349,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       sourceLevel: "underlying Nawat slot surface",
       targetLevel: "realized Nawat output surface"
     }), Object.freeze({
-      id: "imperative-shi-before-al-sh",
+      id: "optative-shi-before-al-sh",
       source: "shi",
       sourceDisplay: "shi",
       target: "sh",
@@ -360,7 +360,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       andrewsProcess: "Vowel Elision",
       spanishProcess: "elisión vocálica",
       processFamily: "vowel-elision",
-      reason: "Imperative shi loses final i before the vowel-initial directional object slot al in the configured Nawat output surface.",
+      reason: "Optative shi loses final i before the vowel-initial directional object slot al in the configured Nawat output surface.",
       confidence: "surface-rule-confirmed",
       sourceProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
       targetProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
@@ -401,6 +401,24 @@ export function createOrthographyApi(targetObject = globalThis) {
       sourceProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
       targetProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
       sourceLevel: "underlying Nawat slot surface",
+      targetLevel: "realized Nawat output surface"
+    }), Object.freeze({
+      id: "obj1-ki-after-ni-ti-k",
+      source: "ki",
+      sourceDisplay: "ni/ti + ki",
+      target: "k",
+      slots: ["obj1"],
+      syllablePositions: ["pers1-obj1-boundary"],
+      ruleScope: "vowel-elision",
+      andrewsSection: "2.14",
+      andrewsProcess: "Vowel Elision",
+      spanishProcess: "elisión vocálica",
+      processFamily: "vowel-elision",
+      reason: "Object prefix ki surfaces as k after ni or ti in the Nawat output surface.",
+      confidence: "surface-rule-confirmed",
+      sourceProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
+      targetProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
+      sourceLevel: "underlying Nawat slot boundary",
       targetLevel: "realized Nawat output surface"
     }), Object.freeze({
       id: "supportive-i-stem-initial-elision",
@@ -464,7 +482,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       slots: ["surface-segment", "stem", "tronco", "obj1", "pers1", "poseedor", "possessor", "possessive-prefix", "unknown"],
       syllablePositions: ["before-vowel", "open-transition"],
       ruleScope: "open-transition",
-      andrewsSection: "2.6",
+      andrewsSection: "2.5",
       andrewsProcess: "Open Transition",
       spanishProcess: "transición abierta",
       processFamily: "open-transition",
@@ -511,7 +529,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       sourceLevel: "underlying Nawat slot boundary",
       targetLevel: "realized Nawat output surface"
     }), Object.freeze({
-      id: "imperative-ki-before-c-k",
+      id: "optative-ki-before-c-k",
       source: "ki",
       sourceDisplay: "ki",
       target: "k",
@@ -522,7 +540,7 @@ export function createOrthographyApi(targetObject = globalThis) {
       andrewsProcess: "Vowel Elision",
       spanishProcess: "elisión vocálica",
       processFamily: "vowel-elision",
-      reason: "Object prefix ki may surface as k before a consonant in the configured imperative surface route.",
+      reason: "Object prefix ki may surface as k before a consonant in the configured optative surface route.",
       confidence: "surface-rule-confirmed",
       sourceProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
       targetProfileId: ORTHOGRAPHY_PROFILE_IDS.nawatModern,
@@ -911,18 +929,30 @@ export function createOrthographyApi(targetObject = globalThis) {
           plannedArrows: [{
             id: "lesson-2-subsection-coverage-audit",
             type: "metadata-diagnostic-test",
-            aim: "Expose every Andrews Lesson 2 subsection as directed, redirected, validated coverage metadata before treating orthography behavior as implemented.",
+            aim: "Aplicar Corrección antes de existencia: exponer cada subsección de Andrews Lección 2 por la ruta de entrada a salida como comportamiento de sonido, escritura y puente ortográfico antes de tratar la ortografía como implementada, con sonda de fallo para detectar conversión existente que cambie ranuras de fórmula.",
+            andrewsRefs: pdfRefs,
+            expectedFeedbackRefs: [...LESSON2_COVERAGE_VALIDATION_REFS]
+          }, {
+            id: "lesson-2-formula-orthography-authority-audit",
+            type: "orthography-formula-test",
+            aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 2 por la ruta de entrada a salida como comportamiento de puente ortográfico que realiza letras sin cambiar orden ni dueño de ranura, con sonda de fallo para detectar h de num2 tratado como j glotal o h final silábica tratada como t de num2.",
             andrewsRefs: pdfRefs,
             expectedFeedbackRefs: [...LESSON2_COVERAGE_VALIDATION_REFS]
           }],
           firedArrows: [{
             id: "lesson-2-subsection-coverage-audit",
             result: "hit",
-            correction: "Lesson 2 coverage now carries subsection PDF refs, redirect actions, validation refs, and explicit non-generation policy.",
+            correction: "Corrección antes de existencia: Lección 2 lleva referencias de PDF por subsección, acciones de redirección, referencias de validación y política sin generación; la ruta de entrada a salida conserva comportamiento de puente ortográfico sin cambiar ranuras de fórmula.",
+            andrewsRefs: pdfRefs,
+            feedbackRefs: [...LESSON2_COVERAGE_VALIDATION_REFS]
+          }, {
+            id: "lesson-2-formula-orthography-authority-audit",
+            result: "hit",
+            correction: "Corrección antes de existencia: la ortografía de Andrews queda subordinada a ranuras de fórmula como comportamiento verificable; la sonda de fallo contra existencia sola es h de num2 realizado como j glotal o h final silábica realizado como t de num2.",
             andrewsRefs: pdfRefs,
             feedbackRefs: [...LESSON2_COVERAGE_VALIDATION_REFS]
           }],
-          hitCount: 1,
+          hitCount: 2,
           missCount: 0,
           remainingGaps,
           closestPass: false

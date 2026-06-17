@@ -370,6 +370,37 @@ function run(ctx) {
     );
 
     s.eq(
+        "Lesson 2 open transition stays in Andrews 2.5 and not syllable-structure 2.6",
+        (() => {
+            const frame = ctx.buildLesson2SoundSpellingFrame({
+                ruleId: "n-open-transition-nh",
+                source: "n",
+                target: "nh",
+                slot: "tronco",
+                syllablePosition: "open-transition",
+            });
+            return {
+                ruleId: frame.ruleId,
+                ruleScope: frame.ruleScope,
+                andrewsSection: frame.andrewsSection,
+                andrewsProcess: frame.andrewsProcess,
+                spanishProcess: frame.spanishProcess,
+                processFamily: frame.processFamily,
+                generationAllowed: frame.generationAllowed,
+            };
+        })(),
+        {
+            ruleId: "n-open-transition-nh",
+            ruleScope: "open-transition",
+            andrewsSection: "2.5",
+            andrewsProcess: "Open Transition",
+            spanishProcess: "transición abierta",
+            processFamily: "open-transition",
+            generationAllowed: false,
+        }
+    );
+
+    s.eq(
         "Lesson 2 coverage inventory maps Andrews pronunciation categories without granting generation",
         (() => {
             const frame = ctx.buildLesson2CoverageFrame();
@@ -497,9 +528,15 @@ function run(ctx) {
             pursuit: {
                 stepNumber: 2,
                 aimStatus: "shooting",
-                plannedArrows: [["lesson-2-subsection-coverage-audit", 14, "src/tests/orthography.test.js"]],
-                firedArrows: [["lesson-2-subsection-coverage-audit", "hit", 14, "src/tests/orthography.test.js"]],
-                hitCount: 1,
+                plannedArrows: [
+                    ["lesson-2-subsection-coverage-audit", 14, "src/tests/orthography.test.js"],
+                    ["lesson-2-formula-orthography-authority-audit", 14, "src/tests/orthography.test.js"],
+                ],
+                firedArrows: [
+                    ["lesson-2-subsection-coverage-audit", "hit", 14, "src/tests/orthography.test.js"],
+                    ["lesson-2-formula-orthography-authority-audit", "hit", 14, "src/tests/orthography.test.js"],
+                ],
+                hitCount: 2,
                 missCount: 0,
                 remainingGapCount: 13,
                 closestPass: false,
@@ -541,6 +578,7 @@ function run(ctx) {
             "pronominal NNC is not ordinary NNC",
             "nonactive stem derivation is not identical to passive output",
             "Andrews grammar authority is not Classical spelling authority for Nawat output",
+            "orthography bridge cannot change Andrews formula slots or slot owners",
         ]
     );
 

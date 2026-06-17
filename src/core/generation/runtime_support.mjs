@@ -3,6 +3,9 @@
 export function createGenerationRuntimeSupportGlobals(targetObject = globalThis) {
     const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
     const GENERATE_RUNTIME_ROUTE_FAMILY = "nuclear-clause-surface";
+    function normalizeGenerateRuntimeTenseValue(tenseValue = "") {
+      return String(tenseValue || "").trim();
+    }
     function buildGenerateRuntimeBlockedDiagnostic({
       id = "generate-runtime-no-output",
       message = GENERATE_RUNTIME_NO_OUTPUT_MESSAGE,
@@ -496,6 +499,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       patientivoOwnership,
       isYawi
     }) {
+      tense = normalizeGenerateRuntimeTenseValue(tense);
       const stem = stemCandidate && typeof stemCandidate === "object" && stemCandidate.kind ? targetObject.realizeMorphStemSpec(stemCandidate, "") : String(stemCandidate || "");
       if (!stem) {
         return null;
@@ -574,7 +578,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
           });
         }
       }
-      const isYawiImperative = isYawi && tense === "imperativo" && localPers2 === "";
+      const isYawiOptative = isYawi && tense === "optativo" && localPers2 === "";
       const localAlternates = (applied.alternateForms || []).map(form => {
         const normalizedForm = isNominalOutputProfile ? targetObject.normalizeNominalFormEntry(form, {
           subjectSuffix: localPers2
@@ -609,7 +613,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         alternateForms: localAlternates,
         directionalChainMeta: applied.directionalChainMeta || null,
         surfaceRuleMeta: applied.surfaceRuleMeta || null,
-        isYawiImperative
+        isYawiOptative
       };
     }
 
@@ -624,6 +628,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         enumerable: true,
         get() { return GENERATE_RUNTIME_ROUTE_FAMILY; },
     });
+    api.normalizeGenerateRuntimeTenseValue = normalizeGenerateRuntimeTenseValue;
     api.buildGenerateRuntimeBlockedDiagnostic = buildGenerateRuntimeBlockedDiagnostic;
     api.getGenerateRuntimeDiagnosticLayerContract = getGenerateRuntimeDiagnosticLayerContract;
     api.normalizeGenerateRuntimeDiagnostics = normalizeGenerateRuntimeDiagnostics;

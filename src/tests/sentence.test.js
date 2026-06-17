@@ -134,7 +134,7 @@ function run(ctx) {
                     moodScope: "command",
                 },
             },
-            tense: "imperativo",
+            tense: "optativo",
             nuclearClauseShell: vncShell,
         })),
         {
@@ -193,7 +193,7 @@ function run(ctx) {
         "generated sentence layer stays absent without explicit opt-in",
         ctx.buildGeneratedSentenceLayerMetadata({
             override: {},
-            tense: "imperativo",
+            tense: "optativo",
             nuclearClauseShell: vncShell,
         }),
         null
@@ -398,7 +398,7 @@ function run(ctx) {
             borrowedUseTenses: lesson9.optativeVncFrame.borrowedUseTenses.map((entry) => [entry.tense, entry.sourceForm, entry.identifiedBy]),
             secondPersonMarker: lesson9.optativeVncFrame.distinctiveMarkers[0].andrewsMorphs,
             surfaceIdentityPolicy: lesson9.optativeVncFrame.surfaceIdentityPolicy,
-            imperativoCompatibilityOnly: lesson9.optativeVncFrame.currentEngineBoundary.currentImperativoLabelIsCompatibilityOnly,
+            canonicalFiniteOptativeKey: lesson9.optativeVncFrame.currentEngineBoundary.canonicalFiniteOptativeKey,
             affirmativeWishIntroducers: lesson9.wishSentenceFrame.affirmativeWish.andrewsIntroducers,
             negativeWishPrefixChange: lesson9.wishSentenceFrame.negativeWish.negativePrefixChange,
         },
@@ -410,15 +410,15 @@ function run(ctx) {
             ],
             secondPersonMarker: ["x", "xi"],
             surfaceIdentityPolicy: "When optative and indicative VNCs have the same shape, syntax and introductory particles distinguish the optative.",
-            imperativoCompatibilityOnly: true,
+            canonicalFiniteOptativeKey: "optativo",
             affirmativeWishIntroducers: ["ma", "tla"],
             negativeWishPrefixChange: { fromAndrews: "ah#", toAndrews: "ca#", toNawatCandidate: "ka#" },
         }
     );
     s.eq(
-        "Lesson 9 command frame records Andrews no-imperative-mood boundary",
+        "Lesson 9 command frame records Andrews no-separate-command-mood boundary",
         {
-            noImperativeMood: lesson9.commandExhortationFrame.noImperativeMood,
+            noSeparateCommandMood: lesson9.commandExhortationFrame.noSeparateCommandMood,
             construction: lesson9.commandExhortationFrame.affirmativeCommandExhortation.construction,
             subjectFunction: lesson9.commandExhortationFrame.affirmativeCommandExhortation.subjectFunction,
             introducerRule: lesson9.commandExhortationFrame.affirmativeCommandExhortation.introducerRule,
@@ -426,7 +426,7 @@ function run(ctx) {
             negativeCommandException: lesson9.commandExhortationFrame.negativeCommandExhortation.brusqueNoMaException,
         },
         {
-            noImperativeMood: true,
+            noSeparateCommandMood: true,
             construction: "wish-sentence-with-nonpast-optative-vnc-or-future-indicative-as-optative-vnc",
             subjectFunction: {
                 secondPerson: "direct-command",
@@ -450,7 +450,7 @@ function run(ctx) {
             routeFamily: lesson9.grammarFrame?.routeContract?.routeFamily || "",
             routeStage: lesson9.grammarFrame?.routeContract?.routeStage || "",
             generationAllowed: lesson9.grammarFrame?.routeContract?.generationAllowed,
-            noImperativeMood: lesson9.grammarFrame?.nuclearClauseFrame?.noImperativeMood,
+            noSeparateCommandMood: lesson9.grammarFrame?.nuclearClauseFrame?.noSeparateCommandMood,
             diagnostic: lesson9.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id || "",
             enumerableGrammarFrame: Object.prototype.propertyIsEnumerable.call(lesson9, "grammarFrame"),
         },
@@ -459,7 +459,7 @@ function run(ctx) {
             routeFamily: "sentence-layer",
             routeStage: "audit-lesson-9",
             generationAllowed: false,
-            noImperativeMood: true,
+            noSeparateCommandMood: true,
             diagnostic: "lesson-9-optative-sentence-layer-partial",
             enumerableGrammarFrame: false,
         }

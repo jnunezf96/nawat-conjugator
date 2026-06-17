@@ -165,6 +165,7 @@ function run(ctx) {
             "preposed output segment is not a Lesson 3 particle engine",
             "topic/focus label is not supplementation",
             "Andrews particle categories are architecture, not Nawat/Pipil form authority",
+            "particle categories do not occupy CNV/CNN formula slots",
         ]
     );
     s.no("particle boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -185,6 +186,9 @@ function run(ctx) {
             auhInTlaCa: ctx.getAndrewsLesson3ParticleAsNawat("auh in tla ca#"),
             ihyoMa: ctx.getAndrewsLesson3ParticleAsNawat("ihyo ma ... !"),
             ihyoIyahua: ctx.getAndrewsLesson3ParticleAsNawat("ihyo iyahua!"),
+            ihI: ctx.getAndrewsLesson3ParticleAsNawat("ih i"),
+            ahcaZoAh: ctx.getAndrewsLesson3ParticleAsNawat("ahca zo ah#"),
+            ahzoCaAh: ctx.getAndrewsLesson3ParticleAsNawat("ahzo ca ah#"),
             cuix: ctx.getAndrewsLesson3ParticleAsNawat("cuix?"),
             firstSeeds: ctx.getParticleSeedInventoryEntries({ limit: 3 }).map((entry) => ({
                 sourceForm: entry.sourceForm,
@@ -212,6 +216,9 @@ function run(ctx) {
             auhInTlaCa: "aw in ta ka#",
             ihyoMa: "ijyu ma ... !",
             ihyoIyahua: "ijyu iyawa!",
+            ihI: "ij i",
+            ahcaZoAh: "ajka su aj#",
+            ahzoCaAh: "ajsu ka aj#",
             cuix: "kwish?",
             firstSeeds: [
                 { sourceForm: "ca", nawatForm: "ka", generationAllowed: false, evidenceStatus: "andrews-orthography-adapted" },
@@ -242,7 +249,7 @@ function run(ctx) {
                 id: "lesson3-functional-classes",
                 label: "3.2 Clases funcionales",
                 sectionPrefix: "3.2",
-                entryCount: 36,
+                entryCount: 43,
                 first: { sourceForm: "ca", nawatForm: "ka" },
             },
             {
@@ -256,7 +263,7 @@ function run(ctx) {
                 id: "lesson3-collocations",
                 label: "3.4 Colocaciones",
                 sectionPrefix: "3.4",
-                entryCount: 32,
+                entryCount: 34,
                 first: { sourceForm: "in tla", nawatForm: "in ta" },
             },
             {
@@ -317,6 +324,11 @@ function run(ctx) {
                 "auh in tla ca#",
                 "ihyo ma ... !",
                 "ihyo iyahua!",
+                "elele ay ay ay",
+                "ih i",
+                "yeya",
+                "ahca zo ah#",
+                "ahzo ca ah#",
             ].map((sourceForm) => {
                 const entry = modeModel.inventoryGroups
                     .flatMap((group) => group.entries)
@@ -352,7 +364,7 @@ function run(ctx) {
             generationAllowed: false,
             unitNuclearClauseKind: "not-vnc-or-nnc",
             hasSurfaceForms: false,
-            previewCount: 32,
+            previewCount: 34,
             completedPdfExamples: [
                 { sourceForm: "ahza zo oc", nawatForm: "ajsa su uk", gloss: "quizá todavía; quizá otro", generationAllowed: false },
                 { sourceForm: "za zan", nawatForm: "sa san", gloss: "de cualquier modo; tontamente; sin sentido", generationAllowed: false },
@@ -360,11 +372,16 @@ function run(ctx) {
                 { sourceForm: "auh in tla ca#", nawatForm: "aw in ta ka#", gloss: "y si no", generationAllowed: false },
                 { sourceForm: "ihyo ma ... !", nawatForm: "ijyu ma ... !", gloss: "¡ojalá!", generationAllowed: false },
                 { sourceForm: "ihyo iyahua!", nawatForm: "ijyu iyawa!", gloss: "¡ay de mí!; ¡qué desgracia!", generationAllowed: false },
+                { sourceForm: "elele ay ay ay", nawatForm: "elele ay ay ay", gloss: "ay", generationAllowed: false },
+                { sourceForm: "ih i", nawatForm: "ij i", gloss: "ajá; te atrapé", generationAllowed: false },
+                { sourceForm: "yeya", nawatForm: "yeya", gloss: "ajá; te atrapé", generationAllowed: false },
+                { sourceForm: "ahca zo ah#", nawatForm: "ajka su aj#", gloss: "quizá no; tal vez no", generationAllowed: false },
+                { sourceForm: "ahzo ca ah#", nawatForm: "ajsu ka aj#", gloss: "quizá no; tal vez no", generationAllowed: false },
             ],
             groupSummary: [
-                { label: "3.2 Clases funcionales", count: 36 },
+                { label: "3.2 Clases funcionales", count: 43 },
                 { label: "3.3 Negación", count: 14 },
-                { label: "3.4 Colocaciones", count: 32 },
+                { label: "3.4 Colocaciones", count: 34 },
                 { label: "3.5 Honorificadas", count: 3 },
             ],
             firstPreview: {

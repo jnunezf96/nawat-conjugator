@@ -225,7 +225,7 @@ export function createSentenceApi(targetObject = globalThis) {
       currentEngineBoundary: Object.freeze({
         finiteOptativeLikeFormsExist: true,
         sentenceMeaningModeled: false,
-        currentImperativoLabelIsCompatibilityOnly: true
+        canonicalFiniteOptativeKey: "optativo"
       })
     });
     const SENTENCE_LESSON9_WISH_SENTENCE_FRAME = Object.freeze({
@@ -280,7 +280,7 @@ export function createSentenceApi(targetObject = globalThis) {
       kind: "lesson-9-command-exhortation-frame",
       sourceSections: Object.freeze(["Andrews §9.7", "Andrews §9.8", "Andrews §9.9"]),
       generationAllowed: false,
-      noImperativeMood: true,
+      noSeparateCommandMood: true,
       affirmativeCommandExhortation: Object.freeze({
         construction: "wish-sentence-with-nonpast-optative-vnc-or-future-indicative-as-optative-vnc",
         sourceIndicativeTenses: Object.freeze(["present", "future"]),
@@ -381,7 +381,7 @@ export function createSentenceApi(targetObject = globalThis) {
       id: "lesson9-command-exhortation",
       andrewsSection: "9.7",
       category: "command-exhortation-sentence",
-      directiveEs: "No hay modo imperativo: mandato y exhortacion usan oraciones de deseo con CNV optativa no pasada o futuro indicativo como optativo.",
+      directiveEs: "No hay modo de mandato separado: mandato y exhortacion usan oraciones de deseo con CNV optativa no pasada o futuro indicativo como optativo.",
       engineSurface: "sentence-mood diagnostic frame over finite CNV forms",
       redirectAction: "reframe-metadata",
       evidenceStatus: "direct-pdf-partial",
@@ -405,7 +405,7 @@ export function createSentenceApi(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const SENTENCE_LESSON9_REMAINING_GAPS = Object.freeze(["No sentence generator composes ma/tla wish, command, exhortation, or negative-wish surfaces.", "Visible finite tense labels such as imperativo remain compatibility labels until an Andrews-directed optative/command UI reframe is implemented.", "Lesson 9 particles, intensifiers, and negative-prefix placements remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement."]);
+    const SENTENCE_LESSON9_REMAINING_GAPS = Object.freeze(["No sentence generator composes ma/tla wish, command, exhortation, or negative-wish surfaces.", "The finite optativo key is canonical, but sentence-level optative/command UI semantics remain diagnostic until Andrews-directed sentence generation is implemented.", "Lesson 9 particles, intensifiers, and negative-prefix placements remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement."]);
     const SENTENCE_LESSON10_VALIDATION_REFS = Object.freeze(["src/tests/sentence.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const SENTENCE_LESSON10_PDF_REFS = Object.freeze(["Andrews Lesson 10.1", "Andrews Lesson 10.2", "Andrews Lesson 10.3", "Andrews Lesson 10.4", "Andrews Lesson 10.5"]);
     const SENTENCE_LESSON10_ADMONITIVE_MOOD_FRAME = Object.freeze({
@@ -417,7 +417,7 @@ export function createSentenceApi(targetObject = globalThis) {
       isNegativeInShapeOrMeaning: false,
       cautionaryMeaning: true,
       translationWarning: "Do not confuse a translation beginning with don't with a negative grammar form.",
-      noImperativeMood: true
+      noSeparateCommandMood: true
     });
     const SENTENCE_LESSON10_NONPAST_ADMONITIVE_VNC_FRAME = Object.freeze({
       kind: "lesson-10-nonpast-admonitive-vnc-frame",
@@ -439,7 +439,7 @@ export function createSentenceApi(targetObject = globalThis) {
       currentEngineBoundary: Object.freeze({
         finiteAdmonitiveLikeFormsExist: true,
         sentenceWarningMeaningModeled: false,
-        currentImperativoLabelIsCompatibilityOnly: true
+        canonicalFiniteOptativeKey: "optativo"
       })
     });
     const SENTENCE_LESSON10_AFFIRMATIVE_ADMONITION_FRAME = Object.freeze({
@@ -552,7 +552,7 @@ export function createSentenceApi(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const SENTENCE_LESSON10_REMAINING_GAPS = Object.freeze(["No sentence generator composes affirmative or negative admonition surfaces.", "Visible finite tense labels such as imperativo remain compatibility labels until Andrews admonitive and optative sentence functions are reframed in the UI.", "Lesson 10 ma/nen/ah# placement and class-specific admonitive surfaces remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement."]);
+    const SENTENCE_LESSON10_REMAINING_GAPS = Object.freeze(["No sentence generator composes affirmative or negative admonition surfaces.", "The finite optativo key is canonical, but sentence-level admonitive and optative functions remain diagnostic until Andrews-directed sentence generation is implemented.", "Lesson 10 ma/nen/ah# placement and class-specific admonitive surfaces remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement."]);
     const SENTENCE_LESSON17_VALIDATION_REFS = Object.freeze(["src/tests/sentence.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const SENTENCE_LESSON17_PDF_REFS = Object.freeze(["Andrews Lesson 17.1", "Andrews Lesson 17.2", "Andrews Lesson 17.3", "Andrews Lesson 17.4", "Andrews Lesson 17.5", "Andrews Lesson 17.6"]);
     const SENTENCE_LESSON17_MULTIPLE_NUCLEUS_FRAME = Object.freeze({
@@ -1216,14 +1216,14 @@ export function createSentenceApi(targetObject = globalThis) {
         plannedArrows: [{
           id: "lesson-9-optative-sentence-audit",
           type: "metadata-diagnostic-test",
-          aim: "Audit Andrews Lesson 9.1-9.9 against optative VNC use, wish sentences, command/exhortation sentences, and the no-imperative-mood boundary.",
+          aim: "Audit Andrews Lesson 9.1-9.9 against optative VNC use, wish sentences, command/exhortation sentences, and the no-separate-command-mood boundary.",
           andrewsRefs: Array.from(SENTENCE_LESSON9_PDF_REFS),
           expectedFeedbackRefs: Array.from(SENTENCE_LESSON9_VALIDATION_REFS)
         }],
         firedArrows: [{
           id: "lesson-9-optative-sentence-audit",
           result: "hit",
-          correction: "Lesson 9 now carries subsection PDF refs, Spanish directives, optative VNC use metadata, wish/negative-wish frames, command/exhortation frames, and explicit blockers for treating finite imperativo labels as an Andrews imperative mood.",
+          correction: "Lesson 9 now carries subsection PDF refs, Spanish directives, optative VNC use metadata, wish/negative-wish frames, command/exhortation frames, canonical optativo engine keying, and explicit blockers for treating command labels as a separate Andrews mood.",
           andrewsRefs: Array.from(SENTENCE_LESSON9_PDF_REFS),
           feedbackRefs: Array.from(SENTENCE_LESSON9_VALIDATION_REFS)
         }],
@@ -1247,11 +1247,11 @@ export function createSentenceApi(targetObject = globalThis) {
         nuclearClauseFrame: {
           clauseKind: "verbal-nuclear-clause",
           sentenceLayerStatus: "partial",
-          noImperativeMood: true
+          noSeparateCommandMood: true
         },
         participantFrame: {
           moodScope: "wish-command-exhortation",
-          noImperativeMood: true
+          noSeparateCommandMood: true
         },
         targetContract: {
           metadataKind: "lesson-9-pursuit-frame",

@@ -3508,7 +3508,7 @@ function run(ctx) {
                 sourceBaseStem: "mikkayu",
                 sourcePredicateStem: "mikka",
                 sourceEmbeddedStem: "mikka",
-                sourceFormulaEcho: "#Ø...Ø(mikka)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(mikka)Ø#",
                 sourceOutputKind: "verb-derived-nominal",
                 sourceNominalKind: "calificativo-instrumentivo",
                 sourceNominalizationKind: "quality-result",
@@ -8273,7 +8273,7 @@ function run(ctx) {
                 sourceBaseStem: "nukal",
                 sourcePredicateStem: "kal",
                 sourcePossessorPrefix: "nu",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8320,7 +8320,7 @@ function run(ctx) {
                 sourceSurface: "kal",
                 sourceBaseStem: "kal",
                 sourcePredicateStem: "kal",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8369,7 +8369,7 @@ function run(ctx) {
                 sourceSurface: "kal",
                 sourceBaseStem: "kal",
                 sourcePredicateStem: "kal",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8418,7 +8418,7 @@ function run(ctx) {
                 sourceSurface: "kal",
                 sourceBaseStem: "kal",
                 sourcePredicateStem: "kal",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8467,7 +8467,7 @@ function run(ctx) {
                 sourceSurface: "kal",
                 sourceBaseStem: "kal",
                 sourcePredicateStem: "kal",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8518,7 +8518,7 @@ function run(ctx) {
                 sourceSurface: "kal",
                 sourceBaseStem: "kal",
                 sourcePredicateStem: "kal",
-                sourceFormulaEcho: "#Ø...Ø(kal)Ø#",
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
                 sourceOutputKind: "nominal-nuclear-clause",
                 boundaries: {
                     noFixtureEvidence: true,
@@ -8558,7 +8558,7 @@ function run(ctx) {
                 result: "stale-result",
                 outputKind: "nominal-nuclear-clause",
                 nncBasic: {
-                    formulaEcho: "#Ø...Ø(stale-nounstem)Ø#",
+                    formulaEcho: "#Ø-Ø(stale-nounstem)Ø#",
                     formulaSlots: {
                         predicateStem: {
                             stem: "stale-nounstem",
@@ -11712,7 +11712,7 @@ function run(ctx) {
         ["active", "condicional-perfecto", ""],
         ["active", "futuro", "kuchiyat"],
         ["active", "condicional", "kuchiyat"],
-        ["active", "imperativo", "kuchiyat"],
+        ["active", "optativo", "kuchiyat"],
         ["nonactive", "presente", "kuchit"],
         ["nonactive", "presente-habitual", "kuchit"],
         ["nonactive", "presente-desiderativo", "kuchit"],
@@ -11724,7 +11724,7 @@ function run(ctx) {
         ["nonactive", "condicional-perfecto", "kuchit"],
         ["nonactive", "futuro", "kuchit"],
         ["nonactive", "condicional", "kuchit"],
-        ["nonactive", "imperativo", "kuchit"],
+        ["nonactive", "optativo", "kuchit"],
     ];
     kuchiVerbNounRouteExpectations.forEach(([mode, tenseValue, expectedSurface]) => {
         const sourceCombinedMode = mode === "nonactive"

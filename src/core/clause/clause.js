@@ -56,7 +56,7 @@ const ANDREWS_NUCLEAR_SLOT = Object.freeze({
     numberConnector: "num1-num2",
 });
 
-const VERBAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA = "#pers1-obj1-obj2-obj3-reflexivo(STEM)-pers2-tiempo#";
+const VERBAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA = "#pers1-pers2+obj1-obj2-obj3-reflexivo(STEM)tiempo+num1-num2#";
 const NOMINAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA = "#pers1-pers2(STEM)num1-num2#";
 
 const NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS = Object.freeze({
@@ -140,8 +140,21 @@ const NUCLEAR_CLAUSE_LESSON4_FORMULA_BOUNDARY_FRAME = Object.freeze({
     vacantPositionSymbol: "absence",
     formulaRepresentsSlotCategories: true,
     formulaRepresentsMorphicFillers: true,
+    formulaIsEngineContract: true,
+    surfaceGenerationAuthority: false,
+    nawatEvidenceCannotChangeSlotOrder: true,
     stemDimensionsExplicit: true,
 });
+
+const LESSON5_FUTURE_PRETERIT_CONNECTOR_OPTIONS = Object.freeze(["ki-0", "k-et", "0-et"]);
+const LESSON5_FUTURE_PRETERIT_NUM1_OPTIONS = Object.freeze(["ki", "k", "0"]);
+const LESSON5_FUTURE_PRETERIT_NUM2_OPTIONS = Object.freeze(["0", "et"]);
+const LESSON5_MAIN_INDICATIVE_CONNECTOR_OPTIONS = Object.freeze(["0-0", "0-t"]);
+const LESSON5_MAIN_INDICATIVE_NUM1_OPTIONS = Object.freeze(["0"]);
+const LESSON5_MAIN_INDICATIVE_NUM2_OPTIONS = Object.freeze(["0", "t"]);
+const LESSON5_NONPAST_OPTATIVE_CONNECTOR_OPTIONS = Object.freeze(["0-0", "k-an"]);
+const LESSON5_NONPAST_OPTATIVE_NUM1_OPTIONS = Object.freeze(["0", "k"]);
+const LESSON5_NONPAST_OPTATIVE_NUM2_OPTIONS = Object.freeze(["0", "an"]);
 
 const NUCLEAR_CLAUSE_LESSON4_SUBJECT_FRAME = Object.freeze({
     sourceSection: "Andrews §4.4",
@@ -318,7 +331,150 @@ const NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze([
     "possessive personal pronouns belong only in NNC predicates",
     "topic and supplementation are clause-level relations, not noun classes",
     "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
+    "Andrews formulas are engine contracts, not optional metadata",
 ]);
+
+const LESSON5_VNC_TENSE_PROFILE_BY_TENSE = Object.freeze({
+    presente: Object.freeze({
+        morph: "Ø",
+        labelEs: "indicativo presente",
+        mood: "indicative",
+        tense: "present",
+        pluralConnector: "Ø-t",
+        connectorOptions: LESSON5_MAIN_INDICATIVE_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_MAIN_INDICATIVE_NUM1_OPTIONS,
+        num2Options: LESSON5_MAIN_INDICATIVE_NUM2_OPTIONS,
+        andrewsConnectorPattern: "0 + 0/h",
+        nawatConnectorPattern: "0 + 0/t",
+        sourceSection: "Andrews §5.4.1/§5.5",
+        orthographyBridge: "Classical plural h adapted as Nawat t",
+    }),
+    "presente-habitual": Object.freeze({
+        morph: "ni",
+        labelEs: "indicativo presente habitual",
+        mood: "indicative",
+        tense: "customary-present",
+        pluralConnector: "Ø-t",
+        connectorOptions: LESSON5_MAIN_INDICATIVE_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_MAIN_INDICATIVE_NUM1_OPTIONS,
+        num2Options: LESSON5_MAIN_INDICATIVE_NUM2_OPTIONS,
+        andrewsConnectorPattern: "0 + 0/h",
+        nawatConnectorPattern: "0 + 0/t",
+        sourceSection: "Andrews §5.4.1/§5.5",
+        orthographyBridge: "Classical plural h adapted as Nawat t",
+    }),
+    imperfecto: Object.freeze({
+        morph: "ya",
+        labelEs: "indicativo imperfecto",
+        mood: "indicative",
+        tense: "imperfect",
+        pluralConnector: "Ø-t",
+        connectorOptions: LESSON5_MAIN_INDICATIVE_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_MAIN_INDICATIVE_NUM1_OPTIONS,
+        num2Options: LESSON5_MAIN_INDICATIVE_NUM2_OPTIONS,
+        andrewsConnectorPattern: "0 + 0/h",
+        nawatConnectorPattern: "0 + 0/t",
+        sourceSection: "Andrews §5.4.1/§5.5",
+        orthographyBridge: "Classical plural h adapted as Nawat t",
+    }),
+    futuro: Object.freeze({
+        morph: "s",
+        labelEs: "indicativo futuro",
+        mood: "indicative",
+        tense: "future",
+        pluralConnector: "k-et",
+        connectorOptions: LESSON5_FUTURE_PRETERIT_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_FUTURE_PRETERIT_NUM1_OPTIONS,
+        num2Options: LESSON5_FUTURE_PRETERIT_NUM2_OPTIONS,
+        andrewsConnectorPattern: "c/qu/qui~0 + 0/eh",
+        nawatConnectorPattern: "k~ki~0 + 0/et",
+        sourceSection: "Andrews §5.4.2/§5.5",
+        orthographyBridge: "Classical c/qu/qui~0 + 0/eh adapted as Nawat ki-0, k-et, or 0-et",
+    }),
+    preterito: Object.freeze({
+        morph: "Ø",
+        labelEs: "indicativo pretérito",
+        mood: "indicative",
+        tense: "preterit",
+        pluralConnector: "k-et",
+        connectorOptions: LESSON5_FUTURE_PRETERIT_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_FUTURE_PRETERIT_NUM1_OPTIONS,
+        num2Options: LESSON5_FUTURE_PRETERIT_NUM2_OPTIONS,
+        andrewsConnectorPattern: "c/qu/qui~0 + 0/eh",
+        nawatConnectorPattern: "k~ki~0 + 0/et",
+        sourceSection: "Andrews §5.4.2/§5.5",
+        orthographyBridge: "Classical c/qu/qui~0 + 0/eh adapted as Nawat ki-0, k-et, or 0-et",
+    }),
+    "pasado-remoto": Object.freeze({
+        morph: "ka",
+        labelEs: "indicativo pasado remoto",
+        mood: "indicative",
+        tense: "distant-past",
+        pluralConnector: "Ø-t",
+        connectorOptions: LESSON5_MAIN_INDICATIVE_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_MAIN_INDICATIVE_NUM1_OPTIONS,
+        num2Options: LESSON5_MAIN_INDICATIVE_NUM2_OPTIONS,
+        andrewsConnectorPattern: "0 + 0/h",
+        nawatConnectorPattern: "0 + 0/t",
+        sourceSection: "Andrews §5.4.1/§5.5",
+        orthographyBridge: "Classical plural h adapted as Nawat t",
+    }),
+    "presente-desiderativo": Object.freeze({
+        morph: "sneki",
+        labelEs: "desiderativo presente",
+        mood: "desiderative",
+        tense: "present-desiderative",
+        pluralConnector: "Ø-t",
+        sourceSection: "Andrews §5.5 + Nawat tense suffix evidence",
+    }),
+    condicional: Object.freeze({
+        morph: "skia",
+        labelEs: "condicional",
+        mood: "conditional",
+        tense: "conditional",
+        pluralConnector: "Ø-t",
+        sourceSection: "Andrews §5.5 + Nawat tense suffix evidence",
+    }),
+    perfecto: Object.freeze({
+        morph: "tuk",
+        pluralMorph: "tiwi",
+        labelEs: "perfecto",
+        mood: "perfect",
+        tense: "perfect",
+        pluralConnector: "Ø-t",
+        sourceSection: "Andrews §5.5 + Nawat tense suffix evidence",
+    }),
+    pluscuamperfecto: Object.freeze({
+        morph: "tuya",
+        labelEs: "pluscuamperfecto",
+        mood: "pluperfect",
+        tense: "pluperfect",
+        pluralConnector: "Ø-t",
+        sourceSection: "Andrews §5.5 + Nawat tense suffix evidence",
+    }),
+    "condicional-perfecto": Object.freeze({
+        morph: "tuskia",
+        labelEs: "condicional perfecto",
+        mood: "conditional-perfect",
+        tense: "conditional-perfect",
+        pluralConnector: "Ø-t",
+        sourceSection: "Andrews §5.5 + Nawat tense suffix evidence",
+    }),
+    optativo: Object.freeze({
+        morph: "Ø",
+        labelEs: "optativo no pasado",
+        mood: "optative",
+        tense: "nonpast",
+        pluralConnector: "k-an",
+        connectorOptions: LESSON5_NONPAST_OPTATIVE_CONNECTOR_OPTIONS,
+        num1Options: LESSON5_NONPAST_OPTATIVE_NUM1_OPTIONS,
+        num2Options: LESSON5_NONPAST_OPTATIVE_NUM2_OPTIONS,
+        andrewsConnectorPattern: "0-0 / c-an",
+        nawatConnectorPattern: "0-0 / k-an",
+        sourceSection: "Andrews §5.4.3/§5.5",
+        orthographyBridge: "Classical c-an adapted as Nawat k-an",
+    }),
+});
 
 function attachNuclearClauseGrammarContract(record = null, options = {}) {
     if (typeof attachGrammarMetadataContract !== "function") {
@@ -332,6 +488,101 @@ function attachNuclearClauseGrammarContract(record = null, options = {}) {
         andrewsRefs: ["Andrews Lesson 4"],
         ...options,
     });
+}
+
+function getLesson5VncTenseProfile(tenseValue = "", tenseLabel = "") {
+    const keys = [
+        String(tenseValue || "").trim(),
+        String(tenseLabel || "").trim(),
+    ].filter(Boolean);
+    for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(LESSON5_VNC_TENSE_PROFILE_BY_TENSE, key)) {
+            return LESSON5_VNC_TENSE_PROFILE_BY_TENSE[key];
+        }
+    }
+    return null;
+}
+
+function hasLesson5VncPluralConnector(connector = "") {
+    const normalized = String(connector || "").trim();
+    return Boolean(normalized)
+        && normalized !== "Ø"
+        && normalized !== "0"
+        && normalized !== "Ø-Ø"
+        && normalized !== "0-0";
+}
+
+function getLesson5VncTenseMorph(profile = null, numberConnectorFrame = null) {
+    if (!profile) {
+        return "";
+    }
+    if (
+        hasLesson5VncPluralConnector(numberConnectorFrame?.displayConnector || numberConnectorFrame?.connector || "")
+        && profile.pluralMorph
+    ) {
+        return profile.pluralMorph;
+    }
+    return profile.morph || "";
+}
+
+function resolveLesson5VncProfileConnector(profile = null, rawConnector = "") {
+    const raw = String(rawConnector || "").trim();
+    if (!profile?.connectorOptions) {
+        return "";
+    }
+    if (profile.connectorOptions.includes(raw)) {
+        return raw;
+    }
+    if (raw === "ki") {
+        return "ki-0";
+    }
+    if (raw === "k" || raw === "ket") {
+        return "k-et";
+    }
+    if (raw === "et") {
+        return "0-et";
+    }
+    return "";
+}
+
+function buildLesson5VncNumberConnectorSlot({
+    subjectNumberConnector = "",
+    subjectPrefix = "",
+    tenseValue = "",
+    tenseLabel = "",
+} = {}) {
+    const rawConnector = String(subjectNumberConnector || "").trim();
+    const profile = getLesson5VncTenseProfile(tenseValue, tenseLabel);
+    const hasPluralConnector = hasLesson5VncPluralConnector(rawConnector);
+    const selectedProfileConnector = resolveLesson5VncProfileConnector(profile, rawConnector);
+    if (hasPluralConnector && profile?.pluralConnector) {
+        const selectedConnector = selectedProfileConnector || profile.pluralConnector;
+        const [num1, num2] = selectedConnector.includes("-")
+            ? selectedConnector.split("-", 2)
+            : ["", selectedConnector];
+        return {
+            connector: selectedConnector,
+            displayConnector: selectedConnector,
+            num1: num1 === "Ø" ? "" : String(num1 || ""),
+            num2: num2 === "Ø" ? "" : String(num2 || ""),
+            connectorOptions: profile.connectorOptions ? [...profile.connectorOptions] : undefined,
+            num1Options: profile.num1Options ? [...profile.num1Options] : undefined,
+            num2Options: profile.num2Options ? [...profile.num2Options] : undefined,
+            andrewsConnectorPattern: profile.andrewsConnectorPattern || "",
+            nawatConnectorPattern: profile.nawatConnectorPattern || "",
+            andrewsSource: profile.sourceSection || "Andrews §5.4",
+            orthographyBridge: profile.orthographyBridge || "",
+        };
+    }
+    const [num1, num2] = rawConnector.includes("-")
+        ? rawConnector.split("-", 2)
+        : ["", rawConnector];
+    return {
+        connector: rawConnector,
+        displayConnector: rawConnector ? (rawConnector.includes("-") ? rawConnector : `Ø-${rawConnector}`) : "Ø-Ø",
+        num1: num1 === "Ø" ? "" : String(num1 || ""),
+        num2: num2 === "Ø" ? "" : String(num2 || ""),
+    };
 }
 
 function getNuclearClauseFormulaSlot(formulaSlots = null, canonicalKey = "") {
@@ -701,7 +952,14 @@ function buildNuclearClauseLesson4PursuitFrame() {
             {
                 id: "lesson-4-subsection-coverage-audit",
                 type: "metadata-diagnostic-test",
-                aim: "Expose Andrews Lesson 4.1-4.6 as directed subsection metadata before treating visible CNV/CNN formula architecture as implemented.",
+                aim: "Aplicar Corrección antes de existencia: exponer Andrews Lección 4.1-4.6 por la ruta de entrada a salida como comportamiento de fórmula, sujeto, predicado, orden y ranuras antes de tratar la arquitectura visible CNV/CNN como implementada, con sonda de fallo contra fórmula existente que ponga tiempo en CNN o num1-num2 dentro del predicado.",
+                andrewsRefs: pdfRefs,
+                expectedFeedbackRefs: Array.from(NUCLEAR_CLAUSE_LESSON4_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-4-formula-authority-audit",
+                type: "formula-engine-test",
+                aim: "Aplicar Corrección antes de existencia: auditar Andrews Lección 4.3-4.5 por la ruta de entrada a salida como comportamiento de autoridad de fórmula CNV/CNN, con sonda de fallo para detectar existencia de fórmula que cambie orden, dueño de ranura, límite de predicado o ausencia de tiempo en CNN.",
                 andrewsRefs: pdfRefs,
                 expectedFeedbackRefs: Array.from(NUCLEAR_CLAUSE_LESSON4_VALIDATION_REFS),
             },
@@ -710,12 +968,19 @@ function buildNuclearClauseLesson4PursuitFrame() {
             {
                 id: "lesson-4-subsection-coverage-audit",
                 result: "hit",
-                correction: "Lesson 4 now carries subsection PDF refs, Spanish directives, redirect actions, validation refs, and explicit non-generation policy.",
+                correction: "Corrección antes de existencia: Lección 4 lleva referencias de PDF por subsección, directivas en español, acciones de redirección, referencias de validación y política sin generación; la ruta de entrada a salida conserva comportamiento de ranuras y límites, y la sonda de fallo contra existencia sola es una fórmula con tiempo en CNN o num1-num2 dentro del predicado.",
+                andrewsRefs: pdfRefs,
+                feedbackRefs: Array.from(NUCLEAR_CLAUSE_LESSON4_VALIDATION_REFS),
+            },
+            {
+                id: "lesson-4-formula-authority-audit",
+                result: "hit",
+                correction: "Corrección antes de existencia: la autoridad de fórmula de Andrews ahora queda explícita como comportamiento de contrato para CNV/CNN; la sonda de fallo contra existencia sola es un metadato o eco visible que cambie orden, dueño de ranura, límite de predicado o ausencia de tiempo en CNN.",
                 andrewsRefs: pdfRefs,
                 feedbackRefs: Array.from(NUCLEAR_CLAUSE_LESSON4_VALIDATION_REFS),
             },
         ],
-        hitCount: 1,
+        hitCount: 2,
         missCount: 0,
         remainingGaps: [
             "Sentence syntax and formula data registry remain partial.",
@@ -1306,6 +1571,12 @@ function inferVerbalPredicatePositionStatus({
     if (hasSecondaryValence) {
         return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.dyadic;
     }
+    const objectPrefix = String(object?.prefix || object?.objectPrefix || "");
+    const reflexivePrefix = String(reflexive?.prefix || reflexive?.reflexivo || object?.reflexivo || "");
+    const lesson6ObjectStatus = getLesson6VerbalObjectPositionStatus(objectPrefix, reflexivePrefix);
+    if (lesson6ObjectStatus !== NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.unknown) {
+        return lesson6ObjectStatus;
+    }
     const hasValence = Boolean(
         object?.prefix || object?.objectPrefix
         || reflexive?.prefix || reflexive?.reflexivo || object?.reflexivo
@@ -1313,6 +1584,42 @@ function inferVerbalPredicatePositionStatus({
     return hasValence
         ? NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.monadic
         : NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.vacant;
+}
+
+const LESSON6_SPECIFIC_PROJECTIVE_OBJECT_PREFIXES = Object.freeze([
+    "nech",
+    "tech",
+    "metz",
+    "metzin",
+    "ki",
+    "k",
+    "kin",
+    "n-ech",
+    "t-ech",
+    "m-etz",
+    "m-etz-in",
+    "ki-0",
+    "k-0",
+    "k-in",
+    "m-u",
+    "m-0",
+]);
+const LESSON6_NONSPECIFIC_PROJECTIVE_OBJECT_PREFIXES = Object.freeze(["te", "ta"]);
+const LESSON6_MONADIC_OBJECT_PREFIXES = Object.freeze(["ne", ...LESSON6_NONSPECIFIC_PROJECTIVE_OBJECT_PREFIXES]);
+
+function getLesson6VerbalObjectPositionStatus(objectPrefix = "", reflexivePrefix = "") {
+    const objectValue = String(objectPrefix || "").trim();
+    const reflexiveValue = String(reflexivePrefix || "").trim();
+    if (reflexiveValue || objectValue === "mu") {
+        return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.dyadic;
+    }
+    if (LESSON6_SPECIFIC_PROJECTIVE_OBJECT_PREFIXES.includes(objectValue)) {
+        return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.dyadic;
+    }
+    if (LESSON6_MONADIC_OBJECT_PREFIXES.includes(objectValue)) {
+        return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.monadic;
+    }
+    return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.unknown;
 }
 
 function getVerbalPredicatePositionStatusSource({
@@ -1466,8 +1773,9 @@ function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     const reflexive = getNuclearClauseFormulaSlot(formulaSlots, "reflexivo") || {};
     const predicate = getNuclearClauseFormulaSlot(formulaSlots, "predicateStem") || {};
     const tense = getNuclearClauseFormulaSlot(formulaSlots, "tensePosition") || {};
+    const numberConnector = getNuclearClauseFormulaSlot(formulaSlots, "num1Num2") || {};
     const subjectDisplay = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
-    const subjectSuffixDisplay = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
+    const subjectCaseDisplay = String(subject.displayCase || subject.case || subject.pers2 || "Ø") || "Ø";
     const objectDisplay = String(object.displayPrefix || object.prefix || "Ø") || "Ø";
     const object2Display = String(object2.displayPrefix || object2.prefix || "");
     const object3Display = String(object3.displayPrefix || object3.prefix || "");
@@ -1480,18 +1788,33 @@ function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     )
         ? normalizedPredicateDisplay
         : `(${normalizedPredicateDisplay})`;
-    const tenseDisplay = String(tense.label || tense.tenseValue || "Ø") || "Ø";
-    const objectChain = [objectDisplay];
-    if (object2Display) {
+    const tenseDisplay = String(tense.displayMorph || tense.morph || tense.tenseMorph || tense.label || tense.tenseValue || "Ø") || "Ø";
+    const rawNumberConnector = String(
+        numberConnector.displayConnector
+        || numberConnector.displaySurface
+        || numberConnector.connector
+        || numberConnector.surface
+        || subject.suffix
+        || ""
+    ).trim();
+    const numberConnectorDisplay = rawNumberConnector
+        ? (rawNumberConnector.includes("-") ? rawNumberConnector : `Ø-${rawNumberConnector}`)
+        : "Ø-Ø";
+    const objectChain = [];
+    if (object.prefix || object.displayPrefix && object.displayPrefix !== "Ø") {
+        objectChain.push(objectDisplay);
+    }
+    if (object2.prefix || object2Display && object2Display !== "Ø") {
         objectChain.push(object2Display);
     }
-    if (object3Display) {
+    if (object3.prefix || object3Display && object3Display !== "Ø") {
         objectChain.push(object3Display);
     }
-    if (reflexiveDisplay && reflexiveDisplay !== objectDisplay) {
+    if ((reflexive.prefix || reflexiveDisplay) && reflexiveDisplay !== "Ø" && reflexiveDisplay !== objectDisplay) {
         objectChain.push(reflexiveDisplay);
     }
-    return `#${subjectDisplay}-${objectChain.join("-")}${predicateDisplay}-${subjectSuffixDisplay}-${tenseDisplay}#`;
+    const objectPart = objectChain.length ? `+${objectChain.join("-")}` : "";
+    return `#${subjectDisplay}-${subjectCaseDisplay}${objectPart}${predicateDisplay}${tenseDisplay}+${numberConnectorDisplay}#`;
 }
 
 function buildVerbalNuclearClauseShell({
@@ -1512,6 +1835,40 @@ function buildVerbalNuclearClauseShell({
         suffix: subject?.suffix ?? subject?.subjectSuffix ?? "",
         label: subject?.label || "",
     });
+    const subjectNumberConnector = subject?.numberConnector ?? subject?.num1Num2 ?? subject?.suffix ?? subject?.subjectSuffix ?? "";
+    const numberConnectorFrame = buildLesson5VncNumberConnectorSlot({
+        subjectNumberConnector,
+        subjectPrefix: subjectSlot.prefix,
+        tenseValue,
+        tenseLabel,
+    });
+    const numberConnectorSlot = {
+        slot: ANDREWS_NUCLEAR_SLOT.numberConnector,
+        role: "subject-number-connector",
+        connector: numberConnectorFrame.connector,
+        displayConnector: numberConnectorFrame.displayConnector,
+        num1: numberConnectorFrame.num1,
+        num2: numberConnectorFrame.num2,
+        belongsTo: "subject",
+        notTense: true,
+        andrewsSource: numberConnectorFrame.andrewsSource || "Andrews §5.4",
+        orthographyBridge: numberConnectorFrame.orthographyBridge || "",
+    };
+    if (Array.isArray(numberConnectorFrame.connectorOptions) && numberConnectorFrame.connectorOptions.length) {
+        numberConnectorSlot.connectorOptions = numberConnectorFrame.connectorOptions.slice();
+    }
+    if (Array.isArray(numberConnectorFrame.num1Options) && numberConnectorFrame.num1Options.length) {
+        numberConnectorSlot.num1Options = numberConnectorFrame.num1Options.slice();
+    }
+    if (Array.isArray(numberConnectorFrame.num2Options) && numberConnectorFrame.num2Options.length) {
+        numberConnectorSlot.num2Options = numberConnectorFrame.num2Options.slice();
+    }
+    if (numberConnectorFrame.andrewsConnectorPattern) {
+        numberConnectorSlot.andrewsConnectorPattern = numberConnectorFrame.andrewsConnectorPattern;
+    }
+    if (numberConnectorFrame.nawatConnectorPattern) {
+        numberConnectorSlot.nawatConnectorPattern = numberConnectorFrame.nawatConnectorPattern;
+    }
     const objectPrefix = object?.prefix ?? object?.objectPrefix ?? "";
     const objectSlot = {
         slot: ANDREWS_NUCLEAR_SLOT.object1,
@@ -1556,13 +1913,23 @@ function buildVerbalNuclearClauseShell({
         displayStem: String(predicateStem || "") || "∅",
         valency: predicate?.valency || "",
     };
+    const tenseProfile = getLesson5VncTenseProfile(tenseValue, tenseLabel);
+    const tenseMorph = getLesson5VncTenseMorph(tenseProfile, numberConnectorFrame);
+    const compatibilityTenseLabel = String(tenseLabel || tenseValue || "");
     const tenseSlot = {
         slot: ANDREWS_NUCLEAR_SLOT.tensePosition,
         role: "tense-position",
         tenseValue: String(tenseValue || ""),
-        label: String(tenseLabel || tenseValue || ""),
+        label: tenseProfile?.labelEs || compatibilityTenseLabel,
+        compatibilityLabel: compatibilityTenseLabel,
+        morph: tenseMorph,
+        displayMorph: tenseMorph || compatibilityTenseLabel,
+        mood: tenseProfile?.mood || "",
+        andrewsTense: tenseProfile?.tense || "",
         isPresent: Boolean(tenseValue || tenseLabel),
         notAvailableInOrdinaryNnc: true,
+        andrewsSource: tenseProfile?.sourceSection || "",
+        compatibilityRoute: "",
     };
     const formulaSlots = {
         pers1Pers2: {
@@ -1590,6 +1957,7 @@ function buildVerbalNuclearClauseShell({
             slot: ANDREWS_NUCLEAR_SLOT.predicateStem,
         },
         tensePosition: tenseSlot,
+        num1Num2: numberConnectorSlot,
     };
     const terminology = getNuclearClauseTerminologyForFormulaType(NUCLEAR_CLAUSE_FORMULA_TYPE.vnc);
     const predicatePositionStatus = inferVerbalPredicatePositionStatus({
@@ -1637,6 +2005,7 @@ function buildVerbalNuclearClauseShell({
             reflexivo: reflexiveSlot,
             predicateStem: predicateSlot,
             tensePosition: tenseSlot,
+            num1Num2: numberConnectorSlot,
         },
     };
 }
@@ -1685,7 +2054,7 @@ function buildNominalNuclearClauseShell({
         notLexicalSuffix: true,
         notTense: true,
     };
-    const echo = formulaEcho || `#${subjectSlot.displayPrefix}...${subjectSlot.displaySuffix}(${predicateSlot.displayStem})${connectorSlot.displayConnector}#`;
+    const echo = formulaEcho || `#${subjectSlot.displayPrefix}-${subjectSlot.displaySuffix}(${predicateSlot.displayStem})${connectorSlot.displayConnector}#`;
     const terminology = getNuclearClauseTerminologyForFormulaType(NUCLEAR_CLAUSE_FORMULA_TYPE.nnc);
     const predicatePositionStatus = inferNominalPredicatePositionStatus({
         predicate,

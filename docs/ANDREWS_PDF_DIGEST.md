@@ -100,7 +100,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 
 - Defines admonitive as warning/advice, not a negative prohibition.
 - Covers nonpast admonitive formation and affirmative/negative admonition sentences.
-- Engine implication: do not label admonitive as imperative/vetitive prohibition; keep polarity and cautionary mood distinct.
+- Engine implication: do not label admonitive as optative/vetitive prohibition; keep polarity and cautionary mood distinct.
 
 ### Lesson 11: Irregular VNCs (printed pp. 90-99)
 

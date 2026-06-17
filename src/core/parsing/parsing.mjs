@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/parsing/parsing.js.
 
-export function createParsingGlobals(targetObject = globalThis) {
+export function createParsingApi(targetObject = globalThis) {
     const LESSON28_COMPOUND_BOUNDARY_VERSION = 1;
     const LESSON28_VERBAL_EMBED_VALIDATION_REFS = Object.freeze(["src/tests/parsing.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON28_VERBAL_EMBED_PDF_REFS = Object.freeze(["Andrews Lesson 28.1", "Andrews Lesson 28.2", "Andrews Lesson 28.3", "Andrews Lesson 28.4", "Andrews Lesson 28.5", "Andrews Lesson 28.6", "Andrews Lesson 28.7", "Andrews Lesson 28.8", "Andrews Lesson 28.9", "Andrews Lesson 28.10", "Andrews Lesson 28.11", "Andrews Lesson 28.12"]);
@@ -3367,7 +3367,7 @@ export function createParsingGlobals(targetObject = globalThis) {
     var SUPPLETIVE_WITZI_FORMS = new Set();
     var SUPPLETIVE_WITZI_IMPERFECTIVE = "";
     var SUPPLETIVE_WITZI_PERFECTIVE = "";
-    var SUPPLETIVE_WITZI_IMPERATIVE = "";
+    var SUPPLETIVE_WITZI_OPTATIVE = "";
     var SUPPLETIVE_WITZI_NONACTIVE = "";
     var SUPPLETIVE_WITZI_NONACTIVE_IMPERFECTIVE = "";
     var SUPPLETIVE_WITZI_NONACTIVE_PERFECTIVE = "";
@@ -4338,11 +4338,11 @@ export function createParsingGlobals(targetObject = globalThis) {
         get() { return SUPPLETIVE_WITZI_PERFECTIVE; },
         set(value) { SUPPLETIVE_WITZI_PERFECTIVE = value; },
     });
-    Object.defineProperty(api, "SUPPLETIVE_WITZI_IMPERATIVE", {
+    Object.defineProperty(api, "SUPPLETIVE_WITZI_OPTATIVE", {
         configurable: true,
         enumerable: true,
-        get() { return SUPPLETIVE_WITZI_IMPERATIVE; },
-        set(value) { SUPPLETIVE_WITZI_IMPERATIVE = value; },
+        get() { return SUPPLETIVE_WITZI_OPTATIVE; },
+        set(value) { SUPPLETIVE_WITZI_OPTATIVE = value; },
     });
     Object.defineProperty(api, "SUPPLETIVE_WITZI_NONACTIVE", {
         configurable: true,
@@ -4412,7 +4412,7 @@ export function createParsingGlobals(targetObject = globalThis) {
 }
 
 export function installParsingGlobals(targetObject = globalThis) {
-    const api = createParsingGlobals(targetObject);
+    const api = createParsingApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

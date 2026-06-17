@@ -26,8 +26,8 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!source) {
         return source;
       }
-      const imperativePrefix = source.startsWith("ma ") ? "ma " : "";
-      const bareSource = imperativePrefix ? source.slice(3).trim() : source;
+      const optativePrefix = source.startsWith("ma ") ? "ma " : "";
+      const bareSource = optativePrefix ? source.slice(3).trim() : source;
       const requestedPrefixChain = String(options.prefixChain || "");
       let surfacePrefix = "";
       let stem = bareSource;
@@ -46,7 +46,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!redupPrefix) {
         return source;
       }
-      return `${imperativePrefix}${surfacePrefix}${redupPrefix}${stem}`;
+      return `${optativePrefix}${surfacePrefix}${redupPrefix}${stem}`;
     }
     function reduplicateConjugationDisplay(value = "", options = {}) {
       const forms = String(value || "").split(/\s*\/\s*/g).map(form => form.trim()).filter(Boolean);
@@ -860,7 +860,7 @@ export function createUiStateApi(targetObject = globalThis) {
     function isNawatDynamicPatientivoSurfaceRoute(profile = null) {
       return isPatientivoSurfaceRoute(profile) && !String(profile?.routeTenseValue || "").trim() && String(profile?.sourceCategory || "").trim() === "verb-patientivo-surface";
     }
-    const NAWAT_PATIENTIVO_IMPERFECTIVE_SOURCE_TENSES = new Set(["presente", "presente-habitual", "presente-desiderativo", "imperfecto", "pasado-remoto", "futuro", "condicional", "imperativo"]);
+    const NAWAT_PATIENTIVO_IMPERFECTIVE_SOURCE_TENSES = new Set(["presente", "presente-habitual", "presente-desiderativo", "imperfecto", "pasado-remoto", "futuro", "condicional", "optativo"]);
     const NAWAT_PATIENTIVO_PERFECTIVE_SOURCE_TENSES = new Set(["preterito", "preterito-clase", "perfecto", "pluscuamperfecto", "condicional-perfecto"]);
     const NAWAT_ROUTE_PATIENTIVO_ACTIVE_SUFFIX_BY_TENSE = Object.freeze({
       presente: "t",
@@ -875,7 +875,7 @@ export function createUiStateApi(targetObject = globalThis) {
       "condicional-perfecto": "ti",
       futuro: "ti",
       condicional: "ti",
-      imperativo: "t"
+      optativo: "t"
     });
     const NAWAT_ROUTE_PATIENTIVO_NONACTIVE_SUFFIX_BY_TENSE = Object.freeze({
       presente: "t",
@@ -890,9 +890,9 @@ export function createUiStateApi(targetObject = globalThis) {
       "condicional-perfecto": "t",
       futuro: "ti",
       condicional: "ti",
-      imperativo: "t"
+      optativo: "t"
     });
-    const NAWAT_ROUTE_NONACTIVE_CORE_PATIENTIVO_TENSES = new Set(["presente", "preterito", "preterito-clase", "perfecto", "pluscuamperfecto", "condicional-perfecto", "imperativo"]);
+    const NAWAT_ROUTE_NONACTIVE_CORE_PATIENTIVO_TENSES = new Set(["presente", "preterito", "preterito-clase", "perfecto", "pluscuamperfecto", "condicional-perfecto", "optativo"]);
     function getCanonicalNawatPatientivoSourceTenseValue(patientivoSource = "") {
       const source = normalizeNawatPatientivoSourceFamily(patientivoSource);
       if (source === "imperfectivo") {
@@ -1402,7 +1402,7 @@ export function createUiStateApi(targetObject = globalThis) {
       const surface = stripNawatRoutePreposedParticle(sourceSurface);
       switch (sourceTenseValue) {
         case "presente":
-        case "imperativo":
+        case "optativo":
           return stripNawatRouteIaUaPatientivoStemFinalA(surface);
         case "presente-desiderativo":
           return replaceNawatRouteSurfaceEnding(surface, [["sneki", "s"], ["neki", ""]]);
@@ -1425,7 +1425,7 @@ export function createUiStateApi(targetObject = globalThis) {
       const surface = stripNawatRoutePreposedParticle(sourceSurface);
       switch (sourceTenseValue) {
         case "presente":
-        case "imperativo":
+        case "optativo":
           return replaceNawatRouteSurfaceEnding(surface, [["wa", ""]]);
         case "presente-desiderativo":
           return replaceNawatRouteSurfaceEnding(surface, [["sneki", "s"], ["neki", ""]]);

@@ -9,6 +9,7 @@
     { "value": "tech" },
     { "value": "metzin" },
     { "value": "kin" },
+    { "value": "ne", "labelEs": "línea secundaria reflexiva/recíproca (ne)", "labelNa": "ne" },
     { "value": "mu" },
     { "value": "ta" },
     { "value": "te" }
