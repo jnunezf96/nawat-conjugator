@@ -244,7 +244,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         return null;
       }
       const normalizedSubjectPrefix = String(subjectPrefix || pers1 || "").trim();
-      const surfaceScopedPrefix = normalized === "ki" && (normalizedSubjectPrefix === "ni" || normalizedSubjectPrefix === "ti") ? "k" : normalized;
+      const surfaceScopedPrefix = normalized === "ki" && (normalizedSubjectPrefix === "ni" || normalizedSubjectPrefix === "ti" || String(stem || "").startsWith("i")) ? "k" : normalized;
       const directDyad = surfaceScopedPrefix === "mu" ? getLesson6DirectNawatReflexiveDyadForStem(stem) : surfaceScopedPrefix.includes("-") ? surfaceScopedPrefix : LESSON6_DIRECT_NAWAT_OBJECT_DYAD_BY_PREFIX[surfaceScopedPrefix];
       if (directDyad) {
         const subslots = splitLesson6DirectNawatDyad(directDyad);
@@ -466,6 +466,11 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         connector: "k-et",
         num1: "k",
         num2: "et"
+      }, {
+        suffix: "et",
+        connector: "0-et",
+        num1: "0",
+        num2: "et"
       }] : [{
         suffix: "ki",
         connector: "ki-0",
@@ -529,6 +534,110 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       }
       return normalizedObj1;
     }
+    function isGeneratedClassPerfectiveFormulaTense(tense = "") {
+      const normalizedTense = String(tense || "");
+      if (typeof targetObject.PRETERITO_CLASS_TENSES !== "undefined" && targetObject.PRETERITO_CLASS_TENSES && typeof targetObject.PRETERITO_CLASS_TENSES.has === "function") {
+        return targetObject.PRETERITO_CLASS_TENSES.has(normalizedTense);
+      }
+      return ["preterito", "perfecto", "pasado-remoto"].includes(normalizedTense);
+    }
+    function getGeneratedClassPerfectiveFormulaBaseCandidates(stem = "") {
+      const normalizedStem = String(stem || "").trim().replace(/^\((.*)\)$/, "$1");
+      const candidates = [];
+      const addCandidate = (candidate = "") => {
+        const value = String(candidate || "").trim();
+        if (value && !candidates.includes(value)) {
+          candidates.push(value);
+        }
+      };
+      getCnvFormulaSourceStemVariants(stem).filter(variant => variant.relation !== "source-final-vowel-removed").forEach(variant => addCandidate(variant.value));
+      if (!candidates.length) {
+        addCandidate(normalizedStem);
+      }
+      return candidates;
+    }
+    function getGeneratedClassPerfectiveSurfaceCore(surface = "", tense = "", sourceSubjectSuffix = "") {
+      const strippedTense = typeof stripGeneratedVncFormulaTenseSuffix === "function" ? stripGeneratedVncFormulaTenseSuffix(surface, tense, sourceSubjectSuffix) : String(surface || "");
+      if (String(tense || "") !== "preterito") {
+        return strippedTense;
+      }
+      const split = splitGeneratedPreteritCnvFoldedConnector(strippedTense, sourceSubjectSuffix) || splitGeneratedPreteritCnvFoldedConnector(strippedTense, "");
+      return split?.base || strippedTense;
+    }
+    function getGeneratedClassPerfectiveFormulaObjectCandidates(obj1 = "", base = "", subjectPrefix = "") {
+      const normalizedObj1 = String(obj1 || "").trim();
+      const candidates = [];
+      const addCandidate = (candidate = "") => {
+        const value = String(candidate || "").trim();
+        if (value && !candidates.includes(value)) {
+          candidates.push(value);
+        }
+      };
+      if (normalizedObj1 === "ki" && String(base || "").startsWith("i")) {
+        addCandidate("k");
+      }
+      addCandidate(getGeneratedPreteritFoldedObjectPrefix(normalizedObj1, subjectPrefix));
+      addCandidate(normalizedObj1);
+      return candidates;
+    }
+    function buildGeneratedClassPerfectiveFormulaProfile({
+      tense = "",
+      surfaceForms = [],
+      subjectPrefix = "",
+      objectPrefix = "",
+      sourceSubjectSuffix = "",
+      sourceStem = ""
+    } = {}) {
+      if (!isGeneratedClassPerfectiveFormulaTense(tense) || !objectPrefix || !sourceStem) {
+        return null;
+      }
+      const forms = (Array.isArray(surfaceForms) ? surfaceForms : []).map(form => String(form || "").trim()).filter(Boolean);
+      if (!forms.length) {
+        return null;
+      }
+      const baseCandidates = getGeneratedClassPerfectiveFormulaBaseCandidates(sourceStem);
+      const matches = [];
+      forms.forEach(form => {
+        const core = getGeneratedClassPerfectiveSurfaceCore(form, tense, sourceSubjectSuffix);
+        baseCandidates.forEach(base => {
+          getGeneratedClassPerfectiveFormulaObjectCandidates(objectPrefix, base, subjectPrefix).forEach(objectCandidate => {
+            const formulaObject = getLesson6DirectNawatFormulaObjectPrefix(objectCandidate, {
+              stem: base,
+              pers1: subjectPrefix
+            });
+            const objectSurface = normalizeCnvFormulaMorphForSurface(formulaObject || objectCandidate);
+            const expectedCore = `${subjectPrefix || ""}${objectSurface || ""}${base}`;
+            if (core !== expectedCore) {
+              return;
+            }
+            matches.push({
+              surface: form,
+              core,
+              subjectPrefix,
+              objectPrefix: objectCandidate,
+              formulaObject,
+              objectSurface,
+              base
+            });
+          });
+        });
+      });
+      if (!matches.length) {
+        return null;
+      }
+      const uniqueBases = matches.map(match => match.base).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      const uniqueObjects = matches.map(match => match.formulaObject).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      if (uniqueBases.length !== 1 || uniqueObjects.length !== 1) {
+        return null;
+      }
+      return {
+        base: uniqueBases[0],
+        objectPrefix: matches.find(match => match.formulaObject === uniqueObjects[0])?.objectPrefix || "",
+        formulaObject: uniqueObjects[0],
+        objectSurface: matches.find(match => match.formulaObject === uniqueObjects[0])?.objectSurface || "",
+        matches
+      };
+    }
     function stripCnvFormulaSurfacePrefix(base = "", prefix = "") {
       const normalizedBase = String(base || "");
       const prefixParts = String(prefix || "").split("-").map(part => String(part || "").trim()).filter(part => part && part !== "Ø" && part !== "0" && part !== "∅");
@@ -557,18 +666,58 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       };
     }
     function getCnvFormulaFoldableBasePrefixes(formulaSlots = null) {
+      return getCnvFormulaFoldableBasePrefixEntries(formulaSlots).map(entry => entry.prefix);
+    }
+    function getCnvFormulaFoldableBasePrefixEntries(formulaSlots = null) {
       const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : {};
-      return [slots.pers1Pers2?.displayPrefix || slots.pers1Pers2?.prefix || "", slots.obj1?.displayPrefix || slots.obj1?.prefix || "", slots.obj2?.displayPrefix || slots.obj2?.prefix || "", slots.obj3?.displayPrefix || slots.obj3?.prefix || "", slots.reflexivo?.displayPrefix || slots.reflexivo?.prefix || ""];
+      const subjectPrefix = slots.pers1Pers2?.displayPrefix || slots.pers1Pers2?.prefix || "";
+      const predicateStem = String(slots.predicateStem?.displayStem || slots.predicateStem?.stem || "");
+      const hasValencePrefix = [slots.obj1?.displayPrefix || slots.obj1?.prefix || "", slots.obj2?.displayPrefix || slots.obj2?.prefix || "", slots.obj3?.displayPrefix || slots.obj3?.prefix || "", slots.reflexivo?.displayPrefix || slots.reflexivo?.prefix || ""].some(prefix => {
+        const normalized = String(prefix || "").trim();
+        return normalized && normalized !== "Ø" && normalized !== "0";
+      });
+      const subjectEntries = [];
+      if (!hasValencePrefix && predicateStem.startsWith("i") && subjectPrefix === "ni") {
+        subjectEntries.push({
+          sourceSlot: "pers1",
+          prefix: "n",
+          formulaPrefix: "ni"
+        });
+      } else if (!hasValencePrefix && predicateStem.startsWith("i") && subjectPrefix === "ti") {
+        subjectEntries.push({
+          sourceSlot: "pers1",
+          prefix: "t",
+          formulaPrefix: "ti"
+        });
+      } else {
+        subjectEntries.push({
+          sourceSlot: "pers1",
+          prefix: subjectPrefix
+        });
+      }
+      return [...subjectEntries, {
+        sourceSlot: "val1-val2",
+        prefix: slots.obj1?.displayPrefix || slots.obj1?.prefix || ""
+      }, {
+        sourceSlot: "val1-val2",
+        prefix: slots.obj2?.displayPrefix || slots.obj2?.prefix || ""
+      }, {
+        sourceSlot: "val1-val2",
+        prefix: slots.obj3?.displayPrefix || slots.obj3?.prefix || ""
+      }, {
+        sourceSlot: "val1-val2",
+        prefix: slots.reflexivo?.displayPrefix || slots.reflexivo?.prefix || ""
+      }];
     }
     function stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(base = "", formulaSlots = null) {
-      return getCnvFormulaFoldableBasePrefixes(formulaSlots).reduce((state, prefix) => {
-        const stripped = stripCnvFormulaSurfacePrefixWithTrace(state.base, prefix);
+      return getCnvFormulaFoldableBasePrefixEntries(formulaSlots).reduce((state, entry) => {
+        const stripped = stripCnvFormulaSurfacePrefixWithTrace(state.base, entry.prefix);
         if (stripped.strippedPrefix) {
           state.strippedPrefixes.push({
-            sourceSlot: "val1-val2",
+            sourceSlot: entry.sourceSlot || "val1-val2",
             targetSlot: "base",
             relation: "copied-into-base",
-            formulaPrefix: stripped.formulaPrefix,
+            formulaPrefix: entry.formulaPrefix || stripped.formulaPrefix,
             surfacePrefix: stripped.strippedPrefix
           });
         }
@@ -582,41 +731,385 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     function stripCnvFormulaPreteritFoldedBasePrefixes(base = "", formulaSlots = null) {
       return stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(base, formulaSlots).base;
     }
-    function getCnvFormulaPreteritFoldedSurfaceSlots(formulaSlots = null, segments = []) {
-      const tenseValue = String(formulaSlots?.tensePosition?.tenseValue || formulaSlots?.tensePosition?.compatibilityLabel || "");
-      if (tenseValue !== "preterito") {
-        return null;
+    function buildCnvFormulaLesson7AspectSurfaceSlots({
+      formulaSlots = null,
+      base = undefined,
+      tns = undefined,
+      num1 = undefined,
+      num2 = undefined,
+      baseCopyRelations = []
+    } = {}) {
+      const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : {};
+      const surfaceSlots = {};
+      const pers1 = String(slots.pers1Pers2?.displayPrefix || slots.pers1Pers2?.prefix || "");
+      if (pers1 && pers1 !== "Ø") {
+        surfaceSlots.pers1 = pers1;
       }
-      const normalizedSegments = normalizeCnvSurfacePathSegments(segments);
-      const hasSurfacePers2 = normalizedSegments.some(segment => (segment.role === "pers2" || segment.slot === "pers2") && String(segment.value || ""));
-      if (hasSurfacePers2) {
-        return null;
+      if (base !== undefined) {
+        surfaceSlots.base = String(base || "Ø");
       }
-      const tronco = getCnvSurfacePathSegmentValue(normalizedSegments, "tronco");
-      const sourceConnector = String(formulaSlots?.num1Num2?.displayConnector || formulaSlots?.num1Num2?.connector || "");
-      const sourceSubjectSuffix = sourceConnector === "k-et" ? "t" : "";
-      const split = splitGeneratedPreteritCnvFoldedConnector(tronco, sourceSubjectSuffix) || splitGeneratedPreteritCnvFoldedConnector(tronco, "");
-      if (!split) {
-        return null;
+      if (tns !== undefined) {
+        surfaceSlots.tns = String(tns || "");
       }
-      const strippedBase = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(split.base, formulaSlots);
-      const objectMorph = getCnvFormulaObjectMorph(formulaSlots);
-      const objectFunctionalSubslots = getCnvFormulaObjectFunctionalSubslots(formulaSlots);
-      const [linearVa1, linearVa2] = objectMorph.includes("-") ? splitCnvFormulaSubslots(objectMorph) : [objectMorph, ""];
+      if (num1 !== undefined) {
+        surfaceSlots.num1 = String(num1 || "0");
+      }
+      if (num2 !== undefined) {
+        surfaceSlots.num2 = String(num2 || "0");
+      }
+      if (Array.isArray(baseCopyRelations) && baseCopyRelations.length) {
+        surfaceSlots.baseCopyRelations = baseCopyRelations.map(relation => ({
+          ...relation
+        }));
+      }
+      const objectMorph = getCnvFormulaObjectMorph(slots);
+      if (!objectMorph || objectMorph === "Ø") {
+        return surfaceSlots;
+      }
+      const objectFunctionalSubslots = getCnvFormulaObjectFunctionalSubslots(slots);
+      if (!objectMorph.includes("-")) {
+        surfaceSlots.va = objectMorph;
+        return surfaceSlots;
+      }
+      const [linearVa1, linearVa2] = splitCnvFormulaSubslots(objectMorph);
       const va1 = objectFunctionalSubslots?.va1 || linearVa1;
       const va2 = objectFunctionalSubslots?.va2 || linearVa2;
+      surfaceSlots.va = "";
+      surfaceSlots.va1 = va1 === "Ø" || va1 === "0" ? "" : va1;
+      surfaceSlots.va2 = va2 === "Ø" || va2 === "0" ? "" : va2;
+      return surfaceSlots;
+    }
+    function stripCnvFormulaSurfaceSuffixWithTrace(surface = "", suffix = "") {
+      const normalizedSurface = String(surface || "");
+      const normalizedSuffix = normalizeCnvFormulaMorphForSurface(suffix);
+      if (!normalizedSurface || !normalizedSuffix || !normalizedSurface.endsWith(normalizedSuffix)) {
+        return {
+          surface: normalizedSurface,
+          strippedSuffix: ""
+        };
+      }
       return {
-        base: strippedBase.base,
-        baseCopyRelations: strippedBase.strippedPrefixes,
-        ...(objectMorph && objectMorph !== "Ø" ? {
-          va: objectMorph.includes("-") ? "" : objectMorph,
-          va1: objectMorph.includes("-") ? va1 === "Ø" || va1 === "0" ? "" : va1 : "",
-          va2: objectMorph.includes("-") ? va2 === "Ø" || va2 === "0" ? "" : va2 : ""
-        } : {}),
-        num1: split.num1,
-        num2: split.num2,
-        connector: split.connector
+        surface: normalizedSurface.slice(0, -normalizedSuffix.length),
+        strippedSuffix: normalizedSuffix
       };
+    }
+    function splitCnvFormulaPreteritConnectorSuffix(value = "", sourceSubjectSuffix = "") {
+      const text = String(value || "");
+      if (!text) {
+        return null;
+      }
+      const candidates = String(sourceSubjectSuffix || "") === "t" ? [{
+        suffix: "ket",
+        connector: "k-et",
+        num1: "k",
+        num2: "et"
+      }, {
+        suffix: "et",
+        connector: "0-et",
+        num1: "0",
+        num2: "et"
+      }] : [{
+        suffix: "ki",
+        connector: "ki-0",
+        num1: "ki",
+        num2: "0"
+      }, {
+        suffix: "k",
+        connector: "k-0",
+        num1: "k",
+        num2: "0"
+      }];
+      const match = candidates.find(candidate => text === candidate.suffix || text.length > candidate.suffix.length && text.endsWith(candidate.suffix));
+      if (!match) {
+        return null;
+      }
+      return {
+        base: text === match.suffix ? "" : text.slice(0, -match.suffix.length),
+        connector: match.connector,
+        num1: match.num1,
+        num2: match.num2,
+        suffix: match.suffix
+      };
+    }
+    function getCnvFormulaSourceStemVariants(sourceStem = "") {
+      const normalizedStem = String(sourceStem || "").trim().replace(/^\((.*)\)$/, "$1");
+      const variants = [];
+      const addVariant = (variant = "", relation = "") => {
+        const value = String(variant || "").trim();
+        if (!value || variants.some(entry => entry.value === value)) {
+          return;
+        }
+        variants.push({
+          value,
+          relation
+        });
+      };
+      addVariant(normalizedStem, "source-stem");
+      if (/[aeiou]$/i.test(normalizedStem)) {
+        addVariant(normalizedStem.slice(0, -1), "source-final-vowel-removed");
+      }
+      if (/ya$/i.test(normalizedStem)) {
+        addVariant(`${normalizedStem.slice(0, -2)}sh`, "source-final-y-coda-sh");
+      }
+      if (/a$/i.test(normalizedStem)) {
+        addVariant(`${normalizedStem.slice(0, -1)}j`, "source-final-a-perfective-j");
+      }
+      return variants;
+    }
+    function scoreCnvFormulaSourceStemVariant(base = "", sourceStem = "") {
+      const normalizedBase = String(base || "");
+      if (!normalizedBase) {
+        return 0;
+      }
+      const variants = getCnvFormulaSourceStemVariants(sourceStem);
+      const exactIndex = variants.findIndex(variant => variant.value === normalizedBase);
+      if (exactIndex >= 0) {
+        return 100 - exactIndex;
+      }
+      const source = String(sourceStem || "");
+      if (source && source.startsWith(normalizedBase)) {
+        return Math.max(1, 60 - (source.length - normalizedBase.length));
+      }
+      if (source && normalizedBase.startsWith(source)) {
+        return Math.max(1, 40 - (normalizedBase.length - source.length));
+      }
+      return 0;
+    }
+    function getCnvFormulaSourceStemVariantRelation(base = "", sourceStem = "") {
+      const normalizedBase = String(base || "");
+      if (!normalizedBase) {
+        return "";
+      }
+      const variant = getCnvFormulaSourceStemVariants(sourceStem).find(entry => entry.value === normalizedBase);
+      return variant?.relation || "";
+    }
+    function hasCnvFormulaValencePrefix(slots = null) {
+      const source = slots && typeof slots === "object" ? slots : {};
+      return [source.obj1?.displayPrefix || source.obj1?.prefix || "", source.obj2?.displayPrefix || source.obj2?.prefix || "", source.obj3?.displayPrefix || source.obj3?.prefix || "", source.reflexivo?.displayPrefix || source.reflexivo?.prefix || ""].some(prefix => {
+        const value = String(prefix || "").trim();
+        return value && value !== "Ø" && value !== "0";
+      });
+    }
+    function resolveCnvFormulaPreteritPredicateCore({
+      core = "",
+      slots = null,
+      sourceConnector = "",
+      sourceSubjectSuffix = ""
+    } = {}) {
+      const sourceStem = String(slots?.predicateStem?.displayStem || slots?.predicateStem?.stem || "");
+      const candidates = [];
+      const addCandidate = ({
+        base = "",
+        num1 = "",
+        num2 = "",
+        relation = "",
+        connectorMatchesSource = false
+      } = {}) => {
+        const normalizedBase = String(base || "");
+        const key = `${normalizedBase}|${num1 || "0"}|${num2 || "0"}`;
+        if (!normalizedBase || candidates.some(candidate => candidate.key === key)) {
+          return;
+        }
+        const strippedBase = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(normalizedBase, slots).base;
+        const sourceScore = scoreCnvFormulaSourceStemVariant(strippedBase, sourceStem);
+        const sourceStemRelation = getCnvFormulaSourceStemVariantRelation(strippedBase, sourceStem);
+        const finalVowelRemovedStemOwnsFinalConsonant = relation === "source-connector-with-stem-variant" && sourceStemRelation === "source-final-vowel-removed";
+        const connectorScore = finalVowelRemovedStemOwnsFinalConsonant ? -10 : connectorMatchesSource ? 20 : 0;
+        candidates.push({
+          key,
+          base: normalizedBase,
+          num1: num1 || "0",
+          num2: num2 || "0",
+          relation,
+          score: sourceScore + connectorScore + (relation === "surface-connector-suffix" ? 5 : 0)
+        });
+      };
+      const split = splitCnvFormulaPreteritConnectorSuffix(core, sourceSubjectSuffix) || splitCnvFormulaPreteritConnectorSuffix(core, "");
+      if (split) {
+        addCandidate({
+          base: split.base,
+          num1: split.num1,
+          num2: split.num2,
+          relation: "surface-connector-suffix",
+          connectorMatchesSource: !sourceConnector || sourceConnector === split.connector
+        });
+      }
+      if (hasCnvFormulaValencePrefix(slots) && (sourceConnector === "k-0" || sourceConnector === "ki-0")) {
+        const [sourceNum1, sourceNum2] = splitCnvFormulaSubslots(sourceConnector);
+        addCandidate({
+          base: core,
+          num1: sourceNum1 || "0",
+          num2: sourceNum2 || "0",
+          relation: "source-connector-with-stem-variant",
+          connectorMatchesSource: true
+        });
+      }
+      const useFormulaZeroFallback = !sourceConnector || sourceConnector === "Ø-Ø";
+      const strippedFallbackBase = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(core, slots).base;
+      const fallbackUsesSurfaceZero = useFormulaZeroFallback && sourceStem && strippedFallbackBase && strippedFallbackBase !== sourceStem && scoreCnvFormulaSourceStemVariant(strippedFallbackBase, sourceStem) > 0;
+      addCandidate({
+        base: core,
+        num1: useFormulaZeroFallback && !fallbackUsesSurfaceZero ? "Ø" : "0",
+        num2: useFormulaZeroFallback && !fallbackUsesSurfaceZero ? "Ø" : "0",
+        relation: "zero-connector-fallback",
+        connectorMatchesSource: !sourceConnector || sourceConnector === "Ø-Ø"
+      });
+      return candidates.sort((left, right) => right.score - left.score)[0] || {
+        base: core
+      };
+    }
+    function getCnvFormulaLesson7SurfaceSlots(formulaSlots = null, surface = "", segments = []) {
+      const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : {};
+      const normalizedSegments = normalizeCnvSurfacePathSegments(segments);
+      const tenseValue = String(slots.tensePosition?.tenseValue || slots.tensePosition?.compatibilityLabel || "");
+      const tenseMorph = String(slots.tensePosition?.displayMorph || slots.tensePosition?.morph || "");
+      const tenseSurface = normalizeCnvFormulaMorphForSurface(tenseMorph);
+      const connectorMorph = getCnvFormulaSlotDisplayMorph("num1Num2", slots.num1Num2 || {});
+      const [num1, num2] = splitCnvFormulaSubslots(connectorMorph);
+      const num1Surface = normalizeCnvFormulaMorphForSurface(num1 || "");
+      const num2Surface = normalizeCnvFormulaMorphForSurface(num2 || "");
+      const sourceConnector = String(slots.num1Num2?.displayConnector || slots.num1Num2?.connector || "");
+      const sourceSubjectSuffix = sourceConnector === "k-et" || sourceConnector === "0-et" ? "t" : "";
+      const particlePrefix = getCnvSurfacePathSegmentValue(normalizedSegments, "particulaPrepuesta");
+      const tronco = getCnvSurfacePathSegmentValue(normalizedSegments, "tronco");
+      const surfacePers2 = getCnvSurfacePathSegmentValue(normalizedSegments, "pers2");
+      const readExternalSuffix = (suffix = "") => {
+        const value = String(suffix || "");
+        if (!value) {
+          return null;
+        }
+        if (tenseValue === "preterito") {
+          const split = splitCnvFormulaPreteritConnectorSuffix(value, sourceSubjectSuffix) || splitCnvFormulaPreteritConnectorSuffix(value, "");
+          if (split && !split.base) {
+            return {
+              num1: split.num1,
+              num2: split.num2
+            };
+          }
+        }
+        const expectedSuffix = `${tenseSurface}${num1Surface}${num2Surface}`;
+        if (!expectedSuffix || !value.endsWith(expectedSuffix)) {
+          return null;
+        }
+        return {
+          ...(tenseSurface ? {
+            tns: tenseSurface
+          } : {}),
+          ...(num1Surface ? {
+            num1: num1Surface
+          } : {}),
+          ...(num2Surface ? {
+            num2: num2Surface
+          } : {})
+        };
+      };
+      const readPredicateCore = (coreSurface = "") => {
+        let core = String(coreSurface || "");
+        const suffixSlots = readExternalSuffix(surfacePers2);
+        if (tenseValue === "preterito" && !suffixSlots) {
+          return resolveCnvFormulaPreteritPredicateCore({
+            core,
+            slots,
+            sourceConnector,
+            sourceSubjectSuffix
+          });
+        }
+        const num2Strip = !suffixSlots?.num2 ? stripCnvFormulaSurfaceSuffixWithTrace(core, num2 || "") : {
+          surface: core,
+          strippedSuffix: ""
+        };
+        core = num2Strip.surface;
+        const num1Strip = !suffixSlots?.num1 ? stripCnvFormulaSurfaceSuffixWithTrace(core, num1 || "") : {
+          surface: core,
+          strippedSuffix: ""
+        };
+        core = num1Strip.surface;
+        let strippedTense = "";
+        if (!suffixSlots?.tns && tenseSurface && core.endsWith(tenseSurface)) {
+          core = core.slice(0, -tenseSurface.length);
+          strippedTense = tenseSurface;
+        } else if (!suffixSlots?.tns && tenseSurface === "ka" && core.endsWith("a")) {
+          core = core.slice(0, -1);
+          strippedTense = "a";
+        }
+        return {
+          base: core,
+          ...(suffixSlots || {}),
+          ...(strippedTense ? {
+            tns: strippedTense
+          } : {}),
+          ...(num1Strip.strippedSuffix ? {
+            num1: num1Strip.strippedSuffix
+          } : {}),
+          ...(num2Strip.strippedSuffix ? {
+            num2: num2Strip.strippedSuffix
+          } : {})
+        };
+      };
+      const buildFromCore = (coreSurface = "", formulaSlotOverrides = {}) => {
+        const predicate = readPredicateCore(coreSurface);
+        const strippedBase = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(predicate.base, slots);
+        const copiedSubjectPrefix = strippedBase.strippedPrefixes.find(relation => relation.sourceSlot === "pers1")?.surfacePrefix || "";
+        return buildCnvFormulaLesson7AspectSurfaceSlots({
+          formulaSlots: {
+            ...slots,
+            ...formulaSlotOverrides,
+            pers1Pers2: {
+              ...(slots.pers1Pers2 || {}),
+              ...(formulaSlotOverrides.pers1Pers2 || {}),
+              ...(copiedSubjectPrefix ? {
+                displayPrefix: copiedSubjectPrefix
+              } : {})
+            }
+          },
+          base: strippedBase.base || "Ø",
+          baseCopyRelations: strippedBase.strippedPrefixes,
+          ...(predicate.tns !== undefined ? {
+            tns: predicate.tns
+          } : {}),
+          ...(predicate.num1 !== undefined ? {
+            num1: predicate.num1
+          } : {}),
+          ...(predicate.num2 !== undefined ? {
+            num2: predicate.num2
+          } : {})
+        });
+      };
+      if (tronco) {
+        return buildFromCore(tronco);
+      }
+      let text = String(surface || "");
+      if (particlePrefix && text.startsWith(particlePrefix)) {
+        text = text.slice(particlePrefix.length);
+      }
+      text = text.trimStart();
+      if (!text) {
+        return null;
+      }
+      const pers1Morph = String(slots.pers1Pers2?.displayPrefix || slots.pers1Pers2?.prefix || "");
+      const pers1Surface = normalizeCnvFormulaMorphForSurface(pers1Morph);
+      let core = text;
+      const formulaSlotOverrides = {};
+      if (pers1Surface && core.startsWith(pers1Surface)) {
+        formulaSlotOverrides.pers1Pers2 = {
+          ...(slots.pers1Pers2 || {}),
+          displayPrefix: pers1Surface
+        };
+        core = core.slice(pers1Surface.length);
+      } else if (pers1Morph && pers1Morph !== "Ø") {
+        formulaSlotOverrides.pers1Pers2 = {
+          ...(slots.pers1Pers2 || {}),
+          displayPrefix: ""
+        };
+      }
+      const objectMorph = getCnvFormulaObjectMorph(slots);
+      if (objectMorph && objectMorph !== "Ø") {
+        const objectSurface = normalizeCnvFormulaMorphForSurface(objectMorph);
+        if (objectSurface && core.startsWith(objectSurface)) {
+          core = core.slice(objectSurface.length);
+        }
+      }
+      return buildFromCore(core, formulaSlotOverrides);
     }
     function normalizeCnvFormulaMorphForSurface(value = "") {
       return String(value || "").split("-").map(part => String(part || "").trim()).filter(part => part && part !== "Ø" && part !== "0" && part !== "∅").join("");
@@ -787,7 +1280,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       }
       const segments = normalizeCnvSurfacePathSegments(surfaceRecord?.segments || []);
       const surface = String(surfaceRecord?.surface || "");
-      const preteritFoldedSlots = getCnvFormulaPreteritFoldedSurfaceSlots(formulaSlots, segments);
+      const surfaceFormulaSlots = getCnvFormulaLesson7SurfaceSlots(formulaSlots, surface, segments);
       const paths = buildCnvFormulaAndrewsPathSlots(formulaSlots).map(pathSlot => {
         const slotKey = pathSlot.formulaSlotKey;
         const formulaMorph = pathSlot.formulaMorph;
@@ -798,7 +1291,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
           acc[role] = getCnvSurfacePathSegmentValue(segments, role);
           return acc;
         }, {});
-        const foldedSurfaceValue = preteritFoldedSlots && Object.prototype.hasOwnProperty.call(preteritFoldedSlots, slotKey) ? preteritFoldedSlots[slotKey] : null;
+        const foldedSurfaceValue = surfaceFormulaSlots && Object.prototype.hasOwnProperty.call(surfaceFormulaSlots, slotKey) ? surfaceFormulaSlots[slotKey] : null;
+        const hasSurfaceFormulaValue = surfaceFormulaSlots && Object.prototype.hasOwnProperty.call(surfaceFormulaSlots, slotKey);
         const surfaceValue = foldedSurfaceValue !== null ? String(foldedSurfaceValue || "") : pathSlot.surfaceValueOverride !== undefined && pathSlot.surfaceValueOverride !== null ? String(pathSlot.surfaceValueOverride || "") : activeSurfaceRoles.map(role => surfaceValuesByRole[role] || "").join("");
         const status = (() => {
           if (!expectedSurfaceMorph && !surfaceValue) {
@@ -812,7 +1306,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
             return "matched";
           }
           if (expectedSurfaceMorph && !surfaceValue) {
-            return "formula-only";
+            return hasSurfaceFormulaValue ? "surface-rule-required" : "formula-only";
           }
           return "surface-rule-required";
         })();
@@ -832,7 +1326,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
           surfaceValue,
           status,
           surfaceRealizations: Array.isArray(surfaceRealizationsBySlot[slotKey]) ? surfaceRealizationsBySlot[slotKey].slice() : [],
-          surfaceCopyRelations: slotKey === "base" && Array.isArray(preteritFoldedSlots?.baseCopyRelations) ? preteritFoldedSlots.baseCopyRelations.map(relation => ({
+          surfaceCopyRelations: slotKey === "base" && Array.isArray(surfaceFormulaSlots?.baseCopyRelations) ? surfaceFormulaSlots.baseCopyRelations.map(relation => ({
             ...relation
           })) : [],
           soundSpellingFrames: getCnvFormulaSurfacePathFrames(soundSpellingFrames, surfaceRoles)
@@ -919,6 +1413,51 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         surfaceStemRealizations: Array.isArray(surfaceRealizationsBySlot.base) ? surfaceRealizationsBySlot.base.slice() : [],
         surfaceNumberConnectorRealizations,
         pathsBySurface: pathRecords
+      };
+    }
+    function alignNuclearClauseSurfaceSlotNameBridgeToCnvFormulaSurfacePath(slotNameBridge = null, cnvFormulaSurfacePath = null) {
+      if (!slotNameBridge || typeof slotNameBridge !== "object" || !cnvFormulaSurfacePath) {
+        return slotNameBridge;
+      }
+      const primaryPaths = Array.isArray(cnvFormulaSurfacePath.paths) ? cnvFormulaSurfacePath.paths : [];
+      if (!primaryPaths.length) {
+        return slotNameBridge;
+      }
+      const buildSlotsForPathRecord = (paths = []) => {
+        const bySlot = Object.fromEntries((Array.isArray(paths) ? paths : []).map(path => [String(path?.formulaSlotKey || ""), path]));
+        return (Array.isArray(slotNameBridge.slots) ? slotNameBridge.slots : []).map(slot => ({
+          ...slot,
+          value: resolveValueFromPathMap(bySlot, slot.surfaceSlot, slot.value),
+          formulaSurfacePathStatus: bySlot[String(slot.surfaceSlot || "")]?.status || ""
+        }));
+      };
+      const resolveValueFromPathMap = (bySlot = {}, surfaceSlot = "", fallbackValue = "") => {
+        const path = bySlot[surfaceSlot];
+        if (!path) {
+          return fallbackValue;
+        }
+        if (surfaceSlot === "base") {
+          return String(path.surfaceValue || path.formulaMorph || fallbackValue || "");
+        }
+        if (surfaceSlot === "tns") {
+          return String(path.formulaMorph || path.surfaceValue || fallbackValue || "Ø");
+        }
+        if (surfaceSlot === "num1" || surfaceSlot === "num2") {
+          return String(path.surfaceValue || path.formulaMorph || fallbackValue || "Ø");
+        }
+        if (surfaceSlot === "va2" && !path.surfaceValue && String(path.formulaMorph || "") === "0") {
+          return "0";
+        }
+        return String(path.surfaceValue || path.formulaMorph || fallbackValue || "");
+      };
+      const primarySlots = buildSlotsForPathRecord(primaryPaths);
+      return {
+        ...slotNameBridge,
+        slots: primarySlots,
+        pathsBySurface: (Array.isArray(cnvFormulaSurfacePath.pathsBySurface) ? cnvFormulaSurfacePath.pathsBySurface : []).map(record => ({
+          surface: String(record?.surface || ""),
+          slots: buildSlotsForPathRecord(record?.paths || [])
+        }))
       };
     }
     function buildNuclearClauseSurfaceDiagnosticEntry({
@@ -1359,6 +1898,30 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       }
       const suffix = suffixes.filter(Boolean).sort((left, right) => right.length - left.length).find(candidate => value.length > candidate.length && value.endsWith(candidate));
       return suffix ? value.slice(0, -suffix.length) : value;
+    }
+    function resolveGeneratedVncFormulaPers1BeforeInflection({
+      tense = "",
+      inputPers1 = "",
+      appliedMorphology = null,
+      formulaStem = "",
+      hasFormulaValenceBeforeStem = false
+    } = {}) {
+      const pers1 = String(inputPers1 || "");
+      if (String(tense || "") === "optativo" && (pers1 === "ti" || pers1 === "an") && (appliedMorphology?.pers1 === "shi" || appliedMorphology?.subjectPrefix === "shi")) {
+        return "shi";
+      }
+      if (!hasFormulaValenceBeforeStem && String(formulaStem || "").startsWith("i")) {
+        if (pers1 === "ni") {
+          return "n";
+        }
+        if (pers1 === "ti") {
+          return "t";
+        }
+      }
+      if (!hasFormulaValenceBeforeStem && targetObject.VOWEL_START_RE.test(String(formulaStem || "")) && pers1.endsWith("n") && !pers1.endsWith("nh") && pers1.length >= 2 && targetObject.VOWEL_RE.test(pers1[pers1.length - 2] || "")) {
+        return `${pers1}h`;
+      }
+      return pers1;
     }
     function attachNuclearClauseSurfaceContractProperties(resultPayload = null, resultContract = null, grammarFrame = null, {
       enumerable = false
@@ -4185,14 +4748,23 @@ export function createGenerationEngineModule(targetObject = globalThis) {
           enumerableContract: false
         });
       }
+      const classPerfectiveFormulaProfile = buildGeneratedClassPerfectiveFormulaProfile({
+        tense,
+        surfaceForms: [appliedMorphology?.verb || "", ...(Array.isArray(appliedMorphology?.alternateForms) ? appliedMorphology.alternateForms.map(form => form?.verb || "") : [])],
+        subjectPrefix: inputPers1,
+        objectPrefix: morphologyObj1Slot,
+        sourceSubjectSuffix: inputPers2,
+        sourceStem: formulaStemBeforeInflection
+      });
+      const formulaStemForSlots = classPerfectiveFormulaProfile?.base || formulaStemBeforeInflection;
       const formulaStemContext = {
-        stem: formulaStemBeforeInflection,
+        stem: formulaStemForSlots,
         pers1: inputPers1
       };
-      const realizedFormulaObj1Slot = String(isReflexive ? "mu" : appliedMorphology?.objectPrefix ?? morphologyObj1Slot);
+      const realizedFormulaObj1Slot = String(isReflexive ? "mu" : classPerfectiveFormulaProfile?.objectPrefix || appliedMorphology?.objectPrefix || morphologyObj1Slot);
       const foldedPreteritFormulaObj1Slot = !isReflexive && !realizedFormulaObj1Slot && morphologyObj1Slot && tense === "preterito" ? getGeneratedPreteritFoldedObjectPrefix(morphologyObj1Slot, inputPers1) : realizedFormulaObj1Slot;
       const formulaReflexiveBeforeInflection = isReflexive ? getLesson6DirectNawatFormulaObjectPrefix("mu", formulaStemContext) : "";
-      const formulaObj1BeforeInflection = isReflexive ? formulaReflexiveBeforeInflection : getLesson6DirectNawatFormulaObjectPrefix(foldedPreteritFormulaObj1Slot, formulaStemContext);
+      const formulaObj1BeforeInflection = isReflexive ? formulaReflexiveBeforeInflection : classPerfectiveFormulaProfile?.formulaObject || getLesson6DirectNawatFormulaObjectPrefix(foldedPreteritFormulaObj1Slot, formulaStemContext);
       const formulaObj2BeforeInflection = getLesson6DirectNawatFormulaObjectPrefix(indirectObjectMarker, formulaStemContext);
       const formulaObj3BeforeInflection = getLesson6DirectNawatFormulaObjectPrefix(thirdObjectMarker, formulaStemContext);
       if (isPotencialHabitualNominalProfile) {
@@ -4266,7 +4838,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         }
       }
       primaryFormSpec = appliedMorphology.formSpec || (isNominalOutputProfile ? targetObject.buildLiteralNominalFormSpec(troncoSlot, pers2Slot) : null);
-      let formulaShellVerb = stripGeneratedVncFormulaTenseSuffix(isNonactive ? troncoSlot : formulaStemBeforeInflection, tense, inputPers2);
+      let formulaShellVerb = stripGeneratedVncFormulaTenseSuffix(isNonactive ? troncoSlot : formulaStemForSlots, tense, inputPers2);
       let formulaShellSubjectSuffix = "";
       let formulaShellCapturedFromStemCandidate = false;
       if (isNominalOutputProfile && isPatientivoPossessed) {
@@ -4449,7 +5021,13 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         sourceSubjectPrefix: inputPers1,
         sourceSubjectSuffix: inputPers2
       }) : {};
-      const formulaPers1BeforeInflection = tense === "optativo" && (inputPers1 === "ti" || inputPers1 === "an") && (appliedMorphology?.pers1 === "shi" || appliedMorphology?.subjectPrefix === "shi") ? "shi" : inputPers1;
+      const formulaPers1BeforeInflection = resolveGeneratedVncFormulaPers1BeforeInflection({
+        tense,
+        inputPers1,
+        appliedMorphology,
+        formulaStem: formulaShellVerb || formulaStemForSlots,
+        hasFormulaValenceBeforeStem: Boolean(formulaObj1BeforeInflection || formulaObj2BeforeInflection || formulaObj3BeforeInflection || formulaReflexiveBeforeInflection)
+      });
       const nuclearClauseShell = buildGeneratedNuclearClauseShellMetadata({
         resolvedTenseMode,
         tense,
@@ -4479,6 +5057,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         surfaceRecords: generatedOutputSurfaceRecords,
         soundSpellingFrames: generatedSoundSpellingFrames
       });
+      const rawSlotNameBridge = typeof targetObject.buildNuclearClauseSurfaceSlotNameBridge === "function" ? targetObject.buildNuclearClauseSurfaceSlotNameBridge(posicionesFormula) : null;
+      const slotNameBridge = alignNuclearClauseSurfaceSlotNameBridgeToCnvFormulaSurfacePath(rawSlotNameBridge, cnvFormulaSurfacePath);
       const vncValencyFrame = buildGeneratedVncValencyFrameMetadata({
         resolvedTenseMode,
         pers1: pers1Slot,
@@ -4586,7 +5166,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         adverbialAdjunctionBoundaryFrame: generatedAdverbialAdjunctionBoundaryFrame || nominalClauseMetadata?.adverbialAdjunctionBoundaryFrame || null,
         sentenceLayer,
         cnvFormulaSurfacePath,
-        slotNameBridge: typeof targetObject.buildNuclearClauseSurfaceSlotNameBridge === "function" ? targetObject.buildNuclearClauseSurfaceSlotNameBridge(posicionesFormula) : null,
+        slotNameBridge,
         soundSpellingFrames: generatedSoundSpellingFrames,
         orthographyFrame: {
           soundSpellingFrames: generatedSoundSpellingFrames
@@ -4708,12 +5288,26 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     api.splitGeneratedPreteritCnvFoldedConnector = splitGeneratedPreteritCnvFoldedConnector;
     api.buildGeneratedPreteritCnvConnectorProfile = buildGeneratedPreteritCnvConnectorProfile;
     api.getGeneratedPreteritFoldedObjectPrefix = getGeneratedPreteritFoldedObjectPrefix;
+    api.isGeneratedClassPerfectiveFormulaTense = isGeneratedClassPerfectiveFormulaTense;
+    api.getGeneratedClassPerfectiveFormulaBaseCandidates = getGeneratedClassPerfectiveFormulaBaseCandidates;
+    api.getGeneratedClassPerfectiveSurfaceCore = getGeneratedClassPerfectiveSurfaceCore;
+    api.getGeneratedClassPerfectiveFormulaObjectCandidates = getGeneratedClassPerfectiveFormulaObjectCandidates;
+    api.buildGeneratedClassPerfectiveFormulaProfile = buildGeneratedClassPerfectiveFormulaProfile;
     api.stripCnvFormulaSurfacePrefix = stripCnvFormulaSurfacePrefix;
     api.stripCnvFormulaSurfacePrefixWithTrace = stripCnvFormulaSurfacePrefixWithTrace;
     api.getCnvFormulaFoldableBasePrefixes = getCnvFormulaFoldableBasePrefixes;
+    api.getCnvFormulaFoldableBasePrefixEntries = getCnvFormulaFoldableBasePrefixEntries;
     api.stripCnvFormulaPreteritFoldedBasePrefixesWithTrace = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace;
     api.stripCnvFormulaPreteritFoldedBasePrefixes = stripCnvFormulaPreteritFoldedBasePrefixes;
-    api.getCnvFormulaPreteritFoldedSurfaceSlots = getCnvFormulaPreteritFoldedSurfaceSlots;
+    api.buildCnvFormulaLesson7AspectSurfaceSlots = buildCnvFormulaLesson7AspectSurfaceSlots;
+    api.stripCnvFormulaSurfaceSuffixWithTrace = stripCnvFormulaSurfaceSuffixWithTrace;
+    api.splitCnvFormulaPreteritConnectorSuffix = splitCnvFormulaPreteritConnectorSuffix;
+    api.getCnvFormulaSourceStemVariants = getCnvFormulaSourceStemVariants;
+    api.scoreCnvFormulaSourceStemVariant = scoreCnvFormulaSourceStemVariant;
+    api.getCnvFormulaSourceStemVariantRelation = getCnvFormulaSourceStemVariantRelation;
+    api.hasCnvFormulaValencePrefix = hasCnvFormulaValencePrefix;
+    api.resolveCnvFormulaPreteritPredicateCore = resolveCnvFormulaPreteritPredicateCore;
+    api.getCnvFormulaLesson7SurfaceSlots = getCnvFormulaLesson7SurfaceSlots;
     api.normalizeCnvFormulaMorphForSurface = normalizeCnvFormulaMorphForSurface;
     api.getCnvFormulaSlotDisplayMorph = getCnvFormulaSlotDisplayMorph;
     api.splitCnvFormulaSubslots = splitCnvFormulaSubslots;
@@ -4724,6 +5318,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     api.getCnvFormulaSurfacePathRecordKey = getCnvFormulaSurfacePathRecordKey;
     api.buildCnvFormulaSurfacePathRecord = buildCnvFormulaSurfacePathRecord;
     api.buildGeneratedCnvFormulaSurfacePath = buildGeneratedCnvFormulaSurfacePath;
+    api.alignNuclearClauseSurfaceSlotNameBridgeToCnvFormulaSurfacePath = alignNuclearClauseSurfaceSlotNameBridgeToCnvFormulaSurfacePath;
     api.buildNuclearClauseSurfaceDiagnosticEntry = buildNuclearClauseSurfaceDiagnosticEntry;
     api.getNuclearClauseSurfaceFailedLayerContract = getNuclearClauseSurfaceFailedLayerContract;
     api.normalizeNuclearClauseSurfaceDiagnosticEntries = normalizeNuclearClauseSurfaceDiagnosticEntries;
@@ -4741,6 +5336,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     api.buildNuclearClauseSurfaceGrammarFrame = buildNuclearClauseSurfaceGrammarFrame;
     api.buildNuclearClauseSurfaceResultContract = buildNuclearClauseSurfaceResultContract;
     api.stripGeneratedVncFormulaTenseSuffix = stripGeneratedVncFormulaTenseSuffix;
+    api.resolveGeneratedVncFormulaPers1BeforeInflection = resolveGeneratedVncFormulaPers1BeforeInflection;
     api.attachNuclearClauseSurfaceContractProperties = attachNuclearClauseSurfaceContractProperties;
     api.buildNuclearClauseSurfaceBlockedResult = buildNuclearClauseSurfaceBlockedResult;
     api.resolveGenerateWordUiHook = resolveGenerateWordUiHook;

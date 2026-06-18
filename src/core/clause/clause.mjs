@@ -530,6 +530,9 @@ export function createClauseModule(targetObject = globalThis) {
       if (profile.connectorOptions.includes(raw)) {
         return raw;
       }
+      if (raw === "k-0") {
+        return "k-0";
+      }
       if (raw === "ki") {
         return "ki-0";
       }

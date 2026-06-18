@@ -533,6 +533,9 @@ function resolveLesson5VncProfileConnector(profile = null, rawConnector = "") {
     if (profile.connectorOptions.includes(raw)) {
         return raw;
     }
+    if (raw === "k-0") {
+        return "k-0";
+    }
     if (raw === "ki") {
         return "ki-0";
     }

@@ -1075,6 +1075,33 @@ function adjustPretNhBeforeVowel(prefix, base) {
     };
 }
 
+function adjustPretSubjectSupportiveIBeforeIStem(prefix, base) {
+    const adjustedBase = String(base || "");
+    const adjustedPrefix = String(prefix || "");
+    if (!adjustedBase.startsWith("i")) {
+        return {
+            prefix: adjustedPrefix,
+            base: adjustedBase,
+        };
+    }
+    if (adjustedPrefix === "ni") {
+        return {
+            prefix: "n",
+            base: adjustedBase,
+        };
+    }
+    if (adjustedPrefix === "ti") {
+        return {
+            prefix: "t",
+            base: adjustedBase,
+        };
+    }
+    return {
+        prefix: adjustedPrefix,
+        base: adjustedBase,
+    };
+}
+
 function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
     let adjustedPrefix = prefix || "";
     let adjustedBase = base || "";
@@ -1170,7 +1197,11 @@ function getPretUniversalPrefixForBase(
             suppressBareKBeforeK: true,
             dropYAfterWal: false,
         });
-        return adjustPretNhBeforeVowel(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
+        const subjectAdjusted = adjustPretSubjectSupportiveIBeforeIStem(
+            subjectPrefix + contactAdjusted.prefix,
+            contactAdjusted.base
+        );
+        return adjustPretNhBeforeVowel(subjectAdjusted.prefix, subjectAdjusted.base);
     }
     const isThirdPersonMarker = (value) => value === "ki" || value === "kin" || value === "k";
     const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);

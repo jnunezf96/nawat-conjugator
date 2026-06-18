@@ -107,6 +107,56 @@ export function createUiExportModule(targetObject = globalThis) {
       clone.querySelectorAll?.(".conjugation-conversion-actions").forEach(node => node.remove());
       return clone.textContent.trim();
     }
+    function normalizeViewExportDomText(value = "") {
+      return String(value || "").replace(/\s+/g, " ").trim();
+    }
+    function isViewExportNodeHidden(node = null) {
+      let current = node;
+      while (current && current !== targetObject.document) {
+        if (current.hidden === true) {
+          return true;
+        }
+        if (typeof current.hasAttribute === "function" && current.hasAttribute("hidden")) {
+          return true;
+        }
+        if (typeof current.getAttribute === "function" && current.getAttribute("aria-hidden") === "true") {
+          return true;
+        }
+        const classList = current.classList;
+        const className = typeof current.className === "string" ? current.className : "";
+        if (classList && typeof classList.contains === "function" && (classList.contains("is-hidden") || classList.contains("is-hidden-control")) || /\bis-hidden(?:-control)?\b/.test(className)) {
+          return true;
+        }
+        const style = current.style || {};
+        if (style.display === "none" || style.visibility === "hidden") {
+          return true;
+        }
+        current = current.parentElement || current.parentNode || null;
+      }
+      return false;
+    }
+    function getPersonSubSlotChipKind(chip = null) {
+      const className = typeof chip?.className === "string" ? chip.className : "";
+      const match = className.match(/\bperson-sub__slot-chip--([a-z0-9-]+)\b/i);
+      return match ? match[1] : "";
+    }
+    function getPersonSubSlotChipText(chip = null) {
+      if (!chip) {
+        return "";
+      }
+      const label = normalizeViewExportDomText(chip.querySelector?.(".person-sub__slot-chip-label")?.textContent || "").replace(/:\s*$/, "");
+      const value = normalizeViewExportDomText(chip.querySelector?.(".person-sub__slot-chip-value")?.textContent || "");
+      if (label && value) {
+        return `${label}: ${value}`;
+      }
+      return value || label || normalizeViewExportDomText(chip.textContent || "");
+    }
+    function getPersonSubSlotChipDetail(chip = null) {
+      if (!chip) {
+        return "";
+      }
+      return normalizeViewExportDomText(chip.dataset?.detail || chip.title || (typeof chip.getAttribute === "function" ? chip.getAttribute("aria-label") : "") || "");
+    }
     function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
       const src = source && typeof source === "object" ? source : {};
       const fallback = defaults && typeof defaults === "object" ? defaults : {};
@@ -325,6 +375,45 @@ export function createUiExportModule(targetObject = globalThis) {
       }
       return collectVisibleConjugationRowsFromDom();
     }
+    function collectPersonSubSlotStripExportRowsFromDom() {
+      const container = targetObject.document.getElementById("all-tense-conjugations");
+      if (!container || typeof container.querySelectorAll !== "function") {
+        return [];
+      }
+      const rows = [];
+      const rowNodes = Array.from(container.querySelectorAll(".conjugation-row"));
+      rowNodes.forEach(row => {
+        if (isViewExportNodeHidden(row)) {
+          return;
+        }
+        const personSub = row.querySelector?.(".person-sub") || null;
+        const strip = personSub?.querySelector?.(".person-sub__slot-strip") || null;
+        if (!strip || isViewExportNodeHidden(strip)) {
+          return;
+        }
+        const chips = Array.from(strip.querySelectorAll?.(".person-sub__slot-chip") || []).filter(chip => !isViewExportNodeHidden(chip));
+        const chipTexts = chips.map(chip => getPersonSubSlotChipText(chip)).filter(Boolean);
+        const slotStripText = chipTexts.length ? chipTexts.join(" | ") : normalizeViewExportDomText(strip.textContent || "");
+        if (!slotStripText) {
+          return;
+        }
+        const block = row.closest?.(".tense-block") || null;
+        const sourceColumn = row.closest?.(".tense-grid-source-column") || null;
+        const sourceMode = sourceColumn?.dataset?.sourceMode === targetObject.COMBINED_MODE.nonactive ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active;
+        rows.push({
+          inputValue: Object.prototype.hasOwnProperty.call(row.dataset || {}, "exportInput") ? row.dataset.exportInput : "",
+          sourceMode,
+          block: normalizeViewExportDomText(block?.querySelector?.(".tense-block__label")?.textContent || ""),
+          person: normalizeViewExportDomText(row.querySelector?.(".person-label")?.textContent || ""),
+          form: getVisibleConjugationValueExportText(row),
+          compactSubLabel: normalizeViewExportDomText(personSub.querySelector?.(".person-sub__compact-text")?.textContent || ""),
+          slotStrip: slotStripText,
+          slotKinds: chips.map(chip => getPersonSubSlotChipKind(chip)).filter(Boolean).join(" | "),
+          slotDetails: chips.map(chip => getPersonSubSlotChipDetail(chip)).filter(Boolean).join(" | ")
+        });
+      });
+      return rows;
+    }
     function getParticleExportRowsFromDom() {
       const container = targetObject.document.getElementById("all-tense-conjugations");
       if (!container || typeof container.querySelectorAll !== "function") {
@@ -428,6 +517,35 @@ export function createUiExportModule(targetObject = globalThis) {
       const link = targetObject.document.createElement("a");
       link.href = url;
       link.download = "vista-conjugaciones.csv";
+      targetObject.document.body.appendChild(link);
+      link.click();
+      link.remove();
+      targetObject.window.setTimeout(() => targetObject.URL.revokeObjectURL(url), 0);
+    }
+    function buildPersonSubSlotStripViewExportCSV() {
+      const rows = collectPersonSubSlotStripExportRowsFromDom();
+      if (!rows.length) {
+        return "";
+      }
+      const verbInput = targetObject.document.getElementById("verb");
+      const inputValue = verbInput ? verbInput.value.trim() : "";
+      const isNawat = targetObject.getIsNawat();
+      const header = ["entrada", "fuente", "bloque", "persona", "forma", "resumen", "person-sub__slot-strip", "tipos de ficha", "detalles de ficha"].map(label => escapeCSVValue(label)).join(",");
+      const lines = rows.map(row => [row.inputValue || inputValue, getViewExportSourceModeLabel(row.sourceMode, isNawat), row.block, row.person, row.form, row.compactSubLabel, row.slotStrip, row.slotKinds, row.slotDetails].map(value => escapeCSVValue(value)).join(","));
+      return [header, ...lines].join("\n");
+    }
+    function downloadPersonSubSlotStripViewExportCSV() {
+      const csvText = buildPersonSubSlotStripViewExportCSV();
+      if (!csvText) {
+        return;
+      }
+      const blob = new targetObject.Blob([csvText], {
+        type: "text/csv;charset=utf-8"
+      });
+      const url = targetObject.URL.createObjectURL(blob);
+      const link = targetObject.document.createElement("a");
+      link.href = url;
+      link.download = "vista-slot-strip.csv";
       targetObject.document.body.appendChild(link);
       link.click();
       link.remove();
@@ -581,12 +699,17 @@ export function createUiExportModule(targetObject = globalThis) {
 
     function initViewExport() {
       const button = targetObject.document.getElementById("view-export-csv");
-      if (!button) {
-        return;
+      if (button) {
+        button.addEventListener("click", () => {
+          downloadViewExportCSV();
+        });
       }
-      button.addEventListener("click", () => {
-        downloadViewExportCSV();
-      });
+      const slotStripButton = targetObject.document.getElementById("view-export-slot-strip-csv");
+      if (slotStripButton) {
+        slotStripButton.addEventListener("click", () => {
+          downloadPersonSubSlotStripViewExportCSV();
+        });
+      }
     }
 
     const api = {};
@@ -600,6 +723,11 @@ export function createUiExportModule(targetObject = globalThis) {
     api.getUnifiedVerbOutputSurfaceForms = getUnifiedVerbOutputSurfaceForms;
     api.getUnifiedVerbOutputForm = getUnifiedVerbOutputForm;
     api.getVisibleConjugationValueExportText = getVisibleConjugationValueExportText;
+    api.normalizeViewExportDomText = normalizeViewExportDomText;
+    api.isViewExportNodeHidden = isViewExportNodeHidden;
+    api.getPersonSubSlotChipKind = getPersonSubSlotChipKind;
+    api.getPersonSubSlotChipText = getPersonSubSlotChipText;
+    api.getPersonSubSlotChipDetail = getPersonSubSlotChipDetail;
     api.normalizeUnifiedVerbOutputGrammarMetadata = normalizeUnifiedVerbOutputGrammarMetadata;
     api.getUnifiedVerbOutputGrammarDatasetMetadata = getUnifiedVerbOutputGrammarDatasetMetadata;
     api.normalizeUnifiedVerbOutputEntry = normalizeUnifiedVerbOutputEntry;
@@ -610,12 +738,15 @@ export function createUiExportModule(targetObject = globalThis) {
     api.collectStructuredUnifiedVerbOutputRows = collectStructuredUnifiedVerbOutputRows;
     api.collectVisibleConjugationRowsFromDom = collectVisibleConjugationRowsFromDom;
     api.collectVisibleConjugationRows = collectVisibleConjugationRows;
+    api.collectPersonSubSlotStripExportRowsFromDom = collectPersonSubSlotStripExportRowsFromDom;
     api.getParticleExportRowsFromDom = getParticleExportRowsFromDom;
     api.buildParticleViewExportCSV = buildParticleViewExportCSV;
     api.getViewExportSourceModeLabel = getViewExportSourceModeLabel;
     api.getViewExportObjectHeaders = getViewExportObjectHeaders;
     api.buildViewExportCSV = buildViewExportCSV;
     api.downloadViewExportCSV = downloadViewExportCSV;
+    api.buildPersonSubSlotStripViewExportCSV = buildPersonSubSlotStripViewExportCSV;
+    api.downloadPersonSubSlotStripViewExportCSV = downloadPersonSubSlotStripViewExportCSV;
     Object.defineProperty(api, "CAUSATIVE_GATE_LABELS", {
         configurable: true,
         enumerable: true,

@@ -3299,7 +3299,10 @@ function run(ctx = {}) {
                             {
                                 surface: "pishki",
                                 paths: [
+                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
+                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
                                     { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "pish" },
+                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
                                     { formulaSlotKey: "num1", formulaMorph: "ki", surfaceValue: "ki" },
                                     { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
                                 ],
@@ -3307,7 +3310,10 @@ function run(ctx = {}) {
                             {
                                 surface: "piyak",
                                 paths: [
+                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
+                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
                                     { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "piya" },
+                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
                                     { formulaSlotKey: "num1", formulaMorph: "k", surfaceValue: "k" },
                                     { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
                                 ],
@@ -3325,27 +3331,34 @@ function run(ctx = {}) {
                             value: chip.value,
                             title: chip.title,
                         })),
+                    slotChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => ["STEM", "num1-num2"].includes(chip.kind))
+                        .map((chip) => [chip.kind, chip.label, chip.value]),
                 };
             })()
             : "rendering-runtime-not-loaded",
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? {
-                formula: "#Ø-Ø+ki-0(pish)Ø+ki-0# / #Ø-Ø+ki-0(piya)Ø+k-0#",
+                formula: "#0-0+ki-0(pish)0+ki-0# / #0-0+ki-0(piya)0+k-0#",
                 shellLabels: [
                     "cláusula verbal: #pers1-pers2+val1-val2(base)tiempo+núm1-núm2#",
-                    "Fórmula CNV: #Ø-Ø+ki-0(pish)Ø+ki-0# / #Ø-Ø+ki-0(piya)Ø+k-0#",
+                    "Fórmula CNV: #0-0+ki-0(pish)0+ki-0# / #0-0+ki-0(piya)0+k-0#",
                 ],
                 formulaChips: [
                     {
                         label: "Fórmula CNV",
-                        value: "#Ø-Ø+ki-0(pish)Ø+ki-0#",
-                        title: "Fórmula CNV: #Ø-Ø+ki-0(pish)Ø+ki-0# · salida: pishki",
+                        value: "#0-0+ki-0(pish)0+ki-0#",
+                        title: "Fórmula CNV: #0-0+ki-0(pish)0+ki-0# · salida: pishki",
                     },
                     {
                         label: "Fórmula CNV",
-                        value: "#Ø-Ø+ki-0(piya)Ø+k-0#",
-                        title: "Fórmula CNV: #Ø-Ø+ki-0(piya)Ø+k-0# · salida: piyak",
+                        value: "#0-0+ki-0(piya)0+k-0#",
+                        title: "Fórmula CNV: #0-0+ki-0(piya)0+k-0# · salida: piyak",
                     },
+                ],
+                slotChips: [
+                    ["STEM", "base", "(pish/piya)"],
+                    ["num1-num2", "número1-número2", "ki-0/k-0"],
                 ],
             }
             : "rendering-runtime-not-loaded"
@@ -3949,6 +3962,12 @@ function run(ctx = {}) {
             && rendering.includes("getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset)")
             && rendering.includes("grammarMetadata = {}")
     );
+    s.ok(
+        "nonactive structured export rows carry row grammar metadata",
+        rendering.includes("buildOutputRowEntry: ({ person, personSub, form, slotValuesById, grammarMetadata })")
+            && rendering.includes("grammarMetadata,")
+            && !rendering.includes("buildOutputRowEntry: ({ person, personSub, form, slotValuesById })")
+    );
     s.eq(
         "view export normalization keeps LCM failed-layer metadata",
         typeof ctx.normalizeUnifiedVerbOutputEntry === "function"
@@ -4134,6 +4153,222 @@ function run(ctx = {}) {
                 hasRowInputValue: false,
                 hasRouteValue: false,
                 hasDiagnosticValue: false,
+            }
+    );
+    s.eq(
+        "slot-strip view export uses only visible rendered slot strips",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            && typeof ctx.buildPersonSubSlotStripViewExportCSV === "function"
+            ? (() => {
+                const documentObject = ctx.document || {};
+                const previousGetElementById = documentObject.getElementById;
+                const makeTextNode = (text) => ({ textContent: text });
+                const makeChip = ({ kind, label, value, detail = "" }) => ({
+                    className: `person-sub__slot-chip person-sub__slot-chip--${kind}`,
+                    textContent: `${label}: ${value}`,
+                    dataset: detail ? { detail } : {},
+                    title: "",
+                    querySelector(selector) {
+                        if (selector === ".person-sub__slot-chip-label") {
+                            return makeTextNode(`${label}: `);
+                        }
+                        if (selector === ".person-sub__slot-chip-value") {
+                            return makeTextNode(` ${value}`);
+                        }
+                        return null;
+                    },
+                    getAttribute() {
+                        return "";
+                    },
+                    classList: {
+                        contains() {
+                            return false;
+                        },
+                    },
+                });
+                const block = {
+                    querySelector(selector) {
+                        return selector === ".tense-block__label" ? makeTextNode("Transitivo") : null;
+                    },
+                    getAttribute() {
+                        return "";
+                    },
+                    classList: {
+                        contains() {
+                            return false;
+                        },
+                    },
+                };
+                const sourceColumn = {
+                    dataset: { sourceMode: ctx.COMBINED_MODE?.active || "active" },
+                    getAttribute() {
+                        return "";
+                    },
+                    classList: {
+                        contains() {
+                            return false;
+                        },
+                    },
+                };
+                const makeRow = ({ hidden = false, form = "nikpalehuia", slotValue = "palehuia" } = {}) => {
+                    const chips = [
+                        makeChip({
+                            kind: "formula",
+                            label: "pers1-pers2",
+                            value: "ni-Ø",
+                            detail: "formula CNV",
+                        }),
+                        makeChip({
+                            kind: "stem",
+                            label: "STEM",
+                            value: slotValue,
+                            detail: "tronco dentro de parentesis",
+                        }),
+                    ];
+                    const strip = {
+                        className: "person-sub__slot-strip",
+                        textContent: chips.map((chip) => chip.textContent).join(""),
+                        querySelectorAll(selector) {
+                            return selector === ".person-sub__slot-chip" ? chips : [];
+                        },
+                        getAttribute() {
+                            return "";
+                        },
+                        classList: {
+                            contains() {
+                                return false;
+                            },
+                        },
+                    };
+                    const compact = makeTextNode("cláusula nuclear CNV");
+                    const personSub = {
+                        textContent: compact.textContent,
+                        querySelector(selector) {
+                            if (selector === ".person-sub__slot-strip") {
+                                return strip;
+                            }
+                            if (selector === ".person-sub__compact-text") {
+                                return compact;
+                            }
+                            return null;
+                        },
+                        getAttribute() {
+                            return "";
+                        },
+                        classList: {
+                            contains() {
+                                return false;
+                            },
+                        },
+                    };
+                    strip.parentElement = personSub;
+                    chips.forEach((chip) => {
+                        chip.parentElement = strip;
+                    });
+                    const row = {
+                        dataset: { exportInput: "palehuia" },
+                        hidden,
+                        querySelector(selector) {
+                            if (selector === ".person-sub") {
+                                return personSub;
+                            }
+                            if (selector === ".person-label") {
+                                return makeTextNode("1sg");
+                            }
+                            if (selector === ".conjugation-value") {
+                                return {
+                                    dataset: { exportForm: form },
+                                    querySelector() {
+                                        return null;
+                                    },
+                                };
+                            }
+                            return null;
+                        },
+                        querySelectorAll() {
+                            return [];
+                        },
+                        closest(selector) {
+                            if (selector === ".tense-block") {
+                                return block;
+                            }
+                            if (selector === ".tense-grid-source-column") {
+                                return sourceColumn;
+                            }
+                            return null;
+                        },
+                        getAttribute(attribute) {
+                            return attribute === "aria-hidden" && hidden ? "true" : "";
+                        },
+                        classList: {
+                            contains() {
+                                return false;
+                            },
+                        },
+                    };
+                    personSub.parentElement = row;
+                    row.parentElement = block;
+                    block.parentElement = sourceColumn;
+                    return row;
+                };
+                const rows = [
+                    makeRow(),
+                    makeRow({ hidden: true, form: "hidden-form", slotValue: "hidden-slot" }),
+                ];
+                const container = {
+                    querySelectorAll(selector) {
+                        return selector === ".conjugation-row" ? rows : [];
+                    },
+                    getAttribute() {
+                        return "";
+                    },
+                    classList: {
+                        contains() {
+                            return false;
+                        },
+                    },
+                };
+                sourceColumn.parentElement = container;
+                documentObject.getElementById = (id) => {
+                    if (id === "all-tense-conjugations") {
+                        return container;
+                    }
+                    if (id === "verb") {
+                        return { value: "palehuia" };
+                    }
+                    return null;
+                };
+                try {
+                    const csv = ctx.buildPersonSubSlotStripViewExportCSV();
+                    const lines = csv.split(/\r?\n/);
+                    return {
+                        lineCount: lines.length,
+                        header: lines[0],
+                        row: lines[1],
+                        includesHidden: csv.includes("hidden-slot") || csv.includes("hidden-form"),
+                    };
+                } finally {
+                    documentObject.getElementById = previousGetElementById;
+                }
+            })()
+            : {
+                lineCount: 0,
+                header: "",
+                row: "",
+                includesHidden: true,
+            },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                lineCount: 2,
+                header: "entrada,fuente,bloque,persona,forma,resumen,person-sub__slot-strip,tipos de ficha,detalles de ficha",
+                row: "palehuia,activo,Transitivo,1sg,nikpalehuia,cláusula nuclear CNV,pers1-pers2: ni-Ø | STEM: palehuia,formula | stem,formula CNV | tronco dentro de parentesis",
+                includesHidden: false,
+            }
+            : {
+                lineCount: 0,
+                header: "",
+                row: "",
+                includesHidden: true,
             }
     );
     s.eq(

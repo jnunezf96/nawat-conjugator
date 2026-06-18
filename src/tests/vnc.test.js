@@ -450,6 +450,27 @@ function run(ctx) {
             fusionObjectSlot: "none",
         }
     );
+    s.eq(
+        "Lesson 7 CNV formula path uses one aspect resolver for imperfective and perfective slots",
+        {
+            unifiedResolver: typeof ctx.getCnvFormulaLesson7SurfaceSlots,
+            oldPreteritResolver: typeof ctx.getCnvFormulaPreteritFoldedSurfaceSlots,
+            oldPerfectiveResolver: typeof ctx.getCnvFormulaClassPerfectiveSurfaceSlots,
+            oldSuffixResolver: typeof ctx.getCnvFormulaSuffixSurfaceSlots,
+            oldWholeResolver: typeof ctx.getCnvFormulaWholeSurfaceSlots,
+            buildRecordCallsUnifiedResolver: /getCnvFormulaLesson7SurfaceSlots/.test(String(ctx.buildCnvFormulaSurfacePathRecord)),
+            buildRecordCallsOldResolvers: /getCnvFormula(?:PreteritFolded|ClassPerfective|Suffix|Whole)SurfaceSlots/.test(String(ctx.buildCnvFormulaSurfacePathRecord)),
+        },
+        {
+            unifiedResolver: "function",
+            oldPreteritResolver: "undefined",
+            oldPerfectiveResolver: "undefined",
+            oldSuffixResolver: "undefined",
+            oldWholeResolver: "undefined",
+            buildRecordCallsUnifiedResolver: true,
+            buildRecordCallsOldResolvers: false,
+        }
+    );
     const muBeforeIAllomorphy = ctx.applyObj1Allomorphy({
         verb: "ilnamiqui",
         analysisVerb: "ilnamiqui",
@@ -1186,10 +1207,107 @@ function run(ctx) {
             baseRealizations: ["pish", "piya"],
             connectorRealizations: ["ki-0", "k-0"],
             pathsBySurface: [
-                { surface: "pishki", base: "pish", num1: "ki", num2: "" },
-                { surface: "piyak", base: "piya", num1: "k", num2: "" },
+                { surface: "pishki", base: "pish", num1: "ki", num2: "0" },
+                { surface: "piyak", base: "piya", num1: "k", num2: "0" },
             ],
         }
+    );
+    s.eq(
+        "Lesson 5.1 intransitive preterit keeps pers1 allomorph outside i-initial stem in formula and path",
+        (() => {
+            const buildProbe = (pers1, pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1,
+                            obj1: "",
+                            tronco: "ina",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1,
+                    obj1: "",
+                    tronco: "ina",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => {
+                const bySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const bridgeBySlot = Object.fromEntries(
+                    (result.slotNameBridge?.slots || [])
+                        .map((entry) => [entry.surfaceSlot, entry])
+                );
+                return {
+                    result: result.result,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    path: {
+                        pers1: bySlot.pers1?.surfaceValue || "",
+                        base: bySlot.base?.surfaceValue || "",
+                        tns: bySlot.tns?.surfaceValue || bySlot.tns?.formulaMorph || "",
+                        num1: bySlot.num1?.surfaceValue || bySlot.num1?.formulaMorph || "",
+                        num2: bySlot.num2?.surfaceValue || bySlot.num2?.formulaMorph || "",
+                    },
+                    surfaceProducingPath: {
+                        pers1: bridgeBySlot.pers1?.value || "",
+                        base: bridgeBySlot.base?.value || "",
+                        tns: bridgeBySlot.tns?.value || "",
+                        num1: bridgeBySlot.num1?.value || "",
+                        num2: bridgeBySlot.num2?.value || "",
+                    },
+                };
+            };
+            return [
+                summarize(buildProbe("ni")),
+                summarize(buildProbe("ti")),
+                summarize(buildProbe("ti", "t")),
+                summarize(buildProbe("an", "t")),
+            ];
+        })(),
+        [
+            {
+                result: "ninak",
+                formula: "#n-Ø(ina)Ø+k-0#",
+                path: { pers1: "n", base: "ina", tns: "Ø", num1: "k", num2: "0" },
+                surfaceProducingPath: { pers1: "n", base: "ina", tns: "Ø", num1: "k", num2: "0" },
+            },
+            {
+                result: "tinak",
+                formula: "#t-Ø(ina)Ø+k-0#",
+                path: { pers1: "t", base: "ina", tns: "Ø", num1: "k", num2: "0" },
+                surfaceProducingPath: { pers1: "t", base: "ina", tns: "Ø", num1: "k", num2: "0" },
+            },
+            {
+                result: "tinaket",
+                formula: "#t-Ø(ina)Ø+k-et#",
+                path: { pers1: "t", base: "ina", tns: "Ø", num1: "k", num2: "et" },
+                surfaceProducingPath: { pers1: "t", base: "ina", tns: "Ø", num1: "k", num2: "et" },
+            },
+            {
+                result: "anhinaket",
+                formula: "#anh-Ø(ina)Ø+k-et#",
+                path: { pers1: "anh", base: "ina", tns: "Ø", num1: "k", num2: "et" },
+                surfaceProducingPath: { pers1: "anh", base: "ina", tns: "Ø", num1: "k", num2: "et" },
+            },
+        ]
     );
     s.eq(
         "CNV formula path keeps transitive object outside piya preterit stem variants",
@@ -1272,6 +1390,789 @@ function run(ctx) {
                 ],
             },
         ]
+    );
+    s.eq(
+        "CNV formula path assigns piki short preterit final k to stem and zero connector",
+        (() => {
+            const result = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "ki",
+                            tronco: "piki",
+                            pers2: "",
+                            num2: "",
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ki",
+                    tronco: "piki",
+                    pers2: "",
+                    num2: "",
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                surfaceForms: result.surfaceForms,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        formula: `#0-0+ki-0(${bySlot.base?.surfaceValue || ""})0+${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}#`,
+                    };
+                }),
+            };
+        })(),
+        {
+            surfaceForms: ["kipik", "kipikik"],
+            pathsBySurface: [
+                { surface: "kipik", formula: "#0-0+ki-0(pik)0+0-0#" },
+                { surface: "kipikik", formula: "#0-0+ki-0(piki)0+k-0#" },
+            ],
+        }
+    );
+    s.eq(
+        "CNV formula path keeps maka preterit stem variant as stem, not connector-stripped ma",
+        (() => {
+            const buildProbe = (pers1, pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1,
+                            obj1: "ki",
+                            tronco: "maka",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1,
+                    obj1: "ki",
+                    tronco: "maka",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => ({
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                connectorRealizations: result.cnvFormulaSurfacePath?.surfaceNumberConnectorRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                        shallowWrongBase: bySlot.base?.surfaceValue === "ma",
+                    };
+                }),
+            });
+            return [
+                summarize(buildProbe("ni")),
+                summarize(buildProbe("ti")),
+                summarize(buildProbe("")),
+                summarize(buildProbe("ti", "t")),
+                summarize(buildProbe("an", "t")),
+                summarize(buildProbe("", "t")),
+            ];
+        })(),
+        [
+            {
+                surfaceForms: ["nikmak", "nikmakak"],
+                formula: "#ni-Ø+k-0(maka)Ø+k-0#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "nikmak", base: "mak", connector: "0-0", shallowWrongBase: false },
+                    { surface: "nikmakak", base: "maka", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["tikmak", "tikmakak"],
+                formula: "#ti-Ø+k-0(maka)Ø+k-0#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "tikmak", base: "mak", connector: "0-0", shallowWrongBase: false },
+                    { surface: "tikmakak", base: "maka", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["kimak", "kimakak"],
+                formula: "#Ø-Ø+ki-0(maka)Ø+k-0#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "kimak", base: "mak", connector: "0-0", shallowWrongBase: false },
+                    { surface: "kimakak", base: "maka", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["tikmakket", "tikmakaket"],
+                formula: "#ti-Ø+k-0(maka)Ø+k-et#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "tikmakket", base: "mak", connector: "k-et", shallowWrongBase: false },
+                    { surface: "tikmakaket", base: "maka", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["ankimakket", "ankimakaket"],
+                formula: "#an-Ø+ki-0(maka)Ø+k-et#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "ankimakket", base: "mak", connector: "k-et", shallowWrongBase: false },
+                    { surface: "ankimakaket", base: "maka", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["kimakket", "kimakaket"],
+                formula: "#Ø-Ø+ki-0(maka)Ø+k-et#",
+                baseRealizations: ["mak", "maka"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "kimakket", base: "mak", connector: "k-et", shallowWrongBase: false },
+                    { surface: "kimakaket", base: "maka", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+        ]
+    );
+    s.eq(
+        "CNV formula path keeps neki preterit stem variant as stem, not connector-stripped ne",
+        (() => {
+            const buildProbe = (pers1, pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1,
+                            obj1: "ki",
+                            tronco: "neki",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1,
+                    obj1: "ki",
+                    tronco: "neki",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => ({
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                connectorRealizations: result.cnvFormulaSurfacePath?.surfaceNumberConnectorRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                        shallowWrongBase: bySlot.base?.surfaceValue === "ne",
+                    };
+                }),
+            });
+            return [
+                summarize(buildProbe("ni")),
+                summarize(buildProbe("ti")),
+                summarize(buildProbe("")),
+                summarize(buildProbe("ti", "t")),
+                summarize(buildProbe("an", "t")),
+                summarize(buildProbe("", "t")),
+            ];
+        })(),
+        [
+            {
+                surfaceForms: ["niknek", "niknekik"],
+                formula: "#ni-Ø+k-0(neki)Ø+k-0#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "niknek", base: "nek", connector: "0-0", shallowWrongBase: false },
+                    { surface: "niknekik", base: "neki", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["tiknek", "tiknekik"],
+                formula: "#ti-Ø+k-0(neki)Ø+k-0#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "tiknek", base: "nek", connector: "0-0", shallowWrongBase: false },
+                    { surface: "tiknekik", base: "neki", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["kinek", "kinekik"],
+                formula: "#Ø-Ø+ki-0(neki)Ø+k-0#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["0-0", "k-0"],
+                pathsBySurface: [
+                    { surface: "kinek", base: "nek", connector: "0-0", shallowWrongBase: false },
+                    { surface: "kinekik", base: "neki", connector: "k-0", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["tiknekket", "tiknekiket"],
+                formula: "#ti-Ø+k-0(neki)Ø+k-et#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "tiknekket", base: "nek", connector: "k-et", shallowWrongBase: false },
+                    { surface: "tiknekiket", base: "neki", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["ankinekket", "ankinekiket"],
+                formula: "#an-Ø+ki-0(neki)Ø+k-et#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "ankinekket", base: "nek", connector: "k-et", shallowWrongBase: false },
+                    { surface: "ankinekiket", base: "neki", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+            {
+                surfaceForms: ["kinekket", "kinekiket"],
+                formula: "#Ø-Ø+ki-0(neki)Ø+k-et#",
+                baseRealizations: ["nek", "neki"],
+                connectorRealizations: ["k-et"],
+                pathsBySurface: [
+                    { surface: "kinekket", base: "nek", connector: "k-et", shallowWrongBase: false },
+                    { surface: "kinekiket", base: "neki", connector: "k-et", shallowWrongBase: false },
+                ],
+            },
+        ]
+    );
+    s.eq(
+        "CNV formula path and surface-producing path agree for ilpia perfective object contact",
+        (() => {
+            const buildProbe = (tiempo) => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo,
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "ki",
+                            tronco: "ilpia",
+                            pers2: "",
+                            num2: "",
+                            tiempo,
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ki",
+                    tronco: "ilpia",
+                    pers2: "",
+                    num2: "",
+                    tiempo,
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (tiempo) => {
+                const result = buildProbe(tiempo);
+                const pathBySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const bridgeBySlot = Object.fromEntries(
+                    (result.slotNameBridge?.slots || [])
+                        .map((entry) => [entry.surfaceSlot, entry])
+                );
+                return {
+                    tiempo,
+                    result: result.result,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    cnvPath: {
+                        va1: pathBySlot.va1?.surfaceValue || "",
+                        va2: pathBySlot.va2?.formulaMorph || "",
+                        base: pathBySlot.base?.surfaceValue || "",
+                        tns: pathBySlot.tns?.surfaceValue || pathBySlot.tns?.formulaMorph || "",
+                        num1: pathBySlot.num1?.surfaceValue || pathBySlot.num1?.formulaMorph || "",
+                        num2: pathBySlot.num2?.surfaceValue || pathBySlot.num2?.formulaMorph || "",
+                    },
+                    surfaceProducingPath: {
+                        va1: bridgeBySlot.va1?.value || "",
+                        va2: bridgeBySlot.va2?.value || "",
+                        base: bridgeBySlot.base?.value || "",
+                        tns: bridgeBySlot.tns?.value || "",
+                        num1: bridgeBySlot.num1?.value || "",
+                        num2: bridgeBySlot.num2?.value || "",
+                    },
+                };
+            };
+            return [
+                summarize("preterito"),
+                summarize("perfecto"),
+                summarize("pasado-remoto"),
+            ];
+        })(),
+        [
+            {
+                tiempo: "preterito",
+                result: "kilpij",
+                formula: "#Ø-Ø+k-0(ilpij)Ø+Ø-Ø#",
+                cnvPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "Ø", num1: "Ø", num2: "Ø" },
+                surfaceProducingPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "Ø", num1: "Ø", num2: "Ø" },
+            },
+            {
+                tiempo: "perfecto",
+                result: "kilpijtuk",
+                formula: "#Ø-Ø+k-0(ilpij)tuk+Ø-Ø#",
+                cnvPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "tuk", num1: "Ø", num2: "Ø" },
+                surfaceProducingPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "tuk", num1: "Ø", num2: "Ø" },
+            },
+            {
+                tiempo: "pasado-remoto",
+                result: "kilpijka",
+                formula: "#Ø-Ø+k-0(ilpij)ka+Ø-Ø#",
+                cnvPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "ka", num1: "Ø", num2: "Ø" },
+                surfaceProducingPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "ka", num1: "Ø", num2: "Ø" },
+            },
+        ]
+    );
+    s.eq(
+        "CNV formula path keeps i-final preterit zero/k connector alternates per output",
+        (() => {
+            const result = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "",
+                            tronco: "ijkali",
+                            pers2: "",
+                            num2: "",
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "ijkali",
+                    pers2: "",
+                    num2: "",
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                surfaceForms: result.surfaceForms,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                    };
+                }),
+            };
+        })(),
+        {
+            surfaceForms: ["ijkal", "ijkalik"],
+            formula: "#Ø-Ø(ijkali)Ø+k-0#",
+            pathsBySurface: [
+                { surface: "ijkal", base: "ijkal", connector: "0-0" },
+                { surface: "ijkalik", base: "ijkali", connector: "k-0" },
+            ],
+        }
+    );
+    s.eq(
+        "CNV formula path keeps transitive ijkali external slots out of the preterit base",
+        (() => {
+            const buildProbe = (pers1, pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1,
+                            obj1: "ki",
+                            tronco: "ijkali",
+                            pers2,
+                            num2: pers2,
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1,
+                    obj1: "ki",
+                    tronco: "ijkali",
+                    pers2,
+                    num2: pers2,
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const summarize = (result) => {
+                const bySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                return {
+                    result: result.result,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    pers1: bySlot.pers1?.surfaceValue || "",
+                    obj: bySlot.va1?.surfaceValue || "",
+                    base: bySlot.base?.surfaceValue || "",
+                    connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                    leakedBase: ["nikijkal", "tikijkal", "ankijkal", "ikijkal", "jkal"]
+                        .includes(bySlot.base?.surfaceValue || ""),
+                };
+            };
+            return [
+                summarize(buildProbe("ni")),
+                summarize(buildProbe("ti")),
+                summarize(buildProbe("")),
+                summarize(buildProbe("ti", "t")),
+                summarize(buildProbe("an", "t")),
+                summarize(buildProbe("", "t")),
+            ];
+        })(),
+        [
+            {
+                result: "nikijkal",
+                formula: "#ni-Ø+k-0(ijkali)Ø+Ø-Ø#",
+                pers1: "ni",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "0-0",
+                leakedBase: false,
+            },
+            {
+                result: "tikijkal",
+                formula: "#ti-Ø+k-0(ijkali)Ø+Ø-Ø#",
+                pers1: "ti",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "0-0",
+                leakedBase: false,
+            },
+            {
+                result: "kijkal",
+                formula: "#Ø-Ø+k-0(ijkali)Ø+Ø-Ø#",
+                pers1: "",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "0-0",
+                leakedBase: false,
+            },
+            {
+                result: "tikijkalket",
+                formula: "#ti-Ø+k-0(ijkali)Ø+k-et#",
+                pers1: "ti",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "k-et",
+                leakedBase: false,
+            },
+            {
+                result: "ankijkalket",
+                formula: "#an-Ø+k-0(ijkali)Ø+k-et#",
+                pers1: "an",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "k-et",
+                leakedBase: false,
+            },
+            {
+                result: "kijkalket",
+                formula: "#Ø-Ø+k-0(ijkali)Ø+k-et#",
+                pers1: "",
+                obj: "k-0",
+                base: "ijkal",
+                connector: "k-et",
+                leakedBase: false,
+            },
+        ]
+    );
+    s.eq(
+        "CNV formula path keeps transitive ijkali external slots out of every perfective-family base",
+        (() => {
+            const tenses = ["preterito", "pasado-remoto", "perfecto", "pluscuamperfecto", "condicional-perfecto"];
+            const subjects = [["ni", ""], ["ti", ""], ["", ""], ["ti", "t"], ["an", "t"], ["", "t"]];
+            const expectedTenseMorph = {
+                preterito: "Ø",
+                "pasado-remoto": "ka",
+                perfecto: {
+                    singular: "tuk",
+                    plural: "tiwi",
+                },
+                pluscuamperfecto: "tuya",
+                "condicional-perfecto": "tuskia",
+            };
+            const issues = [];
+            const formulas = [];
+            const buildProbe = (tiempo, pers1, pers2 = "") => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo,
+                        posicionesFormula: {
+                            pers1,
+                            obj1: "ki",
+                            tronco: "ijkali",
+                            pers2,
+                            num2: pers2,
+                            tiempo,
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1,
+                    obj1: "ki",
+                    tronco: "ijkali",
+                    pers2,
+                    num2: pers2,
+                    tiempo,
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            tenses.forEach((tiempo) => subjects.forEach(([pers1, pers2]) => {
+                const result = buildProbe(tiempo, pers1, pers2);
+                const bySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const formula = result.nuclearClauseShell?.formulaEcho || "";
+                formulas.push(formula);
+                const tenseTarget = typeof expectedTenseMorph[tiempo] === "object"
+                    ? expectedTenseMorph[tiempo][pers2 ? "plural" : "singular"]
+                    : expectedTenseMorph[tiempo];
+                const leakedBase = ["nikijkal", "tikijkal", "ankijkal", "ikijkal", "kijkal", "jkal"]
+                    .includes(bySlot.base?.surfaceValue || "");
+                if (!formula.includes("+k-0(ijkali)") || bySlot.va1?.surfaceValue !== "k-0") {
+                    issues.push(["object", tiempo, pers1, pers2, formula, bySlot.va1?.surfaceValue || ""]);
+                }
+                if (bySlot.base?.surfaceValue !== "ijkal" || leakedBase) {
+                    issues.push(["base", tiempo, pers1, pers2, bySlot.base?.surfaceValue || ""]);
+                }
+                if ((bySlot.tns?.surfaceValue || bySlot.tns?.formulaMorph || "") !== tenseTarget) {
+                    issues.push(["tense", tiempo, pers1, pers2, bySlot.tns?.surfaceValue || bySlot.tns?.formulaMorph || ""]);
+                }
+            }));
+            return {
+                checked: tenses.length * subjects.length,
+                uniqueFormulaCount: Array.from(new Set(formulas)).length,
+                issues: issues.slice(0, 10),
+                issueCount: issues.length,
+            };
+        })(),
+        {
+            checked: 30,
+            uniqueFormulaCount: 30,
+            issues: [],
+            issueCount: 0,
+        }
+    );
+    s.eq(
+        "CNV formula path and surface-producing path stay slot-equal across representative active VNC outputs",
+        (() => {
+            const verbs = ["piya", "ilpia", "miki", "maka", "neki", "ajsi", "altia", "nemi", "kisa", "ilwia", "awiltia", "chiwa", "mati", "ijkali"];
+            const objects = ["", "ki", "kin", "metzin", "mu", "ta"];
+            const subjects = [["", ""], ["ni", ""], ["ti", ""], ["ti", "t"], ["an", "t"], ["", "t"]];
+            const tenses = [
+                "presente",
+                "presente-habitual",
+                "imperfecto",
+                "futuro",
+                "preterito",
+                "perfecto",
+                "pasado-remoto",
+                "condicional",
+                "optativo",
+                "pluscuamperfecto",
+                "condicional-perfecto",
+            ];
+            const bySlot = (paths = []) => Object.fromEntries(
+                paths.map((entry) => [entry.formulaSlotKey || entry.surfaceSlot, entry])
+            );
+            const bridgeValueForPath = (path, slot, fallback = "") => {
+                if (!path) {
+                    return fallback || "";
+                }
+                if (slot === "base") {
+                    return String(path.surfaceValue || path.formulaMorph || fallback || "");
+                }
+                if (slot === "tns") {
+                    return String(path.formulaMorph || path.surfaceValue || fallback || "Ø");
+                }
+                if (slot === "num1" || slot === "num2") {
+                    return String(path.surfaceValue || path.formulaMorph || fallback || "Ø");
+                }
+                if (slot === "va2" && !path.surfaceValue && String(path.formulaMorph || "") === "0") {
+                    return "0";
+                }
+                return String(path.surfaceValue || path.formulaMorph || fallback || "");
+            };
+            const buildProbe = ({ tronco, obj1, pers1, pers2, tiempo }) => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo,
+                        posicionesFormula: { pers1, obj1, tronco, pers2, num2: pers2, tiempo },
+                    },
+                },
+                posicionesFormula: { pers1, obj1, tronco, pers2, num2: pers2, tiempo },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            const issues = [];
+            let generated = 0;
+            verbs.forEach((tronco) => objects.forEach((obj1) => subjects.forEach(([pers1, pers2]) => tenses.forEach((tiempo) => {
+                const result = buildProbe({ tronco, obj1, pers1, pers2, tiempo });
+                if (!result || result.result === "—" || result.error || !Array.isArray(result.surfaceForms) || !result.surfaceForms.length) {
+                    return;
+                }
+                generated += 1;
+                const pathRecords = result.cnvFormulaSurfacePath?.pathsBySurface || [];
+                const pathSurfaces = pathRecords.map((record) => record.surface);
+                const bridgeRecords = result.slotNameBridge?.pathsBySurface || [];
+                const bridgeSurfaces = bridgeRecords.map((record) => record.surface);
+                if (JSON.stringify(pathSurfaces) !== JSON.stringify(result.surfaceForms)) {
+                    issues.push(["surfaceForms-vs-path", tronco, obj1, pers1, pers2, tiempo, result.result]);
+                }
+                if (JSON.stringify(bridgeSurfaces) !== JSON.stringify(pathSurfaces)) {
+                    issues.push(["path-vs-bridge", tronco, obj1, pers1, pers2, tiempo, result.result]);
+                }
+                pathRecords.forEach((record) => {
+                    const bridge = bridgeRecords.find((entry) => entry.surface === record.surface);
+                    const pathBySlot = bySlot(record.paths || []);
+                    const bridgeBySlot = bySlot(bridge?.slots || []);
+                    ["pers1", "pers2", "va", "va1", "va2", "base", "tns", "num1", "num2"].forEach((slot) => {
+                        if (!pathBySlot[slot] && !bridgeBySlot[slot]) {
+                            return;
+                        }
+                        const expected = bridgeValueForPath(pathBySlot[slot], slot, bridgeBySlot[slot]?.value || "");
+                        const actual = String(bridgeBySlot[slot]?.value || "");
+                        if (actual !== expected) {
+                            issues.push(["slot", tronco, obj1, pers1, pers2, tiempo, record.surface, slot, expected, actual]);
+                        }
+                    });
+                    (record.paths || []).forEach((entry) => {
+                        if (entry.status === "formula-only") {
+                            issues.push(["formula-only", tronco, obj1, pers1, pers2, tiempo, record.surface, entry.formulaSlotKey]);
+                        }
+                    });
+                    const base = pathBySlot.base;
+                    const hasSoundedExternalSurface = [
+                        pathBySlot.pers1?.surfaceValue,
+                        pathBySlot.va?.surfaceValue,
+                        pathBySlot.va1?.surfaceValue,
+                        pathBySlot.tns?.surfaceValue,
+                        pathBySlot.num1?.surfaceValue,
+                        pathBySlot.num2?.surfaceValue,
+                    ].some((value) => {
+                        const normalized = String(value || "");
+                        return normalized && normalized !== "0" && normalized !== "Ø";
+                    });
+                    if (
+                        base
+                        && String(base.surfaceValue || "") === record.surface
+                        && hasSoundedExternalSurface
+                    ) {
+                        issues.push(["whole-surface-base", tronco, obj1, pers1, pers2, tiempo, record.surface]);
+                    }
+                });
+            }))));
+            return { generated, issues: issues.slice(0, 10), issueCount: issues.length };
+        })(),
+        { generated: 5544, issues: [], issueCount: 0 }
     );
     s.eq(
         "CNV formula path strips copied valence residue from piya preterit base",

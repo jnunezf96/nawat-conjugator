@@ -965,6 +965,32 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         base: adjustedBase
       };
     }
+    function adjustPretSubjectSupportiveIBeforeIStem(prefix, base) {
+      const adjustedBase = String(base || "");
+      const adjustedPrefix = String(prefix || "");
+      if (!adjustedBase.startsWith("i")) {
+        return {
+          prefix: adjustedPrefix,
+          base: adjustedBase
+        };
+      }
+      if (adjustedPrefix === "ni") {
+        return {
+          prefix: "n",
+          base: adjustedBase
+        };
+      }
+      if (adjustedPrefix === "ti") {
+        return {
+          prefix: "t",
+          base: adjustedBase
+        };
+      }
+      return {
+        prefix: adjustedPrefix,
+        base: adjustedBase
+      };
+    }
     function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
       let adjustedPrefix = prefix || "";
       let adjustedBase = base || "";
@@ -1044,7 +1070,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           suppressBareKBeforeK: true,
           dropYAfterWal: false
         });
-        return adjustPretNhBeforeVowel(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
+        const subjectAdjusted = adjustPretSubjectSupportiveIBeforeIStem(subjectPrefix + contactAdjusted.prefix, contactAdjusted.base);
+        return adjustPretNhBeforeVowel(subjectAdjusted.prefix, subjectAdjusted.base);
       }
       const isThirdPersonMarker = value => value === "ki" || value === "kin" || value === "k";
       const isThirdPersonObject = isThirdPersonMarker(baseObjectPrefix);
@@ -2449,6 +2476,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.composePretUniversalObjectPrefix = composePretUniversalObjectPrefix;
     api.shouldAllowZeroBitransitiveKiDrop = shouldAllowZeroBitransitiveKiDrop;
     api.adjustPretNhBeforeVowel = adjustPretNhBeforeVowel;
+    api.adjustPretSubjectSupportiveIBeforeIStem = adjustPretSubjectSupportiveIBeforeIStem;
     api.adjustPretPrefixBaseContact = adjustPretPrefixBaseContact;
     api.adjustPretComposedObjectPrefixContact = adjustPretComposedObjectPrefixContact;
     api.resolvePretObjectPrefixContact = resolvePretObjectPrefixContact;

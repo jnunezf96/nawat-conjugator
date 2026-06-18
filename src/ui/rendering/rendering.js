@@ -319,16 +319,43 @@ function getVisibleCnvFormulaPathRecordValue(record = null, slotKey = "") {
     return String(match?.surfaceValue || "");
 }
 
+function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "") {
+    const match = (Array.isArray(record?.paths) ? record.paths : [])
+        .find((entry) => entry?.formulaSlotKey === slotKey);
+    if (!match) {
+        return "";
+    }
+    const surfaceValue = String(match.surfaceValue || "");
+    if (surfaceValue) {
+        return surfaceValue;
+    }
+    const formulaMorph = String(match.formulaMorph || "");
+    if (formulaMorph === "Ø" || formulaMorph === "0") {
+        return "0";
+    }
+    return formulaMorph;
+}
+
 function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
     let formula = String(formulaEcho || "").trim();
     if (!formula) {
         return "";
     }
-    const base = getVisibleCnvFormulaPathRecordValue(record, "base");
-    const num1 = getVisibleCnvFormulaPathRecordValue(record, "num1");
-    const num2 = getVisibleCnvFormulaPathRecordValue(record, "num2");
+    const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1");
+    const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2");
+    const base = getVisibleCnvFormulaPathRecordSurfaceValue(record, "base");
+    const tns = getVisibleCnvFormulaPathRecordSurfaceValue(record, "tns");
+    const num1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num1");
+    const num2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num2");
+    if (pers1 || pers2) {
+        formula = formula.replace(/^#([^+()]*)/, `#${pers1 || "0"}-${pers2 || "0"}`);
+    }
     if (base) {
         formula = formula.replace(/\(([^)]*)\)/, `(${base})`);
+    }
+    if (tns) {
+        formula = formula.replace(/\)([^)+#]*)\+([^+#]*)#$/, `)${tns}+${num1 || "0"}-${num2 || "0"}#`);
+        return formula;
     }
     if (num1 || num2) {
         formula = formula.replace(/\+([^+#]*)#$/, `+${num1 || "0"}-${num2 || "0"}#`);
@@ -2455,6 +2482,27 @@ function buildGeneratedOutputSlotPredicateValue(predicateSlot = null) {
     return stem.includes("(") && stem.includes(")") ? stem : `(${stem})`;
 }
 
+function buildGeneratedOutputVisibleCnvPredicateValue(result = null, predicateSlot = null) {
+    const baseRealizations = getVisibleCnvFormulaBaseRealizations(result);
+    if (baseRealizations.length) {
+        return buildGeneratedOutputSlotPredicateValue({
+            displayStem: baseRealizations.join("/"),
+        });
+    }
+    return buildGeneratedOutputSlotPredicateValue(predicateSlot);
+}
+
+function buildGeneratedOutputVisibleCnvConnectorValue(result = null, connectorSlot = null) {
+    const connectorRealizations = getVisibleCnvFormulaConnectorRealizations(result);
+    if (connectorRealizations.length) {
+        return connectorRealizations.join("/");
+    }
+    return normalizeGeneratedOutputSlotChipValue(
+        connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "",
+        "Ø-Ø"
+    );
+}
+
 function buildGeneratedOutputSlotSubjectValue(subjectSlot = null) {
     if (!subjectSlot || typeof subjectSlot !== "object") {
         return "";
@@ -2962,7 +3010,7 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
         if (result.isReflexive === true || reflexiveSlot?.isPresent || objectSlot?.prefix === "mu" || result.vncValencyFrame?.obj1?.prefix === "mu") {
             pushChip("reflexivo", ANDREWS_RENDERING_TERMS.reflexivo, reflexiveSlot?.prefix || "mu");
         }
-        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputSlotPredicateValue(predicateSlot));
+        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputVisibleCnvPredicateValue(result, predicateSlot));
         const tenseValue = normalizeGeneratedOutputSlotChipValue(tenseSlot?.label || tenseSlot?.tenseValue || "", "");
         pushChip(
             "tiempo",
@@ -2973,10 +3021,7 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
         pushChip(
             "num1-num2",
             ANDREWS_RENDERING_TERMS.num1Num2,
-            normalizeGeneratedOutputSlotChipValue(
-                connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "",
-                "Ø-Ø"
-            )
+            buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot)
         );
     } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
@@ -7804,12 +7849,13 @@ function buildVerbTenseBlock({
                         sourceVoiceMode: generationModeOverride?.voiceMode || VOICE_MODE.passive,
                     });
                 },
-                buildOutputRowEntry: ({ person, personSub, form, slotValuesById }) => {
+                buildOutputRowEntry: ({ person, personSub, form, slotValuesById, grammarMetadata }) => {
                     appendBlockOutputRow({
                         person,
                         personSub,
                         form,
                         slotValuesById,
+                        grammarMetadata,
                     });
                 },
             });

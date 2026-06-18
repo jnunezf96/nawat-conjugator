@@ -243,16 +243,41 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const match = (Array.isArray(record?.paths) ? record.paths : []).find(entry => entry?.formulaSlotKey === slotKey);
       return String(match?.surfaceValue || "");
     }
+    function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "") {
+      const match = (Array.isArray(record?.paths) ? record.paths : []).find(entry => entry?.formulaSlotKey === slotKey);
+      if (!match) {
+        return "";
+      }
+      const surfaceValue = String(match.surfaceValue || "");
+      if (surfaceValue) {
+        return surfaceValue;
+      }
+      const formulaMorph = String(match.formulaMorph || "");
+      if (formulaMorph === "Ø" || formulaMorph === "0") {
+        return "0";
+      }
+      return formulaMorph;
+    }
     function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
       let formula = String(formulaEcho || "").trim();
       if (!formula) {
         return "";
       }
-      const base = getVisibleCnvFormulaPathRecordValue(record, "base");
-      const num1 = getVisibleCnvFormulaPathRecordValue(record, "num1");
-      const num2 = getVisibleCnvFormulaPathRecordValue(record, "num2");
+      const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1");
+      const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2");
+      const base = getVisibleCnvFormulaPathRecordSurfaceValue(record, "base");
+      const tns = getVisibleCnvFormulaPathRecordSurfaceValue(record, "tns");
+      const num1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num1");
+      const num2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num2");
+      if (pers1 || pers2) {
+        formula = formula.replace(/^#([^+()]*)/, `#${pers1 || "0"}-${pers2 || "0"}`);
+      }
       if (base) {
         formula = formula.replace(/\(([^)]*)\)/, `(${base})`);
+      }
+      if (tns) {
+        formula = formula.replace(/\)([^)+#]*)\+([^+#]*)#$/, `)${tns}+${num1 || "0"}-${num2 || "0"}#`);
+        return formula;
       }
       if (num1 || num2) {
         formula = formula.replace(/\+([^+#]*)#$/, `+${num1 || "0"}-${num2 || "0"}#`);
@@ -2143,6 +2168,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       return stem.includes("(") && stem.includes(")") ? stem : `(${stem})`;
     }
+    function buildGeneratedOutputVisibleCnvPredicateValue(result = null, predicateSlot = null) {
+      const baseRealizations = getVisibleCnvFormulaBaseRealizations(result);
+      if (baseRealizations.length) {
+        return buildGeneratedOutputSlotPredicateValue({
+          displayStem: baseRealizations.join("/")
+        });
+      }
+      return buildGeneratedOutputSlotPredicateValue(predicateSlot);
+    }
+    function buildGeneratedOutputVisibleCnvConnectorValue(result = null, connectorSlot = null) {
+      const connectorRealizations = getVisibleCnvFormulaConnectorRealizations(result);
+      if (connectorRealizations.length) {
+        return connectorRealizations.join("/");
+      }
+      return normalizeGeneratedOutputSlotChipValue(connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "", "Ø-Ø");
+    }
     function buildGeneratedOutputSlotSubjectValue(subjectSlot = null) {
       if (!subjectSlot || typeof subjectSlot !== "object") {
         return "";
@@ -2539,12 +2580,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (result.isReflexive === true || reflexiveSlot?.isPresent || objectSlot?.prefix === "mu" || result.vncValencyFrame?.obj1?.prefix === "mu") {
           pushChip("reflexivo", ANDREWS_RENDERING_TERMS.reflexivo, reflexiveSlot?.prefix || "mu");
         }
-        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputSlotPredicateValue(predicateSlot));
+        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputVisibleCnvPredicateValue(result, predicateSlot));
         const tenseValue = normalizeGeneratedOutputSlotChipValue(tenseSlot?.label || tenseSlot?.tenseValue || "", "");
         pushChip("tiempo", ANDREWS_RENDERING_TERMS.tiempo, getGeneratedOutputCompactTenseValue(tenseValue), {
           title: tenseValue ? `${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}` : ANDREWS_RENDERING_TERMS.tiempo
         });
-        pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, normalizeGeneratedOutputSlotChipValue(connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "", "Ø-Ø"));
+        pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot));
       } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || result.nncBasic?.formulaSlots?.predicateStem || null;
@@ -6417,13 +6458,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
               person,
               personSub,
               form,
-              slotValuesById
+              slotValuesById,
+              grammarMetadata
             }) => {
               appendBlockOutputRow({
                 person,
                 personSub,
                 form,
-                slotValuesById
+                slotValuesById,
+                grammarMetadata
               });
             }
           });
@@ -12188,6 +12231,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.getVisibleCnvFormulaBaseRealizations = getVisibleCnvFormulaBaseRealizations;
     api.getVisibleCnvFormulaConnectorRealizations = getVisibleCnvFormulaConnectorRealizations;
     api.getVisibleCnvFormulaPathRecordValue = getVisibleCnvFormulaPathRecordValue;
+    api.getVisibleCnvFormulaPathRecordSurfaceValue = getVisibleCnvFormulaPathRecordSurfaceValue;
     api.formatVisibleCnvFormulaEchoForPath = formatVisibleCnvFormulaEchoForPath;
     api.getVisibleCnvFormulaEchoes = getVisibleCnvFormulaEchoes;
     api.formatVisibleCnvFormulaEcho = formatVisibleCnvFormulaEcho;
@@ -12284,6 +12328,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.appendNuclearClauseShellSubLabels = appendNuclearClauseShellSubLabels;
     api.normalizeGeneratedOutputSlotChipValue = normalizeGeneratedOutputSlotChipValue;
     api.buildGeneratedOutputSlotPredicateValue = buildGeneratedOutputSlotPredicateValue;
+    api.buildGeneratedOutputVisibleCnvPredicateValue = buildGeneratedOutputVisibleCnvPredicateValue;
+    api.buildGeneratedOutputVisibleCnvConnectorValue = buildGeneratedOutputVisibleCnvConnectorValue;
     api.buildGeneratedOutputSlotSubjectValue = buildGeneratedOutputSlotSubjectValue;
     api.buildGeneratedOutputVncSubjectValue = buildGeneratedOutputVncSubjectValue;
     api.getGeneratedOutputFormulaSlot = getGeneratedOutputFormulaSlot;
