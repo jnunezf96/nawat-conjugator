@@ -183,6 +183,16 @@ function run(ctx) {
     s.eq("nawat mode scaffold includes particle", ctx.NAWAT_TENSE_MODE.particula, "particula");
     s.eq("particle mode is a selectable output mode", ctx.TENSE_MODE.particula, "particula");
     s.eq("particle mode has no tense paradigm tabs", ctx.getTenseOrderForMode(ctx.TENSE_MODE.particula), []);
+    s.eq(
+        "Andrews formal tense modes stay limited to CNV, CNN, and Partícula",
+        Object.keys(ctx.FORMAL_TENSE_MODE || {}),
+        ["verbo", "sustantivo", "particula"]
+    );
+    s.eq(
+        "adjectival/adverbial functions remain routes, not formal classes",
+        Object.keys(ctx.FUNCTION_TENSE_MODE || {}),
+        ["adjetivo", "adverbio"]
+    );
     s.eq("european mode scaffold remains available", ctx.TENSE_MODE_SYSTEM.european, "european");
     s.eq(
         "Andrews syntactical/formal class mode-system aliases are available",
@@ -609,12 +619,12 @@ function run(ctx) {
     s.eq(
         "future nawat route stays inside nawat verb convention",
         ctx.formatNawatRouteNawatTargetLabel(tiPreteritRoute, false),
-        "Nawat: Verbo > pretérito perfecto simple"
+        "Nawat: CNV > pretérito perfecto simple"
     );
     s.eq(
         "future nawat route foregrounds noun to verb conversion",
         ctx.formatNawatRouteConversionLabel(tiPreteritRoute, false),
-        "Sustantivo -> Verbo"
+        "CNN -> CNV"
     );
     s.no(
         "future nawat breadcrumb target does not point to european convention",
@@ -653,7 +663,7 @@ function run(ctx) {
     s.eq(
         "future nawat route exposes source breadcrumb stop",
         ctx.formatNawatRouteNawatOriginLabel(tiPreteritRoute, false),
-        "Nawat: Verbo > presente"
+        "Nawat: CNV > presente"
     );
     const tiRouteStations = ctx.getNawatRouteStationModels("denominal-vi-ti-preterit", {
         sourceVerb: "(pusuni)",
@@ -11480,6 +11490,29 @@ function run(ctx) {
     );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
     s.eq("direct active preterit route resolves route tense", directPreteritRoute.routeTenseValue, "adjetivo-preterito");
+    s.eq(
+        "function-named route profiles are rerouted to Andrews formal owners",
+        ctx.getNawatRouteProfiles()
+            .filter((profile) => profile.routeTenseValue)
+            .map((profile) => ({
+                id: profile.id,
+                routeMode: profile.routeMode || "",
+                targetMode: profile.targetMode || "",
+                sourceMode: profile.sourceMode || "",
+                routeFunctionMode: profile.routeFunctionMode || "",
+            }))
+            .filter((profile) => (
+                profile.routeMode === "adjetivo"
+                || profile.routeMode === "adverbio"
+                || profile.targetMode === "adjetivo"
+                || profile.targetMode === "adverbio"
+                || profile.sourceMode === "adjetivo"
+                || profile.sourceMode === "adverbio"
+                || (profile.id === "direct-active-preterit" && (profile.routeMode !== "verbo" || profile.routeFunctionMode !== "adjetivo"))
+                || (profile.id === "patientivo-nonactive-ti" && (profile.routeMode !== "sustantivo" || profile.routeFunctionMode !== "adjetivo"))
+            )),
+        []
+    );
     s.ok(
         "all future nawat routes expose spanish-side route labels",
         ctx.getNawatRouteProfiles().every((profile) => ctx.formatNawatRouteProfileLabel(profile, false))
@@ -11506,7 +11539,7 @@ function run(ctx) {
     s.eq(
         "direct active preterit route is verb to verb",
         ctx.formatNawatRouteConversionLabel(directPreteritRoute, false),
-        "Verbo -> Verbo"
+        "CNV -> CNV"
     );
     const directPreteritTarget = ctx.resolveNawatRouteTarget(directPreteritRoute, { sourceVerb: "(pusuni)" });
     const directPreteritStations = ctx.getNawatRouteStationModels(directPreteritRoute, {
@@ -11558,7 +11591,7 @@ function run(ctx) {
     s.eq(
         "patientivo nonactive route is verb to noun",
         ctx.formatNawatRouteConversionLabel(patientivoNonactiveRoute, false),
-        "Verbo -> Sustantivo"
+        "CNV -> CNN"
     );
     s.eq(
         "patientivo nonactive route exposes branch and suffix stations",
@@ -11899,7 +11932,7 @@ function run(ctx) {
     s.eq(
         "nonactive habitual route is verb to verb",
         ctx.formatNawatRouteConversionLabel(nonactiveHabitualRoute, false),
-        "Verbo -> Verbo"
+        "CNV -> CNV"
     );
     s.eq(
         "nonactive habitual route exposes a nonactive switch station",
@@ -11954,12 +11987,43 @@ function run(ctx) {
     ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo);
     s.eq("unit mode click can render noun output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
     s.eq("unit mode click does not move function mode", ctx.getActiveFunctionMode(), ctx.TENSE_MODE.adjetivo);
+    ctx.setActiveFunctionMode(ctx.TENSE_MODE.adjetivo);
+    ctx.setSelectedTenseTab("adjetivo-preterito");
+    s.eq("adjectival direct finite route is visibly owned by CNV", {
+        mode: ctx.getActiveTenseMode(),
+        formalMode: ctx.getActiveNawatTenseModeForCurrentSelection(),
+        unitKind: ctx.getActiveUnitKind(),
+    }, {
+        mode: ctx.TENSE_MODE.verbo,
+        formalMode: ctx.NAWAT_TENSE_MODE.verbo || ctx.TENSE_MODE.verbo,
+        unitKind: "cnv",
+    });
+    ctx.setSelectedTenseTab("adjetivo-patientivo-no-activo");
+    s.eq("adjectival patientive route is visibly owned by CNN", {
+        mode: ctx.getActiveTenseMode(),
+        formalMode: ctx.getActiveNawatTenseModeForCurrentSelection(),
+        unitKind: ctx.getActiveUnitKind(),
+    }, {
+        mode: ctx.TENSE_MODE.sustantivo,
+        formalMode: ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo,
+        unitKind: "cnn",
+    });
+    ctx.setActiveFunctionMode(ctx.TENSE_MODE.adverbio);
+    s.eq("adverbial configured route is visibly owned by CNV", {
+        mode: ctx.getActiveTenseMode(),
+        formalMode: ctx.getActiveNawatTenseModeForCurrentSelection(),
+        unitKind: ctx.getActiveUnitKind(),
+    }, {
+        mode: ctx.TENSE_MODE.verbo,
+        formalMode: ctx.NAWAT_TENSE_MODE.verbo || ctx.TENSE_MODE.verbo,
+        unitKind: "cnv",
+    });
     ctx.setActiveFunctionMode(ctx.TENSE_MODE.verbo);
     s.eq("function mode click can render verb output", ctx.getActiveTenseMode(), ctx.TENSE_MODE.verbo);
     s.eq(
-        "function mode click does not move unit mode",
+        "function mode click reroutes the visible formal owner",
         ctx.getActiveNawatTenseModeForCurrentSelection(),
-        ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo
+        ctx.NAWAT_TENSE_MODE.verbo || ctx.TENSE_MODE.verbo
     );
     ctx.setActiveTenseMode(ctx.TENSE_MODE.sustantivo);
     ctx.setActiveNawatTenseMode(ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo, { syncOutput: false });
@@ -11967,9 +12031,9 @@ function run(ctx) {
     ctx.setActiveNawatRouteProfile("denominal-vt-na-preterit");
     s.eq("direct nawat route state is not marked as chip travel", ctx.getActiveNawatRouteProfile().activeRouteTravelSource, "");
     s.eq(
-        "embedded nawat route stays anchored in sustantivo mode",
+        "embedded nawat route resolves to its formal target owner",
         ctx.getActiveNawatTenseModeForCurrentSelection(),
-        ctx.NAWAT_TENSE_MODE.sustantivo || ctx.TENSE_MODE.sustantivo
+        ctx.NAWAT_TENSE_MODE.verbo || ctx.TENSE_MODE.verbo
     );
     ctx.getNawatRouteStateStore().activeLocativeMatrixSpecId = "tla-tem-o-a";
     ctx.clearActiveNawatRouteProfile();

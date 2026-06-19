@@ -7732,8 +7732,18 @@ function applyAdjectivalNncFunctionToVerbEntry({
     if (typeof clearActiveNawatRouteProfile === "function") {
         clearActiveNawatRouteProfile();
     }
-    if (typeof setActiveTenseMode === "function" && typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
-        setActiveTenseMode(TENSE_MODE.adjetivo, { clearRoute: true });
+    if (typeof TENSE_MODE !== "undefined" && TENSE_MODE?.adjetivo) {
+        const formalMode = entryContract.unitKind === "verbal-nuclear-clause"
+            ? TENSE_MODE.verbo
+            : TENSE_MODE.sustantivo;
+        if (typeof setActiveFunctionMode === "function") {
+            setActiveFunctionMode(TENSE_MODE.adjetivo, { syncOutput: false });
+        }
+        if (typeof setActiveUnitMode === "function") {
+            setActiveUnitMode(formalMode);
+        } else if (typeof setActiveTenseMode === "function") {
+            setActiveTenseMode(formalMode, { clearRoute: true });
+        }
     }
     if (typeof dispatchAppEvent === "function") {
         dispatchAppEvent("nawat:adjectival-nnc-function-applied", {
@@ -9741,6 +9751,15 @@ function getVerbSemanticTenseGroupKey(tenseValue = "") {
     if (!tense) {
         return "past";
     }
+    if (
+        typeof ACTIVE_ADJECTIVE_TENSE_SET !== "undefined"
+        && ACTIVE_ADJECTIVE_TENSE_SET.has(tense)
+    ) {
+        return "adjectival";
+    }
+    if (tense === "pasado-remoto-adverbio-activo") {
+        return "adverbial";
+    }
     if (tense === "optativo") {
         return "optative";
     }
@@ -9755,10 +9774,42 @@ function getVerbSemanticTenseGroupKey(tenseValue = "") {
 
 function getVerbSemanticTenseGroups(visibleTenses = []) {
     const groups = [
-        { key: "optative", heading: { labelEs: "optativo", labelNa: "optativo" }, tenses: [] },
-        { key: "present", heading: { labelEs: "presente", labelNa: "presente" }, tenses: [] },
-        { key: "past", heading: { labelEs: "pasado", labelNa: "pasado" }, tenses: [] },
-        { key: "future", heading: { labelEs: "futuro", labelNa: "futuro" }, tenses: [] },
+        {
+            key: "optative",
+            heading: { labelEs: "CNV optativa", labelNa: "CNV optativa" },
+            hoverTitle: { labelEs: "Andrews Lecciones 5 y 9: modo optativo de la cláusula nuclear verbal.", labelNa: "Andrews Lecciones 5 y 9: modo optativo de la cláusula nuclear verbal." },
+            tenses: [],
+        },
+        {
+            key: "present",
+            heading: { labelEs: "CNV indicativa · imperfectivo no pasado", labelNa: "CNV indicativa · imperfectivo no pasado" },
+            hoverTitle: { labelEs: "Andrews Lecciones 5 y 7: tiempos indicativos sobre tronco imperfectivo.", labelNa: "Andrews Lecciones 5 y 7: tiempos indicativos sobre tronco imperfectivo." },
+            tenses: [],
+        },
+        {
+            key: "past",
+            heading: { labelEs: "CNV indicativa · pasado", labelNa: "CNV indicativa · pasado" },
+            hoverTitle: { labelEs: "Andrews Lecciones 5 y 7: imperfecto, pretérito y pasado remoto según tronco y ranura tiempo.", labelNa: "Andrews Lecciones 5 y 7: imperfecto, pretérito y pasado remoto según tronco y ranura tiempo." },
+            tenses: [],
+        },
+        {
+            key: "future",
+            heading: { labelEs: "CNV indicativa · proyectivo", labelNa: "CNV indicativa · proyectivo" },
+            hoverTitle: { labelEs: "Andrews Lecciones 5 y 7: futuro indicativo; condicional es extensión Nawat en la misma ruta imperfectiva.", labelNa: "Andrews Lecciones 5 y 7: futuro indicativo; condicional es extensión Nawat en la misma ruta imperfectiva." },
+            tenses: [],
+        },
+        {
+            key: "adjectival",
+            heading: { labelEs: "CNV en función adjetival", labelNa: "CNV en función adjetival" },
+            hoverTitle: { labelEs: "Andrews: función adjetival sin crear una clase formal fuera de CNV/CNN.", labelNa: "Andrews: función adjetival sin crear una clase formal fuera de CNV/CNN." },
+            tenses: [],
+        },
+        {
+            key: "adverbial",
+            heading: { labelEs: "CNV en función adverbial", labelNa: "CNV en función adverbial" },
+            hoverTitle: { labelEs: "Andrews: función adverbial visible como ruta de CNV, no como clase formal adicional.", labelNa: "Andrews: función adverbial visible como ruta de CNV, no como clase formal adicional." },
+            tenses: [],
+        },
     ];
     const byKey = new Map(groups.map((group) => [group.key, group]));
     (Array.isArray(visibleTenses) ? visibleTenses : []).forEach((tenseValue) => {
@@ -9882,11 +9933,9 @@ function updateExistingTenseTabsDom({
     mainWrap.setAttribute("role", "tablist");
     mainWrap.setAttribute(
         "aria-label",
-        getLocalizedLabel(
-            { labelEs: "Tiempos principales", labelNa: "Tiempos principales" },
-            isNawat,
-            "Tiempos principales"
-        )
+        typeof getAndrewsFirstTenseTabsAriaLabel === "function"
+            ? getAndrewsFirstTenseTabsAriaLabel(getActiveTenseMode())
+            : "Ranura tiempo/modo de la CNV"
     );
     const mainButtons = Array.from(
         mainWrap.querySelectorAll(".tense-tab[data-tense-group=\"main\"][data-tense-value]")
@@ -9936,6 +9985,9 @@ function updateExistingTenseTabsDom({
         button.classList.toggle("is-empty", hasOutput === false || isBlockedNominalTense);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
+        if (typeof getAndrewsFirstTenseHoverTitle === "function") {
+            button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
+        }
         if (isNominalMode) {
             setTensePresenceBadges(button, {
                 active: activePresence,
@@ -9952,6 +10004,12 @@ function updateExistingTenseTabsDom({
     if (!universalWrap) {
         return false;
     }
+    universalWrap.setAttribute(
+        "aria-label",
+        typeof getAndrewsFirstUniversalTabsAriaLabel === "function"
+            ? getAndrewsFirstUniversalTabsAriaLabel()
+            : "Clases de tronco perfectivo"
+    );
     const universalButtons = Array.from(
         universalWrap.querySelectorAll(".tense-tab[data-tense-group=\"universal\"][data-tense-value]")
     );
@@ -9987,6 +10045,9 @@ function updateExistingTenseTabsDom({
         button.classList.toggle("is-empty", hasOutput === false);
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isUniversalActive || isClassActive));
+        if (typeof getAndrewsFirstTenseHoverTitle === "function") {
+            button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
+        }
         button.disabled = endsWithConsonant || !available || hasOutput === false;
     });
     return true;
@@ -11436,22 +11497,6 @@ var ALT_SHORTCUT_DEFINITIONS = Object.freeze([
         selector: "[data-tense-mode=\"sustantivo\"]",
         legendDescription: "sustantivo",
         fallbackDescription: "sustantivo",
-    },
-    {
-        id: "mode-adjective",
-        key: "j",
-        label: "⌥/Alt + J",
-        selector: "[data-tense-mode=\"adjetivo\"]",
-        legendDescription: "adjetivo",
-        fallbackDescription: "adjetivo",
-    },
-    {
-        id: "mode-adverb",
-        key: "b",
-        label: "⌥/Alt + B",
-        selector: "[data-tense-mode=\"adverbio\"]",
-        legendDescription: "adverbio",
-        fallbackDescription: "adverbio",
     },
     {
         id: "voice-active",

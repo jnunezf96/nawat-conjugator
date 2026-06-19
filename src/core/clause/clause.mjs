@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/clause/clause.js.
 
-export function createClauseModule(targetObject = globalThis) {
+export function createClauseRuntime(targetObject = globalThis) {
     const NUCLEAR_CLAUSE_SHELL_VERSION = 1;
     const NUCLEAR_CLAUSE_KIND = Object.freeze({
       verbal: "verbal-nuclear-clause",
@@ -225,6 +225,11117 @@ export function createClauseModule(targetObject = globalThis) {
         role: "nuclear-clause"
       })])
     });
+    const ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS = Object.freeze([Object.freeze({
+      id: "cnv-predicate-to-cnn-nounstem-nominalization",
+      pdfSearchTerm: "Nominalization of VNCs",
+      andrewsRefs: Object.freeze(["Andrews Lessons 35-36"]),
+      sourceUnit: "CNV predicate",
+      targetUnit: "CNN nounstem",
+      routeKind: "nominalized-vnc",
+      transition: "CNV predicate -> CNN nounstem",
+      directiveEs: "Una salida predicativa de CNV puede reanalizarse como tronco nominal de CNN solo por las rutas de nominalización que Andrews autoriza.",
+      implementationProbe: "buildLesson36NominalizedVncPursuitFrame",
+      requiredBoundary: "No tratar toda salida CNV como CNN; la ruta debe conservar fuente, conector nominal y estado de evidencia."
+    }), Object.freeze({
+      id: "cnv-core-to-cnn-nounstem-deverbal",
+      pdfSearchTerm: "deverbal nounstem",
+      andrewsRefs: Object.freeze(["Andrews Lesson 37.1", "Andrews Lessons 37-39"]),
+      sourceUnit: "CNV core",
+      targetUnit: "CNN nounstem",
+      routeKind: "deverbal-nounstem",
+      transition: "CNV core -> CNN nounstem",
+      directiveEs: "El tronco nominal deverbal deriva del núcleo de la CNV, no del predicado CNV completo ni de un reetiquetado de constituyentes.",
+      implementationProbe: "buildLesson37DeverbalNounstemPursuitFrame",
+      requiredBoundary: "No confundir deverbalización con nominalización funcional de Lessons 35-36."
+    }), Object.freeze({
+      id: "cnn-nounstem-to-cnv-verbstem-denominal",
+      pdfSearchTerm: "denominal verbstem",
+      andrewsRefs: Object.freeze(["Andrews Lesson 54.1", "Andrews Lessons 54-55"]),
+      sourceUnit: "CNN nounstem",
+      targetUnit: "CNV verbstem",
+      routeKind: "denominal-verbstem",
+      transition: "CNN nounstem -> CNV verbstem",
+      directiveEs: "Un tronco nominal puede alimentar un tronco verbal denominal por sufijos verbales autorizados por Andrews, con compuertas de fuente y ortografía Nawat/Pipil.",
+      implementationProbe: "getNawatDenominalAndrewsContractInventory",
+      requiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente, objeto, tiempo o evidencia Nawat/Pipil."
+    }), Object.freeze({
+      id: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      pdfSearchTerm: "deverbal verbstem",
+      andrewsRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 54.2.3.b note"]),
+      sourceUnit: "CNV verbstem",
+      targetUnit: "CNV verbstem",
+      routeKind: "deverbal-verbstem",
+      transition: "CNV verbstem -> CNV verbstem",
+      directiveEs: "El ya de 54.2.3.b forma troncos verbales deverbales desde troncos ti/hui y puede alimentar continuaciones causativas con ya borrado antes de lia.",
+      implementationProbe: "generateNawatDenominalAndrewsContractRoutePreview",
+      requiredBoundary: "No tratar ti-ya/hui-ya como sufijos directos de cualquier sustantivo; requieren la fuente verbal previa indicada por Andrews."
+    }), Object.freeze({
+      id: "cnv-to-cnn-to-cnv-loop",
+      pdfSearchTerm: "denominal verbstems derived from the deverbal nounstems",
+      andrewsRefs: Object.freeze(["Andrews 40.10", "Andrews 40.11"]),
+      sourceUnit: "CNN deverbal nounstem",
+      targetUnit: "CNV denominal verbstem",
+      routeKind: "deverbal-nounstem-denominal-loop",
+      transition: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
+      directiveEs: "Algunos troncos deverbales nominales vuelven a alimentar troncos verbales denominales; la ruta debe conservar los dos saltos y no aplanarlos.",
+      implementationProbe: "buildLesson41AdjectivalNncPursuitFrame",
+      requiredBoundary: "No perder la fuente deverbal al presentar la salida adjetival o denominal posterior."
+    }), Object.freeze({
+      id: "cnn-to-cnv-to-cnn-active-action-loop",
+      pdfSearchTerm: "deverbal nounstem formed from denominal verbstem",
+      andrewsRefs: Object.freeze(["Andrews 37.3.4", "Andrews 37.5", "Andrews 54.2.3"]),
+      sourceUnit: "CNN nounstem or root-ranked noun source",
+      targetUnit: "CNN active-action nounstem",
+      routeKind: "cnn-cnv-cnn-active-action-loop",
+      transition: "CNN nounstem -> CNV denominal/deverbal verbstem -> CNN active-action nounstem",
+      directiveEs: "Un tronco denominal o deverbal terminado en ya puede alimentar un nominal de acción activa en liz; la ruta debe conservar el tronco verbal intermedio y el borrado o conservación de ya.",
+      implementationProbe: "buildLesson37DeverbalNounstemPursuitFrame",
+      requiredBoundary: "No presentar liz como derivación directa de la CNN fuente si Andrews exige un tronco CNV intermedio."
+    }), Object.freeze({
+      id: "cnn-to-cnv-to-cnv-deverbal-chain",
+      pdfSearchTerm: "deverbal verbstem from denominal verbstem",
+      andrewsRefs: Object.freeze(["Andrews 54.2.3.b"]),
+      sourceUnit: "CNN nounstem through ti/hui denominal verbstem",
+      targetUnit: "CNV deverbal verbstem",
+      routeKind: "denominal-verbstem-deverbal-chain",
+      transition: "CNN nounstem -> CNV denominal verbstem -> CNV deverbal verbstem",
+      directiveEs: "El ya deverbal puede apoyarse en un tronco denominal ti/hui previo; ese paso intermedio debe quedar visible como fuente, no borrado por la etiqueta deverbal.",
+      implementationProbe: "generateNawatDenominalAndrewsContractRoutePreview",
+      requiredBoundary: "No saltar directamente de CNN a ya deverbal; conservar CNN -> CNV denominal -> CNV deverbal."
+    })]);
+    const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([Object.freeze({
+      id: "nominalized-vnc-preterit-agentive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.1", "Andrews 35.2", "Andrews 35.3", "Andrews 35.4", "Andrews 35.5", "Andrews 35.6"]),
+      pdfPages: Object.freeze([331, 334, 335, 336, 337, 338, 339, 340]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo preterito nominaliza predicados CNV bajo restricciones de estado, uso restringido/general y posicion de numero; no es una CNN ordinaria ni un deverbal de nucleo.",
+      requiredProbe: "Conservar fuente predicativa CNV, estado CNN resultante, tipo de uso y posicion de numero antes de ofrecer continuaciones."
+    }), Object.freeze({
+      id: "numeral-counting-preterit-agentive-classifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.13", "Andrews 35.2"]),
+      pdfPages: Object.freeze([331]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un preterito-agentivo como tlamic puede funcionar dentro de conteos por veintenas junto a clasificadores; esa funcion numeral no borra su fuente de CNN agentiva.",
+      requiredProbe: "No tratar el contador como numeral simple ni como clasificador autonomo; conservar la CNN agentiva fuente, la matriz de conteo y la funcion clasificadora separadas."
+    }), Object.freeze({
+      id: "numeral-macuil-passive-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.5", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([324]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El numeral ma-cu-i-l-li 'cinco' es un compound nounstem derivado como patientivo pasivo desde el aplicativo tla-(ma-cu-ia), no un numeral atomico sin historia verbal.",
+      requiredProbe: "No tratar macuil como raiz numeral plana; conservar fuente aplicativa, patientivo pasivo, compound nounstem y funcion cardinal antes de reutilizarlo."
+    }), Object.freeze({
+      id: "nominalization-functional-vs-structural-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.1", "Andrews 19.1"]),
+      pdfPages: Object.freeze([334]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews separa la nominalizacion funcional por suplementacion de la nominalizacion estructural: la primera usa una CNV en funcion NNC, la segunda convierte estructura CNV en estructura CNN.",
+      requiredProbe: "No tratar toda suplementacion VNC o funcion adjetival/adverbial como conversion de nounstem; exigir formula CNN resultante antes de permitir continuaciones CNN."
+    }), Object.freeze({
+      id: "nominalized-vnc-eight-kind-route-split-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.1", "Andrews Lesson 36"]),
+      pdfPages: Object.freeze([334]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews anuncia ocho clases de CNV nominalizadas: la agentiva preterita es solo una, y las otras siete quedan para Lesson 36.",
+      requiredProbe: "No usar una ruta nominalizada unica; exigir familia Andrews antes de asignar fuente, estado, numero, poseedor o continuacion."
+    }), Object.freeze({
+      id: "preterit-agentive-reanalysis-no-surface-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.1", "Andrews 35.3", "Andrews 4.5"]),
+      pdfPages: Object.freeze([334, 335]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo preterito absolutivo puede ser fonologicamente identico a la CNV preterita fuente; la diferencia es reanalisis morfosintactico de predicado CNV a tronco CNN, no superficie nueva.",
+      requiredProbe: "No aceptar una salida por igualdad superficial; comparar formula CNV fuente, formula CNN resultante, ausencia de particula antecesiva y slots no representados."
+    }), Object.freeze({
+      id: "preterit-agentive-antecessive-particle-exclusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews Lesson 3", "Andrews 4.5"]),
+      pdfPages: Object.freeze([335]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La particula de orden antecesivo puede distinguir fonologicamente una CNV fuente, pero no entra en la CNN agentiva preterita resultante.",
+      requiredProbe: "No copiar particulas de orden desde la CNV al tronco CNN; comparar forma con particula, formula CNN sin particula y limite de slots no representados."
+    }), Object.freeze({
+      id: "preterit-agentive-punctual-vs-customary-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.2", "Andrews 36.1"]),
+      pdfPages: Object.freeze([334]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo preterito puede nombrar a quien realizo una accion una vez, mientras el agentivo habitual contrasta por repeticion o costumbre; la traduccion 'agentivo' no decide la ruta.",
+      requiredProbe: "No escoger por glosa espanola o inglesa; registrar si la fuente es predicado preterito o habitual-presente y que semantica de evento/habito esta licenciada."
+    }), Object.freeze({
+      id: "preterit-agentive-english-agentive-analogy-trap",
+      sourceRefs: Object.freeze(["Andrews 35.2"]),
+      pdfPages: Object.freeze([334]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews compara la logica del agentivo preterito con agentivos ingleses como killer, pero advierte que la mecanica de transformacion nahua es completamente distinta.",
+      requiredProbe: "No derivar la CNN por traduccion inglesa ni por sufijo agentivo abstracto; exigir reanalisis de predicado CNV preterito, diada de numero CNN y tallo restringido/general."
+    }), Object.freeze({
+      id: "preterit-agentive-internal-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3"]),
+      pdfPages: Object.freeze([334]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En la conversion agentiva preterita, los proyectivos te/tla y los reflexivos n-o/t-o/m-o quedan dentro del tronco CNN resultante, aunque el reflexivo siga respondiendo a persona-numero del sujeto.",
+      requiredProbe: "No renderizar valencias de fuente como objetos CNV externos despues de nominalizar; comprobar que val1-val2 internos pertenecen al nounstem."
+    }), Object.freeze({
+      id: "preterit-agentive-zero-morph-slot-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 4.5"]),
+      pdfPages: Object.freeze([334, 335]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El morfema preterito 0 es siempre el constituyente final del nounstem restringido; las posiciones de valencia intransitiva y estado absolutivo no se representan en estas formulas.",
+      requiredProbe: "No borrar el 0 porque no suena ni inventar slots visibles de valencia/estado; mantener el 0 dentro del tronco CNN y dejar sin representar los slots que Andrews omite."
+    }), Object.freeze({
+      id: "preterit-agentive-restricted-absolutive-state-only-gate",
+      sourceRefs: Object.freeze(["Andrews 35.2", "Andrews 35.3", "Andrews 35.5"]),
+      pdfPages: Object.freeze([334, 339]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El tallo agentivo preterito restringido es el predicado preterito reanalizado y se usa en CNN absolutivas; el tallo general compuesto se usa en todos los demas entornos.",
+      requiredProbe: "No usar la forma restringida en posesivo, adverbializado o embed; exigir tallo general ca salvo el absolutivo restringido o rareza que-tl."
+    }), Object.freeze({
+      id: "preterit-agentive-class-stem-affinity-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 36.1", "Andrews 14.3", "Andrews 14.5.2"]),
+      pdfPages: Object.freeze([335, 336]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La conversion agentiva preterita depende de clase y forma de tronco: algunos monomorfemicos Clase A prefieren agentivo habitual, mientras ciertos plurales usan tallo de afinidad obligatorio u opcional.",
+      requiredProbe: "No convertir todo preterito visible por plantilla unica; registrar clase verbal, monomorfemia, alternativa habitual y tallo de afinidad plural."
+    }), Object.freeze({
+      id: "preterit-agentive-monomorphemic-class-a-customary-fallback",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 36.1"]),
+      pdfPages: Object.freeze([335]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los troncos intransitivos monomorfemicos de Clase A tienden a evitar la reanalisis agentiva preterita y a usar el agentivo presente habitual.",
+      requiredProbe: "Antes de formar agentivo preterito, comprobar clase A monomorfemica y redirigir o diagnosticar la preferencia habitual presente."
+    }), Object.freeze({
+      id: "preterit-agentive-class-a-dimorphemic-vs-bd-monomorphemic-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 36.1"]),
+      pdfPages: Object.freeze([335, 336]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews contrasta Clase A monomorfemica, que tiende al agentivo habitual, con Clase A dimorfemica y Clases B/D monomorfemicas que si se convierten facilmente en agentivos preteritos.",
+      requiredProbe: "No decidir solo por clase verbal; registrar monomorfemia/dimorfemia, Clase A/B/D y preferencia habitual o conversion preterita antes de formar CNN."
+    }), Object.freeze({
+      id: "preterit-agentive-single-object-four-class-spectrum-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3"]),
+      pdfPages: Object.freeze([336]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos preteritos de fuentes de un objeto aparecen en las cuatro clases verbales y conservan proyectivos, reflexivos o fusiones internas como tla con reduplicacion.",
+      requiredProbe: "No aplicar una plantilla transitiva unica; conservar clase fuente, objeto te/tla/t-o, fusion o reduplicacion y preterito 0 dentro del nounstem."
+    }), Object.freeze({
+      id: "preterit-agentive-affinity-plural-obligatory-optional-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 14.3", "Andrews 14.5.2"]),
+      pdfPages: Object.freeze([336]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Ciertos agentivos preteritos absolutivos usan tallo de afinidad en plural, obligatorio en unos lexemas y opcional en otros.",
+      requiredProbe: "No pluralizar solo por qu-eh; registrar si el plural exige, permite o bloquea afinidad, y contrastar micqui/mimicqueh, tlattac/tlatlattaqueh y tlahtohqui/tlatlahtohqueh."
+    }), Object.freeze({
+      id: "preterit-agentive-passive-patientive-compound-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3 note 2", "Andrews 35.3 note 3", "Andrews 37.2"]),
+      pdfPages: Object.freeze([337]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La forma agentiva preterita puede venir de fuente pasiva patientiva rara o de tronco compuesto con adverbio u objeto incorporado; la etiqueta agentiva no basta para conocer la fuente.",
+      requiredProbe: "Conservar voz pasiva/patientiva, adverbio incorporado u objeto incorporado y matriz verbal antes de clasificar la CNN agentiva."
+    }), Object.freeze({
+      id: "preterit-patientive-vs-active-agentive-counterpart-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3 note 2"]),
+      pdfPages: Object.freeze([337]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un preterito-patientivo puede venir de una CNV pasiva y coexistir con un agentivo preterito activo de la misma familia lexical.",
+      requiredProbe: "No fusionar nitlahueliloc con el agentivo activo te-tlahu-el-i-h-0-qui; registrar voz fuente, paciente frente a agente y tronco resultante separado."
+    }), Object.freeze({
+      id: "preterit-agentive-incorporated-object-compound-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3 note 3", "Andrews 37.2"]),
+      pdfPages: Object.freeze([337]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un agentivo preterito puede formarse sobre una fuente compuesta con objeto incorporado o adverbio incorporado, como hue-tz-qui-z dentro de tla-tom-a o teo dentro de te-piya.",
+      requiredProbe: "No convertir el embed incorporado en objeto externo; conservar embed, matriz, fuente nominal/deverbal y reanalisis agentivo preterito."
+    }), Object.freeze({
+      id: "preterit-agentive-number-dyad-animacy-hybrid-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.4", "Andrews 35.9", "Andrews 37.9.1", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([337, 338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "qui-0 y 0-0 en el numero de agentivos preteritos pueden alternar, distinguir animado/no animado, crear homonimos con CNN posesivas, o permitir que un objeto inespecifico escape como objeto especifico en un hibrido verbal-nominal.",
+      requiredProbe: "No normalizar qui-0/0-0 ni resolver por superficie; registrar significado animado/no animado, homonimia posesiva y posible objeto suplementario externo."
+    }), Object.freeze({
+      id: "preterit-agentive-number-dyad-lexical-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.4"]),
+      pdfPages: Object.freeze([337, 338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En agentivos preteritos de Clases B/C/D, qui-0 suele llenar el numero singular/comun, pero algunos lexemas usan 0-0, otros solo qui-0, y otros permiten ambos.",
+      requiredProbe: "No elegir qui-0 o 0-0 por clase verbal solamente; registrar seleccion lexica, alternativa permitida y si una forma es la comun."
+    }), Object.freeze({
+      id: "preterit-agentive-possessive-homonym-paradigm-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.4", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una superficie como tenamic puede ser agentivo preterito o CNN posesiva de namic-tli; sus plurales separan las rutas con qu-eh frente a hu-an.",
+      requiredProbe: "No resolver el homonimo por singular visible; comparar formula agentiva, formula posesiva, plural qu-eh, plural hu-an y fuente nounstem."
+    }), Object.freeze({
+      id: "preterit-agentive-animacy-tendency-not-rule-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.4"]),
+      pdfPages: Object.freeze([338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El 0-0 de numero en agentivos preteritos tiende a sujeto no animado, pero Andrews advierte que no es regla y muchas formas 0-0 permiten lectura animada o no animada.",
+      requiredProbe: "No bloquear lectura animada por 0-0 ni forzar qui-0 para toda entidad animada; registrar tendencia, excepcion y tipo de sujeto permitido."
+    }), Object.freeze({
+      id: "preterit-agentive-qui-zero-animacy-meaning-split",
+      sourceRefs: Object.freeze(["Andrews 35.4"]),
+      pdfPages: Object.freeze([338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando qui-0 y 0-0 son alternativas en el singular/comun agentivo preterito, qui-0 tiende a nombrar un ser animado y 0-0 puede nombrar una cosa, medio o agencia.",
+      requiredProbe: "No colapsar qui-0 y 0-0 en una sola salida; mostrar la diada elegida, el tipo de sujeto permitido y la lectura animada/no animada como diagnostico."
+    }), Object.freeze({
+      id: "preterit-agentive-activated-projective-object-escape",
+      sourceRefs: Object.freeze(["Andrews 35.4 note", "Andrews 35.7.2 note"]),
+      pdfPages: Object.freeze([338]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un proyectivo inespecifico dentro del nounstem agentivo preterito puede activarse, salir del tronco y volverse objeto especifico suplementario en una CNN hibrida verbal-nominal.",
+      requiredProbe: "No validar la valencia solo por el interior del tallo; registrar proyectivo fuente, objeto especifico externo y condicion hibrida antes de generar o bloquear."
+    }), Object.freeze({
+      id: "preterit-as-present-ac-frozen-pronoun-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.3", "Andrews 11.4.4", "Andrews 16.4.4"]),
+      pdfPages: Object.freeze([336, 337]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "ac/ayac es una CNN agentiva de preterito-como-presente congelada en tercera singular y traducida como pronombre interrogativo o negativo.",
+      requiredProbe: "No tratar ac como particula libre ni generar paradigma personal; conservar formula CNN, congelamiento de persona/numero y valor interrogativo diagnosticado."
+    }), Object.freeze({
+      id: "general-use-preterit-agentive-ca-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.5", "Andrews 14.7.2", "Andrews 2.2"]),
+      pdfPages: Object.freeze([339]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El tallo agentivo preterito de uso general no es la forma restringida: es un compuesto con el predicado preterito como embed y (ca)-tl como matriz, con 0 preterito inmediatamente antes de ca.",
+      requiredProbe: "No usar la forma absolutiva restringida fuera de su contexto; exigir matriz ca, posicion del 0 preterito, ne shuntline si la fuente es reflexiva y rareza de que-tl absolutivo."
+    }), Object.freeze({
+      id: "general-use-que-archaic-absolutive-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.5", "Andrews 2.2"]),
+      pdfPages: Object.freeze([339]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La forma general de agentivo preterito puede aparecer raramente en absolutivo con matriz (que)-tl en textos arcaicos o poeticos, pero no reemplaza la matriz normal (ca)-tl.",
+      requiredProbe: "No promover (que)-tl a plantilla general; marcar rareza, entorno textual y contraste con la matriz ca de uso general."
+    }), Object.freeze({
+      id: "general-use-que-archaic-mainline-reflexive-exception",
+      sourceRefs: Object.freeze(["Andrews 35.5"]),
+      pdfPages: Object.freeze([339]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La rara matriz absolutiva arcaica (que)-tl puede mostrar uso inesperado del reflexivo mainline en el nounstem derivado, contra la expectativa shuntline ne del uso general.",
+      requiredProbe: "No corregir automaticamente m-o a ne en que-tl arcaico; marcar excepcion, matriz que, reflexivo mainline y entorno poetico/arcaico."
+    }), Object.freeze({
+      id: "possessive-state-preterit-agentive-number-and-lexicalized-possessor-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.6", "Andrews 15.1", "Andrews 15.1.5"]),
+      pdfPages: Object.freeze([339, 340]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El estado posesivo de un agentivo preterito usa el tallo de uso general Subclase 1-A con numero uh-0 o hu-an, y puede tener irregularidades de matriz yo o poseedor te lexicalizado como ti.",
+      requiredProbe: "No derivar el posesivo desde la forma restringida; conservar tallo ca, numero uh/hu-an, irregularidad yo y te > ti antes de permitir posesion secundaria."
+    }), Object.freeze({
+      id: "nominalized-vnc-embed-ownerhood-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.7", "Andrews 35.8", "Andrews 35.9", "Andrews 35.10", "Andrews 35.11", "Andrews 35.12", "Andrews 35.13", "Andrews 35.14"]),
+      pdfPages: Object.freeze([341, 342, 343, 344, 346, 347, 348, 350, 352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos preteritos pueden incrustarse en compuestos, nombres de edad, matrices de posesion/abundancia, vocativos y NNC de doble nucleo; cada continuacion conserva una relacion de fuente distinta.",
+      requiredProbe: "No enrutar todos los agentivos preteritos a una sola continuacion; exigir matriz o funcion Andrews especifica."
+    }), Object.freeze({
+      id: "preterit-agentive-compound-affective-embed-hybrid-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.7", "Andrews 35.4", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([340, 341]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El tallo agentivo preterito de uso general puede ser embed en compuestos NNC, VNC y afectivos; tambien puede mostrar hibridos donde un objeto escapa del nounstem.",
+      requiredProbe: "No tratar compuestos o afectivos como nuevas clases; conservar embed agentivo, matriz compuesta, posible reflexivo inesperado y objeto suplementario externo."
+    }), Object.freeze({
+      id: "compound-affective-hybrid-supplementary-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.7", "Andrews 35.4"]),
+      pdfPages: Object.freeze([341]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En compound-affective preterit-agentive NNCs, un objeto inespecifico interno puede escapar y reaparecer como objeto suplementario, como Tleh en ticmatcatzintli.",
+      requiredProbe: "No leer Tleh como modificador libre ni como objeto de una CNV externa; registrar objeto suplementario, fuente tla-mat-0-qui, matriz afectiva tzin y valor hibrido verbal-nominal."
+    }), Object.freeze({
+      id: "old-person-preterit-agentive-vs-lexical-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.8", "Andrews 11.3.2", "Andrews 2.3.3", "Andrews 39.3", "Andrews 40.2.1", "Andrews 46.9"]),
+      pdfPages: Object.freeze([341, 342, 343]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las expresiones de viejo/vieja usan agentivos preteritos de fuentes ti denominales, pero el embed glotalizado (hue-hueh-) de 'old man' no es el mismo nounstem que el agentivo preterito homofono.",
+      requiredProbe: "Distinguir fuente ilama-ti/hue-hue-ti, tallo general ca, matriz -yo, embed lexical glotalizado y agentivo preterito antes de componer o traducir."
+    }), Object.freeze({
+      id: "huehue-drum-simple-stem-vs-old-man-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.8", "Andrews 40.2.1"]),
+      pdfPages: Object.freeze([343]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El simple-stem (hue-hue)-tl se usa como NNC simple solo con sentido metaforico de tambor vertical; el sentido basico 'old man' aparece como embed glotalizado hue-hueh-.",
+      requiredProbe: "No generar 'old man' desde la CNN simple huehue-tl ni convertir el tambor en agentivo; distinguir simple NNC metaforica, embed glotalizado y fuente agentiva."
+    }), Object.freeze({
+      id: "huehueh-embed-vs-preterit-agentive-homophone-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.8"]),
+      pdfPages: Object.freeze([343]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El embed hue-hueh- es homofono del nounstem agentivo preterito hue-hue-h-0, pero Andrews separa morfologia y distribucion.",
+      requiredProbe: "No resolver por superficie huehueh; comprobar si la forma ocupa embed lexical o CNN agentiva preterita y exponer los constituyentes h/0 cuando sea agentivo."
+    }), Object.freeze({
+      id: "huehueh-teotl-double-vs-single-nucleus-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.8", "Andrews Lesson 42"]),
+      pdfPages: Object.freeze([343]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "huehueh teotl es doble nucleo con una CNN agentiva preterita que funciona como cabeza o modificador, mientras huehuehteotl es una CNN de nucleo simple con hue-hueh- como embed.",
+      requiredProbe: "No unir o separar por espacios solamente; registrar doble nucleo frente a compuesto de nucleo simple, funcion head/modifier y tipo de fuente interna."
+    }), Object.freeze({
+      id: "old-person-huehuen-ton-flawed-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.8", "Andrews 32.8"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El tallo variante hue-hue-n se usa en el compuesto afectivo hue-hue-n-ton con filler silencioso en num1 para expresar desden; no es la misma distribucion que hue-hueh agentivo ni hue-hue metaforico.",
+      requiredProbe: "No normalizar huehuen, huehueh y huehue como un solo stem; conservar variante n, matriz afectiva ton, filler silencioso num1 y diagnostico de actitud antes de cualquier continuacion CNN."
+    }), Object.freeze({
+      id: "ownerhood-agentive-e-hua-preterit-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 26.3", "Andrews 26.9", "Andrews 28.5", "Andrews 58.1"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos preteritos de posesion usan matrices verbales *tla-e o *tla-hua sin CNV ordinaria independiente; solo sobreviven en compuestos de objeto incorporado, connective-t y fuente agentiva preterita.",
+      requiredProbe: "No convertir e/hua de posesion en sufijo nominal plano ni en verbo tener; registrar matriz verbal, eleccion e/hua, objeto incorporado y limite al preterito."
+    }), Object.freeze({
+      id: "ownerhood-agentive-singular-number-dyad-zero-default",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 35.4"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En agentivos preteritos de ownerhood, el numero del sujeto singular/comun normalmente usa 0-0 aunque qui-0 sea posible; la ruta de posesion no puede heredar sin mas el qui-0 visible de otros agentivos.",
+      requiredProbe: "Mostrar la diada singular/comun de ownerhood como 0-0 por defecto, conservar qui-0 solo como alternativa marcada y no meter esa eleccion dentro del nounstem."
+    }), Object.freeze({
+      id: "ownerhood-incorporated-object-general-use-shape-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En las matrices ownerhood *tla-e/*tla-hua, Andrews especifica que el nounstem incorporado aparece con forma de uso general, no como forma absolutiva, posesiva o cita suelta.",
+      requiredProbe: "No incorporar una superficie nominal visible sin reanalizar su tallo general; mostrar objeto incorporado general-use, matriz e/hua, numero de ownerhood y ruta agentiva preterita por separado."
+    }), Object.freeze({
+      id: "ownerhood-e-tli-class-exception-and-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 2.10"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-e incorpora muchos tli no terminados en w/glotal, pero pil va solo con *tla-hua y algunas fuentes como amox permiten variante e/hua; la clase no decide todo.",
+      requiredProbe: "No elegir matriz solo por clase tli; registrar excepcion pil, variantes amox, cambio ortografico y advertencia contra ll no generado."
+    }), Object.freeze({
+      id: "ownerhood-e-tli-final-w-glottal-exclusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9"]),
+      pdfPages: Object.freeze([345, 346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-e incorpora tli solo cuando la fuente no termina en w ni glotal; las fuentes con esos finales pertenecen a otra compuerta de matriz.",
+      requiredProbe: "No mandar todo tli a e por clase; comprobar final w/glotal, forma general del objeto incorporado y matriz e/hua antes de formar ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-pil-child-hua-only-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Aunque pil-li es tli, Andrews dice que 'child' se incorpora solo en la matriz *tla-hua, no en *tla-e.",
+      requiredProbe: "No derivar pil-eh-0 por clase tli; registrar excepcion pil-huah-0, matriz hua obligatoria y contraste con tli ordinarios."
+    }), Object.freeze({
+      id: "ownerhood-e-cemel-ll-spelling-trap-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 2.10"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews advierte que cem-el-eh-0 y sus compuestos negativos suelen escribirse con ll, pero esa escritura viola las reglas que generan ll.",
+      requiredProbe: "No aceptar ll tradicional como prueba de morfologia; conservar cem-el, posible embed ah-tlaca y matriz ownerhood e antes de adaptar ortografia."
+    }), Object.freeze({
+      id: "ownerhood-e-ti-subclass-glottalized-y-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 14.7.2", "Andrews 2.13.1", "Andrews 31.5"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En *tla-e, Subclase 2-B, 2-C y 2-A de ti tienen reglas distintas: stem general, omision de i de apoyo, o reemplazo frecuente de h final por y.",
+      requiredProbe: "No aplicar un solo recorte ti; registrar subclase, vocal de apoyo, forma glotalizada, cambio h/y y excepciones como axca."
+    }), Object.freeze({
+      id: "ownerhood-e-ti-subclass-2b-hua-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los ti Subclase 2-B incorporan en *tla-e desde su tallo general, pero algunos permiten variante *tla-hua como cax-eh-0/cax-huah-0.",
+      requiredProbe: "No fijar Subclase 2-B a una sola matriz; registrar tallo general, variante hua permitida o no permitida y evidencia lexica."
+    }), Object.freeze({
+      id: "ownerhood-e-ti-subclass-2a-h-to-y-not-universal-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 2.13.1", "Andrews 31.5"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En ti Subclase 2-A, el cambio de h final glotalizada a y es frecuente pero no universal, y hay formas alternativas como mi-eh-0 junto a may-eh-0.",
+      requiredProbe: "No aplicar h->y globalmente; registrar fuente glotalizada, variante conservada, cambio y y excepciones antes de ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-e-ti-subclass-2c-supportive-i-omission-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los ti de Subclase 2-C con vocal efimera despues de grupo consonantico omiten la i de apoyo al incorporarse en *tla-e, como max-tl-eh-0 y coz-qu-eh-0.",
+      requiredProbe: "No conservar la i de apoyo del tallo de uso general como si fuera raiz; registrar subclase 2-C, grupo consonantico y omision antes de formar ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-general-use-ca-uh-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 35.5"]),
+      pdfPages: Object.freeze([345]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo preterito de posesion tiene un tallo restringido de ownerhood y un tallo de uso general formado por la regla de 35.5, como chan-eh-0 frente a chan-eh-0-ca-uh.",
+      requiredProbe: "No usar la forma restringida e/hua en todos los contextos; registrar cuando la CNN de ownerhood necesita tallo general -0-ca-uh antes de posesivo, embed o continuacion."
+    }), Object.freeze({
+      id: "ownerhood-piya-postconquest-have-translation-mirage",
+      sourceRefs: Object.freeze(["Andrews 35.9"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews advierte que tla-(piya) sirvio despues de la conquista para traducir 'tener', pero la arquitectura nahua de ownerhood no parte de un verbo simple 'poseer'.",
+      requiredProbe: "No usar piya/tener como atajo para ownerhood; exigir matriz *tla-e/*tla-hua, objeto incorporado y nominalizacion agentiva preterita."
+    }), Object.freeze({
+      id: "ownerhood-flawed-subject-and-connective-carrier-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 35.3", "Andrews 32.8", "Andrews 26.3", "Andrews 26.9", "Andrews 58.1"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las matrices de ownerhood e/hua se apoyan en carriers conectivos comparables a otros carriers morfemicos y pueden coexistir con afectivos de sujeto defectivo.",
+      requiredProbe: "No reducir e/hua a sufijo ni ignorar actitud afectiva; conservar carrier, matriz verbal, source preterit-agentive y diagnostico de sujeto defectivo."
+    }), Object.freeze({
+      id: "ownerhood-e-hua-verbstem-not-suffix-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 26.3", "Andrews 26.9", "Andrews 58.1"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews rechaza tratar *tla-e/*tla-hua como sufijos: son matrices verbales de compuestos con objeto incorporado, aunque ya no formen CNV ordinarias independientes.",
+      requiredProbe: "No parchear ownerhood como sufijo superficial; conservar matriz verbal, objeto incorporado, connective carrier y nominalizacion agentiva preterita como pasos distintos."
+    }), Object.freeze({
+      id: "ownerhood-connective-t-embed-only-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 28.5"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las matrices ownerhood *tla-e/*tla-hua ya no forman CNVs ordinarias; las formas finitas supervivientes aparecen cuando el compuesto de ownerhood queda embedido en una formacion connective-t.",
+      requiredProbe: "No generar un paradigma finito simple de 'tener'; permitir solo diagnostico de embed connective-t o fuente agentiva preterita, conservando matriz ownerhood y verbo matriz externo."
+    }), Object.freeze({
+      id: "ownerhood-hua-connective-w-vowel-lowering-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 26.3", "Andrews 26.9", "Andrews 58.1"]),
+      pdfPages: Object.freeze([344]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La variante *tla-hua no es sufijo plano ni etiqueta opaca: Andrews la conecta con matriz *tla-e, carrier /w/ y bajamiento vocalico despues de /w/.",
+      requiredProbe: "No guardar e/hua como opciones superficiales; exponer matriz *tla-e frente a *tla-w-a/*tla-hua, carrier /w/, bajamiento vocalico y objeto incorporado antes del agentivo preterito de posesion."
+    }), Object.freeze({
+      id: "ownerhood-hua-source-class-recursive-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 35.6", "Andrews 14.7.2", "Andrews 31.5.3"]),
+      pdfPages: Object.freeze([346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-hua de posesion toma clases fuente especificas, puede incorporar el tallo general de un agentivo preterito, y puede recursar para nombrar duenos de duenos.",
+      requiredProbe: "No elegir hua por traduccion 'tener'; registrar clase de nounstem fuente, tallo general ca, recursion de ownerhood y matriz resultante."
+    }), Object.freeze({
+      id: "ownerhood-hua-preterit-agentive-general-stem-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 35.6"]),
+      pdfPages: Object.freeze([346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El tallo general de una CNN agentiva preterita, como teo-pix-0-ca-uh, puede ser objeto incorporado de *tla-hua para crear otro agentivo de ownerhood.",
+      requiredProbe: "No incorporar la forma restringida teo-pix-0 ni saltar la primera nominalizacion; exponer agentivo preterito fuente, tallo general ca-uh, matriz hua y nueva CNN."
+    }), Object.freeze({
+      id: "ownerhood-ti-subclass-deletion-e-vs-hua-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 14.7.2", "Andrews 11.3.2"]),
+      pdfPages: Object.freeze([346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos ti de Subclase 1 se incorporan con *tla-hua, pero ciertos 1-B borran i final y van con *tla-e; cama tiene una restriccion propia.",
+      requiredProbe: "No escoger e/hua por superficie final solamente; registrar subclase ti, borrado de i, excepcion cama y matriz ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-cama-general-use-e-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El stem cama puede tener tallos generales cama o can, pero Andrews lo incorpora solo con la matriz *tla-e en ownerhood.",
+      requiredProbe: "No dejar que la variante general-use cama/can autorice hua; registrar excepcion cama, matriz e obligatoria y fuente nominal antes de generar ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-tah-glottal-t-opposite-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 11.3.2"]),
+      pdfPages: Object.freeze([346]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En tah-huah frente a tat-eh, Andrews senala una escritura donde t representa glotal, lo contrario de la direccion esperada en 11.3.2.",
+      requiredProbe: "No normalizar tah/tat por una regla unica; marcar la excepcion ortografica, matriz hua/e y frontera entre fuente tli y ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-hua-w-final-and-e-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.9", "Andrews 11.3.2"]),
+      pdfPages: Object.freeze([346, 347]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En ownerhood, fuentes terminadas en w o consonante pueden asimilar w+w con *tla-hua o alternar con *tla-e; la alternancia pertenece a la fuente y matriz, no a una reparacion superficial.",
+      requiredProbe: "Conservar final de fuente, asimilacion w+w, opcion e/hua y clase zero/in antes de presentar el agentivo de posesion."
+    }), Object.freeze({
+      id: "abundant-ownerhood-yo-preterit-connective-t-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.10", "Andrews 35.9"]),
+      pdfPages: Object.freeze([347]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-yo-a de posesion abundante es una matriz verbal Clase C que solo ocurre con morfema preterito y en dos construcciones: embed connective-t o nominalizacion agentiva preterita.",
+      requiredProbe: "No tratar yo como sufijo nominal libre; registrar matriz verbal, limite preterito, connective-t posible y ruta de nominalizacion separada."
+    }), Object.freeze({
+      id: "ownerhood-yo-abundant-assimilation-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.10", "Andrews 35.11", "Andrews 2.10", "Andrews 2.8"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-yo-a de posesion abundante usa embed de uso general, asimila y inicial, y puede traducirse como cobertura o posesion abundante; la traduccion no decide la matriz.",
+      requiredProbe: "Conservar matriz yo, asimilacion y/longitud consonantica, fuente del embed y lectura literal frente a traduccion idiomatica."
+    }), Object.freeze({
+      id: "ownerhood-yo-long-consonant-short-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.10", "Andrews 2.10", "Andrews 2.8"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En la posesion abundante con *tla-yo-a, la y inicial se asimila y produce consonante larga, pero Andrews advierte que la escritura tradicional suele mostrarla corta.",
+      requiredProbe: "No usar consonante escrita corta como prueba de falta de asimilacion; registrar fuente, y inicial, consonante larga esperada y ortografia tradicional antes de adaptar a Nawat."
+    }), Object.freeze({
+      id: "abundant-ownerhood-preterit-agentive-object-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.10", "Andrews 35.8", "Andrews 35.11"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "*tla-yo-a puede incorporar como objeto un nounstem agentivo preterito, de modo que el embed ya es una CNN nominalizada antes de entrar en posesion abundante.",
+      requiredProbe: "No aplanar tla-ht-o-h-0-ca-yo-h como una sola matriz; conservar agentivo preterito embed, tallo general ca, matriz yo y nueva nominalizacion de ownerhood."
+    }), Object.freeze({
+      id: "ownerhood-analysis-translation-literal-vs-idiomatic-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.11", "Andrews 35.9", "Andrews 35.10"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los ejemplos de 35.11 muestran que la traduccion idiomatica de ownerhood, como tener piojos o estar cubierto de arena, no sustituye la formula CNN agentiva preterita.",
+      requiredProbe: "No generar desde la glosa idiomatica; conservar formula CNN, matriz e/hua/yo, lectura literal de posesion y traduccion contextual por separado."
+    }), Object.freeze({
+      id: "ownerhood-incorporated-object-distributive-prefix-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.11"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En agentivos de ownerhood, el objeto incorporado puede llevar prefijo distributivo o varietal dentro del objeto fuente, como mah-ma en mahmaeh.",
+      requiredProbe: "No quitar ni externalizar prefijos distributivos del objeto incorporado; conservarlos dentro del embed nominal antes de elegir matriz e/hua/yo."
+    }), Object.freeze({
+      id: "ownerhood-recursive-horn-owner-example-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.11", "Andrews 35.9"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "nicuacuahuehcahuah demuestra una cadena recursiva: un ownerhood de horn-owner se convierte en objeto de otro ownerhood, no en un simple compuesto de cuernos y ganado.",
+      requiredProbe: "No aplanar cua-cuauh-eh-0-ca-huah-0; conservar ownerhood interno, tallo general ca, ownerhood externo y traduccion cattle owner como diagnostico."
+    }), Object.freeze({
+      id: "ownerhood-question-two-preterit-agentive-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.11"]),
+      pdfPages: Object.freeze([348]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En preguntas como ac axcahuah, ambos constituyentes pueden ser CNNs agentivas preteritas, y la segunda es un agentivo preterito de ownerhood.",
+      requiredProbe: "No analizar ac como pronombre suelto ni axcahuah como verbo tener; mostrar dos CNNs agentivas preteritas con sus formulas separadas."
+    }), Object.freeze({
+      id: "ownerhood-yo-vs-e-animacy-translation-split",
+      sourceRefs: Object.freeze(["Andrews 35.10", "Andrews 35.11"]),
+      pdfPages: Object.freeze([349]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un agentivo de ownerhood con *tla-yo-a y uno con *tla-e pueden compartir fuente nominal pero divergir por animacidad del sujeto y traduccion.",
+      requiredProbe: "No colapsar yo/e por fuente comun; registrar matriz, animacidad del sujeto y lectura de posesion abundante frente a posesion simple."
+    }), Object.freeze({
+      id: "vocative-double-nucleus-preterit-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.13", "Andrews 35.14", "Andrews 18.11", "Andrews 2.13.1"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El vocativo con agentivos preteritos puede confundir qu-e con qu-eh en escritura tradicional, y algunas matrices de posesion incorporan una estructura de doble nucleo lexicalizada completa.",
+      requiredProbe: "No leer que tradicional sin diagnostico; distinguir vocativo, plural qu-eh, variantes h/y y embed de doble nucleo antes de analizar la CNN."
+    }), Object.freeze({
+      id: "double-nucleus-lexicalized-fixed-order-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.14", "Andrews 35.9", "Andrews 35.10"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando una matriz de ownerhood incorpora una estructura de doble nucleo, Andrews la trata normalmente como unidad lexicalizada de orden fijo.",
+      requiredProbe: "No reordenar ni recalcular los dos nucleos como clausulas libres; conservar unidad lexicalizada, orden fijo, matriz ownerhood y degradacion a tronco."
+    }), Object.freeze({
+      id: "vocative-supportive-i-and-k-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.13", "Andrews 2.13.1", "Andrews 18.11"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El vocativo de agentivos preteritos altera la escritura diagnostica: /k/ se escribe qu ante e, el i supportive de qui-0 puede caer, y h intervocalica puede alternar con y.",
+      requiredProbe: "No reinterpretar que/queye como otra formula; preservar la fuente de diada c-0/qui-0/0-0 y la particula vocativa antes de resolver superficie."
+    }), Object.freeze({
+      id: "vocative-class-a-c-zero-k-before-e-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.13", "Andrews 18.11"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando el agentivo preterito vocativo tiene diada singular c-0 de fuente Clase A, el /k/ de c se escribe qu ante la particula vocativa e.",
+      requiredProbe: "No convertir qu-e en plural qu-eh ni en otro morfo; conservar c-0 singular, particula vocativa e y regla ortografica ante e."
+    }), Object.freeze({
+      id: "vocative-qui-zero-supportive-i-drop-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.13", "Andrews 18.11"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando el agentivo preterito vocativo tiene diada singular qui-0, la i de apoyo cae ante la particula vocativa, como tla-pix-0+qu-0+e.",
+      requiredProbe: "No leer tlapixque como plural ni como cambio de stem; conservar qui-0, borrar solo la i de apoyo ante vocativo e y mantener la diada singular/comun."
+    }), Object.freeze({
+      id: "vocative-class-b-final-k-vs-plural-qu-eh-spelling-collision",
+      sourceRefs: Object.freeze(["Andrews 35.13", "Andrews 18.11"]),
+      pdfPages: Object.freeze([352]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Con fuentes Clase B cuyo perfecto termina en /k/, la escritura tradicional ante vocativo puede parecerse a una pluralizacion qu-eh escrita abreviada.",
+      requiredProbe: "No leer una grafia que/qu como plural ni vocativo sin formula; comparar tallo Clase B, diada 0-0 vocativa, plural qu-eh no vocativo y ortografia tradicional."
+    }), Object.freeze({
+      id: "adverbialized-vnc-vs-preterit-agentive-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3", "Andrews 44.7", "Andrews 35.3"]),
+      pdfPages: Object.freeze([446, 447]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews contrasta VNCs adverbializadas como iuh/iz con los agentivos preteritos iuhqui/izqui: las primeras son VNCs adverbiales, los segundos son CNNs con uso sustantival o adjetival.",
+      requiredProbe: "No clasificar una superficie adverbial como CNN por traduccion; distinguir CNV adverbializada, agentivo preterito CNN, sujeto posible y funcion sustantival/adjetival."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-general-use-ca-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 35.5", "Andrews 40.8.1"]),
+      pdfPages: Object.freeze([455, 456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La CNN agentiva preterita adverbializada usa el tallo de uso general con matriz ca para expresar manera; no es la forma restringida ni una etiqueta de adverbio libre.",
+      requiredProbe: "No derivar adverbiales de la superficie preterita restringida; exigir fuente agentiva preterita, tallo general -0-ca y funcion adverbial de manera."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-source-irregularity-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 40.8.6", "Andrews 40.9", "Andrews 35.5"]),
+      pdfPages: Object.freeze([456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las CNNs agentivas preteritas adverbializadas pueden partir de troncos obsoletos, root-plus-ya, tallo completo, fuente irregular, transitivo excepcional o reflexivo shuntline.",
+      requiredProbe: "No aplicar una sola plantilla ca; registrar fuente obsoleta o root-plus-ya, irregularidad, transitividad permitida y reflexivo ne de uso general antes de enrutar."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-obsolete-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 40.8.6"]),
+      pdfPages: Object.freeze([456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunas CNNs agentivas preteritas adverbializadas vienen de verbstems obsoletos que ya no permiten construir una CNV viva.",
+      requiredProbe: "No reconstruir generacion CNV por la salida adverbial; registrar fuente obsoleta, agentivo preterito conservado y limite diagnostico de generacion."
+    }), Object.freeze({
+      id: "adverbialized-root-plus-ya-correspondence-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 40.9"]),
+      pdfPages: Object.freeze([456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos preteritos adjectivales de fuentes root-plus-ya pueden tener adverbializados correspondientes, unos con preterito reducido y otros con tallo completo.",
+      requiredProbe: "No elegir la base por glosa; conservar correspondencia con 40.9, decidir entre preterito reducido y tallo completo, y mantener matriz adverbial ca separada."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-transitive-source-exception",
+      sourceRefs: Object.freeze(["Andrews 44.7"]),
+      pdfPages: Object.freeze([456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Aunque la fuente usual de estos adverbializados es intransitiva, Andrews permite ocasionalmente fuentes transitivas como tla-cem-ana, te-coco-a y tla-mati.",
+      requiredProbe: "No bloquear ni generalizar fuentes transitivas; exigir marca excepcional, conservar objeto proyectivo te/tla dentro del tronco y no convertirlo en objeto externo."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-shuntline-reflexive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 35.5"]),
+      pdfPages: Object.freeze([456]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los adverbializados agentivos preteritos con reflexivo son raros y usan la forma shuntline en el tallo de uso general, como nehmatca.",
+      requiredProbe: "No escribir n-o/m-o por el sujeto visible; conservar reflexivo ne de shuntline, rareza de la formacion y frontera con la matriz ca."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-reflexive-matrix-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.7", "Andrews 35.5"]),
+      pdfPages: Object.freeze([350]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En compuestos adverbializados con agentivo preterito general, el reflexivo del embed puede ser mainline o shuntline segun la valencia de la matriz verbal.",
+      requiredProbe: "No fijar n-o/m-o o ne por costumbre; comprobar si la matriz es intransitiva o transitiva antes de ubicar el reflexivo del embed."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-lexicalized-reflexive-freeze",
+      sourceRefs: Object.freeze(["Andrews 35.7"]),
+      pdfPages: Object.freeze([350]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Si el agentivo preterito adverbializado esta lexicalizado, el reflexivo puede conservar forma mainline no primera persona y dejar de responder al sujeto externo.",
+      requiredProbe: "No recalcular reflexivo lexicalizado por sujeto visible; registrar lexicalizacion, forma mainline congelada y excepcion a la respuesta persona-numero."
+    }), Object.freeze({
+      id: "incorporated-complement-preterit-agentive-valence-violation",
+      sourceRefs: Object.freeze(["Andrews 35.12", "Andrews 23.1", "Andrews 35.4", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([351]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un agentivo preterito incorporado como complemento puede activar fuerza verbal latente, dejar escapar objeto inespecifico y crear doble objeto sin sufijo que lo justifique.",
+      requiredProbe: "No validar valencia por sufijo visible solamente; registrar embed agentivo, matriz reflexiva, objeto que escapa y violacion diagnostica de la regla de valencia."
+    }), Object.freeze({
+      id: "double-nucleus-ownerhood-inner-person-protection-boundary",
+      sourceRefs: Object.freeze(["Andrews 35.14"]),
+      pdfPages: Object.freeze([353]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En un embed de doble nucleo de ownerhood, la clausula suplementaria degradada pierde numero como otros embeds, pero conserva persona interna protegida del sujeto externo.",
+      requiredProbe: "No asociar el sujeto externo con el stem del poseedor suplementario; mostrar persona interna preservada, numero perdido y frontera entre los dos nucleos."
+    }), Object.freeze({
+      id: "nominalized-vnc-customary-present-degree-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.1", "Andrews 36.2", "Andrews 36.3", "Andrews 36.4", "Andrews 36.5"]),
+      pdfPages: Object.freeze([354, 355, 356, 357, 358]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo presente habitual separa reanalisis y nominalizacion plena, y los patientivos presentes habituales tienen fuente pasiva; la superficie sola no decide el grado.",
+      requiredProbe: "Mostrar grado de nominalizacion, fuente de voz y contraste con agentivo preterito en metadatos de ruta."
+    }), Object.freeze({
+      id: "customary-agentive-reanalysis-valence-inside-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.1", "Andrews 36.2"]),
+      pdfPages: Object.freeze([354, 355]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo presente habitual por reanalisis convierte el predicado CNV en tronco CNN: las posiciones de valencia quedan dentro del tronco, ni es el ultimo constituyente y el numero sigue con diadas asociadas a VNC.",
+      requiredProbe: "No tratar ni, te/ta o reflexivo como conectores CNN externos; comprobar valencia interna, ni final, diadas 0-0/0-h y el limite de estado posesivo."
+    }), Object.freeze({
+      id: "customary-agentive-tla-fusion-inside-nounstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.2", "Andrews 7.10"]),
+      pdfPages: Object.freeze([354]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La fusion tla de la CNV fuente permanece dentro del nounstem cuando el predicado habitual se reanaliza como CNN agentiva.",
+      requiredProbe: "No mover tla fusionado a un slot externo de objeto ni recomponerlo como articulo; conservarlo en el predicado degradado antes de mostrar la formula CNN."
+    }), Object.freeze({
+      id: "customary-agentive-internal-reflexive-subject-response",
+      sourceRefs: Object.freeze(["Andrews 36.2"]),
+      pdfPages: Object.freeze([354]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En el agentivo presente habitual por reanalisis, el reflexivo n-o/t-o/m-o queda dentro del nounstem, pero todavia responde al pronombre de sujeto.",
+      requiredProbe: "No congelar el reflexivo interno ni externalizarlo como objeto CNV; comprobar que cambia por sujeto aunque permanezca dentro del tronco CNN."
+    }), Object.freeze({
+      id: "customary-agentive-possessive-filled-by-preterit-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.2", "Andrews 35.6", "Andrews 7.10"]),
+      pdfPages: Object.freeze([354]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo presente habitual por reanalisis forma normalmente solo absolutivos; Andrews llena el posesivo del paradigma con el agentivo preterito posesivo.",
+      requiredProbe: "No fabricar posesivo desde el tronco habitual con ni; registrar reanalisis absolutivo, fusion tla, y suplencia posesiva por la ruta preterita."
+    }), Object.freeze({
+      id: "customary-agentive-rare-possessive-reanalysis-vnc-number",
+      sourceRefs: Object.freeze(["Andrews 36.2"]),
+      pdfPages: Object.freeze([355]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Raramente un posesivo puede construirse sobre un agentivo presente habitual reanalizado y conservar diadas de numero asociadas a CNV aunque el estado sea posesivo.",
+      requiredProbe: "No rechazar ni generalizar esta mezcla; marcar rareza, poseedor externo, ni dentro del tronco y numero 0-0/0-h heredado de CNV."
+    }), Object.freeze({
+      id: "customary-agentive-fully-nominalized-subclass-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3"]),
+      pdfPages: Object.freeze([355, 356]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La nominalizacion plena del agentivo presente habitual cambia el numero a los conectores de CNN Subclase 1-A de ti; solo esta version puede ocupar el embed de un compuesto.",
+      requiredProbe: "No decidir por superficie singular identica; distinguir 0-0 reanalizado de 0-0/tl-0 plenamente nominal, m-eh plural, hu-an posesivo y permiso de embed."
+    }), Object.freeze({
+      id: "customary-agentive-fully-nominalized-singular-homophony-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3"]),
+      pdfPages: Object.freeze([356]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En singular absolutivo, el agentivo habitual reanalizado y el plenamente nominalizado pueden ser fonologicamente identicos, aunque solo el segundo justifica el paradigma Subclase 1-A.",
+      requiredProbe: "No decidir la ruta por superficie singular; usar plural, posesivo, tl-0/0-0 y permiso de embed para distinguir grado de nominalizacion."
+    }), Object.freeze({
+      id: "customary-agentive-fully-nominalized-tl-zero-archaic-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3"]),
+      pdfPages: Object.freeze([356]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El singular absolutivo plenamente nominalizado puede mostrar tl-0, pero Andrews lo marca como poco comun fuera de textos arcaizantes o poeticos; la variante normal reemplaza ti por 0.",
+      requiredProbe: "No hacer tl-0 la salida normal del agentivo habitual plenamente nominalizado; marcar tl-0 como arcaizante/poetico y usar el resto del paradigma para probar Subclase 1-A."
+    }), Object.freeze({
+      id: "customary-agentive-affective-embed-preterit-fallback-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3", "Andrews 35.11"]),
+      pdfPages: Object.freeze([356]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo presente habitual normalmente no sirve como embed de compuestos afectivos; Andrews espera el tronco agentivo preterito salvo excepciones.",
+      requiredProbe: "No usar el agentivo habitual como embed afectivo por defecto; exigir marca de excepcion o redirigir al tronco preterito correspondiente."
+    }), Object.freeze({
+      id: "customary-agentive-ni-drop-vocative-hybrid-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 1", "Andrews 36.3 note 2", "Andrews 18.8", "Andrews 18.11", "Andrews 35.4", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([356, 357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El i de ni puede perderse en embeds o vocativos y el agentivo presente habitual puede crear hibridos verbal-nominales moviendo un objeto proyectivo inespecifico hacia fuera como especifico.",
+      requiredProbe: "No normalizar ni ni objetos por superficie; registrar perdida irregular de i, asimilacion, vocativo, objeto externo especifico y fuente de complemento incorporado."
+    }), Object.freeze({
+      id: "customary-agentive-ni-real-vowel-loss-irregularity",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 1", "Andrews 18.11"]),
+      pdfPages: Object.freeze([357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El i de ni no es vocal de apoyo sino vocal real; su perdida en embed o vocativo es irregular y no debe convertirse en regla fonologica general.",
+      requiredProbe: "No borrar i de ni automaticamente; exigir entorno Andrews, marcar irregularidad y conservar la version regular como expectativa."
+    }), Object.freeze({
+      id: "customary-agentive-embed-adverb-of-means-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 1", "Andrews 30.18"]),
+      pdfPages: Object.freeze([357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un agentivo presente habitual embebido puede funcionar como adverbio de medio; la traduccion puede falsificar la arquitectura si lo lee como agente o sujeto.",
+      requiredProbe: "No analizar tecuan en ontecuancualozqueh como agente pasivo ni sujeto incorporado; conservar embed agentivo habitual, perdida irregular de i de ni y funcion adverbial de medio."
+    }), Object.freeze({
+      id: "customary-agentive-incorporated-complement-hybrid-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 2", "Andrews 30.18", "Andrews 35.12", "Andrews 38.1.3", "Andrews 52.2"]),
+      pdfPages: Object.freeze([357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un hibrido verbal-nominal de agentivo habitual puede tener fuente de complemento incorporado cuyo embed es patientivo y cuya matriz es ye-tl.",
+      requiredProbe: "No leer el objeto externo o la conjuncion como estructura ordinaria; conservar complemento incorporado, patientivo embed, matriz ye y nivel hibrido."
+    }), Object.freeze({
+      id: "customary-agentive-honorific-applicative-object-ladder-hybrid",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 2", "Andrews 52.2"]),
+      pdfPages: Object.freeze([357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El hibrido agentivo habitual puede preservar una escalera aplicativa honorifica: m-o como objeto principal, te como segundo nivel shuntline y tla como primer nivel directivo.",
+      requiredProbe: "No aplanar quimotemaquiliani a una sola valencia; exponer qui externo, m-o mainline, te/tla shuntline y la conjuncion cualli yectli como estructura separada."
+    }), Object.freeze({
+      id: "customary-agentive-tla-ayi-silent-specific-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.3 note 2", "Andrews 18.8"]),
+      pdfPages: Object.freeze([357]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En mochi ayini, la fuente tla-(ayi) puede tener un objeto especifico silencioso; el hibrido agentivo habitual no puede decidir objeto solo por superficie.",
+      requiredProbe: "No borrar el objeto porque no aparezca; registrar fuente tla-ayi, objeto especifico silencioso, objeto externo posible y nivel hibrido verbal-nominal."
+    }), Object.freeze({
+      id: "customary-vs-preterit-agentive-translation-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.4"]),
+      pdfPages: Object.freeze([357, 358]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos presente habitual y preterito pueden traducirse igual, pero Andrews advierte que la sinonimia puede ser un espejismo; ni y 0 pueden cambiar la estructura y el significado.",
+      requiredProbe: "No fusionar pares por glosa espanola; conservar fuente temporal, morfo ni frente a 0, lectura habitual frente a evento/estado y diagnostico de no sinonimia."
+    }), Object.freeze({
+      id: "customary-present-patientive-passive-not-instrumentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.5", "Andrews 36.6", "Andrews 21.2.5", "Andrews 37.5.2"]),
+      pdfPages: Object.freeze([359]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El patientivo presente habitual viene de una CNV pasiva con ni, no de la voz impersonal instrumentiva; no admite estado posesivo y no conserva un proyectivo de objeto unico.",
+      requiredProbe: "Distinguir fuente pasiva de impersonal, bloquear posesivo, convertir reflexivo a ne, manejar variantes pasivas y conservar te/ta de doble proyectivo con animacidad."
+    }), Object.freeze({
+      id: "customary-patientive-double-projective-te-tla-animacy-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.5", "Andrews 21.2.5"]),
+      pdfPages: Object.freeze([359, 360]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En patientivos presentes habituales de fuentes de dos proyectivos, te o tla dentro del tronco patientivo correlaciona con entidad no animada o animada de manera especifica a esta ruta.",
+      requiredProbe: "No aplicar te/tla como regla global; registrar fuente pasiva de dos objetos, proyectivo conservado y animacidad resultante del nounstem."
+    }), Object.freeze({
+      id: "nominalized-vnc-action-nnc-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6", "Andrews 36.7", "Andrews 36.8", "Andrews 36.9", "Andrews 36.10", "Andrews 36.11", "Andrews 36.12"]),
+      pdfPages: Object.freeze([360, 362, 363, 364, 365, 366, 367, 368, 369, 370]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Instrumentivos, agentivos presente/futuro, acciones pasivas y acciones activas usan fuentes, estados, poseedores y contrastes distintos; no se deben fusionar como 'sustantivo de accion'.",
+      requiredProbe: "Probar familia de fuente, estado, poseedor heredado y contraste accion/agentivo antes de generar o continuar."
+    }), Object.freeze({
+      id: "instrumentive-two-stem-state-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6", "Andrews 36.6 note 1", "Andrews 36.6 note 2"]),
+      pdfPages: Object.freeze([360, 361, 362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El instrumentivo usa dos troncos: absolutivo desde CNV impersonal presente habitual sin poseedor posible, y posesivo desde CNV activa imperfecta con sujeto transformado en poseedor.",
+      requiredProbe: "No usar un solo tronco instrumentivo; comprobar voz/tiempo fuente, estado, sujeto-a-poseedor, reflexivo a shuntline, sujeto no animado importado y excepciones de estado."
+    }), Object.freeze({
+      id: "instrumentive-embed-action-meaning-reversion-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6 note 1", "Andrews 46.4"]),
+      pdfPages: Object.freeze([362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un instrumentivo posesivo lexicalizado como medio puede recuperar sentido de accion cuando aparece como embed de un compuesto.",
+      requiredProbe: "No fijar significado de instrumento por superficie; registrar si el tronco es simple/matriz o embed compuesto y permitir reversion a lectura de accion."
+    }), Object.freeze({
+      id: "instrumentive-set-defined-vs-item-defined-meaning",
+      sourceRefs: Object.freeze(["Andrews 36.6"]),
+      pdfPages: Object.freeze([362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los instrumentivos suelen nombrar entidades definidas por un conjunto de medios o facultades, aunque el uso pueda restringirlos a un objeto idiomatico.",
+      requiredProbe: "No reducir el instrumentivo a una glosa de item unico; conservar definicion de conjunto, restriccion idiomatica posible y fuente nominalizada."
+    }), Object.freeze({
+      id: "instrumentive-full-nominalization-number-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.2", "Andrews 36.3", "Andrews 36.5", "Andrews 36.6"]),
+      pdfPages: Object.freeze([360]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El plural m-eh de algunos patientivos/instrumentivos prueba una nominalizacion plena de Subclase 1-A, no una mera reanalisis con diadas VNC.",
+      requiredProbe: "No decidir el singular por homofonia; usar plural m-eh para inferir numero CNN, grado de nominalizacion y separacion de patientivo habitual frente a instrumentivo."
+    }), Object.freeze({
+      id: "instrumentive-nonactive-hua-lo-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6"]),
+      pdfPages: Object.freeze([361]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El instrumentivo absolutivo puede tener variantes desde un tallo no activo en hua o hua-lo, como tlamamalihuani frente a tlamamalihualoni.",
+      requiredProbe: "No deduplicar variantes hua/hua-lo por traduccion; conservar fuente no activa, variante de tallo y estado absolutivo antes de comparar salidas."
+    }), Object.freeze({
+      id: "instrumentive-supportive-i-loss-after-tla-ne-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6"]),
+      pdfPages: Object.freeze([361]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En instrumentivos, los verbstems que empiezan con i de apoyo la pierden despues de tla y con frecuencia tambien despues de ne.",
+      requiredProbe: "No aplicar ni bloquear la i inicial globalmente; registrar pronombre tla/ne, i de apoyo, perdida obligatoria o frecuente y fuente verbal antes de generar."
+    }), Object.freeze({
+      id: "instrumentive-absolutive-possessive-pragmatic-split",
+      sourceRefs: Object.freeze(["Andrews 36.6"]),
+      pdfPages: Object.freeze([361, 362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las parejas instrumentivas absolutiva y posesiva pueden compartir significado basico pero divergir pragmaticamente, como medio para dormir frente a pestanas o instrumento frente a facultad.",
+      requiredProbe: "No usar una sola glosa para ambos estados; conservar fuente de voz/tiempo, estado CNN, poseedor y lectura pragmatica separada."
+    }), Object.freeze({
+      id: "instrumentive-impersonal-possessive-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6 note 2"]),
+      pdfPages: Object.freeze([362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Aunque el impersonal habitual nominalizado normalmente solo crea instrumentivo absolutivo, Andrews registra posesivos excepcionales que presuponen tallo ti Subclase 1-A plenamente nominalizado.",
+      requiredProbe: "No promover el impersonal instrumentivo a posesivo por defecto; exigir marca excepcional, Subclase 1-A y lectura metaforica o literal antes de mostrarlo."
+    }), Object.freeze({
+      id: "instrumentive-imperfective-active-absolutive-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.6 note 2"]),
+      pdfPages: Object.freeze([362]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Aunque se espera que el imperfecto activo nominalizado forme instrumentivos posesivos, Molina conserva algunos absolutivos como cochiyatl y tlaczayatl.",
+      requiredProbe: "No bloquear ni generalizar estos absolutivos; marcar excepcion lexica, fuente imperfectiva activa y contraste con el posesivo esperado."
+    }), Object.freeze({
+      id: "present-agentive-absolutive-only-lexicalized-continuation-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.7", "Andrews 35.5", "Andrews 35.11"]),
+      pdfPages: Object.freeze([362, 363]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo presente convierte el predicado indicativo presente en tronco y solo forma absolutivos; continuaciones posesivas, vocativas o compuestas existen por lexicalizacion especifica, no por licencia general.",
+      requiredProbe: "No promover el agentivo presente a posesivo por defecto; registrar uso absolutivo, fuente presente, lexicalizacion y continuaciones solares/metaforicas como excepciones."
+    }), Object.freeze({
+      id: "present-agentive-tonatiuh-lexicalized-continuation-stack",
+      sourceRefs: Object.freeze(["Andrews 36.7", "Andrews 35.10"]),
+      pdfPages: Object.freeze([363]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Tonatiuh ilustra que un agentivo presente lexicalizado puede servir como vocativo, posesivo metaforico, fuente de ownerhood abundante y matriz compuesta calendárica.",
+      requiredProbe: "No generalizar continuaciones desde todo agentivo presente; exigir lexicalizacion concreta y registrar cada continuacion como ruta diagnostica separada."
+    }), Object.freeze({
+      id: "future-agentive-restricted-general-use-ca-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.8", "Andrews 35.5", "Andrews 15.1.5", "Andrews 26.1.1"]),
+      pdfPages: Object.freeze([363, 364]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo futuro raro separa tronco restringido con z final y numero qui-0/qu-eh de tronco general con matriz ca; los posesivos importan poseedor externo y algunas formas restringidas se lexicalizan como embed.",
+      requiredProbe: "No reutilizar el futuro finito ni el agentivo preterito; comprobar z final, qui-0 singular, qu-eh plural, perdida de objeto aplicativo, matriz ca y lexicalizaciones."
+    }), Object.freeze({
+      id: "future-agentive-singular-qui-zero-against-future-default",
+      sourceRefs: Object.freeze(["Andrews 36.8", "Andrews 26.1.1"]),
+      pdfPages: Object.freeze([364]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El agentivo futuro restringido singular usa la diada original qui-0, no el 0-0 normal de las CNV futuras, y puede perder un objeto aplicativo de la fuente.",
+      requiredProbe: "No copiar la diada futura ordinaria ni todos los objetos de la CNV fuente; mostrar z, qui-0, qu-eh plural y diagnostico de objeto aplicativo ausente."
+    }), Object.freeze({
+      id: "future-agentive-restricted-stem-lexicalized-embed-and-te-internalization",
+      sourceRefs: Object.freeze(["Andrews 36.8", "Andrews 15.1.5"]),
+      pdfPages: Object.freeze([364]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Aunque el tronco futuro restringido no sea el general, puede lexicalizarse como embed; algunas formas incorporan te posesivo dentro del nounstem y muestran w+w simplificado.",
+      requiredProbe: "No tratar cada embed futuro como general-use ca; registrar si el restringido esta lexicalizado, si te paso al interior del tallo y si w+w afecta la superficie."
+    }), Object.freeze({
+      id: "action-nnc-passive-active-restricted-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.9", "Andrews 36.10", "Andrews 36.11", "Andrews 37.1"]),
+      pdfPages: Object.freeze([364, 365, 366]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las NNC de accion se dividen en accion pasiva y accion activa; a diferencia de otros nominalizados, el tronco de uso restringido es el compuesto y el general no.",
+      requiredProbe: "No crear una etiqueta generica de sustantivo de accion; registrar voz fuente, uso restringido/general, matriz compuesta y significado accion/proceso/evento/resultado."
+    }), Object.freeze({
+      id: "active-action-nominalization-vs-derivation-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.11", "Andrews 37.1"]),
+      pdfPages: Object.freeze([366]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews separa las NNC de accion activa creadas por nominalizacion de las creadas por derivacion; ambas pueden nombrar accion, pero no comparten ruta.",
+      requiredProbe: "No aceptar 'accion activa' como ruta unica; comprobar si la fuente es predicado nominalizado de 36.11 o nounstem deverbal derivado de 37.1 antes de continuar."
+    }), Object.freeze({
+      id: "passive-action-possessive-distant-past-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.10.1"]),
+      pdfPages: Object.freeze([365, 366, 370]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La accion pasiva posesiva baja un predicado pasivo de pasado remoto a tronco CNN con ca final; los objetos internos dependen de la fuente pasiva y el sujeto fuente se transforma en poseedor.",
+      requiredProbe: "No analizar ca como matriz agentiva; comprobar voz pasiva, ca de pasado remoto, objetos internos, sujeto-a-poseedor, sujeto no animado importado y Subclase 1-B."
+    }), Object.freeze({
+      id: "passive-action-double-object-perspective-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.10.1"]),
+      pdfPages: Object.freeze([365, 366]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En fuentes pasivas de doble objeto, el tronco de accion pasiva conserva dentro del nounstem cual objeto fue pasivizado y cual queda como proyectivo interno.",
+      requiredProbe: "No glosar toda accion pasiva como evento plano; mostrar objeto interno te/tla, sujeto pasivo convertido en poseedor y lectura de castigo/amor/memoria desde la voz pasiva."
+    }), Object.freeze({
+      id: "passive-action-absolutive-yotl-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.10.2", "Andrews 39.3.6", "Andrews 5.5.2"]),
+      pdfPages: Object.freeze([366]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La accion pasiva absolutiva usa el tronco general como embed y la matriz *yo-tl; ca queda protegido, solo hay numero comun, y el mismo compuesto puede aparecer en posesivo sinonimo.",
+      requiredProbe: "No borrar la matriz yo ni confundir el posesivo compuesto con el posesivo general; comprobar embed, matriz, ca protegido, numero comun y Subclase 1-B."
+    }), Object.freeze({
+      id: "active-action-possessive-intransitive-reflexive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.11.1", "Andrews 30.14.1", "Andrews 27.4", "Andrews 40.9"]),
+      pdfPages: Object.freeze([366, 367, 368]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La accion activa posesiva viene de pasado remoto activo, casi siempre intransitivo o reflexivo; reflexivo principal pasa a shuntline, el sujeto fuente se vuelve poseedor y algunos root+ya usan base obsoleta.",
+      requiredProbe: "No admitir transitivos activos libres; comprobar intransitividad/reflexivo, ca final, sujeto-a-poseedor, ne shuntline, incorporado adverbial, lectura medio/fuente/resultado y base root+ya."
+    }), Object.freeze({
+      id: "active-action-idiomatic-means-source-result-shift",
+      sourceRefs: Object.freeze(["Andrews 36.11.1"]),
+      pdfPages: Object.freeze([367, 368]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las acciones activas posesivas pueden dejar de nombrar la accion y pasar a medio, fuente, consecuencia o estado resultante, sin cambiar la arquitectura de pasado remoto con ca.",
+      requiredProbe: "No escoger ruta por traduccion como desayuno, reliquia, origen o limpieza; conservar fuente activa, ca, poseedor importado y diagnostico semantico idiomatico."
+    }), Object.freeze({
+      id: "active-action-absolutive-yotl-and-preterit-agentive-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.10.2", "Andrews 36.11.2", "Andrews 36.12", "Andrews 35.6", "Andrews 39.3.6"]),
+      pdfPages: Object.freeze([368, 369, 370]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La accion activa absolutiva usa matriz yo-tl y puede sonar como un posesivo agentivo preterito, pero Andrews separa ca de accion activa de 0+ca agentivo, Subclase 1-B de 1-A y accion/resultado de agente/paciente.",
+      requiredProbe: "No decidir por homofonia; comparar ca frente a 0-ca, fuente del poseedor, subclase, matriz yo, sentido accion/estado frente a persona/cosa y contraste con patientivo preterito."
+    }), Object.freeze({
+      id: "active-action-yotl-shared-passive-template-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.10.2", "Andrews 36.11.2", "Andrews 39.3.6"]),
+      pdfPages: Object.freeze([368, 369]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La accion activa absolutiva reutiliza el patron de accion pasiva absolutiva: tronco general como embed y matriz *yo-tl, aunque la fuente sea activa.",
+      requiredProbe: "No derivar el absolutivo activo directamente del predicado activo; comprobar embed de uso general, matriz yo-tl y la analogia con accion pasiva."
+    }), Object.freeze({
+      id: "active-action-possessive-compound-subclass-1b-number-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.11.2", "Andrews 36.10.2"]),
+      pdfPages: Object.freeze([369]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El compuesto de accion activa con matriz yo-tl tambien puede servir en posesivo sinonimo; su stem pertenece a Subclase 1-B de ti y usa diada 0-0.",
+      requiredProbe: "No tratar el posesivo como el agentivo preterito posesivo ni heredar numero externo; registrar stem compuesto, Subclase 1-B, diada 0-0 y sinonimia posesiva."
+    }), Object.freeze({
+      id: "active-action-distant-past-ca-vs-preterit-zero-ca-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.12", "Andrews 35.6"]),
+      pdfPages: Object.freeze([369]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El stem de accion activa posesiva contiene morfo de pasado remoto ca, mientras el agentivo preterito posesivo contiene morfo preterito 0 mas matriz nominal ca.",
+      requiredProbe: "No colapsar ca con 0-ca por superficie; separar tense morph distante, morfo preterito 0, matriz ca y estado posesivo antes de comparar salidas."
+    }), Object.freeze({
+      id: "active-action-result-vs-agentive-entity-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 36.12"]),
+      pdfPages: Object.freeze([369]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El activo de accion significa accion, resultado o estado resultante; el agentivo preterito significa persona o cosa que hace una accion o entra en estado.",
+      requiredProbe: "No escoger ruta por traduccion nominal abstracta; registrar si el resultado es accion/estado o entidad agente/paciente y mantener separada la subclase 1-B frente a 1-A."
+    }), Object.freeze({
+      id: "core-not-predicate-source",
+      sourceRefs: Object.freeze(["Andrews 37.1"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un tronco nominal deverbal deriva del núcleo CNV, no del predicado CNV ni de una salida reetiquetada.",
+      requiredProbe: "Comparar fuente nuclear, predicado y ranuras heredadas antes de permitir CNN."
+    }), Object.freeze({
+      id: "active-action-z-liz-subtypes",
+      sourceRefs: Object.freeze(["Andrews 37.2", "Andrews 37.3", "Andrews 37.4", "Andrews 37.5"]),
+      pdfPages: Object.freeze([371, 372, 374, 375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los activos de acción z/liz tienen subtipos, traducciones y cambios de base que no se reducen a una sola etiqueta de sustantivo verbal.",
+      requiredProbe: "Separar lis/s, valor de acción, valor de aspecto/condición y cambios de base."
+    }), Object.freeze({
+      id: "active-action-z-liz-semantic-range-result-state-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "z y liz pueden nombrar accion, proceso, resultado, estado, condicion o cosa condicionada; 'accion activa' no significa solo evento verbal.",
+      requiredProbe: "No fijar la glosa como accion simple; registrar rango semantico y separar evento, resultado, estado y entidad condicionada antes de continuar la CNN."
+    }), Object.freeze({
+      id: "active-action-z-liz-tli-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los dos subtipos z y liz de activo de accion pertenecen a la clase tli; esa clase nominal no se deduce de que la superficie parezca verbal o abstracta.",
+      requiredProbe: "No omitir clase CNN por enfocarse en el sufijo derivativo; registrar clase tli, subtipo z/liz y numero comun antes de exponer el paradigma."
+    }), Object.freeze({
+      id: "active-action-replacive-imperfective-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3.3"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos activos de acción en liz se forman sobre un imperfectivo replacivo, no sobre el tronco visible sin cambio: /si/ puede dar s, ci puede dar xi, y ti puede alternar con c/chi.",
+      requiredProbe: "No construir liz desde la base cruda si Andrews exige base imperfectiva replaciva u opción ti/c; exponer la base elegida antes de la salida CNN."
+    }), Object.freeze({
+      id: "active-action-nnc-state-number-possessor-frame",
+      sourceRefs: Object.freeze(["Andrews 37.2", "Andrews 36.11"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los activos de acción de segundo tipo forman NNC absolutivas y posesivas sobre el mismo tronco; tienen sujeto no animado de número común, y el poseedor posesivo representa al responsable de la acción.",
+      requiredProbe: "No mostrar z/liz solo como salida léxica; registrar estado CNN, número común no animado y rol del poseedor."
+    }), Object.freeze({
+      id: "active-action-z-future-core-not-tense",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El z activo de acción se añade al núcleo de una CNV de futuro, pero el z derivacional formador de nounstem no debe confundirse con el z flexivo de futuro; si el tronco termina en a puede usar base imperfectiva replaciva en i.",
+      requiredProbe: "No etiquetar z como tiempo futuro en la CNN resultante; conservar fuente de núcleo futuro, z derivacional y cambio a->i cuando Andrews lo exige."
+    }), Object.freeze({
+      id: "active-action-z-a-final-replacive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371, 372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando un tronco terminado en a permite activo de accion con z, Andrews lo forma sobre imperfectivo replacivo en i: hua pasa a hui y ca pasa a qui.",
+      requiredProbe: "No anexar z directamente a toda base terminada en a; registrar permiso lexico, base replaciva y contraste hua/hui o ca/qui antes de construir la CNN."
+    }), Object.freeze({
+      id: "active-action-z-absolutive-possessive-state-shape-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El mismo tronco activo de accion en z aparece como absolutivo con tli y como posesivo sin copiar tli, como cochiztli frente a nocochiz.",
+      requiredProbe: "No fijar tli como parte obligatoria de toda salida ni borrar el tronco z en posesivo; separar tronco, estado CNN, poseedor y diada 0-0."
+    }), Object.freeze({
+      id: "active-action-z-frequentative-ka-replacive-qui-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2", "Andrews 24.5"]),
+      pdfPages: Object.freeze([372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los frequentativos destockales intransitivos en ka siguen la regla de z con base replaciva qui, como cha-chal-a-ca -> cha-chal-a-qui-z.",
+      requiredProbe: "No concatenar z a ka ni tratar qui como fixture lexical; registrar fuente frequentativa destockal, cambio ka/qui y nounstem activo de accion."
+    }), Object.freeze({
+      id: "active-action-z-compatibility-and-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([371, 372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El z activo de acción normalmente exige [i] precedente, solo pocos transitivos lo permiten, y algunas excepciones autorizan z tras otra vocal; esa licencia no se infiere de la superficie.",
+      requiredProbe: "Registrar compatibilidad de z, transitividad permitida y excepciones léxicas antes de formar o diagnosticar la CNN activa de acción."
+    }), Object.freeze({
+      id: "active-action-z-transitive-projective-retention-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2"]),
+      pdfPages: Object.freeze([372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los pocos transitivos que permiten activo de accion con z conservan proyectivo o reflexivo inespecifico, como te-ihxili-z o ne-ihcali-z.",
+      requiredProbe: "No derivar z transitivo desde verbcore desnudo ni mover te/ne fuera del nounstem; registrar valencia interna y rareza de la licencia transitiva."
+    }), Object.freeze({
+      id: "active-action-z-liz-sibling-exception-no-normalization",
+      sourceRefs: Object.freeze(["Andrews 37.2", "Andrews 37.3"]),
+      pdfPages: Object.freeze([372, 374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunas excepciones con z coexisten con formas en liz, como toz-o-z junto a toz-o-liz o a-temo-z frente a temo-liz; la variante no se deduce por normalizacion.",
+      requiredProbe: "No reemplazar una forma z excepcional por liz ni generar ambas sin licencia; conservar inventario lexico, fuente y valor diferencial."
+    }), Object.freeze({
+      id: "active-action-z-atemo-water-descent-appendix-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.2", "Andrews Appendix E"]),
+      pdfPages: Object.freeze([372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "a-temo-z names descent in the form of water and Andrews points to Appendix E usage; it is not the same general descent route as temo-liz.",
+      requiredProbe: "Do not normalize a-temo-z to temo-liz or translate away the incorporated a; preserve water-form source, exceptional z and later calendar/appendix usage diagnostic."
+    }), Object.freeze({
+      id: "active-action-liz-not-z-restriction-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3", "Andrews 37.2"]),
+      pdfPages: Object.freeze([372]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "La derivacion activa de accion con liz no esta restringida como la de z; no exige la misma compatibilidad con [i] precedente ni la misma rareza transitiva.",
+      requiredProbe: "No bloquear liz por una regla de z ni corregirla a z; registrar que liz usa su propio contrato de futuro-core y clase verbal."
+    }), Object.freeze({
+      id: "active-action-liz-compound-suffix-class-vowel-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([372, 373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "liz es una unidad sufijal compuesta l+i+s añadida al verbcore futuro, con tratamiento distinto de vocales largas por clase A/B/C/D.",
+      requiredProbe: "No tratar liz como etiqueta opaca; exponer conectivo l, soporte i, s activo de acción, clase del tronco y regla de vocal larga antes de la salida CNN."
+    }), Object.freeze({
+      id: "active-action-liz-class-vowel-quantity-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([372, 373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En liz, la clase verbal controla la vocal del verbcore futuro: Clase C borra a larga y alarga i/o restante, Clase D conserva a larga y Clase A en o conserva esa vocal larga.",
+      requiredProbe: "No formar liz por concatenacion uniforme; registrar clase A/B/C/D, vocal larga conservada o borrada y resultado del verbcore antes del sufijo."
+    }), Object.freeze({
+      id: "active-action-liz-class-c-d-example-contract-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los ejemplos chol-o-liz y ya-liz prueban que Clase C y Clase D no comparten el mismo tratamiento de vocal ni la misma fuente de verbcore futuro.",
+      requiredProbe: "No formar liz por concatenacion uniforme; registrar Clase C/D, fuente chol-o-a o ya-uh, vocal larga retenida/borrada y estado CNN antes de renderizar."
+    }), Object.freeze({
+      id: "active-action-liz-transitive-projective-required-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los activos de accion en liz derivados de verbcores transitivos llevan pronombres no especificos te, tla o ne; la fuente transitiva no queda desnuda dentro del nounstem.",
+      requiredProbe: "No borrar te/tla/ne por considerarlos objetos externos; conservar el proyectivo o reflexivo dentro del tronco deverbal antes de comparar la salida CNN."
+    }), Object.freeze({
+      id: "active-action-liz-double-object-projectives-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un liz de fuente transitiva doble puede conservar dos proyectivos internos, como te-tla-l-hui-liz desde te+tla-(il-huia).",
+      requiredProbe: "No reducir doble objeto a un solo val ni sacar un objeto como suplemento; conservar ambos proyectivos, matriz fuente y sufijo liz dentro del nounstem."
+    }), Object.freeze({
+      id: "active-action-liz-shuntline-reflexive-internal-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El reflexivo shuntline ne en active-action liz queda dentro del nounstem, como ne-chip-a-hu-a-liz, aunque venga de fuente m-o.",
+      requiredProbe: "No convertir ne en objeto externo ni conservar m-o superficial de la fuente; registrar shuntline reflexivo, matriz causativa y nounstem interno."
+    }), Object.freeze({
+      id: "active-action-transitive-projective-supportive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los activos de acción derivados de verbcores transitivos usan te/tla/ne; si el tronco empieza con i de apoyo, tla siempre lo elimina y ne puede eliminarlo o conservarlo.",
+      requiredProbe: "Conservar pronombre proyectivo o reflexivo, tronco con i de apoyo y regla de pérdida tras tla/ne antes de construir la forma en liz."
+    }), Object.freeze({
+      id: "active-action-liz-supportive-i-optional-after-ne-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando la fuente empieza con i de apoyo, tla siempre la pierde, pero ne puede perderla o conservarla, como ne-h-mati-liz frente a ne-ih-mati-liz.",
+      requiredProbe: "No aplicar una sola regla de borrado de i tras todo pronombre; distinguir tla obligatorio y ne opcional antes de aceptar variantes."
+    }), Object.freeze({
+      id: "active-action-liz-ka-wa-replacive-option-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En liz, los verbstems en ka y algunos en wa pueden usar imperfectivo replacivo, pero otros conservan a; los frecuentes destockales no siguen una sola opcion.",
+      requiredProbe: "No aplicar ca->qui o wa->hui globalmente; registrar clase ka/wa, opcion de base o replacivo, preferencia lexico-familiar y variante autorizada."
+    }), Object.freeze({
+      id: "active-action-liz-destockal-ka-lexical-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3", "Andrews 24.6"]),
+      pdfPages: Object.freeze([373]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Entre frecuentes destockales en ka, algunos hacen qui-liz y otros conservan ca-liz; Andrews da chi-chin-a-qui-liz frente a cha-chal-a-ca-liz.",
+      requiredProbe: "No decidir ka por regla fonologica uniforme; exigir seleccion lexica/familiar antes de mostrar replacivo qui o base ca."
+    }), Object.freeze({
+      id: "liz-after-root-plus-ya-source",
+      sourceRefs: Object.freeze(["Andrews 37.3.4", "Andrews 37.4", "Andrews 37.5", "Andrews 54.2.3.a"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los troncos raíz+ya pueden alimentar liz; unos borran ya y otros conservan el tronco completo.",
+      requiredProbe: "No derivar liz desde la superficie ya sin registrar si ya pertenece a raíz+ya y si Andrews exige raíz o tronco."
+    }), Object.freeze({
+      id: "active-action-liz-root-plus-ya-relic-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3.4", "Andrews 54.2.3.a"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos raíz+ya borran ya antes de liz como reliquia arcaica, pero otros conservan el tallo completo, como hue-i-ya-liz y tlaoco-ya-liz.",
+      requiredProbe: "No elegir raíz o tallo completo por ortografía; registrar selección léxica, reliquia arcaica y fuente raíz+ya antes de construir el CNN en liz."
+    }), Object.freeze({
+      id: "liz-after-denominal-or-deverbal-ya-source-chain",
+      sourceRefs: Object.freeze(["Andrews 37.3.4", "Andrews 54.2.3.a", "Andrews 54.2.3.b"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "Los troncos ti-ya/hui-ya denominales o deverbales pueden alimentar liz; ti-ya borra ya antes de liz y hui-ya puede borrar o conservar ya.",
+      requiredProbe: "Conservar el tronco CNV intermedio y no presentar liz como si saliera directamente de la CNN fuente."
+    }), Object.freeze({
+      id: "active-action-compound-verbstem-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.1"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un activo de acción puede derivarse de un tronco verbal compuesto; el compuesto fuente no se debe reducir a una raíz simple antes de liz.",
+      requiredProbe: "Conservar los componentes del tronco compuesto y su relación interna antes de formar o diagnosticar la CNN de acción activa."
+    }), Object.freeze({
+      id: "active-action-liz-connective-t-compound-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.1", "Andrews 30.5", "Andrews 11.5"]),
+      pdfPages: Object.freeze([374, 375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los activos de acción desde compuestos pueden contener conectivo t, matriz como on-o o ca-h, e embeds que conservan sentido extendido.",
+      requiredProbe: "No aplanar huetz-0-t-o-liz, tla-mat-0-ca-ye-liz o ne-chix-0-ca-ye-liz a un verbo simple; conservar embed, conectivo, matriz y fuente compuesta."
+    }), Object.freeze({
+      id: "active-action-liz-compound-huetzi-huechi-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.1"]),
+      pdfPages: Object.freeze([375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En activos de accion desde compuestos, Andrews permite variante interna del embed como cual-a-n-0-ti-huetzi-liz junto a cual-a-n-0-ti-huechi-liz.",
+      requiredProbe: "No normalizar la variante huechi a un nuevo lexema ni borrar la fuente huetz/huechi; conservar compuesto, embed, variante interna y sufijo liz antes de comparar superficies."
+    }), Object.freeze({
+      id: "active-action-liz-way-of-being-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.4", "Andrews 11.5"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos liz nombran manera, naturaleza o apariencia de una accion/estado, no solo la accion ordinaria; la glosa puede ocultar la subclase.",
+      requiredProbe: "Registrar subtipo semantico de liz y no colapsar manera/naturaleza/apariencia con una accion activa simple."
+    }), Object.freeze({
+      id: "active-action-liz-appearance-action-dual-reading-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.4"]),
+      pdfPages: Object.freeze([374]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "itlachiyeliz combines the action of looking and the aspect or appearance of what is seen; the shared English gloss does not split this into two formal classes.",
+      requiredProbe: "Do not reroute appearance readings to an adjectival class or erase the active-action liz source; preserve tla-chiya, liz and the dual semantic reading."
+    }), Object.freeze({
+      id: "potential-patient-homophony",
+      sourceRefs: Object.freeze(["Andrews 37.5.2"]),
+      pdfPages: Object.freeze([375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los potencial-patient pueden ser homófonos de activos de acción; la superficie sola no identifica la ruta.",
+      requiredProbe: "Exigir metadatos de fuente y no inferir clase desde la forma visible."
+    }), Object.freeze({
+      id: "potential-patient-intransitive-third-singular-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.2"]),
+      pdfPages: Object.freeze([375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Con fuente intransitiva, el potencial-patient y el activo de acción son homófonos en tercera singular, pero otros sujetos desambiguan la lectura.",
+      requiredProbe: "No decidir mahuiztli solo por superficie; comparar sujeto 0-0 frente a ti-0 u otros sujetos y separar persona honorable de acto de temer."
+    }), Object.freeze({
+      id: "potential-patient-transitive-objectless-vs-active-action-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.2"]),
+      pdfPages: Object.freeze([375]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Con fuente transitiva, el potencial-patient en z/liz se distingue del activo de accion porque carece de pronombre de objeto; ademas no se limita a sujeto de tercera comun.",
+      requiredProbe: "No leer chihualiz como tlachihualiz ni limitarlo a tercera comun; comparar ausencia/presencia de te/tla/ne y persona-numero permitida."
+    }), Object.freeze({
+      id: "double-object-reflexive-active-action-exception",
+      sourceRefs: Object.freeze(["Andrews 37.5.2 note"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ciertos doble-objeto con reflexivo m-o+tla forman liz sin proyectivo pero siguen siendo activos de acción, no potencial-patient.",
+      requiredProbe: "Distinguir excepción reflexiva de potencial-patient por fuente, no por objeto omitido."
+    }), Object.freeze({
+      id: "active-action-affective-tzin-s-assimilation-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5", "Andrews 2.11"]),
+      pdfPages: Object.freeze([377]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando un nounstem activo de accion en liz/z se incrusta bajo la matriz afectiva tzin, /s/ se asimila ante /tz/ aunque la escritura usual oculte la geminacion.",
+      requiredProbe: "No confiar en la grafia motlanequilitzin/imiquitzin como limite morfologico; conservar fuente liz/z, matriz tzin y diagnostico s+tz antes de normalizar la superficie."
+    }), Object.freeze({
+      id: "active-vs-passive-action-possessor-role-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.6", "Andrews 36.10.1"]),
+      pdfPages: Object.freeze([377]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews contrasta CNNs de acción activa y pasiva por el papel del poseedor: en la activa el poseedor representa al agente, en la pasiva representa al paciente.",
+      requiredProbe: "No decidir la ruta por traducción de acción; conservar voz fuente, rol agente/paciente del poseedor y familia activa/pasiva antes de generar o continuar."
+    }), Object.freeze({
+      id: "active-action-nnc-supplement-vs-vnc-adjunct-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.7", "Andrews 19.4"]),
+      pdfPages: Object.freeze([377]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Una CNV y una CNN de acción activa pueden cumplir función de adjunto o suplemento con traducción equivalente, pero la equivalencia funcional no borra la diferencia CNV/CNN.",
+      requiredProbe: "No clasificar por la glosa 'saber cómo'; registrar si el adjunto es CNV o CNN, conservar la fuente en liz y mantener la frontera de suplemento."
+    }), Object.freeze({
+      id: "patientive-deverbal-wider-than-patient-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.8", "Andrews 35.3 note 2"]),
+      pdfPages: Object.freeze([377]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos deverbales no se limitan al paciente de una acción: pueden venir de núcleos intransitivos o transitivos y expresar entidad afectada, resultado o producto.",
+      requiredProbe: "No bloquear fuente intransitiva ni reducir la salida a paciente literal; registrar fuente inmediata/última, transitividad y lectura de resultado/producto."
+    }), Object.freeze({
+      id: "patientive-source-taxonomy",
+      sourceRefs: Object.freeze(["Andrews 37.9", "Andrews 36.6", "Andrews 38.1", "Andrews 39.1", "Andrews 39.2", "Andrews 39.4"]),
+      pdfPages: Object.freeze([378, 382, 391, 393, 400]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos dependen de cinco fuentes: pasiva, impersonal, perfectiva activa, imperfectiva activa, o raíz/tronco.",
+      requiredProbe: "Cada salida patientiva debe conservar la familia de fuente antes de continuar como CNN o embed."
+    }), Object.freeze({
+      id: "passive-patientive-nonactive-suffix-truncation",
+      sourceRefs: Object.freeze(["Andrews 37.8", "Andrews 37.9"]),
+      pdfPages: Object.freeze([378]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos pasivos se forman truncando el sufijo no activo según su familia: lo pierde o final, lo-hua pierde hua y o, o/o-hua pierden el sufijo entero, y hua pierde hua; la clase resultante puede ser tli o ti.",
+      requiredProbe: "No aplicar un solo recorte patientivo; registrar sufijo no activo fuente, truncamiento Andrews y clase CNN resultante."
+    }), Object.freeze({
+      id: "passive-patientive-lo-vowel-length-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9"]),
+      pdfPages: Object.freeze([378]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos pasivos con lo, la i/o antes de l es siempre larga y la a precedente tiene pronunciacion larga reducida aunque se escriba sin macron; la salida es clase tli.",
+      requiredProbe: "No decidir la base solo por ortografia visible; registrar cantidad vocalica fuente, perdida de o de lo y clase tli antes de continuar."
+    }), Object.freeze({
+      id: "passive-patientive-source-pronoun-preservation",
+      sourceRefs: Object.freeze(["Andrews 37.9", "Andrews 21.2", "Andrews 21.2.1"]),
+      pdfPages: Object.freeze([378]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El patientivo pasivo conserva pronombres objeto inespecíficos o reflexivo shuntline asociados con la fuente pasiva, y no existe patientivo pasivo cuya fuente última sea una CNV activa intransitiva.",
+      requiredProbe: "Bloquear fuente intransitiva y preservar proyectivo/reflexivo fuente antes de formar la CNN patientiva."
+    }), Object.freeze({
+      id: "passive-patientive-malli-active-object-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 21.2.1"]),
+      pdfPages: Object.freeze([378]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ma-l-li 'captive' comes from passive (ma-lo), which comes from active +qui-0(ma)- from te-(ma); the visible nounstem hides the active object chain.",
+      requiredProbe: "Do not derive malli from a bare ma root or a lexical captive fixture; preserve active object, passive stem and CNN patientive state/possessive paradigm."
+    }), Object.freeze({
+      id: "passive-patientive-malinalli-thigh-instrument-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1"]),
+      pdfPages: Object.freeze([378]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Malinalli 'grass' derives from passive (mal-i-n-a-lo), ultimately tla-(mal-i-n-a), 'to twist or roll something on the thigh'; the lexical noun hides an instrumental/body-source verbcore.",
+      requiredProbe: "Do not treat malinalli as an unanalyzed plant noun; preserve passive source, active tla source and the mal-i-n-a internal stem history."
+    }), Object.freeze({
+      id: "passive-impersonal-homonymy",
+      sourceRefs: Object.freeze(["Andrews 37.9", "Andrews 38.1"]),
+      pdfPages: Object.freeze([380, 382, 384, 385, 386, 388]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Pasivo e impersonal pueden compartir forma o traducción; la ruta debe conservar la fuente de voz.",
+      requiredProbe: "No colapsar pasivo/impersonal en una sola etiqueta no-activa cuando el siguiente paso depende de la fuente."
+    }), Object.freeze({
+      id: "passive-patientive-unexpected-source-semantic-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([380]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews advierte que algunos patientivos pasivos tienen fuente no activa inesperada o valor culturalmente pasivo aunque la glosa parezca activa.",
+      requiredProbe: "No corregir la ruta hacia un agentivo o activo por traducción; conservar fuente no activa irregular, relación paciente y estado de evidencia."
+    }), Object.freeze({
+      id: "passive-patientive-cultural-agentive-gloss-rejection",
+      sourceRefs: Object.freeze(["Andrews 37.9.1"]),
+      pdfPages: Object.freeze([380]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Patientivos como icxi o quech pueden parecer agentivos desde otra perspectiva cultural, pero Andrews recalca que Nahuatl no les da formulacion agentiva.",
+      requiredProbe: "No reroutear pie, cuello u otras glosas activas a agentivo; conservar fuente pasiva, perspectiva cultural y etiqueta patientiva."
+    }), Object.freeze({
+      id: "passive-patientive-lexicalized-meaning-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 38.1.3"]),
+      pdfPages: Object.freeze([379, 385]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos pasivos quedan lexicalizados o figurados y contrastan con patientivos impersonales de fuente cercana; la glosa fija no prueba la ruta.",
+      requiredProbe: "No derivar por significado lexicalizado como 'bueno', 'pluma' o 'comida'; conservar fuente pasiva/impersonal, nucleo VNC y contraste Andrews antes de generar o continuar."
+    }), Object.freeze({
+      id: "passive-patientive-original-meaning-compound-recovery-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 36.3"]),
+      pdfPages: Object.freeze([379]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo pasivo lexicalizado como cua-l-li puede conservar su significado original dentro de compuestos como te-cua-n-cua-l-li.",
+      requiredProbe: "No tomar la glosa lexicalizada como unica fuente; comprobar si un compuesto conserva la lectura patientiva original antes de bloquear o continuar la ruta."
+    }), Object.freeze({
+      id: "passive-patientive-lo-lexicalized-vs-impersonal-counterpart-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 38.1.3"]),
+      pdfPages: Object.freeze([379]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cua-l-li y quetza-l-li contrastan con patientivos impersonales correspondientes; el sufijo lo compartido no decide la familia inmediata.",
+      requiredProbe: "Comparar fuente pasiva, fuente impersonal y significado lexicalizado antes de aceptar una CNN patientiva o una continuacion denominal."
+    }), Object.freeze({
+      id: "passive-patientive-temalli-vowel-height-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 24.3.1", "Andrews 2.2"]),
+      pdfPages: Object.freeze([379]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tem-a-l-li tiene variante tim-a-l-li por elevacion vocalica y cambio de sentido; la variante no prueba otra fuente CNV independiente.",
+      requiredProbe: "No crear una raiz tim separada por la variante; registrar tem-a source, elevacion e > i, valor lexical y comparacion semantica."
+    }), Object.freeze({
+      id: "passive-patientive-o-source-possessive-paradigm-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1"]),
+      pdfPages: Object.freeze([379]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos pasivos desde fuente o, como namic-tli, conservan paradigma CNN con posesivo y plural propio, no solo una forma derivada aislada.",
+      requiredProbe: "No validar solo la superficie absolutiva; comprobar fuente pasiva o, sujeto/posesivo/plural de CNN y relacion con el verbcore activo ultimo."
+    }), Object.freeze({
+      id: "passive-patientive-piya-piye-source-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1"]),
+      pdfPages: Object.freeze([379]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Piya-l-li and piye-l-li are alternate passive patientive outputs for a guarded thing/cache, tracking source variants tla-(piya) and tla-(piye).",
+      requiredProbe: "Do not normalize piya/piye to one surface or one formula; preserve source variant and patientive lo derivation before generating or comparing."
+    }), Object.freeze({
+      id: "passive-patientive-hua-vowel-support-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 2.3.4", "Andrews 25.2.2"]),
+      pdfPages: Object.freeze([380]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos pasivos desde fuente hua borran hua, acortan [i:] a [i] y pueden exponer vocal de apoyo o cambios consonánticos de la fuente.",
+      requiredProbe: "No recortar hua como simple sufijo final; registrar cantidad vocalica, vocal de apoyo y cambio fonologico antes de la CNN patientiva."
+    }), Object.freeze({
+      id: "passive-patientive-supportive-vowel-possessive-proof",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 25.2.2"]),
+      pdfPages: Object.freeze([380]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En icxi, la i inicial es vocal de apoyo demostrada por la posesiva nocxi; no debe convertirse en raiz lexical del patientivo.",
+      requiredProbe: "Comparar absolutivo y posesivo antes de fijar la base; registrar vocal de apoyo, fuente activa icza y recorte pasivo hua."
+    }), Object.freeze({
+      id: "passive-patientive-reflexive-ne-shuntline-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.2", "Andrews 26.23"]),
+      pdfPages: Object.freeze([380]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Si la fuente pasiva es reflexiva, el reflexivo shuntline ne aparece dentro del nounstem patientivo.",
+      requiredProbe: "No borrar reflexivo ni convertirlo en mainline; conservar fuente pasiva reflexiva y ne shuntline en la formula CNN."
+    }), Object.freeze({
+      id: "impersonal-patientive-hua-hualo-truncation",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([384]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos impersonales con sufijo hua o hua-lo tienen recortes y cambios fonológicos propios, incluyendo i larga que se acorta al borrar hua y cambios como tl/Al a ch/c según la fuente.",
+      requiredProbe: "No reutilizar el recorte pasivo como regla universal; registrar sufijo impersonal, recorte hua/hua-lo y cambio fonológico antes de formar la CNN."
+    }), Object.freeze({
+      id: "impersonal-patientive-tzahua-molina-s-reduction-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1"]),
+      pdfPages: Object.freeze([382]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El patientivo impersonal esperado tzahua-l-li tiene testimonio Molina zahua-l-li con reduccion inesperada tz > s; esa variante no es una regla general de salida.",
+      requiredProbe: "No normalizar tzahua y zahua como el mismo patron productivo; registrar fuente impersonal lo, forma esperada, testimonio Molina y estado de variante antes de aceptar salida."
+    }), Object.freeze({
+      id: "impersonal-patientive-inherently-impersonal-nonactive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 24.6.2"]),
+      pdfPages: Object.freeze([382]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos impersonales vienen de verbstems ya inherentemente impersonales que reciben sufijo no activo, como tona-l-li o ce-hua-l-li; no dependen de un proyectivo tla/te visible.",
+      requiredProbe: "No exigir fuente transitiva ni proyectivo para todo patientivo impersonal; conservar impersonalidad inherente, sufijo no activo y resultado CNN antes de clasificar."
+    }), Object.freeze({
+      id: "impersonal-patientive-lo-source-full-stem-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([385]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Una fuente con lo puede producir un patientivo impersonal truncado y tambien un nounstem sobre el verbstem completo, como tla-o-l frente a tla-o-ya-l, con alcance semantico diferente.",
+      requiredProbe: "No colapsar forma truncada y forma de tallo completo; registrar fuente lo, tallo completo, contraste especifico/general y ruta patientiva antes de generar."
+    }), Object.freeze({
+      id: "impersonal-patientive-o-nonactive-source-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 37.9.3"]),
+      pdfPages: Object.freeze([385]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos desde una CNV impersonal con sufijo no activo o conservan una cadena distinta de los patientivos pasivos cercanos; te-tla-mac no es el mismo resultado que te-mac.",
+      requiredProbe: "Comparar fuente activa, fuente impersonal con o, proyectivos te/tla y contraste pasivo antes de asignar el nounstem."
+    }), Object.freeze({
+      id: "impersonal-patientive-hua-vowel-length-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1"]),
+      pdfPages: Object.freeze([385]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando el sufijo hua se borra en un patientivo impersonal, la vocal precedente se acorta salvo que sea fonemicamente larga en la fuente activa.",
+      requiredProbe: "No decidir cantidad vocalica por ortografia de salida; registrar cantidad de la fuente activa, borrado de hua y acortamiento permitido."
+    }), Object.freeze({
+      id: "doubly-impersonal-destockal-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 24.6.2", "Andrews 22.6", "Andrews 37.9.1", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([382, 384]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo impersonal puede venir de un nucleo doblemente impersonal como tla-neci > tla-nex, con cambio fonologico de fuente antes de ser nounstem.",
+      requiredProbe: "No formar el nounstem directamente desde la superficie; conservar doble impersonal, fuente destockal, cambio fonologico y ruta patientiva."
+    }), Object.freeze({
+      id: "impersonal-patientive-intransitive-agentive-contrast",
+      sourceRefs: Object.freeze(["Andrews 38.1.1"]),
+      pdfPages: Object.freeze([382]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Con fuente activa intransitiva, el patientivo impersonal puede traducirse cerca de un agentivo, pero nombra resultado y no agente ni adjetivo.",
+      requiredProbe: "No escoger agentivo o funcion adjetival por traduccion; registrar fuente intransitiva impersonal, rol de resultado y formula CNN patientiva."
+    }), Object.freeze({
+      id: "impersonal-patientive-root-plus-ya-root-selection",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 25.4.8"]),
+      pdfPages: Object.freeze([383]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ciertos verbstems intransitivos raiz+ya forman el patientivo impersonal sobre la raiz y no sobre el tallo completo, con posibles cambios vocalicos lexicales.",
+      requiredProbe: "No aplicar recorte ya uniforme; exigir la raiz fuente, la seleccion lexica y cambios como ihya > ihye antes de construir el nounstem."
+    }), Object.freeze({
+      id: "impersonal-patientive-triple-impersonal-yohua-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 22.6"]),
+      pdfPages: Object.freeze([383]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tla-yohua-l-li viene de yohua, luego tla impersonal, y luego lo no activo; Andrews lo describe como doblemente vuelto triplemente impersonal.",
+      requiredProbe: "No derivar oscuridad directamente de yohua-l; mostrar yohua, tla-yohua, lo y la cadena impersonal antes de formar la CNN."
+    }), Object.freeze({
+      id: "impersonal-patientive-root-plus-ya-passive-homonym-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 25.4.8", "Andrews 54.5.1"]),
+      pdfPages: Object.freeze([383]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Coco-l-li de fuente coco-ya es patientivo impersonal de raiz+ya, pero coco-l-li tambien puede ser patientivo pasivo desde el causativo tla-(coco-a).",
+      requiredProbe: "No clasificar coco-l-li por forma; comparar fuente intransitiva raiz+ya, causativo transitivo, voz pasiva/impersonal y significado antes de aceptar la ruta."
+    }), Object.freeze({
+      id: "impersonal-patientive-o-ohua-phonology-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.1", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([383]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos impersonales desde o u o-hua pueden mostrar cambios fonologicos como huetzi -> huach y tlaco-ti -> tlaco-ch.",
+      requiredProbe: "No copiar la base activa visible; registrar sufijo no activo, cambio e>a o ti>ch/c y fuente impersonal antes de la CNN."
+    }), Object.freeze({
+      id: "impersonal-patientive-reflexive-source-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 38.1.2", "Andrews 37.9.2"]),
+      pdfPages: Object.freeze([384]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos impersonales de fuente transitiva reflexiva pueden ser difíciles de distinguir de patientivos pasivos si no hay proyectivo te o tla visible.",
+      requiredProbe: "No decidir impersonal vs pasivo por forma; conservar fuente reflexiva o pasiva y proyectivo visible antes de clasificar."
+    }), Object.freeze({
+      id: "impersonal-patientive-projective-nonhuman-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.3"]),
+      pdfPages: Object.freeze([384]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos impersonales con fuente transitiva proyectiva, el objeto directo fuente no debe referir a un ser humano y se representa con tla mainline o tla shuntline en te+tla.",
+      requiredProbe: "Bloquear lectura humana de objeto directo y preservar mainline/shuntline tla antes de aceptar la CNN patientiva."
+    }), Object.freeze({
+      id: "impersonal-patientive-ya-deletion-before-lo-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.3", "Andrews 37.3.4"]),
+      pdfPages: Object.freeze([384]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En raras fuentes transitivas terminadas en ya, el ya puede borrarse antes de agregar el sufijo no activo lo que alimenta el patientivo impersonal.",
+      requiredProbe: "No mantener ya por defecto; registrar fuente ya, borrado ante lo y ruta impersonal antes de formar la CNN."
+    }), Object.freeze({
+      id: "impersonal-patientive-exceptional-te-human",
+      sourceRefs: Object.freeze(["Andrews 38.1.4 note"]),
+      pdfPages: Object.freeze([388]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En raras ocasiones aparece un patientivo impersonal con te que nombra a un humano, contradiciendo el uso general; esas formas no deben generalizarse como regla de te humano.",
+      requiredProbe: "Marcar te humano como excepcional y exigir evidencia léxica antes de permitirlo como salida o ruta normal."
+    }), Object.freeze({
+      id: "impersonal-patientive-te-ilpilli-human-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.4 note"]),
+      pdfPages: Object.freeze([388]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Te-ilpi-l-li 'prisoner' is an exceptional te human impersonal patientive from causative te-(ilpi-a) and appears as an embed inside te-ilpil-cal-la-pix-0-qui.",
+      requiredProbe: "Do not generalize te human or flatten the prison-warden compound; preserve exceptional patientive source, causative source and embed role."
+    }), Object.freeze({
+      id: "impersonal-patientive-te-source-tla-prefix-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.4", "Andrews 22.6"]),
+      pdfPages: Object.freeze([386]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Si la fuente activa proyectiva usa te humano, el patientivo impersonal normal no conserva te: usa tla porque la fuente inmediata es pasiva impersonalizada.",
+      requiredProbe: "No copiar te desde la fuente activa al nounstem; registrar cadena activa > pasiva > impersonalizada pasiva y resultado tla."
+    }), Object.freeze({
+      id: "impersonal-patientive-active-homonym-common-number-gate",
+      sourceRefs: Object.freeze(["Andrews 38.1.4"]),
+      pdfPages: Object.freeze([386]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un homonimo activo no humano de patientivo impersonal, como tla-pach-o-l-li 'cosa apretada', puede estar limitado a CNN con sujeto de numero comun.",
+      requiredProbe: "No resolver el homonimo por superficie tla-pachol; registrar ruta pasiva impersonal humana frente a ruta activa no humana y exigir la puerta de numero comun para la lectura activa."
+    }), Object.freeze({
+      id: "impersonal-patientive-hua-final-a-to-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.3"]),
+      pdfPages: Object.freeze([386]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos impersonales de fuente hua, una a final de la fuente activa puede reemplazarse por i antes de la salida CNN.",
+      requiredProbe: "No dejar la vocal final por simple copia del verbo activo; registrar fuente hua, reemplazo a > i y clase patientiva antes de generar la forma."
+    }), Object.freeze({
+      id: "impersonal-patientive-human-nonhuman-contrast",
+      sourceRefs: Object.freeze(["Andrews 38.1.5", "Andrews 37.9.1", "Andrews 26.21", "Andrews 54.13.2", "Andrews 54.5.1"]),
+      pdfPages: Object.freeze([388]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos aplicativos que permiten objeto humano o no humano tienen patientivo con tla para entidad humana y te para entidad no humana, pero Andrews marca los te como anómalos y a veces el contraste se debe a otros factores.",
+      requiredProbe: "No mapear tla=humano y te=no humano como regla global; registrar fuente aplicativa, anomalía de te y factor de contraste antes de clasificar."
+    }), Object.freeze({
+      id: "impersonal-patientive-tlatlauhtil-molina-rendering-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.5", "Andrews 54.5.1"]),
+      pdfPages: Object.freeze([388]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tla-tlauh-ti-l-li is a person receiving a gift/boon from te-(tlauh-ti-a); Molina's rendering as the gift itself is flagged by Andrews as apparently erroneous.",
+      requiredProbe: "Do not let dictionary translation override route role; preserve human recipient patientive, source te-(tlauh-ti-a), and contrast with te-tlauh-ti-l-li gift/boon."
+    }), Object.freeze({
+      id: "impersonal-patientive-applicative-human-homonym-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.4", "Andrews 26.2"]),
+      pdfPages: Object.freeze([387]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo impersonal de fuente aplicativa te puede usar tla para una persona y tener homonimo de fuente causativa o transitiva con lectura de cosa.",
+      requiredProbe: "No decidir humano/cosa por superficie tla; conservar cadena activa > pasiva > impersonalizada, fuente aplicativa o causativa y lectura homonima."
+    }), Object.freeze({
+      id: "impersonal-patientive-passive-o-sequence-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.4", "Andrews 26.2"]),
+      pdfPages: Object.freeze([387]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos impersonales se derivan de una cadena activa específica > pasiva en o > pasiva impersonalizada > CNN patientiva, no de un recorte directo del verbo activo.",
+      requiredProbe: "No saltar de te-(titlani) a tla-fitlan-tli; conservar verbcore activo, pasivo titlan-o, impersonal tla-fitlan-o y contraste con el patientivo pasivo fitlan-tli."
+    }), Object.freeze({
+      id: "impersonal-patientive-passive-hua-deletion-homonym-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.4", "Andrews 26.2"]),
+      pdfPages: Object.freeze([387]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando la fuente pasiva impersonalizada usa hua, el patientivo borra hua, acorta i larga y puede quedar homónimo de un patientivo de fuente activa transitiva.",
+      requiredProbe: "No clasificar tla-ahxi por superficie; registrar ahxi-hua, borrado de hua, acortamiento vocálico y contraste con la fuente activa tla-(ahci)."
+    }), Object.freeze({
+      id: "impersonal-passive-patientive-valence-source-contrast",
+      sourceRefs: Object.freeze(["Andrews 38.1.5", "Andrews 37.9.3", "Andrews 25.3"]),
+      pdfPages: Object.freeze([388, 389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un par tla/te puede contrastar porque uno es patientivo impersonal de un verbo de un objeto y el otro es patientivo pasivo de un verbo de dos objetos, no porque la forma visible decida la clase.",
+      requiredProbe: "Comparar valencia y fuente VNC antes de asignar impersonal o pasivo; no inferir la ruta solo desde tla/te."
+    }), Object.freeze({
+      id: "impersonal-active-homonym-source-warning",
+      sourceRefs: Object.freeze(["Andrews 38.1", "Andrews 39.2.2"]),
+      pdfPages: Object.freeze([386]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos impersonales pueden tener homonimos derivados de CNV activas con pacientes no humanos; la forma visible no decide la derivacion.",
+      requiredProbe: "Exigir fuente impersonal o activa-no-humana antes de clasificar el patientivo y evitar inferencia desde traduccion."
+    }), Object.freeze({
+      id: "impersonal-patientive-active-action-translation-overlap",
+      sourceRefs: Object.freeze(["Andrews 38.1.6", "Andrews 37.2", "Andrews 37.3"]),
+      pdfPages: Object.freeze([389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo impersonal y un activo de acción pueden compartir traducción sin significar lo mismo; la glosa no identifica la ruta.",
+      requiredProbe: "No fusionar patientivo y activo de acción por traducción compartida; conservar fuente, sufijo y rol semántico."
+    }), Object.freeze({
+      id: "impersonal-active-action-wealth-offense-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.1.6", "Andrews 37.2", "Andrews 37.3"]),
+      pdfPages: Object.freeze([389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ne-cuil-ton-o-l-li/ne-cuil-ton-o-liz-tli and tla-pil-chihua-l-li/tla-pil-chihua-liz-tli can translate alike as wealth or wrongdoing while remaining patientive versus active-action routes.",
+      requiredProbe: "Do not deduplicate same-translation pairs; preserve patientive suffix l/li, active-action liz, and source m-o(cuil-ton-o-a) or tla-(pil-chihua)."
+    }), Object.freeze({
+      id: "compound-patientive-source-verbstem-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.2", "Andrews 41.2.1", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos pasivos e impersonales pueden tener como fuente un tronco verbal compuesto; con embed adverbial la traducción suele ser directa, pero con objeto incrustado la relación semántica cambia.",
+      requiredProbe: "Conservar si el embed fuente es adverbial u objeto incorporado antes de presentar la CNN patientiva o compararla con compuestos posteriores."
+    }), Object.freeze({
+      id: "compound-patientive-false-etymology-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.2", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo compuesto puede ser malanalizado por etimologia popular o por una entrada de diccionario; Andrews separa la fuente verbal compuesta real de semejanzas como te/rock.",
+      requiredProbe: "No aceptar segmentacion por semejanza grafica; registrar embed correcto, matriz verbal fuente y rechazo de etimologia falsa antes de continuar."
+    }), Object.freeze({
+      id: "compound-patientive-ahhuech-water-glottalized-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 38.2", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([389]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ah-huech/ah-huach 'dew' comes from ah-huetzi and uses the glottalized variant of (a)-tl water as embed.",
+      requiredProbe: "Do not parse initial ah as a particle or unrelated prefix; preserve water nounstem variant, compound verbstem source and patientive output."
+    }), Object.freeze({
+      id: "compound-patientive-embedded-object-translation-reversal",
+      sourceRefs: Object.freeze(["Andrews 38.2", "Andrews 41.2.3"]),
+      pdfPages: Object.freeze([390]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando el source verbstem compuesto contiene objeto incrustado, la traduccion inglesa puede invertir la relacion gobernado-gobernante de los constituyentes nahuas.",
+      requiredProbe: "No reordenar la estructura por la traduccion; conservar objeto incrustado, matriz fuente y direccion de gobierno Andrews en la CNN patientiva."
+    }), Object.freeze({
+      id: "single-projective-passive-patientive",
+      sourceRefs: Object.freeze(["Andrews 37.9.1", "Andrews 37.9.3"]),
+      pdfPages: Object.freeze([380, 385]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo pasivo de fuente doble-proyectiva conserva solo un pronombre objeto según la fuente.",
+      requiredProbe: "Probar selección explícita ta/te y prohibir mezcla de dos proyectivos en el tronco nominal."
+    }), Object.freeze({
+      id: "passive-patientive-double-object-selected-te-role-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.9.3"]),
+      pdfPages: Object.freeze([381]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos pasivos de fuente doble-proyectiva, te-mac-tli conserva el objeto te seleccionado de te+tla-(maca); la CNN nombra una cosa dada a otros y el poseedor posesivo puede marcar al dador.",
+      requiredProbe: "No conservar te y tla juntos ni leer notemac como cosa dada a mi; registrar objeto seleccionado te, fuente doble-proyectiva, paciente CNN y rol posesivo del dador."
+    }), Object.freeze({
+      id: "passive-patientive-te-selected-deletion-alternate",
+      sourceRefs: Object.freeze(["Andrews 37.9.3"]),
+      pdfPages: Object.freeze([381]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando el pronombre seleccionado del patientivo pasivo doble-proyectivo es te, Andrews permite que te se borre en el nounstem derivado.",
+      requiredProbe: "No tratar la variante sin te como parche superficial ni borrar te globalmente; exponerla solo como alternante de fuente pasiva doble-proyectiva con te seleccionado."
+    }), Object.freeze({
+      id: "perfective-patientive-ending-gate",
+      sourceRefs: Object.freeze(["Andrews 39.1"]),
+      pdfPages: Object.freeze([391, 392, 393, 394]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El patientivo perfectivo solo se autoriza con terminaciones perfectivas específicas.",
+      requiredProbe: "Bloquear terminaciones no licenciadas aunque la superficie parezca construible."
+    }), Object.freeze({
+      id: "perfective-patientive-nonactive-analogy-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 20.4", "Andrews 20.5", "Andrews 33.1.3", "Andrews 38.1.3"]),
+      pdfPages: Object.freeze([391]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El patientivo perfectivo tiene fuente activa perfectiva, pero se modela por analogia pasiva o impersonal no activa; no es copia directa de la flexion activa.",
+      requiredProbe: "Registrar fuente activa perfectiva, analogia pasiva/impersonal y terminacion autorizada antes de formar la CNN."
+    }), Object.freeze({
+      id: "perfective-patientive-passive-analogy-transitive-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([391]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "With transitive sources, perfective patientives such as quen-tli and tzauc-tli can be modeled on passive patientives and carry passive-appropriate object-pronoun logic.",
+      requiredProbe: "Do not build the CNN from the active surface alone; preserve transitive source, perfective ending and passive-analogy object-pronoun frame."
+    }), Object.freeze({
+      id: "perfective-patientive-impersonal-analogy-pahuaz-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 33.1.3", "Andrews 38.1.3"]),
+      pdfPages: Object.freeze([391]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tla-pa-hua-z-tli is a perfective patientive from tla-(pa-hua-ci) modeled on an impersonal patientive and contrasts with tla-pa-hua-x-tli of the same meaning.",
+      requiredProbe: "Do not merge z and x patientives by translation; preserve perfective-active source, impersonal analogy and contrast with the impersonal patientive counterpart."
+    }), Object.freeze({
+      id: "perfective-patientive-object-pronoun-analogy-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 38.1", "Andrews 38.1.4"]),
+      pdfPages: Object.freeze([391, 392]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos perfectivos sustituyen te por tla por analogia no activa; la forma de objeto interna no se deduce directamente de la valencia activa fuente.",
+      requiredProbe: "No decidir objeto interno por la CNV activa visible; conservar analogia 38.1.4, fuente activa y pronombre resultante."
+    }), Object.freeze({
+      id: "perfective-patientive-ownerhood-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 39.1.3", "Andrews 39.3.3", "Andrews 39.9"]),
+      pdfPages: Object.freeze([392]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un conjunto limitado de patientivos perfectivos viene de troncos compuestos de posesion con matriz *tla-hua o *tla-yo-a; esa matriz no debe perderse como si fuera patientivo simple.",
+      requiredProbe: "Registrar matriz de posesion, fuente compuesta y limite de atestiguacion antes de continuar la ruta CNN."
+    }), Object.freeze({
+      id: "perfective-patientive-derivation-only-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 39.9"]),
+      pdfPages: Object.freeze([392]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos verbstems fuente de patientivos perfectivos ya no se usan fuera de derivaciones; su existencia se prueba por continuaciones nominalizadas o deverbales.",
+      requiredProbe: "No exigir salida finita comun ni inventarla; registrar fuente solo-derivacional, patientivo resultante y prueba por continuacion."
+    }), Object.freeze({
+      id: "perfective-patientive-yol-heart-embed-standin-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1.2", "Andrews 39.9"]),
+      pdfPages: Object.freeze([392]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El perfectivo patientivo yol-li 'vida' normalmente aparece como embed y puede funcionar como sustituto de yol-lo-t 'corazon'.",
+      requiredProbe: "No tratar yol-li como ordinary noun fixture libre; registrar patientivo perfectivo, uso embed y relacion con la matriz yol-lo-t antes de continuar."
+    }), Object.freeze({
+      id: "acquired-kin-patientive-honorific-or-denominal-continuation",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 14.7.1", "Andrews 14.7.2", "Andrews 54.5", "Andrews 54.5.1.a", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los patientivos de familia adquirida con matriz -huah aparecen sobre todo en NNC honoríficas o en formaciones de tronco verbal denominal; no son una simple lista léxica de parentesco.",
+      requiredProbe: "Separar fuente patientiva, uso honorífico CNN y continuación denominal antes de permitir rutas posteriores."
+    }), Object.freeze({
+      id: "acquired-kin-huah-w-collision",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 14.7.1", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos de familia adquirida con matriz -huah, un /w/ final del tronco fuente puede desaparecer ante el /w/ de -huah; esa pérdida pertenece al límite de fuente, no a una reparación superficial genérica.",
+      requiredProbe: "Registrar el tronco fuente con /w/, la matriz -huah y la colisión w+w antes de exponer la forma CNN."
+    }), Object.freeze({
+      id: "acquired-kin-huah-acquire-not-own-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 54.5.1.a", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En los patientivos de parentesco adquirido, la matriz *tla-hua suele significar adquirir y no poseer, aunque su forma se parezca a ownerhood.",
+      requiredProbe: "No enrutar automaticamente por posesion abundante; conservar lectura de adquisicion, clase de parentesco/esclavo y posibles continuaciones honorificas o denominales."
+    }), Object.freeze({
+      id: "acquired-kin-huez-possessive-only-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 14.7.1"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "huez-huah-tli se forma desde un nounstem huez que Andrews dice que por lo demas solo aparece en CNN posesivas; la fuente limitada no debe convertirse en nounstem libre.",
+      requiredProbe: "No generar huez como base absolutiva comun; registrar fuente posesiva limitada, matriz -huah de adquisicion y uso honorifico/denominal antes de continuar."
+    }), Object.freeze({
+      id: "imperfective-patientive-hua-confusion-source",
+      sourceRefs: Object.freeze(["Andrews 39.2", "Andrews 20.6"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El patientivo imperfectivo parece surgir de confundir el imperfectivo menos el sufijo no activo hua con el imperfectivo propio; por eso no se debe tratar como simple copia del imperfectivo activo.",
+      requiredProbe: "Conservar fuente imperfectiva, posible hua no activo eliminado y analogía pasiva/impersonal antes de formar el nounstem."
+    }), Object.freeze({
+      id: "imperfective-patientive-class-vowel-and-projective-gate",
+      sourceRefs: Object.freeze(["Andrews 39.2"]),
+      pdfPages: Object.freeze([393]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos imperfectivos usan finales largos distintos por clase verbal: Clase C con /o:/ o /i:/ truncados y Clase D con /a:/; si la analogía es pasiva, te/tla no aparece salvo que el núcleo pasivo fuente lo contenga.",
+      requiredProbe: "No generar desde cualquier imperfectivo; registrar clase C/D, vocal final larga y presencia licenciada de proyectivo fuente."
+    }), Object.freeze({
+      id: "patientive-gloss-strained-agentive-or-compound-risk",
+      sourceRefs: Object.freeze(["Andrews 39.1", "Andrews 31.6", "Andrews 14.3", "Andrews 55.6"]),
+      pdfPages: Object.freeze([394]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunas glosas patientivas pueden quedar forzadas y parecer agentivas; otras formas parecen compuestos con matriz -ca-t, pero Andrews las trata como deverbales si existe el tronco verbal fuente.",
+      requiredProbe: "No decidir patientivo, agentivo o compuesto por glosa o por matriz visible -ca; exigir fuente verbal, ruta y evidencia de tronco."
+    }), Object.freeze({
+      id: "imperfective-patientive-agentive-gloss-does-not-reroute-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.2"]),
+      pdfPages: Object.freeze([394]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews permite que algunas salidas patientivas exijan glosa agentiva en ingles, como mariposa o zopilote, pero esa traduccion no cambia la ruta a agentivo.",
+      requiredProbe: "No convertir pa-pal-o-tl, col-o-tl o tzo-pil-o-tl en agentivos por traduccion; conservar fuente CNV, analogia patientiva y estado de glosa forzada."
+    }), Object.freeze({
+      id: "imperfective-patientive-impersonal-analogy-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.2"]),
+      pdfPages: Object.freeze([394]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo imperfectivo puede formarse desde fuente transitiva o intransitiva por analogia con un patientivo impersonal; la analogia no convierte la fuente en impersonal.",
+      requiredProbe: "Distinguir fuente transitiva/intransitiva, patron analogico impersonal y nounstem resultante antes de asignar valencia o objeto."
+    }), Object.freeze({
+      id: "ehca-patientive-source-vs-compound-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.2", "Andrews 31.6", "Andrews 14.3"]),
+      pdfPages: Object.freeze([394]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "eh-ca-tl se analiza como deverbal por existir el verbstem eh-ca, no como compuesto con matriz -ca-tl; el paro glotal pertenece a la prueba de fuente.",
+      requiredProbe: "No clasificar -ca-tl como matriz compuesta si hay fuente verbal eh-ca; registrar fuente CNV, glotalizacion y contraste con analisis compuesto."
+    }), Object.freeze({
+      id: "characteristic-property-yo",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([300, 395, 396, 404, 589]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El nominal de propiedad característica usa matriz -yo-t/-yu-t y cambia bajo posesión orgánica.",
+      requiredProbe: "Conservar matriz de propiedad separada del núcleo incorporable o posesivo."
+    }), Object.freeze({
+      id: "characteristic-property-abundant-ownerhood-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 35.10", "Andrews 15.1.6", "Andrews 2.10"]),
+      pdfPages: Object.freeze([395]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "La propiedad caracteristica en -yo-t se deriva de un tronco verbal compuesto de posesion abundante *tla-yo-a, con objeto incorporado que puede venir de un predicado posesivo degradado.",
+      requiredProbe: "No crear -yo-t desde una cualidad plana; conservar *tla-yo-a, objeto incorporado, asimilacion de y y clase/numero de la CNN."
+    }), Object.freeze({
+      id: "characteristic-property-possessive-predicate-downgrade-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 15.1.6", "Andrews 35.10"]),
+      pdfPages: Object.freeze([395]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunas fuentes de -yo-t, como tla-ix, se crean degradando un predicado posesivo con poseedor inespecifico tla antes de incorporarlo a *tla-yo-a.",
+      requiredProbe: "No tratar el embed posesivo como nounstem libre directo; registrar predicado posesivo degradado, poseedor tla, matriz *tla-yo-a y patientivo resultante."
+    }), Object.freeze({
+      id: "characteristic-property-yotl-number-dyad-length-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 35.10"]),
+      pdfPages: Object.freeze([395]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "La matriz -yo-t de propiedad caracteristica es Subclase 1-B ti; en posesivo su sujeto usa la diada 0-0 y el o largo pierde longitud ante esa diada.",
+      requiredProbe: "No mostrar -yo-t como sufijo semantico sin numero; registrar clase, num1-num2 0-0 y perdida de longitud antes de renderizar la CNN."
+    }), Object.freeze({
+      id: "characteristic-property-mahuizzo-false-mahuizoa-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.2"]),
+      pdfPages: Object.freeze([396]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "La grafia tradicional mahuizo-tl puede hacer creer que mahui-z-zo-tl deriva de tla-(mahui-z-o-a); Andrews marca esa lectura como enganosa.",
+      requiredProbe: "No reconstruir fuente por grafia compacta; conservar segmentacion mahui-z-zo, ruta -yo-t de pertinencia y advertencia contra la falsa fuente CNV."
+    }), Object.freeze({
+      id: "characteristic-property-possessive-on-embed-not-compound",
+      sourceRefs: Object.freeze(["Andrews 39.3 remark", "Andrews 15.1.5"]),
+      pdfPages: Object.freeze([397]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunas CNN posesivas relacionadas con -yo-t se forman sobre el embed y no sobre el compound completo; la superficie posesiva puede esconder la matriz -yo-t.",
+      requiredProbe: "No forzar todo posesivo relacionado con -yo-t a conservar la matriz; registrar si la posesion recae en el embed o en el compound completo."
+    }), Object.freeze({
+      id: "characteristic-property-pacyotl-possessive-embed-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3 remark"]),
+      pdfPages: Object.freeze([397]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En pac-yo-tl 'joy', el posesivo nopac se forma sobre el embed pac y no sobre el compuesto completo pac-yo; esa salida no debe probar una regla posesiva general para -yo-t.",
+      requiredProbe: "No generar nopacyu por analogia ni borrar la matriz sin diagnostico; registrar absolutivo pac-yo-tl, posesivo sobre embed y excepcion de alcance posesivo."
+    }), Object.freeze({
+      id: "characteristic-property-organic-vs-adventitious-possession",
+      sourceRefs: Object.freeze(["Andrews 39.3.4"]),
+      pdfPages: Object.freeze([397, 398, 399]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "La posesion de partes puede contrastar posesion adquirida/adventicia con posesion organica/integral mediante una matriz -yo-t en estado posesivo.",
+      requiredProbe: "No usar el mismo nounstem para ambos sentidos; registrar possessor organico/adventicio, matriz -yo-t, estado posesivo y si el absolutivo conserva otro significado."
+    }), Object.freeze({
+      id: "characteristic-property-organic-contrast-not-universal",
+      sourceRefs: Object.freeze(["Andrews 39.3.4"]),
+      pdfPages: Object.freeze([398, 399]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "No todas las partes del cuerpo o compuestos con -yo-t expresan contraste organico/adventicio; algunos tienen sentido lexicalizado o solo ciertos usos organicos.",
+      requiredProbe: "No aplicar organicidad por lista de cuerpo o por presencia de -yo; exigir la clase lexica, el sentido y el entorno posesivo antes de generar."
+    }), Object.freeze({
+      id: "characteristic-property-xochiyo-animate-possessor-fat-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.4"]),
+      pdfPages: Object.freeze([398]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Xo-chi-yo con poseedor animado significa grasa/sebo animal, no posesion organica de flor vegetal; la animacidad del poseedor cambia la lectura del compuesto.",
+      requiredProbe: "No elegir significado desde el embed xo-chi solamente; registrar poseedor animado, matriz -yo-t y sobrelectura lexicalizada de grasa antes de generar o glosar."
+    }), Object.freeze({
+      id: "characteristic-property-tzon-sense-specific-organic-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.4"]),
+      pdfPages: Object.freeze([398, 399]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tzon 'cabello' no tiene forma organica simple, pero ahcoltzon 'cabello del hombro' y tzon 'cima/punta' si pueden llevar -yo-t organico; la regla depende de lexema y sentido.",
+      requiredProbe: "No aplicar -yo-t por parte corporal generica; conservar lexema, sentido, compuesto fuente y entorno posesivo antes de aceptar contraste organico."
+    }), Object.freeze({
+      id: "characteristic-property-tonacayotl-absolutive-not-possessive-naca",
+      sourceRefs: Object.freeze(["Andrews 39.3.5", "Andrews 35.6", "Andrews 35.8"]),
+      pdfPages: Object.freeze([399]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tonacayotl es una CNN absolutiva con embed agentivo preterito tona-ca dentro de -yo-t, no una posesiva tonacayo derivada de naca 'carne'.",
+      requiredProbe: "No segmentar por parecido con naca; comprobar estado absolutivo, embed preterit-agentive y matriz -yo-t antes de traducir o continuar."
+    }), Object.freeze({
+      id: "characteristic-property-distant-past-action-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.6", "Andrews 36.10.2", "Andrews 36.11.2"]),
+      pdfPages: Object.freeze([399]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz -yo-t puede embedir nounstems de accion pasiva o activa formados desde predicados de pasado distante, como cua-lo-ca-yo y chiy-a-hua-ca-yo.",
+      requiredProbe: "No generar propiedad caracteristica desde una cualidad simple; conservar distant-past predicate source, action nounstem embed y matriz -yo-t."
+    }), Object.freeze({
+      id: "characteristic-property-yotl-embed-omission-full-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.9", "Andrews 39.3"]),
+      pdfPages: Object.freeze([409]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews nota que una CNN derivada con matriz -yo-t puede aparecer por solo su embed y conservar el sentido de la derivacion completa.",
+      requiredProbe: "No tratar el embed abreviado como lexema inconexo; registrar matriz -yo-t omitida, fuente completa y herencia semantica antes de continuar la ruta."
+    }), Object.freeze({
+      id: "tonacatepetl-to-not-possessor-absolutive-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.9", "Andrews 39.3.5"]),
+      pdfPages: Object.freeze([409]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tonacatepetl no contiene pronombre posesivo to; to pertenece a tona, y el sujeto de la CNN es absolutivo ti.",
+      requiredProbe: "No traducir ni segmentar to como posesivo; comprobar tona-ca, num1 absolutivo ti y matriz tepetl antes de diagnosticar o generar."
+    }), Object.freeze({
+      id: "characteristic-property-yotl-compound-matrix",
+      sourceRefs: Object.freeze(["Andrews 31.7", "Andrews 39.3", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El deverbal de propiedad caracteristica -yo-t/-yu-t puede funcionar como matriz de compuesto con valor de cualidad o estado; esto no autoriza tratar toda cualidad como clase formal nueva.",
+      requiredProbe: "Separar matriz de propiedad, fuente deverbal y funcion compuesta antes de ofrecer continuaciones CNN o adjetivales."
+    }), Object.freeze({
+      id: "yotl-watery-secondary-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.1", "Andrews 39.3"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un compuesto en -yo-t puede tener una lectura lexicalizada y otra donde la derivacion de propiedad caracteristica sigue visible, como 'tortuga' frente a 'cosa acuosa'.",
+      requiredProbe: "No decidir la ruta por una sola glosa lexical; conservar lectura lexicalizada, lectura de propiedad y fuente -yo-t antes de continuar."
+    }), Object.freeze({
+      id: "yotl-heart-alternate-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1.1", "Andrews 39.3"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Dos nounstems con la misma glosa pueden venir de rutas distintas: una matriz -yo-t y otra formacion patientiva 39.1.1.",
+      requiredProbe: "No fusionar glosas iguales; registrar si la fuente es propiedad caracteristica -yo-t o patientivo 39.1.1 antes de asignar continuacion."
+    }), Object.freeze({
+      id: "yotl-special-usage-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.7", "Andrews 47.9", "Andrews 48.12", "Andrews 39.3"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "-yo-t/-yu-t aparece en usos especiales de pertinencia, colectividad gentilicia y propiedad caracteristica; la misma matriz no licencia una sola ruta semantica plana.",
+      requiredProbe: "Registrar uso especial, matriz -yo-t/-yu-t y fuente de seccion antes de reusar la CNN en composicion, adjetivalizacion o diagnostico."
+    }), Object.freeze({
+      id: "yotl-compound-possessive-tla-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.7", "Andrews 15.1.6", "Andrews 39.3.3.1", "Andrews 47.3.3.1"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos compuestos con matriz -yo-t usan como embed un predicado posesivo con poseedor inespecífico tla, y pueden contrastar con embeds absolutivos de significado relacionado.",
+      requiredProbe: "No derivar el compuesto solo desde superficie -yo; registrar si el embed es posesivo con tla o absolutivo antes de continuar."
+    }), Object.freeze({
+      id: "conjunctive-compound-not-embed-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.7", "Andrews 28.2"]),
+      pdfPages: Object.freeze([300]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos compuestos no tienen estructura embed+matriz sino conjunct+conjunct, y el primer conjunct conserva vestigio del num1 tl/tli fuente.",
+      requiredProbe: "No forzar toda composición CNN a gobernado+gobernante; registrar relación conjuntiva, restos de num1 y estado posesivo propio."
+    }), Object.freeze({
+      id: "root-stock-variant-unrecoverable",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 24.5"]),
+      pdfPages: Object.freeze([205, 398, 400, 402, 403]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En patientivos de raíz/tronco la variante exacta no siempre se recupera desde la superficie.",
+      requiredProbe: "Mantener variantes como diagnósticas o evidencia-necesaria, no como generación cerrada."
+    }), Object.freeze({
+      id: "stock-patientive-vowel-shortening-and-root-role-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4.2", "Andrews 24.5.9", "Andrews 24.6"]),
+      pdfPages: Object.freeze([402]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos basados en stock de destockales hua pueden acortar la vocal formativa larga y usar un nounstem degradado como raiz.",
+      requiredProbe: "No tratar el patientivo como copia superficial del stock; mostrar acortamiento, fuente hua y rol de raiz degradada antes de la CNN."
+    }), Object.freeze({
+      id: "frequentative-tza-patientive-tla-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1.2", "Andrews 38.1.4", "Andrews 24.6"]),
+      pdfPages: Object.freeze([402]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los destockales transitivos frecuentes en tz-a pueden alimentar patientivos con tla interno por analogia de la fuente; no son simples stocks intransitivos.",
+      requiredProbe: "Registrar fuente frequentativa tz-a, objeto/proyectivo tla y ruta patientiva antes de clasificar la CNN."
+    }), Object.freeze({
+      id: "destockal-hua-stock-ch-or-stock-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4.2", "Andrews 24.6.2"]),
+      pdfPages: Object.freeze([402]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un destockal hua puede formar patientivo agregando ch al stock o usando el stock mismo como nounstem; c no es la unica salida.",
+      requiredProbe: "No forzar c como default; registrar opcion c/ch/stock desnudo y fuente hua antes de producir o diagnosticar."
+    }), Object.freeze({
+      id: "destockal-hua-deverbal-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.3.1", "Andrews 24.5", "Andrews 24.5.9", "Andrews 24.6", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([205]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews juzga ciertos e-hua como destockales, no compuestos con matriz e-hua, porque comparten el derecho a formar un deverbal especifico.",
+      requiredProbe: "No clasificar e-hua por superficie; registrar prueba deverbal 39.4.2, fuente destockal y posible coalescencia vocal."
+    }), Object.freeze({
+      id: "destockal-hua-causative-replacement-no-surface-contrast",
+      sourceRefs: Object.freeze(["Andrews 24.3.1", "Andrews 24.5"]),
+      pdfPages: Object.freeze([205]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los destockales a-hua/e-hua forman causativo tipo uno por reemplazo hua -> hu-a, pero no hay contraste fonologico visible que pruebe el limite morfologico.",
+      requiredProbe: "No tomar hu-a como sufijo superficial libre; registrar reemplazo, fuente destockal y ausencia de contraste visible."
+    }), Object.freeze({
+      id: "multiple-patientive-derivation",
+      sourceRefs: Object.freeze(["Andrews 39.5"]),
+      pdfPages: Object.freeze([404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un mismo valor puede surgir por varias derivaciones patientivas; no se deben fusionar rutas por traducción.",
+      requiredProbe: "Mostrar familia y procedimiento de fuente por fila antes de ofrecer continuaciones."
+    }), Object.freeze({
+      id: "patientive-as-compound-embed",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 39.6", "Andrews 39.7", "Andrews 39.8", "Andrews 39.9", "Andrews 41.2.3"]),
+      pdfPages: Object.freeze([390, 406, 408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un patientivo CNN puede entrar como incrustado de compuesto o incorporado, y la relación gobernado/gobernante puede invertirse en traducción.",
+      requiredProbe: "Conservar superficie patientiva, tronco incorporado y rol de objeto/complemento por separado."
+    }), Object.freeze({
+      id: "patientive-compound-derivational-history-not-surface-embed",
+      sourceRefs: Object.freeze(["Andrews 39.6", "Andrews 39.3"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La historia derivacional de un compuesto patientivo puede pasar por un verbstem de objeto incorporado, agentivo preterito y matriz -yo-a; la forma final no se obtiene incrustando dos superficies ya existentes.",
+      requiredProbe: "No construir compuestos por concatenacion visible; conservar cada etapa CNV/CNN reconstruida, embed real y matriz real antes de aceptar la salida."
+    }), Object.freeze({
+      id: "patientive-compound-grave-slab-multistage-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.6", "Andrews 35.12", "Andrews 39.3"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Tla-tatac-tzac-0-ca-yo-tl 'grave slab' does not embed tla-tatac-tli into a cover nounstem directly; Andrews routes it through tla-tatac-tzacu-a, preterit-agentive tla-tatac-tzauc-0-qui, then *tla-tatac-tzac-0-ca-yo-a and an imperfective patientive.",
+      requiredProbe: "Do not shortcut from visible noun pieces to the final CNN; preserve incorporated-object verbstem, preterit-agentive intermediate, yoa verbstem and imperfective patientive stage."
+    }), Object.freeze({
+      id: "patientive-embed-nominal-vs-verbal-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.6"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un patientive nounstem puede servir como embed tanto de matriz nominal como verbal; la misma fuente CNN no determina por si sola la categoria de salida.",
+      requiredProbe: "No reutilizar una sola continuacion para todos los embeds patientivos; registrar matriz nominal o verbal y el rol del embed antes de generar o diagnosticar."
+    }), Object.freeze({
+      id: "patientive-root-petz-caxi-polished-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.6", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Petzcaxitl usa el patientivo de raiz (petz)-tli como embed nominal desde (petz-i-hui); la lectura de recipiente pulido no autoriza un adjetivo superficial independiente.",
+      requiredProbe: "No derivar petzcaxitl desde una glosa 'pulido' ni desde caxi solo; conservar patientivo de raiz, fuente destockal i-hui, matriz nominal caxi y lectura compuesta."
+    }), Object.freeze({
+      id: "patientive-double-patientive-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.6", "Andrews 38.1.1", "Andrews 38.2.1"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En yohualahhuachtli/yohualahhuechtli, Andrews indica que tanto embed como matriz son patientive nounstems; el compuesto tiene dos fuentes patientivas internas.",
+      requiredProbe: "No colapsar el compuesto a un solo patientivo ni escoger una sola matriz por superficie; conservar embed patientivo, matriz patientiva y variante de superficie."
+    }), Object.freeze({
+      id: "patientive-perfective-coldness-verbal-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.6", "Andrews 11.3.1"]),
+      pdfPages: Object.freeze([405]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ce-c-miqui usa como embed un perfective patientive nounstem ce-c-tli/ce-uc-tli derivado de ce-cui; la matriz verbal miqui no convierte el embed en objeto ordinario.",
+      requiredProbe: "No derivar ce-c-miqui por adjetivo libre 'frio' ni por objeto visible; conservar patientivo perfectivo, irregularidad de stem y matriz verbal."
+    }), Object.freeze({
+      id: "patientive-incorporated-complement-absolutive-subject-link",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 30.15", "Andrews 35.12"]),
+      pdfPages: Object.freeze([405, 406]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un patientivo se incorpora como complemento desde una CNN absolutiva, el sujeto descartado de esa CNN debe tener el mismo referente que el objeto del verbcore matriz.",
+      requiredProbe: "No incorporar el patientivo sin enlace referencial; registrar sujeto CNN descartado, objeto de matriz y funcion de complemento antes de generar."
+    }), Object.freeze({
+      id: "patientive-incorporated-complement-possessor-to-object",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 30.14", "Andrews 54.5.2", "Andrews 23.1"]),
+      pdfPages: Object.freeze([407]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el complemento patientivo viene de una CNN posesiva, el pronombre posesivo fuente se transforma en objeto verbal mainline y puede inflar una matriz de un objeto a doble objeto sin sufijo visible.",
+      requiredProbe: "No dejar el poseedor dentro del nounstem ni exigir sufijo aplicativo; registrar cambio caso posesivo>objetivo, valencia inflada y matriz antes de continuar."
+    }), Object.freeze({
+      id: "patientive-complement-applicative-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 26.2"]),
+      pdfPages: Object.freeze([406]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un patientivo incrustado puede servir como complemento de un pronombre objeto aplicativo; no es automaticamente objeto incorporado simple.",
+      requiredProbe: "Registrar matriz aplicativa, complemento patientivo y pronombre objeto antes de asignar valencia o superficie compuesta."
+    }), Object.freeze({
+      id: "patientive-yetl-compound-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 35.1.2", "Andrews 36.3"]),
+      pdfPages: Object.freeze([406]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed patientivo puede ser un nounstem compuesto con matriz (ye)-tl 'ser'; esa matriz nominal no debe desaparecer al continuar hacia CNV compuesta.",
+      requiredProbe: "Conservar patientivo embed, matriz (ye)-tl y ruta nominalizada antes de presentar la matriz verbal compuesta."
+    }), Object.freeze({
+      id: "matrix-only-tlani-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 30.13"]),
+      pdfPages: Object.freeze([406]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz m-o~te~tla-(tlani) con valor 'querer que sea/sea considerado' solo ocurre como subposicion matriz de tronco compuesto y se distingue del tla-(tlani) simple 'ganar'.",
+      requiredProbe: "Bloquear lectura de tlani como verbo simple si Andrews exige matriz compuesta; conservar subposicion, valor semantico y longitud vocálica distintiva."
+    }), Object.freeze({
+      id: "tlani-synonymous-patientive-source-choice-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.7", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([406]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los compuestos con tlani pueden tener sinónimos que alternan patientivo perfectivo y patientivo pasivo; la glosa no decide el embed fuente.",
+      requiredProbe: "Registrar si el embed viene de patientivo perfectivo o pasivo antes de agrupar sinónimos o generar continuaciones."
+    }), Object.freeze({
+      id: "patientive-nounstem-as-compound-matrix",
+      sourceRefs: Object.freeze(["Andrews 35.7.2", "Andrews 38.1", "Andrews 41.2.3"]),
+      pdfPages: Object.freeze([390]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un deverbal patientivo puede ser matriz de un compuesto, no solo elemento incrustado; la salida debe conservar que el patientivo gobierna el compuesto.",
+      requiredProbe: "Distinguir patientivo como matriz de patientivo como incrustado antes de reusar la forma en NNC compuestas o rutas adjetivales."
+    }), Object.freeze({
+      id: "patientive-translation-not-always-ed-x-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2.3", "Andrews 39.6"]),
+      pdfPages: Object.freeze([390]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos patientivos no se traducen bien como 'X que fue -ado'; tle-cui-l-li exige lectura funcional como lugar/cosa que recibe fuego.",
+      requiredProbe: "No elegir ruta ni glosa por molde pasivo ingles o espanol; conservar fuente CNV, patientivo resultante y lectura funcional cuando Andrews la da."
+    }), Object.freeze({
+      id: "compound-patientive-matrix-with-deverbal-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2.3", "Andrews 37.2", "Andrews 39.6"]),
+      pdfPages: Object.freeze([390]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un patientivo matriz en compuesto puede recibir otro deverbal como embed, como miqui-z-tli dentro de tla-cua-l-li; las dos fuentes deverbales no son una sola derivacion.",
+      requiredProbe: "No aplanar miquiztlacualli en un patientivo directo; registrar embed activo de accion, matriz patientiva, fuente verbal de cada uno y lectura compuesta."
+    }), Object.freeze({
+      id: "compound-patientive-embed-only-glottalized-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2.3", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([390]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compuesto patientivo puede contener un stem embed-only glotalizado, como hue-hueh-, antes de la matriz patientiva; la glotalizacion y la restriccion de uso son parte de la fuente.",
+      requiredProbe: "No sustituir por el nounstem libre ni borrar la glotalizacion; conservar stem de uso embed-only, matriz patientiva y fuente CNV de la matriz."
+    }), Object.freeze({
+      id: "patientive-incorporated-object-vs-complement",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 39.9", "Andrews 23.1", "Andrews 24.9"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El patientivo puede entrar como objeto incorporado o como complemento incorporado; ambos reutilizan troncos CNN pero asignan relaciones internas distintas.",
+      requiredProbe: "Registrar rol incorporado, objeto/complemento y matriz verbal antes de exponer una continuacion CNV o compuesta."
+    }), Object.freeze({
+      id: "patientive-incorporated-object-matrix-valence-exception",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 23.1", "Andrews 30.3", "Andrews 30.13"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con matrices como tla-(tlani), tla-(ih-tlani) y tla-(tem-o-a), el patientivo incorporado descarga una relación de objeto dentro del tronco mientras el poseedor de la CNN fuente pasa a objeto verbal externo sin sufijo aplicativo visible.",
+      requiredProbe: "No contar valencia solo por sufijos visibles; registrar matriz, objeto incorporado y ex-poseedor convertido en objeto antes de continuar la ruta CNV."
+    }), Object.freeze({
+      id: "patientive-incorporated-object-tlani-rare-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 30.13"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews marca el uso de tla-(tlani) con objeto patientivo incorporado como raro; no debe volverse una matriz productiva general por aparecer en la seccion.",
+      requiredProbe: "No ofrecer tla-(tlani) como continuacion normal; registrar rareza, matriz concreta y prueba de fuente antes de permitir una ruta diagnostica o generativa."
+    }), Object.freeze({
+      id: "patientive-incorporated-object-ih-tlani-nested-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 30.13"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tla-(ih-tlani) no es una matriz simple paralela a tla-(tlani); Andrews la analiza como compuesto que ya contiene tla-(tlani) como matriz.",
+      requiredProbe: "No aplanar ih-tlani y tlani en una lista de sufijos o matrices equivalentes; conservar la matriz anidada antes de asignar valencia o salida."
+    }), Object.freeze({
+      id: "patientive-incorporated-object-ex-possessor-projective-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 23.1"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El poseedor de la CNN patientiva fuente se vuelve pronombre objeto proyectivo externo en la CNV resultante, como qu-in o t-ech; no queda dentro del nounstem.",
+      requiredProbe: "No copiar el poseedor dentro del embed ni omitir el objeto externo; registrar poseedor fuente, pronombre proyectivo resultante y objeto incorporado interno."
+    }), Object.freeze({
+      id: "type-three-causative-matrix-not-suffix-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 24.9"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En causativos de tipo tres el constituyente causativo interno es tronco verbal matriz y no sufijo; puede ser sinónimo de tipo dos pero conserva otra arquitectura.",
+      requiredProbe: "No equiparar tipo dos y tipo tres por traducción; registrar matriz verbal, embed, cambio mainline/shuntline y lugar de los objetos."
+    }), Object.freeze({
+      id: "type-three-causative-reciprocal-shuntline-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 24.9", "Andrews 20.3"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En tipo tres, el reciproco mainline de la fuente pasa a shuntline porque el objeto causativo debe ocupar mainline; la posicion de ne despues de te es parte de la arquitectura.",
+      requiredProbe: "No ordenar te/ne por superficie libre; registrar fuente reciproca, objeto causativo mainline y ne shuntline antes de comparar tipo dos y tipo tres."
+    }), Object.freeze({
+      id: "type-three-causative-semantic-near-synonym-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.8", "Andrews 24.9"]),
+      pdfPages: Object.freeze([408]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los causativos tipo dos y tipo tres pueden ser sinonimos cercanos o diferir levemente, como recordar frente a urgir a recordar; la semejanza semantica no borra la arquitectura tipo tres.",
+      requiredProbe: "No colapsar tipo dos y tipo tres por traduccion parecida; conservar tipo causativo, matriz interna, fuente embed y diferencia de valor antes de exponer equivalencias."
+    }), Object.freeze({
+      id: "index-causative-denominal-ya-continuation-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Causative verbstems of denominal ya verbstems", "Andrews 54.2.3", "Andrews Lessons 24-26"]),
+      pdfPages: Object.freeze([680]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El índice remite a causativos de troncos ya denominales y a transformaciones causativas por tipo, modo y voz; la ruta ya denominal no termina necesariamente en la primera CNV.",
+      requiredProbe: "No aplicar causativo directo desde CNN ni desde superficie ya aislada; conservar tronco denominal ya previo, tipo causativo, modo/voz y página fuente antes de continuar."
+    }), Object.freeze({
+      id: "adjectival-function-not-formal-class",
+      sourceRefs: Object.freeze(["Andrews 40.1", "Andrews 41.1"]),
+      pdfPages: Object.freeze([413, 414, 415, 416, 417, 418, 419, 422, 426, 427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adjetival es función de CNN/CNV, no una tercera clase formal.",
+      requiredProbe: "Mantener CNV/CNN como clase formal y adjetival como función/ruta."
+    }), Object.freeze({
+      id: "adjectival-nnc-absolutive-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.1"]),
+      pdfPages: Object.freeze([410]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN adjetival es una CNN en funcion modificadora de otra CNN, normalmente en estado absolutivo, no una clase formal visible nueva.",
+      requiredProbe: "No crear clase adjectival/adverbial; registrar CNN fuente, funcion modificadora y estado absolutivo antes de mostrar continuidad."
+    }), Object.freeze({
+      id: "huei-pronoun-like-adjectival-paradigm-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.2.1", "Andrews 16.3.2", "Andrews 35.8.2"]),
+      pdfPages: Object.freeze([410]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El adjectival hue-i sigue un paradigma pronoun-like excepcional con plural de sujeto t-in o 0-0 y pluralizacion interna del tallo.",
+      requiredProbe: "No aplicar una CNN absolutiva regular a hue-i; registrar paradigma excepcional, plural interno y subject connector antes de renderizar."
+    }), Object.freeze({
+      id: "nepapan-exceptional-adjectival-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.2.2", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([410]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nepapan es una CNN adjetival excepcional de afinidad desde ne + pa-pan, con significado de variedad/diversidad, no un adjectival generado ordinario.",
+      requiredProbe: "No tratar nepapan como clase formal ni como salida adjectival regular; conservar fuente relacional nepan, reduplicacion pa-pan, funcion CNN adjectival y valor plural/diverso."
+    }), Object.freeze({
+      id: "possessor-included-adjectival-stem-not-possessive-state",
+      sourceRefs: Object.freeze(["Andrews 40.2.3", "Andrews 34.6"]),
+      pdfPages: Object.freeze([411]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los adjectivales cel/el incluyen pronombre posesivo dentro del tallo, pero la CNN resultante no esta en estado posesivo porque el plural usa t-in y el sujeto visible es 0-0.",
+      requiredProbe: "No sacar no/mo/i como poseedor externo ni usar hu-an; registrar pronombre interno degradado, sujeto 0-0 y plural t-in."
+    }), Object.freeze({
+      id: "vnc-adjectival-function-predicate-only-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.3", "Andrews 43.1"]),
+      pdfPages: Object.freeze([412]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando una VNC funciona adjectivalmente, solo el predicado de esa VNC se traduce como adjetivo; la funcion no convierte toda la clausula en una clase formal.",
+      requiredProbe: "No nominalizar o etiquetar toda VNC por una glosa adjectival; separar predicado, funcion modificadora y estructura de modificacion."
+    }), Object.freeze({
+      id: "nnc-adjectival-function-predicate-only-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.3", "Andrews 40.1"]),
+      pdfPages: Object.freeze([412]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una CNN absolutiva funciona adjectivalmente, solo su predicado se traduce como adjetivo; cihuatl, oquichtli y cuahuitl siguen siendo CNNs.",
+      requiredProbe: "No crear clase formal adjetivo por traduccion inglesa/espanola; conservar CNN, estado absolutivo, predicado y funcion modificadora."
+    }), Object.freeze({
+      id: "patientive-adjectival-resultant-entity-not-quality-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.4", "Andrews 37.8", "Andrews Lessons 38-39"]),
+      pdfPages: Object.freeze([412]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos en funcion adjectival identifican una clase de entidad afectada por un proceso o estado resultante, no una cualidad abstracta plana.",
+      requiredProbe: "No traducir por cualidad sin ruta; conservar fuente patientiva, impacto/resultante y clase de entidad antes de mostrar salida adjectival."
+    }), Object.freeze({
+      id: "potential-patient-negative-scope-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 40.4.2", "Andrews 37.5.2"]),
+      pdfPages: Object.freeze([413]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En potential-patient adjectival con ay#, Andrews permite ambiguedad entre negativo externo y negativo integrado al tallo derivado.",
+      requiredProbe: "No fijar una sola segmentacion negativa; mostrar scope interno/externo y bloquear generacion afirmativa derivada sin evidencia."
+    }), Object.freeze({
+      id: "customary-patientive-adjectival-syncope-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.1", "Andrews 36.5", "Andrews 28.6.3"]),
+      pdfPages: Object.freeze([414]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El predicado de una CNN patientiva habitual puede funcionar adjetivalmente y mostrar sincopa como tlamattani frente a tlamattiyani; esa reduccion no crea otra clase formal.",
+      requiredProbe: "No tratar la forma sincopada como lexema aislado; conservar fuente patientiva habitual, funcion adjetival y regla de sincopa antes de comparar con potencial-patient."
+    }), Object.freeze({
+      id: "denominal-tiya-preterit-agentive-adjectival-source",
+      sourceRefs: Object.freeze(["Andrews 40.8.1", "Andrews 40.8.2", "Andrews 40.9", "Andrews 54.2"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los denominales ti-ya forman salidas agentivas preteritas adjetivales con base ti visible; no son adjetivos formales ni simples salidas finitas CNV.",
+      requiredProbe: "Conservar la fuente denominal ti-ya, la salida agentiva preterita CNN y la funcion adjetival como capas separadas."
+    }), Object.freeze({
+      id: "denominal-tiya-vs-ti-adjectival-section-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.8.1", "Andrews 54.2"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews dice que los denominales ti-ya usan la formacion de 40.9 y deben compararse con los denominales ti de 40.8.1; ti y ti-ya no son la misma licencia.",
+      requiredProbe: "No aceptar coztic o itztic por una etiqueta denominal-ti generica; conservar fuente ti-ya, seccion 40.9, comparacion con ti y salida agentiva CNN."
+    }), Object.freeze({
+      id: "denominal-ti-adjectival-english-perspective-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8.1", "Andrews 54.2"]),
+      pdfPages: Object.freeze([415]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los denominales ti usados adjectivalmente expresan semejanza con la fuente nominal; la glosa inglesa puede ubicar la cualidad en otra perspectiva y no debe decidir la arquitectura.",
+      requiredProbe: "No derivar por glosa como tall/soft/sweet; conservar fuente nominal, ti denominal y salida agentiva preterita antes de traducir."
+    }), Object.freeze({
+      id: "ownerhood-preterit-agentive-adjectival-icno-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 39.8", "Andrews 35.9"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un agentivo preterito de ownerhood con matriz *tla-hua puede funcionar como adjetival y tener embed como icno/icone-yo-t; la lectura 'compasivo' no autoriza aplanar el ownerhood.",
+      requiredProbe: "Conservar matriz ownerhood, embed nominal, variante con yo y funcion adjectival antes de presentar la salida como cualidad."
+    }), Object.freeze({
+      id: "ownerhood-preterit-agentive-adjectival-yotl-embed-omission",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 39.8", "Andrews 35.9"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En icnohuah, Andrews permite que el embed represente icn-o-yo-t aunque la matriz -yo-t no aparezca en la superficie abreviada.",
+      requiredProbe: "No perder la fuente icn-o-yo-t por superficie icno; registrar embed abreviado, forma completa posible y matriz ownerhood."
+    }), Object.freeze({
+      id: "root-plus-ya-obsolete-preterit-adjectival-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 36.11.1", "Andrews 40.8.1", "Andrews 40.8.2"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los verbos raíz+ya tienen una formación adjetival especial desde VNC pretéritas obsoletas sobre la raíz sola; no debe fusionarse con los denominales ti-ya que Andrews menciona en el mismo entorno.",
+      requiredProbe: "Separar raíz+ya, raíz tratada como Clase A, posible Clase B completa y denominal ti-ya antes de exponer una salida adjetival."
+    }), Object.freeze({
+      id: "root-plus-ya-obsolete-root-example-set-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 36.11.1", "Andrews 40.8.1"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "ahhuiac, cecec, poyec, celic, huelic, yancuic, ihyac e iztac ilustran la raiz sola tratada como Clase A antes de la CNN adjetival.",
+      requiredProbe: "No guardar estas formas como adjetivos lexicales planos; conservar fuente raiz+ya, raiz obsoleta, Clase A, c-0 y funcion adjetival CNN."
+    }), Object.freeze({
+      id: "root-plus-ya-exception-general-use-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.2.1", "Andrews 44.7", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([417, 418]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos raíz+ya no usan la formación obsoleta esperada: hue-i-ya usa base pronombre-like, Clase B honorífica y Clase A de longitud; la forma de uso general puede servir como embed o adverbial.",
+      requiredProbe: "No aplicar automáticamente la plantilla raíz+ya; registrar excepción, clase usada, valor semántico y si la forma es predicado autónomo, embed o adverbial."
+    }), Object.freeze({
+      id: "root-plus-ya-full-class-b-coexisting-adjectival-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.8.2"]),
+      pdfPages: Object.freeze([417]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos verbos raiz+ya tambien usan el tallo Clase B completo para formar CNNs adjetivales, como cocoxqui desde coco-ya, junto a la formacion obsoleta de raiz.",
+      requiredProbe: "No elegir raiz obsoleta o tallo completo por superficie; registrar si Andrews licencia Clase A obsoleta, Clase B completa o ambas para el lexema."
+    }), Object.freeze({
+      id: "root-plus-ya-hueiya-three-source-dimension-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.2.1", "Andrews 44.7", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([417, 418]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hue-i-ya no tiene una sola continuacion: puede partir de base pronoun-like, de Clase B honorifica o de Clase A dimensional, con usos generales como embed o adverbial.",
+      requiredProbe: "No colapsar hue-i-ya a una regla root-plus-ya unica; conservar fuente, clase, valor dimensional/honorifico y funcion de salida."
+    }), Object.freeze({
+      id: "tlaoco-ya-adjectival-class-b-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.8.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El root-plus-ya tlaoco-ya usa solo su tallo Clase B para formar la CNN agentiva preterita adjetival tlaocoxqui.",
+      requiredProbe: "No ofrecer alternancia Clase A o plantilla root-plus-ya general para tlaoco-ya; registrar la excepcion Clase B y la funcion adjetival CNN."
+    }), Object.freeze({
+      id: "synonym-source-no-sibling-generation",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 40.11"]),
+      pdfPages: Object.freeze([418, 419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares/tripletes sinónimos c-ti-ya/z-ti-ya explican fuente, pero no autorizan generar hermanos sin evidencia Nawat.",
+      requiredProbe: "Generar solo la fuente solicitada y registrar el conjunto sinónimo como diagnóstico."
+    }), Object.freeze({
+      id: "synonymous-pair-source-family-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.5", "Andrews 24.6", "Andrews 39.4.1", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares sinónimos de 40.10 no comparten una sola fuente: ni/hui, hua y c-ti-ya remiten a familias de fuente diferentes y a deverbales 39.4.1/39.4.2.",
+      requiredProbe: "Registrar familia de fuente, miembro del par y fórmula agentiva preterita antes de presentar una salida adjetival."
+    }), Object.freeze({
+      id: "synonymous-adjectival-pair-section-license-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 40.8.1", "Andrews 40.8.2", "Andrews 40.9"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En pares sinonimos, Andrews licencia cada miembro por una subseccion distinta: ni/hui por 40.8.2, hua por 40.8.1 y c-ti-ya por 40.9.",
+      requiredProbe: "No aplicar una sola regla adjectival a todo el par; conservar por miembro la familia fuente, el sufijo, la formula agentiva y la subseccion Andrews que lo licencia."
+    }), Object.freeze({
+      id: "synonymous-ctiya-c-morph-deverbal-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 39.4.1", "Andrews 39.4.2", "Andrews 40.9"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El miembro c-ti-ya de los pares sinonimos es un CNV denominal derivado de un CNN deverbal; el c pertenece a la fuente c-ti-ya, no a una diada final ni a una abreviatura libre.",
+      requiredProbe: "No analizar xoxoctic, cotoctic, catzactic, nexectic o ticectic solo por su c visible; conservar CNN deverbal fuente, sufijo c-ti-ya y agentivo preterito resultante."
+    }), Object.freeze({
+      id: "synonymous-xoxouhqui-xoxoctic-hui-ctiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.5", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "xoxouhqui viene de xo-xo-hui con diada qui-0, mientras xoxoctic viene de xo-xo-c-ti-ya con diada c-0; la glosa 'green' no borra las dos fuentes.",
+      requiredProbe: "No generar xoxoctic desde xo-xo-hui ni xoxouhqui desde c-ti-ya; conservar fuente hui rara, CNN deverbal intermedia y diada propia de cada salida."
+    }), Object.freeze({
+      id: "synonymous-cotonqui-cotoctic-ni-ctiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.5", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "cotonqui viene de cot-o-ni, mientras cotoctic viene de cot-o-c-ti-ya; la forma c-ti-ya no es una variante superficial del destockal ni.",
+      requiredProbe: "No convertir ni en c-ti-ya por salida sinonima; preservar cot-o-ni, cot-o-c-ti-ya, formula agentiva y licencia Andrews separadas."
+    }), Object.freeze({
+      id: "synonymous-pair-translation-difference-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 40.11", "Andrews 40.8.2"]),
+      pdfPages: Object.freeze([418, 419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los miembros de pares o tripletes sinónimos pueden tener diferencia traducible; la traducción compartida no autoriza colapsar familias ni elegir un miembro por superficie.",
+      requiredProbe: "Conservar miembro fuente, familia derivacional y diferencia de matiz antes de agrupar o mostrar salidas adjetivales sinónimas."
+    }), Object.freeze({
+      id: "synonymous-hua-ctiya-final-c-not-source-proof",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.6", "Andrews 40.8.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares hua frente a c-ti-ya pueden terminar superficialmente en c en la salida agentiva, pero su fuente y licencia Andrews son distintas.",
+      requiredProbe: "No colapsar catzahuac/catzactic, nexehuac/nexectic, ticehuac/ticectic o tlilehuac/tlilectic por final c; conservar fuente hua vs c-ti-ya y matiz traducible."
+    }), Object.freeze({
+      id: "synonymous-catzahuac-catzactic-hua-ctiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.6", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "catzahuac viene de catz-a-hua y catzactic de catz-a-c-ti-ya; ambos pueden traducirse 'dirty' pero tienen rutas y diadas distintas.",
+      requiredProbe: "No usar final c como prueba de una sola fuente; preservar hua vs c-ti-ya, fuente CNN deverbal y formula agentiva de cada miembro."
+    }), Object.freeze({
+      id: "synonymous-nexehuac-nexectic-hua-ctiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.6", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "nexehuac y nexectic share the ashen translation but split into nex-e-hua and nex-e-c-ti-ya source paths.",
+      requiredProbe: "Do not normalize nexehuac/nexectic by gloss; preserve hua source, c-ti-ya denominal source and separate preterit-agentive formulas."
+    }), Object.freeze({
+      id: "synonymous-ticehuac-ticectic-hua-ctiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.6", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ticehuac and ticectic share the faded translation but split into tic-e-hua and tic-e-c-ti-ya sources.",
+      requiredProbe: "Do not generate the c-ti-ya member by trimming hua or generate hua by deleting c-ti-ya; preserve source family and formula per member."
+    }), Object.freeze({
+      id: "synonymous-pair-rare-hui-source-not-ni-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.5", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares de 40.10 incluyen destockales ni y, raramente, hui como fuentes de c-ti-ya; el par sinonimo no se limita al patron ni.",
+      requiredProbe: "No rechazar un miembro c-ti-ya por no hallar fuente ni; conservar la fuente hui rara, el CNN deverbal de 39.4.1 y la salida agentiva preterita."
+    }), Object.freeze({
+      id: "synonymous-pair-tlilehuac-tlilectic-blackish-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.6", "Andrews 40.8.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tlilehuac y tlilectic comparten familia sinonima pero Andrews permite traducir una diferencia: black frente a blackish.",
+      requiredProbe: "No normalizar ambos miembros a la misma glosa ni escoger por superficie; conservar fuente hua, fuente c-ti-ya y diferencia traducible."
+    }), Object.freeze({
+      id: "huei-mati-yolloh-sibling-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La base hue-i no solo alimenta hue-i-ya; tambien aparece en te-(hue-i-mati) con valor de estimar y en hueicayolloh como compuesto, sin que eso autorice generar hermanos por glosa.",
+      requiredProbe: "No colapsar hue-i-ya, te-(hue-i-mati) y hueicayolloh en una sola regla root-plus-ya; registrar construccion fuente, funcion y ruta antes de mostrar continuidad."
+    }), Object.freeze({
+      id: "synonymous-triplet-ztiya-member-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 40.9", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los tripletes de 40.11 añaden un miembro z-ti-ya a los patrones de 40.10; c-ti-ya y z-ti-ya no son variantes intercambiables.",
+      requiredProbe: "Conservar tamaño del conjunto, miembro c-ti-ya vs z-ti-ya y fuente deverbal antes de diagnosticar sinonimia."
+    }), Object.freeze({
+      id: "synonymous-deverbal-nounstem-coexists-with-agentive-set",
+      sourceRefs: Object.freeze(["Andrews 40.11"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una forma deverbal nominal puede coexistir con un conjunto agentivo preterito sinónimo; la traducción compartida no identifica la ruta ni autoriza generar todo el conjunto.",
+      requiredProbe: "No inferir agentivo, c-ti-ya, z-ti-ya o deverbal nominal desde la glosa; exigir ruta explícita y evidencia para cada miembro."
+    }), Object.freeze({
+      id: "synonymous-yamactli-deverbal-nounstem-not-agentive-member",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "yamactli comparte valor de traduccion con yamanqui, yamactic y yamaztic, pero es un CNN deverbal, no otro agentivo preterito del triplete.",
+      requiredProbe: "No presentar yamactli como cuarto miembro agentivo ni como salida CNV; conservar ruta CNV-core -> CNN deverbal y separar el conjunto agentivo sinonimo."
+    }), Object.freeze({
+      id: "synonymous-ihui-ahui-tiya-stock-patientive-loop",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.7", "Andrews 39.4", "Andrews 39.4.3", "Andrews 40.9"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los sinónimos i-hui/a-hui frente a ti-ya pueden compartir un stock-patientivo fuente; la ruta cruza CNV destockal, CNN patientiva y CNV denominal antes del agentivo.",
+      requiredProbe: "No presentar ti-ya como hermano directo del i-hui/a-hui visible; conservar stock-patientivo fuente, ruta denominal y salida agentiva preterita."
+    }), Object.freeze({
+      id: "synonymous-ihui-ahui-vs-tiya-number-dyad-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 40.8.2", "Andrews 40.9"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En pares i-hui/a-hui frente a ti-ya, las salidas agentivas preteritas no comparten la misma diada numerica: i-hui/a-hui da qui-0 y ti-ya da c-0.",
+      requiredProbe: "No reutilizar el mismo num1-num2 para los dos miembros sinonimos; comparar tlil-i-uh-0+qui-0 frente a tlil-ti-0+c-0 y xol-o-ch-a-uh-0+qui-0 frente a xol-o-ch-ti-0+c-0."
+    }), Object.freeze({
+      id: "synonymous-tliliuhqui-tliltic-ihui-tiya-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.7", "Andrews 39.4.3"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tliliuhqui comes from tlil-i-hui with qui-0, while tliltic comes from tlil-ti-ya with c-0; both translate 'black' but do not share one source.",
+      requiredProbe: "Do not derive tliltic by shortening tliliuhqui or derive tliliuhqui by expanding tliltic; preserve i-hui, ti-ya, number dyad and agentive formula per member."
+    }), Object.freeze({
+      id: "synonymous-xoloch-stock-patientive-destockal-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.7", "Andrews 39.4"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "xolochauhqui/xolochtic are built on stock-patientive (xol-o-ch)-tli from destockal (xol-o-ni), so the visible xoloch string is not a direct root source.",
+      requiredProbe: "Do not derive xoloch-ti-ya or xoloch-a-hui directly from the surface; preserve xol-o-ni source, stock-patientive nounstem, denominal verbstem and preterit-agentive output."
+    }), Object.freeze({
+      id: "synonymous-triplet-shared-root-not-shared-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los tripletes sinonimos comparten una raiz, pero sus fuentes verbales siguen siendo distintas: hua, c-ti-ya y z-ti-ya.",
+      requiredProbe: "No declarar una sola fuente para alahuac/alactic/alaztic, yamanqui/yamactic/yamaztic o melahuac/melactic/melaztic; conservar raiz compartida y fuente verbal por miembro."
+    }), Object.freeze({
+      id: "synonymous-alahuac-alactic-alaztic-triplet-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 39.4.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "alahuac, alactic and alaztic form a triplet from al-a-hua, al-a-c-ti-ya and al-a-z-ti-ya; slippery gloss does not license one formula.",
+      requiredProbe: "Do not collapse hua, c-ti-ya and z-ti-ya into one adjectival output; preserve each source verbstem and preterit-agentive formula."
+    }), Object.freeze({
+      id: "synonymous-yamanqui-yamactic-yamaztic-triplet-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 39.4.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "yamanqui, yamactic and yamaztic translate 'soft' but come from yam-a-ni, yam-a-c-ti-ya and yam-a-z-ti-ya, with different source families and preterit-agentive formulas.",
+      requiredProbe: "Do not select yamanqui/yamactic/yamaztic by gloss alone; preserve ni, c-ti-ya, z-ti-ya and each member's num1-num2 before treating them as synonymous adjectival NNCs."
+    }), Object.freeze({
+      id: "synonymous-melahuac-melactic-melaztic-meaning-split-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.11", "Andrews 39.4.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "melahuac means true/correct while melactic and melaztic mean straight/long; the triplet is related but not a free surface alternation.",
+      requiredProbe: "Do not generate one mel- form from another by synonymy; preserve hua, c-ti-ya, z-ti-ya and the translation split as route metadata."
+    }), Object.freeze({
+      id: "compound-nounstem-denominal-loop",
+      sourceRefs: Object.freeze(["Andrews 41.3", "Andrews 40.8.1", "Andrews 54.2"]),
+      pdfPages: Object.freeze([427, 582]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un nounstem compuesto puede formar CNV denominal con ti y luego CNN agentiva preterita adjetival.",
+      requiredProbe: "Conservar los dos saltos: compuesto CNN -> tiya CNV -> salida agentiva CNN."
+    }), Object.freeze({
+      id: "adjectival-nounstem-embed-general-use-shape",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews 31.4", "Andrews 35.7", "Andrews 44.5.3", "Andrews 44.6"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un nounstem con función adjetival puede incrustarse como modificador en una CNN compuesta; si el embed es agentivo pretérito debe usar la forma de uso general, y algunos nounstems solo aparecen como núcleo autónomo si están adverbializados.",
+      requiredProbe: "No reutilizar cualquier salida adjetival como embed; exigir forma de uso general, rol de modificador y compuerta de adverbialización cuando Andrews la impone."
+    }), Object.freeze({
+      id: "numeral-adjectival-embed-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews Lesson 34"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los tallos numerales también pueden incrustarse adjetivalmente en compuestos; esta función no convierte numeral ni adjetival en clase formal separada.",
+      requiredProbe: "Registrar numeral como embed adjetival dentro de CNN compuesta y no como ruta formal independiente."
+    }), Object.freeze({
+      id: "ti-inceptive-vs-ti-possession",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 54.4"]),
+      pdfPages: Object.freeze([582, 583, 590, 592, 593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti inceptivo/estativo y el ti de posesión son homófonos pero tienen foco y continuaciones distintas; el de posesión no forma ya deverbal.",
+      requiredProbe: "Separar contrato de fuente y bloquear ti-ya desde ti de posesión."
+    }), Object.freeze({
+      id: "denominal-lesson54-source-patterns",
+      sourceRefs: Object.freeze(["Andrews 54.1", "Andrews 54.2", "Andrews 54.2.1", "Andrews 54.2.2", "Andrews 54.2.3", "Andrews 54.2.4"]),
+      pdfPages: Object.freeze([583, 584, 585, 586, 588, 592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los patrones denominales de Lesson 54 dependen de final de fuente, reduplicacion, sufijo y clase de tronco; no se deben resolver como un unico verbalizador.",
+      requiredProbe: "Conservar patron de fuente, sufijo Andrews, clase de tronco y compuerta de evidencia antes de construir salida finita."
+    }), Object.freeze({
+      id: "denominal-ya-class-perfective-and-active-action-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.3.4", "Andrews 54.2.3.a", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([586, 587]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un tronco denominal en ya puede ser Clase A, Clase B o ambas; la clase controla perfectivo x/z y la continuación de acción activa en liz.",
+      requiredProbe: "No mezclar el contrato denominal ya con el ya deverbal ti/hui; conservar clase, fuente y continuación liz por separado."
+    }), Object.freeze({
+      id: "denominal-ya-root-rank-source",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 25.4.8"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ya denominal se anade directamente a una raiz nominal o a un tronco nominal degradado a rango de raiz; no equivale a sufijar ya a cualquier CNN plena.",
+      requiredProbe: "Exigir fuente raiz o tronco degradado y registrar raiz+ya antes de permitir clase, perfectivo o continuacion."
+    }), Object.freeze({
+      id: "ya-deverbal-source-required",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 25.5"]),
+      pdfPages: Object.freeze([215, 587, 593]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El ya deverbal se añade a fuentes ti/hui previas y borra ya antes de lia; no es sufijo libre sobre cualquier CNN.",
+      requiredProbe: "Exigir fuente verbal ti/hui generada y probar borrado de ya ante lia."
+    }), Object.freeze({
+      id: "denominal-ti-lia-causative-object-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los causativos lia desde ti denominal pueden seleccionar te o tla segun si causan a alguien o a algo a volverse como la fuente nominal.",
+      requiredProbe: "No tratar lia desde ti como aplicativa ni borrar la fuente CNN; registrar ti denominal, objeto te/tla y lectura causativa antes de generar."
+    }), Object.freeze({
+      id: "lia-causative-applicative-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 26.10", "Andrews 54.2.3.b"]),
+      pdfPages: Object.freeze([215, 587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La secuencia lia que forma causativos desde ti, raíz+ya o ti/hui-ya es fonológicamente idéntica a la formación aplicativa, y en algunos casos Andrews marca una lectura aplicativa.",
+      requiredProbe: "No clasificar lia por superficie; conservar fuente ti/hui/raíz+ya, borrado de ya y lectura causativa o aplicativa antes de generar o diagnosticar."
+    }), Object.freeze({
+      id: "lia-root-plus-ya-deletion-vs-ti-lia-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 25.4.8", "Andrews 54.2.1", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "lia se agrega a ti denominales terminados en i, pero en fuentes raiz+ya o ti/hui-ya borra ya y se adjunta a la raiz o al tronco previo.",
+      requiredProbe: "No usar una sola plantilla lia; distinguir fuente ti, fuente raiz+ya y fuente ti/hui-ya con borrado de ya antes de la salida."
+    }), Object.freeze({
+      id: "root-plus-ya-lia-root-not-full-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En fuentes raiz+ya terminadas en a, la formacion causativa lia borra ya y se adjunta a la raiz, no al tallo completo terminado en ya.",
+      requiredProbe: "No producir chichiyalia, xocoyalia o equivalentes por concatenacion; conservar raiz, borrar ya y adjuntar lia con diagnostico de excepciones."
+    }), Object.freeze({
+      id: "tihui-ya-lia-deverbal-causative-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 54.2.3.b"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Los deverbales ya formados desde troncos intransitivos ti o hui usan la misma causativa lia, pero la ruta conserva el tronco ti/hui previo antes de borrar ya.",
+      requiredProbe: "No saltar de CNN fuente a lia ni borrar el intermedio ti/hui; mostrar CNV ti/hui, CNV ya deverbal, borrado de ya y causativo final."
+    }), Object.freeze({
+      id: "itta-causative-itz-ti-denominal-intermediate-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 25.2.3", "Andrews 26.1.2", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([214]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El causativo de tla-(itt-a) puede apoyarse en un intermedio intransitivo *(itz-ti) derivado del nounstem (itz)-tli, que a su vez se relaciona con una fuente verbal *(itzi).",
+      requiredProbe: "No generar el causativo directamente desde itt-a ni desde itz superficial; conservar cadena CNV fuente -> CNN itz -> CNV ti -> causativo y marcar la fuente intransitiva intermedia."
+    }), Object.freeze({
+      id: "huia-causative-applicative-o-final-homophony",
+      sourceRefs: Object.freeze(["Andrews 25.6", "Andrews 26.10"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "huia puede formar causativos desde activos intransitivos en /o:/ con no activo hoa, pero es identico al aplicativo huia y puede crear ambiguedad.",
+      requiredProbe: "No clasificar huia por superficie; registrar fuente activa en /o:/, no activo hoa y lectura causativa o aplicativa antes de generar."
+    }), Object.freeze({
+      id: "lia-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 54.2.3.b"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunas formas en lia presuponen una fuente intransitiva ya no atestiguada; otras tienen lectura aplicativa aunque compartan la superficie lia.",
+      requiredProbe: "No inventar fuente Nawat/Pipil desde lia; registrar fuente hipotética, lectura causativa/aplicativa y bloqueo de generación si falta evidencia."
+    }), Object.freeze({
+      id: "tlacati-lia-causative-applicative-homonym-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 25.5.2", "Andrews 26.6"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "te-(tlaca-ti-lia) can be causative 'engender someone' or applicative 'become a person toward someone'; the same surface lia does not decide the derivation.",
+      requiredProbe: "Do not classify tlaca-ti-lia from spelling alone; preserve ti-ya source, ya-deleting causative path, applicative reading, and object role before routing."
+    }), Object.freeze({
+      id: "denominal-source-before-deverbal-ya-chain",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "El ya deverbal de 54.2.3.b puede formarse desde troncos denominales ti/hui previos; la fuente denominal no desaparece cuando el resultado se clasifica como deverbal.",
+      requiredProbe: "Mostrar CNN fuente, CNV denominal intermedio y CNV deverbal resultante como tres pasos auditables."
+    }), Object.freeze({
+      id: "deverbal-tiya-source-chain-spectrum-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Los ejemplos ti-ya de 54.2.3.b vienen de fuentes ti simples, compuestas o numerales: tlil-ti, camoh-pal-ti y ce-ti no tienen la misma fuente CNN.",
+      requiredProbe: "No derivar todo ti-ya desde un nounstem simple; conservar fuente CNN, posible compuesto o numeral, CNV ti intermedio y ya deverbal."
+    }), Object.freeze({
+      id: "deverbal-tiya-camohpaltiya-nested-color-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Camoh-pa-l-ti-ya comes through camoh-pa-l-ti from camoh-pa-l-li, itself from tla-(camoh-pa) 'to dye like a sweet potato'; the visible ti-ya hides a nested color-source nounstem.",
+      requiredProbe: "Do not derive camohpaltiya from camoh or color gloss alone; preserve dye verb source, camoh-pal-li nounstem, ti denominal stem and ti-ya deverbal continuation."
+    }), Object.freeze({
+      id: "tiya-huiya-class-contract",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "ti-ya puede ser Clase A/B y hui-ya Clase B; la clase afecta perfectivo y continuaciones.",
+      requiredProbe: "Registrar clase Andrews sin usar una superficie Nawat no confirmada como prueba total."
+    }), Object.freeze({
+      id: "deverbal-tiya-class-b-perfective-x-example-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Cuando un ti-ya deverbal pertenece a Clase B, Andrews da perfectivo en x, como yec-ti-ya > yec-ti-x; la superficie no decide Clase A.",
+      requiredProbe: "No calcular perfectivo ti-ya solo por final ya o por glosa; registrar clase B, fuente ti y perfectivo x antes de cualquier salida."
+    }), Object.freeze({
+      id: "deverbal-tiya-lia-live-coal-ya-deletion-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 25.5.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Tla-(tle-xo-ch-ti-lia) is a causative from tle-xo-ch-ti-ya with ya deleted before lia; the causative must retain the ti-ya source path.",
+      requiredProbe: "Do not build tle-xochtilia as bare noun plus lia or retain ya in the causative; show ti-ya source, ya deletion and causative-lia step."
+    }), Object.freeze({
+      id: "deverbal-huiya-source-class-b-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los hui-ya deverbales como xo-xo-hui-ya y tla-tla-hui-ya son Clase B y forman causativo borrando ya antes de lia.",
+      requiredProbe: "No tratar huiya como aplicativo huia ni como sufijo plano; conservar fuente hui, Clase B, perfectivo x y causativo hui-lia con ya borrado."
+    }), Object.freeze({
+      id: "ti-vs-tiya-preference-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunas formaciones prefieren solo ti, otras ti-ya y otras son indiferentes; el valor de traducción puede ser el mismo aunque el contrato de tronco y clase no lo sea.",
+      requiredProbe: "No generar ti-ya automáticamente desde todo ti; registrar preferencia léxica, clase Andrews y evidencia Nawat/Pipil antes de permitir superficies."
+    }), Object.freeze({
+      id: "ya-class-perfective-x-z-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los troncos deverbales en ti-ya pueden ser Clase A, B o ambas, y los hui-ya son Clase B; la clase gobierna perfectivo y continuaciones.",
+      requiredProbe: "No calcular perfectivo de ya solo por superficie final; conservar clase Andrews y condicion c/z de la fuente."
+    }), Object.freeze({
+      id: "causative-applicative-ti-source",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.6"]),
+      pdfPages: Object.freeze([594, 596, 598]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Las continuaciones causativas/aplicativas desde ti tienen requisitos de fuente, objeto y semántica posesiva.",
+      requiredProbe: "Bloquear solicitud finita hasta que fuente ti y objeto exigido estén presentes."
+    }), Object.freeze({
+      id: "temporal-tia-intransitive",
+      sourceRefs: Object.freeze(["Andrews 55.1"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El tia temporal parece transitive por forma pero es intransitivo y no debe confundirse con causativo/aplicativo tia.",
+      requiredProbe: "Marcar familia temporal antes de asignar objeto o ruta transitiva."
+    }), Object.freeze({
+      id: "temporal-tia-time-compound-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.1"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El tia temporal requiere una CNN compuesta con matriz de segmento temporal y numeral incrustado; no basta un nounstem simple ni una glosa de edad.",
+      requiredProbe: "Exponer matriz temporal, numeral embed, valencia intransitiva y lectura de edad/lugar antes de aceptar la ruta tia."
+    }), Object.freeze({
+      id: "temporal-tia-xihui-assimilation-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.1"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En on-xiuh-tia Andrews senala asimilacion ns -> ss tradicionalmente escrita como x; la ortografia visible no decide la fuente xihui.",
+      requiredProbe: "Conservar fuente temporal xihui y diagnostico de asimilacion antes de convertir la superficie en evidencia de ruta."
+    }), Object.freeze({
+      id: "tla-ti-replacement",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600, 601, 602, 603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Ciertas rutas tla cambian a ti antes de causativo a o aplicativo lia.",
+      requiredProbe: "Mostrar reemplazo de ranura, no reparación de superficie posterior."
+    }), Object.freeze({
+      id: "huia-source-presupposes-deleted-yotl-matrix",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 39.3", "Andrews 39.9", "Andrews 48.13"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos huia denominales se añaden a un nounstem que sustituye una fuente semántica con matriz -yo-t borrada; un gentilicio u oficio visible puede representar la cualidad o artesanía, no la persona.",
+      requiredProbe: "Registrar fuente visible, fuente presupuesta con -yo-t, rol de oficio/cualidad y matriz borrada; no generar desde una base abreviada como si fuera evidencia completa."
+    }), Object.freeze({
+      id: "denominal-huia-two-object-possessive-source",
+      sourceRefs: Object.freeze(["Andrews 55.3 note 1", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un conjunto muy limitado de huia denominales permite dos pronombres objeto porque la fuente parece ser una NNC en estado posesivo.",
+      requiredProbe: "No generalizar dos objetos a todos los huia; exigir fuente posesiva y registrar el contraste con el huia de un solo objeto."
+    }), Object.freeze({
+      id: "oa-huia-intransitive-applicative-pair",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([601, 602, 603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "o-a intransitivo tiene contraparte huia aplicativa; algunas fuentes son no atestiguadas o hipotéticas.",
+      requiredProbe: "Separar o-a, huia, fuente hipotética y estado de evidencia."
+    }), Object.freeze({
+      id: "adverbial-nounstem-huia",
+      sourceRefs: Object.freeze(["Andrews 55.4"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Nounstems adverbiales pueden formar huia aplicativo; esto cruza CNN adverbial y CNV.",
+      requiredProbe: "No tratar adverbial como clase formal; registrar función de fuente."
+    }), Object.freeze({
+      id: "adverbial-huia-lexicalized-reflexive-mainline-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.4", "Andrews Lesson 44"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos huia desde nounstem adverbializado están tan lexicalizados que un reflexivo incluido dentro del tronco conserva forma mainline.",
+      requiredProbe: "No mover ni normalizar automáticamente reflexivos internos; registrar nounstem adverbial fuente, lexicalización y forma mainline conservada."
+    }), Object.freeze({
+      id: "adverbial-huia-source-state-zero-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.4", "Andrews Lesson 44"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los huia de 55.4 parten de nounstems que ocurren en CNNs adverbializadas con estado cero; la funcion adverbial no crea una clase formal aparte.",
+      requiredProbe: "No enrutar desde una etiqueta 'adverbial' suelta; conservar CNN fuente, estado cero, funcion adverbializada y sufijo aplicativo huia."
+    }), Object.freeze({
+      id: "adverbial-huia-internal-object-frozen-by-lexicalization",
+      sourceRefs: Object.freeze(["Andrews 55.4"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En m-o-ahci-0-ca-huia, el reflexivo mainline ya esta incluido en un tronco adverbial lexicalizado antes de la nueva CNV huia.",
+      requiredProbe: "No recalcular m-o como objeto externo ni como reflexivo shuntline; marcar objeto interno lexicalizado, fuente adverbial y nueva valencia huia por separado."
+    }), Object.freeze({
+      id: "relational-nounstem-oa-huia-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([604, 605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los compuestos con matriz relacional pueden formar o-a y huia; o-a suele ser transitivo pero puede ser intransitivo, huia es aplicativo de un objeto, y algunas rutas tienen solo un miembro atestiguado.",
+      requiredProbe: "Registrar matriz relacional, estado posesivo posible, transitividad de o-a, aplicativo huia, reciprocativo y estado de atestiguación antes de generar."
+    }), Object.freeze({
+      id: "denominal-huia-ach-topa-adverbial-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Tla-(ach-to-pa-huia) is built from the adverbial CNN (ach-to-pa)-0 'for the first time/on the first occasion', not from a loose first-prefix.",
+      requiredProbe: "Do not parse ach/topa as free verbal material; preserve adverbial CNN source, huia derivation and projective object before routing."
+    }), Object.freeze({
+      id: "denominal-huia-cuauhticpac-relational-place-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Te-(cuauh-t-icpa-c-huia) means knocking someone down out of a tree and comes from relational place CNN (cuauh-t-icpa-c)-0 'in the top of a tree'.",
+      requiredProbe: "Do not derive the verb from cuauh tree alone or treat icpac as a loose postposition; preserve compound relational CNN source and huia object role."
+    }), Object.freeze({
+      id: "relational-tequipan-object-role-split-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Desde tequi-pan, Andrews distingue tequi-pan-o-a sin objeto, tla-tequi-pan-o-a 'trabajar en algo' y te-tequi-pan-o-a 'trabajar para alguien'.",
+      requiredProbe: "No escoger objeto por plantilla relacional uniforme; conservar ausencia de objeto, tla aplicativo o te aplicativo y su rol semantico en la formula."
+    }), Object.freeze({
+      id: "relational-icxi-nested-ne-tech-huia-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "m-o-(icxi-ne-tech-huia) es un compuesto construido sobre m-o-(ne-tech-huia), no una simple concatenacion de icxi mas ne-tech.",
+      requiredProbe: "No aplanar la cadena relacional; conservar el huia ne-tech previo, incorporacion de icxi, vocal de apoyo y objeto reflexivo/reciprocativo antes de generar."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-denominal-destockal-overlap",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([233, 605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "i-hui/a-hui > o-a es denominal en foco pero comparte arquitectura destockal; puede ser sinónimo de ti.",
+      requiredProbe: "Registrar foco denominal, fuente i-hui/a-hui y no inventar contraparte o-a sin fuente."
+    }), Object.freeze({
+      id: "ihui-ahui-denominal-base-not-root-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La forma i-hui/a-hui de 55.6 comparte patron destockal, pero su base es un nounstem, no una raiz.",
+      requiredProbe: "Distinguir base CNN de base raiz/stock antes de reutilizar diagnosticos destockales o clases perfectivas."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-meaning-direction-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "i-hui/a-hui significa volverse o parecerse a la fuente; o-a causativo significa hacer que alguien o algo se vuelva como esa fuente.",
+      requiredProbe: "Mostrar fuente intransitiva y contraparte causativa con direccion semantica y valencia separadas."
+    }), Object.freeze({
+      id: "ihui-ahui-ti-synonym-example-source-diversity-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 54.2.1", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los pares sinonimos tlil-ti/tlil-i-hui, xipetz-ti/xipetz-i-hui, camil-ti/camil-i-hui y xoloch-ti/xoloch-a-hui no comparten una fuente simple ni una sola clase.",
+      requiredProbe: "No generar un hermano ti o i-hui/a-hui por sinonimia; conservar fuente CNN, posible fuente destockal previa, sufijo elegido y clase antes de exponer la ruta."
+    }), Object.freeze({
+      id: "causative-oa-requires-ihui-ahui-intermediate",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El o-a causativo de 55.6 se obtiene desde una fuente intransitiva i-hui/a-hui formada sobre el nounstem; no es un sufijo causativo directo sobre cualquier CNN.",
+      requiredProbe: "Mostrar CNN base -> i-hui/a-hui intransitivo -> o-a transitivo y bloquear saltos directos sin fuente intermedia."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-surface-erases-intermediate-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "En pares como tamal-i-hui -> tamal-o-a, la superficie causativa o-a ya no muestra i-hui/a-hui, pero Andrews exige ese intermedio intransitivo.",
+      requiredProbe: "No reconstruir tamal-o-a directamente desde tamal; exponer CNN fuente, intermedio i-hui/a-hui, borrado superficial del intermedio y o-a causativo."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-tamal-shape-not-production-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Tla-(tamal-o-a) means causing something to become shaped like a tamale or into a loaf, from tamal-i-hui; it is not direct production of a tamale noun.",
+      requiredProbe: "Do not route tamaloa as simple make-tamale from tamal; preserve tamal-i-hui intransitive source, shape/change meaning and causative o-a."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-causative-object-and-source-variety-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Las contrapartes o-a incluyen tla, te y m-o, y sus fuentes van de tamal a tepi-ton y hueh-ca-pan; el objeto y la fuente no se infieren de la plantilla o-a.",
+      requiredProbe: "No usar o-a como causativo transitivo uniforme; registrar objeto especifico/reflexivo/inespecifico, CNN fuente y el intermedio i-hui/a-hui de cada ejemplo."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-class-perfective-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En 55.6 el tronco i-hui/a-hui es Clase B y el o-a correspondiente es Clase C; sus perfectivos pertenecen a contratos de clase distintos.",
+      requiredProbe: "No copiar el perfectivo de la fuente al causativo; registrar Clase B del intermedio, Clase C de o-a y las superficies perfectivas separadas."
+    }), Object.freeze({
+      id: "ihui-ahui-no-causative-counterpart-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6 note", "Andrews 2.13.1", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos i-hui/a-hui denominales no tienen contraparte causativa o-a, aunque compartan la arquitectura general; pueden tener fuentes glotalizadas de agua o hielo donde h cambia a y.",
+      requiredProbe: "No generar o-a por defecto desde todo i-hui/a-hui; registrar embed glotalizado, cambio h->y y ausencia de contraparte atestiguada."
+    }), Object.freeze({
+      id: "ihui-ahui-water-ice-embed-etymology-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6 note", "Andrews 2.13.1", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "ay-a-hui and ce-pay-a-hui require glottalized water or ice-water source analysis, including ah > ay and archaic pa water distinct from pah medicine.",
+      requiredProbe: "Do not treat ayahui or cepayahui as simple weather fixtures; preserve water/ice embed, h-to-y shift, archaic pa matrix and no-causative diagnostic."
+    }), Object.freeze({
+      id: "oa-applicative-huia-hypothetical-source",
+      sourceRefs: Object.freeze(["Andrews 26.9", "Andrews 26.9.2", "Andrews 55.3.1", "Andrews 55.3.2", "Andrews 55.6 note 2"]),
+      pdfPages: Object.freeze([233, 603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos o-a intransitivos forman aplicativos huia por analogia e incluso inventan fuente i-hui/a-hui hipotetica; esa fuente no debe volverse evidencia lexica.",
+      requiredProbe: "Separar o-a real, huia aplicativo y fuente hipotetica antes de crear una ruta transitive o ejemplos Nawat."
+    }), Object.freeze({
+      id: "oa-applicative-huia-replacive-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9", "Andrews 24.7", "Andrews 55.3.1", "Andrews 55.3.2", "Andrews 19.5"]),
+      pdfPages: Object.freeze([233]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El huia aplicativo de fuentes o-a se construye sobre tallos replacivos y puede servir a denominales o-a, incluso con fuente perdida o hipotetica.",
+      requiredProbe: "No derivar huia desde toda superficie o-a; conservar replacive stem, raiz final l u otra consonante, fuente denominal y estado de atestiguacion."
+    }), Object.freeze({
+      id: "oa-applicative-huia-l-final-root-direct-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9.1", "Andrews 24.7", "Andrews 55.3.1", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([233]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Si la fuente o-a destockal tiene raiz final l, el huia aplicativo se agrega directamente a esa raiz; no se conserva o-a ni se inserta a-l/i-l.",
+      requiredProbe: "Antes de formar huia, detectar raiz final l y renderizar raiz-huia como ruta separada de las bases a-l-huia/i-l-huia."
+    }), Object.freeze({
+      id: "oa-applicative-huia-non-l-ahui-ihui-base-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9.2", "Andrews 24.7"]),
+      pdfPages: Object.freeze([233]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Si la fuente o-a destockal tiene raiz final consonante distinta de l, huia se agrega a una base raiz+a-l o raiz+i-l segun la fuente intransitiva a-hui o i-hui.",
+      requiredProbe: "No escoger a-l/i-l por superficie o por consonante final solamente; conservar la fuente a-hui/i-hui que decide la vocal de enlace."
+    }), Object.freeze({
+      id: "oa-applicative-huia-denominal-single-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9.1", "Andrews 55.3.1", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([233]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un o-a denominal intransitivo puede formar huia aplicativo de un solo objeto por el mismo procedimiento de raiz replaciva.",
+      requiredProbe: "No tratar el o-a denominal como causativo transitivo ni como permiso de dos objetos; registrar CNN fuente, o-a intransitivo y huia aplicativo de un objeto."
+    }), Object.freeze({
+      id: "oa-applicative-huia-suppletive-ilhuia-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9", "Andrews 19.5"]),
+      pdfPages: Object.freeze([233]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "il-huia puede servir como aplicativo supletivo de iht-o-a aunque su fuente il-o-a ya no este extante y aunque el aplicativo regular de iht-o-a tenga otro sentido.",
+      requiredProbe: "Registrar fuente perdida, relacion con quil, aplicativo supletivo y aplicativo regular separado antes de aceptar una ruta huia."
+    }), Object.freeze({
+      id: "oa-huia-bypasses-transitive-oa-step-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3 note 2", "Andrews 26.9.2", "Andrews 55.6"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos aplicativos i-l-huia/a-l-huia imitan la formacion huia de 55.6 desde un o-a intransitivo, pero pasan directo al aplicativo sin paso transitivo o-a.",
+      requiredProbe: "No insertar una etapa transitiva o-a fantasma; registrar o-a intransitivo, fuente hipotetica i-hui/a-hui, bypass y aplicativo final."
+    }), Object.freeze({
+      id: "ihui-ahui-ti-synonym-no-sibling-generation",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 54.2.1", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "i-hui/a-hui puede ser sinonimo del ti inceptivo/estativo, pero la sinonimia no autoriza generar hermanos ti o i-hui/a-hui sin evidencia Nawat.",
+      requiredProbe: "Registrar sinonimia como diagnostico de fuente y generar solo la ruta solicitada o confirmada."
+    }), Object.freeze({
+      id: "transitive-ia-no-intransitive-counterpart",
+      sourceRefs: Object.freeze(["Andrews 55.7"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El i-a transitive denominal no tiene contraparte intransitiva y puede tener desviación metafórica o ambigüedad tras w.",
+      requiredProbe: "Bloquear inferencia de contraparte intransitiva y conservar advertencias de fuente."
+    }), Object.freeze({
+      id: "transitive-ia-stocklike-base",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El i-a transitive se forma sobre una base tipo stock compuesta por nounstem+i y significa causar que alguien o algo tenga o sea la entidad; no tiene paso intransitivo previo.",
+      requiredProbe: "Conservar base nounstem+i, transitividad directa y ausencia de contraparte intransitiva en la formula de ruta."
+    }), Object.freeze({
+      id: "transitive-ia-metaphorical-deflection-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Las traducciones de i-a pueden desviarse metaforicamente de la formula fuente; la formula no autoriza una glosa literal unica.",
+      requiredProbe: "Separar base nounstem+i, funcion transitiva y advertencia de desvio metaforico antes de presentar glosa o salida."
+    }), Object.freeze({
+      id: "transitive-ia-final-class-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La mayoria de fuentes i-a terminan en c/l, pero tambien hay k/n; la consonante final de la fuente condiciona la ruta y no debe inferirse desde la salida sola.",
+      requiredProbe: "Registrar consonante final de la fuente y base tipo stock antes de clasificar el i-a."
+    }), Object.freeze({
+      id: "transitive-ia-w-final-huia-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Una aparente ruta i-a con fuente final w puede ser realmente huia tras contraccion /w/ + /w/.",
+      requiredProbe: "Antes de clasificar i-a final-w, revisar ambigüedad huia y registrar la contraccion posible."
+    }), Object.freeze({
+      id: "transitive-ia-supportive-i-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos i-a transitivos muestran una i inicial de apoyo en la fuente o en la superficie; esa i no debe convertirse en parte lexical productiva del nounstem.",
+      requiredProbe: "Distinguir supportive i, base nounstem+i y superficie antes de clasificar o reutilizar la ruta i-a."
+    }), Object.freeze({
+      id: "transitive-ia-irregular-c-phone-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En fuentes i-a, Andrews advierte que c puede representar un telefono irregular de otro fonema; la escritura tradicional no basta para reconstruir la clase de fuente.",
+      requiredProbe: "Registrar advertencia de c irregular, fuente nominal y ortografia antes de usar la consonante escrita como prueba de familia."
+    }), Object.freeze({
+      id: "quiyahui-root-not-denominal-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 24.5.10"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews prefiere analizar quiy-a-hui como basado en raiz porque no se atestigua el nounstem fuente; no toda forma similar autoriza una ruta denominal.",
+      requiredProbe: "Bloquear inferencia CNN->CNV cuando falta nounstem fuente; marcar raiz probable y evidencia faltante antes de generar."
+    }), Object.freeze({
+      id: "active-action-impersonal-general-action-source",
+      sourceRefs: Object.freeze(["Andrews 37.5.3"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "liz puede anadirse a un verbcore impersonal, sea por sufijo no activo o por tla impersonal, para nombrar una accion general; no es el mismo contrato que una accion activa ordinaria.",
+      requiredProbe: "Registrar fuente impersonal, mecanismo no activo o tla, y advertencia de grafia antes de aceptar la CNN en liz."
+    }), Object.freeze({
+      id: "active-action-impersonal-nonactive-hua-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.3"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "An active-action liz nounstem can be sourced from an impersonal nonactive verbcore such as hui-lo-hua, and Andrews warns that huilohualiztli is frequently misspelled huiloaliztli.",
+      requiredProbe: "Do not delete hua because later spelling omits it; preserve impersonal nonactive source, hua in the source chain, liz output and spelling warning."
+    }), Object.freeze({
+      id: "active-action-impersonal-tla-not-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.3", "Andrews 22.6"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando liz se añade a un verbcore impersonal con tla, como tla-yohui-liz o tla-cua-cual-a-ca-liz, ese tla marca impersonalidad/generalidad y no un objeto proyectivo transitivo.",
+      requiredProbe: "No analizar tla-yohui-liz como activo transitivo con objeto tla; conservar fuente impersonal, accion general, familia verbal y sufijo liz antes de formar la CNN."
+    }), Object.freeze({
+      id: "active-action-nounstem-embed-compound-target",
+      sourceRefs: Object.freeze(["Andrews 37.5.4"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un activo de accion en liz puede servir como embed en compuestos nominales o verbales; su papel de embed no equivale a reanalizarlo como matriz simple.",
+      requiredProbe: "Mostrar CNN activa de accion fuente, matriz nominal o verbal, y frontera de embed antes de continuar la ruta."
+    }), Object.freeze({
+      id: "active-action-embed-ownerhood-mourning-stack-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.4", "Andrews 35.8"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "nezahualizmiccatlatquihuah stacks an active-action embed, a dead-person agentive embed, equipment nounstem and ownerhood matrix; it is not a flat compound noun.",
+      requiredProbe: "Do not collapse mourning-clothes ownerhood into one lexical fixture; preserve ne-zahua-liz, mic-0-ca, tla-tqui, ownerhood huah and each CNN/CNV transition."
+    }), Object.freeze({
+      id: "active-action-embed-s-assimilation-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 37.5.4"]),
+      pdfPages: Object.freeze([376]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un activo de accion en liz sirve como embed verbal, la s puede asimilarse en la escritura tradicional, como choquiliztzahtzi/choquilitztzahtzi/choquilitzahtzi.",
+      requiredProbe: "No tratar variantes por asimilacion s+t como fuentes distintas; conservar embed liz, matriz verbal y diagnostico ortografico antes de continuar."
+    }), Object.freeze({
+      id: "patientive-no-exact-rule-idiosyncrasy",
+      sourceRefs: Object.freeze(["Andrews 37.8", "Andrews 37.9", "Andrews 39.5", "Andrews 30.13", "Andrews 24.5.3"]),
+      pdfPages: Object.freeze([378, 380, 404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews advierte que los patientivos tienen muchas idiosincrasias y que no hay reglas exactas; varias formaciones desde una misma fuente pueden ser sinonimas o divergir semanticamente.",
+      requiredProbe: "No derivar un patientivo por reparacion general; exigir familia de fuente, procedimiento especifico y evidencia de variante antes de generar."
+    }), Object.freeze({
+      id: "patientive-unknown-verbcore-object-pronoun-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos nounstems son claramente de verbcores por tla/ne objeto, pero el verbstem fuente es desconocido; la posesion organica puede probar otra matriz -yo-t.",
+      requiredProbe: "No inventar el verbstem fuente; registrar pronombre objeto visible, fuente desconocida y continuacion organica -yo-t."
+    }), Object.freeze({
+      id: "multiple-patientive-synonym-vs-idiomatic-divergence-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.5"]),
+      pdfPages: Object.freeze([404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando una fuente permite varios patientivos, unos pueden ser sinonimos amplios y otros divergir por restricciones idiomaticas de significado.",
+      requiredProbe: "No colapsar variantes patientivas por traduccion parecida; registrar procedimiento, sinonimia o divergencia idiomatica para cada salida."
+    }), Object.freeze({
+      id: "nominalized-vs-deverbal-embed-same-gloss",
+      sourceRefs: Object.freeze(["Andrews 39.1.2", "Andrews 35.1.2"]),
+      pdfPages: Object.freeze([392]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Dos compuestos con glosa semejante pueden diferir porque uno lleva embed nominalizado y el otro embed deverbal; la traduccion no decide el contrato.",
+      requiredProbe: "Comparar formula de embed nominalizado contra deverbal antes de agrupar salidas o continuaciones."
+    }), Object.freeze({
+      id: "characteristic-property-yotl-embed-family-retention",
+      sourceRefs: Object.freeze(["Andrews 39.3", "Andrews 39.3.4", "Andrews 39.3.5", "Andrews 39.3.6"]),
+      pdfPages: Object.freeze([395, 396, 397, 399, 400]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los compuestos en -yo-tl pueden incorporar patientivos, agentivos preteritos, agentivos presentes habituales, agentivos futuros, pasivos de accion o activos de accion; la matriz -yo-tl no borra la familia del embed.",
+      requiredProbe: "Conservar clase y fuente del embed dentro de -yo-tl, incluso cuando la superficie posesiva o absolutiva sea ambigua."
+    }), Object.freeze({
+      id: "characteristic-property-pertinency-vs-intrinsic-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.2", "Andrews 39.3.3", "Andrews 15.1.2"]),
+      pdfPages: Object.freeze([396]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los compuestos en -yo-t pueden significar pertinencia a una entidad o algo intrinseco a ella; esas lecturas pueden usar embeds agentivos o patientivos distintos.",
+      requiredProbe: "No glosar todo -yo-t como propiedad generica; registrar lectura de pertinencia o intrinseca y familia del embed."
+    }), Object.freeze({
+      id: "characteristic-property-preterit-agentive-embed-loop-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.1", "Andrews 35.8", "Andrews 35.10"]),
+      pdfPages: Object.freeze([395]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los -yo-t de propiedad caracteristica pueden incorporar un agentivo preterito como embed; ese embed ya viene de una CNV nominalizada y luego entra en una matriz patientiva.",
+      requiredProbe: "No catalogar la pagina solo como -yo-t deverbal; mostrar CNV nominalizada -> CNN agentiva -> embed de matriz -yo-t."
+    }), Object.freeze({
+      id: "characteristic-property-customary-agentive-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.2", "Andrews 36.3"]),
+      pdfPages: Object.freeze([396]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un -yo-t de pertinencia puede tomar como embed un agentivo presente habitual plenamente nominalizado; el termino agentivo no pertenece solo a la matriz deverbal.",
+      requiredProbe: "Conservar la fuente CNV nominalizada habitual antes de incrustarla en la CNN de propiedad caracteristica."
+    }), Object.freeze({
+      id: "characteristic-property-obsolete-embed-takeover-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.3", "Andrews 39.1.3"]),
+      pdfPages: Object.freeze([396]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En algunos compuestos en -yo-t el embed fuente ya no existe porque el derivado tomo su significado; la ortografia tradicional puede ocultar esa estructura.",
+      requiredProbe: "No reconstruir desde la superficie lexicalizada solamente; conservar embed obsoleto, derivado -yo-t y advertencia ortografica."
+    }), Object.freeze({
+      id: "characteristic-property-resultant-state-vs-performer-homophony",
+      sourceRefs: Object.freeze(["Andrews 39.3.5", "Andrews 39.3.6", "Andrews 36.12"]),
+      pdfPages: Object.freeze([400]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los absolutivos en -cayo-t pueden ser homofonos entre 'estado resultante' y 'cosa que realizo la accion'; la traduccion suele borrar esa diferencia.",
+      requiredProbe: "No decidir por superficie o glosa; registrar si el embed es estado resultante o ejecutante/patientivo antes de continuar."
+    }), Object.freeze({
+      id: "characteristic-property-multi-step-reconstructed-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.6", "Andrews 38.1", "Andrews 35.10"]),
+      pdfPages: Object.freeze([400]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una matriz -yo-t puede presuponer una cadena reconstruida CNV causativa -> impersonal -> patientivo -> compuesto de posesion abundante -> patientivo imperfectivo.",
+      requiredProbe: "No saltar directo de raiz a -yo-t; registrar cada etapa reconstruida, el estado de atestiguacion y el rol del patientivo intermedio."
+    }), Object.freeze({
+      id: "characteristic-property-tlaaquillo-fruit-multistage-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.3.6", "Andrews 38.1", "Andrews 35.10"]),
+      pdfPages: Object.freeze([400]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Tlaaquillo 'fruta' presupone aqui -> tla-aqui-a -> tlaaquilo -> tla-aqui-l-li -> *tla-aqui-l-lo-a -> tla-aqui-l-lo-tl; no es un derivado directo visible de aqui.",
+      requiredProbe: "Preservar causativo, impersonal CNV, patientivo, compuesto reconstruido de posesion abundante, testigo agentivo preterito y patientivo final antes de generar la CNN."
+    }), Object.freeze({
+      id: "perfective-vs-stock-patientive-homophony-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.1.2", "Andrews 39.4", "Andrews 24.5"]),
+      pdfPages: Object.freeze([400]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un patientivo de stock puede ser homofono de un patientivo perfectivo; la diferencia esta en longitud vocal e historia interna, no en la superficie visible.",
+      requiredProbe: "No clasificar por forma escrita; registrar fuente perfectiva activa frente a destockal, longitud vocal y estructura interna antes de generar o continuar."
+    }), Object.freeze({
+      id: "root-stock-tlapac-perfective-homograph-vowel-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 39.1.2", "Andrews 24.5"]),
+      pdfPages: Object.freeze([400]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Tlap-a-c como patientivo destockal de tlap-a-ni no debe confundirse con (tla-pac)-tli, patientivo perfectivo de tla-(paca); superficie parecida esconde longitud vocal y estructura distintas.",
+      requiredProbe: "No agrupar tlapac por escritura; registrar familia fuente, longitud vocal, stock/root y estructura interna antes de renderizar o continuar."
+    }), Object.freeze({
+      id: "root-stock-patientive-choice-opaque",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 24.5", "Andrews 24.6", "Andrews 24.7", "Andrews 2.21"]),
+      pdfPages: Object.freeze([400, 401, 402, 403]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los patientivos de raiz o stock eligen c, x, z, ch, glotal, stock desnudo o raiz por factores que no siempre quedan visibles en la superficie.",
+      requiredProbe: "No inferir c/x/z/ch desde la salida; registrar tipo destockal, vocal larga acortada o conservada, y evidencia de raiz o stock."
+    }), Object.freeze({
+      id: "stock-patientive-fused-vowel-length-retention-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 24.5.9"]),
+      pdfPages: Object.freeze([401]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Destockales irregulares con vocal de raiz y stock fusionadas forman patientivos de stock que conservan la longitud vocal, aun cuando el tronco simple ya no se use.",
+      requiredProbe: "No acortar ni reconstruir la vocal por superficie; registrar fusion, longitud conservada y estado no extante de la fuente simple."
+    }), Object.freeze({
+      id: "stock-patientive-agentive-gloss-trap-toch-mich-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 25.4"]),
+      pdfPages: Object.freeze([401]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Toch-tli y quizas mich-in pueden parecer agentivos por glosa 'corredor' o 'flechado', pero Andrews los mantiene como patientivos de stock con irregularidades.",
+      requiredProbe: "No cambiar a agentivo por traduccion; conservar destockal fuente, clase nominal, longitud vocal y estado posible/conjetural."
+    }), Object.freeze({
+      id: "frequentative-destockal-stock-patientive-c-ch-h-choice-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 27.4.3"]),
+      pdfPages: Object.freeze([401]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Frequentativos destockales con matriz ca pueden formar patientivos agregando ch al stock, pero tambien c o glotal, como po-po-ch, pe-pey-o-c y cha-chal-a-h.",
+      requiredProbe: "No aplicar un unico final ch/c/j; registrar matriz ca, familia frequentativa y seleccion lexica de c/ch/glotal antes de la salida."
+    }), Object.freeze({
+      id: "stock-patientive-source-direction-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 39.4", "Andrews 24.7", "Andrews 54.1"]),
+      pdfPages: Object.freeze([403]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En i-hui/a-hui destockal, un nounstem stock-based puede ser derivado del verbstem o ser la fuente del verbstem; la direccion solo se prueba cuando aparece objeto tla dentro del nounstem.",
+      requiredProbe: "No fijar automaticamente CNV->CNN o CNN->CNV; registrar indicios de direccion, objeto tla interno y estado de evidencia."
+    }), Object.freeze({
+      id: "stock-patientive-causative-object-tla-proof",
+      sourceRefs: Object.freeze(["Andrews 39.4.3", "Andrews 37.8", "Andrews 54.1"]),
+      pdfPages: Object.freeze([403]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el patientivo stock-based viene de un causativo o-a, el objeto tla dentro del nounstem prueba fuente verbal y no nounstem fuente.",
+      requiredProbe: "Usar tla interno como prueba de direccion CNV->CNN; bloquear lectura CNN->CNV si el objeto verbal ya esta incorporado en el patientivo."
+    }), Object.freeze({
+      id: "stock-used-as-agentive-nounstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 39.4.4", "Andrews 39.2.1"]),
+      pdfPages: Object.freeze([403, 404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El stock de ciertos destockales intransitivos puede funcionar como nounstem agentivo, comparable a patientivos imperfectivos, sin seguir la plantilla patientiva usual.",
+      requiredProbe: "No forzar c/x/z/ch ni patientivo regular; registrar stock desnudo, valor agentivo y comparacion con 39.2.1."
+    }), Object.freeze({
+      id: "stock-agentive-source-conjecture-dictionary-mirage",
+      sourceRefs: Object.freeze(["Andrews 39.4.4", "Andrews 24.5.3", "Andrews 30.13"]),
+      pdfPages: Object.freeze([404]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Un stock agentivo como coy-o-t puede depender de una fuente CNV conjetural de sonido, aunque los diccionarios listen otra fuente superficial como volverse agujero.",
+      requiredProbe: "No escoger fuente por diccionario o forma visible solamente; exigir evidencia derivada como ih-coy-o-ca, compuestos de ave y diagnostico de conjetura antes de fijar la ruta CNV->CNN."
+    }), Object.freeze({
+      id: "index-derived-nounstem-denominal-deverbal-map-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Denominal verbstems", "Andrews Index: Deverbal nounstems", "Andrews Index: Derived nounstems as adjectives", "Andrews 54.1", "Andrews 37.8"]),
+      pdfPages: Object.freeze([682]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El indice junta denominales, deverbales y derivados adjectivales como mapa de referencias; no autoriza que una mencion de indice genere una ruta CNV/CNN nueva.",
+      requiredProbe: "No tratar referencias de indice como evidencia de superficie; usarlas para revisar paginas fuente y conservar cada salto CNN->CNV, CNV->CNN o funcion adjectival por separado."
+    }), Object.freeze({
+      id: "index-downgrading-rank-specificity-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Downgrading", "Andrews Index: Nounstem downgraded to root rank", "Andrews Index: Quoted quality of personal-name predicate"]),
+      pdfPages: Object.freeze([682, 687, 689]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El indice reparte downgrading entre clausula a tronco, statement entero a nounstem, nounstem a rango de raiz y predicado a nounstem; no es una operacion unica.",
+      requiredProbe: "No usar una etiqueta generica 'degradado'; registrar unidad fuente, rango destino, capa CNV/CNN/root y si la ruta autoriza generacion o solo diagnostico."
+    }), Object.freeze({
+      id: "index-embed-non-subject-non-agent-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Embed never functions as subject", "Andrews Index: Embed never represents agent of action", "Andrews Index: Functions of embed subposition"]),
+      pdfPages: Object.freeze([682, 683]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El indice insiste que el embed no funciona como sujeto ni agente; las rutas CNV/CNN deben resistir traducciones que invierten embed y matriz.",
+      requiredProbe: "No dejar que una glosa haga agente o sujeto al embed; conservar subposicion embed, matriz gobernante, funcion adverbial/incorporada y sujeto externo separado."
+    }), Object.freeze({
+      id: "denominal-suffix-vs-compound-analysis-warning",
+      sourceRefs: Object.freeze(["Andrews 54.1", "Andrews 51.2.1"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews acepta el analisis de sufijos denominales por conveniencia, pero advierte que algunos pueden ser verbstems en composicion; ti no funciona como VNC libre.",
+      requiredProbe: "No exponer ti/hui/ya/a/hua como verbos libres; registrar el analisis como formador de tronco dependiente."
+    }), Object.freeze({
+      id: "inceptive-stative-combo-tiya-huiya-spelling-collision",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 54.2.3.b", "Andrews 54.6"]),
+      pdfPages: Object.freeze([582, 588, 599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "ti-ya y hui-ya se escriben tradicionalmente como tia y huia, lo cual choca con causativo tia, aplicativo huia y t-ia aplicativo.",
+      requiredProbe: "Mostrar morfemas internos ti-ya/hui-ya o t-ia/ti-a antes de usar una grafia superficial como categoria."
+    }), Object.freeze({
+      id: "denominal-ti-source-family-breadth-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1"]),
+      pdfPages: Object.freeze([583, 584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti inceptivo/estativo toma directamente el predicado absolutivo y puede alimentarse de nounstems simples, derivados, compuestos, numerales, pronominales, agentivos, adverbializados o no atestiguados.",
+      requiredProbe: "No limitar ti a sustantivos simples; registrar familia de fuente absolutiva y estado de atestiguacion."
+    }), Object.freeze({
+      id: "denominal-state-being-becoming-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los sufijos inceptivo/estativos expresan entrada o estancia en condicion, pero Andrews advierte que Nahuatl no distingue normalmente ser de llegar a ser.",
+      requiredProbe: "No partir la arquitectura por glosa 'ser' frente a 'volverse'; conservar fuente CNN, sufijo inceptivo/estativo y valor de estado antes de traducir."
+    }), Object.freeze({
+      id: "denominal-ti-derived-compound-source-stack-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1"]),
+      pdfPages: Object.freeze([583]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti denominal puede tomar nounstems derivados o compuestos como ma-l-li, mahui-z-tli, tla-zo-h-tli y teo-xihui-tl; la fuente puede contener su propia derivacion interna.",
+      requiredProbe: "No reducir la fuente a una raiz simple antes de ti; conservar derivacion o composicion CNN interna, predicado absolutivo y sufijo ti."
+    }), Object.freeze({
+      id: "denominal-ti-numeral-pronominal-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1"]),
+      pdfPages: Object.freeze([583]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti denominal puede partir de nounstems numerales o pronominales como o-ome, oh-ome, itl-ah y ah-tl-eh.",
+      requiredProbe: "No bloquear ti porque la fuente no sea un sustantivo lexico ordinario; registrar fuente numeral/pronominal y su predicado absolutivo antes de formar CNV."
+    }), Object.freeze({
+      id: "denominal-ti-customary-vs-preterit-agentive-source-homonym",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 36.3", "Andrews 35.5"]),
+      pdfPages: Object.freeze([583]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Formas como llegar a ser maestro pueden venir de un agentivo habitual plenamente nominal o de un agentivo preterito de uso general; la traduccion comun no identifica la fuente.",
+      requiredProbe: "No escoger temachtianiti o temachtih-0-ca-ti por glosa; conservar si la ruta es CNV habitual -> CNN plena -> ti o CNV preterita -> CNN agentiva -> tallo general -> ti."
+    }), Object.freeze({
+      id: "denominal-ti-ownerhood-agentive-source-recursion",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 35.5", "Andrews 35.9"]),
+      pdfPages: Object.freeze([583, 584]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un agentivo preterito de ownerhood, incluso recursivo, puede alimentar ti por su tallo de uso general, como mic-0-ca-huah-0-ca-ti o axca-huah-0-ca-ti.",
+      requiredProbe: "No saltar de la glosa rico/bereaved a un ti simple; conservar ownerhood interno, tallo general ca, fuente agentiva y nuevo tronco CNV ti."
+    }), Object.freeze({
+      id: "denominal-ti-adverbialized-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 22.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti denominal puede tomar nounstems adverbializados, incluso relacionales; con tiempo o clima puede anteponer tla impersonal sin cambiar a objeto transitivo.",
+      requiredProbe: "Registrar fuente CNN adverbializada, posible matriz relacional y tla impersonal de tiempo/clima antes de asignar valencia."
+    }), Object.freeze({
+      id: "denominal-ti-possessive-num1-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 35.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En casos excepcionales ti se agrega a nounstem mas num1 posesivo, e incluso puede conservar un poseedor lexicalizado como ti.",
+      requiredProbe: "No borrar num1 ni poseedor lexicalizado dentro de la fuente; marcar la ruta como excepcional antes de generar."
+    }), Object.freeze({
+      id: "denominal-ti-class-by-source-final-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los ti denominales son Clase A si la fuente termina en consonante; si termina en vocal pueden ser Clase A o B, con tendencia Clase A cuando el agentivo preterito funciona adjetivalmente.",
+      requiredProbe: "No escoger perfectivo por el sufijo ti solo; registrar final de fuente, Clase A/B y funcion agentiva/adjetival antes de la superficie."
+    }), Object.freeze({
+      id: "denominal-ti-lia-causative-not-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 25.5", "Andrews 26.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un ti inceptivo/estativo puede formar causativo de un objeto con lia, pero Andrews advierte que esta lia no debe confundirse con la lia aplicativa.",
+      requiredProbe: "No clasificar lia por superficie; conservar fuente ti inceptiva/estativa, objeto causativo y diagnostico contra lectura aplicativa antes de generar."
+    }), Object.freeze({
+      id: "denominal-ti-general-use-agentive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 35.5", "Andrews 36.3"]),
+      pdfPages: Object.freeze([583]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando ti se forma desde un agentivo preterito, Andrews exige el tallo de uso general; los agentivos presentes habituales plenamente nominales tambien pueden ser fuente.",
+      requiredProbe: "Mostrar CNV -> CNN agentiva -> tallo de uso general -> CNV ti, sin usar la forma predicativa visible como base."
+    }), Object.freeze({
+      id: "denominal-ti-customary-agentive-nominal-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 36.3"]),
+      pdfPages: Object.freeze([583]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La fuente de algunos ti denominales es el nounstem de una CNN agentiva presente habitual plenamente nominal; Andrews obliga a reconocer primero la nominalizacion.",
+      requiredProbe: "No saltar de una CNV habitual visible directamente a ti; registrar el paso CNV -> CNN agentiva habitual antes del paso CNN -> CNV ti."
+    }), Object.freeze({
+      id: "denominal-ti-preterit-agentive-general-use-source-loop",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([583, 584]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los ti denominales pueden partir de un agentivo preterito, pero el sufijo ti se anade al tallo de uso general, no a la forma predicativa completa.",
+      requiredProbe: "Mostrar CNV preterita -> CNN agentiva -> tallo de uso general -> CNV ti y bloquear el uso directo de la salida predicativa como base."
+    }), Object.freeze({
+      id: "denominal-ti-time-weather-impersonal-tla-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.1", "Andrews 22.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos ti denominales de tiempo o clima prefijan tla impersonal; ese tla no es objeto transitivo ni licencia valencia adicional.",
+      requiredProbe: "Distinguir tla impersonal de objeto tla antes de asignar valencia o ruta."
+    }), Object.freeze({
+      id: "denominal-hui-general-use-w-assimilation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.2"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hui se anade al predicado absolutivo y puede usar tallos de uso general con /w/ final, donde /w/ + /w/ se realiza como [w].",
+      requiredProbe: "Conservar tallo de uso general, /w/ fuente y asimilacion antes de presentar la superficie hui."
+    }), Object.freeze({
+      id: "denominal-hui-total-amount-causative-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.2", "Andrews 16.7", "Andrews 24.3.1", "Andrews 25.5"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos hui denominales combinan fuente cuantitativa ix, tallo de uso general con w, vocal de apoyo y causativo posterior; esa prueba no debe aplanarse a un hui simple.",
+      requiredProbe: "Registrar fuente ix/cantidad, tallo de uso general, asimilacion w+w, vocal de apoyo y contraparte causativa antes de usar la superficie hui como evidencia unica."
+    }), Object.freeze({
+      id: "denominal-ya-stock-i-num1-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 24.4", "Andrews 40.9"]),
+      pdfPages: Object.freeze([585, 586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ya denominal puede anadirse a raiz, tallo degradado, stock con i no radical o una estructura donde k/qu num1 queda fuera de la fuente.",
+      requiredProbe: "No meter i de stock ni num1 en la raiz; mostrar raiz/tallo/stock y morfema num1 por separado."
+    }), Object.freeze({
+      id: "denominal-ya-pronominal-num1-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 16.9.1", "Andrews 35.2"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ya denominal puede apoyarse en fuentes pronominales o cuantitativas y en una forma agentiva donde k/qu pertenece a num1, fuera del tronco fuente.",
+      requiredProbe: "No absorber el num1 ni la fuente pronominal en la raiz; exponer fuente CNN, num1 externo y tronco ya resultante."
+    }), Object.freeze({
+      id: "denominal-ya-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 40.2.1"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos ya denominales presuponen nounstems fuente no atestiguados o variantes fuente; Andrews los registra como fuentes hipoteticas, no como generacion libre.",
+      requiredProbe: "No exigir ni inventar una CNN plena atestiguada; registrar fuente no atestiguada, variante y estado diagnostico antes de generar."
+    }), Object.freeze({
+      id: "denominal-ya-traditional-spelling-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([586, 587, 588]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews advierte que ia/ya en grafia tradicional no es confiable; una causativa puede probar la presencia de i y la posicion del acento.",
+      requiredProbe: "No decidir i/ya desde ortografia tradicional; exigir prueba morfologica o evidencia Nawat antes de fijar superficie."
+    }), Object.freeze({
+      id: "denominal-ya-causative-lia-spelling-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 25.5.2"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La causativa con lia puede borrar ya y revelar una i oculta o la posicion acentual; esa prueba morfologica pesa mas que la grafia tradicional.",
+      requiredProbe: "Conservar ruta ya -> lia, borrado de ya y prueba de i/acento antes de fijar la base o bloquear la superficie Nawat."
+    }), Object.freeze({
+      id: "denominal-ya-active-action-liz-drop-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 37.3.4"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "Los activos de acción desde verbstems ya normalmente borran ya antes de liz, pero Andrews enumera excepciones que conservan ya.",
+      requiredProbe: "No aplicar borrado ya->liz como regla absoluta; registrar fuente ya, ruta activa de acción y excepcion de conservacion si existe."
+    }), Object.freeze({
+      id: "destockal-ya-vnc-vs-derivation-source-preference",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 24.5", "Andrews 24.5.7", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En destockales ni/hui, el tallo con ya se prefiere para VNC finitas, pero el tallo fuente sin ya alimenta nominalizaciones y causativos de tipo uno.",
+      requiredProbe: "Separar el tallo preferido para VNC del tallo fuente para derivacion; no derivar nounstem o causativo automaticamente desde la forma ya."
+    }), Object.freeze({
+      id: "destockal-ya-source-stem-nounstem-formation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 39.4.1", "Andrews 24.5"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Aunque el ya destockal sea preferido para CNV finitas, Andrews usa el tallo fuente ni/hui sin ya para formar nounstems como agentivos, acciones o patientivos de stock.",
+      requiredProbe: "No alimentar las formaciones CNN desde la superficie finita con ya; registrar tallo fuente, tallo ya y destino nominal separado."
+    }), Object.freeze({
+      id: "destockal-ya-a-traditional-valence-split",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 54.2.4", "Andrews 55.7"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La grafia tradicional puede ocultar la diferencia entre ni-ya/hui-ya intransitivos y ni-a/hui-a transitivos causativos o deverbales.",
+      requiredProbe: "No decidir valencia por grafia ia/ya/a; registrar sufijo, transitividad y fuente destockal antes de generar o diagnosticar."
+    }), Object.freeze({
+      id: "destockal-ya-vs-transitive-ia-cross-lesson-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 55.7"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La confusion grafica entre hui-ya/hui-a y ni-ya/ni-a cruza con los transitivos i-a de 55.7; una forma en ia no decide si es ya intransitivo, a transitivo, o i-a denominal.",
+      requiredProbe: "Comparar fuente ni/hui, transitivo i-a, sufijo a/ya y valencia antes de aceptar una ruta denominal o deverbal."
+    }), Object.freeze({
+      id: "limited-a-class-c-not-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.4"]),
+      pdfPages: Object.freeze([588, 589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El a inceptivo/estativo es de uso limitado, es intransitivo y Clase C aunque parezca transitive; no es el causativo a.",
+      requiredProbe: "Marcar a limitado como intransitivo Clase C y bloquear lectura causativa por forma final."
+    }), Object.freeze({
+      id: "limited-a-retained-num1-adjectival-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.4", "Andrews 40.8", "Andrews 44.5"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El a limitado puede conservar un num1 de fuente posesiva y aparece sobre todo en agentivos preteritos adjectivales, adverbializados o de uso general.",
+      requiredProbe: "No borrar num1 ni convertir el a limitado en ruta finita comun; conservar funcion adjectival/adverbial o uso general."
+    }), Object.freeze({
+      id: "limited-a-ohhui-perspective-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.4", "Andrews 54.4", "Andrews 40.8.6"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El par especial oh-hui-a frente a oh-hui-ti contrasta cosa peligrosa/dificil con persona en peligro; la diferencia no es mera variante de sufijo.",
+      requiredProbe: "Registrar a limitado, ti de posesion, num1 conservado y perspectiva semantica antes de tratar ambos como sinonimos."
+    }), Object.freeze({
+      id: "characteristic-property-hua-not-oa-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.5", "Andrews 39.3", "Andrews 55.3"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hua desde nounstems en -yo-tl suele escribirse erroneamente como a por la vocal precedente y se confunde con o-a de 55.3; hua es Clase A, no Clase C.",
+      requiredProbe: "Mostrar fuente -yo-tl, sufijo hua, clase A y contraste con o-a antes de generar o diagnosticar."
+    }), Object.freeze({
+      id: "characteristic-property-hua-covered-filled-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.5", "Andrews 39.3", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hua sobre fuente -yo-tl significa volverse como la fuente, pero por la matriz -yo-tl suele traducirse como llenarse o cubrirse con el embed.",
+      requiredProbe: "No glosar desde el nounstem visible solamente; conservar matriz -yo-tl, embed fuente y posible patientivo interno."
+    }), Object.freeze({
+      id: "included-possessor-supplementary-possessor-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 56.2.2"]),
+      pdfPages: Object.freeze([590, 592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En verbstems con poseedor incluido, el pronombre posesivo queda dentro del tronco y puede servir de cabeza para un poseedor suplementario.",
+      requiredProbe: "No convertir el poseedor interno en objeto; conservarlo como poseedor interno capaz de tomar suplemento."
+    }), Object.freeze({
+      id: "included-possessor-eight-verbstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([590]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Una misma fuente CNN posesiva puede producir hasta ocho verbstems ti con poseedor incluido; el pronombre posesivo no cambia a caso objetivo.",
+      requiredProbe: "No colapsar el paradigma por nounstem fuente; registrar poseedor incluido, persona/numero/caso posesivo y clase A antes de generar o diagnosticar."
+    }), Object.freeze({
+      id: "included-possessor-preterit-exclamation-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 40.2.3"]),
+      pdfPages: Object.freeze([592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un subtipo con poseedor incluido solo aparece en VNC preteritas y en oraciones exclamativas; puede incorporar ce-l antes del poseedor interno.",
+      requiredProbe: "No tratar esas formas como paradigma general; exigir tiempo preterito, uso exclamativo y posicion del adverbial incorporado delante del poseedor."
+    }), Object.freeze({
+      id: "included-possessor-relational-pan-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El relational pan con poseedor incluido puede cambiar de lectura si i-0 refiere a blanco no animado, y solo entonces admite causativo a.",
+      requiredProbe: "Registrar relacion pan, referente del poseedor i-0 y compuerta no animada antes de aceptar lectura de impacto o causativo."
+    }), Object.freeze({
+      id: "index-te-tla-patientive-and-ti-denominal-crossref-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: te > tla in impersonal patientive nounstems", "Andrews Index: /ti/ denominal verbstem-forming suffix", "Andrews 38.1.4", "Andrews 54.2.1", "Andrews 54.4"]),
+      pdfPages: Object.freeze([691]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El indice pone juntos te>tla patientivo e /ti/ denominal 'volverse'/'tener'; son familias distintas y no deben compartir una reparacion superficial de t.",
+      requiredProbe: "No convertir te/tla o ti por grafia; separar patientivo impersonal CNV->CNN de ti denominal CNN->CNV y revisar las paginas fuente antes de generar."
+    }), Object.freeze({
+      id: "ti-possession-lia-causative-not-ya-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 54.2.1", "Andrews 54.2.4", "Andrews 54.5", "Andrews 14.7.2", "Andrews 25.5"]),
+      pdfPages: Object.freeze([593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti de posesion no forma ya deverbal, pero si puede formar causativo de un objeto con lia; su foco sigue siendo la entidad poseida.",
+      requiredProbe: "No bloquear toda continuacion por no permitir ya; permitir solo contrato ti-possesion -> lia y conservar foco de posesion."
+    }), Object.freeze({
+      id: "ti-possession-embed-only-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un ti de posesion puede partir de un nounstem que ya solo funciona como embed, mientras un tallo truncado de uso general toma las otras funciones.",
+      requiredProbe: "No exigir que la fuente CNN tenga paradigma autonomo completo; registrar fuente embed-only, tallo truncado de uso general y ruta ti."
+    }), Object.freeze({
+      id: "causative-ti-a-type-one-two-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.5.3", "Andrews 25.1"]),
+      pdfPages: Object.freeze([594, 598, 599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La secuencia ti-a/tia puede ser causativo tipo uno con ti significativo o causativo tipo dos con ti conectivo, con valencias y fuentes distintas.",
+      requiredProbe: "Exponer fuente nominal/patientiva, tipo causativo y valencia antes de aceptar una superficie en tia."
+    }), Object.freeze({
+      id: "causative-ti-a-source-state-and-false-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.2.1", "Andrews 54.4", "Andrews 54.5.3", "Andrews 42.10"]),
+      pdfPages: Object.freeze([594]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los causativos ti-a pueden partir de CNN absolutivas o posesivas, ti de posesion o ti inceptivo/estativo, y la traduccion puede fingir aplicativo.",
+      requiredProbe: "No decidir por tia visible ni por glosa 'para'; registrar estado de la CNN fuente, familia ti, modificacion adjectival fuente y tipo causativo."
+    }), Object.freeze({
+      id: "causative-ti-a-possessive-state-valence-violation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.2", "Andrews 23.1"]),
+      pdfPages: Object.freeze([596, 597, 598]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los causativos ti-a de fuente posesiva transforman sujeto y poseedor en objetos y violan el principio de valencia al permitir dos objetos sin sufijo aplicativo.",
+      requiredProbe: "Mostrar fuente posesiva, objeto causativo, objeto aplicativo y diagnostico de violacion de valencia antes de generar."
+    }), Object.freeze({
+      id: "causative-ti-a-possessive-source-num1-diagnostic-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.2"]),
+      pdfPages: Object.freeze([597]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos causativos ti-a de dos objetos revelan su fuente posesiva porque conservan el morph num1 de la CNN fuente, como tlaca-uh-ti-a y tequi-uh-ti-a.",
+      requiredProbe: "No borrar uh como material superficial; usar el num1 conservado como diagnostico de fuente posesiva antes de comparar valencia y superficie."
+    }), Object.freeze({
+      id: "causative-ti-a-possessive-source-double-object-class-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.2"]),
+      pdfPages: Object.freeze([598]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los causativos ti-a de dos objetos formados desde fuentes posesivas pertenecen a la Clase C.",
+      requiredProbe: "No heredar Clase A/B del ti posesivo o inceptivo; marcar la ruta de dos objetos como Clase C y probar el perfectivo antes de generar."
+    }), Object.freeze({
+      id: "causative-ti-a-single-double-object-homophony",
+      sourceRefs: Object.freeze(["Andrews 54.5.2", "Andrews 54.2.1", "Andrews 23.1"]),
+      pdfPages: Object.freeze([596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Muchos ti-a causativos tienen una forma homofona de un objeto y otra de dos objetos; la superficie no decide si la fuente fue absolutiva o posesiva.",
+      requiredProbe: "Comparar fuente NNC absolutiva/posesiva, objeto causativo y objeto aplicativo antes de aceptar una lectura valencial."
+    }), Object.freeze({
+      id: "causative-ti-a-possessive-object-case-rewrite-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.2", "Andrews 54.3", "Andrews 54.3.1", "Andrews 15.2.2", "Andrews 23.1"]),
+      pdfPages: Object.freeze([596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En causativos ti-a desde CNN posesiva, el sujeto y el poseedor de la fuente se reescriben como objetos; el poseedor no permanece como poseedor interno.",
+      requiredProbe: "No conservar poseedor fuente dentro del verbo; mostrar reescritura a objeto causativo/aplicativo, homofonia y violacion valencial."
+    }), Object.freeze({
+      id: "causative-ti-a-inceptive-source-frequency-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.1", "Andrews 54.2.1", "Andrews 54.3.1"]),
+      pdfPages: Object.freeze([596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El ti-a causativo desde fuente inceptiva/estativa existe pero es menos frecuente y solo usa los stems formados segun 54.2.1, no los de poseedor incluido 54.3.",
+      requiredProbe: "No extender ti-a a todo ti visible; registrar fuente 54.2.1, excluir 54.3 y comparar posible sinonimia con causativo tipo dos."
+    }), Object.freeze({
+      id: "causative-ti-a-false-applicative-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.2", "Andrews 23.1"]),
+      pdfPages: Object.freeze([594]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La traduccion 'hacer X para' puede parecer aplicativa, pero Andrews la analiza como causativa ti-a; el objeto causativo puede estar incorporado.",
+      requiredProbe: "No crear sufijo aplicativo por glosa española o inglesa; registrar causativo ti-a, objeto incorporado y fuente posesiva/absolutiva."
+    }), Object.freeze({
+      id: "causative-ti-a-adjectival-modification-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 42.10"]),
+      pdfPages: Object.freeze([594]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un causativo ti-a puede partir de una estructura de modificacion adjectival como fuente nominal, no solo de un nounstem simple.",
+      requiredProbe: "Conservar fuente de modificacion adjectival, nounstem resultante y causativo ti-a antes de asignar objeto o glosa."
+    }), Object.freeze({
+      id: "causative-ti-a-unattested-intermediate-chain",
+      sourceRefs: Object.freeze(["Andrews 54.5.1 note 2", "Andrews 39.1.3"]),
+      pdfPages: Object.freeze([595, 596]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos causativos ti-a presuponen una cadena o-a -> patientivo -> ti -> ti-a con pasos intermedios no atestiguados.",
+      requiredProbe: "No materializar pasos hipoteticos como evidencia lexica; conservar cada etapa y su estado de atestiguacion."
+    }), Object.freeze({
+      id: "applicative-t-ia-vs-ti-a-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.6", "Andrews 26.2"]),
+      pdfPages: Object.freeze([599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos ti intransitivos forman aplicativos con t-ia sobre un tallo replacivo sin i final; hay que distinguir t-ia de ti-a/tia.",
+      requiredProbe: "Mostrar tallo replacivo, perdida de i final, sufijo ia y Clase C antes de etiquetar la ruta."
+    }), Object.freeze({
+      id: "causative-tla-intransitive-tla-collision",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600, 601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Hay un tla causativo denominal y otro tla intransitivo de 'become'; las continuaciones cambian tla a ti antes de lia o a segun el caso.",
+      requiredProbe: "Separar tla causativo de tla intransitivo y mostrar reemplazo tla->ti antes de causativo o aplicativo."
+    }), Object.freeze({
+      id: "denominal-tla-causative-class-a-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600, 601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El tla causativo denominal es Clase A y significa causar, tratar o considerar como la fuente nominal; no es el tla intransitivo ni un objeto ta.",
+      requiredProbe: "Mostrar fuente CNN, tla causativo, Clase A y valencia/objeto antes de permitir continuaciones o superficies."
+    }), Object.freeze({
+      id: "denominal-tla-reciprocal-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2", "Andrews 20.3"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El tla causativo denominal puede aparecer con objeto reciprocativo; tla no debe leerse solo como inespecifico ni como ausencia de objeto.",
+      requiredProbe: "Registrar reciprocativo, fuente CNN y tla causativo antes de asignar objeto, valencia o continuacion."
+    }), Object.freeze({
+      id: "denominal-tla-applicative-ti-lia-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2", "Andrews 26.7"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El aplicativo de tla causativo cambia tla a ti antes de lia y puede agregar un objeto beneficiario/poseedor; no es reparacion superficial.",
+      requiredProbe: "Registrar fuente tla causativa, reemplazo tla->ti, lia aplicativa y nuevo objeto antes de construir la continuacion."
+    }), Object.freeze({
+      id: "oa-huia-use-produce-meaning-split",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([601, 602, 603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "o-a intransitivo y huia aplicativo tienen dos familias de significado: usar/aplicar y producir; la familia de significado afecta el objeto y la continuacion.",
+      requiredProbe: "Registrar uso/aplicacion frente a produccion antes de emparejar o-a con huia o asignar objeto."
+    }), Object.freeze({
+      id: "denominal-oa-intransitive-a-not-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El o-a de 55.3 es intransitivo y Clase C; su a final no es el sufijo causativo aunque la forma lo sugiera.",
+      requiredProbe: "Marcar o-a como intransitivo Clase C y bloquear inferencia causativa desde la a final."
+    }), Object.freeze({
+      id: "denominal-oa-act-like-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([602]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Algunos o-a significan actuar como la fuente y pueden tener nounstem fuente no atestiguado; la productividad es limitada.",
+      requiredProbe: "Registrar familia de significado y estado de atestiguacion de la fuente antes de producir una ruta finita."
+    }), Object.freeze({
+      id: "denominal-oa-y-unrepresented-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 53.4", "Andrews 2.13.1"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En algunos o-a desde nounstems de lugar, una y fuente puede quedar sin representacion visible; la superficie no basta para reconstruir la base.",
+      requiredProbe: "Conservar fuente locativa, y no representada y ruta o-a antes de usar la salida como evidencia de base."
+    }), Object.freeze({
+      id: "huia-adjectival-modification-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews Lesson 42", "Andrews 58.1"]),
+      pdfPages: Object.freeze([602]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "huia puede formarse desde una estructura de modificacion adjectival, no solo desde un nounstem aislado.",
+      requiredProbe: "Conservar estructura modificador/cabeza de la fuente y no aplanarla a un solo tronco CNN."
+    }), Object.freeze({
+      id: "huia-calendar-name-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews Appendix E.11.3"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un nombre calendárico como fuente puede alimentar huia; no es una CNN lexical ordinaria ni evidencia de generacion comun.",
+      requiredProbe: "Registrar categoria de nombre, estructura calendárica y estado de evidencia antes de permitir ruta huia."
+    }), Object.freeze({
+      id: "huia-product-deverbal-nounstem-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3 note 2", "Andrews 24.6"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El huia de produccion puede tomar como fuente un tronco nominal deverbal en -l/li, como sombra o tortilla; eso no equivale a generar huia desde cualquier raiz verbal.",
+      requiredProbe: "Conservar la ruta CNV -> CNN deverbal nounstem -> CNV huia, la semantica de produccion para beneficiario y la fuente nominal antes de ejecutar."
+    }), Object.freeze({
+      id: "nominalized-vnc-adjectival-affective-embed-proof",
+      sourceRefs: Object.freeze(["Andrews 40.5", "Andrews 40.3", "Andrews 41.1.4"]),
+      pdfPages: Object.freeze([413]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews justifica analizar ciertas VNC adjetivales como nominalizadas porque, a diferencia de VNC estrictas, pueden incrustarse en matrices afectivas.",
+      requiredProbe: "No clasificar una VNC adjetival solo por traduccion; conservar prueba de nominalizacion e incrustacion afectiva antes de tratarla como CNN."
+    }), Object.freeze({
+      id: "customary-agentive-adjectival-negative-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.6", "Andrews 40.5", "Andrews 36.1", "Andrews 37.5.2"]),
+      pdfPages: Object.freeze([413]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos presentes habituales en funcion adjectival pueden tener ambiguedad de alcance con ah/ay y coexistir con patientivos potenciales traducidos como adjetivos.",
+      requiredProbe: "No usar la glosa mortal/inmortal como analisis unico; conservar alcance de negacion, fuente agentiva habitual y contraste con potencial-patientivo."
+    }), Object.freeze({
+      id: "customary-patientive-vs-potential-patient-adjectival-overlap",
+      sourceRefs: Object.freeze(["Andrews 40.7", "Andrews 40.4.2", "Andrews 36.5", "Andrews 37.5.2"]),
+      pdfPages: Object.freeze([414]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un patientivo presente habitual y un potencial-patient pueden traducirse como el mismo adjetivo, pero el primero viene de nominalizacion pasiva habitual y el segundo de z/liz potencial.",
+      requiredProbe: "No deducir la ruta desde la glosa; registrar fuente pasiva habitual o potencial-patient z/liz antes de continuar."
+    }), Object.freeze({
+      id: "preterit-agentive-adjectival-class-number-slot-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 35.2", "Andrews 35.3", "Andrews 35.4"]),
+      pdfPages: Object.freeze([414, 415, 416]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los agentivos preteritos usados adjectivalmente conservan clase A/B/C/D, voz/fuente, transividad ocasional y opciones de num1-num2 como qui-0 u 0-0.",
+      requiredProbe: "Verificar clase, fuente, valencia y ranura de numero en la formula CNN antes de aceptar la superficie adjetival."
+    }), Object.freeze({
+      id: "preterit-agentive-adjectival-transitive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 35.2", "Andrews 35.3"]),
+      pdfPages: Object.freeze([415, 416]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un predicado preterito transitivo puede servir como stem de una CNN agentiva preterita adjectival, como mahcic, moyecchihchiuhqui, techicauh o tecuacuah; la traduccion adjectival no borra la valencia fuente.",
+      requiredProbe: "No tratar estas salidas como adjetivos simples ni como intransitivos; conservar objeto/reflexivo/proyectivo fuente, clase verbal y diada nominal antes de renderizar."
+    }), Object.freeze({
+      id: "preterit-agentive-adjectival-compound-preterit-as-present-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 28.6.3"]),
+      pdfPages: Object.freeze([416]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNN agentiva preterita adjectival puede venir de predicado compuesto con preterito-como-presente, como ihchic-t-ihca; el preterito incorporado no es un adjetivo libre.",
+      requiredProbe: "No borrar el compuesto ni su connective-t; conservar predicado incorporado, matriz ihca, tiempo preterito-como-presente y formula CNN resultante."
+    }), Object.freeze({
+      id: "preterit-agentive-adjectival-obsolete-source-and-zan-iyoh-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 40.2.3", "Andrews 44.3.11", "Andrews 44.8.1", "Andrews 54.2.4"]),
+      pdfPages: Object.freeze([416]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos agentivos preteritos adjectivales vienen de CNVs ya no usadas, de *iyo-a con zan, o de matrices de ownerhood traducidas como adjetivos.",
+      requiredProbe: "No reconstruir una fuente productiva por glosa; conservar fuente obsoleta, particula zan, contraste con VNC adverbial iyoh y matrices e/yo de ownerhood."
+    }), Object.freeze({
+      id: "denominal-ti-adjectival-likeness-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.8", "Andrews 54.2"]),
+      pdfPages: Object.freeze([415]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los adjectivales de denominal ti suelen expresar semejanza y pueden ubicar la cualidad de una manera no obvia para el ingles; la glosa no reemplaza la fuente CNN -> CNV ti.",
+      requiredProbe: "Mostrar nounstem fuente, ti denominal y agentivo preterito antes de presentar el valor adjectival."
+    }), Object.freeze({
+      id: "root-plus-ya-adjectival-exception-source-choice",
+      sourceRefs: Object.freeze(["Andrews 40.9", "Andrews 40.8.1", "Andrews 40.8.2", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([417, 418]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los root-plus-ya pueden usar raiz obsoleta, tallo completo Clase B, base pronoun-like, o no usar la formacion obsoleta; la eleccion es lexica y estructural.",
+      requiredProbe: "No aplicar automaticamente raiz+ya -> raiz+c; registrar excepcion, clase, base y uso general si Andrews lo exige."
+    }), Object.freeze({
+      id: "synonymous-adjectival-pairs-source-suffix-family-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.5", "Andrews 24.6", "Andrews 24.7", "Andrews 39.4"]),
+      pdfPages: Object.freeze([418, 419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares sinonimos adjectivales distinguen fuentes ni/hui/hua/i-hui/a-hui y sufijos c-ti-ya o ti-ya derivados de patientivos; no son variantes libres de una misma formula.",
+      requiredProbe: "Registrar familia destockal, patientivo fuente, sufijo denominal y clase antes de agrupar pares sinonimos."
+    }), Object.freeze({
+      id: "synonymous-pair-denominal-intermediate-not-root-shortcut-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 39.4.1", "Andrews 39.4.2"]),
+      pdfPages: Object.freeze([418]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los pares con c-ti-ya son verbstems denominales derivados de nounstems deverbales; la raiz comun no autoriza saltar directamente a la salida adjectival.",
+      requiredProbe: "No generar xoxoctic, cotoctic o catzactic desde la raiz o desde la glosa; conservar destockal fuente, nounstem deverbal intermedio, verbstem denominal y CNN agentiva final."
+    }), Object.freeze({
+      id: "synonymous-ihui-ahui-tiya-intermediate-not-suffix-alternation-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 24.7", "Andrews 39.4.3"]),
+      pdfPages: Object.freeze([419]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las formas i-hui/a-hui y ti-ya sinonimas comparten una familia de fuente, pero ti-ya sigue siendo verbstem denominal desde nounstem deverbal, no una alternancia superficial de sufijo.",
+      requiredProbe: "No reemplazar xol-o-ch-a-hui por xol-o-ch-ti-ya como si fuera la misma ruta; mostrar stock patientivo, nounstem deverbal, sufijo denominal y diada de numero propia."
+    }), Object.freeze({
+      id: "predicate-adjective-nnc-principal-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.12", "Andrews 44.5"]),
+      pdfPages: Object.freeze([420]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La oracion predicado-adjetiva usa una CNN adjectival como clausula principal; los sujetos suplementarios o intensificadores no cambian su clase formal.",
+      requiredProbe: "No convertir la CNN adjectival principal en etiqueta de palabra-adjetivo; conservar clausula principal, suplemento y modificadores como capas separadas."
+    }), Object.freeze({
+      id: "predicate-adjective-supplementary-subject-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 40.12", "Andrews Lesson 17"]),
+      pdfPages: Object.freeze([420]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En predicados adjectivales de nucleo multiple, el sujeto suplementario puede ser una CNN o una unidad de varias clausulas, no parte del tronco adjectival.",
+      requiredProbe: "No incorporar el suplemento al nounstem; registrar principal adjectival, sujeto suplementario y si el suplemento es unidad multiclause."
+    }), Object.freeze({
+      id: "intensified-adjectival-verbal-source-redup-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 27.2.2", "Andrews 14.3"]),
+      pdfPages: Object.freeze([421]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el adjectival proviene por nominalizacion o deverbalizacion de una fuente verbal, la intensificacion usa reduplicacion de vocal larga de 27.2.2, no la reduplicacion nominal ordinaria.",
+      requiredProbe: "No aplicar reduplicacion nominal por existir un NNC; conservar fuente verbal y tipo de reduplicacion."
+    }), Object.freeze({
+      id: "intensified-adjectival-distributive-glottal-redup-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 14.3", "Andrews 27.2.2"]),
+      pdfPages: Object.freeze([421]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La reduplicacion con glottal stop en adjectivales no es la intensificacion de vocal larga: expresa distribucion o variedad cuando el sujeto comun refiere a entidades diferenciadas.",
+      requiredProbe: "No tratar huihhuitztic o huehhuei como simple 'muy'; registrar glottal-stop redup, sujeto plural/comun y lectura distributiva."
+    }), Object.freeze({
+      id: "intensified-adjectival-pahti-matrix-regard-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([421, 422]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz preterit-agentive pah-ti 'potente' intensifica dentro de un compuesto, mientras el embed da la forma o respecto de la cualidad.",
+      requiredProbe: "No convertir pah-ti en particula de grado; conservar embed, matriz pah-ti, fuente agentiva y lectura 'en forma/respecto a'."
+    }), Object.freeze({
+      id: "intensified-adjectival-matrix-source-shape-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 35.5", "Andrews 39.4", "Andrews 40.9", "Andrews 40.11"]),
+      pdfPages: Object.freeze([422, 423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La intensificacion adjectival puede usar matrices preterit-agentive como pah-ti, cal-ti, tzon-ti o matrices afectivas, y el embed puede exigir raiz, patientivo, o forma de uso general.",
+      requiredProbe: "Mostrar matriz intensificadora, forma del embed y si se requiere uso general antes de componer la CNN."
+    }), Object.freeze({
+      id: "intensified-adjectival-calti-house-literal-trap-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1"]),
+      pdfPages: Object.freeze([423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz cal-ti puede intensificar aunque su traduccion literal 'casa' sea insatisfactoria; la glosa literal no define la funcion de matriz.",
+      requiredProbe: "No analizar chipaccaltic o itzcaltic como compuesto posesivo con casa; conservar embed adjectival, matriz cal-ti agentiva y funcion intensificadora."
+    }), Object.freeze({
+      id: "intensified-adjectival-tzonti-nested-pah-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz tzon-ti puede intensificar un embed que ya contiene pah-ti; el resultado tiene anidacion de matrices, no una sola raiz larga.",
+      requiredProbe: "No aplanar chichipahtzontic; conservar chichi-pah como embed interno, tzon-ti como matriz externa y reanalisis preterit-agentive de cada capa."
+    }), Object.freeze({
+      id: "intensified-adjectival-stock-patientive-embed-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 39.4", "Andrews 40.11"]),
+      pdfPages: Object.freeze([422]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un embed intensificador puede ser un patientivo desde stock destockal, como yam-a-z antes de pah-ti; no es una raiz plana ni un adjetivo suelto.",
+      requiredProbe: "No derivar yamazpahtic directamente desde yamaz; conservar destockal, patientivo, embed y matriz pah-ti."
+    }), Object.freeze({
+      id: "intensified-adjectival-root-plus-ya-embed-rank-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 40.9", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([422]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed puede ser la raiz de una CNN preterit-agentive adjectival formada desde root-plus-ya, no necesariamente el tronco agentivo completo.",
+      requiredProbe: "No insertar automaticamente la forma completa izta-0-c o yancui-0-c dentro del compuesto; registrar raiz, fuente root-plus-ya y matriz pah-ti."
+    }), Object.freeze({
+      id: "intensified-adjectival-general-use-ca-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([422, 423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el embed es una forma de uso general de un agentivo preterito, el ca pertenece al embed intensificado y no debe borrarse por parecer material de superficie.",
+      requiredProbe: "No convertir iztacapahtic, yancuicapahtic, tlahuelilocapol o celticatontli a una base restringida; conservar ca de uso general."
+    }), Object.freeze({
+      id: "intensified-adjectival-internal-expansion-sound-symbolism-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1"]),
+      pdfPages: Object.freeze([422, 423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La expansion interna palalah/calalah dentro de la matriz intensificadora es sound symbolism de mayor peso semantico, no una ruta productiva ordinaria ni reduplicacion externa.",
+      requiredProbe: "No segmentar cecepalalahtic o itzcalalahtic como dos matrices o como reduplicacion de prefijo; registrar expansion interna y matriz source."
+    }), Object.freeze({
+      id: "intensified-adjectival-affective-matrix-polarity-and-state-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.1", "Andrews Lesson 32", "Andrews 35.5"]),
+      pdfPages: Object.freeze([423]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las matrices afectivas pol, pil, ton y tzin intensifican en direcciones distintas; pol aumenta, mientras pil/ton/tzin disminuyen, y ton/tzin pueden conservar tli.",
+      requiredProbe: "No agrupar todos los afectivos como 'muy'; registrar direccion de intensidad, estado/absolutivo del afectivo y forma general del embed cuando sea agentivo preterito."
+    }), Object.freeze({
+      id: "compound-adjectival-embed-not-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 30.14", "Andrews 30.18", "Andrews 1.13", "Andrews 58.7"]),
+      pdfPages: Object.freeze([424, 425]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En adjectivales desde compuestos, el embed nominal no funciona como sujeto aunque la traduccion inglesa lo sugiera; puede venir de adverbio incorporado o de suplementacion posesiva.",
+      requiredProbe: "Conservar matriz, embed, origen adverbial/suplementario y sujeto real de la NNC antes de renderizar la relacion."
+    }), Object.freeze({
+      id: "compound-adjectival-incorporated-adverb-role-spectrum-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 30.7"]),
+      pdfPages: Object.freeze([424]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los adjectivales desde compuestos de adverbio incorporado pueden expresar medio, instrumento, lugar, tiempo, duracion, causa, proposito, manera o manera comparada.",
+      requiredProbe: "No etiquetar todo embed como lugar o instrumento; registrar el rol adverbial incorporado antes de formar la CNN adjectival."
+    }), Object.freeze({
+      id: "compound-adjectival-possessive-state-source-subtype-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 30.14", "Andrews 31.4"]),
+      pdfPages: Object.freeze([424, 425]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando la fuente es suplementacion con una CNN posesiva, Andrews separa dos subtipos: embed de entidad distinta del sujeto y embed de la misma clase de entidad.",
+      requiredProbe: "No mezclar brown-eyed con green-bean: registrar subtipo, entidad del embed, referente del sujeto y animacidad permitida."
+    }), Object.freeze({
+      id: "compound-adjectival-matrix-redup-distribution-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 41.1"]),
+      pdfPages: Object.freeze([425]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz de estos compuestos puede llevar prefijo reduplicativo para distribucion o variedad respecto de la entidad nombrada por el embed adverbial.",
+      requiredProbe: "No colocar la reduplicacion en el embed ni traducirla como intensidad simple; registrar matriz reduplicada y lectura distributiva."
+    }), Object.freeze({
+      id: "compound-adjectival-same-kind-english-reversal-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 31.4", "Andrews 1.13"]),
+      pdfPages: Object.freeze([425, 426]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En el subtipo de misma entidad, el ingles invierte la relacion gobernado/gobernante: Nahuatl enfoca la cualidad matriz y el embed da forma o comparacion.",
+      requiredProbe: "No hacer del embed el head o sujeto por la traduccion 'thin wall'; conservar matriz cualitativa, embed sustantivo y sujeto no animado."
+    }), Object.freeze({
+      id: "compound-adjectival-incorporated-complement-rare-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2"]),
+      pdfPages: Object.freeze([426]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los adjectivales desde compuestos con complemento incorporado existen, pero Andrews dice que son pocos; no autorizan una ruta productiva general.",
+      requiredProbe: "No generar libremente desde cualquier complemento incorporado; conservar fuente rara, complemento incorporado y matriz antes de diagnosticar."
+    }), Object.freeze({
+      id: "compound-adjectival-incorporated-object-agentive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 35.3"]),
+      pdfPages: Object.freeze([426]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compuesto con objeto incorporado puede alimentar una CNN agentiva preterita adjectival; el objeto incorporado queda dentro del tronco fuente.",
+      requiredProbe: "No promover cualan o yoliz a objeto externo de la CNN; conservar objeto incorporado, matriz verbal y reanalisis agentivo."
+    }), Object.freeze({
+      id: "compound-adjectival-patientive-source-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 41.2", "Andrews 39.7", "Andrews 39.8"]),
+      pdfPages: Object.freeze([426]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos adjectivales patientivos compuestos son morfologicamente ambiguos: la diferencia entre impersonal con objeto incorporado y pasivo con adverbio incorporado depende de conocer el tronco fuente.",
+      requiredProbe: "No decidir por la formula superficial; exigir fuente compound-verbstem antes de marcar impersonal o pasivo."
+    }), Object.freeze({
+      id: "compound-nounstem-ti-preterit-agentive-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.3", "Andrews 54.2", "Andrews 40.8.1"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN compuesta puede alimentar un tronco CNV denominal con ti, y ese tronco se usa con frecuencia como fuente de una CNN preterit-agentive adjectival.",
+      requiredProbe: "No saltar de con-nacaz o xilo-tzon directamente a la CNN final; conservar CNN compuesta, ti denominal, CNV intermedia y reanalisis preterit-agentive."
+    }), Object.freeze({
+      id: "compound-nounstem-embed-matrix-source-retention-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.3", "Andrews 31.4"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los ejemplos connacaztic y xilotzontic presuponen una CNN compuesta con embed y matriz internos; la superficie adjectival no borra esa arquitectura fuente.",
+      requiredProbe: "No tratar connacaz o xilotzon como raiz indivisible; registrar embed, matriz, nounstem compuesto y sufijo ti antes de la salida adjectival."
+    }), Object.freeze({
+      id: "adjectival-nounstem-embed-vs-multiple-nucleus-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews Lessons 42-43", "Andrews 31.4"]),
+      pdfPages: Object.freeze([427, 428]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN adjectival puede modificar por incorporacion dentro de un compuesto o por estructura multinuclear; Andrews separa estas rutas aunque ambas traduzcan como modificacion adjectival.",
+      requiredProbe: "No renderizar todo modificador adjectival como clausula adjunta ni todo como embed compuesto; registrar si la CNN adjectival esta incorporada como stem o funciona como nucleo separado."
+    }), Object.freeze({
+      id: "adjectival-embed-adverbialized-only-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews 44.5.3", "Andrews 44.6"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nounstems como nen e ilihui-z pueden servir como embeds adjectivales en compuestos, pero solo sirven como stems independientes de una NNC si la NNC esta adverbializada.",
+      requiredProbe: "No licenciar nen o ilihui-z como CNN independiente ordinaria por verlos en nentlacatl o ilihuizcihuatl; conservar restriccion de standalone adverbializado."
+    }), Object.freeze({
+      id: "numeral-adjectival-embed-count-vs-surface-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews Lesson 34"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un numeral puede ocupar embed adjectival dentro de un compuesto, y la pronunciacion puede alterar la escritura frecuente como onxihuitl/oxxihuitl sin cambiar el analisis.",
+      requiredProbe: "No convertir la variante ortografica en fuente nueva; registrar numeral embed, matriz nominal y contraste entre analisis y pronunciacion/escritura."
+    }), Object.freeze({
+      id: "adjectival-modification-single-vs-multiple-nucleus-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.1", "Andrews 41.4", "Andrews 30.5"]),
+      pdfPages: Object.freeze([428]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La modificacion adjectival puede ocurrir dentro de un solo nucleo compuesto o en estructuras de varios nucleos; no son la misma ruta de CNN.",
+      requiredProbe: "No resolver toda modificacion como embed de compuesto ni toda relacion como clausula adjunta; registrar single-nucleus vs multiple-nucleus antes de renderizar."
+    }), Object.freeze({
+      id: "multiple-nucleus-modification-rank-reversal-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.2", "Andrews Lesson 17"]),
+      pdfPages: Object.freeze([428, 429]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La modificacion adjectival multinuclear transforma una suplementacion de referente compartido invirtiendo el rango: el head pasa a core de la principal y el modificador queda adjunto.",
+      requiredProbe: "No decidir principal/adjunto por orden superficial; registrar fuente suplementaria, transformacion de rango y pronombres personales correferentes."
+    }), Object.freeze({
+      id: "multiple-nucleus-modification-affixal-link-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.2", "Andrews Lesson 17"]),
+      pdfPages: Object.freeze([428, 429]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La relacion head-modifier en modificacion multinuclear se establece por pronombres personales afijales de referente compartido, no por un pronombre relativo ni por yuxtaposicion inglesa.",
+      requiredProbe: "No insertar un linker relativo ni inferir enlace por traduccion; registrar pronombres afijales correferentes en ambos nucleos."
+    }), Object.freeze({
+      id: "adjectival-modification-no-modifier-word-head-word-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.2", "Andrews 16.2"]),
+      pdfPages: Object.freeze([428]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nahuatl no usa estructura palabra-modificador + palabra-cabeza como el ingles; el modificador adjectival es clausula nuclear sin pronombre relativo.",
+      requiredProbe: "No mostrar 'adjetivo + sustantivo' como arquitectura; conservar dos nucleos, correferencia afijal y ausencia de relative linker."
+    }), Object.freeze({
+      id: "adjectival-modifier-preposing-not-topic-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.3", "Andrews 17.5"]),
+      pdfPages: Object.freeze([429]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El modificador adjectival prepuesto no es topico: se une mas estrechamente al head y no muestra la pausa de topicalizacion.",
+      requiredProbe: "No marcar todo prepuesto como topico; distinguir preposing de modificacion, topicalizacion y ausencia/presencia de hiatus."
+    }), Object.freeze({
+      id: "adjectival-modification-adjunctor-in-optional-marker-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.2", "Andrews 42.3", "Andrews 42.4"]),
+      pdfPages: Object.freeze([429]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El adjunctor in puede marcar el modificador adjectival, pero su presencia no convierte la construccion en subordinacion de una sola palabra ni elimina la estructura de dos nucleos.",
+      requiredProbe: "No leer in como relativo pegado solo al modificador; conservar head, modifier, opcion marcada/no marcada y alcance de nucleo."
+    }), Object.freeze({
+      id: "adjectival-modification-adjoined-unit-in-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.4", "Andrews 42.5"]),
+      pdfPages: Object.freeze([429, 430]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una estructura de modificacion puede funcionar como unidad adjunta o principal; cuando in precede al modificador prepuesto, subordina toda la unidad, no solo el modificador.",
+      requiredProbe: "No ligar in solo al primer nucleo; registrar alcance de unidad completa, funcion adjunta/principal y completitud de la construccion."
+    }), Object.freeze({
+      id: "adjectival-modification-principal-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.5"]),
+      pdfPages: Object.freeze([430]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La estructura completa de modificacion puede servir como unidad principal de una estructura concatenada mayor, no solo como adjunto.",
+      requiredProbe: "No forzar toda modificacion con in inicial a funcion adjunta; registrar cuando la unidad modificadora completa es la principal."
+    }), Object.freeze({
+      id: "supplementation-modification-ambiguity-principal-choice-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.6", "Andrews 17.2"]),
+      pdfPages: Object.freeze([430, 431]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Suplementacion y modificacion son estructuras de aposicion potencialmente ambiguas; el significado depende de que nucleo se entiende como principal.",
+      requiredProbe: "No decidir por orden o por in solamente; registrar nucleo principal, adjunct/supplement, head/core y lectura alternativa si existe."
+    }), Object.freeze({
+      id: "supplementation-modification-marked-preposed-completion-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.6", "Andrews 42.4"]),
+      pdfPages: Object.freeze([430, 431]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El patron in + adjunct + PRINCIPAL en modificacion prepuesta marcada no es oracion completa por si solo; solo funciona como unidad adjunta, mientras de pie solo se lee como suplementacion.",
+      requiredProbe: "No aceptar un prepo-transform marcado como oracion completa de modificacion; registrar completitud, funcion adjunta y lectura de suplementacion cuando aparece aislado."
+    }), Object.freeze({
+      id: "supplementation-modification-head-modifier-direction-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 42.6"]),
+      pdfPages: Object.freeze([431]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En estructuras de modificacion adjoined, cualquiera de los nucleos puede ser entendido como principal; algunas secuencias cambian entre 'thin skirts' y 'thin ones that are skirts'.",
+      requiredProbe: "No congelar head/modifier por orden superficial; conservar posibles direcciones, principal entendido y lecturas alternas hasta que contexto las resuelva."
+    }), Object.freeze({
+      id: "compound-head-matrix-governing-center-modification-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.7", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([431, 432]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el head modificado es una CNN compuesta, el modificador tiende a relacionarse con la matriz como centro gobernante, salvo distancia metaforica del compuesto completo.",
+      requiredProbe: "No relacionar el modificador automaticamente con el embed o con toda la superficie; registrar matriz gobernante, embed y posible lectura metaforica."
+    }), Object.freeze({
+      id: "transitive-vnc-adjectival-modifier-specific-object-contact",
+      sourceRefs: Object.freeze(["Andrews 42.8"]),
+      pdfPages: Object.freeze([432]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNV transitiva con objeto especifico puede funcionar como adjunto adjectival con contacto de referente compartido en sujeto u objeto; esto no obliga a nominalizarla.",
+      requiredProbe: "No reanalizar toda CNV transitiva modificadora como CNN; conservar objeto especifico, punto de contacto sujeto/objeto y factores de ambiguedad."
+    }), Object.freeze({
+      id: "transitive-vnc-modifier-subject-object-concatenation-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 42.8", "Andrews 4.4", "Andrews 17.4.4"]),
+      pdfPages: Object.freeze([433]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNV transitiva usada como modificador puede concatenar por sujeto u objeto y producir lecturas de suplementacion o modificacion; con tercera persona la ambiguedad se multiplica.",
+      requiredProbe: "No resolver por traduccion relativa; registrar pronombre compartido, rol sujeto/objeto y todas las lecturas activas antes de nominalizar o bloquear."
+    }), Object.freeze({
+      id: "sex-property-head-reduces-not-dissolves-modification-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 42.8"]),
+      pdfPages: Object.freeze([433, 434]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando head y principal involucran propiedad sexual, Andrews dice que se reduce la ambiguedad de modificacion/suplementacion, pero no desaparece.",
+      requiredProbe: "No usar propiedad sexual como desambiguador absoluto; conservar lecturas restantes y rol de cada nucleo."
+    }), Object.freeze({
+      id: "adverbialized-nnc-cardinal-quantitive-modifier-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.8", "Andrews Lesson 44", "Andrews Lesson 34", "Andrews 18.5"]),
+      pdfPages: Object.freeze([434, 435]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "NNCs adverbializadas, numerales cardinales y cuantitativas pueden funcionar como modificador o como head; la traduccion inglesa suele invertir su peso estructural.",
+      requiredProbe: "No etiquetar por orden de traduccion; registrar si la NNC es head o modifier, numero formal y posible desacuerdo con la principal."
+    }), Object.freeze({
+      id: "personal-demonstrative-pronominal-head-modifier-reversal",
+      sourceRefs: Object.freeze(["Andrews 42.8", "Andrews 16.3", "Andrews 16.5", "Andrews 19.2.1"]),
+      pdfPages: Object.freeze([435]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con NNC personal o demostrativa como head, la otra NNC es appositiva y modificadora aunque la traduccion inglesa la parezca tratar como cabeza.",
+      requiredProbe: "No hacer del sustantivo traducido el head por intuicion inglesa; conservar head pronominal, appositive modifier y correferencia externa."
+    }), Object.freeze({
+      id: "measure-nnc-head-measured-thing-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.8", "Andrews 34.16"]),
+      pdfPages: Object.freeze([436]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En medidas, la NNC de medida es head y la NNC de la cosa medida funciona como modificador adjectival.",
+      requiredProbe: "No invertir por glosa 'de'; registrar medida como head, cosa medida como modifier y plural/numero propio."
+    }), Object.freeze({
+      id: "recursive-adjectival-modification-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.9"]),
+      pdfPages: Object.freeze([436]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La modificacion adjectival es recursiva: una estructura de modificacion completa puede funcionar como head dentro de otra estructura mayor.",
+      requiredProbe: "No aplanar cadenas de modificacion; preservar niveles de head/modifier y la estructura ya transformada que participa en la siguiente."
+    }), Object.freeze({
+      id: "incorporated-adjectival-modification-structure-as-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.10", "Andrews 30", "Andrews 31", "Andrews 34.8", "Andrews 35.14"]),
+      pdfPages: Object.freeze([436, 437]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una estructura entera de modificacion adjectival puede ocupar el embed de un compuesto; no solo se incorpora una palabra o un nounstem simple.",
+      requiredProbe: "No reducir el embed a una superficie compuesta; conservar modifier+head interno, limite + y matriz externa."
+    }), Object.freeze({
+      id: "lexicalized-modification-compound-inner-pronoun-retention",
+      sourceRefs: Object.freeze(["Andrews 42.10"]),
+      pdfPages: Object.freeze([436, 437]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Al incorporar una estructura de modificacion lexicalizada, las NNC internas conservan sus subject pronouns excepto que se borra la diada de numero del head incorporado.",
+      requiredProbe: "No borrar todos los pronombres internos; registrar pronombres conservados, num dyad del head borrada y lexicalizacion requerida."
+    }), Object.freeze({
+      id: "incorporated-modification-causative-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.10", "Andrews Lesson 30"]),
+      pdfPages: Object.freeze([437]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una estructura lexicalizada de modificacion puede funcionar como objeto causativo incorporado en una CNV compuesta, como iztac teocuitlatl dentro de niztac-teocuitlachipahua.",
+      requiredProbe: "No reducir el objeto incorporado a un nounstem simple; conservar modifier+head interno, funcion de objeto causativo y matriz verbal externa."
+    }), Object.freeze({
+      id: "lexicalized-modification-compound-plural-shape-boundary",
+      sourceRefs: Object.freeze(["Andrews 42.10"]),
+      pdfPages: Object.freeze([437]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compuestos lexicalizados como iztacmichin/iztacmichtin, el modifier iztac no pasa a iztaqueh y el plural normal mimichtin no aparece.",
+      requiredProbe: "No pluralizar ni reduplicar los miembros internos por reglas ordinarias; registrar compuesto lexicalizado, modifier congelado y plural externo autorizado."
+    }), Object.freeze({
+      id: "nonpreposed-modifier-supplementary-elements-distance-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.1", "Andrews 42.8.2"]),
+      pdfPages: Object.freeze([438]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El modificador adjectival no prepuesto puede contener elementos suplementarios, incluso a distancia, que no se permiten igual en el modificador prepuesto.",
+      requiredProbe: "No validar prepuesto y no prepuesto con la misma plantilla; registrar distancia, suplemento interno y posicion del head."
+    }), Object.freeze({
+      id: "personal-pronominal-head-modifier-translation-falsifies-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.1", "Andrews 18.3"]),
+      pdfPages: Object.freeze([438, 439]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La construccion favorita con NNC pronominal personal como head y modificador no prepuesto suele ser falsificada por la traduccion inglesa.",
+      requiredProbe: "No convertir el modificador traducido en predicado principal; conservar yeh/nehhuatl como principal, suplemento si existe y adjunto adjectival."
+    }), Object.freeze({
+      id: "numeral-quantitive-head-vs-modifier-weighting-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.1", "Andrews 42.8.4", "Andrews 42.8.5"]),
+      pdfPages: Object.freeze([439]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nahuatl puede usar numeral o cuantitativo como head modificado por un adjunto no prepuesto; el ingles prefiere ignorar ese peso y traducirlo como modificador.",
+      requiredProbe: "No reponderar por traduccion; registrar numeral/cuantitativo como head o modifier segun Andrews."
+    }), Object.freeze({
+      id: "preposed-nonpreposed-discontinuous-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.2", "Andrews 43.3", "Andrews 18.4"]),
+      pdfPages: Object.freeze([439, 440]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Puede haber modificadores prepuestos y no prepuestos sobre el mismo head, y la topicalizacion del head puede dejar el modificador discontinuo.",
+      requiredProbe: "No exigir contigüidad; registrar head topicalizado, modificador retenido y combinacion prepuesta/no prepuesta."
+    }), Object.freeze({
+      id: "interrogative-pronominal-head-relative-pronoun-mirage",
+      sourceRefs: Object.freeze(["Andrews 43.4", "Andrews 16.2", "Andrews 17.6", "Andrews 19.1.1"]),
+      pdfPages: Object.freeze([440, 441]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ac y tleh pueden parecer pronombres relativos, pero son NNCs pronominales principales; el valor relativo viene del adjunctor in o su ausencia.",
+      requiredProbe: "No lexicalizar aquin/tlein como relativo unico; separar ac/tleh principal de in+clausula adjunta."
+    }), Object.freeze({
+      id: "ac-tleh-supplementation-vs-modification-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.4"]),
+      pdfPages: Object.freeze([441, 442]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las secuencias con ac/tleh admiten lectura de suplementacion y de modificacion, y cambian la traduccion entre 'who/what' y 'someone/anything'.",
+      requiredProbe: "No escoger lectura por glosa; registrar si in+clausula suplementa al sujeto basico o modifica el predicado nominal."
+    }), Object.freeze({
+      id: "oc-ce-collocation-modified-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.5", "Andrews 34.15"]),
+      pdfPages: Object.freeze([442]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La colocacion oc ce puede servir como head modificado con valores de 'quien/alguien/nadie mas', sin volverse particula simple.",
+      requiredProbe: "No colapsar oc ce en adverbio o cuantificador plano; conservar NNC head, modificador y polaridad interrogativa/negativa."
+    }), Object.freeze({
+      id: "shared-referent-violation-cem-singling-out-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.6", "Andrews 43.7"]),
+      pdfPages: Object.freeze([442, 443, 444]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las construcciones de 'uno de/ninguno de' con cem, acah o ayac violan idiomaticamente la restriccion normal de referente compartido y permiten desacuerdos de persona/numero.",
+      requiredProbe: "No corregir desacuerdos como error; registrar grupo, individuo singular, preferencia plural y variantes con acah/ayac."
+    }), Object.freeze({
+      id: "male-bonding-named-partner-modifier-agreement-boundary",
+      sourceRefs: Object.freeze(["Andrews 43.8", "Andrews 43.9", "Andrews 18.6", "Andrews 18.7"]),
+      pdfPages: Object.freeze([444]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las estructuras 'male-bonding' y 'named-partner' usan modificadores con acuerdos sociales o mencion limitada del participante nombrado.",
+      requiredProbe: "No normalizar persona/numero por referente literal; registrar hablante, grupo social, participante nombrado y pronombre que Andrews licencia."
+    }), Object.freeze({
+      id: "adverbial-nuclear-clause-subject-pronoun-domain-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.1", "Andrews Lesson 3"]),
+      pdfPages: Object.freeze([445]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Salvo particulas adverbiales, los modificadores adverbiales son CNV/CNN o unidades concatenadas; la adverbializacion asigna un subject pronoun de dominio, no un objeto/cosa.",
+      requiredProbe: "No crear clase formal adverbio; registrar CNV/CNN, dominio semantico y pronombre adverbializado antes de traducir como adverbio."
+    }), Object.freeze({
+      id: "adverbialization-degree-num1-silent-morph-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.2", "Andrews 32.8", "Andrews 56.2.2"]),
+      pdfPages: Object.freeze([445]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La adverbializacion tiene primer grado semantico y segundo grado con reemplazo del num1 sonoro por morfo silencioso; CNVs y CNNs posesivas solo permiten primer grado.",
+      requiredProbe: "No inferir grado por glosa; registrar tipo de clausula, estado NNC, num1 silencioso o sonoro y ambiguedad posible."
+    }), Object.freeze({
+      id: "adverbialized-vnc-lexicalized-vs-iuhqui-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3", "Andrews 44.7"]),
+      pdfPages: Object.freeze([446]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Pocas CNVs se adverbializan y muchas son lexicalizadas; iuh como CNV adverbial no debe confundirse con iuhqui, que es CNN agentiva preterita sustantival/adjectival.",
+      requiredProbe: "No pasar de CNV adverbial a CNN por parecido; registrar tiempo, uso lexicalizado y contraste iuh/iuhqui."
+    }), Object.freeze({
+      id: "adverbialized-vnc-preterit-as-present-lexicalized-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3"]),
+      pdfPages: Object.freeze([446]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "cencah, hualcah y cemihcac son CNVs adverbializadas lexicalizadas de preterito-como-presente; su valor adverbial no autoriza convertirlas en CNN agentivas.",
+      requiredProbe: "No generar agentivo preterito por glosa de grado/tiempo; conservar CNV, tiempo preterito-como-presente y uso lexicalizado adverbial."
+    }), Object.freeze({
+      id: "hualcah-oc-adverbial-collocation-comparative-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3", "Andrews 53.5.2"]),
+      pdfPages: Object.freeze([446]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "hualcah es una CNV adverbializada direccional y casi siempre es modificada por oc cuando funciona como comparativo 'mucho mas'.",
+      requiredProbe: "No tratar hualcah como sufijo comparativo ni como CNN; registrar CNV direccional, collocation oc hualcah y rol comparativo contextual."
+    }), Object.freeze({
+      id: "iuh-yuh-vowel-spelling-vnc-vs-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3", "Andrews Appendix F", "Andrews 44.7"]),
+      pdfPages: Object.freeze([446]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La CNV adverbial iuh puede escribirse yuh, pero la y no es consonante sino variante grafica de la vocal i; iuhqui sigue siendo otra CNN agentiva.",
+      requiredProbe: "No crear un stem yuh ni fusionar iuh con iuhqui; conservar grafia tradicional, fuente vocalica i, CNV adverbial y CNN agentiva separada."
+    }), Object.freeze({
+      id: "ihuihuih-unattested-source-adverbial-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3"]),
+      pdfPages: Object.freeze([446]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "ihuihuih es una CNV adverbializada de fuente *(ihuihu-i-a) no atestiguada; la salida no debe usarse para probar un verbstem productivo.",
+      requiredProbe: "No generar familia ihuihuia por retroformacion; registrar fuente no atestiguada, tense preterito y valor adverbial lexicalizado."
+    }), Object.freeze({
+      id: "adverbialized-vnc-ici-iz-agentive-nnc-contrast",
+      sourceRefs: Object.freeze(["Andrews 44.3", "Andrews 44.7"]),
+      pdfPages: Object.freeze([447]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "ici/iz son CNVs adverbializadas de presencia direccional/local, mientras izqui es CNN agentiva preterita sustantival o adjectival, no adverbial.",
+      requiredProbe: "No convertir iz en izqui ni tratar izqui como adverbio; conservar tiempo CNV, uso adverbial y contraste CNN agentivo."
+    }), Object.freeze({
+      id: "nohmah-conjectural-adverbial-vnc-vs-possessive-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3.9", "Andrews 44.8"]),
+      pdfPages: Object.freeze([447]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "nohmah como CNV adverbializada tiene analisis conjectural y valor 'still', y debe contrastarse con NNCs posesivas relacionadas de Lesson 44.8.",
+      requiredProbe: "No usar parecido superficial para fusionar rutas; registrar CNV adverbial conjectural, particula oc y NNC posesiva separada."
+    }), Object.freeze({
+      id: "reflexive-connective-t-adverbialized-vnc-completeness-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.3"]),
+      pdfPages: Object.freeze([448]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "motquiticah y mahciticah son CNVs adverbializadas de tronco compuesto con connective-t y reflexivo, sinonimas en valor de totalidad.",
+      requiredProbe: "No traducir 'completamente' como particula; conservar reflexivo, connective-t, matriz verbal y equivalencia sinonimica."
+    }), Object.freeze({
+      id: "first-degree-adverbialized-nnc-equative-ambiguity",
+      sourceRefs: Object.freeze(["Andrews 44.4", "Andrews 15.3"]),
+      pdfPages: Object.freeze([448]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La adverbializacion de primer grado en CNNs conserva la misma forma que la lectura ecuativa, por lo que solo el contexto distingue 'es X' de 'en/durante/con X'.",
+      requiredProbe: "No marcar adverbial por superficie; registrar misma formula, dos funciones y necesidad de contexto."
+    }), Object.freeze({
+      id: "second-degree-adverbialized-nnc-silent-num1-absolutive-only",
+      sourceRefs: Object.freeze(["Andrews 44.4", "Andrews 44.2"]),
+      pdfPages: Object.freeze([449]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La adverbializacion de segundo grado solo ocurre en CNNs absolutivas y se distingue por el reemplazo del num1 sonoro por morfo silencioso.",
+      requiredProbe: "No aplicar segundo grado a posesivos ni borrar numero sin marcarlo; registrar estado absolutivo, num1 silencioso y ausencia de ambiguedad."
+    }), Object.freeze({
+      id: "particle-looking-adverbialized-nnc-not-particle-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews Lesson 3"]),
+      pdfPages: Object.freeze([449, 450]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN adverbializada monosilabica de segundo grado puede parecer particula, pero Andrews la analiza como CNN si conserva estructura nominal.",
+      requiredProbe: "No mover nel/huel/nen/mo a Particula por tamaño; comprobar nounstem, subject pronoun silencioso y evidencia de uso."
+    }), Object.freeze({
+      id: "huel-negative-flawed-subject-possessive-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 44.4"]),
+      pdfPages: Object.freeze([449]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "huel adverbializado contrasta con ahhuel, con una CNN de sujeto flawed negativa ahhueli, y con posesivo ihueli; no son una sola entrada plana.",
+      requiredProbe: "No colapsar poder/posibilidad/posesion; registrar adverbial segundo grado, flawed-subject negativo y posesivo-state separado."
+    }), Object.freeze({
+      id: "nen-obligatory-adverbialized-or-embed-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 44.6"]),
+      pdfPages: Object.freeze([449, 450]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "nen ocurre como CNN simple obligatoriamente adverbializada o como embed en compuesto, con funcion adjectival en CNN compuesta y adverbial en CNV compuesta.",
+      requiredProbe: "No generar nen como CNN sustantiva libre; distinguir NNC adverbializada, embed adjectival y embed adverbial."
+    }), Object.freeze({
+      id: "mo-probable-nnc-not-interrogative-particle-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 3.1", "Andrews 3.3"]),
+      pdfPages: Object.freeze([450, 451]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "mo es analizado como CNN adverbializada probable aunque cumple criterios de particula; Andrews niega que sea interrogativo y prueba su posicion con cuix.",
+      requiredProbe: "No clasificar mo como interrogativo por preguntas retoricas; registrar posicion con cuix, negativizacion ahmo/camo y analisis CNN diagnostico."
+    }), Object.freeze({
+      id: "negative-adjunct-scope-before-antecessive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 3.3"]),
+      pdfPages: Object.freeze([451]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando la accion no se niega, la negatividad debe adjuntarse al modificador; antes de o# antecesivo, el elemento negativizado es o#, no la CNV.",
+      requiredProbe: "No mover ah/ca/ahmo/camo al verbo por traduccion; registrar scope de adjunto y orden antecesivo."
+    }), Object.freeze({
+      id: "cuel-presupposed-root-patientive-adverbial-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 39.4"]),
+      pdfPages: Object.freeze([451]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "cuel adverbial presupone un nounstem patientivo de raiz no atestiguado directamente, probado por el verbo cuel-i-hui.",
+      requiredProbe: "No generar nounstem fuente libre; registrar patientivo presupueto, evidencia verbal y uso adverbializado."
+    }), Object.freeze({
+      id: "mach-passive-patientive-adverbial-vs-kinship-nounstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 44.6", "Andrews 16.6.2"]),
+      pdfPages: Object.freeze([451, 452]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "mach adverbializado viene de patientivo pasivo de tla-(mati), y no debe confundirse con el homofono (mach)-tli de parentesco masculino posesivo.",
+      requiredProbe: "No resolver homofonia por superficie; registrar source patientivo pasivo, usos idiomaticos y bloqueo de adverbializacion del parentesco."
+    }), Object.freeze({
+      id: "quen-fused-adjunctor-free-nnc-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5", "Andrews 16.4.1", "Andrews 16.8.2", "Andrews 16.9.4"]),
+      pdfPages: Object.freeze([452]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "quen se analiza como *que fusionado con in; a diferencia de tleh/can/ic, *que no conserva poder de aparecer como CNN libre sin n.",
+      requiredProbe: "No tratar n como sufijo cualquiera; registrar adjunctor fusionado, perdida de forma libre y lexicalizaciones como quenin."
+    }), Object.freeze({
+      id: "adverbialized-absolutive-nnc-domain-subcategory-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6"]),
+      pdfPages: Object.freeze([453]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las CNNs absolutivas adverbializadas de Lesson 44.6 se agrupan por dominios semanticos como tiempo, lugar y manera, no por una sola etiqueta adverbial plana.",
+      requiredProbe: "No listar formas como particulas; registrar dominio, estado absolutivo, num1 silencioso y fuente nominal cuando Andrews la da."
+    }), Object.freeze({
+      id: "adverbialized-time-niman-impersonal-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6", "Andrews 46.3.2"]),
+      pdfPages: Object.freeze([453]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "niman contiene la matriz (man)-tli, que Andrews analiza como patientivo impersonal de man-o desde mani, no como particula temporal atomica.",
+      requiredProbe: "No presentar niman como particula plana; conservar ni- embed, patientivo impersonal man-tli, fuente no activa y uso adverbializado."
+    }), Object.freeze({
+      id: "adverbialized-time-yectel-root-patientive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6", "Andrews 44.3.10", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([453]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "yectel contiene el root patientive nounstem ye-c-tli desde ye-hua, con acortamiento vocalico, dentro de una CNN adverbializada temporal.",
+      requiredProbe: "No analizar yectel como adverbio indivisible; registrar patientivo de raiz ye-c, regla de acortamiento y matriz temporal incierta."
+    }), Object.freeze({
+      id: "adverbialized-nnc-reduplication-participant-plural-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6", "Andrews 34.3", "Andrews 34.5.2"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las formas adverbializadas reduplicadas como cecen/cehcen, nenecoc y nononcuah codifican distribucion o mas de una entidad, no simples variantes ornamentales.",
+      requiredProbe: "No colapsar reduplicacion a spelling variant; registrar numeral/cuantitativo fuente, distribucion y condicion de pluralidad de referentes."
+    }), Object.freeze({
+      id: "pronominal-nnc-adverbial-distance-degree-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6", "Andrews 16.8.1", "Andrews 16.8.2", "Andrews 16.9.6"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "quexquich, ixquich y achi son CNNs pronominales usadas adverbialmente para distancia o grado, no particulas libres ni cuantificadores planos.",
+      requiredProbe: "No reetiquetar por traduccion 'how far/equally/slightly'; conservar CNN pronominal fuente, uso adverbial y dominio de distancia/grado."
+    }), Object.freeze({
+      id: "patientive-source-adverbialized-manner-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6", "Andrews 44.5.6"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Muchas CNNs adverbializadas de manera se apoyan en fuentes patientivas, algunas dudosas, como tlacuauh, tlapic, ilhuiz, tlalhuiz y tlamach.",
+      requiredProbe: "No generar una entrada adverbial sin fuente; registrar patientivo perfecto/impersonal/pasivo, incertidumbre Andrews y contraste con mach cuando corresponda."
+    }), Object.freeze({
+      id: "adverbial-ixtlapal-compound-color-side-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ixtlapal es una CNN adverbializada formada sobre compound nounstem con embed ix-tli y matriz tla-pa-l-li 'colored thing/side'.",
+      requiredProbe: "No tratar ixtlapal como particula direccional simple; conservar embed cara, matriz patientiva/color-side y funcion adverbial."
+    }), Object.freeze({
+      id: "adverbial-tlacuauh-tlapic-specific-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "tlacuauh y tlapic son CNNs adverbializadas con fuentes patientivas especificas: tlacuauh impersonal desde tlacu-a-hua y tlapic perfective desde tla-(piqui).",
+      requiredProbe: "No agruparlas como adverbios de modo sin historia; conservar tipo patientivo, CNV fuente y funcion adverbializada."
+    }), Object.freeze({
+      id: "adverbial-ilhuiz-tlalhuiz-uncertain-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.6"]),
+      pdfPages: Object.freeze([454]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews marca ilhuiz como posible patientivo pasivo y tlalhuiz como posible patientivo impersonal; la incertidumbre es parte de la evidencia.",
+      requiredProbe: "No convertir signos de pregunta de Andrews en generacion confirmada; registrar fuente patientiva dudosa y bloquear certeza de superficie/ruta."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-lexicalized-mainline-reflexive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 35.12"]),
+      pdfPages: Object.freeze([457]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando un agentivo preterito adverbializado esta fuertemente lexicalizado, Andrews conserva m-o mainline en formas como mihmatca y mahcica.",
+      requiredProbe: "No aplicar automaticamente shuntline ni borrar m-o por adverbializacion; registrar lexicalizacion, fuente agentiva preterita y modo comparado."
+    }), Object.freeze({
+      id: "iyohca-active-action-supportive-i-adverbial-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.8", "Andrews 36.11.1", "Andrews 44.3.11"]),
+      pdfPages: Object.freeze([457]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "iyohca se construye como CNN posesiva adverbial sobre el active-action nounstem yo-h-ca de (iyo-a); la i inicial es vocal de apoyo.",
+      requiredProbe: "No analizar iyohca como particula o locativo simple; conservar fuente CNV iyo-a, active-action nounstem, vocal de apoyo, poseedor y funcion adverbial."
+    }), Object.freeze({
+      id: "nohmah-nohmatca-patientive-active-action-split-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.8", "Andrews 11.3.2"]),
+      pdfPages: Object.freeze([457, 458]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "nohmah y nohmatca vienen de una fuente conjectural *(noh-mati), pero una ruta usa patientivo perfectivo noh-mat/noh-mah y la otra active-action noh-mat-ca.",
+      requiredProbe: "No colapsar nohmah y nohmatca por glosa 'por mi cuenta'; separar patientivo, active-action, cambio t>h final, poseedor y estado conjectural."
+    }), Object.freeze({
+      id: "possessive-adverbial-nnc-patientive-active-action-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.8", "Andrews 36.11.1", "Andrews 44.3.11"]),
+      pdfPages: Object.freeze([453, 457, 458]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunas CNNs posesivas adverbiales raras se forman sobre patientivos o action-nounstems activos, como iyohca/nohmah/nohmatca.",
+      requiredProbe: "No tratar posesivo adverbial como relacion simple; conservar fuente patientiva/active-action, posesivo y funcion adverbial."
+    }), Object.freeze({
+      id: "nohmatca-carochi-honorific-relational-warning-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.8", "Andrews 45.1", "Andrews 30.14.2", "Andrews 55.4"]),
+      pdfPages: Object.freeze([458]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews advierte que las formas de Carochi con glotal y tzinco harian inexplicable nohmatca y parecen reclamar relationalidad inesperada.",
+      requiredProbe: "No normalizar -ca/-cah ni tzin/tzinco; registrar desacuerdo de fuente, lexicalizacion posible y compuestos con noh-mah embed."
+    }), Object.freeze({
+      id: "nohmatca-possessor-to-object-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.8", "Andrews 30.14.2", "Andrews 55.4"]),
+      pdfPages: Object.freeze([458]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una CNN posesiva con nohmat/nohmah sirve de embed en una CNV compuesta, el pronombre poseedor de la fuente se convierte en pronombre de objeto.",
+      requiredProbe: "No copiar el poseedor como poseedor externo ni borrarlo; registrar conversion possessor-to-object, embed noh-mah y matriz verbal compuesta."
+    }), Object.freeze({
+      id: "incorporated-adverbial-modifier-matrix-only-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.9", "Andrews 30.5"]),
+      pdfPages: Object.freeze([458]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una CNN adverbial se incorpora en una CNV, pierde la cuestion de grados de adverbializacion y modifica solo el verbstem matriz, no toda la CNV.",
+      requiredProbe: "No igualar scope externo e incorporado; registrar sujeto descartado, embed adverbial y alcance solo-matriz."
+    }), Object.freeze({
+      id: "incorporated-adverb-pani-final-i-drop-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.9"]),
+      pdfPages: Object.freeze([458, 459]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos stems adverbiales incorporados cambian forma: tlani se conserva, pero pani normalmente pierde /i/ final.",
+      requiredProbe: "No aplicar una regla uniforme de embed; registrar stem adverbial, perdida de i y valor idiomatico del compuesto."
+    }), Object.freeze({
+      id: "compound-only-adverbial-nnc-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.9", "Andrews 46.12", "Andrews 47.1"]),
+      pdfPages: Object.freeze([459]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas CNNs adverbiales tienden a no ocurrir fuera de troncos compuestos o solo ocurren alli, como nal y ne-pan; otras alternan con CNN posesivas.",
+      requiredProbe: "No ofrecer forma libre por analogia con adverbiales externos; registrar stem incorporado obligatorio/opcional, matriz compuesta y posible variante posesiva."
+    }), Object.freeze({
+      id: "relational-nnc-not-preposition-postposition-mirage",
+      sourceRefs: Object.freeze(["Andrews 45.1", "Andrews 36.6", "Andrews 37.8", "Andrews 39.5"]),
+      pdfPages: Object.freeze([460]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las relational NNCs no son preposiciones ni postposiciones; son CNNs adverbializadas formadas sobre nounstems relacionales.",
+      requiredProbe: "No crear clase formal preposicion/postposicion; registrar nounstem relacional, CNN adverbializada y traduccion como espejismo."
+    }), Object.freeze({
+      id: "relational-nounstem-contextual-source-goal-path-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.1"]),
+      pdfPages: Object.freeze([461]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un mismo nounstem relacional puede referir lugar, fuente, meta o camino; la preposicion inglesa se elige por contexto, no por morfo Nahuatl.",
+      requiredProbe: "No codificar on/in/to/from como morfos separados; registrar contexto y valor relacional inferido."
+    }), Object.freeze({
+      id: "relational-affective-tzinco-validation-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.1", "Andrews 46.7"]),
+      pdfPages: Object.freeze([461]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los afectivos de relational nounstems requieren embed en tzin/ton y validacion adverbial adicional mediante (-co), como ipantzinco.",
+      requiredProbe: "No adjuntar tzin directo como salida final relacional; conservar embed afectivo y validacion -co."
+    }), Object.freeze({
+      id: "relational-nounstem-four-usage-options-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.2", "Andrews 31.3"]),
+      pdfPages: Object.freeze([461, 462]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los relational nounstems tienen cuatro opciones: simple posesivo, compuesto integrado, compuesto linked, o embed de compuesto; cada stem limita cuales acepta.",
+      requiredProbe: "No permitir todas las opciones por defecto; registrar opcion autorizada, estado y orientacion al embed."
+    }), Object.freeze({
+      id: "relational-linked-structure-connective-t-state-orientation",
+      sourceRefs: Object.freeze(["Andrews 45.2", "Andrews 28.6"]),
+      pdfPages: Object.freeze([462]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En relational linked-structure compounds, el connective morph separa y enlaza, haciendo claro que el estado sirve al predicado completo pero semantiza solo el embed.",
+      requiredProbe: "No tratar -ti- como simple enlace visible; registrar orientacion al embed y analogia con connective-t verbal."
+    }), Object.freeze({
+      id: "relational-option-four-embed-subposition-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.2", "Andrews 45.4.1", "Andrews 45.4.2"]),
+      pdfPages: Object.freeze([462]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La opcion 4 permite que un nounstem relacional simple o compuesto llene el embed de otro compuesto, como huam-poh, tloqu-eh, tlan-cuai, tlal-lan-cal o tlal-t-icpa-c-quiz.",
+      requiredProbe: "No limitar los relacionales a CNNs adverbializadas visibles; registrar embed relacional, matriz externa, opcion fuente y si la salida vuelve a CNV o CNN."
+    }), Object.freeze({
+      id: "relational-compound-normal-subject-not-adverbial-only",
+      sourceRefs: Object.freeze(["Andrews 45.2"]),
+      pdfPages: Object.freeze([462]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los compuestos relacionales de opciones 2 y 3 aparecen predominantemente como CNNs adverbializadas, pero tambien pueden tomar sujeto personal normal si el significado lo permite.",
+      requiredProbe: "No bloquear caltzalantli o tlalticpactli por no ser adverbiales; registrar sujeto normal, estado nominal y diferencia frente a la CNN adverbializada."
+    }), Object.freeze({
+      id: "relational-grouping-option-limits-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.3", "Andrews 45.4", "Andrews 47.1", "Andrews 47.2", "Andrews 47.3"]),
+      pdfPages: Object.freeze([462]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews agrupa relational nounstems segun que opciones 1-3 aceptan; algunas aceptan una sola, otras dos, y solo tres aceptan las tres.",
+      requiredProbe: "No abrir todas las opciones por pertenecer a clase relacional; registrar grupo y opciones permitidas."
+    }), Object.freeze({
+      id: "huan-option-one-supplementary-possessor-not-conjunctor-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 34.8", "Andrews 52.4.1"]),
+      pdfPages: Object.freeze([463]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "huan solo permite opcion uno; ihuan en grupos numerales no es conjunctor sino CNN adverbializada de compania con suplemento poseedor.",
+      requiredProbe: "No traducir ihuan como 'y' estructural; registrar posesivo, adverbializacion de primer grado y funcion en grupo numeral."
+    }), Object.freeze({
+      id: "nehuan-downgraded-predicate-stem-not-relational-affective-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 30.3"]),
+      pdfPages: Object.freeze([463]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "nehuan viene de predicado posesivo reciproco degradado a nounstem y no se trata como relational stem para honorifico; ademas puede incorporarse como adverbial.",
+      requiredProbe: "No aplicar paradigma relacional normal a nehuan; registrar degradacion, plural possessor requerido y posibilidad de embed incorporado."
+    }), Object.freeze({
+      id: "nehuan-plural-possessor-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([463]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El stem degradado nehuan puede estar en CNN absolutiva con sujeto plural o posesiva solo con pronombre poseedor plural.",
+      requiredProbe: "No permitir tonehuan/amonehuan/innehuan como singular ni formar posesivos singulares analogicos; registrar sujeto plural, possessor plural y fuente reciproca degradada."
+    }), Object.freeze({
+      id: "huan-yolqui-relative-collocation-new-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([464]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "huan-yolqui nace de dos CNN en yuxtaposicion, pero la frecuencia crea un nuevo stem de parentesco/relacion que no se debe leer como simple concatenacion libre.",
+      requiredProbe: "No derivar huan-yolqui por union generica de dos outputs; registrar collocation lexicalizada, perdida grafica de n ante y y nuevo stem."
+    }), Object.freeze({
+      id: "huan-yolqui-unexpected-absolutive-tin-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([464]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La forma huan-yolqui permite una CNN en estado absolutivo con dyad t-in aunque su historia viene de estructura posesiva relacional.",
+      requiredProbe: "No bloquear t-in por la fuente posesiva antigua; marcar la forma como nuevo stem con numero absolutivo autorizado."
+    }), Object.freeze({
+      id: "tloc-ownerhood-preterit-agentive-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 46.8.1"]),
+      pdfPages: Object.freeze([464]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tloc puede entrar como embed en un preterit-agentive de ownerhood como tloqueh, sin volverse preposicion ni sufijo.",
+      requiredProbe: "No generar tloc como particula externa; conservar stem relacional embedido dentro de la ruta agentiva de ownerhood."
+    }), Object.freeze({
+      id: "huan-tloc-pal-honorific-tzinco-validation-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 46.7"]),
+      pdfPages: Object.freeze([464, 465]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los honorificos de huan, tloc y pal se forman como huantzinco, tloctzinco y paltzinco; tzin por si solo no valida el valor adverbial relacional.",
+      requiredProbe: "No terminar la forma honorifica en tzin ni tratar co como locativo opcional; registrar relational stem, embed tzin y validacion co."
+    }), Object.freeze({
+      id: "ic-third-common-possessor-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([465]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El relational nounstem (c)-0, visible como ic, solo acepta poseedor de tercera persona y numero comun i-0.",
+      requiredProbe: "Bloquear ni-c, ti-c, an-c o pluralizacion de poseedor; registrar i-0 como unico possessor estructural."
+    }), Object.freeze({
+      id: "ic-supplementary-possessor-clause-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([465, 466]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ic puede tomar como suplemento poseedor una CNN o una clausula completa para medio, proposito, razon, tiempo, modo o grado.",
+      requiredProbe: "No interpretar ic solo como particula fija; conservar possessor i-0 y el suplemento que da el dominio semantico."
+    }), Object.freeze({
+      id: "ic-temporal-interrogative-iquin-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([466]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ic inicial puede funcionar como interrogativo temporal; ic in debe separarse si el adjunto sigue, y iquin solo representa fusion cuando el adjunto queda no dicho.",
+      requiredProbe: "No solidificar siempre ic+in ni conservar fuerza interrogativa fuera de posicion inicial."
+    }), Object.freeze({
+      id: "ic-collocation-not-solid-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([467]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Collocations con ic como oc ic, niman ic, ic cen y negativas no autorizan una regla general de escritura solida ni fusion indiscriminada.",
+      requiredProbe: "No convertir todo grupo ic en token unico; permitir colocation, antecessive o# sobre cen y negativas separadas cuando corresponde."
+    }), Object.freeze({
+      id: "ic-negative-temporal-noninterrogative-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([467]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ic pierde fuerza interrogativa cuando se negativiza o sale de posicion inicial; ayic/aic, ayoc ic y aya ic expresan nunca, nunca mas o nunca antes.",
+      requiredProbe: "No traducir ic negativo como pregunta temporal ni fusionar todas las negativas; registrar polaridad, posicion, valor temporal y escritura tradicional solida solo como diagnostico."
+    }), Object.freeze({
+      id: "ic-downgraded-icah-vowel-length-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 43.5"]),
+      pdfPages: Object.freeze([467]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ic puede degradarse a stem incorporado en (-ah)-0 como icah, con perdida de longitud vocalica comparable a acah/canah.",
+      requiredProbe: "No tratar icah como simple ic mas particula; registrar downgrade, matriz (-ah)-0 y perdida prosodica."
+    }), Object.freeze({
+      id: "ic-special-ordinal-degree-measurement-boundary",
+      sourceRefs: Object.freeze(["Andrews 45.4"]),
+      pdfPages: Object.freeze([468]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ic tiene usos especiales ante numerales, adjectivales y medidas: ordinal, adverbio de modo/grado y medicion de tamano, largo o forma.",
+      requiredProbe: "No colapsar todos los ic a medio/proposito; registrar el tipo de suplemento y su funcion local."
+    }), Object.freeze({
+      id: "relational-option-two-matrix-only-not-suffix-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.1"]),
+      pdfPages: Object.freeze([469]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los relational nounstems de opcion dos son matrices de compuestos integrados, no sufijos productivos que puedan adjuntarse a cualquier base.",
+      requiredProbe: "No exponerlos como sufijos libres; exigir embed autorizado y matriz relacional especifica."
+    }), Object.freeze({
+      id: "locative-n-matrix-two-formation-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.2", "Andrews 46.3"]),
+      pdfPages: Object.freeze([469]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El locativo (-n)-tli como matriz de lugar/tiempo tiene dos fuentes principales: embed terminado en (ca)-tl o predicado imperfecto con ya.",
+      requiredProbe: "No generar todo locativo n desde una sola plantilla; distinguir ca+n y ya+n con estado y fuente."
+    }), Object.freeze({
+      id: "locative-n-supportive-i-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.2"]),
+      pdfPages: Object.freeze([469]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando el embed termina en consonante, (-n)-tli puede necesitar i de apoyo; ademas el locativo puede funcionar como adverbio incorporado.",
+      requiredProbe: "No perder supportive i ni tratar todo locativo como palabra final no incorporable."
+    }), Object.freeze({
+      id: "locative-ca-n-state-dependent-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3", "Andrews 35.5", "Andrews 36.11"]),
+      pdfPages: Object.freeze([469]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En la formula (X+-ca)+(-n), X es general-use preterit-agentive en absolutivo, pero active-action nounstem cuando la NNC manifiesta estado posesivo.",
+      requiredProbe: "No seleccionar el embed solo por la superficie ca-n; inspeccionar estado de la NNC y escoger agentivo general o active-action segun Andrews."
+    }), Object.freeze({
+      id: "locative-ca-n-preterit-agentive-general-use-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([470]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En (X+-ca)+(-n), el embed preterit-agentive usa la forma de uso general y produce lugar asociado con quien hizo o hace la accion.",
+      requiredProbe: "No insertar la forma restrictiva/predicativa en el locativo; exigir general-use preterit-agentive antes de ca-n."
+    }), Object.freeze({
+      id: "locative-ca-n-root-plus-ya-ownerhood-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.1", "Andrews 35.6"]),
+      pdfPages: Object.freeze([470, 471]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los locativos ca-n pueden venir de agentivos root-plus-ya y de ownerhood, incluso cuando la fuente verbal ordinaria ya no es transparente.",
+      requiredProbe: "No exigir una CNV sincronica plena para cada forma; registrar fuente agentiva y lexicalizacion posible."
+    }), Object.freeze({
+      id: "axcan-ayaxcan-not-negative-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.1"]),
+      pdfPages: Object.freeze([471]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "axcan carece de pronombre objeto y ayaxcan no es la negacion regular de axcan; su fuente se relaciona con aya y adverbialized VNC.",
+      requiredProbe: "No generar ayaxcan como a- mas axcan; marcar parentesco historico y bloquear analisis negativo simple."
+    }), Object.freeze({
+      id: "locative-ca-n-active-action-possessive-agent-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.2", "Andrews 36.4"]),
+      pdfPages: Object.freeze([471]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "El embed active-action en ca-n produce CNN posesiva de lugar de accion, donde el poseedor representa al agente.",
+      requiredProbe: "No leer el possessor como dueno externo del lugar; mapearlo al agente de la accion embedida."
+    }), Object.freeze({
+      id: "locative-active-action-ownerhood-archaic-relic-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.2", "Andrews 36.4"]),
+      pdfPages: Object.freeze([471, 472]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "Los ownerhood stems tla-e, tla-hua y tla-yo-a aparecen en locativos active-action aunque la fuente active-action no este atestiguada; son reliquias formacionales.",
+      requiredProbe: "No descartar totechuahcan o cuauhyohcan por falta de fuente activa sincronica; marcar relicto y no confundir yo-h-ca-n con (-yo)-tl."
+    }), Object.freeze({
+      id: "can-interrogative-canin-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3"]),
+      pdfPages: Object.freeze([472]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "can sin X es interrogativo de lugar; can in debe separarse cuando el adjunto sigue, y canin solo vale cuando el adjunto esta ausente o entendido.",
+      requiredProbe: "No solidificar can+in por defecto ni mantener fuerza interrogativa en posicion no inicial."
+    }), Object.freeze({
+      id: "can-downgraded-canah-vowel-length-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3", "Andrews 43.5"]),
+      pdfPages: Object.freeze([473]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "can puede degradarse a stem incorporado en (-ah)-0 como canah, con perdida de longitud vocalica comparable a icah.",
+      requiredProbe: "No analizar canah como can independiente mas material externo; registrar downgrade y matriz (-ah)-0."
+    }), Object.freeze({
+      id: "locative-can-x-embed-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3"]),
+      pdfPages: Object.freeze([473]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con X presente, ca-n acepta embeds pronominales, numerales, cuantitativos y patientive, cada uno con restricciones de clase y estado.",
+      requiredProbe: "No aceptar cualquier CNN como X; registrar clase del embed y efectos de estado del locativo."
+    }), Object.freeze({
+      id: "locative-can-numeral-compound-place-part-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3", "Andrews 34.4.2"]),
+      pdfPages: Object.freeze([473]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los embeds numerales y cuantitativos en ca-n producen lecturas de lugares/partes multiples como yexcan, ompohualcan y ommahtlaccan.",
+      requiredProbe: "No tratar el numeral como simple modificador externo; conservar numeral CNN embed, matriz ca-n y lectura locativa de lugar/parte."
+    }), Object.freeze({
+      id: "locative-yotl-embed-state-inheritance-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3", "Andrews 39.2"]),
+      pdfPages: Object.freeze([473]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Cuando el embed es imperfective patientive (-yo)-tl dentro de ca-n, el resultado puede heredar absolutivo o posesivo segun el estado de la CNN fuente.",
+      requiredProbe: "No forzar todos los -yocan a posesivos ni todos a absolutivos; copiar la compuerta de estado desde la fuente."
+    }), Object.freeze({
+      id: "locative-nnc-supplementary-object-tla-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.3.3"]),
+      pdfPages: Object.freeze([473, 474]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN locativa puede servir como objeto suplementario cuyo head es el objeto inespecifico tla, creando alcance de complemento interno.",
+      requiredProbe: "No tratar la locativa solo como adverbio externo; registrar suplemento de tla y head no especifico."
+    }), Object.freeze({
+      id: "locative-n-imperfect-predicate-voice-triple-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4"]),
+      pdfPages: Object.freeze([474, 475, 476]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El locativo con predicado imperfecto en (-n)-tli se forma desde tres voces: activa, pasiva e impersonal, con estado y poseedor distintos.",
+      requiredProbe: "No usar una sola ruta ya+n; separar voz activa posesiva, pasiva posesiva e impersonal absolutiva."
+    }), Object.freeze({
+      id: "active-imperfect-locative-possessor-from-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.1"]),
+      pdfPages: Object.freeze([474]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En locativos activos de imperfecto, el pronombre poseedor de la CNN procede del sujeto de la CNV fuente.",
+      requiredProbe: "No mapear el poseedor al objeto ni a dueno lexical; trazar sujeto fuente -> possessor."
+    }), Object.freeze({
+      id: "nonanimate-reflexive-m-o-locative-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.1", "Andrews 6.4"]),
+      pdfPages: Object.freeze([474]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando una fuente activa imperfecta no animada requiere reflexivo, Andrews usa mainline m-o, no shuntline ne, y el poseedor queda en tercera comun.",
+      requiredProbe: "No reemplazar m-o por ne en estos locativos; conservar m-o interno y possessor i-0."
+    }), Object.freeze({
+      id: "imperfect-locative-temporal-manner-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.1"]),
+      pdfPages: Object.freeze([475]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los locativos activos de imperfecto pueden tener sentido temporal o modal y pueden presuponer una fuente no atestiguada.",
+      requiredProbe: "No exigir siempre una fuente lexical visible ni glosar todo como lugar fisico."
+    }), Object.freeze({
+      id: "imperfect-locative-incorporated-adverbial-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.1"]),
+      pdfPages: Object.freeze([475]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El predicado imperfecto embedido en locativo puede contener particula o nounstem adverbial incorporado, y entonces la CNN resultante puede ser absolutiva.",
+      requiredProbe: "No expulsar el adverbial incorporado fuera del stem ni forzar estado posesivo."
+    }), Object.freeze({
+      id: "imperfect-locative-possessor-i-stem-initial-i-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.1"]),
+      pdfPages: Object.freeze([475]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En ihuiyan, el i inicial del verbstem se omite despues del poseedor i-0; la superficie no autoriza borrar ese i de la fuente.",
+      requiredProbe: "No alterar el stem fuente por la superficie poseida; registrar poseedor i-0, omision fonologica y fuente ihuiya."
+    }), Object.freeze({
+      id: "passive-vs-impersonal-imperfect-locative-state-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.2", "Andrews 46.4.3"]),
+      pdfPages: Object.freeze([476]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "La fuente pasiva imperfecta da locativo posesivo; la fuente impersonal da locativo absolutivo porque no hay individuo especifico.",
+      requiredProbe: "No dejar que pasivo e impersonal compartan estado; validar voz fuente antes de numero/poseedor."
+    }), Object.freeze({
+      id: "yohua-present-tense-locative-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4.3"]),
+      pdfPages: Object.freeze([477]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "yohua es excepcion porque puede embedir predicado activo de presente en yohuan aunque yohuayan tambien exista.",
+      requiredProbe: "No bloquear yohuan por no ser imperfecto ni derivar toda excepcion desde ya+n."
+    }), Object.freeze({
+      id: "locative-n-varietal-honorific-tzinco-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.4"]),
+      pdfPages: Object.freeze([477]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los locativos en (-n)-tli pueden tener formacion varietal y honorifico (-n-tzin-co), no una sola salida plana.",
+      requiredProbe: "No borrar variantes ni adjuntar tzin fuera del locativo; registrar matriz n-tzin-co."
+    }), Object.freeze({
+      id: "locative-yan-perfective-core-analogy-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.5", "Andrews 39.1"]),
+      pdfPages: Object.freeze([477]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "(-ya-n)-tli surge por analogia con locativos de imperfecto pero embebe nucleo perfectivo activo y produce CNN posesiva.",
+      requiredProbe: "No analizar -yan siempre como imperfecto; registrar nucleo perfectivo, possessor desde sujeto y analogia."
+    }), Object.freeze({
+      id: "locative-yan-perfective-candidate-ending-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.5", "Andrews 39.1"]),
+      pdfPages: Object.freeze([477]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Los nucleos perfectivos que terminan en w, k, t, glottal o n son candidatos fuertes para locativos en -yan por comparacion con patientives perfectivos.",
+      requiredProbe: "No abrir -yan a cualquier perfectivo sin registrar la compuerta fonologica."
+    }), Object.freeze({
+      id: "perfective-yan-incorporated-adverbial-absolutive-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.5"]),
+      pdfPages: Object.freeze([478]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El nucleo perfectivo en -yan puede contener adverbial incorporado; en esa configuracion la CNN resultante puede ser absolutiva.",
+      requiredProbe: "No sacar el adverbial del nucleo ni forzar possessor cuando la formacion es absolutiva."
+    }), Object.freeze({
+      id: "nenyan-exception-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.5"]),
+      pdfPages: Object.freeze([478]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "nenyan es excepcional: no posesivo, presupone fuente no atestiguada y se relaciona con nen, no con una ruta productiva normal.",
+      requiredProbe: "No generar nenyan como patron regular de -yan posesivo; marcar excepcion y fuente no atestiguada."
+    }), Object.freeze({
+      id: "locative-yan-impersonal-tla-absolutive-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.5", "Andrews 46.4.3"]),
+      pdfPages: Object.freeze([478]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un verbstem impersonal con tla puede embedirse en (-ya-n)-tli y producir CNN absolutiva, como tla-neci -> tlanezyan.",
+      requiredProbe: "No forzar posesivo ni fuente activa para todo -yan; registrar impersonal tla, fuente CNV y estado absolutivo."
+    }), Object.freeze({
+      id: "tlah-abundant-place-normal-adverbial-state-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.6"]),
+      pdfPages: Object.freeze([478]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(-tlah)-tli expresa lugar abundante o caracterizado y puede aparecer en estado absolutivo o posesivo, con sujeto normal o adverbializado.",
+      requiredProbe: "No fijar tlah como solo absolutivo ni solo adverbial; registrar estado, sujeto y posibles variantes/afectivos."
+    }), Object.freeze({
+      id: "tlah-abundant-varietal-affective-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.6"]),
+      pdfPages: Object.freeze([478]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz (-tlah)-tli puede formarse sobre stems varietales y tiene afectivos -tlah-tzin-co o -tlah-ton-co.",
+      requiredProbe: "No tratar xohxochitlah/huihhuitztlah/cuauhtlahtonco como variantes libres; registrar varietalidad, abundancia y afectivo locativo."
+    }), Object.freeze({
+      id: "co-c-locative-matrix-allomorph-state-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([478, 479]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(-co)-0 y (-c)-tli forman locativos de lugar especifico; -co no aparece como sujeto no adverbializado absolutivo, mientras -c puede hacerlo.",
+      requiredProbe: "No permitir -co como subject absolutivo no adverbializado; distinguir matriz, estado y funcion."
+    }), Object.freeze({
+      id: "co-c-preceding-sound-and-tle-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([479]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La eleccion -co/-c depende del sonido precedente: consonante toma -co, vocal toma -c; tle es excepcion con -co.",
+      requiredProbe: "No escoger allomorph por glosa; validar borde fonologico y excepcion tle."
+    }), Object.freeze({
+      id: "iyolic-yolic-impersonal-patientive-manner-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([479]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "iyolic/yolic viene de patientive impersonal yoli-tl desde yoli-hua y funciona como adverbio de modo con posibles variantes de possessor.",
+      requiredProbe: "No tratar yolic como adjectivo simple; conservar fuente patientive impersonal, possessor posible y funcion modal."
+    }), Object.freeze({
+      id: "ahco-negative-embed-nonplace-not-no-place-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([480]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ahco usa particula negativa ah# como embed y significa nonplace; no viene de (a)-tl ni equivale a ahcan 'no place'.",
+      requiredProbe: "No generar possessor ni analizarlo como a-tl; distinguir nonplace de no-place."
+    }), Object.freeze({
+      id: "temporal-yotl-c-event-perspective-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([480]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En temporales con (-yo)-tl embedido en (-c)-tli, el poseedor marca el evento desde cuya perspectiva se mide el tiempo.",
+      requiredProbe: "No leer el possessor como dueno de una cosa; mapearlo al evento-perspectiva temporal."
+    }), Object.freeze({
+      id: "relational-c-yotl-nontemporal-place-with-kin-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([480]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz (-c)-tli tambien puede recibir compounds no temporales en (-yo)-tl, como tzon-yo, me-ca-yo, cal-pol-lo y cal-lo, para ubicar cima, linaje o household.",
+      requiredProbe: "No restringir c-yotl a tiempo; registrar fuente yotl no temporal, relacion social/lugar y possessor de referencia."
+    }), Object.freeze({
+      id: "nested-n-yotl-c-owned-place-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([480]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un locativo en (-n)-tli puede embedirse en (-yo)-tl y luego en (-c)-tli, creando capas n-yo-c de lugar poseido.",
+      requiredProbe: "No aplastar n-yo-c en un sufijo; conservar las tres matrices y su orden."
+    }), Object.freeze({
+      id: "c-locative-nonadverbial-vs-adverbial-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([480]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los locativos en (-c)-tli pueden aparecer como CNN no adverbializada y tambien como forma adverbializada paralela, como maxactli/maxac.",
+      requiredProbe: "No borrar una de las dos rutas; registrar par no adverbial/adverbial y compuerta de estado."
+    }), Object.freeze({
+      id: "c-locative-embed-in-larger-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7"]),
+      pdfPages: Object.freeze([481]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compound stem con matriz (-c)-tli puede ocupar la posicion embed en un compuesto mayor, como ma-c-cuauh o a-c-ana.",
+      requiredProbe: "No terminar el analisis en el primer locativo; permitir que el locativo completo entre como embed y conservar la matriz externa."
+    }), Object.freeze({
+      id: "relational-affective-before-after-matrix-co-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7", "Andrews 45.1"]),
+      pdfPages: Object.freeze([481]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compuestos con matriz relacional, un afectivo antes de la matriz no altera la estructura, pero un afectivo despues activa el procedimiento especial de §45.1.",
+      requiredProbe: "No tratar afectivos pre-matriz y post-matriz como equivalentes; registrar posicion, matriz relacional y procedimiento aplicado."
+    }), Object.freeze({
+      id: "co-affective-following-replacement-zero-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.7", "Andrews 45.1"]),
+      pdfPages: Object.freeze([481]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un afectivo sigue a (-co)-0, el co interno se reemplaza por 0 antes de tzin/ton-co; *co-tzin-co no sobrevive como doble co.",
+      requiredProbe: "No producir doble -co-tzin-co; conservar reemplazo -0-tzin-co y diagnosticar la ambiguedad con un embed afectivo independiente."
+    }), Object.freeze({
+      id: "seeming-compound-matrix-mirage-co-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.8", "Andrews 46.7"]),
+      pdfPages: Object.freeze([482]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las secuencias como nahuac o ixco parecen matrices compuestas, pero Andrews las analiza como embed mas matriz (-co)-0 ~ (-c)-tli lexicalizados por traduccion.",
+      requiredProbe: "No crear una categoria de compound-preposition; conservar embed simple/compuesto, matriz co/c y nota de lexicalizacion."
+    }), Object.freeze({
+      id: "nahuac-nonadverbial-ownerhood-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.8", "Andrews 45.4.2"]),
+      pdfPages: Object.freeze([482, 483]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "nahuac puede aparecer como CNN no adverbializada y tambien como objeto incorporado en ownerhood preterit-agentive, como nahuaqueh.",
+      requiredProbe: "No limitar nahuac a adverbio locativo; registrar forma no adverbial, possessor suplementario y ruta ownerhood agentiva."
+    }), Object.freeze({
+      id: "ihtic-supportive-i-real-vowel-n-zero-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.8"]),
+      pdfPages: Object.freeze([483]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ihtic/ihtec incluye supportive i que puede aparecer como vocal real; nihtic muestra n-0, no n-o, aunque haya i inicial.",
+      requiredProbe: "No inferir reflexivo/possessor o desde la i inicial; distinguir supportive i, vocal real y possessor n-0."
+    }), Object.freeze({
+      id: "ixco-retained-tl-irregular-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.8", "Andrews 30.3.1"]),
+      pdfPages: Object.freeze([483, 484]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ixco admite embeds simples y compuestos, pero atlixco es irregular porque retiene num1 tl dentro del embed.",
+      requiredProbe: "No borrar tl automaticamente en atlixco; marcar retencion irregular y comparar con el verbstem a-tl-i."
+    }), Object.freeze({
+      id: "ca-interval-quantitive-favorite-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.9", "Andrews 16.8", "Andrews 16.9"]),
+      pdfPages: Object.freeze([484, 485]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz relacional (-ca)-0 expresa intervalo y embebe cuantitativos, hueh glotalizado y unos pocos stems unicos.",
+      requiredProbe: "No abrir -ca de intervalo a cualquier nounstem; validar inventario de embeds y separar distancia, tiempo y frecuencia."
+    }), Object.freeze({
+      id: "ca-variant-c-not-locative-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.9"]),
+      pdfPages: Object.freeze([485]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "achic con stem (a-chi-c)-0 usa una variante de (-ca)-0, no el locativo (-c)-tli.",
+      requiredProbe: "No enrutar achic por el locativo c; marcar variante de intervalo ca y conservar collocations con oc/cuel."
+    }), Object.freeze({
+      id: "achic-vs-achi-ic-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.9", "Andrews 45.4"]),
+      pdfPages: Object.freeze([485]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "achic de intervalo no debe confundirse con la collocation achi ic, escrita con elision y usada como clausula principal antes de in.",
+      requiredProbe: "No decidir por escritura solida; separar stem achic de achi+ic, clausula principal, adjunctor in y funcion contrastiva."
+    }), Object.freeze({
+      id: "directional-pa-particle-nounstem-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.10"]),
+      pdfPages: Object.freeze([485, 486]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El direccional (-pa)-0 embebe particulas o nounstems y puede ser locativo, direccional o temporal segun la fuente.",
+      requiredProbe: "No glosar todo pa como direccion fisica; registrar embed, contraste con can/nechca y posibles lecturas temporales."
+    }), Object.freeze({
+      id: "directional-pa-yep-perfective-patientive-assimilation-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.10", "Andrews 44.3.10"]),
+      pdfPages: Object.freeze([486]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "yeppa/yeuhpa contiene el perfective patientive ye-uh-tli de ye-hua; la secuencia w+p puede pronunciarse pp y ocultar la fuente patientiva.",
+      requiredProbe: "No analizar yeppa como particula temporal atomica; conservar patientivo perfecto ye-uh, matriz pa y asimilacion w+p."
+    }), Object.freeze({
+      id: "icampa-restricted-usage-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.10"]),
+      pdfPages: Object.freeze([486]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(ican)-tli solo aparece como embed de (-pa)-0 en CNN posesiva o como adverbio incorporado en verbstem compuesto.",
+      requiredProbe: "No generar ican como CNN simple libre; exigir icam-pa posesivo o incorporacion verbal ican-iht-o-a."
+    }), Object.freeze({
+      id: "pa-embeds-relational-compounds-numerals-gross-count-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.10", "Andrews 31.1"]),
+      pdfPages: Object.freeze([486, 487]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(-pa)-0 puede embedir compuestos relacionales, numerales en ca-m-pa y formaciones de cuenta gruesa como nauhcampaixtin.",
+      requiredProbe: "No limitar pa a particulas simples; conservar capas ca-m-pa, numeral o gross-count ix/ti-n."
+    }), Object.freeze({
+      id: "copa-allomorph-after-vowels-means-because-with-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.10", "Andrews 39.9"]),
+      pdfPages: Object.freeze([487]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La secuencia -co-pa puede aparecer donde se esperaria -c-pa, incluso tras vocales, y puede significar medio, causa o compania por lectura de 'desde dentro'.",
+      requiredProbe: "No corregir ilhuicacopa a ilhuicacpa ni separar siempre co+pa; registrar allomorph, embed posible en -c y lectura instrumental/causal."
+    }), Object.freeze({
+      id: "frequency-pa-quantitive-numeral-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.11"]),
+      pdfPages: Object.freeze([487, 488]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El homonimo (-pa)-0 de frecuencia significa ocasion/veces y embebe solo cuantitativos o numerales.",
+      requiredProbe: "No confundirlo con el pa direccional; exigir embed cuantitativo/numeral y adverbializacion de frecuencia."
+    }), Object.freeze({
+      id: "iyohpa-impatientive-single-occasion-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.11", "Andrews 44.3.11"]),
+      pdfPages: Object.freeze([488]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "iyohpa significa una sola ocasion, embebe el perfective impatientive *(iyo-h)-tli y siempre va precedido por zan, za o quin.",
+      requiredProbe: "No generar iyohpa libre ni como simple numeral ceppa; exigir collocation previa y fuente impatientive."
+    }), Object.freeze({
+      id: "nal-favorite-water-embed-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.12"]),
+      pdfPages: Object.freeze([488]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(nal)-li embebe solo (a)-tl como su stem favorito, no aparece como simple-stemmed NNC, pero puede incorporarse como adverbio verbal.",
+      requiredProbe: "No permitir nal con cualquier embed ni como CNN simple; conservar anal, analco/analcopa y verbstems nal-quiza/nal-tona."
+    }), Object.freeze({
+      id: "chi-favorite-ground-rare-other-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.12"]),
+      pdfPages: Object.freeze([488, 489]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(chi)-0 de direccion tiene como embed favorito (tlal)-li y solo raramente acepta otros, como atenchi.",
+      requiredProbe: "No abrir chi a inventario libre; marcar tlal como favorito y otros embeds como raros."
+    }), Object.freeze({
+      id: "ic-downward-bodypart-embed-verbstem-incorporation-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.13"]),
+      pdfPages: Object.freeze([489]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(-ic)-0 de direccion hacia abajo embebe unos pocos body-part nounstems y esos compuestos pueden incorporarse dentro de verbstems.",
+      requiredProbe: "No tratar tzonic/nacacic/ixic como adverbios aislados sin fuente; conservar body-part embed y posibilidad de compound verbstem."
+    }), Object.freeze({
+      id: "teuh-similarity-manner-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.14"]),
+      pdfPages: Object.freeze([489]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(teuh)-0 crea CNN adverbializadas de semejanza/manera y sus stems pueden incorporarse como adverbios en verbstems.",
+      requiredProbe: "No analizar teteuh/cihuateuh como comparativos libres; registrar matriz teuh y su incorporacion en cuauh-teuh-ihca o te-teuh-tzitzquia."
+    }), Object.freeze({
+      id: "relational-nnc-english-preposition-inference-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.15"]),
+      pdfPages: Object.freeze([489, 490]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews advierte que la preposicion requerida en ingles se infiere del contexto y no existe como pieza estructural en la CNN relacional.",
+      requiredProbe: "No importar preposiciones visibles como morfologia; derivar funcion desde CNN relacional, suplemento y contexto."
+    }), Object.freeze({
+      id: "numeral-modifier-adverbialized-before-co-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.15", "Andrews 46.7"]),
+      pdfPages: Object.freeze([490]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una CNN numeral modifica una CNN adverbializada en (-co)-0 ~ (-c)-tli, el numeral tambien debe tener forma adverbializada.",
+      requiredProbe: "No usar ce/ome como modificadores directos; exigir cecni/ceccan u ocean antes del locativo adverbializado."
+    }), Object.freeze({
+      id: "tzalan-option-one-two-absolutive-possessive-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.1"]),
+      pdfPages: Object.freeze([491]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(tzalan)-tli permite opcion uno posesiva y opcion dos como matriz integrada; los compuestos pueden ser absolutivos o posesivos.",
+      requiredProbe: "No restringir tzalan a posesivo simple; registrar opcion, estado y posibilidad de sujeto no adverbializado."
+    }), Object.freeze({
+      id: "tzalan-supplementary-possessor-subject-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.1"]),
+      pdfPages: Object.freeze([491, 492]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En estructuras con tzalan, el suplemento puede cruzarse con el possessor o con el sujeto segun contexto, creando ambiguedad real.",
+      requiredProbe: "No resolver por defecto a possessor; conservar lecturas suplementarias alternativas y exigir contexto."
+    }), Object.freeze({
+      id: "huic-option-one-two-direction-reverse-pa-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.1"]),
+      pdfPages: Object.freeze([492, 493]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(huic)-0 permite posesivo simple, matriz integrada y combinaciones reversibles con pa o copa, ademas de negativizado ahhuic.",
+      requiredProbe: "No fijar un solo orden huic+pa; registrar huicpa, huiccopa, pa+huic, ahhuic y opcion usada."
+    }), Object.freeze({
+      id: "ca-option-one-three-connective-t-means-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2", "Andrews 42.10"]),
+      pdfPages: Object.freeze([493, 494]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(ca)-0 de medio permite opcion uno posesiva y opcion tres con connective-t compound, incluso con embeds de modificacion adjectival.",
+      requiredProbe: "No confundir ca de medio con ca de intervalo; registrar connective-t, embed completo y funcion instrumental/causal."
+    }), Object.freeze({
+      id: "ca-connective-t-monetary-numeral-collapse-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2"]),
+      pdfPages: Object.freeze([493]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En usos monetarios coloniales con (ca)-0, la estructura numeral+tomin puede colapsar omitiendo la unidad monetaria pero conservando la forma del numeral.",
+      requiredProbe: "No reconstruir siempre tomin ni cambiar la forma numeral; marcar colapso, unidad no especificada y necesidad de contexto."
+    }), Object.freeze({
+      id: "ca-temporal-connective-t-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2"]),
+      pdfPages: Object.freeze([493, 494]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(ca)-0 con connective-t forma CNN temporales como yeilhuitica, cecemilhuitica, yohualtica o huehcauhtica.",
+      requiredProbe: "No glosar todo ca instrumentalmente; registrar valor temporal, connective-t y fuente nominal interna."
+    }), Object.freeze({
+      id: "ca-collocation-solid-writing-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2"]),
+      pdfPages: Object.freeze([494]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Collocations como tleh ica y yeh ica se escriben tradicionalmente solidas, pero siguen siendo relacion posesiva/suplementaria.",
+      requiredProbe: "No dejar que tleica/yehica oculten la CNN ica, possessor i-0 y suplemento antecedente."
+    }), Object.freeze({
+      id: "icpac-compound-matrix-option-one-three-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2", "Andrews 46.8"]),
+      pdfPages: Object.freeze([494, 495]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(icpa-c)-tli parece compuesto pero funciona como matriz compuesta: no puede embedir otro nounstem integrado y actua como (ca)-0 con opcion uno y tres.",
+      requiredProbe: "No aplicar el patron libre de §46.8; bloquear embed integrado adicional y permitir connective-t compound."
+    }), Object.freeze({
+      id: "tlalticpac-ownerhood-incorporated-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.2", "Andrews 55.7"]),
+      pdfPages: Object.freeze([495]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tlalticpac puede ser CNN adverbializada/no adverbializada y funcionar como objeto incorporado en preterit-agentive ownerhood tlalticpaqueh.",
+      requiredProbe: "No limitar tlalticpac a locativo 'en la tierra'; registrar sujeto no adverbial, ownerhood agentivo y nombre/estado derivado."
+    }), Object.freeze({
+      id: "tech-option-one-two-three-reciprocal-intensifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3"]),
+      pdfPages: Object.freeze([496]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(tech)-tli permite opciones uno, dos y tres; su afinidad reciproca puede expresarse reduplicando el possessor ne, no el stem.",
+      requiredProbe: "No reduplicar tech para reciprocal ni limitarlo a una opcion; registrar ne/netech/nenetech y opcion estructural."
+    }), Object.freeze({
+      id: "tech-supplementary-function-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 19.5"]),
+      pdfPages: Object.freeze([496]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con tech, la identidad de possessor puede controlar una clausula adjunta y las funciones suplementarias pueden quedar ambiguas por contexto.",
+      requiredProbe: "No escoger automaticamente sujeto u objeto suplementario; conservar correferencia possessor-clausula y diagnosticar ambiguedad."
+    }), Object.freeze({
+      id: "tech-integrated-vs-connective-t-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([497]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tech contrasta integrated compounds como caltech con connective-t compounds como caltitech, y ambos pueden tener estados absolutivo o posesivo.",
+      requiredProbe: "No colapsar caltech y caltitech; registrar estructura integrada vs connective-t, estado y posible afectivo."
+    }), Object.freeze({
+      id: "tlan-option-one-two-three-location-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 44.6"]),
+      pdfPages: Object.freeze([497]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(tlan)-0 expresa superficie inferior, lado o refugio adyacente y empieza el paradigma de opcion uno/dos/tres como tech.",
+      requiredProbe: "No confundir tlan con tlani ni con locativo simple; registrar opcion estructural y lectura espacial local."
+    }), Object.freeze({
+      id: "tlan-bodypart-ix-tzin-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 46.8"]),
+      pdfPages: Object.freeze([498]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(tlan)-0 puede embedir body-part nounstems como ix y tzin para presencia/base, de modo paralelo a co/c pero con lecturas propias.",
+      requiredProbe: "No usar la plantilla co/c para ix-tlan o tzin-tlan; registrar matriz tlan, body-part embed y estado posible."
+    }), Object.freeze({
+      id: "tlan-embed-into-pa-direction-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 46.10"]),
+      pdfPages: Object.freeze([498]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El stem (tlan)-0 puede servir como embed de (pa)-0 direccional, como itlampa o callampa.",
+      requiredProbe: "No terminar la ruta en tlan locativo; permitir tlan-pa y conservar la capa direccional."
+    }), Object.freeze({
+      id: "xillan-unattested-navel-related-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 39.4", "Andrews 57.7"]),
+      pdfPages: Object.freeze([498, 499]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(xi-l-lan)-tli presupone el unattested nounstem *(xi-l)-li relacionado con xic-tli; la traduccion belly/womb no autoriza un stem sincronico libre.",
+      requiredProbe: "No generar *xil como nounstem ordinario; marcar fuente no atestiguada, relacion con navel y matriz tlan."
+    }), Object.freeze({
+      id: "tlan-connective-t-preterit-agentive-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 35.5"]),
+      pdfPages: Object.freeze([499]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En connective-t compounds con tlan, el embed puede ser el general-use stem de un preterit-agentive nounstem, como izta-0-ca-ti-tlan.",
+      requiredProbe: "No insertar la forma predicativa restringida; exigir general-use ca antes de connective-t y matriz tlan."
+    }), Object.freeze({
+      id: "pan-possessive-downgraded-tlapan-nepan-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 40.2.2"]),
+      pdfPages: Object.freeze([499, 500]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(pan)-0 tiene posesivos como tepan/ipan, pero +tla(pan)- y +ne(pan)- pueden degradarse a stems tlapan y nepan.",
+      requiredProbe: "No tratar tlapantli/nepantli como simples posesivos activos; registrar downgrade, nuevo nounstem y usos derivados."
+    }), Object.freeze({
+      id: "nepantlah-tlah-middle-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 46.6"]),
+      pdfPages: Object.freeze([500]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(ne-pan)-tli embedido en (tlah)-0 crea nepantlah 'middle' y puede funcionar como adverbio incorporado en verbstems.",
+      requiredProbe: "No analizar nepantlah como simple pan plural; conservar ne-pan, matriz tlah y posibilidad de incorporacion verbal."
+    }), Object.freeze({
+      id: "nepan-verbstem-patientive-vs-nepantlah-incorporation-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 39.2.1"]),
+      pdfPages: Object.freeze([500]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "nepan tambien alimenta el verbstem tla-(ne-pan-o-a) y el imperfective patientive (ne-pan-o)-tl, distinto de la incorporacion ne-pan-tlahpal-o-a.",
+      requiredProbe: "No mezclar nepanotl con nepantlahpaloah; conservar fuente verbal, patientive y stem incorporado exacto."
+    }), Object.freeze({
+      id: "pampa-literal-metaphorical-support-reason-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 46.10"]),
+      pdfPages: Object.freeze([500, 501, 502]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "pan puede embedirse en pa como pampa: literal direccion hacia la superficie y metaforico soporte, beneficio, favor o razon.",
+      requiredProbe: "No glosar todo pampa como direccion fisica; registrar possessor, suplemento y lectura de razon/beneficio."
+    }), Object.freeze({
+      id: "pan-supplementary-possessor-clause-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3"]),
+      pdfPages: Object.freeze([501, 502]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ipan/ipampa pueden tomar como suplemento poseedor una CNN, palabra extranjera Nahuatlizada o clausula completa.",
+      requiredProbe: "No convertir el suplemento en preposicion externa; conservar possessor pronoun, cross-reference y alcance clausal."
+    }), Object.freeze({
+      id: "ipan-numeral-connective-unmarked-conjunction-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 34.8", "Andrews 45.4.1"]),
+      pdfPages: Object.freeze([502]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ipan conecta numeros de orden alto con otros numeros en una estructura de conjuncion sin conjunctor.",
+      requiredProbe: "No analizar ipan numeral como posesion locativa ordinaria ni como ihuan; marcar funcion conectiva numerica y conjuncion no marcada."
+    }), Object.freeze({
+      id: "pan-integrated-time-action-noun-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 54.2.4"]),
+      pdfPages: Object.freeze([502, 503]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los integrated compounds con pan pueden expresar superficie, tiempo o area e incluir action-noun embeds como tlahui-z dentro de tlahuizcalpan.",
+      requiredProbe: "No forzar pan a superficie espacial; registrar embed, fuente active-action nounstem y lectura temporal cuando corresponde."
+    }), Object.freeze({
+      id: "pan-normal-subject-tli-num1-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3"]),
+      pdfPages: Object.freeze([503]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos stems con pan admiten CNN absolutiva no adverbializada con tli en num1, como tlalpantli y teopantli.",
+      requiredProbe: "No borrar la ruta no adverbializada; distinguir tlalpan adverbializado de tlalpantli con subject normal."
+    }), Object.freeze({
+      id: "pan-bodypart-no-further-embedding-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 46.8"]),
+      pdfPages: Object.freeze([503, 504]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "pan embebe body-part stems, pero estos compuestos no invitan a further embedding como los de co/c.",
+      requiredProbe: "No aplicar recursividad co/c a quechpan, tempan, elpan, ixpan o cuitlapan; bloquear embed adicional no licenciado."
+    }), Object.freeze({
+      id: "pan-connective-t-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.3", "Andrews 34.1"]),
+      pdfPages: Object.freeze([504]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "pan tambien forma connective-t compounds como xaltipan, xaltetipan y ontlamanixtipan.",
+      requiredProbe: "No colapsar integrated pan y connective-t pan; registrar t connective, embed y funcion locativa."
+    }), Object.freeze({
+      id: "associated-entity-relational-compound-ca-tl-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.4", "Andrews 31.6"]),
+      pdfPages: Object.freeze([504, 505]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compound nounstem con matriz relacional puede embedirse en (-ca)-tl para crear una CNN de entidad asociada.",
+      requiredProbe: "No tratar -catl como gentilicio simple; conservar compound relacional embedido y matriz associated-entity."
+    }), Object.freeze({
+      id: "associated-entity-ca-tl-possessor-supplementation-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.4", "Andrews 35.14"]),
+      pdfPages: Object.freeze([505]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz (-ca)-tl puede embedir una estructura de possessor supplementation, como tonatiuh iquizayan o ilhuicaatl ipitzahuayan.",
+      requiredProbe: "No reducir el embed a un stem simple; conservar suplemento poseedor interno y matriz ca-tl."
+    }), Object.freeze({
+      id: "associated-entity-co-c-silent-replacement-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.4", "Andrews 46.7"]),
+      pdfPages: Object.freeze([505, 506]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un locativo con matriz co/c se embebe en (-ca)-tl, co/c se reemplaza por una variante silenciosa.",
+      requiredProbe: "No mantener co/c antes de ca-tl; aplicar reemplazo silencioso y contrastar con la regla de afectivos de 46.7."
+    }), Object.freeze({
+      id: "pertinency-yotl-direct-adverbialized-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.5", "Andrews 39.3"]),
+      pdfPages: Object.freeze([506]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "(-yo)-tl puede embedir directamente el stem de una CNN adverbializada para formar pertinency: quality/state characteristic of that domain.",
+      requiredProbe: "No generar -yotl solo como posesion organica; registrar embed adverbializado y significado de pertinencia."
+    }), Object.freeze({
+      id: "pertinency-yotl-internal-possessor-no-state-effect-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.5", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([506]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "En tlacpacyotl y similares, el possessor pronoun queda dentro del stem y no afecta el estado absolutivo de la CNN externa.",
+      requiredProbe: "No hacer que el possessor interno gobierne el estado externo; separar possessor embedded y absolutive outer NNC."
+    }), Object.freeze({
+      id: "pertinency-yotl-supplementation-adverbial-modification-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.5"]),
+      pdfPages: Object.freeze([506]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "(-yo)-tl puede embedir una estructura de possessor supplementation o de adverbial modification, como tonatiuh-icalaquiyan o huel-ipan.",
+      requiredProbe: "No limitar yotl a stems atomicos; conservar estructura interna completa y tipo de modificacion/suplementacion."
+    }), Object.freeze({
+      id: "pertinency-yotl-associated-entity-ca-tl-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.5", "Andrews 47.4"]),
+      pdfPages: Object.freeze([506, 507]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz (-yo)-tl puede embedir un associated-entity stem en (-ca)-tl, creando -cayotl con mayor complejidad morfologica que una simple calidad.",
+      requiredProbe: "No traducir -cayotl como si fuera el mismo patron directo; conservar capa relacional -> ca-tl -> yo-tl."
+    }), Object.freeze({
+      id: "place-name-unique-social-reference-vs-contextual-locative-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.1"]),
+      pdfPages: Object.freeze([508]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un place-name NNC puede ser formalmente identico a una CNN locativa adverbializada; la diferencia es referencia social unica vs instancia contextual.",
+      requiredProbe: "No decidir por superficie; registrar subject pronoun unico-social en place-name y contextual en locativo ordinario."
+    }), Object.freeze({
+      id: "place-name-three-functions-preposition-inference-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.1"]),
+      pdfPages: Object.freeze([508, 509]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los place-name NNCs funcionan como ordinary NNC, adverbial NNC o adjectival NNC; las preposiciones inglesas se infieren, no son morfologia.",
+      requiredProbe: "No crear preposiciones visibles ni una unica funcion; registrar ordinary/adverbial/adjectival use y suplemento cuando existe."
+    }), Object.freeze({
+      id: "place-name-opaque-glyph-spelling-warning-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.1"]),
+      pdfPages: Object.freeze([509]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews advierte que muchos place-names son opacos o dudosos por escritura, cambio de sonido, errores, glifos o perdida de contexto.",
+      requiredProbe: "No forzar etimologia generativa desde una superficie opaca; marcar diagnostico y evidencia insuficiente."
+    }), Object.freeze({
+      id: "topographical-feature-vs-place-name-distinction-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.1"]),
+      pdfPages: Object.freeze([510]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nahuatl distingue nombres de rasgos topograficos de place-names; el rasgo puede servir como embed del place-name.",
+      requiredProbe: "No tratar 'Long Mountain' como place-name automaticamente; exigir matriz locativa que cree lugar sobre/en el rasgo."
+    }), Object.freeze({
+      id: "place-name-n-imperfect-predicate-active-nonactive-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 46.4"]),
+      pdfPages: Object.freeze([510]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Place-names en (-n)-tli pueden embedir predicados imperfectos activos o no activos, incluyendo estructuras de possessor supplementation.",
+      requiredProbe: "No usar una sola plantilla n; distinguir active voice, nonactive source, supplement possessor y ya-n."
+    }), Object.freeze({
+      id: "place-name-yan-perfective-core-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 46.5"]),
+      pdfPages: Object.freeze([510]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Place-names tambien pueden usar (-ya-n)-tli con nucleo perfectivo activo, como Xolochauhyan o Atl-Itlalacyan.",
+      requiredProbe: "No analizar todo -yan place-name como imperfecto; registrar nucleo perfectivo y possessor supplementation si aparece."
+    }), Object.freeze({
+      id: "place-name-man-matrix-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2"]),
+      pdfPages: Object.freeze([511]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "(-ma-n)-0 'place of the area of' es una matriz compuesta usada solo en place-name NNCs.",
+      requiredProbe: "No ofrecer man como matriz locativa ordinaria; limitarla a place-name diagnostic/generation gate."
+    }), Object.freeze({
+      id: "place-name-tlan-long-a-not-relational-tlan-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 47.3", "Andrews 48.7"]),
+      pdfPages: Object.freeze([511]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name (-tla-n)-0 tiene a larga y no debe confundirse con relational (tlan)-0 o connective-t tlan.",
+      requiredProbe: "No derivar Tlallan desde el locativo tlallan; registrar matriz place-name tla-n, longitud vocalica y contraste semantico."
+    }), Object.freeze({
+      id: "place-name-tlan-folk-etymology-tool-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 58.1", "Andrews 31.6", "Andrews 53.1"]),
+      pdfPages: Object.freeze([511]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Aztlan no se debe explicar por folk etymology de garzas/blancura; Andrews lo remite al embed (az)-tli 'tool' usado tambien en instrumentales.",
+      requiredProbe: "No aceptar etimologia por parecido con Aztatlan o a-zta-pil-ti-0-c; conservar matriz place-name tla-n, embed az-tli y diagnostico de conjetura."
+    }), Object.freeze({
+      id: "place-name-mictlan-colonial-nonadverbial-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2"]),
+      pdfPages: Object.freeze([511, 512]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Mictlan viene de patientive perfective mic-tli y tiene uso no adverbializado colonial Mictlantli probablemente no nativo.",
+      requiredProbe: "No tratar Mictlantli como prueba general de place-name subject normal; marcar excepcion colonial y fuente patientive."
+    }), Object.freeze({
+      id: "place-name-conjoined-nnc-lexical-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 52.6"]),
+      pdfPages: Object.freeze([512]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos place-names se forman sobre una unidad lexical de NNCs conjuntadas, como Tlillan Tlapallan.",
+      requiredProbe: "No analizar cada mitad como place-name independiente suficiente; registrar biclausal/conjoined lexical unit."
+    }), Object.freeze({
+      id: "place-name-can-non-nominalized-vnc-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 46.3.2"]),
+      pdfPages: Object.freeze([512]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name ca-n puede embedir cualquier nounstem que no este formado desde nominalized VNC.",
+      requiredProbe: "No permitir nominalized VNC embed en esta subruta ca-n; exigir fuente nounstem no nominalizada."
+    }), Object.freeze({
+      id: "place-name-to-site-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2"]),
+      pdfPages: Object.freeze([512]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos place-names con ca-n contienen el matrix-only stem *(to)-tl 'site/setting' dentro del embed.",
+      requiredProbe: "No confundir to con verbal t-o o connective-t; registrar site nounstem y su embedding en ca-n."
+    }), Object.freeze({
+      id: "place-name-ca-n-general-use-preterit-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 46.3.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([512, 513]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Otra formacion place-name usa (-n)-tli con embed general-use de preterit-agentive nounstem.",
+      requiredProbe: "No usar la forma restringida ni un verbo finito; exigir general-use agentive stem antes de ca-n."
+    }), Object.freeze({
+      id: "place-name-ownerhood-agentive-tiuhhuah-not-impersonal-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 35.8", "Andrews 35.9"]),
+      pdfPages: Object.freeze([513]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Ownerhood place-names como Teotihuahcan require analizar tiuhhuah como elder-god ownerhood, no como impersonal verbstem teo-ti-hua.",
+      requiredProbe: "No traducir por etimologia popular ni borrar -ti-; distinguir Teohuahcan, Teotihuahcan y la compuerta -ya-n para impersonal."
+    }), Object.freeze({
+      id: "place-name-ca-n-action-noun-distant-past-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.2", "Andrews 46.3.1"]),
+      pdfPages: Object.freeze([513, 514]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Place-name (-n)-tli puede embedir action-noun nounstem; el -ca- antes de n es morfema de distant-past tense.",
+      requiredProbe: "No leer -ca-n como la misma matriz ca-n de todas las rutas; registrar action noun embed y tense ca interno."
+    }), Object.freeze({
+      id: "place-name-pan-integrated-watercourse-affinity-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.3", "Andrews 47.3"]),
+      pdfPages: Object.freeze([514]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name pan se basa en integrated structure y tiene afinidad por watercourse names, donde pan puede implicar surface/place o crossing/fording place.",
+      requiredProbe: "No traducir todos los -apan como simple river surface; registrar watercourse embed y posible lectura de paso/cruce."
+    }), Object.freeze({
+      id: "place-name-pan-possessor-supplementation-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.3", "Andrews 47.3"]),
+      pdfPages: Object.freeze([515]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name pan puede embedir una estructura de possessor supplementation antes de la matriz relacional.",
+      requiredProbe: "No tratar X-ix-pan como tres segmentos planos; conservar embed suplementado, matriz pan y scope de poseedor."
+    }), Object.freeze({
+      id: "place-name-pan-connective-t-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.3", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([515]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name pan tambien puede construirse sobre compound stem con connective-t.",
+      requiredProbe: "No borrar el connective-t ni confundirlo con num1/num2; registrar compound stem antes de pan."
+    }), Object.freeze({
+      id: "place-name-co-c-allomorph-adverbial-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4", "Andrews 46.7", "Andrews 47.2.2"]),
+      pdfPages: Object.freeze([515, 516]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El grupo place-name (-co)-0 ~ (-c)-tli se basa en adverbial NNCs y no en una sola terminacion grafica.",
+      requiredProbe: "Exigir seleccion co/c como matriz relacional con estado y contexto; no normalizar todas las formas a un sufijo unico."
+    }), Object.freeze({
+      id: "mexihco-phonology-folk-etymology-block-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4", "Andrews 2.11", "Andrews 56.5"]),
+      pdfPages: Object.freeze([515]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Mexihco exige separar analisis morfologico, cambio fonologico y folk etymology no viable.",
+      requiredProbe: "No autorizar generacion desde me-tl + cih-tli ni desde nombre personal comun; registrar solo la ruta morfologica licenciada."
+    }), Object.freeze({
+      id: "place-name-co-affective-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4", "Andrews 46.7"]),
+      pdfPages: Object.freeze([515, 516]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Affective nounstems pueden servir como embed de (-co)-0 en place-names.",
+      requiredProbe: "No bloquear affective embed dentro de co, pero mantenerlo como embed nominal y no como superficie generativa libre."
+    }), Object.freeze({
+      id: "place-name-affective-tzin-ton-silent-co-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4", "Andrews 47.4"]),
+      pdfPages: Object.freeze([516]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name nounstem puede entrar en tzin/ton y luego co; silent co crea ambiguedad entre lugar nuevo/pequeno y entidad afectiva.",
+      requiredProbe: "Si hay tzinco/tonco, exigir evidencia historica o diagnostico de ambiguedad; no elegir una formacion por apariencia."
+    }), Object.freeze({
+      id: "place-name-c-tli-topographical-supplementation-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4", "Andrews 30.1"]),
+      pdfPages: Object.freeze([516]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La variante (-c)-tli puede embedir topographical names y possessor supplementation, incluso con stems restringidos.",
+      requiredProbe: "No leer -c como simple locativo final; conservar embed topografico/suplementado y restricciones de stem."
+    }), Object.freeze({
+      id: "place-name-compound-matrix-nahua-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4"]),
+      pdfPages: Object.freeze([516, 517]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos place-names con -c se construyen sobre so-called compound matrix stems como nahua o icpa.",
+      requiredProbe: "No dividir nahua-c o icpa-c como posposicion simple; registrar compound matrix y su embed nominal."
+    }), Object.freeze({
+      id: "atlixco-irregular-num1-ti-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.4"]),
+      pdfPages: Object.freeze([517]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Atlixco conserva irregularmente num1 ti desde la dyad de numero del sujeto de la NNC fuente.",
+      requiredProbe: "No borrar ti como relleno ni reinterpretarlo como connective-t; marcarlo como retencion irregular de num1."
+    }), Object.freeze({
+      id: "place-name-tlah-abundance-relational-pan-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.5", "Andrews 46.6", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([517]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El grupo (tlah)-0 puede usar nounstem normal o embed formado sobre relational pan para expresar abundancia/layering.",
+      requiredProbe: "No confundir tlah de abundancia con tlan o tla- objeto indefinido; separar embed normal y embed pan."
+    }), Object.freeze({
+      id: "place-name-tzalan-ti-tlan-chan-groups-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.6", "Andrews 48.7", "Andrews 48.8", "Andrews 47.1.1", "Andrews 47.3.2"]),
+      pdfPages: Object.freeze([517, 518]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-name groups tzalan, ti-tlan y chan dependen de diferentes estructuras adverbiales o de possessor supplementation.",
+      requiredProbe: "No normalizar todos a locativo generico; registrar mid-space tzalan, near ti-tlan y home chan con su estructura propia."
+    }), Object.freeze({
+      id: "gentilic-broad-human-association-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9"]),
+      pdfPages: Object.freeze([518]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic cubre cualquier ser humano intimamente asociado con un lugar, no solo nacionalidad.",
+      requiredProbe: "No limitar gentilic a pais/origen; permitir region, tribu, clan, dwelling, stewardship y funciones analogas como lecturas diagnosticas."
+    }), Object.freeze({
+      id: "gentilic-nonlocative-absolutive-tribal-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9"]),
+      pdfPages: Object.freeze([518]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un gentilic puede formarse por absolutive-state NNC sobre nonlocative nounstem, limitado a tribal-member names.",
+      requiredProbe: "No exigir place-name previo para todo gentilic; pero bloquear extension fuera de tribal-member names sin evidencia."
+    }), Object.freeze({
+      id: "gentilic-two-clause-concatenate-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 48.2", "Andrews 48.7", "Andrews 48.8"]),
+      pdfPages: Object.freeze([518, 519]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un gentilic-name unit puede ser two-clause concatenate: place-name NNC como modificador adjectival y NNC principal absolutiva.",
+      requiredProbe: "No fusionar siempre place-name + tlacatl/calcatl/calqui/chaneh en un solo stem; conservar dos clausulas cuando Andrews lo exige."
+    }), Object.freeze({
+      id: "gentilic-exceptional-association-not-formal-place-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9"]),
+      pdfPages: Object.freeze([519]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas asociaciones gentilicias son excepcionales y no pertenecen formalmente al place-name esperado.",
+      requiredProbe: "No derivar automaticamente gentilic desde el place-name visible; permitir excepcion registrada y diagnostico de asociacion historica."
+    }), Object.freeze({
+      id: "place-name-derived-from-preterit-agentive-gentilic-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 35.5"]),
+      pdfPages: Object.freeze([519, 520]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos place-names derivan de un gentilic preterit-agentive que sirve como embed de relational n o pan.",
+      requiredProbe: "No generar el lugar directamente desde verbo finito; pasar por preterit-agentive nounstem y luego matriz relacional."
+    }), Object.freeze({
+      id: "gentilic-ca-tl-full-place-name-vs-silent-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 47.5"]),
+      pdfPages: Object.freeze([520, 521]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic con (-ca)-tl tiene dos grupos: embed del full place-name nounstem o reemplazo silent del relational matrix.",
+      requiredProbe: "No aplicar un unico algoritmo -ca; decidir si entra el place-name completo o si la matriz relacional se vuelve silent."
+    }), Object.freeze({
+      id: "gentilic-pan-e-ca-vs-pan-ca-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 47.4", "Andrews 48.3"]),
+      pdfPages: Object.freeze([520, 521]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic desde place-name pan usa pan-e-ca, distinto de associated-entity pan-ca.",
+      requiredProbe: "No colapsar paneca y panca; registrar e antes de ca para gentilicio y ausencia de e para associated entity."
+    }), Object.freeze({
+      id: "gentilic-ca-n-m-to-meca-not-ownerhood-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 48.2.5", "Andrews 48.9.3"]),
+      pdfPages: Object.freeze([520, 521]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic desde ca-n agrega e, cambia n a m, y no debe confundirse con ownerhood preterit-agentive huah.",
+      requiredProbe: "No leer hua-ca-n como huah-ca-n sin evidencia; exigir ca-m-e-ca para esta subruta."
+    }), Object.freeze({
+      id: "gentilic-co-c-silent-replacement-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 48.4", "Andrews 48.9.2"]),
+      pdfPages: Object.freeze([521]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En gentilic group 2, co y c se reemplazan por silent morph antes de ca-tl, salvo la excepcion t-icpa-c.",
+      requiredProbe: "No conservar co/c ante ca-tl salvo excepcion; registrar reemplazo silent y excepcion t-icpa-c."
+    }), Object.freeze({
+      id: "gentilic-ownerhood-n-silent-ca-deletion-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 35.5"]),
+      pdfPages: Object.freeze([522]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Place-name de ownerhood preterit-agentive puede formar gentilic reemplazando n por silent y borrando el ca precedente innecesario.",
+      requiredProbe: "No confundir la a breve de ca-tl con general-use preterit-agentive; exigir deletion de ca interno en esta ruta."
+    }), Object.freeze({
+      id: "gentilic-man-tlan-e-ca-sound-change-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9", "Andrews 48.2.3", "Andrews 48.2.4"]),
+      pdfPages: Object.freeze([522]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place-names con ma-n o tla-n forman gentilic con n silent, a larga a e larga, y tla/la cambian a te.",
+      requiredProbe: "No producir man-ca o tlan-ca; exigir me-ca o te-ca segun el subtipo."
+    }), Object.freeze({
+      id: "gentilic-alternative-two-clause-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9"]),
+      pdfPages: Object.freeze([522, 523]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un place-name que normalmente forma gentilic por ca-tl puede tener alternativa two-clause con tlacatl.",
+      requiredProbe: "No declarar incompatibles las dos rutas; exponer alternativa y su alcance sin generar sinonimos no evidenciados."
+    }), Object.freeze({
+      id: "defective-spelling-tlan-tlah-requires-gentilic-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.9"]),
+      pdfPages: Object.freeze([523]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La ortografia tradicional defectiva puede ocultar tlan vs tlah y aun otras oposiciones; el gentilic puede ser la unica prueba.",
+      requiredProbe: "Bloquear decision por spelling plano; exigir gentilic conocido o marcar ambiguedad tlan/tlah."
+    }), Object.freeze({
+      id: "gentilic-incorporation-compound-and-place-name-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.10", "Andrews 57.1"]),
+      pdfPages: Object.freeze([523]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Gentilic nounstem puede incorporarse en compound stem verbal o en place-name, incluso profundamente.",
+      requiredProbe: "No limitar gentilic a predicado CNN; permitir embed nominal en compound routes pero no promoverlo sin evidencia Nawat."
+    }), Object.freeze({
+      id: "gentilic-vs-associated-entity-atlancatepec-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.10", "Andrews 47.4"]),
+      pdfPages: Object.freeze([523]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un segmento parecido a gentilic puede ser associated-entity nounstem; Atlancatepec no deriva del gentilic esperado.",
+      requiredProbe: "No analizar todo -ca- embed como gentilic; comprobar si pertenece a associated-entity route."
+    }), Object.freeze({
+      id: "gentilic-affective-place-name-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.10", "Andrews 48.9"]),
+      pdfPages: Object.freeze([523, 524]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic nounstem que sirve de source para place-name puede tener affective formation tzin/ton.",
+      requiredProbe: "No perder la capa affective entre gentilic y place-name; conservar stem source y matriz afectiva."
+    }), Object.freeze({
+      id: "gentilic-adjectival-use-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.11"]),
+      pdfPages: Object.freeze([524]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Como otras NNCs, gentilic NNC puede funcionar adjectivally en estructuras mayores.",
+      requiredProbe: "No crear una clase formal nueva para adjectival; mantener CNN gentilic con funcion adjectival."
+    }), Object.freeze({
+      id: "gentilic-collectivity-yotl-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.12", "Andrews 47.5"]),
+      pdfPages: Object.freeze([524, 525]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gentilic nounstem puede embedirse en (-yo)-tl para collectivity, typicalness o characteristicness; posesivo permite num1 0/uh.",
+      requiredProbe: "No reducir yotl a simple abstract noun; registrar collectivity/typicalness y variante posesiva 0~uh."
+    }), Object.freeze({
+      id: "gentilic-profession-title-lexicalization-boundary",
+      sourceRefs: Object.freeze(["Andrews 48.13", "Andrews 47.5"]),
+      pdfPages: Object.freeze([525, 526]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunos gentilicios se lexicalizan como profesiones o titulos administrativos/militares y pueden formar pertinency yotl.",
+      requiredProbe: "No generar profesiones/titulos productivamente desde cualquier place-name; exigir lexicalizacion o evidencia."
+    }), Object.freeze({
+      id: "adverbial-modification-simple-vs-supplementary-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.1"]),
+      pdfPages: Object.freeze([527, 528]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Simple adverbial modification usa NNC adverbialized como modifier, pero compared manner debe distinguirse de supplementary subject/metaphor.",
+      requiredProbe: "No fusionar quetzal-like manner con sujeto suplementario; marcar ambiguedad de 3s y single-nucleus incorporated counterpart."
+    }), Object.freeze({
+      id: "adverbial-modification-second-degree-and-multiple-nucleus-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.1", "Andrews 49.2"]),
+      pdfPages: Object.freeze([528, 529, 530]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adverbial modification puede usar second-degree adverbialized NNCs y simple structures con modification/supplementation internos.",
+      requiredProbe: "No exigir una sola CNN simple; permitir adjoined/principal clauses con adjectival modification, supplementation y topic scope."
+    }), Object.freeze({
+      id: "adverbial-recursion-head-and-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.3", "Andrews 49.4", "Andrews 49.5"]),
+      pdfPages: Object.freeze([530, 531]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adverbial modification is recursive: la recursion puede estar en el head o en el modifier.",
+      requiredProbe: "No limitar el parser a modifier+head plano; registrar nesting head=(modifier+head) y modifier=(modifier+head)."
+    }), Object.freeze({
+      id: "interrogative-particle-adverbial-order-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.4", "Andrews 3.4"]),
+      pdfPages: Object.freeze([530, 531]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuix/mach/nel interactuan con interrogative adverbial NNCs y tienen orden condicionado por si el modifier ya es interrogativo.",
+      requiredProbe: "No colocar particulas por template fijo; si hay interrogative NNC debe preceder, si no cuix va primero; mach/nel quedan diagnosticos."
+    }), Object.freeze({
+      id: "particle-adverbialized-collocation-lexicalized-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.5", "Andrews 3.4"]),
+      pdfPages: Object.freeze([531]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Muchas colocaciones lexicalizadas combinan particula con nuclear clause adverbialized y la traduccion no se deduce de las partes.",
+      requiredProbe: "No generar significado composicional automatico desde particula + adverbial; tratar collocation como inventario/diagnostico."
+    }), Object.freeze({
+      id: "adverbial-collocation-solid-writing-negative-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.5", "Andrews 49.6", "Andrews 16.3"]),
+      pdfPages: Object.freeze([532]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Muchas expresiones adverbiales negativas o de particula se escriben solidas en textos tradicionales, aunque Andrews las analiza como collocations.",
+      requiredProbe: "No usar escritura solida como prueba de una sola particula o stem; separar particulas, NNC adverbialized y valor lexicalizado."
+    }), Object.freeze({
+      id: "intensifier-adverbial-nuclear-clause-special-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.6"]),
+      pdfPages: Object.freeze([532]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Intensifiers son NNCs o VNCs adverbialized que conservan funciones adverbiales normales y ademas intensifican con valores de traduccion especiales.",
+      requiredProbe: "No crear clase formal 'intensifier'; mantener CNV/CNN adverbialized y registrar funcion de intensificacion separada."
+    }), Object.freeze({
+      id: "intensifier-before-head-order-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.6"]),
+      pdfPages: Object.freeze([532]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando funciona como intensifier, el modifier adverbial siempre precede a su head.",
+      requiredProbe: "No permitir orden libre para intensifier+head; validar precedencia antes de interpretar la unidad."
+    }), Object.freeze({
+      id: "niman-negative-intensifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.6"]),
+      pdfPages: Object.freeze([533]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La NNC adverbialized niman toma funcion intensifier ante negativos y no significa simplemente 'ahora'.",
+      requiredProbe: "Si niman precede negativo, registrar valor intensivo absoluto; no convertirlo en tiempo literal."
+    }), Object.freeze({
+      id: "particle-intensifier-vs-adverbial-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.6"]),
+      pdfPages: Object.freeze([533]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas particulas adverbiales tambien pueden funcionar como intensifiers junto a NNCs/VNCs adverbialized.",
+      requiredProbe: "No mezclar Particula con CNN/CNV como clase formal unica; conservar categoria de origen y funcion intensifier."
+    }), Object.freeze({
+      id: "intensifier-modifies-adjectival-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.6"]),
+      pdfPages: Object.freeze([533]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un intensifier como modifier de modifier puede modificar una adjectival NNC antes de que esa unidad modifique su head.",
+      requiredProbe: "No tratar adjetival como clase formal nueva; registrar CNN adjectival modificada por intensifier y luego relacion con head."
+    }), Object.freeze({
+      id: "adverbial-modifier-recursion-within-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.7"]),
+      pdfPages: Object.freeze([533, 534]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La recursion puede ocurrir dentro del modifier adverbial antes de que toda la unidad modifique al head principal.",
+      requiredProbe: "No aplanar collocations como cadena de particulas; representar modifier interno y head externo por niveles."
+    }), Object.freeze({
+      id: "adverbial-appositive-place-time-specific-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.8"]),
+      pdfPages: Object.freeze([534]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En apposition adverbial de lugar/tiempo, un adjunct general se combina con una NNC adverbialized mas especifica que lo sigue.",
+      requiredProbe: "No leer 'nican pani' u 'ompa Mexihco' como modificacion ordinaria previa; marcar apposition con especificador posterior."
+    }), Object.freeze({
+      id: "adverbial-apposition-vs-conjunction-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.8", "Andrews 52.2"]),
+      pdfPages: Object.freeze([534, 535]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Collocations adverbiales por apposition deben distinguirse de coordinaciones como axcan mochipa o moztla huiptla.",
+      requiredProbe: "No tratar toda secuencia adverbial como modifier+head; detectar conjunction coordinada cuando Andrews lo exige."
+    }), Object.freeze({
+      id: "adverbial-recursion-both-modifier-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.9"]),
+      pdfPages: Object.freeze([535]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Tanto el modifier como el head pueden ser estructuras de adverbial modification, produciendo recursion en ambos lados.",
+      requiredProbe: "No limitar el AST a un solo lado recursivo; aceptar (modifier=(modifier+head)) + (head=(modifier+head))."
+    }), Object.freeze({
+      id: "adverbialized-nuclear-clause-principal-reversal-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.10"]),
+      pdfPages: Object.freeze([535, 536]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una nuclear clause adverbialized puede funcionar como principal clause, invirtiendo la relacion normal de adverbial modification.",
+      requiredProbe: "No forzar toda NNC adverbialized a adjunct; permitir rango principal con la VNC original degradada a adjunct."
+    }), Object.freeze({
+      id: "interrogative-adverbial-principal-upgrade-in-boundary",
+      sourceRefs: Object.freeze(["Andrews 49.10", "Andrews 43.4"]),
+      pdfPages: Object.freeze([536, 537]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Para mantener valor interrogativo, interrogative adverbial NNC debe ir al inicio y tiende a subir a principal clause con in como adjunctor.",
+      requiredProbe: "No escribir/inferir canin, icin o quenin como una sola particula; separar interrogative NNC, in y clause adjoined."
+    }), Object.freeze({
+      id: "nonadverbialized-adjoined-clause-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.1"]),
+      pdfPages: Object.freeze([538]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Lesson 50 permite adverbial modification cuyo modifier no esta adverbialized; es clause o clause unit adjoined.",
+      requiredProbe: "No exigir sujeto adverbialized para todo adverbial modifier; permitir adjoined clause unit con o sin NNC que indique tipo semantico."
+    }), Object.freeze({
+      id: "temporal-adjoined-clause-tense-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2"]),
+      pdfPages: Object.freeze([538, 539]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adjoined temporal clauses can shift English tense interpretation: preterit/future in Nahuatl may translate as pluperfect, present, or future perfect.",
+      requiredProbe: "No derive grammar from English tense gloss; preserve Andrews tense in each clause and record translation shift as diagnostic."
+    }), Object.freeze({
+      id: "iuh-adverbialized-vs-nonadverbialized-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2"]),
+      pdfPages: Object.freeze([539]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "iuh puede aparecer como VNC adverbialized o como VNC nonadverbialized dentro de temporal adjoined clause.",
+      requiredProbe: "No classify iuh only by surface; inspect clause status and adverbialization before routing."
+    }), Object.freeze({
+      id: "iuhqui-preterit-agentive-temporal-condition-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2", "Andrews 35"]),
+      pdfPages: Object.freeze([539]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "iuhqui is a preterit-agentive NNC meaning a thing that has become thus and can serve in temporal condition constructions.",
+      requiredProbe: "No treat iuhqui as particle or plain adverb; preserve CNN preterit-agentive source and temporal clause role."
+    }), Object.freeze({
+      id: "temporal-explicit-ihcuac-ic-adverbialized-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2"]),
+      pdfPages: Object.freeze([540]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Temporal meaning may be explicit through ihcuac or possessive-state adverbialized NNC ic, with oc frequently modifying ic.",
+      requiredProbe: "No collapse ihcuac, ic, and oquic into one particle; preserve NNC status, possessor state and modifier oc."
+    }), Object.freeze({
+      id: "temporal-correlative-principal-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2"]),
+      pdfPages: Object.freeze([540, 541]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The principal clause may contain a corroborating adverbial element paired with the temporal adjunct.",
+      requiredProbe: "Do not attach all temporal adverbials to the adjunct only; allow correlative adverbial material in the principal clause."
+    }), Object.freeze({
+      id: "reduced-adverbial-nnc-predicate-demonstrative-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.2", "Andrews 49.2"]),
+      pdfPages: Object.freeze([541]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A principal clause inside the adverbial clause unit may be an adverbialized NNC predicate with a demonstrative pronominal NNC subject.",
+      requiredProbe: "No flatten in ic in on into one adverb; represent possessor/supplementary structure or downgraded 49.2 pattern."
+    }), Object.freeze({
+      id: "place-adverbial-adjoined-clause-vs-apposition-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.3", "Andrews 49.8"]),
+      pdfPages: Object.freeze([541, 542]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Place adverbial clause units can overlap in surface with adverbial apposition, especially when cah/catca is omitted.",
+      requiredProbe: "No choose one analysis by translation alone; keep reduced predicate and appositive analyses distinct or mark ambiguity."
+    }), Object.freeze({
+      id: "manner-adverbial-nonadverbial-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.4"]),
+      pdfPages: Object.freeze([542]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Manner adverbial modification can use a nonadverbial adjoined clause headed by iuh/quen rather than an adverbialized subject.",
+      requiredProbe: "Do not require adverbialization morphology for manner clauses; inspect adjunctor, iuh/quen and clause rank."
+    }), Object.freeze({
+      id: "consideration-adverbial-not-included-referent-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.5", "Andrews 19.3"]),
+      pdfPages: Object.freeze([542, 543]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Consideration clauses express concerning/regarding and can be mistaken for included-referent supplementation.",
+      requiredProbe: "If the principal is intransitive or reflexive, do not force supplementary-object analysis; mark adverbial consideration."
+    }), Object.freeze({
+      id: "consideration-projective-object-nonspecific-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.5", "Andrews 19.3"]),
+      pdfPages: Object.freeze([543]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "With transitive principal VNC plus projective object, nonspecific object pronoun blocks included-referent supplementation.",
+      requiredProbe: "Do not cross-reference nonspecific projective object to the adjoined clause; route as adverbial consideration."
+    }), Object.freeze({
+      id: "shared-pronoun-adverbial-vs-supplementation-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.5"]),
+      pdfPages: Object.freeze([543]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Shared personal-pronoun reference across principal and adjunct clauses can mask the difference between adverbial modification and supplementation.",
+      requiredProbe: "Do not decide by shared referent alone; inspect clause function and whether the adjunct is reference or manner/consideration."
+    }), Object.freeze({
+      id: "purpose-adjoined-future-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.6"]),
+      pdfPages: Object.freeze([543, 544]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Purpose may be expressed by an adjoined clause, usually future tense, with or without explicit purpose expression.",
+      requiredProbe: "No require a purpose particle for purpose relation; preserve future VNC in adjunct and shared-reference diagnostics."
+    }), Object.freeze({
+      id: "purpose-without-in-vs-conjunction-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.6", "Andrews 52.2.1"]),
+      pdfPages: Object.freeze([544, 545]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When in is absent, purpose constructions resemble conjunctive constructions like go in-order-to vs go-and.",
+      requiredProbe: "Do not silently choose conjunction or purpose; mark ambiguity or require clause evidence."
+    }), Object.freeze({
+      id: "purpose-yauh-hualauh-purposive-vnc-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.6", "Andrews Lesson 29"]),
+      pdfPages: Object.freeze([544]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Purposive VNCs can combine with ya-uh or hual-la-uh to express emphatic purposive action.",
+      requiredProbe: "Do not treat motion verb plus purposive as plain serial verb; preserve purposive VNC and motion stem contribution."
+    }), Object.freeze({
+      id: "purpose-ma-optative-admonitive-lest-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.6", "Andrews 9.5"]),
+      pdfPages: Object.freeze([545]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Purpose can be suggested by ma/in ma plus optative VNC, while lest uses ma/in ma plus admonitive mood.",
+      requiredProbe: "Do not label all ma clauses optative purpose; distinguish optative purpose from admonitive lest."
+    }), Object.freeze({
+      id: "condition-tla-open-nnc-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7"]),
+      pdfPages: Object.freeze([545, 546, 547]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conditional adjoined clauses introduced by tla may center on NNC or VNC and may precede or follow the principal clause.",
+      requiredProbe: "Do not require VNC-only conditionals or fixed clause order; preserve NNC-centered and VNC-centered adjuncts."
+    }), Object.freeze({
+      id: "conditional-negative-in-tla-ca-camo-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7"]),
+      pdfPages: Object.freeze([546, 548]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Negative conditional collocations use in tla ca# or in tla camo, and in tla camo ihcuac can mean until.",
+      requiredProbe: "Do not parse ca/camo as ordinary principal negation only; record conditional negative or until collocation."
+    }), Object.freeze({
+      id: "open-condition-optative-indicative-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7", "Andrews 9.2", "Andrews 9.4"]),
+      pdfPages: Object.freeze([547, 548]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Open condition VNC may be nonpast/future/preterit optative or present indicative, and some shapes are ambiguous.",
+      requiredProbe: "Do not decide mood solely from surface; expose optative/indicative ambiguity when Andrews says shapes coincide."
+    }), Object.freeze({
+      id: "hypothetical-condition-past-optative-future-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7", "Andrews 28.11.2"]),
+      pdfPages: Object.freeze([548]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Hypothetical conditions use past optative in the adjunct and a principal VNC built on future-embed compound stem with tla-qui matrix.",
+      requiredProbe: "Do not render hypothetical condition as ordinary future/conditional by translation; require past optative and future-embed compound source."
+    }), Object.freeze({
+      id: "conditional-antecessive-prefix-correlation-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7"]),
+      pdfPages: Object.freeze([548]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Past hypothetical conditions optionally use antecessive-order prefix in the adjunct; if present, it also appears in the principal clause.",
+      requiredProbe: "Do not allow antecessive prefix in only one clause for this route; enforce clause-pair correlation or diagnose mismatch."
+    }), Object.freeze({
+      id: "conditional-tla-omission-condition-cue-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.7"]),
+      pdfPages: Object.freeze([549]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The conditional particle tla may be omitted when another element already suggests condition.",
+      requiredProbe: "Do not require visible tla for every conditional; inspect ahzo/canah or other condition cues before rejecting the clause."
+    }), Object.freeze({
+      id: "concession-in-tla-nel-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.8"]),
+      pdfPages: Object.freeze([549]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Concession may be introduced by in tla nel, intensified by yeh/eh, with traditional solid spellings hiding the pieces.",
+      requiredProbe: "Do not parse intlanel/intlanell(e) as unanalyzed particle; separate adjunctor, condition particle, nel and pronominal intensifier."
+    }), Object.freeze({
+      id: "concession-tlahtlacol-impersonal-patientive-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.8", "Andrews 26.3", "Andrews 26.9", "Andrews 26.10"]),
+      pdfPages: Object.freeze([549]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A concessive example embeds passive te-(tla-htlac-o-l-poh-pol-huia), where (tla-htlac-o-l)-li is an incorporated impersonal patientive nounstem.",
+      requiredProbe: "Do not treat tlahtlacol as an unanalyzed object noun; preserve impersonal patientive source, incorporated object boundary, applicative chain and passive surface."
+    }), Object.freeze({
+      id: "concession-ma-nel-ma-zo-negative-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.8"]),
+      pdfPages: Object.freeze([549, 550]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Concession can use ma/in ma plus nel, ma zo combinations, and ca# negatives, each with solid-spelling traps.",
+      requiredProbe: "Do not reduce all concession to tla; preserve ma, nel, zo, ihui/iuh, tel and negative ca# variants as diagnostics."
+    }), Object.freeze({
+      id: "concession-zan-za-only-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.8", "Andrews 3.2.4"]),
+      pdfPages: Object.freeze([550, 551]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Concessive 'at least' collocations contrast za and zan: za is diminution against past expectation, zan is unconditioned only.",
+      requiredProbe: "Do not normalize za and zan; preserve their semantic contrast inside concessive collocations."
+    }), Object.freeze({
+      id: "consequence-iuh-adverbialized-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.9"]),
+      pdfPages: Object.freeze([551]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Consequence clauses contain the adverbialized VNC iuh with result meaning.",
+      requiredProbe: "Do not treat iuh here as manner only or as a bare particle; record adverbialized VNC and consequence relation."
+    }), Object.freeze({
+      id: "proviso-negativized-ahzo-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.10"]),
+      pdfPages: Object.freeze([551]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Proviso clauses contain negativized ahzo and can appear with solid/liaison spellings.",
+      requiredProbe: "Do not read ahzo acah/azaca as one lexical stem; preserve proviso function and internal pieces."
+    }), Object.freeze({
+      id: "reason-ca-principal-not-conjunction-boundary",
+      sourceRefs: Object.freeze(["Andrews 50.11"]),
+      pdfPages: Object.freeze([551]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Reason clauses use ca as a principal-clause introducer; ca does not mean because and is not a conjunction.",
+      requiredProbe: "Do not map ca to Spanish porque or conjunction metadata; keep two juxtaposed sentences with explanatory implication."
+    }), Object.freeze({
+      id: "complementation-double-nucleus-adjoined-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.1", "Andrews 30.15"]),
+      pdfPages: Object.freeze([552]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Complementation can be a double-nucleus structure where the complement is an adjoined NNC, not only incorporated-complement verbstem.",
+      requiredProbe: "Do not collapse adjoined NNC complements into incorporated complements; preserve object/subject/adverbial complement type."
+    }), Object.freeze({
+      id: "object-complement-shared-reference-verbstem-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2", "Andrews 17.3"]),
+      pdfPages: Object.freeze([552]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Object complement shares reference between object pronoun and complement NNC subject, but only certain verbstems permit this complementation.",
+      requiredProbe: "Do not accept all shared-reference supplementation as object complement; require the licensed verbstem category."
+    }), Object.freeze({
+      id: "object-complement-change-reflexive-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2"]),
+      pdfPages: Object.freeze([552]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Change complements name the role assumed by the object referent, and the complemented object pronoun can be reflexive.",
+      requiredProbe: "Do not move the complement into the verbstem or lose reflexive object reference; keep role NNC adjoined."
+    }), Object.freeze({
+      id: "object-complement-material-transformation-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2"]),
+      pdfPages: Object.freeze([553]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Material-composition object complements can feed transformed sentences with made-thing NNCs.",
+      requiredProbe: "Do not generate material adjectives directly; preserve object complement source and any transformed NNC route."
+    }), Object.freeze({
+      id: "object-complement-cacalachtli-frequentative-patientive-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2"]),
+      pdfPages: Object.freeze([553]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A material-composition complement can contain ca-cal-a-ch-tli, a patientive nounstem from frequentative ca-cal-a-ca from destockal cal-a-ni.",
+      requiredProbe: "Do not treat cacalachtli as a static material word; preserve frequentative source, destockal source, patientive nounstem and material-complement role."
+    }), Object.freeze({
+      id: "object-complement-designation-agreement-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2"]),
+      pdfPages: Object.freeze([553, 554]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Designation complements name the object referent and may show agreement mismatches motivated by discourse.",
+      requiredProbe: "Do not force complement agreement by surface pronoun only; allow designation NNC and mark mismatch diagnostics."
+    }), Object.freeze({
+      id: "object-complement-locative-place-name-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2", "Andrews 46.3.2"]),
+      pdfPages: Object.freeze([554]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nonspecific object tla can take a locative NNC as supplementary object and a place-name NNC as object complement.",
+      requiredProbe: "Do not treat place-name complement as ordinary location only; preserve tla, locative supplementary object and place-name complement harmony."
+    }), Object.freeze({
+      id: "object-complement-state-adjectival-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.2"]),
+      pdfPages: Object.freeze([554]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "State object complements are adjectival NNCs indicating the state of the object referent.",
+      requiredProbe: "Do not make adjectival a formal class; keep CNN in adjectival state-complement function."
+    }), Object.freeze({
+      id: "subject-complement-shared-subject-identity-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.3"]),
+      pdfPages: Object.freeze([554, 555]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Subject complement NNC shares its subject pronoun referent with the subject pronoun of the principal VNC.",
+      requiredProbe: "Do not route as adverbial adjunct just because an NNC is adjoined; test whether the relation centers on principal subject."
+    }), Object.freeze({
+      id: "subject-complement-composition-state-vs-manner-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.3", "Andrews 50.4"]),
+      pdfPages: Object.freeze([555]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Subject-complement composition/state can resemble adjoined manner, but the head relation centers on the principal subject, not predicate manner.",
+      requiredProbe: "Do not decide by English manner translation; inspect whether complement modifies subject referent or predicate event."
+    }), Object.freeze({
+      id: "subject-complement-cel-el-possessor-reference-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.3", "Andrews 40.2.3"]),
+      pdfPages: Object.freeze([555]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "With cel and el subject complements, the included possessor pronoun inside the stem shares reference with the principal subject.",
+      requiredProbe: "Do not look only at the NNC subject slot; inspect internal possessor reference inside the complement stem."
+    }), Object.freeze({
+      id: "subject-complement-iyoh-preterit-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.3", "Andrews 40.8.6"]),
+      pdfPages: Object.freeze([555]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "iyoh as subject complement is a preterit-agentive nounstem whose subject pronoun shares reference with the principal subject.",
+      requiredProbe: "Do not treat iyoh as unanalyzed adverb; preserve preterit-agentive CNN source and complement reference."
+    }), Object.freeze({
+      id: "subject-complement-passive-object-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.3", "Andrews 51.2"]),
+      pdfPages: Object.freeze([555, 556]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A subject-complement construction may be generated as passive transformation of an object-complement construction.",
+      requiredProbe: "Do not model passive complement as independent lexical template; preserve active object-complement source when relevant."
+    }), Object.freeze({
+      id: "adverbial-complement-moca-covered-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.4", "Andrews 16.9.7"]),
+      pdfPages: Object.freeze([556]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adverbial complement to moca 'look/seem full' can be ordinary NNC or abundant-ownerhood preterit-agentive NNC, often singular even with animate stem.",
+      requiredProbe: "Do not pluralize or reclassify complement by animacy alone; preserve moca gate, complement NNC and abundant-ownerhood option."
+    }), Object.freeze({
+      id: "adverbial-complement-pehua-not-purpose-conjunction-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.4", "Andrews 50.6", "Andrews 52.2"]),
+      pdfPages: Object.freeze([556, 557]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Complement to pehua resembles purpose or conjunction but cannot be fully assigned to either; adjoined clause usually stays present tense.",
+      requiredProbe: "Do not reroute pehua complements to purpose or conjunction automatically; preserve complement relation and tense behavior."
+    }), Object.freeze({
+      id: "adverbial-complement-aspectual-verbstem-family-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.4"]),
+      pdfPages: Object.freeze([557]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adverbial complements occur with pachihui, tlahpalihui, m-o-tlahpaloa, m-o-cahua and huehcahua, each with its own tense/mood relation.",
+      requiredProbe: "Do not use a single complement tense template; record principal verbstem family and adjunct tense/mood dependency."
+    }), Object.freeze({
+      id: "relational-nnc-adverbial-complement-lexical-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.4", "Andrews Lessons 45-47"]),
+      pdfPages: Object.freeze([557]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Relational NNC plus meaning-compatible verbstem can create a lexical adverbial-complement unit similar to idiomatic verb-preposition pairs.",
+      requiredProbe: "Do not generate all relational NNC + verb combinations productively; require vocabulary/lexicalized association."
+    }), Object.freeze({
+      id: "active-action-incorporated-relational-nnc-complement-boundary",
+      sourceRefs: Object.freeze(["Andrews 51.4", "Andrews 37"]),
+      pdfPages: Object.freeze([558]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "In active-action derivation, strongly associated adverbialized relational NNC can incorporate into the verbstem to form a compound nounstem.",
+      requiredProbe: "Do not let outer subject/possessor directly govern incorporated NNC possessor; preserve internal person dyad barrier."
+    }), Object.freeze({
+      id: "conjunction-balanced-no-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.1", "Andrews 1.12"]),
+      pdfPages: Object.freeze([559]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjunction is a balanced concatenate structure with no head; conjuncts are normally nuclear clauses or nuclear-clause groups.",
+      requiredProbe: "Do not assign head/dependent metadata to conjunction; preserve equal syntactic rank."
+    }), Object.freeze({
+      id: "unmarked-conjunction-preferred-inferred-type-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.1", "Andrews 52.2"]),
+      pdfPages: Object.freeze([559, 560, 561]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nahuatl strongly prefers unmarked conjunction; additive, alternative or adversative relation may be inferred from juxtaposed clauses.",
+      requiredProbe: "Do not require visible conjunctor; infer or diagnose conjunction type from coordinated nuclear clauses or groups."
+    }), Object.freeze({
+      id: "unmarked-conjunction-shared-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.2"]),
+      pdfPages: Object.freeze([560]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjoined principal clauses frequently share a supplement, typically placed after the last conjunct.",
+      requiredProbe: "Do not attach shared supplement only to final conjunct; expose scope over the full conjunction."
+    }), Object.freeze({
+      id: "conjunction-adjoined-level-and-list-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.2"]),
+      pdfPages: Object.freeze([560, 561]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjunction can operate at adjoined-clause level and may involve pairs, series or lists functioning as supplement or adjunct.",
+      requiredProbe: "Do not restrict conjunction to sentence/principal level; preserve adjunct-level conjunction and list scope."
+    }), Object.freeze({
+      id: "conjunction-shared-modifier-tight-binding-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.2"]),
+      pdfPages: Object.freeze([561]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A tightly bound conjunction can have a modifier before the first conjunct that affects all conjuncts.",
+      requiredProbe: "Do not scope initial ah/aic or other modifier only to the first conjunct; mark shared modifier scope."
+    }), Object.freeze({
+      id: "marked-conjunction-auh-restricted-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.3"]),
+      pdfPages: Object.freeze([561, 562]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Marked conjunction uses auh, normally between principal clauses or sentences and only rarely at adjunct level.",
+      requiredProbe: "Do not treat auh as universal and; preserve rank restriction and additive/alternative/adversative subtype."
+    }), Object.freeze({
+      id: "adverbial-modifiers-not-conjunctors-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4"]),
+      pdfPages: Object.freeze([562, 563]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Particles or adverbialized NNCs often occur where English expects a conjunctor, but Andrews says they are not conjunctors.",
+      requiredProbe: "Do not convert no, oc, oc no or similar adverbials into conjunction category; keep adverbial modifier plus marked/unmarked conjunction."
+    }), Object.freeze({
+      id: "ihuan-adverbialized-nnc-not-conjunctor-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4", "Andrews 45.4.1"]),
+      pdfPages: Object.freeze([563, 564]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ihuan is a possessive-state relational NNC used as adverbial modifier at the beginning of a rightward conjunct, not a conjunctor meaning and.",
+      requiredProbe: "Do not translate English inserted 'and' back into ihuan; preserve possessor reference to the leftward state of affairs."
+    }), Object.freeze({
+      id: "ihuan-proxy-principal-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4"]),
+      pdfPages: Object.freeze([564]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When the head modified by ihuan is understood, ihuan can be promoted to proxy principal clause in the rightward conjunct.",
+      requiredProbe: "Do not drop ihuan as stylistic and; represent proxy principal clause with following adjoined clause when head is silent."
+    }), Object.freeze({
+      id: "negative-additive-adverbials-not-conjunctors-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4"]),
+      pdfPages: Object.freeze([564]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Negative additive expressions such as ahno, ahmo no, no zo, no zo eh, ma no zo and ma no zo eh appear where English expects nor but are adverbial modifiers.",
+      requiredProbe: "Do not classify these as negative conjunctors; preserve particles/NNC pieces and conjunction structure separately."
+    }), Object.freeze({
+      id: "alternative-adverbials-not-conjunctors-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4"]),
+      pdfPages: Object.freeze([564, 565]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Alternative adverbials and collocations such as ahzo, no zo, ma no zo, ahno zo occur where English expects or.",
+      requiredProbe: "Do not classify these as formal conjunctors; preserve alternative conjunction plus adverbial/collocation pieces."
+    }), Object.freeze({
+      id: "adversative-adverbial-support-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4"]),
+      pdfPages: Object.freeze([565]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Unmarked adversative conjunction may be supported by zan, tel or yeceh, but those are adverbial particles/expressions.",
+      requiredProbe: "Do not make tel/yeceh the conjunction itself; preserve adversative relation and adverbial support separately."
+    }), Object.freeze({
+      id: "adversative-yeh-neh-adverbial-support-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.4", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([566]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "yeh and neh can support adversative meaning as adverbial modifiers introduced by in; they are not conjunctors.",
+      requiredProbe: "Do not tag yeh/neh as Spanish pero; preserve pronominal/adverbial support, optional in, and the separate conjunction relation."
+    }), Object.freeze({
+      id: "correlative-conjunction-adverbial-particle-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.5"]),
+      pdfPages: Object.freeze([566]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Correlative either/or and neither/nor use paired adverbial particles or collocations, not formal conjunctors.",
+      requiredProbe: "Do not create a conjunctor slot for ahzo/ahmo no pairs; expose paired adverbial particles and their scope over each conjunct."
+    }), Object.freeze({
+      id: "correlative-nnc-pronominal-pair-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.5"]),
+      pdfPages: Object.freeze([566]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Loose correlation can be built by paired adverbial NNCs or pronominal NNCs, contrasting one conjunct with another.",
+      requiredProbe: "Do not classify quemmaniyan/nipa/centlapal/cequi pairs as particles only; keep CNN status and conjunct-pair contrast."
+    }), Object.freeze({
+      id: "biclausalism-conjoined-nnc-lexical-item-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6", "Andrews 31.7"]),
+      pdfPages: Object.freeze([567]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Unmarked conjunction can fuse two or three NNCs into a new lexical item; the unit is nuclear-clause based, not word compounding.",
+      requiredProbe: "Do not treat atl tepetl as two ordinary output rows or as a plain compound nounstem; record conjoined-NNC lexical unit and possible compound conversion."
+    }), Object.freeze({
+      id: "biclausalism-shared-subject-referent-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([567, 568]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The subject pronouns of all NNCs inside a conjoined-NNC lexical item must refer to the same entity or group.",
+      requiredProbe: "Do not allow independent subject control for each conjunct; validate same-referent subject scope even when English translation hides it."
+    }), Object.freeze({
+      id: "biclausalism-compound-stem-survival-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([567]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A conjoined-NNC lexical unit may transform into a conjunctive compound nounstem, and its lexical unit can survive inside compound stems.",
+      requiredProbe: "Do not erase the conjoined-clause source when presenting compound stems; keep lexical-unit source and compound realization distinct."
+    }), Object.freeze({
+      id: "biclausalism-possessive-state-location-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([567]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The possessive state of a biclausal lexical item may be formed on the compound nounstem or on each conjoined NNC stem.",
+      requiredProbe: "Do not force one possessive-state path; show whether possession belongs to compound stem or separately to each NNC member."
+    }), Object.freeze({
+      id: "biclausalism-derived-verbstem-survival-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([567]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The lexical unit created by conjoined NNC stems can survive when its members are used to derive verbstems.",
+      requiredProbe: "Do not generate denominal verbstems from each member as unrelated words; preserve the conjoined lexical unit as the derivational source."
+    }), Object.freeze({
+      id: "biclausalism-adjunctor-in-per-member-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([568]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When a conjoined-NNC unit functions as supplement or modifier, in may appear before each NNC or only before the leftward conjunct.",
+      requiredProbe: "Do not require repeated in or collapse one in over an ordinary list; record per-member or leftward-only adjunctor scope."
+    }), Object.freeze({
+      id: "biclausalism-sexed-stems-single-referent-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([568]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjoined human stems differing in sex can form one lexical item whose subject pronouns still refer to the same person or group.",
+      requiredProbe: "Do not infer separate male/female subjects from mother/father stems; keep single-referent conjoined-NNC lexical semantics."
+    }), Object.freeze({
+      id: "biclausalism-lord-master-vs-bread-butter-type-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6", "Andrews 36.5", "Andrews 36.6", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([568, 569]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Biclausalisms split into synonymous/nearly-synonymous units and situationally-associated metaphorical amalgams.",
+      requiredProbe: "Do not assign meaning composition mechanically from either member; classify same-meaning vs amalgam lexical unit before generation."
+    }), Object.freeze({
+      id: "biclausalism-customary-patientive-instrumentive-members-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6", "Andrews 36.5", "Andrews 36.6"]),
+      pdfPages: Object.freeze([568]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjoined-NNC lexical units may have members built on customary-present passive patientive or instrumentive nounstems, as in mamaloni itconi and tlatconi tlamamaloni.",
+      requiredProbe: "Do not flatten conjoined members to generic nouns; preserve each member's patientive/instrumentive source before reading the lexical unit."
+    }), Object.freeze({
+      id: "biclausalism-metaphorical-patientive-action-member-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6", "Andrews 39.4.1", "Andrews 36.11.2"]),
+      pdfPages: Object.freeze([569]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Bread-and-butter biclausalisms can contain internal patientive or active-action members, such as tencualactli or cochcayotl/neeuhcayotl.",
+      requiredProbe: "Do not derive the metaphorical meaning from surface nouns only; preserve each member's CNV/CNN source and then the conjoined lexical-unit meaning."
+    }), Object.freeze({
+      id: "biclausalism-multi-conjunct-and-possessive-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6", "Andrews 36.11.2"]),
+      pdfPages: Object.freeze([569, 570]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A conjoined lexical unit can have three conjuncts and some such stems tend to or must appear in possessive-state NNCs.",
+      requiredProbe: "Do not hard-code biclausal only or absolutive-only output; allow triclausal units and possessive-state licensing gates."
+    }), Object.freeze({
+      id: "biclausalism-affective-all-members-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([570]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When biclausalism stems take affective formation, every involved stem must show the formation.",
+      requiredProbe: "Do not apply honorific/affective marking to only one member of a conjoined lexical unit; require all-member marking or diagnose mismatch."
+    }), Object.freeze({
+      id: "biclausalism-vs-simple-conjunction-context-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.6"]),
+      pdfPages: Object.freeze([571]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The same visible pair can be biclausalism in one context and simple nonmetaphorical conjunction in another.",
+      requiredProbe: "Do not classify by surface pair alone; require metaphorical lexical-unit diagnostics versus ordinary conjoined material."
+    }), Object.freeze({
+      id: "parallel-rephrasive-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.7"]),
+      pdfPages: Object.freeze([571, 572]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Rephrasive parallelism repeats content with changed grammar: object specificity, voice, tense, incorporated object, supplement, or reflexive transitive relation may shift.",
+      requiredProbe: "Do not treat each parallel clause as unrelated generation; expose the shared content and the grammar dimension that changed."
+    }), Object.freeze({
+      id: "parallel-appositive-clarifying-summarizing-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.7", "Andrews 32.7", "Andrews 56.2.2"]),
+      pdfPages: Object.freeze([572]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Parallel structure includes clarifying and summarizing appositives, with possible plural/animate subject pronoun diagnostics.",
+      requiredProbe: "Do not route appositive NNCs as new principal outputs; keep appositive scope and pronoun-number diagnostics attached to the head."
+    }), Object.freeze({
+      id: "parallel-progressive-listlike-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.7", "Andrews 52.2.1", "Andrews 52.5", "Andrews 56.4"]),
+      pdfPages: Object.freeze([572, 573]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Progressive parallelism keeps similar grammar while changing content into a listlike collection of statements.",
+      requiredProbe: "Do not collapse progressive parallel clauses into one multi-verb surface; preserve each clause and its shared grammatical pattern."
+    }), Object.freeze({
+      id: "similarity-reduplicative-prefix-cross-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 39.3.4"]),
+      pdfPages: Object.freeze([574]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Similarity can be expressed by reduplicative prefixing that creates nounstems, verbstems, and preterit-agentive adjectival nounstems across class boundaries.",
+      requiredProbe: "Do not treat reduplicative similarity as surface doubling only; record source CNN, derived CNV where present, and derived CNN if agentive."
+    }), Object.freeze({
+      id: "similarity-downgraded-possessive-predicate-nounstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 15.1.6"]),
+      pdfPages: Object.freeze([575]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "A nounstem can be created by downgrading a possessive-state predicate containing nonspecific possessor tla.",
+      requiredProbe: "Do not analyze tla-mai/tla-nacaz as ordinary possessed output; preserve downgraded predicate-to-nounstem route and quasi meaning."
+    }), Object.freeze({
+      id: "similarity-relational-nnc-principal-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 31.6"]),
+      pdfPages: Object.freeze([575]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Similarity may be expressed by a possessive-state NNC on the relational nounstem tloc serving as principal clause.",
+      requiredProbe: "Do not tag tloc as a Spanish preposition or postposition only; preserve relational CNN principal-clause architecture."
+    }), Object.freeze({
+      id: "similarity-pronominal-adjectival-same-as-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 43.1.3"]),
+      pdfPages: Object.freeze([575]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Same-as similarity can use nonpreposed-adjectival modifier constructions headed by zan no yehhuatl or related pronominal NNCs.",
+      requiredProbe: "Do not make same-as a particle formula; keep pronominal CNN head, adjectival modifier structure and optional contrast clause."
+    }), Object.freeze({
+      id: "similarity-incorporated-complement-nehnequi-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 30.15"]),
+      pdfPages: Object.freeze([575]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Similarity can be expressed by incorporated-complement compound verbstems with m-o-(neh-nequi) as matrix.",
+      requiredProbe: "Do not render resemblance as an external adverbial only; preserve incorporated complement source and reflexive matrix verbstem."
+    }), Object.freeze({
+      id: "similarity-iuhqui-preterit-agentive-principal-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1"]),
+      pdfPages: Object.freeze([576, 577]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "iuhqui is an NNC on the preterit-agentive nounstem (iuh-0)-qui- and can serve as principal clause for similarity.",
+      requiredProbe: "Do not treat iuhqui/in iuhquin as a particle; preserve preterit-agentive CNN, optional in and principal/adjoined clause roles."
+    }), Object.freeze({
+      id: "similarity-iuhqui-adjoined-clause-rank-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1"]),
+      pdfPages: Object.freeze([576, 577]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The clause adjoined to iuhqui may be NNC or not, may have topic-position supplement, and may join a larger concatenate structure.",
+      requiredProbe: "Do not require a nominal complement after iuhqui; inspect adjoined clause rank, topic supplement and larger structure attachment."
+    }), Object.freeze({
+      id: "similarity-ic-measure-comparison-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.1", "Andrews 53.3"]),
+      pdfPages: Object.freeze([577, 578]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Similarity or equality can be established by ic, including quality or manner measures within an iuhqui construction.",
+      requiredProbe: "Do not drop ic as decorative; preserve measure/manner relation and the clause it introduces."
+    }), Object.freeze({
+      id: "comparison-equality-ihuan-relational-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.3", "Andrews 45.4.1"]),
+      pdfPages: Object.freeze([578]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Equality can be expressed with ihuan, a relational NNC construction, not a simple conjunction.",
+      requiredProbe: "Do not show ihuan as y in comparison rows; preserve relational CNN comparison architecture."
+    }), Object.freeze({
+      id: "comparison-size-ixquich-and-correlative-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.4"]),
+      pdfPages: Object.freeze([578]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Size equality uses an NNC on quantitive pronominal ixquich or correlative quezqui ... no izqui structures.",
+      requiredProbe: "Do not treat ixquich as a free adverb only; keep pronominal CNN size predicate and correlative pair scope."
+    }), Object.freeze({
+      id: "comparative-adversative-affirmative-negative-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.5"]),
+      pdfPages: Object.freeze([578, 579]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The comparative degree is built through adversative conjunction or affirmative-plus-negative structures, not by a single comparative suffix.",
+      requiredProbe: "Do not generate a synthetic 'more than' morpheme; preserve two-clause comparison and negative inahmo/ahmo iuhqui variants."
+    }), Object.freeze({
+      id: "comparative-adverbial-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.5"]),
+      pdfPages: Object.freeze([579]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Comparative affirmative statements can contain oc achi, oc cencah, oc yeh and related collocations, often solid-written and optionally intensified by huel.",
+      requiredProbe: "Do not parse ocachi/ocyecenca as opaque tense material; split adverbial collocation, intensifier and comparison clause roles."
+    }), Object.freeze({
+      id: "comparative-tachcauh-hualcah-principal-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.5"]),
+      pdfPages: Object.freeze([579, 580]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Comparatives may use tachcauh or hualcah as principal clauses modified by oc/achi/cencah, with the comparison point in an ic adjunct.",
+      requiredProbe: "Do not move the quality into an adjective-only formula; preserve principal CNN, topic supplement and ic-adjoined comparison point."
+    }), Object.freeze({
+      id: "comparative-tlapanahuia-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.5"]),
+      pdfPages: Object.freeze([580, 581]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Comparatives can use VNCs built on tla-(pan-a-huia) or tla-(cem-pan-a-huia), applicative derivations of pano, with specified or nonspecified object pronouns.",
+      requiredProbe: "Do not translate tlapanahuia as a surface comparative marker; preserve CNV applicative derivation, object specificity and ic adjunct."
+    }), Object.freeze({
+      id: "how-much-more-quen-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.6"]),
+      pdfPages: Object.freeze([581]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Questions meaning how much more insert quen before oc yeh/oc eh/zan yeh or related hualcah/tlapanahuia collocations.",
+      requiredProbe: "Do not treat quen as ordinary why/how only; preserve its scope over the comparative collocation."
+    }), Object.freeze({
+      id: "superlative-deleted-negative-comparative-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.7"]),
+      pdfPages: Object.freeze([581]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "General superiority is expressed by deleting the contrasting negative statement of the comparative construction and using adverbial/collocational support.",
+      requiredProbe: "Do not generate an independent superlative suffix; expose the comparative source minus contrast clause, including cencah/huel/cem/cenquizca choices."
+    }), Object.freeze({
+      id: "superlative-ahcic-cemahcic-tlapanahuia-boundary",
+      sourceRefs: Object.freeze(["Andrews 53.7"]),
+      pdfPages: Object.freeze([581]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Superlatives may use ahcic, cemahcic, tlapanahuia or tlacempanahuia with an ic/in ic adjoined clause, including honorific construction.",
+      requiredProbe: "Do not flatten all superlatives to cencah; preserve the selected principal form, ic adjunct and honorific morphology."
+    }), Object.freeze({
+      id: "compound-verbstem-nominal-embed-general-use-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.1", "Andrews 14.1", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([275]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En un compuesto verbal con embed nominal, el filler suele ser el tallo nominal de uso general, sea la fuente una CNN absolutiva o posesiva; las subclases pueden conservar o cambiar vocal final.",
+      requiredProbe: "No incorporar la superficie CNN completa ni una forma absolutiva fija; mostrar fuente CNN, tallo de uso general, excepcion de subclase y matriz verbal antes de generar la CNV compuesta."
+    }), Object.freeze({
+      id: "compound-verbstem-incorporated-object-valence-lowering-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.2", "Andrews 28.3"]),
+      pdfPages: Object.freeze([275]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El objeto incorporado reemplaza una posicion de valencia del verbo matriz; una matriz de un objeto puede producir una CNV compuesta intransitiva sin pronombre objeto externo.",
+      requiredProbe: "No conservar simultaneamente objeto incorporado y objeto externo por traduccion; comparar valencia de la matriz, objeto suplementario incorporado y valencia reducida resultante."
+    }), Object.freeze({
+      id: "compound-verbstem-incorporated-adverb-route-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.5", "Andrews 30.14"]),
+      pdfPages: Object.freeze([278]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Las CNV con adverbio incorporado pueden venir de dos transformaciones distintas que se ven iguales en superficie; la valencia queda igual pero la fuente no.",
+      requiredProbe: "No decidir la ruta por superficie compuesta; registrar si el embed viene de sujeto/objeto suplementario transformado o de CNN adverbial incorporada."
+    }), Object.freeze({
+      id: "compound-verbstem-incorporated-adverb-source-complexity-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.6", "Andrews Lessons 44-50"]),
+      pdfPages: Object.freeze([278]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews simplifica los ejemplos de adverbios incorporados dando solo el nounstem pertinente, pero advierte que la fuente adverbial puede ser una construccion compleja de Lessons 44-50.",
+      requiredProbe: "No tratar el nounstem dado como toda la fuente; conservar diagnostico de adjunto adverbial potencialmente complejo antes de incorporar el embed en la CNV."
+    }), Object.freeze({
+      id: "compound-verbstem-body-part-possessor-deletion-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.8", "Andrews 31.4", "Andrews 39.9"]),
+      pdfPages: Object.freeze([280]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En adverbios incorporados de lugar con partes del cuerpo, el pronombre poseedor de la fuente se borra durante la transformacion, y algunos stems representan matrices como yo-tl.",
+      requiredProbe: "No conservar el poseedor fuente como objeto ni como poseedor visible; mostrar nounstem corporal, borrado de poseedor, matriz o compound source y funcion adverbial dentro del verbstem."
+    }), Object.freeze({
+      id: "compound-verbstem-ih-adverbial-destockal-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.13", "Andrews 27.4", "Andrews 39.3", "Andrews 39.4.4"]),
+      pdfPages: Object.freeze([284]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El nounstem *(ih)- puede funcionar como adverbio incorporado en compuestos frecuentes/destockales, con fuente glotalizada relacionada con ih-i-yo-tl y sentidos superficiales inesperados.",
+      requiredProbe: "No leer ih como vocal de apoyo o prefijo libre por defecto; preservar fuente nominal/adverbial, cadena destockal, significado no composicional y limite de evidencia."
+    }), Object.freeze({
+      id: "compound-nounstem-matrix-governance-general-use-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.1", "Andrews 28.1", "Andrews 28.2", "Andrews 14.1", "Andrews 14.7.2"]),
+      pdfPages: Object.freeze([294]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En un compound nounstem, el embed precede pero la matriz gobierna y fija la clase del compuesto; el embed normalmente usa tallo de uso general con excepciones paralelas a las del compuesto verbal.",
+      requiredProbe: "No asignar clase por el primer miembro ni por la superficie completa; exponer embed, matriz, clase gobernada por matriz y forma de uso general del embed."
+    }), Object.freeze({
+      id: "compound-nounstem-embed-modifier-role-range-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.2"]),
+      pdfPages: Object.freeze([294]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed de un compound nounstem funciona como modificador con roles muy variados: fuente, material, proposito, forma, manera, posesion, asociacion, produccion, instrumento y mas.",
+      requiredProbe: "No reducir todo compound nounstem a posesion o material; registrar rol semantico del embed como diagnostico antes de reutilizar el CNN como fuente de otra derivacion."
+    }), Object.freeze({
+      id: "compound-nounstem-possessor-orientation-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.3", "Andrews 28.2", "Andrews 30.14"]),
+      pdfPages: Object.freeze([294]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El poseedor de una CNN compuesta posesiva normalmente se orienta hacia la matriz, pero puede orientarse hacia el embed si se embebio una predicacion posesiva.",
+      requiredProbe: "No asignar automaticamente el poseedor al compuesto entero; distinguir orientacion a matriz frente a embed y registrar la transformacion posesiva fuente."
+    }), Object.freeze({
+      id: "compound-nounstem-unique-subposition-only-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.6", "Andrews 30.13", "Andrews 27.4"]),
+      pdfPages: Object.freeze([298]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos nounstems no ocurren como stems simples de CNN pero si como fillers de embed o matriz en compound stems, e incluso alimentan cadenas destockales o compuestos verbales.",
+      requiredProbe: "No exigir una CNN simple atestiguada para cada componente; marcar filler unico de subposicion, fuente no atestiguada y cualquier cadena CNV/CNN posterior."
+    }), Object.freeze({
+      id: "compound-nounstem-ca-matrix-not-final-ka-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.6", "Andrews 11.5", "Andrews 54.2"]),
+      pdfPages: Object.freeze([299]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz nominal (-ca)-tl 'entidad' es productiva en compound nounstems y se relaciona con ca-ti, pero los nounstems que terminan en ka de Subclase 2-B no pertenecen a esta familia.",
+      requiredProbe: "No clasificar todo final ka como matriz -ca; comprobar subclase nominal, matriz, significado asociado y posible relacion con el sufijo verbal ti."
+    }), Object.freeze({
+      id: "compound-nounstem-recursive-ambiguous-bracketing-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.8", "Andrews 28.1"]),
+      pdfPages: Object.freeze([301]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La composicion nominal es recursiva: embed y matriz pueden ser compound nounstems, y algunas combinaciones tienen mas de una segmentacion posible.",
+      requiredProbe: "No aplanar compuestos multiples en una sola base; mostrar arbol de embed/matriz, alternativas de bracketing y la evidencia que decide la fuente."
+    }), Object.freeze({
+      id: "compound-nounstem-poh-possessive-only-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.11", "Andrews 15.2.2"]),
+      pdfPages: Object.freeze([302]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El matrix poh 'companero/par' aparece como compound-stemmed possessive-state NNC aunque Andrews lo presenta como siempre posesivo en CNN simple.",
+      requiredProbe: "No generar una absolutiva simple de poh por analogia; conservar estado posesivo obligatorio, matriz de compania y orientacion del poseedor."
+    }), Object.freeze({
+      id: "denominal-lesson54-selection-not-exhaustive-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.1"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews presenta los denominales de Lesson 54 como una seleccion de tipos en un area creativa; el inventario no es exhaustivo ni generador abierto.",
+      requiredProbe: "No cerrar la arquitectura a solo las familias listadas ni generar desde cualquier CNN; marcar seleccion Andrews y exigir patron/fuente antes de salida finita."
+    }), Object.freeze({
+      id: "becoming-complement-vs-denominal-verbstem-route-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 51.2.1"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Los sufijos inceptivo/estativos son una ruta comun para volverse o ser X y no deben confundirse con las construcciones de complemento de cambio de 51.2.1.",
+      requiredProbe: "Al pedir volverse X, comparar complemento 51.2.1 contra tronco denominal 54.2; no reetiquetar ti/hui/ya como complemento sintactico ni viceversa."
+    }), Object.freeze({
+      id: "denominal-inceptive-stative-suffix-architecture-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.1", "Andrews 54.2", "Andrews 51.2.1"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Denominal verbstems are derived from nounstems by verbstem-forming suffixes; Andrews treats the process as suffixation while noting possible compound analysis.",
+      requiredProbe: "Do not add ti/hui/ya/a/hua as tense or free verb roots; keep nounstem source, verbstem-forming suffix and blocked/diagnostic compound caveat."
+    }), Object.freeze({
+      id: "denominal-inceptive-stative-suffix-set-and-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews Lesson 40"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The suffixes ti, hui, ya, a and hua, plus ti-ya and hui-ya, form intransitive verbstems meaning become/be/be like the nounstem entity.",
+      requiredProbe: "Do not confuse ti-ya/hui-ya with causative tia or applicative huia; preserve intransitive denominal state-entry value."
+    }), Object.freeze({
+      id: "denominal-ti-absolutive-predicate-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2"]),
+      pdfPages: Object.freeze([582]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The inceptive/stative suffix ti attaches directly to an NNC's absolutive-state predicate to form an intransitive verbstem.",
+      requiredProbe: "Do not attach ti to an already inflected surface noun row; use the CNN absolutive-state predicate as the stem source."
+    }), Object.freeze({
+      id: "denominal-ti-source-range-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 35.5", "Andrews 36.3"]),
+      pdfPages: Object.freeze([583, 584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Inceptive/stative ti can take simple, derived, compound, numeral, pronominal, customary-agentive, preterit-agentive, adverbialized and relational NNC sources.",
+      requiredProbe: "Do not restrict ti derivation to ordinary bare nounstems; preserve the exact CNN source type and any general-use agentive stem requirement."
+    }), Object.freeze({
+      id: "denominal-ti-adverbialized-weather-tla-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 22.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "ti verbstems from adverbialized time/weather nounstems frequently prefix impersonal tla when time or weather is involved.",
+      requiredProbe: "Do not treat weather tla as object evidence; mark impersonal tla and the adverbialized CNN source separately."
+    }), Object.freeze({
+      id: "denominal-ti-relational-adverbialized-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A ti inceptive/stative verbstem can take an adverbialized nounstem formed on a relational nounstem as source, as in cem-po-c-tlan-ti.",
+      requiredProbe: "Do not strip the relational/adverbialized source or treat cem as a loose verbal prefix; preserve relational nounstem, adverbialized CNN source and denominal ti suffix."
+    }), Object.freeze({
+      id: "denominal-ti-unattested-source-and-num1-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 35.6"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Some ti sources are unattested, and exceptional ti forms may include the possessive-state num1 morph and lexicalized possessor te > ti.",
+      requiredProbe: "Do not fabricate a full source CNN when Andrews marks it unattested; record unattested source and num1/lexicalized possessor exception."
+    }), Object.freeze({
+      id: "denominal-ti-class-a-b-source-final-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2"]),
+      pdfPages: Object.freeze([584]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Denominal ti verbstems are Class A when the source ends in consonant, while vowel-final sources may be Class A or Class B.",
+      requiredProbe: "Do not assign class from the surface ti alone; inspect source-final shape and adjectival preterit-agentive tendency."
+    }), Object.freeze({
+      id: "denominal-ti-causative-lia-not-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 25.5", "Andrews 26.6"]),
+      pdfPages: Object.freeze([584, 585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Intransitive ti verbstems may form single-object causatives with lia; Andrews warns not to confuse this lia with applicative lia.",
+      requiredProbe: "Do not route ti-lia forms through applicative valence by spelling alone; keep ti source plus causative-lia derivation."
+    }), Object.freeze({
+      id: "denominal-hui-absolutive-source-and-w-assimilation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 16.7"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hui attaches to the absolutive-state predicate, is less prolific than ti, and can trigger /w/ + /w/ assimilation from general-use stems.",
+      requiredProbe: "Do not spell hui outputs by concatenation only; preserve source general-use stem and the w-assimilation rule."
+    }), Object.freeze({
+      id: "denominal-hui-causative-supportive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 24.3.1"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Some hui-family causatives show an initial supportive i in the surface, as in nitlaxtlahua, without making that i part of the CNN source.",
+      requiredProbe: "Do not copy supportive i into the source nounstem or root; expose it as surface support after the hui-source and causative route are chosen."
+    }), Object.freeze({
+      id: "denominal-hui-class-and-causative-lia-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 25.5"]),
+      pdfPages: Object.freeze([585]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hui verbstems are Class A after consonant-final sources, Class B after vowel-final sources, and many form causatives with lia.",
+      requiredProbe: "Do not reuse ti class defaults; calculate hui class from source-final shape and keep causative lia as a separate derivational step."
+    }), Object.freeze({
+      id: "denominal-ya-root-plus-ya-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 25.4.8", "Andrews 24.4"]),
+      pdfPages: Object.freeze([585, 586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Denominal ya attaches to a nounroot or nounstem downgraded to root rank, including unattested roots and occasional stock-like bases with i.",
+      requiredProbe: "Do not attach ya to a full inflected CNN predicate by default; expose root-rank downgrade, unattested source or stock diagnostic."
+    }), Object.freeze({
+      id: "denominal-ya-hueiya-huiya-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 40.2.1"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "hue-i-ya and hui-ya are both listed, so the visible i is not a disposable spelling artifact nor is hui-ya the sole source.",
+      requiredProbe: "Do not normalize hue-i-ya to hui-ya or treat the i as automatic support; keep the source base, variant stem, class and later causative/active-action route separate."
+    }), Object.freeze({
+      id: "denominal-ya-celiya-celti-sibling-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "cel-i-ya has an i-bearing stocklike source while the nearly synonymous cel-ti lacks that i; synonymy does not merge the denominal ya and ti source paths.",
+      requiredProbe: "Do not derive cel-i-ya from cel-ti or drop i by synonymy; record source-rank i, sibling ti route and separate evidence for each CNV stem."
+    }), Object.freeze({
+      id: "denominal-ya-compound-source-root-rank-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "teo-tlaqu-i-ya comes from the compound nounstem teo-tlac-tli downgraded to root rank; the compound meaning 'afternoon' survives the downgrade.",
+      requiredProbe: "Do not parse teo-tlaqu-i-ya as loose teo plus verbal suffix or as time adverb fixture; preserve compound CNN source, root-rank downgrade and denominal ya stem."
+    }), Object.freeze({
+      id: "denominal-ya-unattested-i-and-non-i-source-gap",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "For tzopel-i-ya and huel-i-ya Andrews says neither the i-bearing source nor the non-i source is attested, so the source remains diagnostic rather than confirmed lexical evidence.",
+      requiredProbe: "Do not fabricate tzopel-i-tl, tzopel-li, huel-i-tl or huel-li as confirmed CNN sources; expose unattested source alternatives and block source-confirmed claims."
+    }), Object.freeze({
+      id: "denominal-ya-agentive-num1-k-outside-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 40.9"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "In hue-i-ya-0-qu-i-ya, the k/qu element lies outside the source stem because it is the num1 morph of the intervening preterit-agentive nounstem.",
+      requiredProbe: "Do not hide k/qu inside the denominal ya source; show CNV source, preterit-agentive CNN num1, and later denominal ya as separate steps."
+    }), Object.freeze({
+      id: "denominal-ya-k-position-source-vs-agentive-num1-contrast",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 16.9.1", "Andrews 40.9"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews contrasts miye-qu-i-ya, where k belongs inside the quantitive source nounstem miye-c, with hue-i-ya-0-qu-i-ya, where k/qu is outside the source as preterit-agentive num1.",
+      requiredProbe: "Do not classify every visible k before i-ya the same way; compare source-internal k with agentive num1 k/qu before rendering the CNN->CNV loop."
+    }), Object.freeze({
+      id: "denominal-ya-class-perfective-x-z-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Denominal ya verbstems can be Class A, Class B or either; Class B perfective normally ends in x, but may end in z when the source contains an s sound.",
+      requiredProbe: "Do not accept one perfective for every ya stem; test class choice and source s-condition before rendering x/z."
+    }), Object.freeze({
+      id: "denominal-ya-active-action-liz-drop-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 37.3.4"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "Active-action nounstems of ya verbstems normally drop ya before liz, but Andrews lists exceptions that retain ya.",
+      requiredProbe: "Do not derive liz directly from the noun source or always delete ya; expose CNV ya source and exception status."
+    }), Object.freeze({
+      id: "denominal-ya-active-action-agentive-num1-retention-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 37.3.4", "Andrews 40.9"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-to-cnv-to-cnn-active-action-loop",
+      obstacleEs: "The active-action liz of hue-i-ya-0-qu-i-ya drops final ya but retains the intervening preterit-agentive num1 k/qu as outside-source material.",
+      requiredProbe: "Do not move k/qu into the root or delete it with ya; preserve root-plus-ya source, preterit-agentive num1, ya deletion and active-action liz as separate steps."
+    }), Object.freeze({
+      id: "denominal-ya-causative-delete-ya-lia-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 25.5.2", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([586, 587]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Causatives of denominal ya verbstems delete ya before lia, and traditional spelling can obscure ia/ya/iya.",
+      requiredProbe: "Do not preserve ya in the causative or infer source from traditional ia spelling; show deletion and orthographic diagnostic."
+    }), Object.freeze({
+      id: "denominal-ya-causative-supportive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.a", "Andrews 25.5.2", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([586]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "In tla-(izta-lia), Andrews marks the initial i of the causative stem as a supportive vowel, not proof that every source stores the same initial segment.",
+      requiredProbe: "Do not copy supportive i into the source root or erase it as noise; expose ya deletion, lia causative, supportive vowel and Nawat/Pipil spelling evidence separately."
+    }), Object.freeze({
+      id: "denominal-ya-causative-stress-spelling-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 25.5.2", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([586, 587]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The causative hue-i-lia proves that traditional hueiac or hueyac spellings hide hueiyac, including the i and its stress.",
+      requiredProbe: "Do not let traditional ia/ya spelling erase the i slot; preserve source hue-i-ya, ya deletion before lia, and stress/orthography diagnostics."
+    }), Object.freeze({
+      id: "denominal-ya-causative-vowel-raising-absorption-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 40.9", "Andrews 25.5.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "In the causative continuation of hue-i-ya-0-qu-i-ya, Andrews notes vowel raising and absorption after the agentive num1 element; the surface does not expose every intermediate slot.",
+      requiredProbe: "Do not flatten hue-i-ya-0-qu-i-lia to a single root-plus-lia surface; preserve source hue-i-ya, preterit-agentive num1 qu, causative lia, vowel raising and i absorption diagnostics."
+    }), Object.freeze({
+      id: "deverbal-ya-from-ti-hui-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "The ya suffix forms deverbal verbstems from prior ti and hui denominal verbstems, usually with the same translation value.",
+      requiredProbe: "Do not jump directly from CNN to tiya/huiya; preserve CNN -> ti/hui CNV -> ya deverbal CNV chain."
+    }), Object.freeze({
+      id: "deverbal-tiya-huiya-class-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([587]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "ti-ya may be Class A or B, hui-ya is Class B, and both form causatives by deleting ya and adding lia.",
+      requiredProbe: "Do not treat tiya/huiya as direct suffix variants only; test source stem, class, perfective x and causative deletion."
+    }), Object.freeze({
+      id: "deverbal-ya-destockal-source-vs-vnc-preference-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 24.5", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "ya verbstems from destockal ni/hui sources are preferred in VNCs, while the source stem remains the source for nounstem formations.",
+      requiredProbe: "Do not derive nounstems from the preferred ya VNC stem when Andrews says the older source stem feeds nounstem formations."
+    }), Object.freeze({
+      id: "destockal-ya-nounstem-formation-source-list-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 24.5", "Andrews 39.4.1"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "For destockal ni/hui sources, Andrews shows the ya stem preferred in VNCs but the older source stem feeding nounstems such as cuetl-a-uh-0-qui, yam-a-ni-liz and to-to-n-0-qui.",
+      requiredProbe: "Do not feed nounstem outputs from cuetl-a-hui-ya, yam-a-ni-ya or to-to-ni-ya just because those are preferred VNC stems; record the source-stem nounstem list separately."
+    }), Object.freeze({
+      id: "toni-tona-intransitive-a-not-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 24.5", "Andrews 24.5.7"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "The associated stem to-n-a is intransitive Class A, so its final a is not causative; this blocks a surface-only reading of a as type-one causative.",
+      requiredProbe: "Do not classify final a as causative without class and transitivity evidence; preserve irregular to-to-ni-ya, absent *to-ni, and associated intransitive tona."
+    }), Object.freeze({
+      id: "destockal-huiya-huia-niya-nia-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 24.5.7"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Traditional spelling does not distinguish hui-ya/ni-ya from hui-a/ni-a; ya stems are intransitive and a stems are transitive causatives.",
+      requiredProbe: "Do not decide valence from traditional spelling; separate intransitive ya derivation from type-one causative a on the source stem."
+    }), Object.freeze({
+      id: "destockal-ya-class-b-perfective-x-z-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2.3.b", "Andrews 24.5", "Andrews 7.4.2"]),
+      pdfPages: Object.freeze([588]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Ya verbstems derived from destockal ni/hui sources belong to Class B, with perfective x and possible z alternatives such as coz-a-hui-x ~ coz-a-hui-z.",
+      requiredProbe: "Do not inherit class from the older ni/hui source or from the causative a counterpart; mark the ya-derived CNV as Class B and test x/z perfective separately."
+    }), Object.freeze({
+      id: "denominal-a-limited-class-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 55.7"]),
+      pdfPages: Object.freeze([588, 589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The inceptive/stative suffix a is limited, Class C, and must not be confused with causative a.",
+      requiredProbe: "Do not mark every final a as causative; expose limited intransitive denominal a and Class C behavior."
+    }), Object.freeze({
+      id: "denominal-ohhuia-limited-num1-vs-ohhuiti-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 54.4", "Andrews 40.8.6"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Limited oh-hui-a keeps a possessive-state num1 morph and contrasts with oh-hui-ti: danger posed by a thing versus danger faced by a person.",
+      requiredProbe: "Do not collapse ohhuia and ohhuiti; preserve num1, limited-use diagnostic, subject perspective and glottal-spelling evidence."
+    }), Object.freeze({
+      id: "denominal-hua-yo-tl-source-and-misspelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 39.3", "Andrews 55.3"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "hua is added to deverbal nounstems in (-yo)-tl and is often misspelled a, creating confusion with Lesson 55.3 stems.",
+      requiredProbe: "Do not route -yo-hua as Lesson 55 a by spelling; preserve (-yo)-tl source, Class A hua and covered/filled meaning."
+    }), Object.freeze({
+      id: "denominal-hua-mahuizzohua-double-misspelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.2", "Andrews 39.3"]),
+      pdfPages: Object.freeze([589]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "mahuiz-zo-hua is often misspelled both with a for hua and with a single z, so spelling can erase both the hua route and the doubled z source.",
+      requiredProbe: "Do not normalize mahuizoa as proof of Lesson 55 o-a; keep (-yo)-tl source, hua suffix, z-z boundary and misspelling diagnostic."
+    }), Object.freeze({
+      id: "included-possessor-ti-verbstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([590]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Possessive-state predicates can attach ti while keeping the possessor pronoun inside the verbstem, yielding up to eight verbstems from one nounstem.",
+      requiredProbe: "Do not convert the internal possessor to an object pronoun; preserve possessive case inside the CNV stem and enumerate possessor-source options."
+    }), Object.freeze({
+      id: "included-possessor-ti-class-a-override-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([590]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews assigns all included-possessor ti verbstems to Class A, even though ordinary inceptive/stative ti class can depend on source-final shape.",
+      requiredProbe: "Do not reuse the normal ti source-final class rule for included-possessor ti; preserve the possessive-state source and force the Class A diagnostic."
+    }), Object.freeze({
+      id: "included-possessor-ti-presented-type-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3"]),
+      pdfPages: Object.freeze([590, 591, 592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews presents only four included-possessor ti types: proxy/representative, merit/recompense, misfortune exclamation, and relational pan time/target.",
+      requiredProbe: "Do not let every possessive-state NNC become an included-possessor ti verbstem; require the specific 54.3 type gate or mark the route diagnostic-only."
+    }), Object.freeze({
+      id: "included-possessor-supplementary-possessor-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 56.2.2", "Andrews 56.4"]),
+      pdfPages: Object.freeze([590, 591]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The possessor pronoun inside an included-possessor ti verbstem can still head a supplementary possessor NNC or name unit.",
+      requiredProbe: "Do not externalize or drop the possessor relation after denominalization; keep internal possessor as head for supplementary possessor."
+    }), Object.freeze({
+      id: "included-possessor-proxy-name-unit-head-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 56.2.2", "Andrews 56.4"]),
+      pdfPages: Object.freeze([590, 591]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "In proxy/representative included-possessor ti stems, a personal-name NNC or conjoined name unit can be the supplementary possessor headed by the internal i-0.",
+      requiredProbe: "Do not parse Huitztzilopochtli, Titlacahuan, or Tloqueh Nahuaqueh as direct CNV objects; keep the internal possessor head and outside supplementary name unit."
+    }), Object.freeze({
+      id: "included-possessor-merit-recompense-tense-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3"]),
+      pdfPages: Object.freeze([591, 592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Merit/recompense included-possessor ti verbstems normally take nonanimate subjects and only expected present, preterit, or future tense forms.",
+      requiredProbe: "Do not generate a full personal/tense paradigm; gate by nonanimate subject tendency, tense limits and idiomatic exclamation uses."
+    }), Object.freeze({
+      id: "included-possessor-merit-rare-animate-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3"]),
+      pdfPages: Object.freeze([591]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Merit/recompense included-possessor ti normally uses a nonanimate third-common subject, but Andrews records rare animate-subject exceptions.",
+      requiredProbe: "Do not either expand it into a full animate paradigm or block every animate subject; expose nonanimate default plus rare-exception status."
+    }), Object.freeze({
+      id: "included-possessor-misfortune-preterit-exclamation-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 40.2.3"]),
+      pdfPages: Object.freeze([592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The tlahuelilti family occurs only in preterit-tense VNCs used as exclamations, with optional cel or centzon emphasis before the possessor.",
+      requiredProbe: "Do not generate non-preterit or ordinary declarative rows for this type; preserve exclamation-only gate and emphatic embed position."
+    }), Object.freeze({
+      id: "included-possessor-pan-relational-target-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3", "Andrews 47.3.3"]),
+      pdfPages: Object.freeze([592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Included-possessor ti from relational pan means happening in someone's time, but with third-person common possessor can mean hitting a target.",
+      requiredProbe: "Do not translate ipanti uniformly; inspect possessor reference, nonanimate target reading and possible causative a derivation."
+    }), Object.freeze({
+      id: "included-possessor-ti-compound-verbstem-predicate-incorporation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.3"]),
+      pdfPages: Object.freeze([592]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A VNC predicate built on an included-possessor ti verbstem can itself be incorporated into a larger compound verbstem.",
+      requiredProbe: "Do not freeze included-possessor ti as only a finite VNC; allow its predicate to become a compound-verbstem component while preserving the internal possessor."
+    }), Object.freeze({
+      id: "ti-of-possession-vs-inceptive-ti-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "ti of possession is homophonous with inceptive/stative ti but means have/be in possession of and cannot form a deverbal verbstem with ya.",
+      requiredProbe: "Do not classify ti by surface alone; test subject-oriented inceptive value versus nounstem-oriented possession and block ti-of-possession + ya."
+    }), Object.freeze({
+      id: "ti-of-possession-semantic-shift-rendering-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4"]),
+      pdfPages: Object.freeze([593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Some ti-of-possession verbstems shift from the value have/be in possession of toward rendering or performing the source nounstem's social obligation, as with tequi-ti.",
+      requiredProbe: "Do not translate every ti-of-possession route as literal tener; preserve nounstem-oriented possession, possible rendering/work/tribute value, and the ban on deverbal ya."
+    }), Object.freeze({
+      id: "ti-of-possession-num1-exception-ohhui-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([593]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Exceptional ti-of-possession forms can include the possessive-state num1 morph before ti, as in oh-hui-ti from road, without becoming ordinary inceptive hui or ti.",
+      requiredProbe: "Do not analyze oh-hui-ti as hui denominal plus ti or as bare road+ti; preserve possessive num1, ti-of-possession meaning and glottal-stop diagnostic."
+    }), Object.freeze({
+      id: "index-ti-homonym-denominal-contract-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: /ti/ to become", "Andrews Index: /ti/ to have", "Andrews Index: /tia/ applicative formative", "Andrews Index: /tia/ type-2 causative suffix"]),
+      pdfPages: Object.freeze([691]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El indice coloca ti 'llegar a ser', ti 'tener', tia aplicativo y tia causativo juntos por forma; la superficie ti/tia no decide categoria ni continuacion.",
+      requiredProbe: "No escoger ruta por la grafia ti/tia; exigir fuente, significado, valencia, tipo causativo/aplicativo y permiso de ya antes de generar."
+    }), Object.freeze({
+      id: "ti-of-possession-class-and-lia-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([593, 594]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "ti-of-possession follows the same Class A/B behavior as inceptive ti and can form single-object causatives with lia.",
+      requiredProbe: "Do not infer inceptive meaning from class or lia causative; preserve possession source and causative valence."
+    }), Object.freeze({
+      id: "ti-possession-lia-adjectival-modification-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.4", "Andrews 42.10"]),
+      pdfPages: Object.freeze([593, 594]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un causativo con lia desde ti de posesion puede tener como fuente una estructura de modificacion adjectival, no solo un nounstem simple.",
+      requiredProbe: "No derivar a-ti-lia desde a-t plano; conservar CNN de modificacion adjectival fuente, ti de posesion y causativo lia."
+    }), Object.freeze({
+      id: "causative-type-one-ti-a-vs-type-two-tia-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.5.3", "Andrews 25.1"]),
+      pdfPages: Object.freeze([594, 598, 599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Final /tia:/ may be meaningful ti plus type-one causative a or connective ti plus type-two causative a; morphological structuring decides.",
+      requiredProbe: "Do not parse tia by spelling; show whether source is nounstem/ti verbstem or patientive/verbal source and identify causative type."
+    }), Object.freeze({
+      id: "causative-ti-absolutive-two-single-object-sources-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.4", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([594, 596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "With an absolutive-state NNC source, first-type ti-a causatives have two single-object source paths: ti-of-possession and inceptive/stative ti.",
+      requiredProbe: "Do not merge all absolutive ti-a stems under one gloss; identify possession versus become source, source attestation status and Class C result."
+    }), Object.freeze({
+      id: "causative-ti-possession-absolutive-single-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.4", "Andrews 39.1.3", "Andrews 39.3"]),
+      pdfPages: Object.freeze([594, 595]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Type-one causatives from absolutive ti-of-possession sources mean cause to have/provide with, may include incorporated causative objects, and often look applicative in translation.",
+      requiredProbe: "Do not reclassify 'make for' translations as applicatives; preserve cause-to-have semantics, source nounstem and incorporated object when present."
+    }), Object.freeze({
+      id: "causative-ti-a-acquired-entity-huah-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 39.1.3"]),
+      pdfPages: Object.freeze([595, 597]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some first-type ti-a causatives presuppose a compound source nounstem with matrix huah-tli acquired entity, including marriage, child, slave, and adoption readings.",
+      requiredProbe: "Do not derive pil-huah-ti-a or tlaca-huah-ti-a from a plain noun root; preserve acquired-entity patientive matrix, source state, and one-object versus two-object route."
+    }), Object.freeze({
+      id: "causative-ti-a-yo-matrix-source-not-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 39.3", "Andrews 36.11"]),
+      pdfPages: Object.freeze([595]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "First-type ti-a causatives may be sourced from compound nounstems with matrix yo-tl, including active-action embeds such as nez-ca-yo-tl.",
+      requiredProbe: "Do not read ten-yo-ti-a, machi-yo-ti-a or nez-ca-yo-ti-a as simple applicatives or bare noun roots; preserve yo matrix and any embedded active-action source."
+    }), Object.freeze({
+      id: "causative-ti-source-unattested-and-o-a-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 30.6", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([595, 596]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some type-one causatives have unattested intransitive or nounstem sources, and others presuppose o-a > patientive nounstem > ti chains.",
+      requiredProbe: "Do not fill unattested intermediate forms as generated evidence; expose hypothesized chain and supporting patientive nounstem only."
+    }), Object.freeze({
+      id: "ohhuitia-teteltzingo-glottal-evidence-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.1 note 1", "Andrews 54.4"]),
+      pdfPages: Object.freeze([595]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La forma dialectal Teteltzingo quiohhuitia puede respaldar el cierre glotal y la existencia probable de una causativa no listada por Molina.",
+      requiredProbe: "No rechazar oh-hui-ti-a solo porque Molina no la liste; registrar evidencia dialectal, glotal, fuente oh-hui-ti y estatus probable/no plenamente listado."
+    }), Object.freeze({
+      id: "causative-inceptive-ti-first-type-class-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "First-type causatives from inceptive/stative ti are less frequent, only from 54.2.1 stems, may be synonymous with second-type forms, and are Class C.",
+      requiredProbe: "Do not generalize first-type causative a to every ti stem; require 54.2.1 source and mark Class C plus synonym alternatives."
+    }), Object.freeze({
+      id: "causative-possessive-source-double-object-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 23.1", "Andrews 15.2.2"]),
+      pdfPages: Object.freeze([596, 597]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "When the source NNC is possessive-state, ti plus causative a can create double-object stems by changing subject and possessor features to objective case.",
+      requiredProbe: "Do not keep the source possessor as possessive inside the resultant stem; expose causative-object and applicative-object slots and the valence-principle violation."
+    }), Object.freeze({
+      id: "causative-possessive-source-ti-stem-unattested-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5"]),
+      pdfPages: Object.freeze([596]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "For possessive-state source NNCs, the double-object type-one causative is not built from an attested intermediate ti verbstem; ti and a operate directly on the possessive predicate.",
+      requiredProbe: "Do not display or generate a finite included-possessor ti intermediate as proof; show direct possessive NNC -> ti-a derivation with two object features."
+    }), Object.freeze({
+      id: "causative-possessive-source-homophonous-single-double-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5"]),
+      pdfPages: Object.freeze([596, 597, 598]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Many type-one causative stems are homophonous as single-object absolutive-source forms and double-object possessive-source forms.",
+      requiredProbe: "Do not pick valence by surface; require source-state diagnostics and show one-object versus two-object parse when both are possible."
+    }), Object.freeze({
+      id: "causative-possessive-source-adjectival-modifier-retention-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5"]),
+      pdfPages: Object.freeze([597, 598]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A possessive-state NNC source may originally have served as supplementary subject of an adjectival NNC, which can be retained as a modifier of the root after verbstem formation.",
+      requiredProbe: "Do not discard the adjectival NNC as translation-only; preserve transformed modifier relation when source sentence evidence requires it."
+    }), Object.freeze({
+      id: "causative-patientive-type-one-two-variation-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5", "Andrews 26.2"]),
+      pdfPages: Object.freeze([598, 599]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "With patientive nounstems, type-one and type-two causatives may coexist; transitive sources can produce different meanings and object structures.",
+      requiredProbe: "Do not collapse caus-1 and caus-2 under one Spanish gloss; compare source nounstem/verbstem, valence and object specificity."
+    }), Object.freeze({
+      id: "causative-tia-nonpatientive-only-type-one-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.3"]),
+      pdfPages: Object.freeze([598]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "When the source nounstem is not patientive, Andrews permits only type-one causative analyses for final tia formations.",
+      requiredProbe: "Do not offer a type-two causative parse for nonpatientive nounstem sources; require patientive evidence before showing caus-2 alternatives."
+    }), Object.freeze({
+      id: "causative-patientive-intransitive-synonymous-type-one-two-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.3"]),
+      pdfPages: Object.freeze([598]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "With patientive sources from intransitive verbstems, type-one and type-two causatives may both exist and are usually synonymous.",
+      requiredProbe: "Do not treat synonymous glosses as duplicate data; preserve two source analyses, one through patientive nounstem and one through the verbstem."
+    }), Object.freeze({
+      id: "causative-type-one-tla-patientive-source-not-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.5.3"]),
+      pdfPages: Object.freeze([599]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some type-one causatives are built on patientive nounstems whose internal tla is not a specifiable object pronoun.",
+      requiredProbe: "Do not turn tla-cua-l-li or tla-ma-l-li sources into generated object slots; keep tla inside the patientive nounstem source."
+    }), Object.freeze({
+      id: "applicative-ti-ia-replacive-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.6", "Andrews 26.2"]),
+      pdfPages: Object.freeze([599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A few intransitive ti verbstems form first-type applicatives with ia attached to a replacive stem lacking final i.",
+      requiredProbe: "Do not confuse t-ia applicative with ti-a or tia causatives; show replacive stem, missing final i and Class C applicative result."
+    }), Object.freeze({
+      id: "cuica-tia-preferred-applicative-parse-boundary",
+      sourceRefs: Object.freeze(["Andrews 54.6", "Andrews 26.2"]),
+      pdfPages: Object.freeze([599]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "cuica-t-ia puede analizarse como causativo ti-a, pero Andrews prefiere la lectura aplicativa; la ruta debe conservar preferencia y ambiguedad.",
+      requiredProbe: "No decidir cuica-t-ia por superficie; mostrar tallo replacivo sin i, analisis aplicativo preferido, alternativa causativa posible y Clase C."
+    }), Object.freeze({
+      id: "temporal-tia-intransitive-compound-time-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.1"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Temporal tia looks transitive but is intransitive, from compound time-segment NNCs with numeral embeds.",
+      requiredProbe: "Do not classify temporal tia as causative/applicative by final shape; require time-segment matrix, numeral embed and intransitive route."
+    }), Object.freeze({
+      id: "temporal-tia-age-place-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.1"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Temporal tia means spending a number of time periods in a place or being that old, with year forms subject to spelling assimilation.",
+      requiredProbe: "Do not generate ordinary transitive object rows; expose place-duration versus age reading and spelling diagnostics such as onxiuhtia/oxiuhtia."
+    }), Object.freeze({
+      id: "temporal-tia-unitary-vs-ti-a-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.1", "Andrews 54.5"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Temporal tia apparently has unitary structure and is entirely different from the earlier ti-a/tia causative formations, despite identical final spelling.",
+      requiredProbe: "Do not parse temporal tia through causative ti+a or type-two tia; require time-segment matrix, numeral embed and intransitive temporal semantics."
+    }), Object.freeze({
+      id: "causative-tla-denominal-class-a-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600, 601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The causative suffix tla creates Class A denominal verbstems meaning cause to be/treated as/considered as the nounstem entity.",
+      requiredProbe: "Do not confuse causative tla with nonspecific object tla or intransitive tla; keep suffix, source nounstem and Class A status."
+    }), Object.freeze({
+      id: "causative-tla-limited-productivity-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600, 601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews labels denominal causative tla as not very productive, so nounstem+tla is not an open automatic generator.",
+      requiredProbe: "Do not offer a full productive tla paradigm from any nounstem; require listed source pattern, diagnostic-only status, or Nawat evidence."
+    }), Object.freeze({
+      id: "causative-tla-pa-homonymous-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([600]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The visible stem pa-tla can mean dissolve/melt from archaic water/liquid pa-tl or exchange from a separate exchange-item pa-tl source.",
+      requiredProbe: "Do not choose source or gloss from surface pa-tla alone; preserve homonymous nounstem source, meaning and evidence status before generation."
+    }), Object.freeze({
+      id: "causative-tla-applicative-ti-lia-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2", "Andrews 26.7"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Applicatives of causative-tla verbstems change tla to ti before lia.",
+      requiredProbe: "Do not append lia to surface tla unchanged; show tla > ti before lia and resulting applicative object structure."
+    }), Object.freeze({
+      id: "intransitive-tla-not-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A rarer verbstem-forming tla creates intransitive become stems and is distinct from causative tla.",
+      requiredProbe: "Do not force a transitive object for every tla suffix; separate intransitive become-tla from causative-tla diagnostics."
+    }), Object.freeze({
+      id: "intransitive-tla-causative-ti-a-applicative-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The causative of intransitive tla changes the verbstem-forming tla to ti before causative a, and its applicative can then add lia.",
+      requiredProbe: "Do not preserve intransitive tla in the causative chain; expose tla > ti-a and later ti-lia route separately."
+    }), Object.freeze({
+      id: "intransitive-tla-xotla-derived-nounstem-loop-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.2"]),
+      pdfPages: Object.freeze([601]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "El tla intransitivo de xo-tla puede alimentar nounstems posteriores como xo-chi-tl 'flor' y la matriz de tle-xo-ch-tli; no es tla causativo ni raiz nominal plana.",
+      requiredProbe: "Separar CNN fuente xo-tl, CNV intransitiva xo-tla, nounstem derivado posterior y cualquier continuacion deverbal."
+    }), Object.freeze({
+      id: "denominal-oa-huia-intransitive-applicative-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([601, 602]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "One o-a denominal class is intransitive Class C and has a single-object applicative huia counterpart, each with use/apply or produce readings.",
+      requiredProbe: "Do not treat o-a as causative a here; pair intransitive o-a with applicative huia and preserve the two meaning families."
+    }), Object.freeze({
+      id: "denominal-oa-use-act-like-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 55.2"]),
+      pdfPages: Object.freeze([601, 602]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Intransitive o-a may mean use/apply, act like, or produce, and some sources are unattested or only recoverable through related forms.",
+      requiredProbe: "Do not infer one semantic template from o-a shape; record use/apply, act-like, produce, and unattested-source diagnostics."
+    }), Object.freeze({
+      id: "denominal-oa-patolli-impersonal-patientive-loop-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([602]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "pa-t-o-a puede volver a CNN como patientivo impersonal pa-t-o-l-li 'patolli'; no es un nombre de juego plano ni una derivacion directa desde pa-tl.",
+      requiredProbe: "Conservar fuente nominal probable pa-t, CNV denominal o-a, patientivo impersonal CNN y relacion con tla-(pa-tla) antes de reutilizar la forma."
+    }), Object.freeze({
+      id: "denominal-huia-applicative-source-range-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 39.3", "Andrews 39.9"]),
+      pdfPages: Object.freeze([602, 603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "huia applicatives can use ordinary nounstems, calendrical names, (-yo)-tl compounds, or nounstems standing in for deleted (-yo)-tl matrices.",
+      requiredProbe: "Do not require a simple noun source for huia; preserve calendrical, adjectival-modification and deleted-matrix source frames."
+    }), Object.freeze({
+      id: "huia-instrumentive-broom-source-loop-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 58.1"]),
+      pdfPages: Object.freeze([602]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tla-(tla-chpan-hu-az-huia) toma como fuente un nounstem instrumental/deverbal 'escoba', no un sustantivo simple ni un objeto verbal libre.",
+      requiredProbe: "Mostrar CNV fuente de barrer, CNN instrumental tla-chpan-hu-az-tli y nueva CNV huia con objeto aplicado."
+    }), Object.freeze({
+      id: "denominal-huia-icxi-supportive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3.2", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([602]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En tla-(icxi-huia), Andrews marca la i inicial del tronco como vocal de apoyo; no pertenece a una fuente lexical indivisible.",
+      requiredProbe: "No fijar icxi como base opaca por la superficie nitlacxihuia; conservar fuente cxi/icxi, vocal de apoyo y ruta applicativa huia."
+    }), Object.freeze({
+      id: "denominal-huia-limited-double-object-possessive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A very limited number of huia denominals permit two object pronouns, apparently from a possessive-state NNC source.",
+      requiredProbe: "Do not reject every two-object huia as impossible, but require Andrews-limited possessive-source diagnostics."
+    }), Object.freeze({
+      id: "denominal-huia-cuitla-one-vs-two-object-contrast-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3 note 1", "Andrews 54.5.2"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "cuitla-huia contrasts one-object use/apply and limited two-object care/charge readings; the same visible huia family does not fix valence.",
+      requiredProbe: "Do not collapse tla-cuitla-huia, m-o-cuitla-huia, m-o+tla-cuitla-huia and m-o+te-cuitla-huia; preserve object count, reflexive/possessive source and metaphorical reading."
+    }), Object.freeze({
+      id: "denominal-huia-produce-for-beneficiary-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The huia counterpart can mean produce the source nounstem entity for someone, not only use/apply it in relation to an object.",
+      requiredProbe: "Do not flatten cehualhuia or tlaxcalhuia into the use/apply family; keep produce-for-beneficiary semantics and single-object applicative valence."
+    }), Object.freeze({
+      id: "huia-deleted-yotl-nested-deverbal-quality-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 39.3", "Andrews 39.9"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tla-(tlahpal-i-uh-0-ca-huia) presupone una cualidad en -yo-tl formada sobre una CNN agentiva/adjectival desde tlahpal-i-hui; no viene directamente de vigor ni de persona/oficio plano.",
+      requiredProbe: "Exponer CNV tlahpal-i-hui, CNN tlahpal-i-uh-0-qui, matriz de cualidad -ca-yo-tl omitida y huia final."
+    }), Object.freeze({
+      id: "huia-tolteoca-craftsmanship-not-craftsman-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 48.13"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "tla-(tol-te-0-ca-huia) viene de 'artesania' tol-te-0-ca-yo-tl, no de 'artesano' tol-te-0-ca-tl; una fuente humana visible no basta.",
+      requiredProbe: "Registrar oposicion artesano/artesania, matriz -yo-tl presupuesta, fuente CNN exacta y huia aplicado antes de glosar o generar."
+    }), Object.freeze({
+      id: "denominal-huia-invented-ihui-ahui-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.3", "Andrews 55.6", "Andrews 26.9.2"]),
+      pdfPages: Object.freeze([603]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some o-a denominals imitate huia formation by inventing hypothetical i-hui/a-hui sources that skip a transitive o-a step.",
+      requiredProbe: "Do not backfill a real o-a source when Andrews says the i-hui/a-hui source is hypothetical; show diagnostic-only chain."
+    }), Object.freeze({
+      id: "adverbial-nounstem-huia-manner-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.4", "Andrews Lesson 44"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Adverbial nounstems from Lesson 44 can form single-object applicative huia verbstems meaning act upon in the manner indicated.",
+      requiredProbe: "Do not keep these as adverbial UI labels only; route adverbial CNN source into applicative huia with manner semantics."
+    }), Object.freeze({
+      id: "adverbial-huia-lexicalized-reflexive-mainline-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.4"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "A lexicalized adverbial huia stem can keep a mainline reflexive shape inside the verbstem.",
+      requiredProbe: "Do not normalize reflexive shape mechanically after incorporation; preserve lexicalized mainline reflexive as Andrews diagnostic."
+    }), Object.freeze({
+      id: "relational-matrix-oa-huia-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604, 605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Compound nounstems with a relational nounstem matrix can form o-a and huia verbstems; o-a is usually transitive but may be intransitive.",
+      requiredProbe: "Do not translate relational matrix as preposition only; preserve compound CNN source, o-a/huia choice and valence exception."
+    }), Object.freeze({
+      id: "relational-possessive-predicate-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "The source of some relational-matrix verbstems is simply a possessive-state predicate built on a relational stem.",
+      requiredProbe: "Do not require a full compound nounstem source; allow possessive relational predicate source and reciprocative-object diagnostics."
+    }), Object.freeze({
+      id: "relational-oa-huia-attested-member-gap-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En compuestos con matriz relacional, Andrews a veces atestigua solo o-a o solo huia; la pareja no debe completarse automaticamente.",
+      requiredProbe: "No generar el miembro o-a/huia faltante por simetria; registrar cual miembro esta atestiguado y bloquear o diagnosticar el otro."
+    }), Object.freeze({
+      id: "relational-huia-reciprocative-plural-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Un huia relacional con t-o reciprocativo exige sujeto plural en la CNV, aunque la fuente sea una CNN/predicado posesivo relacional.",
+      requiredProbe: "No exponer t-o como reflexivo singular ni permitir sujeto singular; conservar objeto reciprocativo y compuerta de sujeto plural."
+    }), Object.freeze({
+      id: "relational-icxi-supportive-i-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.5"]),
+      pdfPages: Object.freeze([604]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En derivados relacionales con icxi, Andrews identifica la i inicial como vocal de apoyo, no como material lexical que deba copiarse siempre al tronco derivado.",
+      requiredProbe: "No fijar icxi como base lexical indivisible; comprobar la vocal de apoyo mediante la forma derivada antes de construir pan/tech/tlan huia."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-destockal-denominal-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Denominal i-hui/a-hui intransitives can feed transitive causative o-a stems, creating a nounstem -> intransitive CNV -> transitive CNV chain.",
+      requiredProbe: "Do not derive o-a directly from the nounstem when Andrews gives an i-hui/a-hui source; expose the intermediate intransitive verbstem."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-embedded-destockal-source-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Algunas fuentes i-hui/a-hui contienen otra cadena anterior, como xol-o-ch desde xol-o-ni, cuetl-a-x desde cuetl-a-ni, o pil-i-ch desde pil-i-ni.",
+      requiredProbe: "No tratar xoloch, cuetlax o pilich como bases planas; conservar destockal previo, CNN intermedia, i-hui/a-hui y o-a causativo como niveles separados."
+    }), Object.freeze({
+      id: "ihui-ahui-oa-cuetlax-middle-projective-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "M-o- ~ te-(cuetl-a-x-o-a) comes from cuetl-a-x-i-hui, from cuetl-a-x-tli, from cuetl-a-ni; the reflexive/projective object choice rides on a long CNN/CNV chain.",
+      requiredProbe: "Do not treat cuetlaxoa as a flat transitive root; preserve destockal source, nounstem, i-hui intermediate, o-a causative and m-o/te object contrast."
+    }), Object.freeze({
+      id: "ihui-ahui-stock-plus-stem-formative-sequence-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 24.7"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Andrews describes i-hui/a-hui as stock-formative-plus-stem-formative sequences added to a nounstem base, not as an unanalyzed single suffix.",
+      requiredProbe: "Do not store i-hui/a-hui as an opaque ending only; expose nounstem base, stock formative i/a, hui formative and resulting intransitive Class B stem."
+    }), Object.freeze({
+      id: "ihui-ahui-ti-synonym-and-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.6"]),
+      pdfPages: Object.freeze([605]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "i-hui/a-hui denominals can be synonymous with inceptive/stative ti, but i-hui/a-hui is Class B and o-a is Class C.",
+      requiredProbe: "Do not merge synonymous ti and i-hui/a-hui forms into one formula; keep suffix family and class distinct."
+    }), Object.freeze({
+      id: "transitive-denominal-ia-stocklike-base-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Transitive denominal i-a stems add causative a to a stocklike base consisting of nounstem plus i and usually lack an intransitive counterpart.",
+      requiredProbe: "Do not assume every i-a has an intransitive source; expose nounstem+i stocklike base and metaphorical translation deflection."
+    }), Object.freeze({
+      id: "transitive-denominal-ia-final-c-l-k-n-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 2.3.4"]),
+      pdfPages: Object.freeze([606]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Most denominal i-a sources end in c or l, with examples also from k and n, including irregular phone diagnostics.",
+      requiredProbe: "Do not infer suffix boundary from final i alone; inspect source final consonant and supportive/irregular phonology."
+    }), Object.freeze({
+      id: "transitive-denominal-ia-vs-huia-after-w-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([607]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "When the nounstem ends in w, apparent i-a may actually be huia with /w/ + /w/ contraction.",
+      requiredProbe: "Do not classify tla-huia/cua-huia as i-a by visible spelling; test source-final w and huia contraction."
+    }), Object.freeze({
+      id: "transitive-denominal-ia-source-i-or-ihui-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7", "Andrews 44.6", "Andrews 55.6"]),
+      pdfPages: Object.freeze([607]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The i of an apparent i-a stem may belong to the source nounstem, or the causative may have an intransitive i-hui source instead.",
+      requiredProbe: "Do not always parse i as stock formative; compare source nounstem and possible i-hui chain before assigning formula."
+    }), Object.freeze({
+      id: "transitive-ia-source-internal-i-pani-atemi-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7 note 2", "Andrews 44.6"]),
+      pdfPages: Object.freeze([607]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "En pani-a y atemi-a, la i pertenece al nounstem fuente, no al formativo nounstem+i de la ruta i-a; la superficie final no decide la formula.",
+      requiredProbe: "Antes de clasificar i-a, comprobar si la fuente ya termina en i, distinguir pani-0/atemi-tl de base nounstem+i y bloquear reconstruccion falsa."
+    }), Object.freeze({
+      id: "transitive-denominal-ia-ihui-source-not-oa-counterpart-boundary",
+      sourceRefs: Object.freeze(["Andrews 55.7 note 3", "Andrews 55.6"]),
+      pdfPages: Object.freeze([607]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un causativo que parece i-a puede tener fuente intransitiva i-hui sin seguir la contraparte o-a de 55.6, como noqu-i-hui -> noqu-i-a frente a nol-i-hui -> nol-o-a.",
+      requiredProbe: "No forzar toda fuente i-hui hacia o-a; registrar si Andrews licencia i-a, o-a o ambos, y bloquear la contraparte no indicada."
+    }), Object.freeze({
+      id: "personal-name-unknown-stem-and-faulty-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.1"]),
+      pdfPages: Object.freeze([608]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews warns that personal names often have unknown stems, faulty spellings, opaque relations and inherited mistranslations.",
+      requiredProbe: "Do not silently repair or generate personal-name analyses from a visible spelling; expose unknown-stem, faulty-spelling, opaque-relation and mistranslation diagnostics."
+    }), Object.freeze({
+      id: "personal-name-not-european-word-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.1"]),
+      pdfPages: Object.freeze([608]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Personal names are not word-like nicknames in Andrews' analysis; they are nominal expressions structured on NNC formulas.",
+      requiredProbe: "Do not treat a personal name as a flat word, label or lexical fixture; require an outer NNC shell and the downgraded inner statement or NNC source."
+    }), Object.freeze({
+      id: "personal-name-outer-number-zero-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.1"]),
+      pdfPages: Object.freeze([608]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The outer subject number position of a personal-name NNC always has 0-0; any final tl-0, c-0 or similar dyad belongs to the inner subject.",
+      requiredProbe: "Do not assign a final inner number dyad to the outer personal-name subject; render outer number 0-0 and keep inner number inside the downgraded stem."
+    }), Object.freeze({
+      id: "personal-name-inner-subject-barrier-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.1"]),
+      pdfPages: Object.freeze([608]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The inner subject pronoun in a personal-name NNC acts as a barrier preventing the outer subject from directly governing the inner predicate.",
+      requiredProbe: "Do not let outer ni/ti/0 rewrite inner person, number, reflexive or predicate agreement; preserve two predicates and two subject pronouns."
+    }), Object.freeze({
+      id: "personal-name-truncated-inner-subject-optionality-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([616]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The inner subject's singular number dyad is frequently 0-0 in truncated personal-name formations; some names require it and others allow it optionally.",
+      requiredProbe: "Do not normalize every inner subject to the full dyad or every name to truncation; record required, optional and informal-short-form diagnostics."
+    }), Object.freeze({
+      id: "personal-name-absolutive-affective-inner-vs-outer-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([617]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "In personal-name NNCs from absolutive-state sources, affective formation may embed the inner stem or the outer stem, forcing the inner subject number dyad to 0-0 when outer.",
+      requiredProbe: "Do not attach tzin/ton by surface position only; identify inner-stem versus outer-stem affective scope and preserve the inner number dyad effect."
+    }), Object.freeze({
+      id: "personal-name-possessive-state-inner-possessor-shield-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 15.1.2"]),
+      pdfPages: Object.freeze([617, 618]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A downgraded possessive-state NNC can serve as personal-name stem; the inner subject pronoun shields the inner possessor from the outer subject.",
+      requiredProbe: "Do not let outer ni/ti rewrite the inner possessor in Titlacahuan/Tocih/Totec-type names; preserve two-tier subject and possessive-state source."
+    }), Object.freeze({
+      id: "personal-name-possessive-state-affective-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([618]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Possessive-state personal-name stems may have affective formation such as Topiltzin or Tonantzin while retaining the inner possessive architecture.",
+      requiredProbe: "Do not treat affective possessive names as ordinary kinship fixtures; keep inner possessor, inner subject and affective matrix."
+    }), Object.freeze({
+      id: "personal-name-adjunction-source-whole-structure-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3"]),
+      pdfPages: Object.freeze([618]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A multiple-clause unit created by adjunction can be downgraded as a whole to become the predicate of a personal-name NNC.",
+      requiredProbe: "Do not flatten Coatlicue/Coyotlinahual-type names into compounds only; preserve all inner clauses and the outer name shell."
+    }), Object.freeze({
+      id: "personal-name-subject-supplementation-double-nucleus-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3"]),
+      pdfPages: Object.freeze([618]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Subject-supplementation structures can serve as personal-name stems, and the outer subject has no direct relation to either inner clause.",
+      requiredProbe: "Do not make the outer person the subject of the supplement; isolate it behind both inner subject pronouns."
+    }), Object.freeze({
+      id: "personal-name-possessor-supplementation-vs-statement-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3"]),
+      pdfPages: Object.freeze([618, 619]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Possessor-supplementation structures can form personal names, but similar expressions may be ordinary statements if they lack the two-tiered name structure.",
+      requiredProbe: "Do not classify every title-like possessor construction as a name; require an outer personal-name NNC shell."
+    }), Object.freeze({
+      id: "personal-name-adjectival-modification-ambiguous-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3", "Andrews 43.3"]),
+      pdfPages: Object.freeze([619]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adjectival-modification structures can serve as personal-name stems, but some sources also allow subject-supplementation readings.",
+      requiredProbe: "Do not force a single analysis for Huei Ozomahtli or Teuctl Ehuac types; expose modification versus supplementation ambiguity."
+    }), Object.freeze({
+      id: "personal-name-adjectival-modification-supportive-i-drop-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3"]),
+      pdfPages: Object.freeze([619]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En nombres personales con modificacion adjectival como Cuauhtl-Ehuanitl, la i de apoyo final de Cuauhtli no se necesita dentro de la unidad de modificacion.",
+      requiredProbe: "No conservar supportive i por defecto ni tratar cuauhtli como palabra intacta; registrar tronco CNN interno, modificacion de doble nucleo y omision de i de apoyo."
+    }), Object.freeze({
+      id: "personal-name-tezcatl-ihpoca-not-popoca-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3", "Andrews 30.13"]),
+      pdfPages: Object.freeze([619]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Tezcatl-Ihpoca is built on ihpoca, not popoca; Andrews rejects common Smoking/Fiery/Brilliant Mirror translations as morphologically defective.",
+      requiredProbe: "Do not route Tezcatl-Ihpoca through popoca or an English gloss; preserve the actual ihpoca matrix, mirror embed and modification structure."
+    }), Object.freeze({
+      id: "personal-name-adverbial-modification-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3"]),
+      pdfPages: Object.freeze([619, 620]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A structure of adverbial modification can serve as a personal-name stem, including adverbial NNC plus principal VNC/NNC.",
+      requiredProbe: "Do not turn ipal/topan into name particles; preserve adverbial CNN and the principal clause inside the downgraded name stem."
+    }), Object.freeze({
+      id: "personal-name-calendrical-name-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3", "Andrews Appendix E"]),
+      pdfPages: Object.freeze([615, 620]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Calendrical names from the divinatory calendar can serve as personal-name stems as double-nucleus, single-nucleus or day-sign-only constructions.",
+      requiredProbe: "Do not generate calendrical names as ordinary numeral+noun compounds only; preserve calendar-name source and name-shell status."
+    }), Object.freeze({
+      id: "personal-name-calendrical-personalizing-thing-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.3", "Andrews Appendix E"]),
+      pdfPages: Object.freeze([620]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Calendrical names can personalize certain things as well as persons, such as mythological beings or metaphorical merchant road names.",
+      requiredProbe: "Do not require an animate human subject for every calendrical personal-name shell; preserve calendrical source, thing-reference and special relation to the date."
+    }), Object.freeze({
+      id: "personal-name-conjoined-nnc-two-tier-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.4", "Andrews 52.6"]),
+      pdfPages: Object.freeze([620, 621]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Conjunctorless conjunction can form personal-name units like biclausalisms, with inner subject pronouns fusing as one subject and outer subjects fusing separately.",
+      requiredProbe: "Do not render conjoined personal names as two independent persons or one compound word; preserve conjoined-NNC lexical unit plus two-tier name shells."
+    }), Object.freeze({
+      id: "personal-name-conjunctive-compound-alternative-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.4", "Andrews 31.7", "Andrews 52.6"]),
+      pdfPages: Object.freeze([621]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A conjoined personal-name unit may have a conjunctive compound NNC alternative, but the two analyses must remain distinct.",
+      requiredProbe: "Do not translate Yohualehehcatl as a genitive compound; distinguish conjoined NNC source from conjunctive compound realization."
+    }), Object.freeze({
+      id: "personal-name-sentence-use-vocative-and-title-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.5", "Andrews 32.3.1", "Andrews 35.13.2"]),
+      pdfPages: Object.freeze([621]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Personal-name NNCs in sentences can appear with supplements, titles, noble names, vocative collocations and ordinary title NNCs that are not personal names.",
+      requiredProbe: "Do not mark every capitalized/title-like NNC as a personal-name NNC; distinguish name, title, vocative affective and ordinary NNC roles."
+    }), Object.freeze({
+      id: "personal-name-vocative-agentive-qui-zero-supportive-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.5", "Andrews 35.13.2"]),
+      pdfPages: Object.freeze([621]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En vocativo de nombre personal como Cuauhtlequetzque, la CNN agentiva preterita puede mostrar ausencia de i de apoyo en la diada qui-0.",
+      requiredProbe: "No restaurar i de apoyo en el vocativo por paradigma ordinario; conservar nombre personal, collocation vocativa, agentivo preterito interno y diada qui-0 sin i."
+    }), Object.freeze({
+      id: "personal-name-adjunctor-scope-conjoined-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.5"]),
+      pdfPages: Object.freeze([622]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The adjunctor in may appear before each conjunct of a conjoined personal-name unit, before the unit as a whole, or not at all.",
+      requiredProbe: "Do not require repeated in or treat missing in as missing name structure; record adjunctor scope over conjuncts or whole unit."
+    }), Object.freeze({
+      id: "god-name-downgraded-normal-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.5"]),
+      pdfPages: Object.freeze([622]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some god personal-name NNCs can be downgraded to normal NNCs with special meanings and plural subject rights.",
+      requiredProbe: "Do not keep Tlaloc/Xipe/Totec names frozen as singular personal names in all contexts; allow normal-NNC devotee/servant readings when licensed."
+    }), Object.freeze({
+      id: "god-name-place-name-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.5"]),
+      pdfPages: Object.freeze([622]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A god name can appear as an embed in a place-name NNC whose matrix is a locative relational nounstem.",
+      requiredProbe: "Do not parse Tlalocan/Huitzilopochco as unanalyzed place fixtures only; preserve embedded personal-name nounstem and locative matrix."
+    }), Object.freeze({
+      id: "nonsystemic-tense-vs-time-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.1", "Andrews 5.5.2"]),
+      pdfPages: Object.freeze([623]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Tense is grammatical, not identical to time; tense morphs often refer to other time values under influence from nearby VNCs.",
+      requiredProbe: "Do not rewrite Andrews tense slots to match English translation time; keep tense morph and record nonsystemic time interpretation."
+    }), Object.freeze({
+      id: "present-tense-past-pluperfect-future-in-past-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.1"]),
+      pdfPages: Object.freeze([623, 624]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Present-tense VNCs can refer to past, pluperfect, future-in-the-past, or past-progressive time in concatenated contexts.",
+      requiredProbe: "Do not infer present-time meaning from present tense alone; inspect neighboring tense and clause relation."
+    }), Object.freeze({
+      id: "preterit-tense-priority-time-shift-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.1"]),
+      pdfPages: Object.freeze([624]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Preterit-tense VNCs can express priority to present, past or future events, yielding present perfect, pluperfect or future perfect translations.",
+      requiredProbe: "Do not change preterit formula to fit translation; record priority relation while preserving preterit tense morph."
+    }), Object.freeze({
+      id: "future-tense-posteriority-and-imminence-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.1", "Andrews 54.1.5"]),
+      pdfPages: Object.freeze([624]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Future-tense VNCs can express future-in-the-past or imminent just-about-to time, often with ye.",
+      requiredProbe: "Do not create a separate tense category for English would/about-to; preserve future tense and diagnostic time relation."
+    }), Object.freeze({
+      id: "irregular-valence-verbstem-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.2"]),
+      pdfPages: Object.freeze([625]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some verbstems appear in VNCs with valence different from their expected valence without an obvious rule.",
+      requiredProbe: "Do not force normal transitive/intransitive valence when Andrews gives an exception; mark irregular valence instead of patching output."
+    }), Object.freeze({
+      id: "compound-valence-apparent-adverb-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.2", "Andrews 39.9"]),
+      pdfPages: Object.freeze([625]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A compound verbstem that looks like it has an incorporated adverb may actually use a compound nounstem as incorporated object.",
+      requiredProbe: "Do not diagnose valence irregularity before testing whether the embed stands for a nounstem object such as a -yo-tl art/craft stem."
+    }), Object.freeze({
+      id: "absolute-topic-not-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.3", "Andrews 43.3", "Andrews 51.2.2"]),
+      pdfPages: Object.freeze([625]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Absolute topics are free from normal supplement relation, but similar topics may be topicalized heads of modification structures.",
+      requiredProbe: "Do not label every initial in-phrase as supplement; distinguish absolute topic from topicalized head with modifier."
+    }), Object.freeze({
+      id: "supplement-head-agreement-person-number-specificity-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.4", "Andrews Lessons 17-18"]),
+      pdfPages: Object.freeze([625, 626, 627, 628]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Supplements normally agree with heads, but Andrews gives exceptions in person, number and specificity where reference can override grammar.",
+      requiredProbe: "Do not reject all mismatched supplement/head pairs; expose person, number or specificity mismatch and confirm same referent."
+    }), Object.freeze({
+      id: "specific-supplement-to-nonspecific-impersonal-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.4", "Andrews 22.3"]),
+      pdfPages: Object.freeze([627, 628]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A nonspecific subject or object pronoun in an impersonal principal clause may take a specific supplementary subject or object.",
+      requiredProbe: "Do not convert nonspecific te/tla into specific pronouns; preserve nonspecific head plus specific supplement cross-reference."
+    }), Object.freeze({
+      id: "adverbial-nnc-supplement-vs-adverbial-modifier-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.5", "Andrews 51.2.3", "Andrews 50.5"]),
+      pdfPages: Object.freeze([628, 629]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Adverbial NNCs can serve as supplements in designating constructions, but similar syntax can instead be adverbial modification.",
+      requiredProbe: "Do not decide by surface adverbial form; inspect direct grammatical relationship to the tla object head."
+    }), Object.freeze({
+      id: "deleted-quotation-head-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.5", "Andrews 19.6"]),
+      pdfPages: Object.freeze([628, 629]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Apparent supplement or adverbial mismatch may come from deletion of a clause that contained the object-pronoun head for quoted speech.",
+      requiredProbe: "Do not force supplement/adverbial analysis when a deleted speech-head clause explains the construction."
+    }), Object.freeze({
+      id: "silent-pers1-after-sounded-first-person-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.6"]),
+      pdfPages: Object.freeze([629]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "In concatenated VNCs with the same first-person subject, pers1 may be silently filled after a sounded first-person form has occurred.",
+      requiredProbe: "Do not read later 0-0 subjects as third person automatically; inspect first-person continuity and reflexive evidence."
+    }), Object.freeze({
+      id: "silent-pers1-reflexive-evidence-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.6"]),
+      pdfPages: Object.freeze([629]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "First-person reflexive object pronouns can signal an unspoken first-person pers1 filler even without a preceding sounded VNC.",
+      requiredProbe: "Do not require overt ni/ti when n-o/t-o reflexive forces first-person subject interpretation."
+    }), Object.freeze({
+      id: "nounstem-forming-li-no-nonactive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.7", "Andrews 38.1.3"]),
+      pdfPages: Object.freeze([629, 630]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Some nounstems ending in li look like remnants of nonactive lo but apparently have nounstem sources and no nonactive verbstem source.",
+      requiredProbe: "Do not invent a passive/nonactive CNV source for every li nounstem; mark nounstem-forming li and possible imitation of patientive formations."
+    }), Object.freeze({
+      id: "nounstem-forming-li-imitation-not-patientive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.7", "Andrews 38.1.3", "Andrews 31.6"]),
+      pdfPages: Object.freeze([630]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos li parecen imitar patientivos impersonales, pero Andrews da fuentes nominales como ca-tl, tle-tl, ce-0, icpa-tl, xa-tl o xi-c-tli, no una CNV no activa.",
+      requiredProbe: "No crear una cadena CNV->CNN por analogia de li; comprobar fuente nominal, posible imitacion y ausencia de fuente no activa antes de continuar."
+    }), Object.freeze({
+      id: "nounstem-forming-li-heterogeneous-nominal-source-set-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.7", "Andrews 31.6", "Andrews 31.6.1", "Andrews 31.6.2"]),
+      pdfPages: Object.freeze([630]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "La lista ca-l-li, tle-l-li, ce-l-li, icpa-l-li, xa-l-li y otros muestra fuentes nominales heterogeneas; li no es un unico sufijo generativo de CNV.",
+      requiredProbe: "No inferir una fuente no activa ni una sola regla por final li; registrar fuente nominal concreta, imitacion posible y compuerta de evidencia."
+    }), Object.freeze({
+      id: "nounstem-forming-li-locative-embed-continuation-boundary",
+      sourceRefs: Object.freeze(["Andrews 57.7", "Andrews 47.3.2"]),
+      pdfPages: Object.freeze([630]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "xi-l-li se compara con xi-c-tli y puede servir como embed en xi-l-lan-tli; una forma li nominal puede alimentar continuaciones CNN sin fuente CNV no activa.",
+      requiredProbe: "No bloquear continuacion CNN por no tener fuente verbal ni inventar esa fuente; conservar nounstem li, embed posterior y matriz locativa."
+    }), Object.freeze({
+      id: "instrumental-az-matrix-restricted-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1", "Andrews 31.6", "Andrews 53.1"]),
+      pdfPages: Object.freeze([631]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Instrumental nounstems can be compounds with restricted matrix (az)-tli, apparently a passive patientive nounstem from tla-(ayi).",
+      requiredProbe: "Do not treat az as a productive noun suffix without source limits; preserve matrix status, tool meaning and patientive-source diagnostic."
+    }), Object.freeze({
+      id: "instrumental-az-passive-vs-impersonal-s-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1"]),
+      pdfPages: Object.freeze([631]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Andrews contrasts instrumental az as apparent passive patientive of tla-(ayi) with impersonal patientive tla-ax-tli, noting unexpected y -> s/variant behavior.",
+      requiredProbe: "Do not identify az and ax by rough meaning; keep passive/impersonal source contrast and the irregular consonant diagnostic."
+    }), Object.freeze({
+      id: "instrumental-az-associated-reduplicated-tool-continuation-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1", "Andrews 31.6", "Andrews 53.1"]),
+      pdfPages: Object.freeze([631]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The restricted az matrix also appears in az-ca-tl and reduplicated ah-az-tli, so instrument nouns can connect to associated-entity and similarity/reduplication routes.",
+      requiredProbe: "Do not stop at an isolated instrument noun; record az matrix, associated-entity or reduplication continuation and its semantic shift."
+    }), Object.freeze({
+      id: "instrumental-az-animate-metaphorical-plural-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1"]),
+      pdfPages: Object.freeze([631]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tenamaztli can take plural subject marking in Molina because of animate/metaphorical triplet interpretation, not because az instruments are generally animate.",
+      requiredProbe: "Do not pluralize all az tools as animate; distinguish literal tool, metaphorical triplet and source-specific plural diagnostics."
+    }), Object.freeze({
+      id: "instrumental-huaz-connective-w-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1", "Andrews 35.9", "Andrews 26.3", "Andrews 26.9", "Andrews 26.10"]),
+      pdfPages: Object.freeze([631, 632]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Instrumental (az)-tli formations may include connective w before az, especially after l but also after n or a.",
+      requiredProbe: "Do not spell huaz as a separate root; record connective w, source-final class and matrix az."
+    }), Object.freeze({
+      id: "instrumental-az-huia-oa-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.1", "Andrews 55.3.1", "Andrews 55.3.2", "Andrews 53.1.2"]),
+      pdfPages: Object.freeze([632]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "Nounstems with (az)-tli, with or without w, can feed huia verbstems and less frequently intransitive o-a verbstems.",
+      requiredProbe: "Do not stop at CNN instrument noun output; expose possible CNN -> CNV huia/o-a continuations with source-specific gates."
+    }), Object.freeze({
+      id: "problematic-constructions-open-class-diagnostic-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([632]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews warns that known stem and nuclear-clause formations do not exhaust the language; small unaccounted constructions remain.",
+      requiredProbe: "Do not force every leftover form into an earlier rule; allow diagnostic-only problematic-construction records."
+    }), Object.freeze({
+      id: "incorporated-noun-ehua-keeps-source-num1-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2", "Andrews 22.6"]),
+      pdfPages: Object.freeze([633]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Some incorporated-noun compound verbstems with e-hua or tla-(e-hu-a) keep the source absolutive-state NNC subject num1 filler.",
+      requiredProbe: "Do not recompute or drop source num1 after incorporation; preserve the inherited num1 filler inside the compound verbstem."
+    }), Object.freeze({
+      id: "solid-spelling-vs-incorporation-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2", "Andrews 18.1"]),
+      pdfPages: Object.freeze([633]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some solid spellings imitate pronunciation and are supplementation or integrated supplement structures, not incorporation.",
+      requiredProbe: "Do not infer incorporation from solid writing alone; separate pronounced-solid supplement from actual compound verbstem."
+    }), Object.freeze({
+      id: "connective-t-compound-nounstem-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([633]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Occasionally a connective-t compound verbstem has a nounstem rather than a verbstem as embed.",
+      requiredProbe: "Do not require every connective-t embed to be verbal; allow nounstem embed diagnostics in rare problematic constructions."
+    }), Object.freeze({
+      id: "preterit-as-present-agentive-object-complement-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([633]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "A restricted-use preterit-as-present agentive on a connective-t compound can be embedded as object complement while keeping subject num1 c.",
+      requiredProbe: "Do not strip c or treat the embedded NNC as an ordinary object; preserve object-complement reference to the matrix object pronoun."
+    }), Object.freeze({
+      id: "connective-t-irregular-object-responds-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([634]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A connective-t compound verbstem can violate normal formation when the object pronoun responds to the matrix while also representing the deleted subject of the embedded preterit predicate.",
+      requiredProbe: "Do not repair te-(pol-i-uh-0-ti-tlaza)-type forms by regular valence; expose irregular object control and embedded preterit source."
+    }), Object.freeze({
+      id: "connective-t-compound-nounstem-nonrelational-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([634]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A connective-t can appear between embed and matrix of a compound nounstem even when the matrix is not relational.",
+      requiredProbe: "Do not restrict connective-t nounstem compounds to relational matrices only; diagnose nonrelational matrix cases."
+    }), Object.freeze({
+      id: "frozen-third-reflexive-after-adverbial-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.2"]),
+      pdfPages: Object.freeze([634]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A reflexive object pronoun may freeze in third-person shape inside a verbstem because an adverbial nounstem is incorporated before it.",
+      requiredProbe: "Do not recalculate m-o to first/second reflexive from the outer subject; preserve frozen third-person reflexive diagnostic."
+    }), Object.freeze({
+      id: "exclamatory-expression-mixed-category-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.3", "Andrews 3.2.5", "Andrews 54.3.2"]),
+      pdfPages: Object.freeze([634, 635]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Exclamatory expressions may be particles, NNCs, VNCs, or combinations, including included-possessor VNCs and idiomatic collocations.",
+      requiredProbe: "Do not force exclamations into particle mode only; preserve original formal category and exclamatory function separately."
+    }), Object.freeze({
+      id: "exclamatory-urgings-solid-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.3"]),
+      pdfPages: Object.freeze([635]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Exclamatory urgings for haste are collocations involving oc, eh, tia, ma, cuel, ye and personal-pronoun NNCs, often solid-written traditionally.",
+      requiredProbe: "Do not enter Tlaoque/Macuele as opaque particles; split the collocation pieces and record exclamatory-urging function."
+    }), Object.freeze({
+      id: "mah-construction-interrogative-nnc-principal-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.4", "Andrews 16.8.2", "Andrews 44.5.7"]),
+      pdfPages: Object.freeze([636]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "mah and mah ca#/mah camo adjoin a clause to principal interrogative NNCs ac, tleh, can or ic, with optional in.",
+      requiredProbe: "Do not confuse mah with wish-marker ma; preserve interrogative CNN principal clause and mah adjoined clause."
+    }), Object.freeze({
+      id: "mah-negative-principal-polarity-reversal-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.4"]),
+      pdfPages: Object.freeze([636]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Negative principal clause plus mah gives strong negative, while negative principal plus mah ca# gives strong affirmative.",
+      requiredProbe: "Do not translate mah ca# as a simple negative; compute polarity from principal negation plus mah/mah ca# combination."
+    }), Object.freeze({
+      id: "mah-cuix-ahzo-ahmo-principal-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.5"]),
+      pdfPages: Object.freeze([637]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "mah adjoined clauses can have cuix, ahzo, or ahmo as principal clause, including strong negative and strong affirmative combinations.",
+      requiredProbe: "Do not require ac/tleh/can/ic as the only mah principal; allow cuix/ahzo/ahmo and polarity diagnostics."
+    }), Object.freeze({
+      id: "mah-iuhqui-iuh-principal-solid-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.6", "Andrews 53.1.7"]),
+      pdfPages: Object.freeze([637]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "mah constructions can have iuhqui preterit-agentive NNC or iuh preterit-tense VNC as principal, and traditional spelling may fuse iuhqui/in/mah.",
+      requiredProbe: "Do not treat iuhquimma/iuhquimmaca as unanalyzed particles; preserve iuhqui CNN or iuh VNC plus in/mah pieces."
+    }), Object.freeze({
+      id: "incorporated-noun-never-subject-active-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.7", "Andrews Lesson 30"]),
+      pdfPages: Object.freeze([637, 638, 639]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "In active formations, incorporated nounstems never fill the VNC subject position; translations can falsely make them seem like subjects.",
+      requiredProbe: "Do not let English translations such as bat/earthquake/wind-disperses assign subject function to the embed; keep incorporated adverb and subject pronoun slots."
+    }), Object.freeze({
+      id: "incorporated-noun-passive-agent-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.7", "Andrews 21.1"]),
+      pdfPages: Object.freeze([639]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "In passive/nonactive formations, an incorporated nounstem is not an agent; it becomes means or instrument even when the active source had it as supplementary subject.",
+      requiredProbe: "Do not permit agent expression in passive by incorporated noun; preserve passive prohibition and active-agent-to-instrument transformation."
+    }), Object.freeze({
+      id: "textual-problem-not-grammar-rule-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.8", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([639, 640]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Textual mistakes, old spelling conventions and idiosyncratic spellings must be separated from grammar rules.",
+      requiredProbe: "Do not promote copyist/typesetter errors or traditional spelling confusion to morphology; record correction evidence and keep grammar source separate."
+    }), Object.freeze({
+      id: "textual-error-person-prefix-not-object-pronoun-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.8"]),
+      pdfPages: Object.freeze([640]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A copied te- may be a textual error for ti-, as in Tenechmocnelilliz > Tinechmocneliliz, and not an object-pronoun or valence signal.",
+      requiredProbe: "Do not route te- as an object prefix until textual correction is checked; keep the corrected person prefix and spelling repair separate from grammar."
+    }), Object.freeze({
+      id: "textual-error-tz-vs-c-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.8"]),
+      pdfPages: Object.freeze([640]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "A written c can be an error for tz, as in Notlacihuiliztica > Notlatzihuiliztica, so the visible letter is not enough to identify the stem.",
+      requiredProbe: "Do not derive a c-stem or suffix from the faulty spelling; require the Andrews correction before formula or surface routing."
+    }), Object.freeze({
+      id: "textual-vocable-boundary-nel-ayiz-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.8"]),
+      pdfPages: Object.freeze([640]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Faulty graphological boundaries can fuse words, as nellaiz must be read as nel ayiz in Tleh nel ayiz.",
+      requiredProbe: "Do not accept fused spelling as a stem or particle inventory entry; recover vocable boundaries before CNV/CNN/particle routing."
+    }), Object.freeze({
+      id: "textual-old-spelling-ki-kwa-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.8", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([640]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older spellings such as xiqualhuica, niquitohua and nicytta can hide ch/qui/ih/tt distinctions and should be corrected before morphology is inferred.",
+      requiredProbe: "Do not treat qu/c/y spellings as direct morpheme evidence; separate old-spelling normalization from the Andrews formula path."
+    }), Object.freeze({
+      id: "appendix-a-vnc-paradigm-formula-contract-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix A", "Andrews 7.7"]),
+      pdfPages: Object.freeze([642, 643, 644, 645, 646]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Appendix A restates full CNV paradigms by stem class, aspect/voice, tense/mood, person dyads and number dyads; formulas must match slots, not just surfaces.",
+      requiredProbe: "Do not pass a tense/mood route because it renders; compare class-specific stem shape, tense morph, pers dyad and num dyad against Appendix A."
+    }), Object.freeze({
+      id: "appendix-a-optative-admonitive-number-dyad-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix A"]),
+      pdfPages: Object.freeze([643, 644, 645, 646]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Appendix A distinguishes optative c-an number dyads, preterit-optative identity with antecessive prefix, and admonitive t-in number dyads.",
+      requiredProbe: "Do not reuse indicative number connectors in optative/admonitive rows; verify c-an/t-in and obligatory antecessive behavior by tense."
+    }), Object.freeze({
+      id: "appendix-b-nnc-paradigm-animacy-count-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix B"]),
+      pdfPages: Object.freeze([647]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Appendix B states NNC paradigm size depends on nonanimate, nonhuman animate, or human animate subject status.",
+      requiredProbe: "Do not generate one uniform CNN paradigm; gate available forms by animacy/humanness and subject paradigm size."
+    }), Object.freeze({
+      id: "appendix-b-nounstem-class-subclass-possessive-diagnostic-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix B"]),
+      pdfPages: Object.freeze([647, 648, 649, 650]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Appendix B defines nounstem classes/subclasses by what happens in the stem and num1 morph of singular-subject possessive-state NNCs.",
+      requiredProbe: "Do not classify CNN stems by absolutive ending only; inspect possessive-state stem change and num1 morph for TLI/IN/0/TL subclasses."
+    }), Object.freeze({
+      id: "appendix-b-human-animate-possessive-paradigm-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix B"]),
+      pdfPages: Object.freeze([651, 652]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Human animate NNC paradigms have larger subject/possessor grids, including plural-subject possessive forms distinct from nonhuman paradigms.",
+      requiredProbe: "Do not reuse nonanimate or nonhuman grids for human CNNs; validate human subject, possessor and plural possessive combinations."
+    }), Object.freeze({
+      id: "appendix-b-preterit-agentive-state-stem-split-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix B", "Andrews Lesson 35"]),
+      pdfPages: Object.freeze([652, 653]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Preterit-agentive NNCs have separate absolutive-state and possessive-state stems, with possessive forms built on the general-use ca stem.",
+      requiredProbe: "Do not derive possessive preterit-agentive CNNs from the absolutive restricted stem; require the state-specific stem split."
+    }), Object.freeze({
+      id: "appendix-b-preterit-agentive-number-dyad-variants-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix B", "Andrews Lesson 35"]),
+      pdfPages: Object.freeze([652, 653]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Preterit-agentive absolutive-state singular number dyads include c-0, qui-0 and irregular 0-0 variants depending on source and object structure.",
+      requiredProbe: "Do not normalize all preterit-agentive singulars to one connector; preserve c-0/qui-0/0-0 choice and plural qu-eh."
+    }), Object.freeze({
+      id: "appendix-c-object-pronoun-class-order-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([654]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Object pronouns divide into combinatorial classes, and double/triple-object transforms have fixed order independent of English gloss.",
+      requiredProbe: "Do not order objects by Spanish/English role; apply Andrews object-pronoun class order and identify added mainline object."
+    }), Object.freeze({
+      id: "appendix-c-shuntline-replacement-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([654, 655]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Transformations introduce shuntline projective replacements 0-0/0-0 and shuntline reflexive ne when an original object is downgraded.",
+      requiredProbe: "Do not leave original mainline objects in place after adding a new object; show shuntline replacement and downgrade history."
+    }), Object.freeze({
+      id: "appendix-c-double-object-source-added-object-history-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([654, 655]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Double-object combinations preserve a history: single-object source plus added mainline object, with the original object downgraded.",
+      requiredProbe: "Do not validate only the final object string; expose source object, added object and downgrade step."
+    }), Object.freeze({
+      id: "appendix-c-triple-object-secondary-shuntline-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([655, 656, 657, 658]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Triple-object combinations add a new mainline object to a double-object source and preserve primary/secondary shuntline history.",
+      requiredProbe: "Do not flatten triple-object strings into three equal objects; record first source, second-level shuntline and final added object."
+    }), Object.freeze({
+      id: "appendix-c-identical-object-superscript-history-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([654, 655, 656, 657, 658]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When added object pronouns are identical to source objects, Andrews tracks second and third identical objects by derivational history.",
+      requiredProbe: "Do not collapse identical surface pronouns; preserve superscript/history metadata for repeated object classes."
+    }), Object.freeze({
+      id: "appendix-c-human-over-nonhuman-selection-not-structural-default-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix C"]),
+      pdfPages: Object.freeze([654]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Some writers use semantic human-over-nonhuman criteria for incompatible specific objects, but Andrews distinguishes this from structural shuntline criteria.",
+      requiredProbe: "Do not silently choose human-over-nonhuman as engine default; mark it as competing/author-specific evidence versus Andrews structural ordering."
+    }), Object.freeze({
+      id: "appendix-d-numeral-four-stage-vigesimal-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix D", "Andrews Lesson 34"]),
+      pdfPages: Object.freeze([659, 660]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Numeral NNCs use a four-stage vigesimal organization: digits, scores, four hundreds and eight thousands.",
+      requiredProbe: "Do not generate numeral CNNs as decimal strings; preserve stage, base value and third-person common-number subject warning."
+    }), Object.freeze({
+      id: "appendix-d-numeral-order-combination-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix D"]),
+      pdfPages: Object.freeze([660, 661]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Scores combine with digits by om/on, while four hundreds and eight thousands combine with lower orders by ipan or ihuan.",
+      requiredProbe: "Do not use one generic plus connector for all numeral orders; choose om/on, ipan or ihuan according to order relationship."
+    }), Object.freeze({
+      id: "appendix-d-decimal-symbol-vigesimal-name-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix D"]),
+      pdfPages: Object.freeze([661, 662]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Decimal symbols obscure vigesimal names; in a base-twenty system 10 is twenty, 100 is four hundred and 1000 is eight thousand.",
+      requiredProbe: "Do not infer Nahuatl numeral morphology from Arabic decimal notation; convert through vigesimal stage values."
+    }), Object.freeze({
+      id: "appendix-e-tonalpohualli-calendar-nnc-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E"]),
+      pdfPages: Object.freeze([663, 664, 665]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "The tonalpohualli combines thirteen numeral NNCs and twenty day-sign NNCs into 260 day names.",
+      requiredProbe: "Do not treat day names as plain labels; preserve numeral CNN plus day-sign CNN source and calendar-cycle position."
+    }), Object.freeze({
+      id: "appendix-e-day-sign-olin-preterit-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E", "Andrews 42.8.4", "Andrews 2.10"]),
+      pdfPages: Object.freeze([665]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Olin is a day-sign preterit-agentive NNC from ol-i-ni and is often misspelled Ollin and mistranslated as action 'movement'.",
+      requiredProbe: "Do not generate Olin as an action noun or rubber-related Ollin; preserve preterit-agentive source and spelling correction."
+    }), Object.freeze({
+      id: "appendix-e-day-name-numeral-ordinal-not-quantity-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E", "Andrews 42.8.4"]),
+      pdfPages: Object.freeze([665, 666]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Day names combine numeral and day-sign NNCs as double- or single-nucleus constructions; the numeral is ordinal position, not quantity.",
+      requiredProbe: "Do not pluralize animate day-sign stems by numeral value; keep third-person singular day-sign CNN and ordinal calendar function."
+    }), Object.freeze({
+      id: "appendix-e-solar-month-name-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E"]),
+      pdfPages: Object.freeze([666, 667]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Solar month names are NNCs or NNC-derived action/name structures whose translations can be uncertain or misleading.",
+      requiredProbe: "Do not use month-name English glosses as grammar source; preserve NNC/action source and diagnostic uncertainty."
+    }), Object.freeze({
+      id: "appendix-e-izcalli-ownerhood-denominal-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E", "Andrews 31.6.1", "Andrews 44.5.3", "Andrews 55.7"]),
+      pdfPages: Object.freeze([667]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Izcalli presupposes abundant-ownerhood preterit-agentive izcalloh from nounstem izcal-li, which also feeds m-o-(izcal-i-a).",
+      requiredProbe: "Do not analyze Izcalli as iz calli or direct house deixis; preserve ownerhood agentive, izcal nounstem and denominal verbstem link."
+    }), Object.freeze({
+      id: "appendix-e-year-name-year-bearer-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E"]),
+      pdfPages: Object.freeze([668]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Solar year names use the day-name structure but only four year-bearer NNCs: Acatl, Tecpatl, Calli and Tochtli.",
+      requiredProbe: "Do not allow all twenty day-signs as year bearers; restrict year-name construction to the four-bearer cycle."
+    }), Object.freeze({
+      id: "appendix-e-year-binding-active-action-possessive-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix E"]),
+      pdfPages: Object.freeze([668, 669]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Year-binding expressions involve toxiuh/inxiuh as supplementary subject and active-action/possessive NNCs, not the nonexistent nounstem xiuhmolpilli.",
+      requiredProbe: "Do not accept xiuhmolpilli as a stem; preserve molpilih/m-o-(xiuh-ilp-ia), supplementary subject and active-action NNC structure."
+    }), Object.freeze({
+      id: "appendix-f-old-spelling-not-orthography-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 2.2", "Andrews 2.6"]),
+      pdfPages: Object.freeze([670]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older texts use unstable Spanish-based spelling devices; vowel length, glottal stop, supportive i and vocable boundaries may be hidden.",
+      requiredProbe: "Do not import old spelling as Nawat surface evidence; normalize only after diagnosing the older spelling convention."
+    }), Object.freeze({
+      id: "appendix-f-vowel-length-minimal-pair-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 2.2"]),
+      pdfPages: Object.freeze([670]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older spelling usually omits vowel length, so identical written forms can represent different stems and meanings.",
+      requiredProbe: "Do not choose a CNV/CNN route from the written vowels alone; require length-sensitive lexical or Andrews evidence before deriving a stem."
+    }), Object.freeze({
+      id: "appendix-f-supportive-i-omission-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 2.6"]),
+      pdfPages: Object.freeze([670, 672]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Supportive i may be omitted in older texts, including before in, which can falsely fuse or split clause particles and neighboring forms.",
+      requiredProbe: "Do not treat missing i as proof of a different morpheme; recover supportive-i conditions before particle or formula routing."
+    }), Object.freeze({
+      id: "appendix-f-o-u-i-y-letter-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([670]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older texts may write o as u or v and i as y or j, creating ambiguous visible strings for particles, pronouns, stems and vocable boundaries.",
+      requiredProbe: "Do not treat older u/v/y/j letters as direct Nawat spelling or stem evidence; normalize the older device before CNV/CNN routing."
+    }), Object.freeze({
+      id: "appendix-f-artificial-k-space-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 56.2.1"]),
+      pdfPages: Object.freeze([670, 671]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older spelling can write k before e/i as c plus an artificial space, later copied solid, so the spacing itself is not a grammar boundary.",
+      requiredProbe: "Do not split or join a vocable solely from c/qu spacing before e/i; inspect whether the apparent boundary is an old k-spelling device."
+    }), Object.freeze({
+      id: "appendix-f-ki-kw-glottal-spelling-traps-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 56.2.1"]),
+      pdfPages: Object.freeze([671, 672]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older spellings confuse k/ki/ke, syllable-final kw, qu/cu/cuh/uhc and glottal stop or otiose h.",
+      requiredProbe: "Do not decide morpheme boundaries from c/qu/cu/h spellings alone; inspect phonology and known Andrews formulas."
+    }), Object.freeze({
+      id: "appendix-f-syllable-final-kw-not-ku-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F", "Andrews 2.3.3"]),
+      pdfPages: Object.freeze([671]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Syllable-final kw may be written cuh, uhc, cu or q, but Andrews warns it is not a ku syllable.",
+      requiredProbe: "Do not create a ku vowel or extra syllable from cuh/cub spellings; keep kw as consonantal material before Nawat surface conversion."
+    }), Object.freeze({
+      id: "appendix-f-glottal-stop-carrier-diagnostic-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([671, 672]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "When glottal stop is unwritten, following tli or qui carriers can diagnose an intervening glottal stop, while h may be glottal, syllable divider or otiose.",
+      requiredProbe: "Do not apply h > j or zero blindly; inspect tli/qui carriers and h function before assigning syllable-final glottal stop in Nawat."
+    }), Object.freeze({
+      id: "appendix-f-w-y-double-consonant-vocable-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([672, 673]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older texts vary in w/y spelling, single versus double consonants and solid/split vocable boundaries.",
+      requiredProbe: "Do not treat solid spelling or doubled letters as proof of a grammar operation; recover vocable boundaries before routing."
+    }), Object.freeze({
+      id: "appendix-f-final-n-omission-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([672]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Vocable-final n is frequently not represented in older spelling, so visible absence of n can hide in, final pronoun material or boundary evidence.",
+      requiredProbe: "Do not infer a zero morph or missing particle from final-n absence alone; restore likely n before formula and vocable-boundary analysis."
+    }), Object.freeze({
+      id: "appendix-f-oa-owa-hua-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([672, 673]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older spelling may omit w in owa, insert h/u in oa, or spell final/intervocalic w with hu/uh, obscuring oa, o-a and huia-like routes.",
+      requiredProbe: "Do not choose an o-a, huia or w-bearing route from hua/oa/ua spelling alone; recover phonology and source before derivational routing."
+    }), Object.freeze({
+      id: "appendix-f-double-consonant-stem-identity-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([673]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Older texts may omit true double consonants or double single consonants, so doubled letters cannot by themselves establish root, stock or stem identity.",
+      requiredProbe: "Do not derive separate CNV/CNN stems from doubled spelling alone; compare Andrews phonology, source family and known formula before routing."
+    }), Object.freeze({
+      id: "appendix-f-solid-stress-group-vs-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews Appendix F"]),
+      pdfPages: Object.freeze([673]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Stress-group collocations are often written solid, while single vocables may be split; spelling solidity does not prove compound nounstem or verbstem formation.",
+      requiredProbe: "Do not create compound stems from solid old spelling or split one vocable into multiple nuclei; recover vocable boundaries before CNV/CNN logic."
+    }), Object.freeze({
+      id: "suggested-reading-source-authority-caution-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([674, 675, 676]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews cautions that dictionaries and editions differ in usefulness; Simeon blurs distinctions and etymologies can be wrong while Molina should be studied morphologically.",
+      requiredProbe: "Do not use secondary dictionary etymologies as grammar authority over Andrews; require source-quality diagnostics before accepting lexical analysis."
+    }), Object.freeze({
+      id: "suggested-reading-karttunen-modern-dialect-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([674]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Karttunen includes modern dialectal meanings with Classical Nahuatl entries, so her source labels must be read before treating an item as Classical grammar evidence.",
+      requiredProbe: "Do not import a dictionary meaning or surface as Andrews Classical source unless its source label supports the route being tested."
+    }), Object.freeze({
+      id: "suggested-reading-molina-morphology-text-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([674]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Molina's Vocabulario is not only a translation lookup; Andrews says it should be studied as a text for what it reveals about Nahuatl morphology.",
+      requiredProbe: "Do not use Molina as a flat gloss table; inspect listings morphologically before accepting a CNV/CNN source or continuation."
+    }), Object.freeze({
+      id: "suggested-reading-simeon-etymology-blur-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([675]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Simeon is extensive but less helpful than Molina because it blurs Molina's distinctions and frequently gives wrong etymologies.",
+      requiredProbe: "Do not let a Simeon etymology license a derivational route; require Andrews or Molina-backed morphological distinctions."
+    }), Object.freeze({
+      id: "suggested-reading-paredes-length-glottal-risk-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([675]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Paredes' Compendio is seriously untrustworthy with regard to vowel length and glottal stops.",
+      requiredProbe: "Do not accept Paredes spelling as proof of stem identity, glottal-stop allomorphy or Nawat h/j realization without stronger evidence."
+    }), Object.freeze({
+      id: "suggested-reading-edition-translation-fault-boundary",
+      sourceRefs: Object.freeze(["Andrews Suggested Reading"]),
+      pdfPages: Object.freeze([676]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Even excellent text editions such as the Florentine Codex edition can contain occasional faulty translations.",
+      requiredProbe: "Do not infer CNV/CNN roles from translation alone; inspect the Nahuatl form and Andrews grammar before generating or diagnosing."
+    }), Object.freeze({
+      id: "adjectival-embed-general-use-and-adverbial-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 41.4", "Andrews 35.7", "Andrews 44.5.3", "Andrews 44.6"]),
+      pdfPages: Object.freeze([427]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un adjectival funciona como embed de compuesto, los preterit-agentive deben usar forma de uso general y algunos nounstems solo pueden existir solos si la NNC esta adverbializada.",
+      requiredProbe: "Bloquear embed desde forma predicativa o desde nounstem autonomo no autorizado; exigir uso general o compuerta adverbial."
+    }), Object.freeze({
+      id: "adjectival-modifier-vnc-not-forced-nominalization",
+      sourceRefs: Object.freeze(["Andrews 42.6", "Andrews 42.8", "Andrews 42.10", "Andrews 35.7.2", "Andrews 46.9"]),
+      pdfPages: Object.freeze([432]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNV puede servir como adjunto adjectival sin nominalizarse; la presencia de modificacion no prueba una ruta CNV -> CNN.",
+      requiredProbe: "No convertir todo modificador VNC en agentivo o nounstem; conservar CNV adjunta, punto de correferencia sujeto/objeto y ambiguedad con suplementacion."
+    }), Object.freeze({
+      id: "later-name-index-does-not-license-generation",
+      sourceRefs: Object.freeze(["Andrews Lesson 56", "Andrews Index"]),
+      pdfPages: Object.freeze([615, 678, 682, 691]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los nombres y referencias de índice muestran que un derivado puede entrar en nombres, pero no autorizan generación ordinaria nueva.",
+      requiredProbe: "Tratar nombres como uso/diagnóstico salvo evidencia Nawat específica."
+    }), Object.freeze({
+      id: "personal-name-derived-stem-embed-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews Lesson 56", "Andrews 55.3.1", "Andrews Appendix E"]),
+      pdfPages: Object.freeze([615]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un derivado puede aparecer dentro de un nombre personal o calendárico con relaciones embed/matriz que Andrews advierte que se maltraducen; esto prueba uso, no generacion productiva.",
+      requiredProbe: "No convertir el nombre en ruta ordinaria; conservar nombre como CNN, relacion embed/matriz y referencia derivacional interna."
+    }), Object.freeze({
+      id: "personal-name-absolutive-nnc-stem-not-vnc-nominalization",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([615]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un nombre personal puede degradar una CNN absolutiva ordinaria como tronco interno; esa fuente no resulta de nominalizar una CNV.",
+      requiredProbe: "No forzar todo nombre personal a ruta CNV nominalizada; conservar CNN absolutiva interna, sujeto interno, sujeto externo y estado de fuente."
+    }), Object.freeze({
+      id: "personal-name-ahuitzotl-denominal-patientive-inner-chain",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 55.3.1"]),
+      pdfPages: Object.freeze([615]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Ahuitzotl contiene un patientivo huitz-o-tli derivado de un tronco verbal denominal huitz-o-a; el nombre personal no borra esa cadena interna.",
+      requiredProbe: "No tratar ahuitzotl como animal fixture plano; conservar CNN fuente de agua, patientivo interno, fuente denominal y la CNN externa de nombre personal."
+    }), Object.freeze({
+      id: "personal-name-gentilic-inner-nnc-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 48.2.6"]),
+      pdfPages: Object.freeze([615]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una CNN gentílica con sujeto interno de tercera persona puede servir como tronco de nombre personal, como Tepoztecatl.",
+      requiredProbe: "No aplanar el gentilicio como etiqueta étnica; conservar CNN gentílica interna, sujeto interno, fuente de lugar y shell externo de nombre."
+    }), Object.freeze({
+      id: "personal-name-huitztzilopochtli-embed-matrix-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([615]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Huitztzilopochtli invierte facilmente la traduccion: huitztzilin es embed y opoch es matriz; la ortografia tradicional reduce tztz a tz.",
+      requiredProbe: "No traducir como 'colibri del sur' ni usar Huitzilopochtli para decidir la estructura; conservar embed, matriz, reduccion ortografica y nombre personal externo."
+    }), Object.freeze({
+      id: "personal-name-truncated-inner-subject-patientive-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([616]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Algunos nombres personales usan una CNN interna truncada cuyo sujeto singular lleva 0-0, y el predicado interno puede ser un patientivo impersonal derivado de un verbo intransitivo.",
+      requiredProbe: "No expandir automáticamente el sujeto interno ni tratar Painal como nombre plano; conservar truncamiento 0-0, patientivo impersonal interno y sujeto externo del nombre."
+    }), Object.freeze({
+      id: "personal-name-patientive-inner-stem-translation-trap",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 35.8.2", "Andrews 38.1.3", "Andrews 46.7"]),
+      pdfPages: Object.freeze([616]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "Nombres como Xipe y Huehmac contienen patientivos internos; la traducción tradicional puede confundir el patientivo o inventar una lectura relacional como 'mano grande'.",
+      requiredProbe: "No dejar que Flayed-Skin o Big Hand decidan la arquitectura; conservar patientivo xip-e/mac, embed hueh, contraste te-mac/ne-mac/te-tla-mac y posible análisis relacional descartado."
+    }), Object.freeze({
+      id: "locative-active-action-embed-place-source-boundary",
+      sourceRefs: Object.freeze(["Andrews Lesson 46", "Andrews 36.11", "Andrews 44.2", "Andrews 5.5.2"]),
+      pdfPages: Object.freeze([471]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un locativo con matriz (-n)-tli puede incorporar una CNN de accion activa como embed y expresar lugar de una accion; la posesion marca el agente y la adverbializacion del sujeto queda ambigua.",
+      requiredProbe: "No tratar el locativo como preposicion o sufijo; conservar accion activa embed, poseedor-agente, matriz locativa -n y ca distante protegido."
+    }), Object.freeze({
+      id: "locative-ownerhood-archaic-active-action-boundary",
+      sourceRefs: Object.freeze(["Andrews Lesson 46", "Andrews 35.8", "Andrews 35.9"]),
+      pdfPages: Object.freeze([471, 472]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los locativos con matrices de ownerhood *tla-e/*tla-hua/*tla-yo-a presuponen una accion activa no atestiguada porque esas matrices sobreviven solo en agentivos preteritos o connective-t embeds.",
+      requiredProbe: "No fabricar una CNV activa de ownerhood para explicar el locativo; registrar la formacion como relicto/diagnostico con matriz ownerhood y fuente activa no atestiguada."
+    }), Object.freeze({
+      id: "locative-adverbialized-subject-and-iyohcan-boundary",
+      sourceRefs: Object.freeze(["Andrews 46.8", "Andrews 44.3", "Andrews 44.3.11", "Andrews 18.8"]),
+      pdfPages: Object.freeze([471]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los locativos como ayaxcan e iyohcan cruzan adverbialized VNC, locative NNC y valores de dificultad/singularidad sin autorizar una nominalizacion productiva simple.",
+      requiredProbe: "No analizar ayaxcan como negativo de axcan ni iyohcan como simple sufijo locativo; conservar fuente VNC/adverbial, sujeto potencialmente adverbializado y valor lexical."
+    }), Object.freeze({
+      id: "adverbial-vnc-vs-izqui-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 44.8", "Andrews 40.8.6", "Andrews 24.6.2", "Andrews 47.3.3", "Andrews 2.13.1"]),
+      pdfPages: Object.freeze([447]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Adverbialized VNCs like ici, iz, nohmab, yehua, and iyoh must be kept distinct from substantival/adjectival preterit-agentive NNCs such as izqui.",
+      requiredProbe: "No routear iz/ici/nohmab/yehua/iyoh through agentive CNN just because they translate adverbially; preserve VNC tense, solid-spelling diagnostics, and separate izqui as NNC."
+    }), Object.freeze({
+      id: "index-number-dyad-preterit-agentive-crossref-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Number dyad", "Andrews Index: Number position in absolutive-state preterit-agentive NNC", "Andrews 35.4", "Andrews 35.9"]),
+      pdfPages: Object.freeze([687]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El indice agrupa dyadas de numero, qui-0/0-0 y ownerhood agentivo; esa vecindad refuerza que la posicion de numero es arquitectura CNN, no sufijo superficial.",
+      requiredProbe: "No resolver qui-0/0-0 por salida visible; volver a la pagina fuente, conservar ranura de numero y distinguir ownerhood agentivo de otros nominales."
+    }), Object.freeze({
+      id: "adverbialized-nnc-unknown-collocation-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5.5", "Andrews 44.5.6", "Andrews 44.7", "Andrews 16.3.1", "Andrews 3.2.4", "Andrews 52.4.3", "Andrews 40.8.1", "Andrews 35.5"]),
+      pdfPages: Object.freeze([455]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunas NNCs adverbializadas forman grupo acentual con yeh/eh, mientras yequeneh y yeceh estan escritos solidamente pero tienen constituyentes desconocidos.",
+      requiredProbe: "No derivar yequeneh/yeceh por particula ye, futuro de ca-h, ni sufijo productivo; separar colacion opaca de agentivos preteritos de uso general en ca."
+    }), Object.freeze({
+      id: "adverbialized-nnc-yeh-eh-stress-group-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.5.5", "Andrews 44.5.6", "Andrews 16.3.1"]),
+      pdfPages: Object.freeze([455]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Algunas NNCs adverbializadas forman grupo acentual con la NNC pronominal yeh/eh, y la escritura tradicional puede solidificar eh con el adverbial.",
+      requiredProbe: "No fusionar momoztlae o ilhuice como un solo tronco; conservar NNC adverbializada, yeh/eh pronominal y diagnostico de grupo acentual."
+    }), Object.freeze({
+      id: "adverbialized-preterit-agentive-subject-pronoun-manner-boundary",
+      sourceRefs: Object.freeze(["Andrews 44.7", "Andrews 35.5"]),
+      pdfPages: Object.freeze([455]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En adverbiales de agentivo preterito, Andrews adverbializa el pronombre de sujeto de la CNN para crear manera; no crea una nueva clase formal ni una salida predicativa CNV.",
+      requiredProbe: "No convertir pacca/chicahuaca en adjetivos o adverbios libres; conservar sujeto adverbializado, tallo general ca, estado adverbializado y lectura de manera."
+    }), Object.freeze({
+      id: "ihuan-adverbialized-relational-not-conjunctor",
+      sourceRefs: Object.freeze(["Andrews 45.4", "Andrews 34.8", "Andrews 52.4.1", "Andrews 47.3.3", "Andrews 30.3"]),
+      pdfPages: Object.freeze([463]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "ihuan en grupos numerales y relaciones de compania no es conjunctor: es una NNC relacional posesiva con adverbializacion de primer grado.",
+      requiredProbe: "No convertir ihuan en 'y'; conservar NNC posesiva/adverbializada, suplemento poseedor y cualquier agentivo preterito suplementario como tlahuanqueh."
+    }), Object.freeze({
+      id: "adverbial-complement-preterit-agentive-not-purpose-or-conjunction",
+      sourceRefs: Object.freeze(["Andrews 51.4", "Andrews 50.6", "Andrews 52.2", "Andrews 16.9.7"]),
+      pdfPages: Object.freeze([556]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los complementos adverbiales pueden usar NNC agentiva preterita de posesion abundante o clausulas con pehua que se parecen a proposito/conjuncion sin pertenecer plenamente a esas rutas.",
+      requiredProbe: "No reetiquetar moca teyoh como generacion posesiva ordinaria ni pehua + presente como proposito/conjuncion; registrar complemento adverbial, sujeto singular y limite de ruta."
+    }), Object.freeze({
+      id: "conjunction-frozen-preterit-agentive-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 52.3", "Andrews 8.1"]),
+      pdfPages: Object.freeze([561]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En conjuncion, una CNN agentiva preterita como cemeleh puede congelarse en tercera singular para funcionar adverbialmente dentro de conjunctos modificados.",
+      requiredProbe: "No generar paradigma de cemeleh ni tratarlo como conjunctor; conservar congelamiento, funcion adverbial y modificador que afecta ambos conjunctos."
+    }), Object.freeze({
+      id: "mah-particle-principal-clause-not-nominal-generation",
+      sourceRefs: Object.freeze(["Andrews 58.5", "Andrews 58.6", "Andrews 58.7", "Andrews 53.1.7"]),
+      pdfPages: Object.freeze([637]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En construcciones mah, cuix/ahzo/ahmo o iuhqui/iuh pueden ocupar clausula principal; esto pertenece al nivel de particulas y oracion, no a nueva generacion nominal.",
+      requiredProbe: "No promover iuhquimma/iuhquimmaca ni cuix/ahzo/ahmo a fixtures CNV/CNN; conservar particula mah, clausula principal y diagnostico de escritura solida."
+    }), Object.freeze({
+      id: "icpac-compound-matrix-ownerhood-incorporation-boundary",
+      sourceRefs: Object.freeze(["Andrews 47.5.2", "Andrews 46.8", "Andrews 55.7"]),
+      pdfPages: Object.freeze([495]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El relational locativo icpac funciona como matriz compuesta tipo ca, no puede integrar otro nounstem como embed, pero tlalticpac puede ser objeto incorporado de un agentivo preterito de ownerhood.",
+      requiredProbe: "No tratar icpac como conjuncion espacial libre ni como embed recursivo; conservar matriz, connective-t, posible adverbializacion y ownerhood agentivo tlalticpaqueh."
+    }), Object.freeze({
+      id: "personal-name-inner-clause-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([609]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales, una CNN agentiva preterita completa puede degradarse a tronco interno; conserva su sujeto interno de tercera persona y su diada de numero dentro del tronco.",
+      requiredProbe: "No analizar el nombre como palabra simple ni mover el sujeto interno al sujeto externo; mostrar dos niveles CNN, sujeto externo, sujeto interno y posible matriz honorifica."
+    }), Object.freeze({
+      id: "personal-name-quoted-clause-stem-translation-contract",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([609]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El predicado degradado de un nombre personal tiene calidad de cita: la traduccion estructural es 'se llama [clausula]', no una etiqueta lexical plana.",
+      requiredProbe: "No sustituir la formula de nombre personal por una glosa tipo apodo; conservar la clausula citada completa, el sujeto externo y la traduccion estricta como diagnostico."
+    }), Object.freeze({
+      id: "personal-name-bracket-translation-foreign-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([609]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews avisa que las traducciones entre corchetes de nombres personales responden a expectativas inglesas y son ajenas a la estructura nahua.",
+      requiredProbe: "No usar la glosa tipo nombre propio como analisis; conservar la traduccion estricta 'se llama [clausula]', la CNN interna y el sujeto externo."
+    }), Object.freeze({
+      id: "personal-name-source-can-be-vnc-or-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([609]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews abre los nombres personales de una sola clausula con una compuerta doble: la fuente puede ser CNV o CNN, antes de dividir los casos nominalizados.",
+      requiredProbe: "No forzar todo nombre personal a nominalizacion CNV; primero registrar si la fuente interna es CNV nominalizada o CNN ya nominal, y conservar esa fuente en la formula externa."
+    }), Object.freeze({
+      id: "personal-name-honorific-inner-number-shield-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([609]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales honorificos, la diada de numero interna del agentivo preterito impide contacto directo entre tzin y el predicado interno.",
+      requiredProbe: "No adjuntar tzin directamente al predicado de la fuente; conservar CNN interna completa, numero interno protegido y alternativa de tallo general ca."
+    }), Object.freeze({
+      id: "personal-name-incorporated-adverb-embed-not-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 48.2.6"]),
+      pdfPages: Object.freeze([610]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales como Cuauhtemoc o Tlaltehtecuin, el nounstem incorporado puede modificar adverbialmente la matriz interna; no es la matriz ni el agente de la traduccion.",
+      requiredProbe: "No traducir el embed como sujeto o matriz del nombre; conservar CNN interna, embed adverbial incorporado, matriz verbal y sujeto externo separado."
+    }), Object.freeze({
+      id: "personal-name-gentilic-nnc-frequent-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 48.2.6"]),
+      pdfPages: Object.freeze([610]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Andrews marca como frecuente que una CNN gentílica formada desde place-name sirva como tronco interno de nombre personal, como Chalchiuhtepehuah.",
+      requiredProbe: "No convertir el gentilicio interno en etiqueta plana ni ruta denominal nueva; conservar CNN gentílica interna, fuente place-name, sujeto externo de nombre y valor de frecuencia."
+    }), Object.freeze({
+      id: "personal-name-chimalpain-false-h-divider-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([610]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Chimalpain puede escribirse Chimalpahin por convencion espanola de h divisoria, pero Andrews advierte que esa h no representa glotal ni morfo.",
+      requiredProbe: "No convertir h escrita en glotal, consonante o slot; conservar fuente agentiva, matriz pain y diagnostico ortografico de h divisoria ajena."
+    }), Object.freeze({
+      id: "personal-name-honorific-general-use-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 35.7.2"]),
+      pdfPages: Object.freeze([610, 611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El honorifico de un nombre personal puede formarse normalmente sobre la CNN interna completa o, ocasionalmente, sobre el tallo agentivo preterito de uso general con matriz ca.",
+      requiredProbe: "No aplicar tzin directamente al predicado interno sin diagnostico; distinguir CNN interna completa, tallo general ca, numero interno protegido y valor de traduccion."
+    }), Object.freeze({
+      id: "personal-name-tizoquic-ci-for-qui-misspelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([610, 611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Tizoquic/Tizoquicatzin fueron transmitidos como Tizocic/Tizocicatzin por una mala escritura de qui como ci; la forma reducida Tizoc conserva /k/ final.",
+      requiredProbe: "No tomar ci como morfologia ni aceptar Tizoc como analisis completo; conservar qui, objeto incorporado tiz-oc, matriz tla-i y nombre personal de dos niveles."
+    }), Object.freeze({
+      id: "personal-name-preterit-as-present-agentive-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNN agentiva de preterito-como-presente puede servir como tronco interno de nombre personal con la misma formacion que una agentiva preterita.",
+      requiredProbe: "No decidir la fuente solo por superficie identica; registrar preterito-como-presente, sujeto interno no animado posible y estructura de dos niveles."
+    }), Object.freeze({
+      id: "personal-name-tlaloc-adverbial-on-replacement-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "tiTlaloc embeds a downgraded preterit-as-present agentive whose matrix is the verbstem o 'lie/be recumbent' and whose tlal embed replaces the normally fused adverbial particle on.",
+      requiredProbe: "Do not analyze Tlaloc as a flat lexical name or as ordinary land+agentive output; preserve personal-name shell, preterit-as-present agentive, matrix o, tlal adverbial embed and replaced on diagnostic."
+    }), Object.freeze({
+      id: "personal-name-milintoc-connective-t-destockal-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "tiMilintoc contains an inner NNC from preterit-as-present VNC milintoc, built on a connective-t stem whose matrix is o and whose embed is the preterit predicate of destockal mil-i-ni.",
+      requiredProbe: "Do not treat milintoc as a simple frozen stem; expose destockal embed, preterit predicate, connective-t stem, matrix o, inner nonanimate subject and outer personal-name subject."
+    }), Object.freeze({
+      id: "personal-name-inner-nonanimate-vs-outer-animate-subject-proof",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales con preterito-como-presente, el sujeto interno puede ser no animado mientras el sujeto externo del nombre es animado; esta discrepancia prueba la estructura de dos niveles.",
+      requiredProbe: "No reconciliar los sujetos por animacidad visible; conservar sujeto interno no animado, sujeto externo animado y la formula CNN dentro de la CNN personal."
+    }), Object.freeze({
+      id: "personal-name-present-agentive-title-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([611]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Una CNN agentiva presente puede degradarse como tronco de nombre personal o titulo; su valor de cargo no autoriza convertirla en fixture nominal ordinario.",
+      requiredProbe: "Conservar fuente VNC presente, agentivo presente interno, posible lectura de titulo y sujeto externo del nombre antes de cualquier ruta de generacion."
+    }), Object.freeze({
+      id: "personal-name-popoca-adverbial-embed-subject-mirage",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 58.7"]),
+      pdfPages: Object.freeze([612]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales con matriz frecuente popoca, el nounstem incorporado expresa modo, medio o semejanza; no es la entidad que emite humo/aura.",
+      requiredProbe: "No traducir Chimalpopoca como sujeto 'escudo que humea'; conservar embed adverbial, matriz popoca, agentivo interno y sujeto externo del nombre."
+    }), Object.freeze({
+      id: "personal-name-popoca-fame-metaphor-not-direct-clause",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 58.7"]),
+      pdfPages: Object.freeze([612]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los nombres personales con popoca pueden implicar aura, fama o gloria por medio o manera del embed, no una clausula directa donde el embed emite humo.",
+      requiredProbe: "No derivar citlalpopoca, xiuhpopoca o chimalpopoca desde 'X humea'; conservar embed adverbial, matriz popoca y lectura metaforica diagnosticada."
+    }), Object.freeze({
+      id: "personal-name-customary-agentive-inner-structure-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 36.3", "Andrews 38.1.1", "Andrews 54.4"]),
+      pdfPages: Object.freeze([613]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los nombres personales pueden degradar agentivos habituales, purposivos o fuentes con embeds internos; el i de ni puede perderse opcionalmente y el objeto aplicativo puede faltar.",
+      requiredProbe: "No convertir el nombre en agente comun; conservar la CNN interna completa, perdida opcional de i, ausencia de objeto aplicativo y fuente derivacional indicada."
+    }), Object.freeze({
+      id: "personal-name-customary-agentive-embed-stays-inner",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 38.1.1"]),
+      pdfPages: Object.freeze([613]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En nombres personales como Nochcuani, Tlahyelcuani o Chimalpaquini, el embed nominal pertenece al agentivo habitual interno y no al sujeto externo.",
+      requiredProbe: "No promover noch, tlahyel o chimal a objeto o modificador externo del nombre; conservar embed interno, matriz habitual y CNN personal de dos niveles."
+    }), Object.freeze({
+      id: "personal-name-customary-agentive-applicative-object-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 36.3"]),
+      pdfPages: Object.freeze([613]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Tlacuiliani como nombre personal muestra la falta del pronombre de objeto aplicativo aunque su fuente tetlacuiliani lo tenga.",
+      requiredProbe: "No reconstruir te aplicativo por analogia con la fuente; registrar la perdida en el nombre personal, el agentivo habitual interno y la frontera del tronco citado."
+    }), Object.freeze({
+      id: "personal-name-purposive-vnc-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 54.4"]),
+      pdfPages: Object.freeze([613]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Un VNC purposivo como chantico puede servir como fuente de una CNN agentiva pasada y luego como tronco de nombre personal.",
+      requiredProbe: "No reducir Chantico a denominal ti ni a verbo de movimiento simple; conservar fuente purposiva, ti de posesion, agentivo pasado interno y CNN personal externa."
+    }), Object.freeze({
+      id: "personal-name-chantico-co-not-locative-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 54.4"]),
+      pdfPages: Object.freeze([613, 617]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En Chantico, el co final pertenece al tronco verbal purposivo inbound no futuro; Andrews rechaza tomarlo como matriz relacional locativa *co.",
+      requiredProbe: "No analizar Chantico como nombre locativo ni como CNN con matriz co; conservar fuente CNV purposiva, direccion inbound, ti de posesion y shell personal-name externo."
+    }), Object.freeze({
+      id: "personal-name-inner-reflexive-preemptive-control-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2"]),
+      pdfPages: Object.freeze([613]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Si la CNN interna de un nombre personal contiene reflexivo, ese reflexivo responde al sujeto interno preemptivo, no al sujeto externo del nombre.",
+      requiredProbe: "No recalcular reflexivo por el sujeto visible externo; preservar control interno de tercera persona y contrastar nombre personal con agentivo preterito ordinario."
+    }), Object.freeze({
+      id: "personal-name-moteuczoma-kw-trigraph-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([614, 671]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Moteuczoma y sus escrituras defectivas muestran que el kw final de silaba puede escribirse con trigrafos como uhc/cuh sin crear una silaba, morfo o ruta nueva.",
+      requiredProbe: "No analizar Motecuhzoma, Moteuhczoma o Motecuczoma por letras superficiales; conservar CNN personal de dos niveles, M-o-teuc-zoma interno y diagnostico kw final de silaba."
+    }), Object.freeze({
+      id: "personal-name-passive-patientive-inner-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 35.3 note 2"]),
+      pdfPages: Object.freeze([614]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando el predicado interno de un nombre personal se forma sobre passive voice, el tronco interno es una CNN patientiva preterita; el shell externo de nombre no borra esa fuente pasiva.",
+      requiredProbe: "No analizar tiTepotzihtoloc o Ahhuelittoctzin como nombres planos ni como passive CNV externa; conservar CNN personal externa, CNN patientiva interna y fuente passive."
+    }), Object.freeze({
+      id: "personal-name-impersonal-preterit-agentive-two-tier-boundary",
+      sourceRefs: Object.freeze(["Andrews 56.2", "Andrews 22.6", "Andrews 35.3"]),
+      pdfPages: Object.freeze([614]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Cuando el tronco de nombre personal viene de una version nominalizada de una CNV impersonal, el sujeto interno es inespecifico y el externo especifico; Andrews usa esto como prueba de dos niveles.",
+      requiredProbe: "No invertir embed y matriz ni perder tla-impersonal; conservar fuente impersonal, agentivo preterito interno, sujeto interno inespecifico y sujeto externo del nombre."
+    }), Object.freeze({
+      id: "mah-iuhqui-principal-clause-diagnostic-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.6", "Andrews 53.1.7"]),
+      pdfPages: Object.freeze([637]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "iuhqui como CNN agentiva preterita puede funcionar como clausula principal en construcciones mah, junto a la VNC iuh; esto es analisis de oracion, no licencia de fixture nominal ordinario.",
+      requiredProbe: "No generar nombres por la collocacion iuhquimma/iuhquimmaca; distinguir CNN iuhqui, VNC iuh, particulas in/mah y nivel de clausula principal."
+    }), Object.freeze({
+      id: "incorporated-nounstem-never-subject-active-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.7", "Andrews 30.14"]),
+      pdfPages: Object.freeze([638, 639]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En verbstems activos, un nounstem incorporado puede parecer sujeto por traduccion, pero Andrews insiste en que funciona como adverbio incorporado; quimichpatlan y tlalolin son CNNs agentivas preteritas, no sujetos incorporados.",
+      requiredProbe: "No dejar que la glosa inglesa haga sujeto al embed; conservar sujeto pronominal 0-0, embed adverbial incorporado, matriz verbal y cualquier reanalisis agentivo CNN."
+    }), Object.freeze({
+      id: "nonactive-incorporated-noun-agent-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 58.7", "Andrews 21.1"]),
+      pdfPages: Object.freeze([639]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En formaciones no activas, el nounstem incorporado tampoco es agente ni sujeto: una fuente activa con sujeto suplementario puede transformarse en adverbio de medio o instrumento.",
+      requiredProbe: "No leer coatl/ocuilin/tecuanimeh como agentes pasivos; bloquear agente expresado en pasivo y registrar transformacion a medio/instrumento."
+    }), Object.freeze({
+      id: "calendar-day-sign-olin-preterit-agentive-not-action-nnc",
+      sourceRefs: Object.freeze(["Andrews Appendix E", "Andrews 42.8.4", "Andrews 2.10"]),
+      pdfPages: Object.freeze([665]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El signo calendárico Olin no es una CNN de accion 'movimiento'; Andrews lo analiza como CNN agentiva preterita desde el destockal (ol-i-ni).",
+      requiredProbe: "No generar ni glosar Olin por sustantivo de accion; conservar fuente destockal, agentivo preterito, correccion Ollin/Olin y funcion de signo calendárico."
+    }), Object.freeze({
+      id: "index-preterit-agentive-function-crossref-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Preterit-agentive NNCs", "Andrews Index: Preterit-agentive nounstem as verbstem source", "Andrews 35.6", "Andrews 40.8", "Andrews 54.2"]),
+      pdfPages: Object.freeze([689]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El indice reparte agentivos preteritos entre adverbializados, afectivos, embeds, gentilic, ownerhood, nombres personales y fuente de verbstem; ninguna funcion agota la categoria.",
+      requiredProbe: "No tratar una referencia indexal de agentivo como permiso de generacion general; exigir funcion especifica, pagina fuente y separacion entre CNN resultante y continuacion CNV."
+    }), Object.freeze({
+      id: "index-nominalization-taxonomy-crossref-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Nominalization", "Andrews 35.1", "Andrews 36.2", "Andrews 40.8", "Andrews 44.7"]),
+      pdfPages: Object.freeze([686]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "El índice separa nominalización por reanálisis, estructural, de CNVs, CNV nominalizada como adjetivo y predicado imperfecto nominalizado como embed.",
+      requiredProbe: "No usar una etiqueta nominalización única; exigir subtipo Andrews, función visible, fuente CNV/CNN y si la referencia indexal solo diagnostica un uso posterior."
+    }), Object.freeze({
+      id: "month-name-izcalli-ownerhood-agentive-denominal-source",
+      sourceRefs: Object.freeze(["Andrews Appendix E", "Andrews 31.6.1", "Andrews 44.5.3", "Andrews 55.7.2"]),
+      pdfPages: Object.freeze([667]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El nombre mensual Izcalli presupone una CNN agentiva preterita de posesion abundante izcalloh y un nounstem (izcal)-li que tambien alimenta m-o-(izcal-i-a).",
+      requiredProbe: "No analizar Izcalli como iz calli ni como accion directa; conservar ownerhood agentivo, nounstem izcal, posible fuente denominal y lectura calendárica."
+    }), Object.freeze({
+      id: "index-adjectival-nnc-source-family-crossref-boundary",
+      sourceRefs: Object.freeze(["Andrews Index: Adjectival NNC", "Andrews Lessons 40-41", "Andrews Lesson 43", "Andrews 54.2"]),
+      pdfPages: Object.freeze([678]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El índice reparte las CNNs adjectivales entre excepciones, intensificación, modificación, principal clause y fuentes desde verbstems denominales de nounstems compuestos; esa lista es un mapa de familias fuente, no una clase formal nueva.",
+      requiredProbe: "No usar la referencia indexal 'Adjectival NNC' como permiso de generación directa; exigir familia fuente CNV/CNN, función adjectival, posible loop denominal y lección concreta antes de renderizar."
+    }), Object.freeze({
+      id: "later-nominalized-vnc-references-do-not-license-generation",
+      sourceRefs: Object.freeze(["Andrews Lessons 42", "Andrews Lesson 44", "Andrews Lesson 45", "Andrews Lesson 46", "Andrews Lesson 47", "Andrews Lesson 51", "Andrews Lesson 52", "Andrews Lesson 56", "Andrews Lesson 58", "Andrews Index"]),
+      pdfPages: Object.freeze([432, 437, 446, 447, 455, 456, 463, 471, 495, 556, 561, 609, 611, 612, 613, 637, 638, 665, 667, 679, 683, 687, 689]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Las referencias posteriores a agentivos y nominalizaciones muestran usos en composicion, adjuncion, nombres o ejemplos, pero no autorizan nuevas rutas finitas por si mismas.",
+      requiredProbe: "Catalogar la referencia posterior como uso diagnostico hasta que la leccion correspondiente se ejecute con evidencia Nawat/Pipil."
+    }), Object.freeze({
+      id: "causative-final-vowel-valence-not-predictive-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.1", "Andrews 24.2", "Andrews 23.1"]),
+      pdfPages: Object.freeze([197, 198]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La vocal final i/a/o de un verbstem no predice por si sola valencia; algunos pares son valence-neutral y otros son derivaciones reales.",
+      requiredProbe: "No derivar causativo, aplicativo ni objeto por letra final visible; registrar clase fuente, valencia fuente, valencia meta y si Andrews da derivacion o par neutral."
+    }), Object.freeze({
+      id: "causative-a-morpheme-vs-stem-vowel-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.3"]),
+      pdfPages: Object.freeze([198, 199, 200]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El a causativo es morfema propio, aunque pueda reemplazar una vocal stem-final i/a que solo era sonido constituyente del tronco fuente.",
+      requiredProbe: "No copiar el a como parte lexical del source stem ni borrar el limite morfemico; mostrar replacement/addition y clase resultante antes de superficie."
+    }), Object.freeze({
+      id: "causative-i-source-replacement-vs-addition-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.3.1"]),
+      pdfPages: Object.freeze([199]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los intransitivos en i pueden formar causativo por reemplazo sobre base sin i o por adicion a tronco completo; la diferencia cambia clase y superficie.",
+      requiredProbe: "No elegir una sola formula para todos los i-final; distinguir man-a/cuep-a/tzacua de ilpi-a/aqui-a/pahti-a y conservar clase B/C."
+    }), Object.freeze({
+      id: "causative-ya-replacement-vs-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.3.2", "Andrews 54.2"]),
+      pdfPages: Object.freeze([200]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Los intransitivos en ya normalmente reemplazan ya con causativo a, pero hay excepciones donde y se conserva antes de a.",
+      requiredProbe: "No tratar ya como final vocal simple ni como sufijo directo de CNN; registrar fuente ya, regla de reemplazo, excepcion y enlace con denominales de Lesson 54."
+    }), Object.freeze({
+      id: "destockal-stock-rank-not-root-or-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.4", "Andrews 1.11.2"]),
+      pdfPages: Object.freeze([200]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un destockal verbstem se forma por root -> stock -> stem; el stock no puede comportarse como verbstem simple.",
+      requiredProbe: "No generar desde stock como si fuera tronco finito; conservar root, stock formative, stem formative y luego cualquier causativo/applicativo."
+    }), Object.freeze({
+      id: "applicative-mainline-object-concomitant-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.1", "Andrews 23.1"]),
+      pdfPages: Object.freeze([226]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un applicative verbstem se distingue por sufijo mainline y pronombre de objeto concomitante obligatorio, no solo por glosa con preposicion.",
+      requiredProbe: "No aceptar liaison applicativa sin objeto nuevo; registrar sufijo, objeto mainline agregado, valencia resultante y si hay uno/dos/tres objetos."
+    }), Object.freeze({
+      id: "inherent-applicative-maca-valence-principle-exception",
+      sourceRefs: Object.freeze(["Andrews 26.1", "Andrews 36.8"]),
+      pdfPages: Object.freeze([226]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "te+tla-(maca) viola el principio de valencia porque tiene doble objeto sin sufijo aplicativo interno, aunque su futuro-agentivo muestra fuente de un objeto.",
+      requiredProbe: "No fabricar sufijo aplicativo ausente; diagnosticar excepcion lexical, doble objeto antiguo y contraste con tla-maca-z-qui."
+    }), Object.freeze({
+      id: "itta-irregular-applicative-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.1", "Andrews 26.2", "Andrews 28.7.4"]),
+      pdfPages: Object.freeze([226, 227]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "te/tla-(itt-a) no es directive simple: Andrews lo remite a fuente defectiva *(itzi), cambio irregular a tt y a aplicativo basico *te/tla-(itzi).",
+      requiredProbe: "No usar itta como stem atomic ni como causativo regular; conservar fuente defectiva, tt irregular, lectura aplicativa y restriccion de compound embed."
+    }), Object.freeze({
+      id: "first-type-applicative-replacive-ia-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.2", "Andrews 24.3.1"]),
+      pdfPages: Object.freeze([227, 228]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El aplicativo de primer tipo usa ia sobre stem replacivo sin vocal final; en fuentes en i puede parecer causativo porque la i eliminada y la i del sufijo coinciden.",
+      requiredProbe: "No decidir por superficie ia; registrar fuente transitiva/intransitiva, vocal eliminada, carrier ia y si la lectura puede ser causativa o aplicativa."
+    }), Object.freeze({
+      id: "applicative-ti-after-nounstem-not-causative-tia-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.2", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([228, 232]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Cuando un nounstem precede t, una superficie t-ia puede ser aplicativo de fuente ti, no causativo tia; y algunas formas son ambiguas con diferencias semanticas.",
+      requiredProbe: "No normalizar cuica-t-ia/yaca-t-ia/yaca-ti-a por cadena de letras; conservar nounstem fuente, t de ti, ia aplicativa o a causativa y lectura resultante."
+    }), Object.freeze({
+      id: "applicative-reflexive-mainline-to-shuntline-ne-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.3", "Andrews Appendix C"]),
+      pdfPages: Object.freeze([229]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Si la fuente tiene reflexivo, la transformacion aplicativa puede moverlo de mainline a shuntline ne cuando lia controla el nuevo objeto mainline.",
+      requiredProbe: "No copiar n-o/m-o desde fuente a salida; distinguir reflexivo mainline agregado por lia frente a ne shuntline conservado desde la fuente."
+    }), Object.freeze({
+      id: "applicative-lia-huia-selection-source-ending-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.3", "Andrews 26.4", "Andrews 26.9"]),
+      pdfPages: Object.freeze([229, 230, 233, 234]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La seleccion lia/huia depende del final y clase del source stem: huia con o-a Class C o intransitivos en o, lia en la mayoria restante.",
+      requiredProbe: "No elegir lia/huia por traduccion; registrar final fuente, clase, source stem replacivo y si huia es aplicativo, causativo o ambiguo por contexto."
+    }), Object.freeze({
+      id: "applicative-source-final-sound-replacement-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.4", "Andrews 26.7"]),
+      pdfPages: Object.freeze([230, 231, 232]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los aplicativos reemplazan o alteran sonidos finales de fuente: si -> xi, tzi/ti -> chi/c, a -> i y algunas tla/tza -> ti-lia.",
+      requiredProbe: "No tratar cambios como ortografia post-hoc; conservar regla por final fuente, replacement stem y sufijo aplicativo antes de superficie Nawat/Pipil."
+    }), Object.freeze({
+      id: "piya-lia-class-b-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.8.2"]),
+      pdfPages: Object.freeze([232]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los transitivos Clase B en iya como piya forman aplicativo agregando lia al imperfectivo completo, no por reemplazo de ya.",
+      requiredProbe: "No convertir piya en root p o piy antes de lia; mantener piya-lia y contrastar con intransitivos eya/oya que borran ya."
+    }), Object.freeze({
+      id: "applicative-oya-valence-neutral-root-minus-ya-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.8.4", "Andrews 25.4.8"]),
+      pdfPages: Object.freeze([232, 233]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Algunos stems en oya forman aplicativo borrando ya y agregando lia al root, pero otros agregan lia al imperfectivo completo.",
+      requiredProbe: "No aplicar una sola regla oya; distinguir root+ya intransitivo, valence-neutral transitive, namoya-lia y yoco-lia/coco-lia."
+    }), Object.freeze({
+      id: "oa-huia-denominal-applicative-hypothetical-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.9", "Andrews 55.3.1", "Andrews 55.3.2"]),
+      pdfPages: Object.freeze([233, 234]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Los denominales intransitivos en o-a pueden formar aplicativos en huia por analogia con destockales e incluso inventar fuentes hipoteticas i-hui/a-hui.",
+      requiredProbe: "No presentar ayacach-i-l-huia o chol-huia como directo desde CNN; conservar CNN fuente, denominal o-a, fuente hipotetica si existe y aplicativo final."
+    }), Object.freeze({
+      id: "applicative-tia-rare-not-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.11"]),
+      pdfPages: Object.freeze([234]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La unidad tia puede funcionar raramente como aplicativo y no debe ser forzada a causativo solo por su forma.",
+      requiredProbe: "No clasificar todo tia como causativo; exigir fuente, objeto agregado, contexto y diagnostico aplicativo raro."
+    }), Object.freeze({
+      id: "frequentative-prefix-shape-lexical-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.1", "Andrews 27.2", "Andrews 14.3"]),
+      pdfPages: Object.freeze([243, 244]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los frequentative verbstems usan tres formas de reduplicacion, pero Andrews no da regla estricta para escogerlas por stem.",
+      requiredProbe: "No generar frecuencia por plantilla unica; registrar forma de prefijo, valor intensivo/continuo/multiple y seleccion lexical o diagnostico."
+    }), Object.freeze({
+      id: "frequentative-supportive-i-not-reduplicated-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.2 note 1", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([245]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Si el source stem empieza con i supportive mas dos consonantes, la reduplicacion normalmente toma la segunda consonante y la i supportive desaparece.",
+      requiredProbe: "No reduplicar i como vocal real salvo excepcion; conservar supportive-i diagnostic, consonante base y posible formacion excepcional."
+    }), Object.freeze({
+      id: "frequentative-object-pronoun-reduplication-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.3", "Andrews 7.10"]),
+      pdfPages: Object.freeze([245, 246]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En tla fusion, el objeto tla ya integrado en el stem puede reduplicarse; el reflexivo mainline puede reduplicarse parcialmente antes de supportive i.",
+      requiredProbe: "No mover tla o reflexivo fuera del stem antes de reduplicar; distinguir tla fusion, tlah-tla/tla-tla y m-oh-o/n-oh-o/t-oh-o."
+    }), Object.freeze({
+      id: "frequentative-destockal-ca-tza-chain-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.4", "Andrews 24.5"]),
+      pdfPages: Object.freeze([246, 247, 248]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los destockales tienen frequentative especial: intransitivos cambian ni/hui a ca y causativos cambian n/ni/hua a tz antes de a.",
+      requiredProbe: "No reduplicar solo el stem visible; conservar root, stock formative, theme, ca/tza replacement, clase resultante y nonactive posterior."
+    }), Object.freeze({
+      id: "frequentative-tza-applicative-meaning-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.4.4", "Andrews 26.23"]),
+      pdfPages: Object.freeze([248, 249]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El frequentative tz-a puede tener fuerza causativa o aplicativa; la interpretacion depende de contexto y no de la forma sola.",
+      requiredProbe: "No decidir causativo/aplicativo por sufijo tza; registrar contexto, objeto, lectura y si el source intransitive frequentative esta visible."
+    }), Object.freeze({
+      id: "frequentative-nonactive-keeps-derived-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 27.6", "Andrews Lesson 20"]),
+      pdfPages: Object.freeze([249]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los nonactive verbstems tambien pueden undergoing frequentative derivation; el nonactive no borra el origen frequentative.",
+      requiredProbe: "No conjugar nonactive como simple stem si contiene reduplicacion; conservar derived frequentative stem, voice and formula path."
+    }), Object.freeze({
+      id: "affective-nnc-matrix-not-simple-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.1", "Andrews 31.6"]),
+      pdfPages: Object.freeze([304]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las affective-matrix nounstems como pil/pol no forman simple-stemmed NNCs; solo funcionan como matriz de compound affective nounstem.",
+      requiredProbe: "No listar pil/pol/tzin/ton/zol como CNN ordinarias generables; exigir embed nounstem, matriz afectiva y compound CNN resultante."
+    }), Object.freeze({
+      id: "affective-pil-pol-class-zero-overrides-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.2"]),
+      pdfPages: Object.freeze([304, 305]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las matrices pil y pol forman stems compuestos de clase 0 sin importar la clase del embed, salvo lexicalizaciones posteriores.",
+      requiredProbe: "No heredar automaticamente la clase del nounstem embed; mostrar matriz pil/pol, clase 0 resultante y cualquier cambio lexicalizado."
+    }), Object.freeze({
+      id: "affective-lexicalized-calpolli-class-shift-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.2"]),
+      pdfPages: Object.freeze([305]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando un affective compound se lexicaliza con sentido especial, como calpolli, su clase cambia a tli aunque la matriz pol normalmente produzca clase 0.",
+      requiredProbe: "No aplicar clase 0 sin excepcion; registrar lexicalizacion, nuevo significado y paradigma tli antes de continuaciones."
+    }), Object.freeze({
+      id: "affective-tzin-ton-embed-class-governs-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.3"]),
+      pdfPages: Object.freeze([305, 306]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las matrices tzin y ton dejan que la clase del embed gobierne: embed 0 produce 0, otros embeds producen tli.",
+      requiredProbe: "No usar una clase fija para todos los honorificos/diminutivos; inspeccionar clase del embed y excepciones como quimich-ton."
+    }), Object.freeze({
+      id: "affective-vocative-tz-vs-tzin-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.3", "Andrews 18.11"]),
+      pdfPages: Object.freeze([306]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En vocativo con particula e, tzin puede alternar con la forma abreviada tz, con diferencia de formalidad y casos especiales como il.",
+      requiredProbe: "No tratar tz como simple truncamiento ortografico; conservar vocativo e, matriz full/abbreviated, formalidad y source nounstem."
+    }), Object.freeze({
+      id: "affective-zol-nonanimate-tli-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.4"]),
+      pdfPages: Object.freeze([306]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz zol solo embebe nounstems no animados y siempre forma compound affective stems de clase tli.",
+      requiredProbe: "No permitir zol con embed animado ni heredar clase del embed; comprobar animacidad, matriz zol y clase tli resultante."
+    }), Object.freeze({
+      id: "verbstem-citation-requires-valence-core-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.2", "Andrews 5.5.1"]),
+      pdfPages: Object.freeze([76, 77]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Andrews no cita verbstems aislados cuando la valencia importa; cita el verbcore con objeto te/tla/reflexivo/reciprocativo apropiado.",
+      requiredProbe: "No aceptar un stem desnudo como fuente suficiente para derivar; conservar valencia citada, objeto indefinido o reflexivo y limite de verbcore."
+    }), Object.freeze({
+      id: "verbstem-internal-morphs-unified-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.1"]),
+      pdfPages: Object.freeze([76, 77]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un verbstem polimorfemico muestra morfos internos, pero Andrews traduce el stem como unidad lexical y no glosa cada morfo interno.",
+      requiredProbe: "No convertir cada morfo interno en salida o etiqueta independiente; conservar boundary interno, significado unificado y estado de analisis incierto si aplica."
+    }), Object.freeze({
+      id: "verbstem-class-perfective-shape-governs-tense-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.3", "Andrews 7.7"]),
+      pdfPages: Object.freeze([77, 78, 81, 82]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las clases A-D se definen por la forma perfectiva y por la cooperacion de formas de stem con los morfos de tiempo.",
+      requiredProbe: "No conjugar por superficie imperfectiva unica; registrar clase, stem perfectivo, stem imperfectivo y tiempos que seleccionan cada forma."
+    }), Object.freeze({
+      id: "class-b-silent-causative-morph-homonymy-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.3.1", "Andrews 24.3"]),
+      pdfPages: Object.freeze([78]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En Clase B, una vocal final perdida y un morfo causativo silencioso pueden producir perfectivos fonologicamente identicos.",
+      requiredProbe: "No resolver tomi/ton y tom-a/ton-0 por superficie; conservar objeto, causativo silencioso y fuente derivacional."
+    }), Object.freeze({
+      id: "class-c-truncated-silent-carrier-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.3.2", "Andrews 7.7"]),
+      pdfPages: Object.freeze([78, 82]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los stems Clase C tienen formas truncadas cuyo morfo derivacional queda silenciosamente presente aunque Andrews lo omita en analisis simplificados.",
+      requiredProbe: "No borrar el morfo por falta de sonido; conservar carrier silencioso, forma truncada, tiempo compatible y clase C."
+    }), Object.freeze({
+      id: "traditional-oa-ia-spelling-class-c-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.4"]),
+      pdfPages: Object.freeze([79]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las grafias tradicionales oa e ia ocultan w/y intervocalicos y pueden hacer parecer Clase C a stems que no lo son.",
+      requiredProbe: "No clasificar por escritura oa/ia; restaurar w/y o diagnosticar grafia tradicional antes de clase, perfectivo y derivacion."
+    }), Object.freeze({
+      id: "ya-stem-class-b-y-to-x-z-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.4", "Andrews 7.6.6", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([79, 80]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Los verbstems en ya son Clase B y cambian y a x/z segun el root, con opcion frecuente de Clase A en intransitivos.",
+      requiredProbe: "No tratar ya como vocal final plana; registrar source ya, cambio y->x/z, opcion Clase A y enlace con denominal/deverbal Lesson 54."
+    }), Object.freeze({
+      id: "verbstem-variable-class-membership-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.5", "Andrews 7.6"]),
+      pdfPages: Object.freeze([79, 80]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunos verbstems tienen membresia variable A/B y los criterios de clase son guias, no predicciones completas.",
+      requiredProbe: "No fijar una clase por heuristica superficial; conservar alternativas perfectivas y diagnostico lexical cuando Andrews exige aprender el stem."
+    }), Object.freeze({
+      id: "vnc-complete-form-subject-predicate-compartment-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.8"]),
+      pdfPages: Object.freeze([83, 84]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Los ejemplos completos de VNC fuerzan una division absoluta entre sujeto y predicado antes de cualquier reanalisis nominal.",
+      requiredProbe: "No mover numero o objeto al stem al nominalizar; conservar sujeto, core, tiempo, numero y solo despues evaluar ruta CNN."
+    }), Object.freeze({
+      id: "supportive-i-object-prefix-deletion-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.8 note 1", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([85]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Una i supportive inicial del verbstem desaparece despues de reflexivo mainline o tla, pero una vocal real obliga al alomorfo 0.",
+      requiredProbe: "No aplicar borrado de i indiscriminado; distinguir supportive i, vocal real, prefijo tla, reflexivo y stems ih- ambivalentes."
+    }), Object.freeze({
+      id: "class-d-present-preterit-homophony-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.8 note 2", "Andrews 3.2.4"]),
+      pdfPages: Object.freeze([85]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "En Clase D, presentes plurales y preteritos singulares pueden ser fonologicamente identicos si no se marca glotal.",
+      requiredProbe: "No reanalizar por superficie ni tiempo aparente; conservar formula, glotal, numero, sujeto y posible particula antecesiva."
+    }), Object.freeze({
+      id: "tla-fusion-derivational-intransitive-boundary",
+      sourceRefs: Object.freeze(["Andrews 7.10", "Andrews 30.5"]),
+      pdfPages: Object.freeze([86]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La fusion de tla convierte objeto inespecifico mas stem transitivo en un nuevo verbstem intransitivo por derivacion.",
+      requiredProbe: "No dejar tla fusionado como objeto externo; distinguir tla-(stem) transitivo de (tla-stem) intransitivo y usar adverbio incorporado como prueba de frontera."
+    }), Object.freeze({
+      id: "absolutive-nnc-number-belongs-to-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.3.2", "Andrews 12.6", "Andrews 14.2"]),
+      pdfPages: Object.freeze([116, 118]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En CNN absolutiva, num1-num2 pertenece al sujeto personal, no al nounstem, aunque el nounstem seleccione la forma del conector.",
+      requiredProbe: "No tratar tli/in/0/t-in/m-eh como sufijos lexicales del nounstem; conservar sujeto, conector y clase nominal separados."
+    }), Object.freeze({
+      id: "nnc-predicate-no-tense-context-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.5", "Andrews 51.3"]),
+      pdfPages: Object.freeze([117, 118]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La CNN no contiene morfo de tiempo; la traduccion temporal depende del contexto discursivo o de construcciones externas.",
+      requiredProbe: "No insertar tiempo en formula CNN ni heredar tiempo de una CNV fuente; mantener predicado nominal sin tense slot."
+    }), Object.freeze({
+      id: "nounstem-animacy-cultural-reference-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.6", "Andrews 4.6"]),
+      pdfPages: Object.freeze([118]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La animacidad del nounstem es cultural y normalmente correlaciona con el sujeto, pero la referencia del sujeto puede contradecirla en usos metaforicos.",
+      requiredProbe: "No fijar animacidad por glosa inglesa ni por nounstem solo; registrar referencia del sujeto, animacidad esperada y uso metaforico."
+    }), Object.freeze({
+      id: "nonanimate-common-number-no-plural-inflection-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.6", "Andrews 4.6"]),
+      pdfPages: Object.freeze([118]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las CNNs sobre nounstems no animados permiten numero comun, no plural gramatical ordinario, salvo uso metaforico deliberado.",
+      requiredProbe: "No generar plural nominal por traduccion count/mass inglesa; conservar numero comun, sujeto no animado y diagnostico metaforico si se fuerza plural."
+    }), Object.freeze({
+      id: "single-meaning-stem-with-plural-subject-proof-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.6"]),
+      pdfPages: Object.freeze([119]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Formas con cem 'uno' y sujeto plural prueban que la pluralidad esta en el sujeto, no como inflexion del nounstem.",
+      requiredProbe: "No pluralizar el stem cem-ihti/cem-it-hual; conservar significado singular del predicado y pluralidad del sujeto."
+    }), Object.freeze({
+      id: "state-not-valence-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 12.7", "Andrews 13.1"]),
+      pdfPages: Object.freeze([119, 120]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El estado absolutivo/posesivo no se relaciona con el nounstem como la valencia se relaciona con el verbstem; la mayoria de nounstems participa libremente.",
+      requiredProbe: "No inferir estado por clase lexical como si fuera valencia verbal; registrar state slot, restricciones lexicales raras y posibilidad libre."
+    }), Object.freeze({
+      id: "possessive-state-subject-connector-shape-boundary",
+      sourceRefs: Object.freeze(["Andrews 13.2", "Andrews 13.3"]),
+      pdfPages: Object.freeze([120, 121]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En CNN posesiva, el sujeto usa conectores uh/hui/0 y plural hu-an, distintos de los absolutivos.",
+      requiredProbe: "No reutilizar conectores absolutivos en posesivo; mostrar estado posesivo, sujeto, num1-num2 y distribucion uh/hui/0."
+    }), Object.freeze({
+      id: "possessor-state-monadic-nonspecific-boundary",
+      sourceRefs: Object.freeze(["Andrews 13.4"]),
+      pdfPages: Object.freeze([121, 122]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El estado posesivo monadico puede usar ne reciprocativo y te/tla posesores inespecificos con restricciones propias, no objetos VNC externos.",
+      requiredProbe: "No promover te/tla/ne posesivos a valencia verbal; conservar case posesivo, restricciones de persona y uso relacional de tla."
+    }), Object.freeze({
+      id: "possessive-dyadic-st1-st2-category-split-boundary",
+      sourceRefs: Object.freeze(["Andrews 13.5", "Andrews 6.4"]),
+      pdfPages: Object.freeze([122, 123]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El estado posesivo dyadico reparte persona, numero y caso entre st1-st2 de modo distinto para tercera persona y para primera/segunda.",
+      requiredProbe: "No colapsar el posesivo en prefijo unico; preservar st1/st2, tercera i-0/i-m, primera/segunda n-o/t-o/m-o/am-o y alomorfo ante vocal."
+    }), Object.freeze({
+      id: "amo-ammo-reflexive-vnc-vs-possessive-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 13.6", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([123]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La escritura tradicional puede confundir am-m-o de VNC reflexiva con am-o de CNN posesiva.",
+      requiredProbe: "No resolver amo/ammo por grafia; comparar clase formal CNV/CNN, sujeto, reflexivo u estado posesivo y stem inicial."
+    }), Object.freeze({
+      id: "restricted-vs-general-use-nounstem-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.1", "Andrews Lessons 30-31"]),
+      pdfPages: Object.freeze([124, 125, 126]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Todo nominal lexical tiene restricted-use y general-use stem; el restricted forma absolutivas y el general posesivas o embeds de compuestos.",
+      requiredProbe: "No alimentar compound o denominal desde la citation form sin revisar general-use stem, truncamiento o glotalizacion."
+    }), Object.freeze({
+      id: "nounstem-class-membership-not-predictable-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2"]),
+      pdfPages: Object.freeze([124, 125]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La clase ti/tli/in/0 del nounstem no es predecible por significado y debe aprenderse para cada stem; li no es clase separada.",
+      requiredProbe: "No asignar clase por glosa ni por ultima letra solamente; registrar clase lexical, li como variante de tli y alternativas permitidas."
+    }), Object.freeze({
+      id: "general-use-shape-base-truncated-glottalized-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2.8", "Andrews Lessons 30-31"]),
+      pdfPages: Object.freeze([125, 126, 130]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El general-use nounstem puede tener forma base, truncada o glotalizada; esa forma alimenta posesivos, compounds y rutas posteriores.",
+      requiredProbe: "No usar restricted stem en embeds o posesivos por defecto; diagnosticar forma general-use y si la glotalizacion esta licenciada."
+    }), Object.freeze({
+      id: "affinity-distributive-derived-nounstem-not-number-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.3", "Andrews 27.2"]),
+      pdfPages: Object.freeze([125, 126]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Affinity y distributive/varietal nounstems son derivaciones internas del stem, no numero gramatical del nounstem.",
+      requiredProbe: "No usar reduplicacion nominal como plural inflection; conservar derivacion dentro del stem y numero del sujeto separado."
+    }), Object.freeze({
+      id: "nounstem-supportive-i-redup-real-vowel-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.3", "Andrews Appendix F"]),
+      pdfPages: Object.freeze([126]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En nounstems con i supportive inicial, Andrews trata esa vocal como real para la reduplicacion distributiva.",
+      requiredProbe: "No aplicar la regla verbal de borrar i supportive; distinguir reduplicacion nominal ih-icxi/ih-izte de reduplicacion verbal."
+    }), Object.freeze({
+      id: "plural-subject-nounstem-selection-lexical-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.5"]),
+      pdfPages: Object.freeze([127, 128, 129]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las CNN absolutivas con sujeto plural pueden usar plain, affinity o distributive stems, y la seleccion de num1 es lexicalmente variable.",
+      requiredProbe: "No generar una sola pluralizacion; conservar plain/affinity/distributive, clase fuente, num1 elegido y alternativas lexicales."
+    }), Object.freeze({
+      id: "possessive-plural-subject-plain-default-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.6"]),
+      pdfPages: Object.freeze([129, 130]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En posesivo con sujeto plural normalmente se usa plain stem; affinity/distributive solo si se necesita indicar afinidad o variedad.",
+      requiredProbe: "No copiar automaticamente el plural absolutivo affinity al posesivo; exigir valor semantico especial antes de derivar."
+    }), Object.freeze({
+      id: "possessive-singular-tli-subclass-hui-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.7"]),
+      pdfPages: Object.freeze([130]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En posesivo singular/comun, casi todos los tli stems usan 0 en num1, pero una subclase limitada usa hui.",
+      requiredProbe: "No elegir hui por final consonantico ni borrar la subclase; registrar tli Subclase 1/2 y ejemplos como oh-hui."
+    }), Object.freeze({
+      id: "type-two-causative-tia-vs-ti-a-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.1", "Andrews 54.2.1", "Andrews 54.5"]),
+      pdfPages: Object.freeze([210]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "La unidad causativa tia combina ti conectivo vacio y a causativo, pero se distingue de ti-a donde ti es morfema significativo de 'become' o 'have'.",
+      requiredProbe: "No buscar tia por string; separar ti conectivo vacio, ti denominal significativo, a causativo y cadena CNN -> CNV si existe."
+    }), Object.freeze({
+      id: "type-two-causative-unattested-nonactive-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.1", "Andrews 25.2", "Andrews 25.3"]),
+      pdfPages: Object.freeze([210, 211, 212]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Muchos causativos tipo dos se forman desde nonactive stems inesperados o no atestiguados fuera de la derivacion.",
+      requiredProbe: "No exigir fixture superficial del nonactive ni inventar uno productivo; registrar fuente reconstruida, sufijo nonactive borrado y evidencia Andrews."
+    }), Object.freeze({
+      id: "ya-hual-irregular-no-causative-suppletive-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.1"]),
+      pdfPages: Object.freeze([210]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los irregulares ya-uh y hual-la-uh no derivan causativos; usan huica como suppletive stem.",
+      requiredProbe: "No aplicar tia/lia/huia a irregulares de ir/venir; redirigir a suppletive huica o bloquear."
+    }), Object.freeze({
+      id: "type-two-causative-source-final-replacement-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.2", "Andrews 25.4"]),
+      pdfPages: Object.freeze([211, 213, 214]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los causativos tipo dos alteran finales de fuente como ki/ka, si/sa, ti/ta, ni, kwa y wa antes de tia.",
+      requiredProbe: "No tratar caqui-tia, machi-tia o tzacui-ltia como ortografia posterior; conservar replacement rule, source stem y nonactive base."
+    }), Object.freeze({
+      id: "source-valence-determines-causative-object-count-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.2 note", "Andrews 24.2"]),
+      pdfPages: Object.freeze([212]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La misma forma causativa puede parecer de uno o dos objetos, pero la valencia se decide por la fuente intransitiva o transitiva.",
+      requiredProbe: "No decidir object count por superficie hue-tz-qui-tia; registrar fuente, valencia fuente y objeto causativo agregado."
+    }), Object.freeze({
+      id: "machtia-silent-object-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.3", "Andrews 18.8"]),
+      pdfPages: Object.freeze([212, 213]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "te/tla-(mach-tia) puede tener objeto silencioso que sirve de cabeza para suplemento; algunos escritores muestran objeto shuntline sonoro excepcionalmente.",
+      requiredProbe: "No descartar suplemento por falta de objeto visible; conservar objeto silencioso, fuente mati transitiva/intransitiva y lectura ambigua."
+    }), Object.freeze({
+      id: "lo-source-l-before-tia-class-c-d-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.4"]),
+      pdfPages: Object.freeze([213, 214]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Cuando el nonactive lo sirve de fuente, el l antes de tia distingue la formacion, especialmente en Class C y D.",
+      requiredProbe: "No borrar l como epentesis; conservar nonactive lo, base activa, clase fuente y causativo l-tia."
+    }), Object.freeze({
+      id: "itt-a-three-causative-source-routes-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.2.3", "Andrews 25.4.7", "Andrews 26.1.2", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([211, 214]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "tla-(itt-a) tiene causativos distintos por itt-i-tia, itt-a-l-tia y una ruta desde nounstem itz-tli mas ti.",
+      requiredProbe: "No fusionar los tres causativos por glosa 'show/cause to look'; conservar fuente defectiva, nonactive route y denominal itz-ti route."
+    }), Object.freeze({
+      id: "lia-causative-denominal-ti-and-root-ya-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.5", "Andrews 54.2.1", "Andrews 54.2.3"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "El causativo lia sirve a denominales en ti y a roots plus ya con borrado de ya; los deverbales ti/hui-ya usan la misma formacion.",
+      requiredProbe: "No clasificar lia solo como aplicativo; registrar source ti denominal, root+ya, borrado de ya y cadena deverbal si aplica."
+    }), Object.freeze({
+      id: "huia-causative-applicative-o-final-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.6", "Andrews 26.10"]),
+      pdfPages: Object.freeze([215]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "huia puede formar causativo de intransitivos en o y tambien aplicativo, creando stems ambiguos que solo el contexto resuelve.",
+      requiredProbe: "No asignar huia a causativo o aplicativo por forma sola; registrar source o-final, nonactive source y contexto de uso."
+    }), Object.freeze({
+      id: "compound-stem-embed-before-matrix-inviolable-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.1", "Andrews 28.2"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En un compound stem el embed siempre precede a la matriz; el orden inverso no es una variante de traduccion.",
+      requiredProbe: "No aceptar una ruta que ponga la matriz antes del embed; conservar embed-before-matrix antes de formular o renderizar el compuesto."
+    }), Object.freeze({
+      id: "compound-matrix-determines-formal-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.1", "Andrews 28.2"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matriz decide si el compound stem funciona como verbal o nominal; el embed no cambia la clase formal final.",
+      requiredProbe: "No escoger CNV/CNN por la glosa o por el embed visible; registrar matriz, embed y clase formal gobernada por la matriz."
+    }), Object.freeze({
+      id: "compound-embed-subject-deleted-but-felt-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.1", "Andrews 28.2"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El sujeto de la clausula incorporada se borra, pero su presencia estructural sigue condicionando la lectura del embed.",
+      requiredProbe: "No tratar el embed como stem desnudo sin clausula fuente; conservar sujeto borrado y funcion incorporada en diagnostico."
+    }), Object.freeze({
+      id: "compound-embed-never-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.2", "Andrews 30 caveat"]),
+      pdfPages: Object.freeze([251, 292]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed puede servir como objeto, poseedor, modificador o complemento, pero nunca como sujeto ni agente de la matriz.",
+      requiredProbe: "No dejar que una traduccion haga al embed sujeto/agente; bloquear o diagnosticar cualquier ruta que invierta esa relacion."
+    }), Object.freeze({
+      id: "vnc-embed-keeps-predicate-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.2", "Andrews 28.3"]),
+      pdfPages: Object.freeze([251, 252]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Cuando una CNV se embebe en otra CNV, el predicado incorporado conserva su valencia interna para determinar la valencia del compuesto.",
+      requiredProbe: "No recalcular la valencia solo desde la matriz; mostrar valencia del embed, valencia de matriz y resultado antes de generar."
+    }), Object.freeze({
+      id: "connective-t-preterit-embed-slot-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.4", "Andrews 28.5"]),
+      pdfPages: Object.freeze([252, 253]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los compuestos con connective t usan un embed verbal en preterito: stem perfectivo mas morfema preterito 0 antes del connector.",
+      requiredProbe: "No analizar t como sufijo del stem ni omitir el preterito 0; separar embed perfectivo, 0 preterito, connective t y matriz."
+    }), Object.freeze({
+      id: "auxiliary-verb-translation-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.5"]),
+      pdfPages: Object.freeze([253]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La lectura de 'auxiliary verb' es una ilusion de traduccion; estructuralmente el embed, no la matriz, aporta el valor adverbial.",
+      requiredProbe: "No crear una categoria auxiliar visible; conservar compound stem con embed adverbializado y matriz real."
+    }), Object.freeze({
+      id: "incorporated-object-downgraded-nnc-not-nuclear-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.1", "Andrews 30.2"]),
+      pdfPages: Object.freeze([276]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El objeto incorporado es predicado de una CNN degradada dentro del compound verbstem, no pronombre objeto nuclear externo.",
+      requiredProbe: "No duplicar objeto incorporado y objeto nuclear; mostrar fuente CNN degradada, embed y valencia resultante."
+    }), Object.freeze({
+      id: "incorporated-object-valence-reduction-count-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.2"]),
+      pdfPages: Object.freeze([276]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La incorporacion de objeto reduce la valencia: una CNV de un objeto queda intransitiva, dos objetos quedan uno, tres quedan dos.",
+      requiredProbe: "No conservar la cuenta de objetos fuente despues de incorporar; comparar valencia fuente, objeto incorporado y valencia final."
+    }), Object.freeze({
+      id: "incorporated-object-atli-irregular-num1-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.2"]),
+      pdfPages: Object.freeze([276]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El objeto incorporado de (a-tl-i) puede incluir un filler num1 irregular, no solo la base que una glosa esperaria.",
+      requiredProbe: "No normalizar ah-/atl- por diccionario simple; registrar forma incorporada, num1 irregular y clase de fuente."
+    }), Object.freeze({
+      id: "incorporated-adverb-manner-subject-object-focus-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.11", "Andrews 30.12"]),
+      pdfPages: Object.freeze([282, 283]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los adverbios incorporados de manera pueden enfocar al sujeto o al objeto segun la estructura de la matriz.",
+      requiredProbe: "No etiquetar todo embed de manera como modificador general; registrar orientacion a sujeto u objeto y matriz transitiva/intransitiva."
+    }), Object.freeze({
+      id: "incorporated-compared-manner-orientation-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12"]),
+      pdfPages: Object.freeze([282, 283]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La manera comparada incorporada en una matriz transitiva puede orientarse al sujeto o al objeto sin que la traduccion lo decida sola.",
+      requiredProbe: "No fijar orientacion por traduccion inglesa/espanola; exigir ruta de matriz, rol enfocado y evidencia de embed."
+    }), Object.freeze({
+      id: "compared-manner-preterit-agentive-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12", "Andrews 44.7"]),
+      pdfPages: Object.freeze([283]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Muchos adverbios incorporados de manera comparada usan nounstems preterit-agentive como embed.",
+      requiredProbe: "No saltar directo de CNV a adverbio; conservar nominalizacion preterit-agentive, embed y orientacion semantica."
+    }), Object.freeze({
+      id: "unique-embed-nounstem-no-simple-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.13"]),
+      pdfPages: Object.freeze([283, 284]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos nounstems solo aparecen como embeds en compound stems y ya no como CNN simples de uso libre.",
+      requiredProbe: "No exigir fixture de CNN simple antes de aceptar el embed; marcar nounstem unico, distribucion restringida y compuesto que lo licencia."
+    }), Object.freeze({
+      id: "ih-unique-embed-glottalized-supportive-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.13"]),
+      pdfPages: Object.freeze([284, 285]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed unico ih- puede ocultar una variante glotalizada de i-tl; su i puede ser soporte o vocal real segun el entorno.",
+      requiredProbe: "No borrar ni fijar i automaticamente; registrar si la i funciona como soporte o como vocal real antes de aplicar reduplicacion o tla."
+    }), Object.freeze({
+      id: "supplement-to-adverbial-embed-possessor-case-shift-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.14"]),
+      pdfPages: Object.freeze([285]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un suplemento posesivo puede volverse embed adverbial sin perder poseedor; el caso del poseedor cambia a pronombre sujeto nominativo del compuesto.",
+      requiredProbe: "No perder poseedor al incorporar suplemento; mostrar poseedor fuente, cambio de caso y sujeto nominativo resultante."
+    }), Object.freeze({
+      id: "incorporated-nnc-nonactive-passive-impersonal-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.16"]),
+      pdfPages: Object.freeze([291]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compound verbstem con NNC incorporada puede formar nonactive, pero passive/impersonal depende de la transitividad y especificidad del objeto fuente.",
+      requiredProbe: "No generar passive por defecto; comprobar fuente transitiva con objeto especifico frente a intransitiva o nonspecific-object."
+    }), Object.freeze({
+      id: "incorporated-object-single-object-no-passive-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.16"]),
+      pdfPages: Object.freeze([291]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La CNV de un solo objeto queda intransitiva despues de incorporar ese objeto; por eso su nonactive es impersonal, no passive.",
+      requiredProbe: "No permitir passive para single-object incorporation; exigir impersonal o bloquear con diagnostico de valencia reducida."
+    }), Object.freeze({
+      id: "incorporated-embed-not-agent-or-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 30 caveat", "Andrews 30.16"]),
+      pdfPages: Object.freeze([292, 293]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed incorporado no representa agente ni sujeto, incluso cuando la traduccion inglesa/espanola parece hacerlo.",
+      requiredProbe: "No traducir embed como agente ni sujeto gramatical; conservar sujeto faceless/impersonal o matriz segun Andrews."
+    }), Object.freeze({
+      id: "compound-nounstem-matrix-governs-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.1", "Andrews 31.2"]),
+      pdfPages: Object.freeze([294]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En NNC+NNC=NNC la matriz gobierna el compuesto y establece la clase del nounstem resultante.",
+      requiredProbe: "No asignar clase por el primer miembro visible; registrar embed, matriz y clase gobernada por matriz."
+    }), Object.freeze({
+      id: "compound-nounstem-embed-general-use-ti-2b-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.2", "Andrews 31.4"]),
+      pdfPages: Object.freeze([294, 297]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed de compound nounstem suele usar forma general-use; ti Subclass 2-B puede conservar final a y otros casos pierden segmentos irregularmente.",
+      requiredProbe: "No truncar todos los embeds igual; conservar clase fuente, forma general-use y excepciones de Subclass 2-B."
+    }), Object.freeze({
+      id: "compound-nounstem-embed-role-range-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.2"]),
+      pdfPages: Object.freeze([294]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed de compound nounstem puede venir de suplemento o modificador y cumplir una gama amplia de roles, no una relacion unica.",
+      requiredProbe: "No etiquetar todo embed nominal como modificador simple; registrar rol reconstruido y fuente NNC."
+    }), Object.freeze({
+      id: "compound-nounstem-possessor-orientation-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.2", "Andrews 31.3"]),
+      pdfPages: Object.freeze([294, 295]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La orientacion posesiva normalmente apunta a la matriz, pero un embed de estado posesivo puede conservar orientacion al embed.",
+      requiredProbe: "No resolver poseedor por cercania superficial; mostrar orientacion matriz/embed y estado posesivo fuente."
+    }), Object.freeze({
+      id: "compound-nounstem-translation-reversal-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.3"]),
+      pdfPages: Object.freeze([295, 296]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La traduccion puede invertir embed y matriz; diccionario mas concatenacion no basta para analizar compound nounstems.",
+      requiredProbe: "No usar orden de traduccion como estructura; exigir analisis embed-before-matrix y matriz gobernante."
+    }), Object.freeze({
+      id: "compound-nounstem-rare-matrix-embed-indifference-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.4"]),
+      pdfPages: Object.freeze([297]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos pares parecen indiferentes a seleccion embed/matriz en traduccion, pero Andrews advierte que probablemente hay diferencia semantica.",
+      requiredProbe: "No colapsar pares invertidos como sinonimos; conservar orden estructural y marcar diferencia semantica no resuelta."
+    }), Object.freeze({
+      id: "affective-compound-source-denominal-zol-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.4"]),
+      pdfPages: Object.freeze([307]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "El compound affective nounstem con matriz zol puede servir como fuente de denominal verbstem.",
+      requiredProbe: "No tratar zol solo como etiqueta afectiva nominal; permitir ruta denominal diagnostica con matriz y fuente CNN explicitas."
+    }), Object.freeze({
+      id: "affective-tzin-pol-denominal-restricted-to-honorific-pejorative-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.4", "Andrews 33.5", "Andrews 33.6"]),
+      pdfPages: Object.freeze([307, 317, 319]),
+      routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+      obstacleEs: "tzin y pol pueden producir verbstems denominales, pero sus verbstems quedan restringidos como matrices en formaciones honorificas o peyorativas.",
+      requiredProbe: "No generar tzin/pol denominal libre; exigir contexto honorifico/peyorativo o mantener diagnostico bloqueado."
+    }), Object.freeze({
+      id: "affective-affinity-matrix-redup-no-length-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.5"]),
+      pdfPages: Object.freeze([307, 308]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La forma de afinidad de affective nounstems reduplica la matriz afectiva sin longitud vocal.",
+      requiredProbe: "No copiar longitud desde la fuente ni desde traduccion; registrar matriz afectiva, reduplicacion y plural t-in/0-0 segun sonido de num1."
+    }), Object.freeze({
+      id: "pil-li-basic-meaning-obscured-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.6"]),
+      pdfPages: Object.freeze([308, 309, 310]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El significado basico de (pil)-li como dependiente/apendice queda oscurecido por lecturas de child/noble.",
+      requiredProbe: "No elegir child o noble por glosa sola; conservar fuente pil-li, uso simple/afectivo y contexto posesivo/vocativo."
+    }), Object.freeze({
+      id: "pil-child-noble-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.6"]),
+      pdfPages: Object.freeze([309, 310]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "pil puede significar child o noble y se desambigua por construccion, genero, posesivo o vocativo.",
+      requiredProbe: "No fijar una sola traduccion para pil; mostrar lectura disponible y condicion estructural que la licencia."
+    }), Object.freeze({
+      id: "pil-unique-possessive-affective-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.6"]),
+      pdfPages: Object.freeze([309]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La formacion afectiva de pil como child puede embeber la CNN completa de estado posesivo dentro de tzi-tzin.",
+      requiredProbe: "No derivar solo desde stem simple pil; conservar NNC posesiva completa como embed y matriz afectiva."
+    }), Object.freeze({
+      id: "nonanimate-affective-affinity-plural-common-discrepancy-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.7"]),
+      pdfPages: Object.freeze([311]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los affective nounstems no animados con forma de afinidad pueden llevar plural t-in aunque como suplementos se comporten como common-number.",
+      requiredProbe: "No aplicar la regla nonanimate common-number mecanicamente; registrar discrepancia plural-suplemento y lectura de afinidad/distributiva."
+    }), Object.freeze({
+      id: "flawed-subject-silent-num1-not-class-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.8"]),
+      pdfPages: Object.freeze([311, 312]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La CNN de flawed subject reemplaza num1 sonoro ti/tli/in por variante silenciosa irregular para ridiculo o defecto, sin crear una nueva clase ordinaria.",
+      requiredProbe: "No clasificar silent num1 como clase lexical nueva; conservar absolutivo singular/common, defecto y fuente nounstem."
+    }), Object.freeze({
+      id: "flawed-subject-not-adverbialization-or-name-boundary",
+      sourceRefs: Object.freeze(["Andrews 32.8"]),
+      pdfPages: Object.freeze([312]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El num1 silencioso de flawed subject no debe confundirse con usos no relacionados de adverbializacion o nombres personales.",
+      requiredProbe: "No enrutar todo silent num1 a flawed-subject; separar diagnostico de defecto, adverbializacion y nombre personal."
+    }), Object.freeze({
+      id: "honorific-reflexive-causative-applicative-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.1", "Andrews 33.2"]),
+      pdfPages: Object.freeze([313, 316]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La CNV honorifica transforma una CNV neutral mediante causativo o aplicativo con objeto reflexivo mainline.",
+      requiredProbe: "No tratar honorifico como sufijo superficial; mostrar fuente neutral, causativo/aplicativo y objeto reflexivo."
+    }), Object.freeze({
+      id: "honorific-projective-object-honored-entity-ambiguous-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2"]),
+      pdfPages: Object.freeze([316, 317]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En honorificos con projective object, la entidad honrada puede ser sujeto u objeto y la forma no lo senala.",
+      requiredProbe: "No resolver honrado por superficie; conservar ambiguedad sujeto/objeto y contexto necesario."
+    }), Object.freeze({
+      id: "honorific-reflexive-source-preterit-embed-tzin-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.5", "Andrews 55.6"]),
+      pdfPages: Object.freeze([317, 318]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Las fuentes reflexivas honorificas usan un compound con embed preterito y matriz tla-(tzin-o-a) derivada de tzin-tli.",
+      requiredProbe: "No agregar honorifico directo a reflexivo; construir o diagnosticar embed perfectivo+0 preterito, matriz tzin-o-a y cadena CNN->CNV->CNV."
+    }), Object.freeze({
+      id: "pejorative-preterit-embed-pol-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.6", "Andrews 54.10"]),
+      pdfPages: Object.freeze([319]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "La formacion peyorativa usa el mismo patron de embed preterito, pero con matriz tla-(pol-o-a) derivada de pol.",
+      requiredProbe: "No fusionar pejorativo con honorifico; conservar matriz pol-o-a, embed preterito y permiso de autodesprecio cuando aplique."
+    }), Object.freeze({
+      id: "compound-verbstem-honorific-pejorative-target-selection-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.7"]),
+      pdfPages: Object.freeze([320, 321]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compound verbstems, honorifico/pejorativo puede apuntar al embed, a la matriz idiomatizada/fusionada o a la matriz en compuestos de objeto compartido.",
+      requiredProbe: "No transformar siempre la ultima matriz visible; diagnosticar target embed/matriz/fusion/shared-object antes de aplicar la derivacion."
+    }), Object.freeze({
+      id: "cardinal-numeral-nnc-absolutive-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.1"]),
+      pdfPages: Object.freeze([322]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El numeral cardinal es una CNN de estado absolutivo y los numeral NNCs no ocurren en estado posesivo.",
+      requiredProbe: "No generar posesivo numeral ordinario; bloquear o diagnosticar como absolutive-only."
+    }), Object.freeze({
+      id: "numeral-stems-embed-compound-nnc-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.1"]),
+      pdfPages: Object.freeze([322]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los numeral stems pueden embeberse en compound NNCs y VNCs; las series derivadas usan numerales basicos como embeds.",
+      requiredProbe: "No tratar numerales solo como cuantificadores externos; registrar embed numeral, matriz y serie derivada."
+    }), Object.freeze({
+      id: "gross-count-ix-plural-violates-nonanimate-common-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.1"]),
+      pdfPages: Object.freeze([322]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los stems de gross-count con matriz ix forman NNCs solo con sujeto plural, aun para no animados, contra la regla ordinaria de common-number.",
+      requiredProbe: "No aplicar nonanimate common-number a gross-count; exigir plural y matriz ix."
+    }), Object.freeze({
+      id: "nequi-only-incorporated-object-supplement-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.3"]),
+      pdfPages: Object.freeze([172, 173]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Entre verbos como querer/saber/recordar/olvidar, tla-(nequi) es unico al permitir transformar dos clausulas en una CNV de objeto incorporado.",
+      requiredProbe: "No aplicar incorporacion de suplemento a mati/ilnamiqui/ilcahua por analogia; restringir la transformacion a nequi."
+    }), Object.freeze({
+      id: "quil-fixed-preterit-obsolete-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.4"]),
+      pdfPages: Object.freeze([173]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "quil es una CNV preterita fija de stem obsoleto, sin otros tiempos ni sujetos productivos.",
+      requiredProbe: "No conjugar quil como stem regular; marcar preterito fijo y relacion con il-huia aplicativa obsoleta."
+    }), Object.freeze({
+      id: "nonactive-derived-from-imperfective-active-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.1"]),
+      pdfPages: Object.freeze([175]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Todo nonactive verbstem se deriva desde el stem activo imperfectivo; el perfectivo nonactive sale despues del imperfectivo nonactive.",
+      requiredProbe: "No formar nonactive directo desde perfectivo activo; mostrar fuente imperfectiva activa, sufijo nonactive y luego perfectivo si aplica."
+    }), Object.freeze({
+      id: "nonactive-lo-hua-connective-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.1"]),
+      pdfPages: Object.freeze([175]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "lo es sufijo compuesto con connective l y hua parece relacionado con w-ia pero funciona distinto; ambos no son mero spelling.",
+      requiredProbe: "No borrar l/hua como epentesis o letra; registrar sufijo nonactive, connective y diferencia frente a aplicativo w-ia."
+    }), Object.freeze({
+      id: "optative-borrowed-indicative-use-not-form-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.1", "Andrews 9.2"]),
+      pdfPages: Object.freeze([93]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los optativos preterito y futuro se identifican por uso, no por forma; toman formas indicativas salvo el antecessive obligatorio en preterito optativo.",
+      requiredProbe: "No crear stems optativos nuevos para preterito/futuro; registrar uso optativo, forma indicativa fuente y particula antecessiva obligatoria cuando corresponda."
+    }), Object.freeze({
+      id: "optative-nonpast-past-imperfective-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.3", "Andrews 5.5.2", "Andrews 7.7"]),
+      pdfPages: Object.freeze([93, 94, 95]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los optativos nonpast y past se forman sobre el imperfective stem; el past optative coincide fonologicamente con el customary-present indicative.",
+      requiredProbe: "No derivar past optative desde perfective ni desde preterit; mostrar imperfective source, mood optative y posible identidad superficial con indicative."
+    }), Object.freeze({
+      id: "optative-xi-can-class-c-d-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.3", "Andrews 9.4"]),
+      pdfPages: Object.freeze([93, 94, 95]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las formas optativas distintivas dependen de xi/x en segunda persona, c-an plural nonpast, y stem truncado o largo en Clases C/D.",
+      requiredProbe: "No marcar optative por etiqueta solamente; verificar pers1 xi/x, num1-num2 c-an y forma de stem por clase verbal."
+    }), Object.freeze({
+      id: "optative-syntactic-particle-disambiguation-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.4", "Andrews 9.5"]),
+      pdfPages: Object.freeze([95]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Cuando optative e indicative son identicos en forma, la distincion viene por criterios sintacticos y particulas introductorias como ma o tla.",
+      requiredProbe: "No decidir mood por superficie aislada; exigir contexto ma/tla u otro criterio sintactico antes de diagnosticar optative."
+    }), Object.freeze({
+      id: "negative-wish-ca-prefix-not-ma-clitic-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.6", "Andrews 3.3", "Andrews 8.1.3"]),
+      pdfPages: Object.freeze([96, 97]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La negacion de wish sentence cambia ah# a ca#; Andrews insiste que ca# es prefijo, aunque la escritura tradicional lo pegue a ma.",
+      requiredProbe: "No tratar ca como parte de ma ni como particula libre; conservar prefijo negativo en la CNV y diagnosticar escritura tradicional."
+    }), Object.freeze({
+      id: "command-no-imperative-optative-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.7"]),
+      pdfPages: Object.freeze([97, 98]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Nahuatl no tiene mood imperativo; mandatos y exhortaciones usan wish sentences con CNV optativa nonpast o future-indicative-as-optative.",
+      requiredProbe: "No crear categoria engine imperative; enrutar como optative/future-as-optative y conservar ma/tla u omision brusca de segunda persona."
+    }), Object.freeze({
+      id: "future-command-indicative-as-optative-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.8"]),
+      pdfPages: Object.freeze([98]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El mandato de cumplimiento posterior usa future indicative as optative, identico en forma al futuro indicativo con ma/tla delante.",
+      requiredProbe: "No cambiar formula futura por mood label; conservar future indicative form, contexto ma/tla y valor optativo de mandato."
+    }), Object.freeze({
+      id: "negative-command-ah-vs-ca-ma-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 9.9"]),
+      pdfPages: Object.freeze([98]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El mandato negativo formal usa ma + ca#; el mandato brusco sin ma mantiene ah# porque falta el requisito que licencia ca#.",
+      requiredProbe: "No aplicar ca# a todo negativo optativo; comprobar presencia de ma y tipo de mandato antes de cambiar ah#."
+    }), Object.freeze({
+      id: "admonitive-not-vetitive-not-negative-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.1"]),
+      pdfPages: Object.freeze([99]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El admonitive no es vetitive, prohibicion ni negativo; es una forma positiva con significado cautelar.",
+      requiredProbe: "No traducir o diagnosticar admonitive como 'no hagas'; conservar mood positivo de advertencia y separar negacion real."
+    }), Object.freeze({
+      id: "admonitive-perfective-stem-num1-ti-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.2", "Andrews 5.3.3", "Andrews 5.4.4", "Andrews 7.7"]),
+      pdfPages: Object.freeze([99, 100]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El admonitive nonpast se forma sobre perfective stem y usa num1 /ti: 0 con singular y t con plural, con num2 0 o in/ih.",
+      requiredProbe: "No usar stem present/imperfective ni numero indicativo; verificar perfective stem, t-in/t-ih plural y 0-0 singular admonitive."
+    }), Object.freeze({
+      id: "admonitive-ma-obligatory-positive-warning-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.3"]),
+      pdfPages: Object.freeze([100]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La admonition sentence afirmativa exige ma y expresa advertencia, no wish ni negative command.",
+      requiredProbe: "No permitir admonitive sentence sin ma ni traducir como deseo; registrar ma obligatorio, mood admonitive y lectura cautelar positiva."
+    }), Object.freeze({
+      id: "irregular-perfective-speech-not-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.1", "Andrews 11.2"]),
+      pdfPages: Object.freeze([105]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La irregularidad del perfective stem se juzga por habla y reglas de sonido, no por ortografia tradicional.",
+      requiredProbe: "No marcar irregular por grafia antigua ni normalizar por spelling; comparar regla fonologica, forma hablada y clase verbal."
+    }), Object.freeze({
+      id: "compound-verbstem-class-matrix-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.3.1", "Andrews Lessons 28 and 30"]),
+      pdfPages: Object.freeze([105]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compound verbstem normalmente pertenece a la clase de su matriz; no hacerlo es irregularidad que debe preservarse.",
+      requiredProbe: "No decidir clase por simple stem o embed; registrar matriz, clase esperada y excepcion irregular antes de formular perfective."
+    }), Object.freeze({
+      id: "ti-final-perfective-glottal-singular-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.3.2", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([105, 106]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Ciertos Class B en ti tienen perfective alternante t/h; la forma h ocurre solo con sujeto singular en preterit o admonitive cuando siguen morphs silenciosos.",
+      requiredProbe: "No aplicar t > h universalmente; comprobar singular, preterit/admonitive y morphs silenciosos antes de usar la variante glotal."
+    }), Object.freeze({
+      id: "preterit-as-present-no-antecessive-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4"]),
+      pdfPages: Object.freeze([106]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El preterit-as-present usa formas preteritas con valor presente y nunca permite la particula antecessive o#.",
+      requiredProbe: "No inferir pasado por forma preterita ni permitir o#; marcar tense-value dislocation y bloquear antecessive."
+    }), Object.freeze({
+      id: "defective-a-perfective-only-present-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.4"]),
+      pdfPages: Object.freeze([107]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El defectivo *(a) carece de imperfective stem y solo usa perfective stem para preterit-as-present; los negativos significan ausencia.",
+      requiredProbe: "No generar otros tiempos ni imperfective para *(a); conservar paradigma defectivo y valor negativo especial."
+    }), Object.freeze({
+      id: "itzi-defective-perfective-compound-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.5", "Andrews 28.6.5"]),
+      pdfPages: Object.freeze([107, 108]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "*(itzi) > itz es defectivo, no ocurre en VNC simple y sirve como matriz en compuestos arcaicos connectiveless.",
+      requiredProbe: "No generar itzi simple ni paradigma completo; exigir compuesto autorizado y perfective-only tense set."
+    }), Object.freeze({
+      id: "itzi-k-deletion-after-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.5"]),
+      pdfPages: Object.freeze([107, 108]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En *(itzi), un sonido /k/ de tense morph o num1 morph se borra despues del stem, produciendo plural 0-eh y otros silencios.",
+      requiredProbe: "No mostrar qu/k esperado despues de itz; registrar borrado irregular de k en tense/num1 y formula resultante."
+    }), Object.freeze({
+      id: "huitz-no-optative-command-preterit-present-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.5 note 1"]),
+      pdfPages: Object.freeze([108]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "hui-tz no tiene forma optativa; una CNV preterit-as-present de segunda persona puede expresar mandato.",
+      requiredProbe: "No inventar optative hui-tz; usar preterit-as-present con diagnostico de command value."
+    }), Object.freeze({
+      id: "itz-motion-vs-alert-homophone-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.5 note 2", "Andrews 26.1.2", "Andrews 28.7.4"]),
+      pdfPages: Object.freeze([108]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El itz de movimiento y el itz de estar alerta/observar son stems homofonos limitados al perfective y confundibles en connective-t embeds.",
+      requiredProbe: "No escoger stem por superficie itz; exigir fuente, funcion embed y referencia Andrews antes de componer."
+    }), Object.freeze({
+      id: "amih-special-pronominal-construction-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.6", "Andrews 44.5.7"]),
+      pdfPages: Object.freeze([108]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "*(am-i-a) > am-i-h es defectivo, solo preterit-as-present y usado en construcciones especiales con quen.",
+      requiredProbe: "No generar amih como verbo ordinario; exigir construccion quen o compuesto quen-amih y bloquear otros tiempos."
+    }), Object.freeze({
+      id: "zero-root-oih-pronominal-cooperation-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.4.7", "Andrews 16.3"]),
+      pdfPages: Object.freeze([108, 109]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "*(0-i-a) > 0-i-h tiene raiz cero, es defectivo y funciona solo en cooperacion con ciertas CNNs pronominales.",
+      requiredProbe: "No confundir amihqueh de am-i-h con 0-i-h ni generar sin CNN pronominal cooperante."
+    }), Object.freeze({
+      id: "ye-cat-cah-suppletion-realigned-paradigm-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.1", "Andrews 31.6", "Andrews 54.2.1"]),
+      pdfPages: Object.freeze([109]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "El paradigma de ye/ca-t/ca-h resulta de suppletion y realineacion de dos verbos; ca-t/ca-h viene de *(ca)-tl mas ti.",
+      requiredProbe: "No tratar ca-t/ca-h como perfective regular de ye; conservar fuente CNN, suffix ti y paradigma suppletive realineado."
+    }), Object.freeze({
+      id: "tleh-in-principal-clause-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.4.1", "Andrews 19.1"]),
+      pdfPages: Object.freeze([144]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tleh seguido de in puede fusionarse como tlein, pero estructuralmente tleh sigue siendo la CNN principal y in introduce clausula adjunta.",
+      requiredProbe: "No analizar tlein como pronombre relativo plano; separar CNN principal, adjunctor in y clausula dependiente cuando exista."
+    }), Object.freeze({
+      id: "interrogative-pronominal-loses-question-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.4.1", "Andrews 16.4.4"]),
+      pdfPages: Object.freeze([144, 145]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las CNNs interrogativas pronominales pierden valor interrogativo cuando son negativas o no estan en primera posicion del grupo clausular.",
+      requiredProbe: "No mantener interrogative mode por stem solamente; comprobar negacion y posicion antes de traducir como pregunta."
+    }), Object.freeze({
+      id: "ac-aquin-principal-clause-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.4.4", "Andrews 19.1"]),
+      pdfPages: Object.freeze([145]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "aquin procede de ac in; si sigue clausula dependiente, Andrews prefiere escribir ac in para mostrar que ac es la CNN principal.",
+      requiredProbe: "No tratar aquin como particula relativa; conservar ac principal, in adjunctor y posible elision de dependiente."
+    }), Object.freeze({
+      id: "demonstrative-pronominal-nnc-not-particle-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.5", "Andrews 40.1"]),
+      pdfPages: Object.freeze([145, 146]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "in/on demostrativos son invariantes y podrian parecer particulas, pero Andrews prefiere tratarlos como CNNs pronominales de tercera persona.",
+      requiredProbe: "No mover in/on a Particula por invariancia; conservar CNN pronominal, numero silencioso y funcion demostrativa/adjetival."
+    }), Object.freeze({
+      id: "indefinite-pronominal-ah-matrix-length-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.6", "Andrews 45.4.4", "Andrews 46.3.2"]),
+      pdfPages: Object.freeze([146]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "acah e itlah son compound stems con matriz -ah; la longitud vocal del embed se pierde en todos estos compuestos.",
+      requiredProbe: "No generar desde ac/itl sin matriz ni conservar longitud de embed; mostrar embed, matriz -ah y CNN pronominal indefinida."
+    }), Object.freeze({
+      id: "quantitive-pronominal-chi-qui-morph-unpredictable-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.7", "Andrews 16.8", "Andrews 16.9"]),
+      pdfPages: Object.freeze([146, 147]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los morfemas cuantitativos chi/qui tienen variantes largas, glotalizadas, cortas y sin vocal cuya distribucion no es plenamente predecible.",
+      requiredProbe: "No derivar todas las formas cuantitativas por regla fonologica; registrar morfo seleccionado, entorno y excepcion lexical."
+    }), Object.freeze({
+      id: "male-bonding-supplement-cross-reference-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 18.7", "Andrews 43.8"]),
+      pdfPages: Object.freeze([161]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La construccion de oquich permite a un hablante masculino usar sujeto de primera plural en suplemento aunque la cabeza nuclear sea tercera plural.",
+      requiredProbe: "No forzar concordancia normal de persona; registrar restriccion social del hablante y cross-reference excepcional."
+    }), Object.freeze({
+      id: "tla-ayi-silent-specific-object-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 18.8"]),
+      pdfPages: Object.freeze([161, 162]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tla-(ayi) exige tla para paciente no especifico, pero con paciente especifico usa objeto 0-0 silencioso que puede ser cabeza de suplemento.",
+      requiredProbe: "No leer la forma silenciosa como intransitiva; mostrar objeto especifico 0-0, suplemento pronominal y fuente transitiva fuerte."
+    }), Object.freeze({
+      id: "principal-deletion-proxy-adverbial-boundary",
+      sourceRefs: Object.freeze(["Andrews 18.9"]),
+      pdfPages: Object.freeze([162]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando se borra una CNV principal que tenia modificador adverbial y sujeto suplementario, el adverbial sube como proxy principal y el suplemento queda como sujeto superficial.",
+      requiredProbe: "No analizar la superficie como adverbio mas CNN sin historia; conservar principal borrado, proxy principal y sujeto reclasificado."
+    }), Object.freeze({
+      id: "so-called-vocative-vs-real-vocative-boundary",
+      sourceRefs: Object.freeze(["Andrews 18.10", "Andrews 18.11"]),
+      pdfPages: Object.freeze([162]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El supuesto vocativo con sujeto suplementario de segunda persona no es el vocativo real; el real usa CNN de tercera persona y particula #e.",
+      requiredProbe: "No etiquetar toda CNN junto a comando como vocativo; distinguir suplemento de segunda persona frente a vocativo real con #e."
+    }), Object.freeze({
+      id: "tla-impersonal-derivational-not-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 22.6"]),
+      pdfPages: Object.freeze([189]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El tla impersonal se prefija a un intransitive active verbstem como morfema derivacional dentro del stem; no es pronombre objeto nonspecific.",
+      requiredProbe: "No poner tla en valencia objeto; mantenerlo dentro del derived verbstem y cambiar sujeto especifico a impersonal."
+    }), Object.freeze({
+      id: "tla-impersonal-unattested-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 22.6", "Andrews 26.1.2"]),
+      pdfPages: Object.freeze([189]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunos tla-impersonals solo estan atestiguados como derivados y presuponen fuente intransitiva no extante o relacionada.",
+      requiredProbe: "No exigir fuente fixture para generar diagnostico; marcar fuente hipotetica/no atestiguada y bloquear superficie si falta evidencia Nawat."
+    }), Object.freeze({
+      id: "destockal-ni-hui-stock-formative-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.5"]),
+      pdfPages: Object.freeze([201]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los destockal verbstems de primer tipo usan stem formative ni o hui y stock formative vocalica larga armonizada o excepcional.",
+      requiredProbe: "No derivar ni/hui desde letras finales solamente; exponer root, stock formative, stem formative y excepciones."
+    }), Object.freeze({
+      id: "destockal-hua-stock-family-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.6"]),
+      pdfPages: Object.freeze([204]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El segundo tipo destockal usa stem formative hua con stock formatives a/e y puede compartir roots con ni stems sin ser la misma ruta.",
+      requiredProbe: "No fusionar hua con ni por root compartida; registrar stock formative, hua formative y significado distinto."
+    }), Object.freeze({
+      id: "destockal-ihui-ahui-oa-gap-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.7", "Andrews 55.6"]),
+      pdfPages: Object.freeze([207]),
+      routeId: "cnn-to-cnv-to-cnv-deverbal-chain",
+      obstacleEs: "Las correlaciones i-hui/a-hui > o-a tienen huecos: algunos o-a salen via deverbal nounstem o son totalmente irregulares sin fuente i-hui/a-hui.",
+      requiredProbe: "No crear par causativo o-a para todo i-hui/a-hui ni exigirlo en todos; registrar gap, ruta por CNN deverbal o irregularidad."
+    }), Object.freeze({
+      id: "causative-source-subject-to-object-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.8", "Andrews 25.9"]),
+      pdfPages: Object.freeze([207, 216]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En causatives, la CNV fuente se compacta en el predicado, su sujeto cambia a objeto causativo y un nuevo sujeto se importa desde fuera.",
+      requiredProbe: "No conservar el sujeto fuente como sujeto del causativo; mostrar cambio nominativo->objetivo y nuevo sujeto externo."
+    }), Object.freeze({
+      id: "applicative-multiple-object-source-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.18", "Andrews 26.16", "Andrews 26.17"]),
+      pdfPages: Object.freeze([238, 239]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las applicative VNCs de multiples objetos pueden tener varias fuentes subyacentes y significados distintos con la misma superficie.",
+      requiredProbe: "No decidir mainline/second-level/first-level shuntline por orden superficial; conservar fuentes alternativas y roles posibles."
+    }), Object.freeze({
+      id: "applicative-optative-admonitive-derived-core-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.19"]),
+      pdfPages: Object.freeze([239]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las applicative VNCs pueden entrar en wish, command/exhortation y admonition sentences sin perder el core applicative derivado.",
+      requiredProbe: "No recalcular optative/admonitive como simple source stem; conservar applicative core, objeto mainline y mood/numero correspondiente."
+    }), Object.freeze({
+      id: "applicative-passive-shuntline-subject-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.20"]),
+      pdfPages: Object.freeze([239, 240]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En passive/impersonal applicatives, un objeto shuntline activo puede volverse sujeto pasivo que el ingles no traduce literalmente.",
+      requiredProbe: "No cambiar la estructura para acomodar traduccion; conservar sujeto pasivo derivado, objeto applicative fuente y nonactive suffix."
+    }), Object.freeze({
+      id: "alternative-object-human-nonhuman-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.21"]),
+      pdfPages: Object.freeze([240, 241]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunas CNVs de un objeto cambian traduccion segun objeto humano/no humano, y la traduccion puede ocultar si la relacion es applicative.",
+      requiredProbe: "No escoger verbo espanol/ingles como estructura; registrar humano/no humano, direct/applicative object y source stem."
+    }), Object.freeze({
+      id: "deceptive-applicative-surface-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.22", "Andrews 26.2", "Andrews 26.12"]),
+      pdfPages: Object.freeze([241]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Una misma superficie applicative como nechtlachihuilih puede representar fuente transitiva simple o applicative de un objeto con objeto silencioso.",
+      requiredProbe: "No aceptar superficie como prueba unica; enumerar analisis fuente, objeto silencioso posible y traducciones estructuralmente distintas."
+    }), Object.freeze({
+      id: "applicative-suffix-object-discontinuous-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.23", "Andrews 24.9"]),
+      pdfPages: Object.freeze([241]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El suffix applicative ia/lia/huia y su objeto estan fuertemente unidos pero discontinuos, hasta parecer una matriz composicional *te/tla/m-o-(-ia).",
+      requiredProbe: "No guardar el objeto applicative como afijo suelto ni suffix aislado; mostrar unidad discontinua objeto+suffix dentro del core."
+    }), Object.freeze({
+      id: "purposive-future-embed-silent-z-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.1"]),
+      pdfPages: Object.freeze([266]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El purposive verbstem usa como embed un predicado futuro cuyo morph z se reemplaza por variante silenciosa, conservando la forma de stem futura.",
+      requiredProbe: "No mostrar z sonoro en el embed ordinario ni tratarlo como infinitivo; registrar future predicate embed y z silencioso."
+    }), Object.freeze({
+      id: "purposive-linked-connectiveless-directional-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.1", "Andrews 28.2", "Andrews 11.5.3"]),
+      pdfPages: Object.freeze([266]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los purposives son compound verbstems future-embed de estructura linked connectiveless con matriz intransitiva direccional; no son connective-t compounds.",
+      requiredProbe: "No confundir directional t con connective t ni integrar la estructura; conservar embed futuro, matriz direccional y linked connectiveless."
+    }), Object.freeze({
+      id: "stem-organizing-center-valence-voice-aspect-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.1"]),
+      pdfPages: Object.freeze([69]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El tronco verbal organiza significado lexico, valence, voice y aspect; una ruta CNV no puede explicar la superficie sin registrar esas propiedades del stem.",
+      requiredProbe: "No derivar solo por afijos visibles; exigir stem, valence, voice y aspect antes de autorizar cambios CNV->CNV."
+    }), Object.freeze({
+      id: "active-source-nonactive-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.1", "Andrews Lesson 20"]),
+      pdfPages: Object.freeze([69, 175, 176, 178]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La nonactive stem se forma desde una active stem fuente; no es una etiqueta de conjugacion ni una superficie pasiva aislada.",
+      requiredProbe: "No generar nonactive sin active source, voice transform y suffix/irregularidad Andrews."
+    }), Object.freeze({
+      id: "imperfective-source-perfective-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.1", "Andrews Lesson 7"]),
+      pdfPages: Object.freeze([69]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El perfective stem depende del imperfective stem fuente; no basta con guardar una forma preterita como stem independiente.",
+      requiredProbe: "No aceptar perfectivo si no se puede mostrar base imperfectiva, clase Andrews y alternancia de stem."
+    }), Object.freeze({
+      id: "mood-tense-slot-combined-category-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.1"]),
+      pdfPages: Object.freeze([69]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La posicion tns combina mood y tense; optative, admonitive e indicative son categorias de formula, no simples nombres visibles.",
+      requiredProbe: "No meter mood en sujeto, numero o stem; comprobar slot tns separado con identidad de mood/tense Andrews."
+    }), Object.freeze({
+      id: "valence-position-objective-pronoun-category-boundary",
+      sourceRefs: Object.freeze(["Andrews 6.1"]),
+      pdfPages: Object.freeze([71]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La posicion de valence es posicion de pronombre personal con persona, numero, animacy, humanness y case; el objeto no es solo texto prefijado.",
+      requiredProbe: "No concatenar objeto al stem; registrar caso objetivo y rasgos pronominales en valence."
+    }), Object.freeze({
+      id: "object-trajectory-specificity-prominence-boundary",
+      sourceRefs: Object.freeze(["Andrews 6.1"]),
+      pdfPages: Object.freeze([71]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los objetos Andrews codifican trajectory, specificity y prominence; mainline, shuntline, reflexive, reciprocal e indefinite no son variantes libres.",
+      requiredProbe: "No decidir por superficie sola; exigir trayectoria, especificidad y prominencia antes de ubicar valence slots."
+    }), Object.freeze({
+      id: "new-object-demotes-earlier-object-shuntline-boundary",
+      sourceRefs: Object.freeze(["Andrews 6.1"]),
+      pdfPages: Object.freeze([71]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Al anadir un objeto a una transitive stem, el objeto anterior se rebaja a shuntline; el nuevo objeto no puede agregarse sin reordenar roles.",
+      requiredProbe: "No apilar objetos en orden visual; probar que nuevo objeto, objeto anterior y shuntline se reasignan."
+    }), Object.freeze({
+      id: "object-ech-itz-assimilation-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 6.4"]),
+      pdfPages: Object.freeze([74]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El morph objetivo no tercera persona usa /e:c/ con variantes ech e itz, y la superficie puede asimilarse a etz/et/ez/ex o ich/it/i/iz/ix.",
+      requiredProbe: "No tratar m-etz-in, n-ech o t-ech como stems; conservar morph objetivo y regla de asimilacion Nawat/Pipil."
+    }), Object.freeze({
+      id: "reflexive-reciprocative-va1-va2-o-silent-boundary",
+      sourceRefs: Object.freeze(["Andrews 6.4.2"]),
+      pdfPages: Object.freeze([74]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Reflexive y reciprocative mainline usan va1 n/t/m y va2 o; la o puede ser silenciosa ante stem vocalico.",
+      requiredProbe: "No escribir m-u o m-0 indiscriminadamente; condicionar va2 o por stem inicial y conservar va1/va2."
+    }), Object.freeze({
+      id: "directional-prefix-placement-valence-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.1"]),
+      pdfPages: Object.freeze([88]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los directional prefixes van antes de valence monadica o dyadica reflexive, pero despues de valence dyadica projective especifica.",
+      requiredProbe: "No fijar on/hual por posicion unica; probar orden relativo contra objeto projective especifico y reflexive."
+    }), Object.freeze({
+      id: "specific-object-directional-on-supportive-o-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.1"]),
+      pdfPages: Object.freeze([88]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Ante c-0 + on, la i supportive de pers1 puede cambiar a o; itta con on puede borrar n y despedir i supportive del stem.",
+      requiredProbe: "No aplicar cambio i/o global; exigir c-0+on o itta+on y registrar la condicion exacta."
+    }), Object.freeze({
+      id: "directional-prefix-not-decorative-translation-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.2"]),
+      pdfPages: Object.freeze([89]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un directional prefix no es decorativo aunque no se traduzca; la ausencia de traduccion no autoriza borrarlo del analisis.",
+      requiredProbe: "No eliminar on/hual por traduccion vacia; conservar significado gramatical y posicion."
+    }), Object.freeze({
+      id: "motion-bidirectionality-directional-context-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.2"]),
+      pdfPages: Object.freeze([89]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los verbos de movimiento pueden ser bidireccionales y necesitar prefix direccional o contexto para fijar la direccion.",
+      requiredProbe: "No escoger venir/ir por lexema solo; exigir directional prefix, matriz o contexto antes de surfacear direccion."
+    }), Object.freeze({
+      id: "antecessive-o-outside-vnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.3"]),
+      pdfPages: Object.freeze([89]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La particula antecessive o# esta fuera del limite CNV y modifica la CNV/grupo pasado, no el stem ni el tense slot.",
+      requiredProbe: "No copiar o# dentro de formula CNV ni de CNN derivada; mantenerla como particula externa."
+    }), Object.freeze({
+      id: "antecessive-o-does-not-change-object-spelling-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.3"]),
+      pdfPages: Object.freeze([89]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La particula antecessive o# no cambia la escritura del objetivo de tercera persona; c/qu/qui sigue su propia regla.",
+      requiredProbe: "No derivar ki/k/0 desde presencia de o#; probar objeto tercera persona con y sin antecessive."
+    }), Object.freeze({
+      id: "nnc-subclass-2c-supportive-i-illegal-cluster-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.4"]),
+      pdfPages: Object.freeze([133]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En nounstem Subclass 2-C, la eliminacion de a efimera puede dejar cluster ilegal y requerir supportive i.",
+      requiredProbe: "No clasificar supportive i como parte estable del stem ni omitirla cuando la clase 2-C la exige."
+    }), Object.freeze({
+      id: "nnc-num1-subject-not-suffix-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.4"]),
+      pdfPages: Object.freeze([133]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews advierte que uh/ti/tli/li/in no deben llamarse possessive/absolutive suffixes cuando son num1 del sujeto; state va delante del nounstem.",
+      requiredProbe: "No meter num1 dentro del predicado CNN; mantener numero de sujeto fuera del stem y state en su posicion."
+    }), Object.freeze({
+      id: "nnc-constituent-analysis-alternative-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.4"]),
+      pdfPages: Object.freeze([133, 134]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una misma secuencia puede admitir analisis alternativos: uh/ti/tli stem-final vs num1, o despues de n/t/am como stem o st2, m tras i larga como stem o st2.",
+      requiredProbe: "No fijar analisis por ortografia plana; conservar alternativas hasta tener morph filler, vocabulario o cambio sonoro."
+    }), Object.freeze({
+      id: "nnc-orthography-hides-stem-and-possessor-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.4"]),
+      pdfPages: Object.freeze([134]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La ortografia puede ocultar longitud /o:/, secuencias /i:i:/, perdida de longitud en i-0 y caida de supportive i.",
+      requiredProbe: "No inferir stem o possessor solo desde letras visibles; registrar ambiguedad ortografica."
+    }), Object.freeze({
+      id: "possessive-huan-assimilation-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.2"]),
+      pdfPages: Object.freeze([135]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El plural posesivo hu-an puede asimilar o borrar w sorda final del stem y n final del stem.",
+      requiredProbe: "No tratar huan como sufijo transparente siempre; condicionar asimilacion por final de stem."
+    }), Object.freeze({
+      id: "possessive-state-suppletive-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.2", "Andrews 15.3"]),
+      pdfPages: Object.freeze([135, 136]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas possessive-state NNCs usan stems supletivos como tlacoh>tlaca, pil>pillo y teuc>teucyo.",
+      requiredProbe: "No formar posesivo por clase regular si Andrews da stem supletivo."
+    }), Object.freeze({
+      id: "priest-invented-totecuiyo-false-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.3"]),
+      pdfPages: Object.freeze([136]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews identifica totecuiyo como forma inventada sacerdotal imposible desde teucyotl; no debe usarse como prueba de fuente normal.",
+      requiredProbe: "No aceptar cuio ambiguo como kwyo/kwiyo sin fuente; bloquear derivacion *(tecu-i)-tl."
+    }), Object.freeze({
+      id: "possessive-nonanimate-affinity-common-number-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.4"]),
+      pdfPages: Object.freeze([136]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un possessive-state NNC puede formarse sobre stem nonanimate distributivo/varietal o affinity; el dyad de numero marca common aunque se traduzca plural.",
+      requiredProbe: "No cambiar common number a plural visible por traduccion; conservar affinity/distributive source y numero comun."
+    }), Object.freeze({
+      id: "possessive-secondary-general-use-te-fusion-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.5"]),
+      pdfPages: Object.freeze([137]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Stems secundarios de uso general pueden venir de pronombre posesivo te fusionado, con te degradado a parte del stem y a veces velado como ti/to/t.",
+      requiredProbe: "No analizar te/ti/to/t fusionado como pronombre activo sin revisar stem secundario."
+    }), Object.freeze({
+      id: "tla-possessor-analogical-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.5"]),
+      pdfPages: Object.freeze([137]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos stems analogicos salen de predicados de estado posesivo con possessor tla y pasan a stems restringidos/generales.",
+      requiredProbe: "No borrar fuente posesiva por uso general posterior; registrar possessor tla analogico."
+    }), Object.freeze({
+      id: "ti-subclass-2a-reclassified-1a-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.6"]),
+      pdfPages: Object.freeze([138]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un nounstem ti Subclass 2-A puede reclasificarse como 1-A por perdida de i efimera, con o sin cambio de significado.",
+      requiredProbe: "No fijar clase por forma actual; conservar posible reclasificacion y valor semantico."
+    }), Object.freeze({
+      id: "naturally-possessed-dictionary-absolutive-class-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.6"]),
+      pdfPages: Object.freeze([138]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los nounstems naturalmente poseidos suelen aparecer en possessive state; el absolutive de diccionario solo identifica clase.",
+      requiredProbe: "No generar uso absolutivo ordinario desde entrada de diccionario sin revisar natural possession."
+    }), Object.freeze({
+      id: "nuclear-possessor-vs-supplementary-possessor-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.6"]),
+      pdfPages: Object.freeze([138]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El possessor pronominal nuclear debe distinguirse de possessors suplementarios; ambos pueden coexistir.",
+      requiredProbe: "No convertir un possessor suplementario en slot nuclear ni borrar el possessor pronominal."
+    }), Object.freeze({
+      id: "naturally-possessed-metaphor-override-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.7"]),
+      pdfPages: Object.freeze([139]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos stems naturalmente poseidos no ocurren en possessive state salvo por extension metaforica que cambia la licencia.",
+      requiredProbe: "No bloquear ni permitir posesivo mecanicamente; registrar si la lectura es literal o metaforica."
+    }), Object.freeze({
+      id: "nnc-sentence-equative-attributive-adverbial-boundary",
+      sourceRefs: Object.freeze(["Andrews 15.8"]),
+      pdfPages: Object.freeze([139]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las NNCs pueden ser oraciones equative, attributive o adverbial, simples, complejas o compuestas; no son solo frases nominales.",
+      requiredProbe: "No sacar una CNN de la ruta clausal por traduccion nominal; conservar funcion oracional."
+    }), Object.freeze({
+      id: "pronominal-nnc-absolutive-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.1"]),
+      pdfPages: Object.freeze([141]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las pronominal NNCs se construyen sobre stems entitive/quantitive solo en absolutive-state NNCs.",
+      requiredProbe: "No generar pronominal NNC posesiva o relacional sin licencia; exigir absolutive state."
+    }), Object.freeze({
+      id: "pronominal-nnc-english-pronoun-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.1"]),
+      pdfPages: Object.freeze([141]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las traducciones pronominales inglesas no son pronombres Nahuatl autonomos; las formas son NNCs y los verdaderos pronombres personales son afijales.",
+      requiredProbe: "No crear clase formal pronombre fuera de CNN; mantener formula CNN y pronombres personales afijales."
+    }), Object.freeze({
+      id: "pronominal-plural-n-inside-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.2", "Andrews 16.7"]),
+      pdfPages: Object.freeze([141, 148]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El plural de algunos pronominal stems usa n derivacional dentro del stem, mientras el dyad de sujeto puede ser t-in o 0-0.",
+      requiredProbe: "No poner n plural como num1-num2 automaticamente; distinguir n interno del stem y dyad del sujeto."
+    }), Object.freeze({
+      id: "no-relative-pronouns-pronominal-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.2"]),
+      pdfPages: Object.freeze([141]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews no reconoce relative pronouns como clase separada; las formas pronominales relevantes son NNCs o adjunctions.",
+      requiredProbe: "No crear clase visible/engine de relative pronoun; enrutar por CNN/Particula segun Andrews."
+    }), Object.freeze({
+      id: "reported-speech-no-backshift-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.1"]),
+      pdfPages: Object.freeze([169]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El discurso indirecto Nahuatl normalmente no retrocede tense como el ingles; la CNV subordinada conserva su tense Andrews.",
+      requiredProbe: "No cambiar presente/futuro/pasado por traduccion indirecta inglesa; conservar tense fuente."
+    }), Object.freeze({
+      id: "direct-indirect-speech-in-adjunctor-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.1"]),
+      pdfPages: Object.freeze([169]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La particula in puede introducir tanto discurso directo como indirecto; no equivale simplemente a 'that'.",
+      requiredProbe: "No decidir directo/indirecto por presencia de in; registrar funcion de adjunctor y clause supplement."
+    }), Object.freeze({
+      id: "reported-command-optative-to-future-indicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.2"]),
+      pdfPages: Object.freeze([170]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un reported command puede pasar de nonpast optative fuente a future indicative en discurso indirecto.",
+      requiredProbe: "No etiquetar todo futuro de mandato como error optativo; registrar transformacion de discurso reportado."
+    }), Object.freeze({
+      id: "included-referent-object-pronoun-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.2", "Andrews 19.3"]),
+      pdfPages: Object.freeze([170, 171]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una clause adjoined puede ser suplemento de un objeto pronominal silencioso o expreso del principal.",
+      requiredProbe: "No perder el objeto principal cuando la traduccion lo sustituye por una oracion; conservar referent incluido."
+    }), Object.freeze({
+      id: "monequi-reflexive-supplementary-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.3"]),
+      pdfPages: Object.freeze([171]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "m-o-(nequi) 'quererse a si mismo' da needed/necessary y la clause adjoined funciona como sujeto suplementario.",
+      requiredProbe: "No analizar m-o-nequi como simple querer transitivo; registrar reflexivo y supplementary subject."
+    }), Object.freeze({
+      id: "unrealizable-wish-past-optative-gate-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.3"]),
+      pdfPages: Object.freeze([171]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El deseo irrealizable usa past optative, y el contrario pasado suele ir precedido por antecessive.",
+      requiredProbe: "No usar nonpast optative o future indicative para wish irrealizable sin diagnostico."
+    }), Object.freeze({
+      id: "perception-adjoined-clause-present-tense-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.3"]),
+      pdfPages: Object.freeze([171]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con verbos de percepcion, la clause adjoined normalmente aparece en present tense.",
+      requiredProbe: "No copiar tense del principal a la clause percibida sin revisar regla de present tense."
+    }), Object.freeze({
+      id: "nested-included-referent-supplement-stack-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.3"]),
+      pdfPages: Object.freeze([171]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los suplementos de referente incluido pueden apilarse: una clause puede ser objeto suplemento de una CNV y toda la oracion suplemento de otra.",
+      requiredProbe: "No aplanar clauses anidadas; preservar niveles de principal, objeto y supplement."
+    }), Object.freeze({
+      id: "deleted-saying-principal-source-reconstruction-boundary",
+      sourceRefs: Object.freeze(["Andrews 19.4"]),
+      pdfPages: Object.freeze([174]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una principal de decir puede borrarse y dejar una clause suplementaria yuxtapuesta sin relacion gramatical directa visible.",
+      requiredProbe: "No conectar dos principales por proximidad; reconstruir o diagnosticar fuente de saying silenciosa."
+    }), Object.freeze({
+      id: "lo-hua-suppletive-irregular-source-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.2"]),
+      pdfPages: Object.freeze([176]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "lo-hua se une a pocos verbstems y puede formarse sobre stem supletivo de intransitives irregulares.",
+      requiredProbe: "No aplicar lo-hua productivamente; exigir lista Andrews, stem supletivo o diagnostico."
+    }), Object.freeze({
+      id: "lo-hua-first-member-compound-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.2"]),
+      pdfPages: Object.freeze([176]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En hui-tz, itqui-tz y huica-tz, lo-hua se une al primer miembro del compound stem, no al final superficial entero.",
+      requiredProbe: "No sufijar el compound completo; identificar primer miembro y matriz compound."
+    }), Object.freeze({
+      id: "ohua-replacive-imperfective-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.4"]),
+      pdfPages: Object.freeze([178]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "o-hua se agrega al imperfective stem replacive borrando vocal final y puede borrar w final con alargamiento compensatorio y cambios s/ch.",
+      requiredProbe: "No generar o-hua por mera adicion; comprobar stem imperfectivo, vocal final, w y alternancias."
+    }), Object.freeze({
+      id: "hua-nonactive-final-o-spelled-a-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.4"]),
+      pdfPages: Object.freeze([178]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El suffix hua deriva nonactive de stems activos en i/o; una o final puede estar escrita como a y no debe confundirse con otro suffix.",
+      requiredProbe: "No decidir por grafia final a/o sin bridge ortografico; conservar suffix hua y fuente activa."
+    }), Object.freeze({
+      id: "impersonal-transformation-active-to-nonactive-boundary",
+      sourceRefs: Object.freeze(["Andrews 22.1"]),
+      pdfPages: Object.freeze([186]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La transformacion impersonal reemplaza sujeto personal activo por sujeto impersonal y stem activo por contraparte nonactive.",
+      requiredProbe: "No marcar impersonal como sujeto omitido sobre active stem; exigir nonactive counterpart."
+    }), Object.freeze({
+      id: "impersonal-transitive-specific-object-block-boundary",
+      sourceRefs: Object.freeze(["Andrews 22.1"]),
+      pdfPages: Object.freeze([186]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La transformacion impersonal puede aplicarse a transitives solo si no tienen specific projective object; el reflexivo especifico es excepcion.",
+      requiredProbe: "Bloquear impersonal transitive con objeto projective especifico salvo reflexive permitido."
+    }), Object.freeze({
+      id: "causative-applicative-discontinuous-unit-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.1"]),
+      pdfPages: Object.freeze([192]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El objeto causative/applicative pertenece al suffix derivacional; objeto y suffix forman una unidad discontinua.",
+      requiredProbe: "No separar objeto nuevo como objeto directo simple ni suffix como derivacion sin objeto."
+    }), Object.freeze({
+      id: "maximum-three-valence-positions-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.1"]),
+      pdfPages: Object.freeze([192]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Andrews permite hasta tres posiciones de valence en construcciones causative/applicative complejas.",
+      requiredProbe: "No colapsar object1/object2/object3 en una sola lista; conservar tres posiciones maximas y roles."
+    }), Object.freeze({
+      id: "destockal-causative-addition-replacement-preference-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.5"]),
+      pdfPages: Object.freeze([203]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los causatives de destockal ni/hui usan adicion o reemplazo segun preferencia lexica: la mayoria ni anade a, la mayoria hui reemplaza i.",
+      requiredProbe: "No aplicar una regla unica ni/hui; registrar stock family y preferencia lexica."
+    }), Object.freeze({
+      id: "destockal-causative-class-by-formation-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.5"]),
+      pdfPages: Object.freeze([203]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La clase del causative destockal depende de la formacion: n-a/hua-a es Class B, ni-a/hui-a es Class C.",
+      requiredProbe: "No asignar clase por superficie final solamente; revisar si hubo addition o replacement."
+    }), Object.freeze({
+      id: "destockal-coalesced-root-stock-irregular-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.5"]),
+      pdfPages: Object.freeze([203]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunos destockals irregulares coalescen vocal de root y stock formative; el proceso historico ya no es perceptible.",
+      requiredProbe: "No reconstruir root+stock mecanicamente cuando Andrews marca coalescencia irregular."
+    }), Object.freeze({
+      id: "ihui-ahui-stock-selection-opposite-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.7"]),
+      pdfPages: Object.freeze([206]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los stems i-hui/a-hui escogen stock formative i/a de modo opuesto a la seleccion regular; despues de root-final l siempre va i.",
+      requiredProbe: "No aplicar seleccion regular de stock formative a i-hui/a-hui ni despues de final l."
+    }), Object.freeze({
+      id: "ihui-ahui-causative-replacement-oa-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.7"]),
+      pdfPages: Object.freeze([206]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El causative de i-hui/a-hui reemplaza la familia por o-a y es mas complejo que otros destockals.",
+      requiredProbe: "No producir o-a por simple suffix; registrar reemplazo de familia i-hui/a-hui."
+    }), Object.freeze({
+      id: "causative-a-matrix-embedded-source-core-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.9"]),
+      pdfPages: Object.freeze([209]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La a causative puede funcionar como matriz que incorpora sujeto y core de la fuente como objeto incorporado.",
+      requiredProbe: "No tratar a causative como sufijo plano; mostrar matriz, source core embebido y objeto incorporado."
+    }), Object.freeze({
+      id: "impersonal-source-subject-to-tla-causative-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.9"]),
+      pdfPages: Object.freeze([209]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En causatives, un sujeto fuente impersonal 0-0 puede convertirse en objeto causativo nonspecific tla.",
+      requiredProbe: "No conservar 0-0 como sujeto fuente visible; transformar a tla objetivo y registrar objectivization."
+    }), Object.freeze({
+      id: "applicative-stem-class-c-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.13"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Todo stem applicative formado por el primer o segundo tipo pertenece a verbstem Class C.",
+      requiredProbe: "No conservar la clase de la fuente ni inferir clase por superficie; registrar Class C applicative."
+    }), Object.freeze({
+      id: "applicative-transform-imports-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.14"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La transformacion applicative reemplaza el source stem por uno applicative e importa un objeto applicative desde fuera de la CNV fuente.",
+      requiredProbe: "No generar applicative solo por suffix; exigir objeto importado, source stem y applicative stem."
+    }), Object.freeze({
+      id: "applicative-last-added-mainline-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.14", "Andrews 26.16"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El ultimo objeto applicative agregado es mainline; con dos o tres objetos, los objetos de fuente bajan a shuntline de primer o segundo nivel.",
+      requiredProbe: "No ordenar objetos por cercania al stem; calcular mainline y shuntline por historia de adicion."
+    }), Object.freeze({
+      id: "applicative-single-object-from-intransitive-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.15"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Una fuente intransitiva produce una applicative de un objeto, incluso cuando la superficie no lo hace obvio.",
+      requiredProbe: "No clasificar la salida como intransitiva por traduccion; comprobar objeto applicative importado."
+    }), Object.freeze({
+      id: "applicative-tla-fusion-source-hidden-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.15", "Andrews 7.10"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La fuente intransitiva applicative puede resultar de tla fusion, ocultando la cuenta de objetos de la source VNC.",
+      requiredProbe: "No tratar tla fusion como objeto applicative visible; reconstruir fuente fusionada y objeto importado."
+    }), Object.freeze({
+      id: "applicative-adverbial-embed-exposes-object-count-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.15", "Andrews Lesson 30"]),
+      pdfPages: Object.freeze([235]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una fuente con tla fusion contiene embed adverbial, la incorporacion puede hacer obvia la cuenta de objetos.",
+      requiredProbe: "No contar el embed como objeto nuclear; separar embed adverbial, tla fusion y objeto applicative."
+    }), Object.freeze({
+      id: "causative-applicative-meaning-overlap-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.24"]),
+      pdfPages: Object.freeze([242]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Algunos verbstems pueden tener significados causative y applicative, o forma causative con significado applicative.",
+      requiredProbe: "No decidir causative/applicative por glosa; conservar suffix, objeto y source transform."
+    }), Object.freeze({
+      id: "causative-translation-false-applicative-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.24"]),
+      pdfPages: Object.freeze([242]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La traduccion puede hacer parecer applicative una causative, como 'talk about' o 'write to' desde causative de nombre pronunciado/escrito.",
+      requiredProbe: "No reanalizar por traduccion espanola/inglesa; revisar si la estructura es causative con sujeto/nombre causado."
+    }), Object.freeze({
+      id: "connective-t-cah-uses-ye-perfective-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.1", "Andrews 11.5.1"]),
+      pdfPages: Object.freeze([258]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El verbo ca-h como embed de connective-t compound usa el perfective stem ye para formar el predicado preterito embed, contra la asociacion regular de ca-h con preterito.",
+      requiredProbe: "No usar ca-h regular como embed; registrar ye-0-ti- matrix y tense de la VNC compuesta."
+    }), Object.freeze({
+      id: "connective-t-yauh-uses-yah-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.2"]),
+      pdfPages: Object.freeze([258]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ya-uh usa un predicado preterito formado sobre yah cuando ocupa la subposicion embed de un connective-t compound.",
+      requiredProbe: "No copiar ya-uh imperfective en el embed; usar yah-0-ti- segun la regla."
+    }), Object.freeze({
+      id: "connective-t-cac-perfective-only-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.3"]),
+      pdfPages: Object.freeze([258, 259]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El perfective stem intransitivo cac aparece en predicado preterito como embed de connective-t compound y ese es su unico uso.",
+      requiredProbe: "No promover cac a stem libre productivo; mantenerlo como embed-only special formation."
+    }), Object.freeze({
+      id: "itta-connective-t-uses-itz-perfective-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.4", "Andrews 26.1"]),
+      pdfPages: Object.freeze([259]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "te-/tla-(itt-a) no aparece como embed connective-t; la tt vuelve a /ts/ y se usa el perfective stem itz.",
+      requiredProbe: "No colocar itta como embed; exigir itz-0-ti- con objeto y direccion correctos."
+    }), Object.freeze({
+      id: "itz-alert-vs-motion-homophone-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.4", "Andrews 11.4.5"]),
+      pdfPages: Object.freeze([259]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed intransitivo itz 'mirar/estar alerta' no debe confundirse con el homofono itz 'venir/ir' en connective-t compounds.",
+      requiredProbe: "No elegir significado por superficie itz; registrar source verb, matrix y traduccion de movimiento/alerta."
+    }), Object.freeze({
+      id: "compound-hysteron-proteron-event-order-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.5", "Andrews 28.3"]),
+      pdfPages: Object.freeze([259]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos compounds invierten el orden temporal esperado de embed y matrix, produciendo hysteron proteron.",
+      requiredProbe: "No inferir orden de eventos solo por orden embed-matrix; registrar si Andrews marca inversion retorica."
+    }), Object.freeze({
+      id: "ye-tinemia-supplementary-subject-possessor-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.9", "Andrews 47.3.1"]),
+      pdfPages: Object.freeze([261]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los compounds con ye como embed pueden traducirse 'tener consigo', donde el topico funciona como sujeto suplementario o possessor suplementario.",
+      requiredProbe: "No convertir el topico en objeto nuclear; registrar supplementary subject/possessor y compound ye."
+    }), Object.freeze({
+      id: "intransitivized-reflexive-matrix-mo-invariant-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.9"]),
+      pdfPages: Object.freeze([261]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compounds de matrix reflexive intransitivizada, m-o no cambia de forma segun la persona del sujeto.",
+      requiredProbe: "No ajustar m-o a n-o/t-o por sujeto; conservar m-o fossilized/intransitivized dentro del matrix."
+    }), Object.freeze({
+      id: "intransitivized-reflexive-matrix-embed-can-be-transitive-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.9"]),
+      pdfPages: Object.freeze([261, 262]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En la matrix reflexive intransitivizada, el embed puede ser transitive o intransitive aunque el matrix descargue transitivity en reflexive.",
+      requiredProbe: "No bloquear embed transitive por matrix intransitivizada; separar valence del embed y matrix m-o."
+    }), Object.freeze({
+      id: "momaana-animate-subject-plural-only-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.9.4"]),
+      pdfPages: Object.freeze([262]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La matrix m-o-man-a no se usa para individuos animados; si el sujeto animado aparece, debe ser plural.",
+      requiredProbe: "No generar m-o-man-a con sujeto animate singular; exigir grupo/plural o nonanimate/impersonal."
+    }), Object.freeze({
+      id: "shared-object-compound-single-manifestation-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.10"]),
+      pdfPages: Object.freeze([262]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El shared-object compound une matrix y embed transitivos con objetos coreferenciales que comparten una sola manifestacion, ubicada en el embed.",
+      requiredProbe: "No duplicar objeto en embed y matrix; registrar coreferencia y manifestacion unica en embed."
+    }), Object.freeze({
+      id: "purposive-directional-prefix-matrix-internal-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.1"]),
+      pdfPages: Object.freeze([267]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los directional prefixes purposive son parte integral del matrix stem, no connectives como t.",
+      requiredProbe: "No mostrar directional como particula externa o connective; ubicarlo dentro del matrix subposition."
+    }), Object.freeze({
+      id: "purposive-variant-future-precedes-directional-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.1"]),
+      pdfPages: Object.freeze([267]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El morph future variante silencioso siempre precede los directional prefixes internos del purposive.",
+      requiredProbe: "No borrar el future variant por ser silencioso ni colocarlo despues del directional."
+    }), Object.freeze({
+      id: "purposive-base-stem-suppletion-number-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.1"]),
+      pdfPages: Object.freeze([267]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El base stem purposive 'moverse con proposito' tiene imperfective i con variantes i-uh/i-hui y perfective suppletive o; uh va con singular/common y hui con plural.",
+      requiredProbe: "No usar una base unica; condicionar i-uh/i-hui/o por aspect y number dyad."
+    }), Object.freeze({
+      id: "purposive-mood-tense-zero-morph-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.2"]),
+      pdfPages: Object.freeze([267]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Purposive VNCs tienen indicative y optative, tenses limitados por direccion, tense morph 0 y numero singular/common 0-0 vs plural 0-h.",
+      requiredProbe: "No importar todos los tenses CNV ordinarios; probar direction, mood, stem shape, tns 0 y num1-num2."
+    }), Object.freeze({
+      id: "incorporated-tla-covering-not-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.5", "Andrews 30.4"]),
+      pdfPages: Object.freeze([279]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En nictlapachoa, tla es nounstem 'cubierta' como embed adverbial, no el object pronoun tla; tratarlo como objeto sobrecarga la valence.",
+      requiredProbe: "No contar tla incorporado como objeto nuclear; identificar nounstem embed y matrix object separado."
+    }), Object.freeze({
+      id: "body-part-incorporation-possessor-unrepresented-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.5"]),
+      pdfPages: Object.freeze([279]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los nounstems de partes del cuerpo incorporados como medios pierden el pronombre posesivo porque es coreferential con sujeto u objeto del matrix.",
+      requiredProbe: "No generar possessor externo dentro del compound; registrar coreferencia con pronombre personal de matrix."
+    }), Object.freeze({
+      id: "mai-bodypart-glottalized-mah-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.5", "Andrews 14.2.8"]),
+      pdfPages: Object.freeze([279]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El nounstem mai 'mano' aparece frecuentemente con forma glottalized mah cuando se incorpora en compound stem.",
+      requiredProbe: "No tratar mah como root distinto sin fuente mai; registrar forma incorporada."
+    }), Object.freeze({
+      id: "ixi-added-i-incorporated-face-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.5"]),
+      pdfPages: Object.freeze([279]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El incorporado ix 'face' puede mostrar i anadida como si fuera *(ixi)-tl-.",
+      requiredProbe: "No convertir la i anadida en evidencia de nounstem independiente sin diagnostico."
+    }), Object.freeze({
+      id: "cem-numeral-loses-m-outside-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.3", "Andrews 2.11"]),
+      pdfPages: Object.freeze([323]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El numeral nounstem cem pierde m final y toma alargamiento compensatorio cuando no es embed; como embed conserva comportamiento asimilatorio.",
+      requiredProbe: "No usar ce/cem por ortografia fija; condicionar por embed vs NNC ordinaria y asimilacion."
+    }), Object.freeze({
+      id: "cem-plural-dyad-meh-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.3"]),
+      pdfPages: Object.freeze([323]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una NNC plural sobre cem usa el dyad plural m-eh, no los conectores plurales regulares de otros stems.",
+      requiredProbe: "No generar plural cem con t-in o 0-h; exigir m-eh."
+    }), Object.freeze({
+      id: "cem-incorporated-adverbial-meaning-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.3", "Andrews 30.5"]),
+      pdfPages: Object.freeze([323]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "cem como embed en incorporated-adverb compound puede significar completamente, juntos o para siempre.",
+      requiredProbe: "No traducir cem embed solo como numeral uno; registrar funcion adverbial incorporada."
+    }), Object.freeze({
+      id: "ome-eyi-nahui-pronominal-plural-n-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.4", "Andrews 16.1"]),
+      pdfPages: Object.freeze([323]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los stems ome, eyi y nahui son pronominales; la NNC de conteo ordinario pluraliza el stem con n y usa t-in o 0-0 en numero del sujeto.",
+      requiredProbe: "No poner n plural como num1-num2 solamente; separar n interno del stem y dyad del sujeto."
+    }), Object.freeze({
+      id: "ome-eyi-nahui-embed-final-vowel-loss-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.4"]),
+      pdfPages: Object.freeze([323]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ome, eyi y nahui normalmente pierden vocal final como embeds de compound stem; eyi puede perder y o cambiarla a s.",
+      requiredProbe: "No usar forma ordinaria completa dentro de compounds sin aplicar regla de embed."
+    }), Object.freeze({
+      id: "macuil-patientive-incorporated-object-hand-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.5", "Andrews 37.9.1"]),
+      pdfPages: Object.freeze([325]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "macuil 'cinco' procede de patientive sobre incorporated-object compound ma-cui 'tomar una mano', no de un numeral atomico.",
+      requiredProbe: "No perder la fuente ma-cui ni el patientive ma-cu-i-l al usar macuil como numeral."
+    }), Object.freeze({
+      id: "macuil-plural-subject-tin-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.5"]),
+      pdfPages: Object.freeze([325]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una NNC plural sobre macuil llena la posicion de numero con t-in.",
+      requiredProbe: "No reutilizar m-eh de cem ni 0-0 plural; exigir t-in para macuil plural."
+    }), Object.freeze({
+      id: "chicua-chic-embed-only-five-plus-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.5", "Andrews 44.6"]),
+      pdfPages: Object.freeze([325]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "chicua/chine/chic es embed-only en compound numerals con matrix cem/ome/eyi/nahui y viene de adverbialized chico 'a un lado'.",
+      requiredProbe: "No generar chicua como NNC libre; exigir matrix numeral y five-plus structure."
+    }), Object.freeze({
+      id: "word-term-rejected-for-nuclear-clauses-boundary",
+      sourceRefs: Object.freeze(["Andrews 1.3", "Andrews Lesson 3", "Andrews Lesson 4"]),
+      pdfPages: Object.freeze([21]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Andrews rechaza 'word' para CNV/CNN; solo particulas pueden recibir ese termino sin destruir el analisis de clausulas nucleares.",
+      requiredProbe: "No exponer CNV/CNN como word/palabra en metadata o UI; conservar clase formal nuclear."
+    }), Object.freeze({
+      id: "english-spanish-terminology-mirage-rejection-boundary",
+      sourceRefs: Object.freeze(["Andrews 1.3", "Andrews 1.13"]),
+      pdfPages: Object.freeze([21]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Terminos como auxiliary verb, modal auxiliary, preposition y postposition falsifican Nahuatl cuando obedecen a traduccion inglesa/espanola.",
+      requiredProbe: "No crear rutas engine por equivalentes de traduccion; exigir categoria Andrews."
+    }), Object.freeze({
+      id: "stem-internal-derivation-vs-stem-external-inflection-boundary",
+      sourceRefs: Object.freeze(["Andrews 1.11"]),
+      pdfPages: Object.freeze([29]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El afijo derivacional vive dentro del stem y puede alterar categoria; el afijo inflectional vive fuera del stem y crea unidad paradigmatica.",
+      requiredProbe: "No mover suffix derivacional a num1-num2 ni tense; no meter inflection dentro del stem salvo democion conversional documentada."
+    }), Object.freeze({
+      id: "inflection-demotion-into-stem-by-conversion-boundary",
+      sourceRefs: Object.freeze(["Andrews 1.11", "Andrews Lesson 35"]),
+      pdfPages: Object.freeze([29]),
+      routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+      obstacleEs: "Procesos conversionales/derivacionales pueden degradar afijos inflectionales de posicion stem-external a posicion stem-internal.",
+      requiredProbe: "No borrar un afijo por cambiar de nivel; registrar cuando una inflection fuente queda internalizada en CNN."
+    }), Object.freeze({
+      id: "hierarchy-stage-source-required-boundary",
+      sourceRefs: Object.freeze(["Andrews 1.11"]),
+      pdfPages: Object.freeze([29]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Nada existe en un rango superior sin pasar por la etapa inferior requerida: morph/root/stock/stem antes de CNV/CNN/particle.",
+      requiredProbe: "No generar ruta de superficie sin demostrar la etapa fuente inferior que la licencia."
+    }), Object.freeze({
+      id: "particle-monomorphemic-nonparadigmatic-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.1"]),
+      pdfPages: Object.freeze([54]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La particula Andrews es monomorfemica, no paradigmatica e invariante; no tiene estructura morfologica interna.",
+      requiredProbe: "No conjugar, derivar ni descomponer una particula como CNV/CNN."
+    }), Object.freeze({
+      id: "particle-clitic-like-but-stressable-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.1"]),
+      pdfPages: Object.freeze([54]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas particulas dependen de una clausula nuclear como cliticos, pero siguen siendo stressable y no cliticos ordinarios.",
+      requiredProbe: "No fusionar in/o/e dentro de CNV/CNN por dependencia grafica; conservar particula externa con posicion dependiente."
+    }), Object.freeze({
+      id: "degenerate-nuclear-clause-treated-as-particle-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.1", "Andrews 44.3.5", "Andrews 44.5.4"]),
+      pdfPages: Object.freeze([54]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Auh/auh/oc pueden parecer clausulas nucleares congeladas o contener morfemas, pero se tratan como particulas sin prueba contraria.",
+      requiredProbe: "No reconstruir verbstem fuente ni ruta CNV/CNN desde una particula sospechosa sin prueba Andrews."
+    }), Object.freeze({
+      id: "particle-may-embed-never-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.2"]),
+      pdfPages: Object.freeze([54]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas particulas pueden ser embed de compound stem, pero las particulas nunca sirven como matrix stem.",
+      requiredProbe: "No permitir particula como matriz de CNV/CNN compuesta; solo embed autorizado."
+    }), Object.freeze({
+      id: "in-adjunctor-not-determiner-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.2", "Andrews 1.11.2"]),
+      pdfPages: Object.freeze([55]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "in es adjunctor, no determiner/articulo; la determinacion pertenece a ingles/espanol, no a nounstems Nahuatl.",
+      requiredProbe: "No crear slot de articulo dentro de CNN ni meter in en el nounstem."
+    }), Object.freeze({
+      id: "adjoined-unit-in-optional-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.2"]),
+      pdfPages: Object.freeze([55]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "in puede marcar subordinacion de un solo item o de una secuencia multi-item, y su uso suele ser opcional.",
+      requiredProbe: "No exigir in para toda adjunction ni limitarlo a un solo token."
+    }), Object.freeze({
+      id: "particle-collocation-honorific-final-member-boundary",
+      sourceRefs: Object.freeze(["Andrews 3.5", "Andrews 32.3"]),
+      pdfPages: Object.freeze([59]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El affective-matrix nounstem tzin puede honorificar una particula o el ultimo miembro de una collocation, honorificando toda la collocation.",
+      requiredProbe: "No tratar tzin en particulas como plural/tense/stem CNV; registrar honorific particle/collocation."
+    }), Object.freeze({
+      id: "num1-k-after-preterit-future-not-tense-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.5.2"]),
+      pdfPages: Object.freeze([67]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "c/qu/qui/0 en num1 tras preterit/future representa /k/ de numero sujeto; aunque c indique preterit singular, no es tense morph.",
+      requiredProbe: "No mover k/ki/0 al tense slot ni al stem; comprobar num1-num2 por tense y clase."
+    }), Object.freeze({
+      id: "num2-definitive-number-locus-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.5.2"]),
+      pdfPages: Object.freeze([67]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "num2 es el locus definitivo de numero: singular/common siempre 0 y plural h/eh/an/in segun num1 y tense.",
+      requiredProbe: "No inferir numero solo por sujeto prefijado; probar num2 y su correlacion con num1/tense."
+    }), Object.freeze({
+      id: "hual-la-directional-fused-to-yauh-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.3"]),
+      pdfPages: Object.freeze([113]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "hual-la/hual-la-uh/hual-hui fusiona directional hual con ya/ya-uh/hui, con /l/+ /y/ > ll.",
+      requiredProbe: "No analizar hual como particula separada ni la como root independiente; registrar fusion directional+stem."
+    }), Object.freeze({
+      id: "yauh-hui-dialectal-plural-not-good-usage-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.2"]),
+      pdfPages: Object.freeze([113]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las variantes plurales dialectales de ya-hui existen pero Andrews no las considera buen uso.",
+      requiredProbe: "No promover tiyahuih/anyahuih/yahuih plural a salida estandar sin marca dialectal."
+    }), Object.freeze({
+      id: "ti-class-possessive-hui-vs-zero-alternative-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2"]),
+      pdfPages: Object.freeze([131]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos ti-class stems tienen alternativa posesiva con num1 0 en vez de hui.",
+      requiredProbe: "No forzar hui cuando Andrews da alternancia hui/0; registrar stem real/supportive y st2."
+    }), Object.freeze({
+      id: "ti-class-subclass-selection-not-predictable-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2"]),
+      pdfPages: Object.freeze([131]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La seleccion de uh vs 0 en num1 para ti Subclass 1 no es predecible y debe aprenderse por stem.",
+      requiredProbe: "No asignar num1 por regla fonologica general; exigir entrada lexical/clase Andrews."
+    }), Object.freeze({
+      id: "stem-final-uh-vs-num1-uh-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2.1"]),
+      pdfPages: Object.freeze([132]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un uh final puede ser parte del general-use stem y no el filler uh de num1; noteuh ilustra NNCs ambiguas.",
+      requiredProbe: "No etiquetar todo uh final como num1; comparar fuente stem, clase y possessor."
+    }), Object.freeze({
+      id: "ephemeral-vowel-truncated-general-use-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 14.2.2"]),
+      pdfPages: Object.freeze([132]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "ti Subclass 2 crea general-use stems truncados borrando vocal efimera final; no es lo mismo que vocal supportive agregada.",
+      requiredProbe: "No confundir borrado de vocal efimera con insercion supportive; registrar limited-use vs general-use stem."
+    }), Object.freeze({
+      id: "nonactive-hua-vowel-length-before-suffix-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.8"]),
+      pdfPages: Object.freeze([179]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Antes de hua, i/o largas conservan longitud y la i corta suele alargarse; -ci puede reemplazarse por -xi.",
+      requiredProbe: "No aplicar hua sin revisar longitud vocalica y reemplazo -ci>-xi."
+    }), Object.freeze({
+      id: "nonactive-hualo-free-variant-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.1"]),
+      pdfPages: Object.freeze([179]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "hua-lo es combinacion suffixal poco frecuente y sus stems son variantes libres de stems con hua.",
+      requiredProbe: "No tratar hualo como voice nueva; relacionarlo con variante hua."
+    }), Object.freeze({
+      id: "nonactive-class-a2-long-o-boundary",
+      sourceRefs: Object.freeze(["Andrews 20.8", "Andrews 7.7"]),
+      pdfPages: Object.freeze([179]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Todo nonactive stem pertenece a Class A-2; la o final de lo/o/hua-lo es larga salvo ante morphs silenciosos o glottal stop.",
+      requiredProbe: "No conservar clase activa fuente en nonactive; registrar Class A-2 y variantes de o larga."
+    }), Object.freeze({
+      id: "transitive-cover-term-object-kind-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.1"]),
+      pdfPages: Object.freeze([191]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Transitive en Nahuatl cubre cualquier verbcore con objeto: directive, causative o applicative.",
+      requiredProbe: "No etiquetar transitive como solo direct-object; registrar kind de objeto y suffix derivacional."
+    }), Object.freeze({
+      id: "object-shape-does-not-mark-function-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.1"]),
+      pdfPages: Object.freeze([191]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los pronombres objetivos no distinguen morfologicamente direct, causative y applicative object.",
+      requiredProbe: "No inferir funcion por forma del pronombre; usar source stem y derivational suffix."
+    }), Object.freeze({
+      id: "valence-derivational-history-stage-chart-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.2"]),
+      pdfPages: Object.freeze([193]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las historias intransitive/directive generan opciones de 0, 1, 2 y 3 objetos con mainline y shuntline por etapa derivacional.",
+      requiredProbe: "No derivar valence por orden lineal solamente; reconstruir historia y etapa."
+    }), Object.freeze({
+      id: "only-one-mainline-reflexive-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.3"]),
+      pdfPages: Object.freeze([193]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Solo un reflexive object pronoun puede tener forma mainline n-o/t-o/m-o, salvo anomalias raras.",
+      requiredProbe: "No permitir multiples reflexives mainline; shuntline/reflexive debe seguir control suffixal."
+    }), Object.freeze({
+      id: "suffix-order-history-not-valence-order-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.3"]),
+      pdfPages: Object.freeze([194]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La secuencia derecha de suffixes refleja historia derivacional, pero la secuencia izquierda de valence positions no la refleja ni paralela ni inversamente.",
+      requiredProbe: "No ordenar object pronouns por suffix order; usar prioridades de valence."
+    }), Object.freeze({
+      id: "specific-projective-incompatibility-silent-real-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.3", "Andrews 23.4"]),
+      pdfPages: Object.freeze([194]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Specific projective object pronouns son incompatibles entre si: solo uno suena, pero los morphs silenciosos siguen siendo reales.",
+      requiredProbe: "No borrar shuntline silencioso; mostrar 0-0/0-im y mantener rol historico."
+    }), Object.freeze({
+      id: "multiple-valence-formula-representative-not-exhaustive-boundary",
+      sourceRefs: Object.freeze(["Andrews 23.4"]),
+      pdfPages: Object.freeze([194]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La formula multiple-valence #pers1-pers2+va+va+va(DBASE-CAUS-APPLIC)tns+num1-num2# es representativa, no lista exhaustiva de todas las posibilidades.",
+      requiredProbe: "No limitar motor a un solo patron causative+applicative; conservar va slots y source labels."
+    }), Object.freeze({
+      id: "causative-transform-ambiguity-multiple-sources-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.13"]),
+      pdfPages: Object.freeze([223]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Los causative transforms con dos/tres objetos suelen ser ambiguos porque una misma forma puede venir de multiples fuentes.",
+      requiredProbe: "No escoger una fuente unica por superficie; enumerar fuentes posibles y contexto requerido."
+    }), Object.freeze({
+      id: "causative-specific-object-rule-reduces-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.13"]),
+      pdfPages: Object.freeze([223]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La incompatibilidad de specific-object pronouns y el reemplazo reflexive shuntline ne reducen ambiguedad causative.",
+      requiredProbe: "No marcar todas las formas multivalentes como igualmente ambiguas; aplicar reglas de incompatibilidad y ne."
+    }), Object.freeze({
+      id: "causative-optative-admonitive-mood-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.14"]),
+      pdfPages: Object.freeze([224]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las VNCs en causative stems pueden usarse en wish, command/exhortation y admonition sentences.",
+      requiredProbe: "No bloquear mood optative/admonitive solo por ser causative; conservar stem causativo y mood Andrews."
+    }), Object.freeze({
+      id: "causative-passive-impersonal-transform-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.15"]),
+      pdfPages: Object.freeze([224]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Las VNCs sobre causative verbstems pueden sufrir passive e impersonal transformations.",
+      requiredProbe: "No tratar causative voice como final impermeable; permitir nonactive transform con objetos remapeados."
+    }), Object.freeze({
+      id: "silent-object-pronoun-can-take-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.16"]),
+      pdfPages: Object.freeze([224]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un verb-object pronoun silencioso es plenamente real y puede tomar supplementary object.",
+      requiredProbe: "No negar supplement por ausencia de objeto sonoro; vincular adjunct con head silencioso."
+    }), Object.freeze({
+      id: "compounding-fuses-nuclear-clauses-to-new-nuclear-clause-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.1"]),
+      pdfPages: Object.freeze([250]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Compounding combina dos o mas clausulas nucleares y degrada relaciones sintacticas a morfologicas.",
+      requiredProbe: "No tratar compound stem como lexema plano; registrar source CNVs/CNNs y transformacion."
+    }), Object.freeze({
+      id: "compound-stem-abstraction-not-analysis-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.1"]),
+      pdfPages: Object.freeze([250]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El compound stem abstraido sirve para diccionario, pero el analisis exige las clausulas nucleares fuente y sus predicados.",
+      requiredProbe: "No usar entrada de diccionario como prueba de estructura; mostrar predicate sources."
+    }), Object.freeze({
+      id: "compound-embed-before-matrix-inviolable-boundary-lesson28",
+      sourceRefs: Object.freeze(["Andrews 28.2"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compound stem, matrix siempre viene despues de embed; la regla embed-before-matrix es inviolable.",
+      requiredProbe: "No invertir estructura por traduccion; matrix determina naturaleza verbal/nominal."
+    }), Object.freeze({
+      id: "compound-embed-subject-deleted-felt-boundary-lesson28",
+      sourceRefs: Object.freeze(["Andrews 28.2"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando una clausula nuclear se incorpora como embed, su sujeto se borra salvo casos especiales, pero sigue sintiendose estructuralmente.",
+      requiredProbe: "No usar el sujeto del embed como sujeto nuclear final; conservar coreferencia o no-coreferencia."
+    }), Object.freeze({
+      id: "compound-embed-never-incorporated-subject-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.2", "Andrews 30.18"]),
+      pdfPages: Object.freeze([251]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El embed puede ser objeto, possessor, modifier o complement, pero nunca incorporated subject.",
+      requiredProbe: "No crear funcion incorporated-subject; sujeto y predicado son funciones antipodales."
+    }), Object.freeze({
+      id: "compound-linked-vs-integrated-type-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.3"]),
+      pdfPages: Object.freeze([252]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Linked compounds compartimentalizan embed/matrix con connective o yuxtaposicion; integrated compounds hacen que matrix gobierne el embed.",
+      requiredProbe: "No mezclar linked/connectiveless/integrated; registrar tipo antes de interpretar roles."
+    }), Object.freeze({
+      id: "nnc-plus-vnc-restricted-integrated-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.3", "Andrews Lesson 30"]),
+      pdfPages: Object.freeze([252]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los compounds NNC+VNC=VNC estan restringidos al tipo integrated.",
+      requiredProbe: "No tratar incorporated NNC compounds como linked connective-t."
+    }), Object.freeze({
+      id: "vnc-plus-vnc-four-valence-combinations-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.4"]),
+      pdfPages: Object.freeze([252]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un VNC embed incorporado a VNC permite cuatro combinaciones ISTEM/TSTEM, con embed determinando valence y matrix determinando tipo.",
+      requiredProbe: "No dejar que matrix sobrescriba valence del embed; conservar ISTEM/TSTEM combinacion."
+    }), Object.freeze({
+      id: "connective-t-separator-not-simple-connector-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.5"]),
+      pdfPages: Object.freeze([252, 253]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El connective t/ti separa tanto como conecta: mantiene matrix sin interferir con embed, aunque la VNC final tenga un solo sujeto.",
+      requiredProbe: "No plegar t/ti dentro de stem embed o matrix; conservar limite embed/matrix y sujeto matrix."
+    }), Object.freeze({
+      id: "connective-t-embed-always-preterit-predicate-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.5"]),
+      pdfPages: Object.freeze([253]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En connective-t compounds, el predicate verbal embed siempre es preterit: perfective stem + 0 preterit tense morph antes de t.",
+      requiredProbe: "No usar presente/futuro embed visible; exigir perfective+0+t."
+    }), Object.freeze({
+      id: "matrix-translation-auxiliary-reverses-weight-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6"]),
+      pdfPages: Object.freeze([253]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Traducir la matrix intransitiva como auxiliar o adverbio invierte el peso de los constituyentes Nahuatl.",
+      requiredProbe: "No modelar matrix como auxiliary verb; matrix sigue siendo predicado gobernante."
+    }), Object.freeze({
+      id: "ehua-cah-matrix-idiom-sitting-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.1", "Andrews 24.6"]),
+      pdfPages: Object.freeze([254]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "e-hua como embed con ca-h matrix tiene significado idiomatico 'estar sentado/estar a gusto'.",
+      requiredProbe: "No traducir e-hua literalmente como levantarse/partir en esta matrix."
+    }), Object.freeze({
+      id: "connective-t-yauh-matrix-present-uh-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.3", "Andrews 11.5.2"]),
+      pdfPages: Object.freeze([254]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Con ya-uh matrix, present indicative singular usa uh; textos tradicionales no escriben y tras connective ti.",
+      requiredProbe: "No perder la matriz ya-uh por ausencia grafica de y; registrar uh/hui/yah alternancia."
+    }), Object.freeze({
+      id: "huica-itqui-not-embed-with-huitz-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.5", "Andrews 11.4.5"]),
+      pdfPages: Object.freeze([256]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "tla-huica y tla-itqui no ocurren como embed con hui-tz matrix; usan vieja formacion con perfective stem itz como matrix sin connective.",
+      requiredProbe: "No generar huica-0-ti-huitz/itqui-0-ti-huitz; usar huica-tz/itqui-tz."
+    }), Object.freeze({
+      id: "on-locative-omitted-with-o-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.9", "Andrews 8.1"]),
+      pdfPages: Object.freeze([256]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El locative prefix on, normalmente unido a o 'estar tendido', no se usa cuando o es matrix de connective-t compound.",
+      requiredProbe: "No insertar on automaticamente con matrix o en compounds."
+    }), Object.freeze({
+      id: "connective-t-passive-two-formations-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.6"]),
+      pdfPages: Object.freeze([260]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Connective-t compounds pueden tener dos passive formations: nonactive en embed solo o en embed y matrix.",
+      requiredProbe: "No limitar passive compound a una sola nonactive position."
+    }), Object.freeze({
+      id: "connective-t-impersonal-three-formations-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.7"]),
+      pdfPages: Object.freeze([260]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Connective-t compounds pueden impersonalizar embed, matrix o ambos; con stative matrix tiende a impersonalizarse solo el embed.",
+      requiredProbe: "No ubicar impersonal suffix fijo; registrar embed/matrix/both y excepciones stative."
+    }), Object.freeze({
+      id: "impersonal-tla-must-appear-on-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.7.7", "Andrews 22.6"]),
+      pdfPages: Object.freeze([260]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En la formacion impersonal tla de connective-t compounds, tla debe aparecer en el embed.",
+      requiredProbe: "No colocar tla impersonal en matrix ni como objeto nuclear externo."
+    }), Object.freeze({
+      id: "inbound-purposive-future-qu-iuh-quihuih-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.5"]),
+      pdfPages: Object.freeze([272]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El purposive inbound future usa qu-i-uh/qu-i-hui con direction inbound y base suppletive segun numero.",
+      requiredProbe: "No confundir inbound future con outbound t-i-uh/t-i-hui; probar qu direction y num2."
+    }), Object.freeze({
+      id: "inbound-purposive-optative-long-short-i-boundary",
+      sourceRefs: Object.freeze(["Andrews 29.5"]),
+      pdfPages: Object.freeze([272]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El nonpast optative inbound usa imperfective -qu-i: vocal larga reducida ante morphs silenciosos y corta cuando termina en h num2.",
+      requiredProbe: "No generar una unica longitud vocalica; condicionar por morphs silenciosos y plural h."
+    }), Object.freeze({
+      id: "incorporated-object-replaces-silent-shuntline-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.2", "Andrews 30.3"]),
+      pdfPages: Object.freeze([277]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un incorporated object puede reemplazar un shuntline object pronoun silencioso en double/triple-object source.",
+      requiredProbe: "No borrar el shuntline historico; mostrar nounstem embed como reemplazo del objeto silencioso."
+    }), Object.freeze({
+      id: "incorporated-object-derived-causative-applicative-recursion-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.3"]),
+      pdfPages: Object.freeze([277]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Causative y applicative stems pueden derivarse desde incorporated-object stems ya existentes.",
+      requiredProbe: "No limitar incorporation a etapa final; permitir recursion con source incorporada."
+    }), Object.freeze({
+      id: "supplementary-possessive-subject-to-incorporated-adverb-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12", "Andrews 18.1"]),
+      pdfPages: Object.freeze([286]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un supplementary subject en possessive-state NNC puede transformarse en incorporated adverb dentro de compound VNC.",
+      requiredProbe: "No convertir possessor del cuerpo/familia en sujeto nuclear final; incorporarlo como adverbial embed."
+    }), Object.freeze({
+      id: "supplementary-nnc-vs-adverbial-nnc-same-surface-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12", "Andrews 30.7"]),
+      pdfPages: Object.freeze([288]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La misma superficie compound puede venir de adverbial-NNC-to-incorporated-adverb o supplementary-NNC-to-incorporated-adverb.",
+      requiredProbe: "No decidir significado por superficie; conservar fuente adverbial vs supplementary."
+    }), Object.freeze({
+      id: "possessive-nnc-imitation-permits-applicative-compound-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12"]),
+      pdfPages: Object.freeze([288]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunas possessive-state NNCs no intimas imitan la transformacion de partes del cuerpo y permiten compound VNC sobre applicative stem.",
+      requiredProbe: "No aplicar restriccion body-part universal; registrar imitacion y applicative-stem allowance."
+    }), Object.freeze({
+      id: "supplementary-subject-passive-must-adverbialize-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12", "Andrews 21.1"]),
+      pdfPages: Object.freeze([288, 289]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El supplementary subject de una active transitive VNC debe adverbializarse para sobrevivir al passive barrier.",
+      requiredProbe: "No dejar supplementary subject como sujeto tras passive; convertirlo en adverbio/incorporated adverb."
+    }), Object.freeze({
+      id: "incorporated-complement-coreferential-subject-deleted-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.15", "Andrews Lesson 51"]),
+      pdfPages: Object.freeze([289]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En incorporated-complement compound VNC, el sujeto de la NNC embed comparte referencia con sujeto u objeto de la VNC source y se borra.",
+      requiredProbe: "No conservar sujeto embed como argumento extra; registrar coreferencia y deletion."
+    }), Object.freeze({
+      id: "incorporated-complement-subject-object-adverbial-types-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.15"]),
+      pdfPages: Object.freeze([289, 290]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El complement incorporado puede completar algo dicho del sujeto, del objeto o del stem; aqui importan subject y object complement.",
+      requiredProbe: "No confundir complement incorporado con object incorporation ordinaria; etiquetar tipo de complement."
+    }), Object.freeze({
+      id: "incorporated-complement-considering-changing-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.15"]),
+      pdfPages: Object.freeze([290]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los object-complement compounds expresan considerar algo como X o cambiar algo en X con matrices especializadas.",
+      requiredProbe: "No traducir como simple object+verb; registrar complement role y matrix semantics."
+    }), Object.freeze({
+      id: "reduplication-on-incorporated-nnc-predicate-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.16"]),
+      pdfPages: Object.freeze([290]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un compound verbstem con predicate NNC incorporado puede llevar reduplicative prefix sobre el embed.",
+      requiredProbe: "No aplicar reduplication al matrix por defecto; ubicarla en predicate incorporado."
+    }), Object.freeze({
+      id: "compound-nounstem-matrix-redup-optional-obligatory-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.12"]),
+      pdfPages: Object.freeze([303]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compound nounstems, la reduplication de matrix puede ser opcional u obligatoria segun stem.",
+      requiredProbe: "No aplicar affinity/distributive reduplication uniformemente; consultar matrix stem."
+    }), Object.freeze({
+      id: "compound-nounstem-affinity-on-embed-and-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.12"]),
+      pdfPages: Object.freeze([303]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Algunos compound nounstems expresan affinity en embed y matrix a la vez.",
+      requiredProbe: "No limitar reduplication a un unico subposition cuando Andrews muestra doble marca."
+    }), Object.freeze({
+      id: "compound-nounstem-distributive-varietal-on-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 31.13", "Andrews 14.3.2"]),
+      pdfPages: Object.freeze([303]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En compound nounstems, distribution/variety se expresa sobre el embed stem.",
+      requiredProbe: "No poner distributive/varietal en matrix por defecto; comparar affinity matrix vs distributive embed."
+    }), Object.freeze({
+      id: "gross-count-possessive-state-tin-same-as-absolutive-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.6"]),
+      pdfPages: Object.freeze([326]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Gross-count numeral stems pueden aparecer en possessive-state formation rara con el mismo dyad t-in que absolutive NNCs.",
+      requiredProbe: "No cambiar t-in por possessive normal; registrar possessor plural/common plural referent."
+    }), Object.freeze({
+      id: "pohualli-derived-from-counted-patientive-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.7"]),
+      pdfPages: Object.freeze([326]),
+      routeId: "cnv-core-to-cnn-nounstem-deverbal",
+      obstacleEs: "pohualli 'veinte' es compound nounstem con matrix pohu-a-l-li derivado de tla-(pohu-a) 'contar'.",
+      requiredProbe: "No tratar pohualli como numeral atomico; conservar deverbal counted source."
+    }), Object.freeze({
+      id: "gross-count-matrix-tzon-xiquipil-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.7"]),
+      pdfPages: Object.freeze([326, 327]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Multiples de 400 y 8000 usan compound nounstems con matrix tzon o xiqu-ipil, no sufijos numerales planos.",
+      requiredProbe: "No generar centenas/miles por aritmetica superficial; registrar embed numeral y matrix nounstem."
+    }), Object.freeze({
+      id: "conjoined-numeral-nnc-rightward-om-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.8", "Andrews 52.2"]),
+      pdfPages: Object.freeze([327]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En conjoined numeral NNCs, el segundo conjunct debe incorporar om 'numero adicional', con asimilacion regresiva.",
+      requiredProbe: "No sumar numerales sin om en conjunct derecho; distinguir om por longitud/distribucion."
+    }), Object.freeze({
+      id: "same-matrix-numeral-nncs-cannot-conjoin-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.8"]),
+      pdfPages: Object.freeze([329]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Numeral NNCs con la misma matrix stem no pueden conjoined; eso cambia radicalmente la interpretacion numerica.",
+      requiredProbe: "No aceptar lectura aritmetica si matrices iguales se conjugan; validar estructura Andrews."
+    }), Object.freeze({
+      id: "rock-set-rightward-conjunct-drops-te-matrix-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.9"]),
+      pdfPages: Object.freeze([329]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En el 'rock' set, si hay conjunction, el NNC derecho no lleva matrix te-tl.",
+      requiredProbe: "No repetir classifier matrix en todos los conjuncts; aplicarlo solo donde Andrews lo permite."
+    }), Object.freeze({
+      id: "rock-set-ordinary-plural-meh-gross-count-tin-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.9"]),
+      pdfPages: Object.freeze([329]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En el rock set, ordinary-count plural usa m-eh, mientras gross-count usa t-in y puede referir animates o nonanimates.",
+      requiredProbe: "No reutilizar un plural unico para classifier numerals; separar ordinary vs gross count."
+    }), Object.freeze({
+      id: "numeral-reduplication-affinity-vs-distributive-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.14", "Andrews 14.3"]),
+      pdfPages: Object.freeze([332]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Numeral stems distinguen affinity reduplication con longitud vocalica y distributive/varietal reduplication con glottal stop.",
+      requiredProbe: "No tratar toda reduplication numeral como distributive; registrar longitud/glottal y significado."
+    }), Object.freeze({
+      id: "numeral-reduplication-first-part-except-mahtlac-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.14"]),
+      pdfPages: Object.freeze([332]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Salvo mahtlac, reduplication responde a la primera parte del numeral stem; con siete/ocho/nueve ocurre en embed y matrix.",
+      requiredProbe: "No reduplicar siempre matrix o stem completo; seguir first part y excepciones."
+    }), Object.freeze({
+      id: "approximate-numeral-particle-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 34.15"]),
+      pdfPages: Object.freeze([332]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "canah, quen y ahzo quen antes de numeral NNC significan aproximadamente/mas o menos.",
+      requiredProbe: "No incorporarlos al numeral stem; tratarlos como particulas con scope sobre NNC numeral."
+    }), Object.freeze({
+      id: "dictionary-semantic-universe-misreading-boundary",
+      sourceRefs: Object.freeze(["Andrews 2.1", "Andrews 2.2", "Andrews 2.3.3"]),
+      pdfPages: Object.freeze([36]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Los diccionarios coloniales superponen universos semanticos ajenos y omiten longitud vocalica/glottal stops, creando lecturas falsas.",
+      requiredProbe: "No usar glosa de diccionario como licencia de ruta; exigir morfologia Andrews y evidencia ortografica."
+    }), Object.freeze({
+      id: "dictionary-root-analysis-morphology-trap-boundary",
+      sourceRefs: Object.freeze(["Andrews 2.1"]),
+      pdfPages: Object.freeze([38]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las raices propuestas en diccionarios pueden ignorar morfologia Nahuatl y producir etimologias falsas.",
+      requiredProbe: "No aceptar root/source de diccionario sin prueba morfologica por stem, transitivity y class."
+    }), Object.freeze({
+      id: "grammar-before-translation-equivalence-boundary",
+      sourceRefs: Object.freeze(["Andrews 2.1", "Andrews 1.13"]),
+      pdfPages: Object.freeze([38]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las equivalencias de traduccion son correspondencias parciales; dominar morphology/morphosyntax/syntax es requisito para leer correctamente.",
+      requiredProbe: "No decidir CNV/CNN por traduccion lexical; analizar categoria gramatical primero."
+    }), Object.freeze({
+      id: "diagrammatic-formula-hierarchy-stem-foundation-boundary",
+      sourceRefs: Object.freeze(["Andrews 4.5"]),
+      pdfPages: Object.freeze([62]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El formato diagrammatico muestra relaciones internas y jerarquia: el stem siempre sirve como fundacion.",
+      requiredProbe: "No validar formula lineal sin jerarquia de layers y stem foundation."
+    }), Object.freeze({
+      id: "nnc-three-vnc-four-organizational-layers-boundary",
+      sourceRefs: Object.freeze(["Andrews 4.5"]),
+      pdfPages: Object.freeze([62]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "CNN tiene tres layers: nounstem, nouncore/predicate, CNN; CNV tiene cuatro: verbstem, verbcore, predicate, CNV.",
+      requiredProbe: "No tratar CNN y CNV como misma cantidad de slots/layers; renderizar layer logic separada."
+    }), Object.freeze({
+      id: "stage3-formula-position-subposition-boundary",
+      sourceRefs: Object.freeze(["Andrews 4.5"]),
+      pdfPages: Object.freeze([62]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Stage 3 requiere posiciones y subposiciones: person/number son dyadic, tense monadic, state/valence variable, stem monadic/polyadic.",
+      requiredProbe: "No usar un chip de formula sin subposiciones pers1-pers2, num1-num2, va/st/tns."
+    }), Object.freeze({
+      id: "vacant-valence-state-introductory-notation-boundary",
+      sourceRefs: Object.freeze(["Andrews 4.5"]),
+      pdfPages: Object.freeze([62]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando valence/state estan implicitos, Andrews los deja vacantes por simplicidad introductoria aunque estrictamente tengan morpheme silencioso.",
+      requiredProbe: "No confundir ausencia grafica con inexistencia gramatical; registrar vacante vs silencioso."
+    }), Object.freeze({
+      id: "tense-time-translation-shift-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.3", "Andrews 57.1"]),
+      pdfPages: Object.freeze([70]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Tense es categoria gramatical y time categoria existencial; un present-tense VNC puede referir past time en ciertos contextos.",
+      requiredProbe: "No ajustar tense por traduccion temporal; conservar morph tense Andrews."
+    }), Object.freeze({
+      id: "singular-number-dyad-zero-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 5.3"]),
+      pdfPages: Object.freeze([70]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El subject personal-pronoun singular-number dyad +0-0 es ambiguo entre preterit/future num1, nonpast optative y nonpast admonitive.",
+      requiredProbe: "No identificar mood/tense solo por +0-0; comparar plural dyad c-an/t-in y stem class."
+    }), Object.freeze({
+      id: "expanded-vnc-only-directional-inside-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.1"]),
+      pdfPages: Object.freeze([87]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "De tres prefixal constituents opcionales, solo directional/locative crea expansion verdadera dentro de la CNV; antecessive/negative quedan fuera.",
+      requiredProbe: "No meter o#/ah# en formula interna CNV; solo D pertenece al core."
+    }), Object.freeze({
+      id: "directional-locative-adverbial-core-position-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.1", "Andrews 29.7"]),
+      pdfPages: Object.freeze([87]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "on/hual funcionan como modifier adverbial del predicate y forman parte del core con formula ±D(STEM).",
+      requiredProbe: "No renderizar on/hual como particula externa cuando funciona dentro de CNV."
+    }), Object.freeze({
+      id: "cuix-interrogative-particle-sentence-scope-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.5"]),
+      pdfPages: Object.freeze([92]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "cuix? forma interrogatives al inicio de la sentence; no cambia la formula interna de la CNV.",
+      requiredProbe: "No incorporar cuix al stem ni al tense; mantener particula interrogativa con scope sentencial."
+    }), Object.freeze({
+      id: "conative-translation-not-object-change-boundary",
+      sourceRefs: Object.freeze(["Andrews 8.5"]),
+      pdfPages: Object.freeze([92]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "te-(mic-tia) puede traducirse con sentido conative 'intentar matar/atacar', sin cambiar la estructura objetiva.",
+      requiredProbe: "No crear ruta object diferente por traduccion conative; conservar causative/direct object."
+    }), Object.freeze({
+      id: "admonitive-zero-homophonous-with-preterit-k-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.3"]),
+      pdfPages: Object.freeze([101]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En Class C/D, una superficie admonitive puede parecer preterit porque 0 es variante de /t/ admonitive y tambien de /k/ preterit.",
+      requiredProbe: "No clasificar por superficie igual; usar ma, mood y num1-num2."
+    }), Object.freeze({
+      id: "admonition-not-wish-translation-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.3"]),
+      pdfPages: Object.freeze([101]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La admonition no es wish; expresa juicio como consejo, especialmente con sujetos nonanimate.",
+      requiredProbe: "No mapear admonitive a optative/wish por traduccion inglesa."
+    }), Object.freeze({
+      id: "negative-admonition-from-negative-present-boundary",
+      sourceRefs: Object.freeze(["Andrews 10.4"]),
+      pdfPages: Object.freeze([101]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Negative admonition transforma una negative assertion con present indicative; ah# se fija al admonitive VNC y ma nen es obligatorio.",
+      requiredProbe: "No crear negative admonitive directamente desde preterit o optative; exigir fuente present negative y ma nen."
+    }), Object.freeze({
+      id: "ye-cah-on-locative-existential-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.1", "Andrews 44.3.8", "Andrews 44.5.4"]),
+      pdfPages: Object.freeze([111]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "on coopera con stems de ye/ca-h para producir valor locativo existencial 'haber/estar ahi'.",
+      requiredProbe: "No tratar on en Onyez/Oncah como particula libre; registrar locative prefix y stem irregular."
+    }), Object.freeze({
+      id: "yauh-hui-number-redundancy-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.2"]),
+      pdfPages: Object.freeze([111]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "ya-uh/hui marca numero redundantemente en present indicative y nonpast optative: ya-uh singular/common, hui plural.",
+      requiredProbe: "No confiar solo en subject num2; mostrar stem alternation por numero."
+    }), Object.freeze({
+      id: "hui-plural-optative-replaces-can-with-zero-an-boundary",
+      sourceRefs: Object.freeze(["Andrews 11.5.2"]),
+      pdfPages: Object.freeze([111]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Como hui no permite suffix /k/, el plural nonpast optative reemplaza c-an por 0-an.",
+      requiredProbe: "No forzar c-an/k-an en hui optative plural; registrar excepcion stem-conditioned."
+    }), Object.freeze({
+      id: "pronominal-nnc-plural-zero-zero-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.2"]),
+      pdfPages: Object.freeze([143]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando num1 es 0 en personal-pronominal NNC plural, num2 tambien es 0.",
+      requiredProbe: "No forzar t-in en todo plural pronominal; permitir 0-0 segun subposition."
+    }), Object.freeze({
+      id: "personal-pronominal-nnc-adverbial-modification-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.2", "Andrews Lesson 44"]),
+      pdfPages: Object.freeze([143]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Personal-pronominal NNCs pueden ser modificadas por particulas adverbiales y NNCs adverbializadas.",
+      requiredProbe: "No crear pronoun word separado; conservar CNN pronominal modificada."
+    }), Object.freeze({
+      id: "first-plural-doubled-pers1-pronominal-nnc-boundary",
+      sourceRefs: Object.freeze(["Andrews 16.2"]),
+      pdfPages: Object.freeze([143]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Solo first-person plural pronominal NNC puede tener formacion rara con pers1 doblado ti-t-0.",
+      requiredProbe: "No extender ti-t-0 a segunda/tercera persona; marcar significado idiomatico de pertenencia."
+    }), Object.freeze({
+      id: "supplement-cross-reference-by-pronoun-not-stem-boundary",
+      sourceRefs: Object.freeze(["Andrews 17.3"]),
+      pdfPages: Object.freeze([153, 155]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "El contacto entre supplement y head depende de identidad de personal-pronoun referents, no de stems.",
+      requiredProbe: "No enlazar suplementos por igualdad lexical; enlazar por pronombre nuclear."
+    }), Object.freeze({
+      id: "possessive-state-nnc-with-oncah-have-boundary",
+      sourceRefs: Object.freeze(["Andrews 17.3"]),
+      pdfPages: Object.freeze([153]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Antes de piya como 'have', se expresaba posesion con ca-h+on como principal y possessive-state NNC como supplementary subject.",
+      requiredProbe: "No traducir have como verbo posesivo interno; modelar on+ca-h y NNC suplementaria."
+    }), Object.freeze({
+      id: "demonstrative-pronominal-nnc-supplement-boundary",
+      sourceRefs: Object.freeze(["Andrews 17.3", "Andrews 16.3"]),
+      pdfPages: Object.freeze([155]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Las demonstrative pronominal NNCs in/on pueden funcionar como supplementary elements y escribirse unidas a yehhuatl.",
+      requiredProbe: "No tratar in/on demostrativo como determiners; conservar CNN suplementaria."
+    }), Object.freeze({
+      id: "third-person-transitive-supplement-ambiguity-boundary",
+      sourceRefs: Object.freeze(["Andrews 17.3"]),
+      pdfPages: Object.freeze([155]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "VNC transitivas con solo tercera persona pueden ser ambiguas entre supplement sujeto y objeto si stem permite ambos roles animates.",
+      requiredProbe: "No elegir subject/object supplement sin contexto; registrar ambas lecturas."
+    }), Object.freeze({
+      id: "topic-comment-supplement-transposition-boundary",
+      sourceRefs: Object.freeze(["Andrews 17.5"]),
+      pdfPages: Object.freeze([155]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un supplement transpuesto antes del principal se vuelve topic; topic debe ser adjunct y preceder el principal.",
+      requiredProbe: "No marcar topic-comment cuando principal va primero; mantener supplement relation."
+    }), Object.freeze({
+      id: "stock-formative-o-root-vowel-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 24.4"]),
+      pdfPages: Object.freeze([202]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Destockal/stock families con formative o tienen excepciones de root vowel y longitud que no siguen una regla simple.",
+      requiredProbe: "No generar ni/hui/causative por plantilla root-vowel unica; registrar excepciones Andrews."
+    }), Object.freeze({
+      id: "causative-reflexive-translation-same-meaning-different-structure-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.1"]),
+      pdfPages: Object.freeze([208]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un intransitive VNC y un causative reflexive pueden traducirse igual, pero la causative implica responsabilidad/participacion del sujeto.",
+      requiredProbe: "No colapsar nicocoya/ninococoa por glosa; conservar causative reflexive structure."
+    }), Object.freeze({
+      id: "causative-source-subject-becomes-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.1"]),
+      pdfPages: Object.freeze([208]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El source subject de una intransitive source se convierte en causative object especifico/reflexive/nonspecific segun transform.",
+      requiredProbe: "No conservar source subject como sujeto final; remapearlo a objeto causativo."
+    }), Object.freeze({
+      id: "causative-shuntline-specific-silent-effective-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.11.1", "Andrews 23.4"]),
+      pdfPages: Object.freeze([218]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "En causative transform, el specific projective source object puede volverse shuntline silencioso pero semanticamente efectivo.",
+      requiredProbe: "No borrar 0-0/0-in shuntline; mostrar su presencia meaning-producing."
+    }), Object.freeze({
+      id: "causative-source-reflexive-becomes-shuntline-ne-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.11.1"]),
+      pdfPages: Object.freeze([218]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Un reflexive/reciprocative source object se convierte normalmente en shuntline ne en causative transform.",
+      requiredProbe: "No conservar n-o/m-o mainline salvo coreferencia especial; usar ne shuntline."
+    }), Object.freeze({
+      id: "passive-impersonal-agent-to-te-causative-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.11.3"]),
+      pdfPages: Object.freeze([220]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "El agente impersonal implicado en passive/impersonal source puede volverse objeto causative nonspecific te.",
+      requiredProbe: "No dejar agente pasivo implicito cuando Andrews lo objetiviza como te."
+    }), Object.freeze({
+      id: "passive-subject-to-reflexive-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.11.3"]),
+      pdfPages: Object.freeze([220]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Una shuntline reflexive no toma forma shuntline cuando el imported subject del causative transform corefiere con el passive source subject.",
+      requiredProbe: "No aplicar ne automaticamente; conservar n-o/t-o/m-o por coreferencia."
+    }), Object.freeze({
+      id: "triple-object-mainline-reflexive-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.12"]),
+      pdfPages: Object.freeze([222]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Triple-object VNCs pueden generar mainline reflexive causative-object pronoun junto a shuntline projective/nonspecific objects.",
+      requiredProbe: "No bloquear mainline reflexive en triple-object causative; ordenar shuntlines por nivel."
+    }), Object.freeze({
+      id: "triple-object-projective-source-coreference-reflexive-exception-boundary",
+      sourceRefs: Object.freeze(["Andrews 25.12", "Andrews 25.11.1"]),
+      pdfPages: Object.freeze([222]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Si un mainline projective object fuente corefiere con imported subject, el reflexive shuntline no toma forma shuntline.",
+      requiredProbe: "No aplicar transform ne sin revisar coreferencia source object/imported subject."
+    }), Object.freeze({
+      id: "applicative-source-reflexive-to-shuntline-ne-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.16"]),
+      pdfPages: Object.freeze([236]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Si la source VNC applicative tiene reflexive object, el transform usa shuntline reflexive ne; hay excepciones raras.",
+      requiredProbe: "No conservar n-o como source reflexive dentro de applicative transform salvo excepcion marcada."
+    }), Object.freeze({
+      id: "applicative-partial-incompatibility-qu-in-to-zero-in-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.16", "Andrews 23.4"]),
+      pdfPages: Object.freeze([236]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La incompatibilidad de specific projectives puede ser parcial: qu-in shuntline puede quedar como 0-in.",
+      requiredProbe: "No reemplazar siempre por 0-0; distinguir 0-in, 0-0 y 0-im segun objeto."
+    }), Object.freeze({
+      id: "applicative-supplement-cross-reference-silent-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 26.16", "Andrews 25.16"]),
+      pdfPages: Object.freeze([236]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Un supplementary element puede cruzarse con un specific object pronoun silencioso en applicative double-object contexts.",
+      requiredProbe: "No negar supplementary object por objeto silencioso; enlazar adjunct con pronombre 0-0."
+    }), Object.freeze({
+      id: "connective-t-tiya-vs-causative-tia-spelling-collision-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.3"]),
+      pdfPages: Object.freeze([255]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "La escritura tradicional tia/tiaya/tiani puede representar connective-t VNC o causative VNC; solo la formacion distingue.",
+      requiredProbe: "No clasificar tia por grafia; comparar connective-t perfective embed vs causative suffix."
+    }), Object.freeze({
+      id: "connective-t-ya-matrix-syncopated-ta-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.3"]),
+      pdfPages: Object.freeze([255]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Cuando la matrix verbstem tiene forma ya, la secuencia ti-ya puede aparecer sincopada como t-a.",
+      requiredProbe: "No perder connective-t boundary en t-a; reconstruir ti-ya."
+    }), Object.freeze({
+      id: "hual-lauh-matrix-keeps-directional-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.6.4"]),
+      pdfPages: Object.freeze([255]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En hual-la-uh matrix de connective-t compound, el directional prefix se conserva como parte de la matrix.",
+      requiredProbe: "No separar hual como prefix libre externo; contrastar con on-o formation."
+    }), Object.freeze({
+      id: "future-embed-nequi-replaces-object-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.11"]),
+      pdfPages: Object.freeze([264]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En future-embed compounds con tla-(nequi), el predicate futuro embed reemplaza el object pronoun especifico de la matrix source.",
+      requiredProbe: "No conservar c-0 object de nequi junto al future embed; registrar reemplazo."
+    }), Object.freeze({
+      id: "future-embed-nequi-passive-impersonal-in-embed-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.11"]),
+      pdfPages: Object.freeze([264]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una VNC con compound stem nequi manifiesta passive o impersonal voice en el embed futuro.",
+      requiredProbe: "No aplicar passive/impersonal a matrix nequi; ubicarlo en embed."
+    }), Object.freeze({
+      id: "future-embed-qui-conditional-translation-mirage-boundary",
+      sourceRefs: Object.freeze(["Andrews 28.11"]),
+      pdfPages: Object.freeze([264]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "*tla-(qui) solo ocurre como matrix de future-embed compound e imperfect tense; llamarlo conditional tense es mirage de traduccion.",
+      requiredProbe: "No crear tense condicional; modelar future embed + imperfect qui matrix."
+    }), Object.freeze({
+      id: "supplementary-object-possessor-to-object-case-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12"]),
+      pdfPages: Object.freeze([287]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "En incorporated possessive supplementary-object transforms, el possessor pronoun cambia feature posesivo a objetivo y se vuelve object pronoun de la compound VNC.",
+      requiredProbe: "No dejar possessor como i-/mo-/no- dentro del embed; convertirlo a object pronoun segun caso."
+    }), Object.freeze({
+      id: "applicative-principal-with-bodypart-supplement-block-boundary",
+      sourceRefs: Object.freeze(["Andrews 30.12"]),
+      pdfPages: Object.freeze([287]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "Una sentence con applicative principal y supplementary object de parte del cuerpo/ropa no sirve como fuente para esta compound-stem transform.",
+      requiredProbe: "No generar compound desde applicative principal en ese entorno; mantener diferencia de traduccion."
+    }), Object.freeze({
+      id: "honorific-intransitive-type-two-causative-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2", "Andrews 25.5"]),
+      pdfPages: Object.freeze([314]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "La mayoria de intransitives forman honorific VNCs con type-two causative reflexive stems.",
+      requiredProbe: "No crear honorific como suffix social externo; usar causative/reflexive derivation."
+    }), Object.freeze({
+      id: "honorific-irregular-intransitive-causative-or-connective-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2", "Andrews Lesson 11", "Andrews 28.6"]),
+      pdfPages: Object.freeze([314, 315]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Varios irregular intransitives forman honorifics por causative stem, pero suelen preferir connective-t compound stems.",
+      requiredProbe: "No aplicar una sola ruta honorific a ca-h/on-o/pil-ca/ye; registrar causative vs connective preference."
+    }), Object.freeze({
+      id: "moyetzticah-ill-formed-embed-warning-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2"]),
+      pdfPages: Object.freeze([315]),
+      routeId: "cnv-to-cnn-to-cnv-loop",
+      obstacleEs: "moyetzticah contiene embed mal formado si se analiza desde *ye-tzi; la forma correcta requiere causative m-o-(ye-tz-ti-a) o una formacion unica distinta.",
+      requiredProbe: "No aceptar moyetzticah como prueba regular de embed; diagnosticar ill-formed source."
+    }), Object.freeze({
+      id: "honorific-yauh-huallauh-huitz-use-huica-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2", "Andrews 11.4.5"]),
+      pdfPages: Object.freeze([315]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "ya-uh y hual-la-uh forman honorific con m-o-(huica)/hual+m-o-(huica), y hui-tz con m-o-(huica-tz).",
+      requiredProbe: "No honorificar estos motion verbs por causative ordinario; usar huica family."
+    }), Object.freeze({
+      id: "honorific-huicatz-no-optative-indicative-command-boundary",
+      sourceRefs: Object.freeze(["Andrews 33.2"]),
+      pdfPages: Object.freeze([315]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Como m-o-(huica-tz) no forma optative VNCs, commands honorific usan indicative-mood VNCs.",
+      requiredProbe: "No forzar optative command; permitir indicative command sentence en esta ruta."
+    }), Object.freeze({
+      id: "active-reflexive-passive-notion-voice-boundary",
+      sourceRefs: Object.freeze(["Andrews 21.4", "Andrews 46.3.2"]),
+      pdfPages: Object.freeze([184]),
+      routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+      obstacleEs: "Una CNV active-voice con reflexive object pronoun puede expresar passive notion; el sujeto funciona como paciente aunque la voz siga siendo activa.",
+      requiredProbe: "No convertir traduccion pasiva en nonactive/passive morphology; conservar active voice, reflexive object y sujeto-paciente."
+    })]);
     const NUCLEAR_CLAUSE_PERSONAL_PRONOUN_FRAME = Object.freeze({
       kind: "lesson-4-personal-pronoun-frame",
       form: "affixal-only",
@@ -823,6 +11934,395 @@ export function createClauseModule(targetObject = globalThis) {
         case: Array.from(source.case)
       };
     }
+    function cloneAndrewsCnvCnnBackAndForthRouteRecord(record = null) {
+      if (!record || typeof record !== "object") {
+        return null;
+      }
+      return {
+        ...record,
+        andrewsRefs: Array.from(record.andrewsRefs || [])
+      };
+    }
+    function getAndrewsCnvCnnBackAndForthRouteRecords() {
+      return ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS.map(cloneAndrewsCnvCnnBackAndForthRouteRecord).filter(Boolean);
+    }
+    function cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry(entry = null) {
+      if (!entry || typeof entry !== "object") {
+        return null;
+      }
+      return {
+        ...entry,
+        sourceRefs: Array.from(entry.sourceRefs || []),
+        pdfPages: Array.from(entry.pdfPages || [])
+      };
+    }
+    function getAndrewsCnvCnnBackAndForthObstacleCatalog() {
+      return ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG.map(cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry).filter(Boolean);
+    }
+    function isAndrewsCnvCnnBackAndForthProbeAvailable(probe = "") {
+      switch (String(probe || "")) {
+        case "buildLesson36NominalizedVncPursuitFrame":
+          return typeof targetObject.buildLesson36NominalizedVncPursuitFrame === "function";
+        case "buildLesson37DeverbalNounstemPursuitFrame":
+          return typeof targetObject.buildLesson37DeverbalNounstemPursuitFrame === "function";
+        case "getNawatDenominalAndrewsContractInventory":
+          return typeof targetObject.getNawatDenominalAndrewsContractInventory === "function";
+        case "generateNawatDenominalAndrewsContractRoutePreview":
+          return typeof targetObject.generateNawatDenominalAndrewsContractRoutePreview === "function";
+        case "buildLesson41AdjectivalNncPursuitFrame":
+          return typeof targetObject.buildLesson41AdjectivalNncPursuitFrame === "function";
+        default:
+          return false;
+      }
+    }
+    function getAndrewsCnvCnnBackAndForthProbeStatus(record = null) {
+      const probe = String(record?.implementationProbe || "");
+      const available = isAndrewsCnvCnnBackAndForthProbeAvailable(probe);
+      if (!available) {
+        return {
+          probe,
+          available: false,
+          coverage: "missing",
+          obstacle: `Falta el punto de inspección ${probe}.`
+        };
+      }
+      if (probe === "getNawatDenominalAndrewsContractInventory") {
+        const inventory = targetObject.getNawatDenominalAndrewsContractInventory();
+        const sourceLimitedCount = Array.isArray(inventory) ? inventory.filter(entry => /source-evidence/i.test(String(entry?.generationStatus || entry?.supportStatus || "")) || Object.keys(entry?.boundaries || {}).some(key => /source/i.test(String(key)))).length : 0;
+        return {
+          probe,
+          available: true,
+          coverage: "partial",
+          contractCount: Array.isArray(inventory) ? inventory.length : 0,
+          sourceLimitedCount,
+          obstacle: "La ruta CNN -> CNV conserva contratos y compuertas, pero no equivale a generación finita completa."
+        };
+      }
+      if (probe === "generateNawatDenominalAndrewsContractRoutePreview") {
+        const preview = targetObject.generateNawatDenominalAndrewsContractRoutePreview({
+          sourceStem: "kal"
+        });
+        const routes = Array.isArray(preview?.routes) ? preview.routes : [];
+        const deverbalTargets = routes.filter(route => /deverbal/i.test(String(route.contractId || route.routeKind || "")));
+        return {
+          probe,
+          available: true,
+          coverage: deverbalTargets.length ? "partial" : "obstacle",
+          targetCount: routes.length,
+          deverbalTargetCount: deverbalTargets.length,
+          obstacle: deverbalTargets.length ? "Los blancos deverbales existen como vista previa; requieren fuente verbal previa antes de generación finita." : "No se hallaron blancos ti-ya/hui-ya deverbales en la vista previa."
+        };
+      }
+      if (probe === "buildLesson36NominalizedVncPursuitFrame") {
+        const frame = targetObject.buildLesson36NominalizedVncPursuitFrame();
+        return {
+          probe,
+          available: true,
+          coverage: frame?.implementationState || "partial",
+          remainingGapCount: Array.isArray(frame?.remainingGaps) ? frame.remainingGaps.length : 0,
+          obstacle: "La nominalización funcional CNV -> CNN sigue separada de los troncos nominales deverbales."
+        };
+      }
+      if (probe === "buildLesson37DeverbalNounstemPursuitFrame") {
+        const frame = targetObject.buildLesson37DeverbalNounstemPursuitFrame();
+        return {
+          probe,
+          available: true,
+          coverage: frame?.implementationState || "partial",
+          remainingGapCount: Array.isArray(frame?.remainingGaps) ? frame.remainingGaps.length : 0,
+          obstacle: "La ruta CNV-core -> CNN deverbal es parcial y debe seguir bloqueando cobertura completa sin evidencia."
+        };
+      }
+      if (probe === "buildLesson41AdjectivalNncPursuitFrame") {
+        const frame = targetObject.buildLesson41AdjectivalNncPursuitFrame();
+        return {
+          probe,
+          available: true,
+          coverage: frame?.implementationState || "partial",
+          remainingGapCount: Array.isArray(frame?.remainingGaps) ? frame.remainingGaps.length : 0,
+          routeExpansionNote: "El bucle CNV -> CNN -> CNV conserva pruebas ejecutables para 40.10-40.11 y 41.3; la cobertura completa de Lesson 41 sigue siendo parcial."
+        };
+      }
+      return {
+        probe,
+        available: true,
+        coverage: "unknown",
+        obstacle: "Punto de inspección disponible sin resumen específico."
+      };
+    }
+    function summarizeAndrewsCnvCnnBackAndForthGeneratedResult(result = null) {
+      if (!result || typeof result !== "object") {
+        return {
+          available: false,
+          ok: false,
+          surfaceForms: [],
+          formulaEcho: "",
+          unitKind: "",
+          routeFamily: "",
+          nominalizationKind: "",
+          denominalFamily: ""
+        };
+      }
+      return {
+        available: true,
+        ok: result.error ? false : result.ok !== false,
+        surfaceForms: Array.isArray(result.surfaceForms) ? Array.from(result.surfaceForms) : result.result ? [String(result.result)] : [],
+        formulaEcho: result.nuclearClauseShell?.formulaEcho || "",
+        unitKind: result.grammarFrame?.unitFrame?.unitKind || result.nuclearClauseShell?.clauseKind || "",
+        routeFamily: result.grammarFrame?.routeContract?.routeFamily || result.generationRoute || "",
+        nominalizationKind: result.nominalizationProfile?.role?.nominalizationKind || "",
+        denominalFamily: result.denominalFamilyProfile?.routeFamily || ""
+      };
+    }
+    function buildAndrewsCnvCnnSynonymLoopProbe() {
+      const examples = [{
+        stem: "chichiktiya",
+        expectedResult: "chichiktik",
+        expectedLessonRef: "Andrews 40.10",
+        expectedSynonymSetKind: "pair"
+      }, {
+        stem: "melaztiya",
+        expectedResult: "melaztik",
+        expectedLessonRef: "Andrews 40.11",
+        expectedSynonymSetKind: "triplet"
+      }].map(example => {
+        const result = typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
+          stem: example.stem
+        }) : null;
+        const sourceFrame = result?.rootPlusYaAdjectivalNncFrame?.sourceFormationFrame || null;
+        const hit = Boolean(result) && result.supported === true && result.result === example.expectedResult && sourceFrame?.lessonRef === example.expectedLessonRef && sourceFrame?.sourceFormationSubtype === "denominal-tiya" && sourceFrame?.synonymSetKind === example.expectedSynonymSetKind && sourceFrame?.outputContract === "generate-current-source-only" && sourceFrame?.doesNotGenerateSiblingForms === true;
+        return {
+          stem: example.stem,
+          expectedResult: example.expectedResult,
+          result: result?.result || "",
+          formulaEcho: result?.formulaEcho || "",
+          sourceFormationSubtype: sourceFrame?.sourceFormationSubtype || "",
+          sourceLessonRef: sourceFrame?.lessonRef || "",
+          sourcePattern: sourceFrame?.sourcePattern || "",
+          andrewsSourcePattern: sourceFrame?.andrewsSourcePattern || "",
+          synonymSetKind: sourceFrame?.synonymSetKind || "",
+          outputContract: sourceFrame?.outputContract || "",
+          doesNotGenerateSiblingForms: sourceFrame?.doesNotGenerateSiblingForms === true,
+          hit
+        };
+      });
+      return {
+        id: "engine-path-cnv-cnn-cnv-synonym-loops",
+        routeId: "cnv-to-cnn-to-cnv-loop",
+        transition: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
+        available: examples.every(entry => entry.result),
+        ok: examples.every(entry => entry.hit),
+        unitKind: "nominal-nuclear-clause",
+        routeFamily: "adjectival-nnc",
+        nominalizationKind: "preterit-agentive",
+        denominalFamily: "denominal-tiya",
+        examples,
+        hit: examples.every(entry => entry.hit)
+      };
+    }
+    function buildAndrewsCnvCnnDenominalCompoundLoopProbe() {
+      const generated = typeof targetObject.generateRootPlusYaAdjectivalNncOutput === "function" ? targetObject.generateRootPlusYaAdjectivalNncOutput({
+        stem: "(xilo/tzon/tiya)"
+      }) : null;
+      const sourceFrame = generated?.denominalCompoundSourceFrame || null;
+      const direct = typeof targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput === "function" ? targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput({
+        denominalCompoundSurface: generated?.result || "",
+        sourceDenominalCompoundFrame: sourceFrame,
+        formulaSlots: generated?.formulaSlots || null,
+        formulaEcho: generated?.formulaEcho || ""
+      }) : null;
+      const functionFrame = direct?.adjectivalNncFunctionFrame || null;
+      const hit = Boolean(generated && direct) && generated.supported === true && generated.result === "xilotzontik" && sourceFrame?.kind === "denominal-compound-nounstem-frame" && sourceFrame?.lessonRef === "Andrews 41.3" && sourceFrame?.operation?.type === "denominal-verbstem" && sourceFrame?.operation?.suffix === "ti" && sourceFrame?.operation?.nawatInputSuffix === "tiya" && sourceFrame?.matrix?.stem === "tzon" && Array.isArray(sourceFrame?.embeds) && sourceFrame.embeds.some(entry => entry?.role === "adjacent-compound-noun-embed" && entry?.value === "xilo") && direct.supported === true && direct.result === generated.result && functionFrame?.functionKind === "denominal-compound-adjectival" && functionFrame?.sourceDenominalCompoundFrame?.matrix?.stem === "tzon";
+      return {
+        id: "engine-path-cnv-cnn-cnv-denominal-compound-loop",
+        routeId: "cnv-to-cnn-to-cnv-loop",
+        transition: "CNN compound nounstem -> CNV denominal verbstem -> CNN preterit-agentive adjectival output",
+        available: Boolean(generated && direct),
+        ok: hit,
+        sourceInput: sourceFrame?.sourceInput?.rawInput || "",
+        generatedVerbstem: sourceFrame?.generatedVerbstem || "",
+        generatedSurface: generated?.result || "",
+        formulaEcho: generated?.formulaEcho || "",
+        unitKind: "nominal-nuclear-clause",
+        routeFamily: direct?.grammarFrame?.routeContract?.routeFamily || direct?.generationRoute || "",
+        nominalizationKind: functionFrame?.nominalizationKind || "",
+        denominalFamily: "denominal-compound-tiya",
+        sourceFrameKind: sourceFrame?.kind || "",
+        sourceLessonRef: sourceFrame?.lessonRef || "",
+        operationSuffix: sourceFrame?.operation?.suffix || "",
+        operationNawatSuffix: sourceFrame?.operation?.nawatInputSuffix || "",
+        sourceMatrixStem: sourceFrame?.matrix?.stem || "",
+        sourceEmbedRoles: Array.isArray(sourceFrame?.embeds) ? sourceFrame.embeds.map(entry => entry.role) : [],
+        functionKind: functionFrame?.functionKind || "",
+        hit
+      };
+    }
+    function buildAndrewsCnvCnnBackAndForthEnginePathProbes() {
+      const probes = [];
+      const canGenerate = typeof targetObject.generateWord === "function";
+      const nounMode = typeof targetObject.TENSE_MODE === "object" && targetObject.TENSE_MODE?.sustantivo ? targetObject.TENSE_MODE.sustantivo : "sustantivo";
+      const adjectiveMode = typeof targetObject.TENSE_MODE === "object" && targetObject.TENSE_MODE?.adjetivo ? targetObject.TENSE_MODE.adjetivo : "adjetivo";
+      const activeDerivationMode = typeof targetObject.DERIVATION_MODE === "object" && targetObject.DERIVATION_MODE?.active ? targetObject.DERIVATION_MODE.active : "active";
+      const activeVoiceMode = typeof targetObject.VOICE_MODE === "object" && targetObject.VOICE_MODE?.active ? targetObject.VOICE_MODE.active : "active";
+      const runGenerateWordProbe = ({
+        id,
+        routeId,
+        transition,
+        tiempo,
+        tronco,
+        expectedUnitKind,
+        expectedRouteFamily,
+        expectedNominalizationKind
+      }) => {
+        let result = null;
+        if (canGenerate) {
+          result = targetObject.generateWord({
+            silent: true,
+            skipValidation: true,
+            override: {
+              tenseMode: nounMode
+            },
+            posicionesFormula: {
+              pers1: "",
+              obj1: "",
+              tronco,
+              pers2: "",
+              num2: "",
+              poseedor: "",
+              tiempo
+            }
+          });
+        }
+        const summary = summarizeAndrewsCnvCnnBackAndForthGeneratedResult(result);
+        probes.push({
+          id,
+          routeId,
+          transition,
+          expectedUnitKind,
+          expectedRouteFamily,
+          expectedNominalizationKind,
+          ...summary,
+          hit: summary.available && summary.unitKind === expectedUnitKind && summary.routeFamily === expectedRouteFamily && summary.nominalizationKind === expectedNominalizationKind
+        });
+      };
+      runGenerateWordProbe({
+        id: "engine-path-agentivo-presente",
+        routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+        transition: "CNV predicate -> CNN nounstem",
+        tiempo: "agentivo-presente",
+        tronco: "nemi",
+        expectedUnitKind: "nominal-nuclear-clause",
+        expectedRouteFamily: "present-agentive",
+        expectedNominalizationKind: "present-agentive"
+      });
+      runGenerateWordProbe({
+        id: "engine-path-sustantivo-verbal",
+        routeId: "cnv-core-to-cnn-nounstem-deverbal",
+        transition: "CNV core -> CNN nounstem",
+        tiempo: "sustantivo-verbal",
+        tronco: "nemi",
+        expectedUnitKind: "nominal-nuclear-clause",
+        expectedRouteFamily: "action-nominal",
+        expectedNominalizationKind: "action-nominal"
+      });
+      let denominalResult = null;
+      if (typeof targetObject.executeGenerateWordRequest === "function") {
+        denominalResult = targetObject.executeGenerateWordRequest({
+          options: {
+            silent: true,
+            skipValidation: false,
+            override: {
+              tenseMode: adjectiveMode,
+              derivationMode: activeDerivationMode,
+              voiceMode: activeVoiceMode
+            }
+          },
+          posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: "(pusuni)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "adjetivo-preterito-tik"
+          },
+          entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: ""
+          }
+        });
+      }
+      const denominalSummary = summarizeAndrewsCnvCnnBackAndForthGeneratedResult(denominalResult);
+      probes.push({
+        id: "engine-path-denominal-vi-ti",
+        routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
+        transition: "CNN nounstem -> CNV verbstem",
+        expectedUnitKind: "verbal-nuclear-clause",
+        expectedRouteFamily: "adjectival-surface",
+        expectedDenominalFamily: "vi-ti",
+        ...denominalSummary,
+        hit: denominalSummary.available && denominalSummary.unitKind === "verbal-nuclear-clause" && denominalSummary.denominalFamily === "vi-ti"
+      });
+      let preview = null;
+      if (typeof targetObject.generateNawatDenominalAndrewsContractRoutePreview === "function") {
+        preview = targetObject.generateNawatDenominalAndrewsContractRoutePreview({
+          sourceStem: "kal"
+        });
+      }
+      const previewRoutes = Array.isArray(preview?.routes) ? preview.routes : [];
+      probes.push({
+        id: "engine-path-deverbal-verbstem-preview",
+        routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+        transition: "CNV verbstem -> CNV verbstem",
+        available: Boolean(preview),
+        ok: Boolean(preview),
+        sourceStem: preview?.sourceStem || "",
+        routeCount: previewRoutes.length,
+        sourceEvidenceRequiredCount: previewRoutes.filter(route => route.finiteGenerationRequiresSourceEvidence === true).length,
+        deverbalRouteCount: previewRoutes.filter(route => /deverbal/i.test(String(route.contractId || ""))).length,
+        hit: previewRoutes.filter(route => /deverbal/i.test(String(route.contractId || ""))).length > 0
+      });
+      probes.push(buildAndrewsCnvCnnSynonymLoopProbe());
+      probes.push(buildAndrewsCnvCnnDenominalCompoundLoopProbe());
+      return probes;
+    }
+    function buildAndrewsCnvCnnBackAndForthAudit() {
+      const routeRecords = getAndrewsCnvCnnBackAndForthRouteRecords();
+      const obstacleCatalog = getAndrewsCnvCnnBackAndForthObstacleCatalog();
+      const obstacleCatalogRouteCounts = routeRecords.map(record => ({
+        routeId: record.id,
+        count: obstacleCatalog.filter(entry => entry.routeId === record.id).length
+      }));
+      const obstacleCatalogRouteGaps = obstacleCatalogRouteCounts.filter(entry => entry.count === 0).map(entry => entry.routeId);
+      const probeStatuses = routeRecords.map(record => ({
+        routeId: record.id,
+        ...getAndrewsCnvCnnBackAndForthProbeStatus(record)
+      }));
+      const enginePathProbes = buildAndrewsCnvCnnBackAndForthEnginePathProbes();
+      const obstacles = probeStatuses.map(status => status.obstacle || "").concat(enginePathProbes.map(probe => probe.hit === true ? "" : probe.obstacle || "Falta sonda de ruta ejecutable.")).filter(Boolean);
+      return {
+        kind: "andrews-cnv-cnn-back-and-forth-audit",
+        version: 1,
+        pdfSearchTerms: ["deverbal nounstem", "denominal verbstem", "deverbal verbstem"],
+        grammarAuthority: "Andrews PDF",
+        spellingAuthority: "Nawat/Pipil evidence",
+        formalClasses: ["CNV", "CNN", "Partícula"],
+        routeRecords,
+        obstacleCatalog,
+        obstacleCatalogCount: obstacleCatalog.length,
+        obstacleCatalogPageCount: new Set(obstacleCatalog.flatMap(entry => entry.pdfPages || [])).size,
+        obstacleCatalogEntriesMissingPdfPages: obstacleCatalog.filter(entry => !Array.isArray(entry.pdfPages) || entry.pdfPages.length === 0).map(entry => entry.id),
+        obstacleCatalogRouteCounts,
+        obstacleCatalogRouteGaps,
+        probeStatuses,
+        enginePathProbes,
+        enginePathProbeCount: enginePathProbes.length,
+        enginePathHitCount: enginePathProbes.filter(probe => probe.hit === true).length,
+        obstacleCount: obstacles.length,
+        obstacles,
+        antiConflationRules: ["Adjetival y adverbial son funciones o usos de ruta, no son clases formales.", "El tronco nominal deverbal es núcleo CNV -> tronco CNN, no un predicado CNV reetiquetado.", "El tronco verbal denominal es tronco CNN -> tronco CNV y debe conservar compuertas de evidencia de fuente.", "El tronco verbal deverbal de Andrews 54.2.3.b es tronco CNV -> tronco CNV y requiere la fuente previa ti/hui.", "La superficie puede escribirse en Nawat/Pipil; el orden de ranuras y la transición categorial siguen dirigidos por Andrews."]
+      };
+    }
     function getNuclearClausePersonalPronounFrame() {
       return {
         ...NUCLEAR_CLAUSE_PERSONAL_PRONOUN_FRAME,
@@ -1021,8 +12521,19 @@ export function createClauseModule(targetObject = globalThis) {
           children: [{
             key: "subject",
             labelEs: "Sujeto",
-            slot: ANDREWS_NUCLEAR_SLOT.pers1Pers2,
-            role: "subject"
+            role: "subject",
+            structure: "discontinuous-circumfix",
+            children: [{
+              key: "person",
+              labelEs: "Persona",
+              slot: ANDREWS_NUCLEAR_SLOT.pers1Pers2,
+              role: "subject-position"
+            }, {
+              key: "number",
+              labelEs: "Número",
+              slot: ANDREWS_NUCLEAR_SLOT.numberConnector,
+              role: "subject-position"
+            }]
           }, {
             key: "predicate",
             labelEs: "Predicado",
@@ -2016,6 +13527,16 @@ export function createClauseModule(targetObject = globalThis) {
         enumerable: true,
         get() { return NUCLEAR_CLAUSE_LESSON4_LAYER_PROFILES; },
     });
+    Object.defineProperty(api, "ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS", {
+        configurable: true,
+        enumerable: true,
+        get() { return ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS; },
+    });
+    Object.defineProperty(api, "ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG", {
+        configurable: true,
+        enumerable: true,
+        get() { return ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG; },
+    });
     Object.defineProperty(api, "NUCLEAR_CLAUSE_PERSONAL_PRONOUN_FRAME", {
         configurable: true,
         enumerable: true,
@@ -2071,6 +13592,17 @@ export function createClauseModule(targetObject = globalThis) {
     api.getNuclearClauseOrganizationalLayers = getNuclearClauseOrganizationalLayers;
     api.cloneNuclearClausePositionComplexityFrame = cloneNuclearClausePositionComplexityFrame;
     api.cloneNuclearClauseCategoryFeatures = cloneNuclearClauseCategoryFeatures;
+    api.cloneAndrewsCnvCnnBackAndForthRouteRecord = cloneAndrewsCnvCnnBackAndForthRouteRecord;
+    api.getAndrewsCnvCnnBackAndForthRouteRecords = getAndrewsCnvCnnBackAndForthRouteRecords;
+    api.cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry = cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry;
+    api.getAndrewsCnvCnnBackAndForthObstacleCatalog = getAndrewsCnvCnnBackAndForthObstacleCatalog;
+    api.isAndrewsCnvCnnBackAndForthProbeAvailable = isAndrewsCnvCnnBackAndForthProbeAvailable;
+    api.getAndrewsCnvCnnBackAndForthProbeStatus = getAndrewsCnvCnnBackAndForthProbeStatus;
+    api.summarizeAndrewsCnvCnnBackAndForthGeneratedResult = summarizeAndrewsCnvCnnBackAndForthGeneratedResult;
+    api.buildAndrewsCnvCnnSynonymLoopProbe = buildAndrewsCnvCnnSynonymLoopProbe;
+    api.buildAndrewsCnvCnnDenominalCompoundLoopProbe = buildAndrewsCnvCnnDenominalCompoundLoopProbe;
+    api.buildAndrewsCnvCnnBackAndForthEnginePathProbes = buildAndrewsCnvCnnBackAndForthEnginePathProbes;
+    api.buildAndrewsCnvCnnBackAndForthAudit = buildAndrewsCnvCnnBackAndForthAudit;
     api.getNuclearClausePersonalPronounFrame = getNuclearClausePersonalPronounFrame;
     api.getNuclearClauseLesson4SubsectionInventory = getNuclearClauseLesson4SubsectionInventory;
     api.buildNuclearClauseLesson4PursuitFrame = buildNuclearClauseLesson4PursuitFrame;
@@ -2123,7 +13655,7 @@ export function createClauseModule(targetObject = globalThis) {
 }
 
 export function installClauseGlobals(targetObject = globalThis) {
-    const api = createClauseModule(targetObject);
+    const api = createClauseRuntime(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

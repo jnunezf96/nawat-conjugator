@@ -2,14 +2,16 @@
   "tenseMode": {
     "verbo": { "value": "verbo", "labelNa": "muchiwalis" },
     "sustantivo": { "value": "sustantivo", "labelNa": "Tukaytil" },
-    "adjetivo": { "value": "adjetivo", "labelNa": "adjetivo" },
-    "adverbio": { "value": "adverbio", "labelNa": "adverbio" },
     "particula": { "value": "particula", "labelNa": "partícula" }
   },
+  "functionRole": {
+    "adjetivo": { "value": "adjetivo", "labelNa": "función adjetival" },
+    "adverbio": { "value": "adverbio", "labelNa": "función adverbial" }
+  },
   "tenseModeSystem": {
-    "european": { "value": "european", "labelEs": "Clase sintáctica", "labelNa": "Clase sintáctica" },
+    "european": { "value": "european", "labelEs": "Ruta funcional", "labelNa": "Ruta funcional" },
     "nawat": { "value": "nawat", "labelEs": "Clase formal", "labelNa": "Clase formal" },
-    "function": { "value": "function", "labelEs": "Clase sintáctica", "labelNa": "Clase sintáctica" },
+    "function": { "value": "function", "labelEs": "Ruta funcional", "labelNa": "Ruta funcional" },
     "unit": { "value": "unit", "labelEs": "Clase formal", "labelNa": "Clase formal" }
   },
   "nawatTenseMode": {
@@ -21,7 +23,8 @@
     "adjetivo-preterito-tik": {
       "id": "denominal-vi-ti-preterit",
       "routeTenseValue": "adjetivo-preterito-tik",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.root",
@@ -46,7 +49,8 @@
     "adjetivo-perfecto-tik": {
       "id": "denominal-vi-ti-perfect",
       "routeTenseValue": "adjetivo-perfecto-tik",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.root",
@@ -167,7 +171,8 @@
     "adjetivo-preterito-naj": {
       "id": "denominal-vt-na-preterit",
       "routeTenseValue": "adjetivo-preterito-naj",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "preterito",
       "sourceSlot": "noun/inc.obj.",
@@ -192,7 +197,8 @@
     "adjetivo-perfecto-naj": {
       "id": "denominal-vt-na-perfect",
       "routeTenseValue": "adjetivo-perfecto-naj",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "nawatMode": "verbo",
       "nawatTenseValue": "perfecto",
       "sourceSlot": "noun/inc.obj.",
@@ -217,7 +223,8 @@
     "adjetivo-preterito": {
       "id": "direct-active-preterit",
       "routeTenseValue": "adjetivo-preterito",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "routeDerivationMode": "active",
       "routeVoiceMode": "active",
       "nawatMode": "verbo",
@@ -242,7 +249,8 @@
     "adjetivo-perfecto": {
       "id": "direct-active-perfect",
       "routeTenseValue": "adjetivo-perfecto",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "routeDerivationMode": "active",
       "routeVoiceMode": "active",
       "nawatMode": "verbo",
@@ -351,7 +359,8 @@
     "adjetivo-patientivo-no-activo": {
       "id": "patientivo-nonactive-ti",
       "routeTenseValue": "adjetivo-patientivo-no-activo",
-      "routeMode": "adjetivo",
+      "routeMode": "sustantivo",
+      "routeFunctionMode": "adjetivo",
       "routeDerivationMode": "nonactive",
       "routeVoiceMode": "passive",
       "nawatMode": "sustantivo",
@@ -380,7 +389,8 @@
     "adjetivo-patientivo-perfectivo": {
       "id": "patientivo-perfective-ti",
       "routeTenseValue": "adjetivo-patientivo-perfectivo",
-      "routeMode": "adjetivo",
+      "routeMode": "sustantivo",
+      "routeFunctionMode": "adjetivo",
       "routeDerivationMode": "active",
       "routeVoiceMode": "active",
       "nawatMode": "sustantivo",
@@ -409,7 +419,8 @@
     "potencial-habitual": {
       "id": "nonactive-habitual-potential",
       "routeTenseValue": "potencial-habitual",
-      "routeMode": "adjetivo",
+      "routeMode": "verbo",
+      "routeFunctionMode": "adjetivo",
       "routeDerivationMode": "nonactive",
       "routeVoiceMode": "passive",
       "nawatMode": "verbo",

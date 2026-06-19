@@ -168,9 +168,9 @@ function createLesson4InspectorChip(text = "", className = "") {
     return chip;
 }
 
-function createLesson4InspectorLine(label = "", value = "") {
+function createLesson4InspectorLine(label = "", value = "", className = "") {
     const line = document.createElement("div");
-    line.className = "lesson4-inspector__line";
+    line.className = ["lesson4-inspector__line", className].filter(Boolean).join(" ");
     line.dataset.lineLabel = String(label || "").toLowerCase();
     const labelEl = document.createElement("span");
     labelEl.className = "lesson4-inspector__line-label";
@@ -201,6 +201,32 @@ function getVisibleNuclearClauseShellLabel(shell = null) {
         shell?.formulaAbbreviation || shell?.formulaType || "",
         shell?.displayLabel || "cláusula nuclear"
     );
+}
+
+function getAndrewsFirstOutputBlockHoverTitle({
+    mode = "",
+    tenseValue = "",
+    blockKind = "",
+} = {}) {
+    const resolvedMode = String(mode || "").trim();
+    if (resolvedMode === "verb" || resolvedMode === TENSE_MODE.verbo) {
+        const tenseTitle = typeof getAndrewsFirstTenseHoverTitle === "function"
+            ? getAndrewsFirstTenseHoverTitle(tenseValue)
+            : "Andrews dirige la arquitectura de CNV; Nawat/Pipil confirma la superficie.";
+        return `Andrews Lecciones 4-7: bloque de cláusula nuclear verbal. ${tenseTitle}`;
+    }
+    if (resolvedMode === "noun" || resolvedMode === TENSE_MODE.sustantivo) {
+        return "Andrews Lecciones 4 y 12-19: cláusula nuclear nominal; sin ranura tiempo ordinaria.";
+    }
+    if (resolvedMode === TENSE_MODE.adjetivo) {
+        return "Andrews dirige la función adjectival nominal; Nawat/Pipil confirma la superficie.";
+    }
+    if (resolvedMode === TENSE_MODE.adverbio) {
+        return "Andrews dirige la función adverbial; Nawat/Pipil confirma la superficie.";
+    }
+    return blockKind
+        ? `Andrews dirige la arquitectura de ${blockKind}; Nawat/Pipil confirma la superficie.`
+        : "Andrews dirige la arquitectura; Nawat/Pipil confirma la superficie.";
 }
 
 function formatVisibleAndrewsSlotToken(value = "") {
@@ -270,6 +296,16 @@ function getVisibleCnvFormulaSurfacePath(source = null) {
         || null;
 }
 
+function normalizeVisibleCnvFormulaSurfaceZero(value = "") {
+    return String(value || "")
+        .split("/")
+        .map((variant) => variant
+            .split("-")
+            .map((slot) => (slot === "Ø" ? "0" : slot))
+            .join("-"))
+        .join("/");
+}
+
 function getVisibleCnvFormulaBaseRealizations(source = null) {
     const path = getVisibleCnvFormulaSurfacePath(source);
     const directRealizations = Array.isArray(path?.surfaceStemRealizations)
@@ -297,19 +333,15 @@ function getVisibleCnvFormulaConnectorRealizations(source = null) {
         : [];
     const pathRealizations = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [])
         .map((record) => {
-            const bySlot = Object.fromEntries(
-                (Array.isArray(record?.paths) ? record.paths : [])
-                    .map((entry) => [entry.formulaSlotKey, entry])
-            );
-            const num1 = String(bySlot.num1?.surfaceValue || "");
-            const num2 = String(bySlot.num2?.surfaceValue || "");
+            const num1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num1");
+            const num2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num2");
             if (!num1 && !num2) {
                 return "";
             }
             return `${num1 || "0"}-${num2 || "0"}`;
         });
     return [...directRealizations, ...pathRealizations]
-        .map((entry) => String(entry || "").trim())
+        .map((entry) => normalizeVisibleCnvFormulaSurfaceZero(entry).trim())
         .filter((entry, index, list) => entry && list.indexOf(entry) === index);
 }
 
@@ -326,6 +358,9 @@ function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "")
         return "";
     }
     const surfaceValue = String(match.surfaceValue || "");
+    if (surfaceValue === "Ø" || surfaceValue === "0") {
+        return "0";
+    }
     if (surfaceValue) {
         return surfaceValue;
     }
@@ -450,78 +485,106 @@ function collectLesson4TreeNodes(node = null, depth = 0, entries = []) {
     return entries;
 }
 
+function getLesson4DiagramNodeLabel(node = null) {
+    if (!node || typeof node !== "object") {
+        return "";
+    }
+    if (node.key === "nuclear-clause") {
+        return "CN";
+    }
+    if (node.key === "stem") {
+        return "Base";
+    }
+    return node.labelEs || node.key || "";
+}
+
+function getLesson4DiagramNodeMeta(node = null, shell = null) {
+    if (!node || typeof node !== "object") {
+        return "";
+    }
+    if (node.key === "nuclear-clause") {
+        return "sujeto + predicado";
+    }
+    if (node.key === "predicate") {
+        return String(shell?.formulaType || "").toUpperCase() === "NNC"
+            ? "núcleo nominal"
+            : "núcleo verbal + tiempo";
+    }
+    if (node.key === "subject") {
+        return "persona + número";
+    }
+    if (node.key === "verbcore") {
+        return "valencia + base";
+    }
+    if (node.key === "nouncore") {
+        return "estado + base";
+    }
+    if (node.role === "predicate-position" && node.slot === "Ø") {
+        return "vacante";
+    }
+    return "";
+}
+
+function appendLesson4DiagramNode(parent = null, node = null, shell = null, depth = 0) {
+    if (!parent || !node || typeof node !== "object") {
+        return;
+    }
+    const nodeEl = document.createElement("div");
+    const roleClass = node.role ? `lesson4-inspector__diagram-node--${node.role}` : "";
+    const keyClass = node.key && node.key !== node.role
+        ? `lesson4-inspector__diagram-node--${node.key}`
+        : "";
+    nodeEl.className = [
+        "lesson4-inspector__diagram-node",
+        roleClass,
+        keyClass,
+        node.role === "predicate-position" && node.slot === "Ø" ? "is-vacant" : "",
+    ].filter(Boolean).join(" ");
+    nodeEl.dataset.depth = String(depth);
+    if (node.slot) {
+        nodeEl.dataset.slot = String(node.slot);
+    }
+
+    const row = document.createElement("div");
+    row.className = "lesson4-inspector__diagram-node-row";
+    const label = document.createElement("span");
+    label.className = "lesson4-inspector__diagram-node-label";
+    label.textContent = getLesson4DiagramNodeLabel(node);
+    row.appendChild(label);
+    if (node.slot) {
+        row.appendChild(createLesson4InspectorChip(
+            formatVisibleAndrewsSlotToken(node.slot),
+            "lesson4-inspector__chip--slot"
+        ));
+    }
+    const meta = getLesson4DiagramNodeMeta(node, shell);
+    if (meta) {
+        const metaEl = document.createElement("span");
+        metaEl.className = "lesson4-inspector__diagram-node-meta";
+        metaEl.textContent = meta;
+        row.appendChild(metaEl);
+    }
+    nodeEl.appendChild(row);
+
+    const children = Array.isArray(node.children) ? node.children : [];
+    if (children.length) {
+        const childList = document.createElement("div");
+        childList.className = "lesson4-inspector__diagram-children";
+        children.forEach((child) => appendLesson4DiagramNode(childList, child, shell, depth + 1));
+        nodeEl.appendChild(childList);
+    }
+    parent.appendChild(nodeEl);
+}
+
 function appendLesson4CompactDiagram(parent = null, shell = null) {
     const root = shell?.lesson4?.diagramTree?.root || shell?.diagramTree?.root || null;
     if (!parent || !root) {
         return;
     }
-    const children = Array.isArray(root.children) ? root.children : [];
-    const subject = children.find((entry) => entry?.key === "subject") || null;
-    const predicate = children.find((entry) => entry?.key === "predicate") || null;
-    const predicateNodes = collectLesson4TreeNodes(predicate)
-        .filter((entry) => entry.key !== "predicate");
-
     const diagram = document.createElement("div");
     diagram.className = "lesson4-inspector__diagram";
-    diagram.setAttribute("aria-label", "diagrama Andrews: sujeto y predicado");
-
-    const rootNode = document.createElement("div");
-    rootNode.className = "lesson4-inspector__diagram-root";
-    rootNode.textContent = getVisibleNuclearClauseShellLabel(shell);
-    rootNode.title = root.labelEs || "";
-
-    const branches = document.createElement("div");
-    branches.className = "lesson4-inspector__diagram-branches";
-
-    const subjectCard = document.createElement("div");
-    subjectCard.className = "lesson4-inspector__diagram-card";
-    const subjectTitle = document.createElement("span");
-    subjectTitle.className = "lesson4-inspector__diagram-card-title";
-    subjectTitle.textContent = "Sujeto";
-    subjectCard.appendChild(subjectTitle);
-    if (subject?.slot) {
-        subjectCard.appendChild(createLesson4InspectorChip(formatVisibleAndrewsSlotToken(subject.slot), "lesson4-inspector__chip--slot"));
-    }
-
-    const predicateCard = document.createElement("div");
-    predicateCard.className = "lesson4-inspector__diagram-card lesson4-inspector__diagram-card--predicate";
-    const predicateTitle = document.createElement("span");
-    predicateTitle.className = "lesson4-inspector__diagram-card-title";
-    predicateTitle.textContent = "Predicado";
-    const predicateSlots = document.createElement("div");
-    predicateSlots.className = "lesson4-inspector__diagram-slots";
-    predicateNodes.forEach((entry) => {
-        if (entry.key === "verbcore") {
-            predicateSlots.appendChild(createLesson4InspectorChip(entry.labelEs || "núcleo verbal", "lesson4-inspector__chip--core"));
-            return;
-        }
-        if (entry.slot) {
-            const visibleLabel = entry.labelEs || entry.key;
-            const visibleSlot = formatVisibleAndrewsSlotToken(entry.slot);
-            const slotSuffix = visibleSlot && visibleSlot.toLowerCase() !== String(visibleLabel || "").toLowerCase()
-                ? ` · ${visibleSlot}`
-                : "";
-            predicateSlots.appendChild(createLesson4InspectorChip(
-                `${visibleLabel}${slotSuffix}`,
-                "lesson4-inspector__chip--slot"
-            ));
-            return;
-        }
-        if (entry.role === "foundation" || entry.key === "stem") {
-            const foundationLabel = entry.key === "stem"
-                ? "Base"
-                : entry.labelEs || "base";
-            predicateSlots.appendChild(createLesson4InspectorChip(foundationLabel, "lesson4-inspector__chip--foundation"));
-            return;
-        }
-        if (entry.labelEs || entry.key) {
-            predicateSlots.appendChild(createLesson4InspectorChip(entry.labelEs || entry.key));
-        }
-    });
-    predicateCard.append(predicateTitle, predicateSlots);
-
-    branches.append(subjectCard, predicateCard);
-    diagram.append(rootNode, branches);
+    diagram.setAttribute("aria-label", "diagrama Andrews: CN, sujeto, predicado y subposiciones");
+    appendLesson4DiagramNode(diagram, root, shell, 0);
     parent.appendChild(diagram);
 }
 
@@ -546,6 +609,17 @@ function getLesson4InspectorPronounLabels(shell = null) {
         });
 }
 
+function getLesson4InspectorPronounCategoryLabel(category = "") {
+    const labels = {
+        person: "persona",
+        animacy: "animacidad",
+        humanness: "humanidad",
+        number: "número",
+        case: "caso",
+    };
+    return labels[String(category || "").trim()] || String(category || "").trim();
+}
+
 function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
     const lesson4 = shell?.lesson4 && typeof shell.lesson4 === "object"
         ? shell.lesson4
@@ -562,12 +636,13 @@ function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
     heading.className = "lesson4-inspector__heading";
     const title = document.createElement("div");
     title.className = "lesson4-inspector__title";
-    title.textContent = `Andrews Lección 4 · ${getVisibleNuclearClauseShellLabel(shell)}`;
+    title.textContent = `Arquitectura CN · ${getVisibleNuclearClauseShellLabel(shell)}`;
+    title.title = "Andrews Lección 4";
     const chips = document.createElement("div");
     chips.className = "lesson4-inspector__chips";
     chips.append(
         createLesson4InspectorChip("Cláusula nuclear"),
-        createLesson4InspectorChip("sin generación"),
+        createLesson4InspectorChip("clasificación"),
         createLesson4InspectorChip(`§4.1 ${lesson4.useFrame?.activeRoleLabelEs || "uso sin fijar"}`)
     );
     heading.append(title, chips);
@@ -576,26 +651,90 @@ function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
     const body = document.createElement("div");
     body.className = "lesson4-inspector__body";
 
-    const structurePanel = createLesson4InspectorPanel("Estructura", "§4.2-4.5");
+    const structurePanel = createLesson4InspectorPanel("Estructura Andrews", "§4.2-4.5");
     const profile = lesson4.predicateFunctionProfile || shell.predicateFunctionProfile || null;
+    const formulaType = String(shell.formulaType || "").toUpperCase();
+    const structureFacts = document.createElement("div");
+    structureFacts.className = "lesson4-inspector__facts lesson4-inspector__facts--structure";
+    structureFacts.appendChild(createLesson4InspectorLine("CN", "sujeto + predicado", "lesson4-inspector__line--thesis"));
+    structureFacts.appendChild(createLesson4InspectorLine("sujeto", "persona1-persona2 + número1-número2"));
+    const predicateStructure = formulaType === "NNC"
+        ? "núcleo nominal = estado + base"
+        : "núcleo verbal = valencia + base + tiempo";
+    structureFacts.appendChild(createLesson4InspectorLine("predicado", predicateStructure));
     if (profile?.labelEs) {
         const values = Array.isArray(profile.predicatorValuesEs) && profile.predicatorValuesEs.length
             ? ` · ${profile.predicatorValuesEs.join(" / ")}`
             : "";
-        structurePanel.appendChild(createLesson4InspectorLine("predicado", `${profile.predicateRoleEs || profile.labelEs}${values}`));
+        structureFacts.appendChild(createLesson4InspectorLine("valores", `${profile.predicateRoleEs || profile.labelEs}${values}`));
     }
+    structurePanel.appendChild(structureFacts);
     appendLesson4CompactDiagram(structurePanel, shell);
 
-    const detailPanel = createLesson4InspectorPanel("Casillas y referencia", "§4.1, §4.5, §4.6");
+    const detailPanel = createLesson4InspectorPanel("Clasificación", "§4.1-4.6");
 
     const facts = document.createElement("div");
     facts.className = "lesson4-inspector__facts";
 
-    const formula = lesson4.activeFormula?.formula || shell.formula || "";
-    if (formula) {
-        facts.appendChild(createLesson4InspectorLine("fórmula", formatVisibleAndrewsFormula(formula)));
+    facts.appendChild(createLesson4InspectorLine("tipo", getVisibleNuclearClauseShellLabel(shell)));
+    const useLabel = lesson4.useFrame?.activeRoleLabelEs || "";
+    if (useLabel) {
+        const useClass = /^sin\b/i.test(useLabel) ? "lesson4-inspector__line--context" : "";
+        facts.appendChild(createLesson4InspectorLine("uso", useLabel, useClass));
+    }
+    const activeFormula = lesson4.activeFormula && typeof lesson4.activeFormula === "object"
+        ? lesson4.activeFormula
+        : null;
+    const predicatePosition = [
+        activeFormula?.predicatePositionLabel || "",
+        activeFormula?.predicatePositionStatusLabel || "",
+    ].filter(Boolean).join(": ");
+    if (predicatePosition) {
+        facts.appendChild(createLesson4InspectorLine("posición", predicatePosition));
     }
 
+    const pronounFrame = lesson4.personalPronounFrame || shell.personalPronounFrame || null;
+    if (pronounFrame) {
+        const pronounRule = [
+            pronounFrame.form === "affixal-only" ? "afijal" : "",
+            pronounFrame.onlyReferringElements === true ? "referente único" : "",
+        ].filter(Boolean).join(" · ");
+        if (pronounRule) {
+            facts.appendChild(createLesson4InspectorLine("pronombre", pronounRule));
+        }
+        const categories = Array.isArray(pronounFrame.categories)
+            ? pronounFrame.categories
+                .map((entry) => getLesson4InspectorPronounCategoryLabel(entry))
+                .filter(Boolean)
+            : [];
+        if (categories.length) {
+            facts.appendChild(createLesson4InspectorLine("categorías", categories.join(" · ")));
+        }
+        if (pronounFrame.noGender === true) {
+            facts.appendChild(createLesson4InspectorLine("género", "no"));
+        }
+        facts.appendChild(createLesson4InspectorLine(
+            "casos",
+            "nominativo: sujeto · objetivo: predicado CNV · posesivo: predicado CNN"
+        ));
+    }
+
+    const pronouns = getLesson4InspectorPronounLabels(shell);
+    if (pronouns.length) {
+        facts.appendChild(createLesson4InspectorLine("pronombres", pronouns.join(" · ")));
+    }
+    const referenceStatus = lesson4.personalPronounFrame?.referenceResolution?.status || "";
+    const commonNumberStatus = lesson4.personalPronounFrame?.commonNumberResolution?.status || "";
+    const diagnostics = [
+        referenceStatus === "context-required" ? "referencia: contexto" : "",
+        commonNumberStatus === "context-required" ? "número común: contexto" : "",
+    ].filter(Boolean);
+    if (diagnostics.length) {
+        facts.appendChild(createLesson4InspectorLine("contexto", diagnostics.join(" · "), "lesson4-inspector__line--context"));
+    }
+    if (facts.childElementCount) {
+        detailPanel.appendChild(facts);
+    }
     const options = getLesson4InspectorFormulaOptions(shell);
     if (options.length) {
         const optionRow = document.createElement("div");
@@ -616,26 +755,6 @@ function appendLesson4NuclearClauseInspector(panel = null, shell = null) {
         detailPanel.appendChild(optionRow);
     }
 
-    const pronouns = getLesson4InspectorPronounLabels(shell);
-    if (pronouns.length) {
-        facts.appendChild(createLesson4InspectorLine("pronombres", pronouns.join(" · ")));
-    }
-    if (facts.childElementCount) {
-        detailPanel.appendChild(facts);
-    }
-    const referenceStatus = lesson4.personalPronounFrame?.referenceResolution?.status || "";
-    const commonNumberStatus = lesson4.personalPronounFrame?.commonNumberResolution?.status || "";
-    const diagnostics = [
-        referenceStatus === "context-required" ? "referencia: contexto" : "",
-        commonNumberStatus === "context-required" ? "número común: contexto" : "",
-    ].filter(Boolean);
-    if (diagnostics.length) {
-        const diagnosticRow = document.createElement("div");
-        diagnosticRow.className = "lesson4-inspector__diagnostics";
-        diagnostics.forEach((text) => diagnosticRow.appendChild(createLesson4InspectorChip(text, "lesson4-inspector__chip--diagnostic")));
-        detailPanel.appendChild(diagnosticRow);
-    }
-
     body.append(structurePanel, detailPanel);
     section.appendChild(body);
     panel.appendChild(section);
@@ -654,7 +773,8 @@ function updateTensePanelDescription() {
     const isNawat = Boolean(document.getElementById("language")?.checked);
     if (tenseMode === TENSE_MODE.particula) {
         entries.push({
-            label: "Andrews Lección 3",
+            label: "Partículas",
+            hoverTitle: "Andrews Lección 3",
             description: "Inventario diagnóstico: partículas, negativas, colocaciones e interjecciones; sin generación verbal o nominal.",
         });
         panel.innerHTML = "";
@@ -664,6 +784,9 @@ function updateTensePanelDescription() {
             const label = document.createElement("div");
             label.className = "tense-description__label";
             label.textContent = entry.label;
+            if (entry.hoverTitle) {
+                label.title = entry.hoverTitle;
+            }
             item.appendChild(label);
             if (entry.description) {
                 const text = document.createElement("div");
@@ -1505,26 +1628,26 @@ function resolveContinuationActionGroupMeta(action = null) {
     const dataset = action?.dataset || {};
     const classList = action?.classList || { contains: () => false };
     if (dataset.verbPatientivoContinuation) {
-        return { key: "sustantivo-patientivo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Patientivo" };
+        return { key: "sustantivo-patientivo", mode: "sustantivo", eyebrow: "CNN", title: "Patientivo" };
     }
     if (dataset.verbNominalContinuation) {
         const targetTense = String(dataset.targetTense || "").trim();
         if (targetTense.startsWith("agentivo")) {
-            return { key: "sustantivo-agentivo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Agentivo" };
+            return { key: "sustantivo-agentivo", mode: "sustantivo", eyebrow: "CNN", title: "Agentivo" };
         }
         if (targetTense === "sustantivo-verbal") {
-            return { key: "sustantivo-accion", mode: "sustantivo", eyebrow: "Sustantivo", title: "Acción" };
+            return { key: "sustantivo-accion", mode: "sustantivo", eyebrow: "CNN", title: "Acción" };
         }
         if (targetTense === "instrumentivo") {
-            return { key: "sustantivo-instrumentivo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Instrumentivo" };
+            return { key: "sustantivo-instrumentivo", mode: "sustantivo", eyebrow: "CNN", title: "Instrumentivo" };
         }
         if (targetTense === "calificativo-instrumentivo") {
-            return { key: "sustantivo-calificativo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Calificativo" };
+            return { key: "sustantivo-calificativo", mode: "sustantivo", eyebrow: "CNN", title: "Calificativo" };
         }
         if (targetTense === "locativo-temporal") {
-            return { key: "sustantivo-locativo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Lugar/tiempo" };
+            return { key: "sustantivo-locativo", mode: "sustantivo", eyebrow: "CNN", title: "Lugar/tiempo" };
         }
-        return { key: "sustantivo-nominalizacion", mode: "sustantivo", eyebrow: "Sustantivo", title: "Nominalización" };
+        return { key: "sustantivo-nominalizacion", mode: "sustantivo", eyebrow: "CNN", title: "Nominalización" };
     }
     if (
         dataset.patientivoAdjectivalFunctionContinuation
@@ -1533,7 +1656,7 @@ function resolveContinuationActionGroupMeta(action = null) {
         || dataset.compoundSourceAdjectivalFunctionContinuation
         || dataset.denominalCompoundAdjectivalFunctionContinuation
     ) {
-        return { key: "adjetivo-funcion", mode: "adjetivo", eyebrow: "Adjetivo", title: "Función" };
+        return { key: "adjetivo-funcion", mode: "sustantivo", eyebrow: "CNN", title: "Función adjetival" };
     }
     if (
         dataset.activeActionNominalCompoundContinuation
@@ -1541,19 +1664,19 @@ function resolveContinuationActionGroupMeta(action = null) {
         || dataset.preteritAgentiveNominalCompoundContinuation
         || dataset.patientivoNominalCompoundContinuation
     ) {
-        return { key: "sustantivo-compuesto", mode: "sustantivo", eyebrow: "Sustantivo", title: "Compuesto" };
+        return { key: "sustantivo-compuesto", mode: "sustantivo", eyebrow: "CNN", title: "Compuesto" };
     }
     if (
         dataset.actionNounSourceSubjectPossessor
         || dataset.instrumentivoSourceSubjectPossessor
     ) {
-        return { key: "sustantivo-posesivo", mode: "sustantivo", eyebrow: "Sustantivo", title: "Posesivo" };
+        return { key: "sustantivo-posesivo", mode: "sustantivo", eyebrow: "CNN", title: "Posesivo" };
     }
     if (
         dataset.ordinaryNncOwnerhoodContinuation
         || dataset.preteritAgentiveOwnerhoodContinuation
     ) {
-        return { key: "verbo-posesion", mode: "verbo", eyebrow: "Verbo", title: "Posesión" };
+        return { key: "verbo-posesion", mode: "verbo", eyebrow: "CNV", title: "Posesión" };
     }
     if (
         dataset.activeActionCompoundEmbedContinuation
@@ -1562,27 +1685,27 @@ function resolveContinuationActionGroupMeta(action = null) {
         || dataset.patientivoCompoundEmbedContinuation
         || dataset.patientivoCharacteristicPropertyEmbedContinuation
     ) {
-        return { key: "verbo-compuesto", mode: "verbo", eyebrow: "Verbo", title: "Compuesto" };
+        return { key: "verbo-compuesto", mode: "verbo", eyebrow: "CNV", title: "Compuesto" };
     }
     if (
         dataset.preteritAgentiveComplementContinuation
         || dataset.patientivoPrelocativeContinuation
     ) {
-        return { key: "verbo-complemento", mode: "verbo", eyebrow: "Verbo", title: "Complemento" };
+        return { key: "verbo-complemento", mode: "verbo", eyebrow: "CNV", title: "Complemento" };
     }
     if (dataset.denominalAndrewsContractRouteContinuation) {
-        return { key: "verbo-andrews-denominal", mode: "verbo", eyebrow: "Verbo", title: "Andrews denominal" };
+        return { key: "verbo-andrews-denominal", mode: "verbo", eyebrow: "CNV", title: "Andrews denominal" };
     }
     if (dataset.preteritAgentiveAdverbialContinuation) {
-        return { key: "verbo-manera", mode: "verbo", eyebrow: "Verbo", title: "Manera" };
+        return { key: "verbo-manera", mode: "verbo", eyebrow: "CNV", title: "Manera" };
     }
     if (classList.contains("calc-guidance__chip--mode-adjetivo")) {
-        return { key: "adjetivo-otros", mode: "adjetivo", eyebrow: "Adjetivo", title: "Continuación" };
+        return { key: "adjetivo-otros", mode: "sustantivo", eyebrow: "CNN", title: "Función adjetival" };
     }
     if (classList.contains("calc-guidance__chip--mode-sustantivo")) {
-        return { key: "sustantivo-otros", mode: "sustantivo", eyebrow: "Sustantivo", title: "Continuación" };
+        return { key: "sustantivo-otros", mode: "sustantivo", eyebrow: "CNN", title: "Continuación" };
     }
-    return { key: "verbo-otros", mode: "verbo", eyebrow: "Verbo", title: "Continuación" };
+    return { key: "verbo-otros", mode: "verbo", eyebrow: "CNV", title: "Continuación" };
 }
 
 function getOrCreateContinuationActionGroup(actions = null, meta = {}) {
@@ -2503,6 +2626,19 @@ function buildGeneratedOutputVisibleCnvConnectorValue(result = null, connectorSl
     );
 }
 
+function getGeneratedOutputVisibleSurfaceForms(result = null) {
+    const forms = typeof getConjugationSurfaceForms === "function"
+        ? getConjugationSurfaceForms(result)
+        : [];
+    if (forms.length) {
+        return forms;
+    }
+    const path = getVisibleCnvFormulaSurfacePath(result);
+    return (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [])
+        .map((record) => String(record?.surface || "").trim())
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
 function buildGeneratedOutputSlotSubjectValue(subjectSlot = null) {
     if (!subjectSlot || typeof subjectSlot !== "object") {
         return "";
@@ -2533,6 +2669,28 @@ function buildGeneratedOutputVncSubjectValue(subjectSlot = null) {
     return `${prefix || "Ø"}-${caseSlot || "Ø"}`;
 }
 
+function buildGeneratedOutputVisibleCnvSubjectValue(result = null, subjectSlot = null) {
+    const path = getVisibleCnvFormulaSurfacePath(result);
+    const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
+    const records = pathRecords.length
+        ? pathRecords
+        : (Array.isArray(path?.paths) ? [{ paths: path.paths }] : []);
+    if (!records.length) {
+        return buildGeneratedOutputVncSubjectValue(subjectSlot);
+    }
+    const values = records
+        .map((record) => {
+            const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1") || "0";
+            const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2") || "0";
+            return `${pers1}-${pers2}`;
+        })
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    if (!values.length) {
+        return buildGeneratedOutputVncSubjectValue(subjectSlot);
+    }
+    return values.join("/");
+}
+
 function getGeneratedOutputFormulaSlot(slots = null, canonicalKey = "") {
     if (!slots || typeof slots !== "object") {
         return null;
@@ -2561,6 +2719,7 @@ const ANDREWS_RENDERING_TERMS = Object.freeze({
     patientiveSource: "fuente patientiva",
     patientiveProcedures: "procedimientos patientivos",
     num1Num2Connector: "conector número",
+    surfaceOutput: "salida",
 });
 
 const GENERATED_OUTPUT_TENSE_CHIP_LABELS = Object.freeze({
@@ -2996,7 +3155,7 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || null;
         const tenseSlot = getGeneratedOutputFormulaSlot(slots, "tensePosition") || null;
         const connectorSlot = getGeneratedOutputFormulaSlot(slots, "num1Num2") || null;
-        pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVncSubjectValue(subjectSlot));
+        pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVisibleCnvSubjectValue(result, subjectSlot));
         pushChip(
             "obj1",
             ANDREWS_RENDERING_TERMS.obj1,
@@ -3023,6 +3182,12 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
             ANDREWS_RENDERING_TERMS.num1Num2,
             buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot)
         );
+        const surfaceForms = getGeneratedOutputVisibleSurfaceForms(result);
+        pushChip(
+            "surface",
+            ANDREWS_RENDERING_TERMS.surfaceOutput,
+            surfaceForms.join(" / ")
+        );
     } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || result.nncBasic?.formulaSlots?.predicateStem || null;
@@ -3041,6 +3206,12 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
                 connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "",
                 "Ø"
             )
+        );
+        const surfaceForms = getGeneratedOutputVisibleSurfaceForms(result);
+        pushChip(
+            "surface",
+            ANDREWS_RENDERING_TERMS.surfaceOutput,
+            surfaceForms.join(" / ")
         );
     }
     const profile = result.nominalizationProfile && typeof result.nominalizationProfile === "object"
@@ -4807,6 +4978,7 @@ function renderParticleModeConjugations({
         const block = document.createElement("div");
         block.className = "tense-block particle-panel tense-block--particle-mode";
         block.dataset.tenseBlock = "particle-mode";
+        block.title = "Andrews Lección 3";
         const list = document.createElement("div");
         list.className = "particle-table";
         block.appendChild(list);
@@ -4821,11 +4993,13 @@ function renderParticleModeConjugations({
         const block = document.createElement("div");
         block.className = "tense-block particle-panel particle-panel--candidate tense-block--particle-mode";
         block.dataset.tenseBlock = "particle-mode";
+        block.title = "Andrews Lección 3";
         const title = document.createElement("div");
         title.className = "tense-block__title";
         const titleLabel = document.createElement("span");
         titleLabel.className = "tense-block__label";
-        titleLabel.textContent = "Partículas · Andrews Lección 3";
+        titleLabel.textContent = "Partículas";
+        titleLabel.title = block.title;
         title.appendChild(titleLabel);
         block.appendChild(title);
         const list = document.createElement("div");
@@ -4861,13 +5035,15 @@ function renderParticleModeConjugations({
             const groupBlock = document.createElement("div");
             groupBlock.className = "tense-block particle-panel particle-panel--inventory particle-panel--group tense-block--particle-boundary";
             groupBlock.dataset.tenseBlock = "particle-boundary";
+            groupBlock.title = "Andrews Lección 3";
             groupBlock.dataset.particleInventoryGroup = group.id || "";
             groupBlock.dataset.particleSection = group.sectionLabel || group.sectionPrefix || "";
             const groupTitle = document.createElement("div");
             groupTitle.className = "tense-block__title particle-group-title";
             const groupLabel = document.createElement("span");
             groupLabel.className = "tense-block__label";
-            groupLabel.textContent = group.label || "Ejemplos Andrews";
+            groupLabel.textContent = group.label || "Ejemplos del PDF";
+            groupLabel.title = groupBlock.title;
             groupTitle.appendChild(groupLabel);
             const groupCount = document.createElement("span");
             groupCount.className = "particle-group-title__count";
@@ -4899,11 +5075,13 @@ function renderParticleModeConjugations({
     const boundaryBlock = document.createElement("div");
     boundaryBlock.className = "tense-block particle-panel particle-panel--inventory tense-block--particle-boundary";
     boundaryBlock.dataset.tenseBlock = "particle-boundary";
+    boundaryBlock.title = "Andrews Lección 3";
     const boundaryTitle = document.createElement("div");
     boundaryTitle.className = "tense-block__title";
     const boundaryLabel = document.createElement("span");
     boundaryLabel.className = "tense-block__label";
     boundaryLabel.textContent = "Clases funcionales";
+    boundaryLabel.title = boundaryBlock.title;
     boundaryTitle.appendChild(boundaryLabel);
     boundaryBlock.appendChild(boundaryTitle);
     const boundaryList = document.createElement("div");
@@ -5065,11 +5243,16 @@ function renderOrdinaryNncConjugations({
 
     const controlsBlock = document.createElement("div");
     controlsBlock.className = "tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls";
+    controlsBlock.title = getAndrewsFirstOutputBlockHoverTitle({
+        mode: TENSE_MODE.sustantivo,
+        blockKind: "controles CNN ordinaria",
+    });
     const controlsTitle = document.createElement("div");
     controlsTitle.className = "tense-block__title";
     const controlsLabel = document.createElement("span");
     controlsLabel.className = "tense-block__label";
     controlsLabel.textContent = getToggleLabel("controls", isNawat, "Controles");
+    controlsLabel.title = controlsBlock.title;
     controlsTitle.appendChild(controlsLabel);
     const controls = document.createElement("div");
     controls.className = "tense-block__controls tense-block__controls--stacked";
@@ -5191,12 +5374,17 @@ function renderOrdinaryNncConjugations({
     const block = document.createElement("div");
     block.className = "tense-block tense-block--ordinary-nnc";
     block.dataset.tenseBlock = "ordinary-nnc";
+    block.title = getAndrewsFirstOutputBlockHoverTitle({
+        mode: TENSE_MODE.sustantivo,
+        blockKind: "CNN ordinaria",
+    });
 
     const title = document.createElement("div");
     title.className = "tense-block__title";
     const label = document.createElement("span");
     label.className = "tense-block__label";
-    label.textContent = "Cláusula nominal";
+    label.textContent = "CNN ordinaria";
+    label.title = block.title;
     title.appendChild(label);
     block.appendChild(title);
 
@@ -6066,7 +6254,24 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
     const tenseOverride = onlyTense || tense || "";
     const selectionState = getCurrentResolvedConjugationSelectionState();
     const activeTenseMode = getActiveTenseMode();
-    const adjectivalFunctionOverride = activeTenseMode === TENSE_MODE.adjetivo
+    const selectedFunctionTense = selectionState.tenseValue || tenseOverride || "";
+    const activeFormalTenseMode = typeof getActiveNawatTenseModeForCurrentSelection === "function"
+        ? getActiveNawatTenseModeForCurrentSelection()
+        : activeTenseMode;
+    const isFormalCnvAdjectivalTense = activeFormalTenseMode === TENSE_MODE.verbo
+        && typeof isFormalCnvFunctionTense === "function"
+        && isFormalCnvFunctionTense(selectedFunctionTense)
+        && selectedFunctionTense !== "pasado-remoto-adverbio-activo";
+    const isFormalCnvAdverbialTense = activeFormalTenseMode === TENSE_MODE.verbo
+        && selectedFunctionTense === "pasado-remoto-adverbio-activo";
+    const isFormalCnnAdjectivalTense = activeFormalTenseMode === TENSE_MODE.sustantivo
+        && typeof isFormalCnnFunctionTense === "function"
+        && isFormalCnnFunctionTense(selectedFunctionTense);
+    const adjectivalFunctionOverride = (
+        activeTenseMode === TENSE_MODE.adjetivo
+        || isFormalCnvAdjectivalTense
+        || isFormalCnnAdjectivalTense
+    )
         && typeof resolveAdjectivalNncFunctionOverrideFromInput === "function"
         ? resolveAdjectivalNncFunctionOverrideFromInput(document.getElementById("verb"))
         : null;
@@ -6133,9 +6338,25 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
         ? (document.getElementById("verb")?.value || renderVerb)
         : renderVerb;
     renderOutputGuidancePanel({ verb: isPatientivoSalidaMode ? "" : guidanceVerb });
+    if (isFormalCnvAdjectivalTense) {
+        clearUnifiedVerbOutputDataset();
+        renderAdjectiveConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+        updateCalcSummaryAndStatus();
+        return;
+    }
+    if (isFormalCnvAdverbialTense) {
+        clearUnifiedVerbOutputDataset();
+        renderAdverbConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+        updateCalcSummaryAndStatus();
+        return;
+    }
     if (activeTenseMode === TENSE_MODE.sustantivo) {
         clearUnifiedVerbOutputDataset();
-        renderNounConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+        if (isFormalCnnAdjectivalTense) {
+            renderAdjectiveConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+        } else {
+            renderNounConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+        }
         updateCalcSummaryAndStatus();
         return;
     }
@@ -6674,6 +6895,11 @@ function buildVerbTenseBlock({
     const tenseBlock = document.createElement("div");
     tenseBlock.className = "tense-block";
     tenseBlock.dataset.tenseBlock = `${resolveTenseBlockPrefix(activeObjectPrefix)}-${tenseValue}`;
+    tenseBlock.title = getAndrewsFirstOutputBlockHoverTitle({
+        mode: TENSE_MODE.verbo,
+        tenseValue,
+        blockKind: "CNV",
+    });
 
     const transitiveLabel = getVerbBlockLabel("transitive", isNawat, "verbo transitivo");
     const intransitiveLabel = getVerbBlockLabel("intransitive", isNawat, "verbo intransitivo");
@@ -6713,6 +6939,7 @@ function buildVerbTenseBlock({
     const titleLabel = document.createElement("span");
     titleLabel.className = "tense-block__label";
     titleLabel.textContent = buildBlockLabel();
+    titleLabel.title = tenseBlock.title;
     tenseTitle.appendChild(titleLabel);
     const titleControls = document.createElement("div");
     titleControls.className = "tense-block__controls";
@@ -13843,11 +14070,16 @@ function renderNounConjugations({
     if (useSharedPatientivoControls) {
         const controlsBlock = document.createElement("div");
         controlsBlock.className = "tense-block tense-block--noun-shared-controls";
+        controlsBlock.title = getAndrewsFirstOutputBlockHoverTitle({
+            mode: TENSE_MODE.sustantivo,
+            blockKind: "controles CNN",
+        });
         const controlsTitle = document.createElement("div");
         controlsTitle.className = "tense-block__title";
         const controlsLabel = document.createElement("span");
         controlsLabel.className = "tense-block__label";
         controlsLabel.textContent = getToggleLabel("controls", isNawat, "Controles");
+        controlsLabel.title = controlsBlock.title;
         controlsTitle.appendChild(controlsLabel);
         const controls = buildNounTitleControls();
         if (controls) {
@@ -13874,6 +14106,11 @@ function renderNounConjugations({
         const tenseBlock = document.createElement("div");
         tenseBlock.className = "tense-block";
         tenseBlock.dataset.tenseBlock = `${activeObjectPrefix || "intrans"}-${id}`;
+        tenseBlock.title = getAndrewsFirstOutputBlockHoverTitle({
+            mode: TENSE_MODE.sustantivo,
+            tenseValue: id,
+            blockKind: "CNN",
+        });
         if (isPatientivoTense && patientivoSource) {
             tenseBlock.dataset.nawatPatientivoSource = patientivoSource;
         }
@@ -13887,6 +14124,7 @@ function renderNounConjugations({
             sourceMode,
             sourceTenseLabel,
         });
+        titleLabel.title = tenseBlock.title;
         tenseTitle.appendChild(titleLabel);
         const shouldRenderControls = !useSharedPatientivoControls
             && showControls
@@ -14420,7 +14658,7 @@ function renderAdjectivalNncFunctionConjugations({
     tenseTitle.className = "tense-block__title";
     const titleLabel = document.createElement("span");
     titleLabel.className = "tense-block__label";
-    titleLabel.textContent = "Función adjetival";
+    titleLabel.textContent = "CNN en función adjetival";
     tenseTitle.appendChild(titleLabel);
     tenseBlock.appendChild(tenseTitle);
     const list = document.createElement("div");
@@ -14434,7 +14672,7 @@ function renderAdjectivalNncFunctionConjugations({
     label.className = "conjugation-label";
     const personLabel = document.createElement("div");
     personLabel.className = "person-label";
-    personLabel.textContent = "Cláusula nominal";
+    personLabel.textContent = "CNN";
     const personSub = document.createElement("div");
     personSub.className = "person-sub";
     personSub.textContent = appendGrammarFrameSubLabels([

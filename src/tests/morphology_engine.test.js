@@ -3602,6 +3602,7 @@ function run(ctx) {
     const adverbioMatiVi = ctx.executeGenerateWordRequest(buildSilentAdverbRequest({ verb: "(mati)" }));
     s.ok("adverbio mati VI generates", adverbioMatiVi && !adverbioMatiVi.error);
     s.eq("adverbio mati VI uses active preterit adverb forms", adverbioMatiVi.surfaceForms, ["matka", "matika"]);
+    s.eq("adverbio generated output is rerouted under CNV/VNC formal ownership", adverbioMatiVi.grammarFrame?.unitFrame?.unitKind || "", "verbal-nuclear-clause");
     s.eq(
         "adverbio generated output carries diagnostic Lesson 44 frame without changing forms",
         {
@@ -3720,6 +3721,7 @@ function run(ctx) {
         verb: "(chipawa)",
     }));
     s.eq("adjetivo preterito -tik uses patientivo tronco -k core", chipawaPreteritoTik.surfaceForms, ["chipaktik"]);
+    s.eq("adjetivo preterito -tik keeps CNV/VNC formal route ownership", chipawaPreteritoTik.grammarFrame?.unitFrame?.unitKind || "", "verbal-nuclear-clause");
     s.eq("adjetivo preterito -tik profile marks adjectival surface but not modification", summarizeNominalizationProfile(chipawaPreteritoTik.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
         outputKind: "verb-derived-nominal",
@@ -4224,11 +4226,11 @@ function run(ctx) {
         { label: "VI nemi", verb: "(nemi)" },
         { label: "VT maka", verb: "-(maka)" },
     ];
-    const routeModeNames = ["verbo", "sustantivo", "adjetivo", "adverbio"];
+    const routeModeNames = ["verbo", "sustantivo", "particula"];
     const routeDerivationTypeNames = ["direct", "causative", "applicative"];
     const getRouteObjectPrefixes = (modeName, tense, verb) => {
         const parsed = ctx.parseVerbInput(verb);
-        if (modeName === "sustantivo" || modeName === "adjetivo" || modeName === "adverbio") {
+        if (modeName === "sustantivo") {
             const bundle = ctx.getNounObjectSlotPlansFromMeta(parsed, tense, {
                 combinedMode: ctx.COMBINED_MODE.active,
             });

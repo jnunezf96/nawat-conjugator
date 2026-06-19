@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/state.js.
 
-export function createUiStateApi(targetObject = globalThis) {
+export function createUiStateModule(targetObject = globalThis) {
     function getSubjectPersonSelections() {
       const selections = [];
       targetObject.SUBJECT_PERSON_NUMBER_ORDER.forEach(number => {
@@ -533,6 +533,21 @@ export function createUiStateApi(targetObject = globalThis) {
     }
     function isPotencialActiveTense(tenseValue = "") {
       return targetObject.ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue) || tenseValue === "pasado-remoto-adverbio-activo";
+    }
+    function isFormalCnvFunctionTense(tenseValue = "") {
+      return targetObject.ACTIVE_ADJECTIVE_TENSE_SET.has(tenseValue) || tenseValue === "pasado-remoto-adverbio-activo";
+    }
+    function isFormalCnnFunctionTense(tenseValue = "") {
+      return tenseValue === "potencial" || tenseValue === "potencial-habitual" || targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tenseValue);
+    }
+    function getFormalTenseModeForFunctionTense(tenseValue = "") {
+      if (isFormalCnvFunctionTense(tenseValue)) {
+        return targetObject.NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo;
+      }
+      if (isFormalCnnFunctionTense(tenseValue)) {
+        return targetObject.NAWAT_TENSE_MODE.sustantivo || targetObject.TENSE_MODE.sustantivo;
+      }
+      return "";
     }
     function isPatientivoAdjectiveTense(tenseValue = "") {
       return targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tenseValue);
@@ -1193,10 +1208,10 @@ export function createUiStateApi(targetObject = globalThis) {
     function getNawatConventionModeLabel(modeKey = "", isNawat = false) {
       const normalizedMode = String(modeKey || "").trim();
       if (normalizedMode === "verbo") {
-        return isNawat ? "muchiwalis" : "Verbo";
+        return isNawat ? "muchiwalis" : "CNV";
       }
       if (normalizedMode === "sustantivo") {
-        return isNawat ? "tukayit" : "Sustantivo";
+        return isNawat ? "tukayit" : "CNN";
       }
       if (normalizedMode === "particula") {
         return isNawat ? "partícula" : "Partícula";
@@ -3001,8 +3016,8 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!profile || !routeTenseValue || !routeVerb || typeof targetObject.executeGenerateWordRequest !== "function") {
         return null;
       }
-      const routeModeKey = profile.routeMode || "adjetivo";
-      const routeMode = targetObject.TENSE_MODE[routeModeKey] || routeModeKey || targetObject.TENSE_MODE.adjetivo;
+      const routeModeKey = profile.routeMode || "verbo";
+      const routeMode = targetObject.TENSE_MODE[routeModeKey] || routeModeKey || targetObject.TENSE_MODE.verbo;
       const routeCombinedMode = profile.routeCombinedMode || profile.targetCombinedMode || profile.combinedMode || "";
       const routeDerivationMode = profile.routeDerivationMode || profile.derivationMode || (routeCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.DERIVATION_MODE.nonactive : targetObject.DERIVATION_MODE.active);
       const routeVoiceMode = profile.routeVoiceMode || profile.voiceMode || (routeCombinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.VOICE_MODE.passive : targetObject.VOICE_MODE.active);
@@ -11279,6 +11294,18 @@ export function createUiStateApi(targetObject = globalThis) {
       if (activeRoute?.activeStationMode) {
         return getNawatTenseModeValue(activeRoute.activeStationMode) || activeRoute.activeStationMode;
       }
+      if (activeRoute?.targetMode || activeRoute?.nawatMode) {
+        return getNawatTenseModeValue(activeRoute.targetMode || activeRoute.nawatMode) || activeRoute.targetMode || activeRoute.nawatMode;
+      }
+      const selectedTense = getCurrentResolvedConjugationSelectionState().tenseValue || "";
+      const formalByTense = getFormalTenseModeForFunctionTense(selectedTense);
+      if (formalByTense) {
+        return formalByTense;
+      }
+      const activeMode = getActiveTenseMode();
+      if (activeMode === targetObject.TENSE_MODE.adjetivo || activeMode === targetObject.TENSE_MODE.adverbio || activeMode === targetObject.TENSE_MODE.particula) {
+        return getFormalTenseModeForCurrentSelection(activeMode);
+      }
       return getActiveNawatTenseMode();
     }
     function formatNawatRouteStemLabel(profile = null) {
@@ -11314,16 +11341,16 @@ export function createUiStateApi(targetObject = globalThis) {
     function getEuropeanConventionModeLabel(modeKey = "") {
       const normalizedMode = String(modeKey || "").trim();
       if (normalizedMode === "adjetivo") {
-        return "Adjetivo";
+        return "función adjetival";
       }
       if (normalizedMode === "adverbio") {
-        return "Adverbio";
+        return "función adverbial";
       }
       if (normalizedMode === "sustantivo") {
-        return "Sustantivo";
+        return "CNN";
       }
       if (normalizedMode === "verbo") {
-        return "Verbo";
+        return "CNV";
       }
       return normalizedMode;
     }
@@ -11331,7 +11358,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (!profile || typeof profile !== "object") {
         return "";
       }
-      const routeMode = profile.routeMode || "";
+      const routeMode = profile.routeFunctionMode || profile.routeMode || "";
       const routeTenseValue = profile.routeTenseValue || "";
       const modeLabel = getEuropeanConventionModeLabel(routeMode);
       const tenseLabel = routeTenseValue ? getLocalizedLabel(targetObject.TENSE_LABELS[routeTenseValue], isNawat, routeTenseValue) : "";
@@ -11339,7 +11366,7 @@ export function createUiStateApi(targetObject = globalThis) {
         return "";
       }
       const destination = [modeLabel, tenseLabel].filter(Boolean).join(" > ");
-      return destination ? `Europea: ${destination}` : "";
+      return destination ? `Función: ${destination}` : "";
     }
     function formatNawatRouteNawatTargetLabel(profile = null, isNawat = false) {
       if (!profile || typeof profile !== "object") {
@@ -11729,6 +11756,32 @@ export function createUiStateApi(targetObject = globalThis) {
       }
       return "";
     }
+    function resolveFormalTenseModeForFunctionMode(mode = "", tenseValue = "") {
+      const normalized = String(mode || "").trim();
+      if (normalized === targetObject.TENSE_MODE.verbo || normalized === targetObject.TENSE_MODE.sustantivo || normalized === targetObject.TENSE_MODE.particula) {
+        return getNawatTenseModeValue(normalized) || normalized;
+      }
+      if (normalized === targetObject.TENSE_MODE.adverbio || normalized === "adverbio") {
+        return targetObject.NAWAT_TENSE_MODE.verbo || targetObject.TENSE_MODE.verbo;
+      }
+      if (normalized === targetObject.TENSE_MODE.adjetivo || normalized === "adjetivo") {
+        const formalByTense = getFormalTenseModeForFunctionTense(tenseValue);
+        if (formalByTense) {
+          return formalByTense;
+        }
+        const profile = typeof getNawatRouteProfile === "function" ? getNawatRouteProfile(tenseValue) : null;
+        const profileMode = profile?.targetMode || profile?.nawatMode || "";
+        return getNawatTenseModeValue(profileMode) || targetObject.NAWAT_TENSE_MODE.sustantivo || targetObject.TENSE_MODE.sustantivo;
+      }
+      return getNawatTenseModeValue(normalized) || "";
+    }
+    function getFormalTenseModeForCurrentSelection(mode = getActiveTenseMode()) {
+      const selectionState = getCurrentResolvedConjugationSelectionState({
+        tenseMode: mode
+      });
+      const tenseValue = selectionState.group === targetObject.CONJUGATION_GROUPS.universal ? selectionState.universalTenseValue : selectionState.tenseValue;
+      return resolveFormalTenseModeForFunctionMode(mode, tenseValue);
+    }
     function setStoredEuropeanTenseMode(mode = "") {
       if (!Object.values(targetObject.TENSE_MODE).includes(mode)) {
         return "";
@@ -11809,8 +11862,16 @@ export function createUiStateApi(targetObject = globalThis) {
         return;
       }
       if (syncOutput) {
-        setActiveTenseMode(storedMode, {
-          modeSystem: targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function"
+        const functionSelection = resolveConjugationSelectionState(null, {
+          tenseMode: storedMode
+        });
+        applyResolvedConjugationSelectionState(functionSelection);
+        const formalMode = getFormalTenseModeForCurrentSelection(storedMode);
+        setStoredNawatTenseMode(formalMode);
+        const outputMode = getNawatOutputTenseMode(formalMode) || formalMode || storedMode;
+        setActiveTenseMode(outputMode, {
+          modeSystem: targetObject.TENSE_MODE_SYSTEM.unit || targetObject.TENSE_MODE_SYSTEM.nawat || "unit",
+          syncConventionState: false
         });
       }
     }
@@ -12240,7 +12301,7 @@ export function createUiStateApi(targetObject = globalThis) {
         return [];
       }
       if (mode === targetObject.TENSE_MODE.sustantivo) {
-        return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
+        return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "potencial", "potencial-habitual", ...targetObject.PATIENTIVO_ADJECTIVE_TENSE_ORDER, "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
       }
       if (mode === targetObject.TENSE_MODE.adjetivo) {
         return targetObject.ADJECTIVE_TAB_TENSE_ORDER;
@@ -12248,7 +12309,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (mode === targetObject.TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
       }
-      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.ACTIVE_ADJECTIVE_TENSE_SET.has(tense) && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "pasado-remoto-adverbio-activo" && tense !== "agentivo" && tense !== "agentivo-presente" && tense !== "agentivo-preterito" && tense !== "agentivo-futuro" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal");
+      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "agentivo" && tense !== "agentivo-presente" && tense !== "agentivo-preterito" && tense !== "agentivo-futuro" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal");
     }
     function isNounPossessionSplitTense(tenseValue) {
       return tenseValue === "instrumentivo";
@@ -12640,8 +12701,10 @@ export function createUiStateApi(targetObject = globalThis) {
       const operators = targetObject.document.querySelector(".calc-operators");
       if (operators) {
         operators.dataset.tenseMode = mode || "";
-        operators.dataset.functionRole = getActiveFunctionRole();
-        operators.dataset.functionMode = getActiveFunctionMode();
+        delete operators.dataset.functionRole;
+        delete operators.dataset.functionMode;
+        operators.dataset.routeFunctionRole = getActiveFunctionRole();
+        operators.dataset.routeFunctionMode = getActiveFunctionMode();
         operators.dataset.unitKind = getActiveUnitKind();
         operators.dataset.unitMode = getActiveNawatTenseModeForCurrentSelection();
         operators.dataset.ordinaryNncMode = isOrdinaryNncGenerationModeEnabled() ? "on" : "off";
@@ -12690,6 +12753,7 @@ export function createUiStateApi(targetObject = globalThis) {
           setOrdinaryNncGenerationModeEnabled(false);
           if (isUnitModeSystem(buttonSystem)) {
             setActiveUnitMode(mode);
+            setStoredEuropeanTenseMode(getNawatOutputTenseMode(getNawatTenseModeValue(mode)) || mode);
           } else {
             setActiveFunctionMode(mode);
           }
@@ -12756,7 +12820,8 @@ export function createUiStateApi(targetObject = globalThis) {
     }
     function updateCombinedModeTabs() {
       const isVerbMode = getActiveTenseMode() === targetObject.TENSE_MODE.verbo;
-      const isAdverbioMode = getActiveTenseMode() === targetObject.TENSE_MODE.adverbio;
+      const selectedTense = getCurrentResolvedConjugationSelectionState().tenseValue || "";
+      const isAdverbioMode = getActiveTenseMode() === targetObject.TENSE_MODE.adverbio || selectedTense === "pasado-remoto-adverbio-activo";
       const buttons = targetObject.document.querySelectorAll("[data-combined-mode]");
       if (!buttons.length) {
         return;
@@ -13212,7 +13277,7 @@ export function createUiStateApi(targetObject = globalThis) {
         return "sustantivo ordinario";
       }
       if (getActiveTenseMode() === targetObject.TENSE_MODE.particula) {
-        return "Andrews Lesson 3";
+        return "Partículas";
       }
       const isNawat = getIsNawat();
       const selectionState = getCurrentResolvedConjugationSelectionState();
@@ -13248,6 +13313,7 @@ export function createUiStateApi(targetObject = globalThis) {
       if (mode === targetObject.TENSE_MODE.particula) {
         return null;
       }
+      const formalMode = getFormalTenseModeForCurrentSelection(mode);
       if (typeof isOrdinaryNncGenerationModeEnabled === "function" && isOrdinaryNncGenerationModeEnabled()) {
         const ordinaryState = typeof getOrdinaryNncGenerationState === "function" ? getOrdinaryNncGenerationState() : {};
         return targetObject.buildNuclearClauseShellMetadata({
@@ -13263,7 +13329,7 @@ export function createUiStateApi(targetObject = globalThis) {
           predicateState: ordinaryState.state || "absolutive"
         });
       }
-      if (mode === targetObject.TENSE_MODE.sustantivo || mode === targetObject.TENSE_MODE.adjetivo || mode === targetObject.TENSE_MODE.adverbio) {
+      if (formalMode === (targetObject.NAWAT_TENSE_MODE.sustantivo || targetObject.TENSE_MODE.sustantivo)) {
         return targetObject.buildNuclearClauseShellMetadata({
           clauseKind: "nominal-nuclear-clause",
           subject: {
@@ -13302,7 +13368,7 @@ export function createUiStateApi(targetObject = globalThis) {
       const isSimpleView = targetObject.getActiveUiDensityMode() === targetObject.UI_DENSITY_MODE.simple;
       const mode = getActiveTenseMode();
       const modeButton = targetObject.document.querySelector(`[data-tense-mode="${mode}"]`);
-      const modeLabel = modeButton?.textContent?.trim() || (mode === targetObject.TENSE_MODE.sustantivo ? "Sustantivo" : mode === targetObject.TENSE_MODE.adjetivo ? "Adjetivo" : mode === targetObject.TENSE_MODE.adverbio ? "Adverbio" : mode === targetObject.TENSE_MODE.particula ? "Partícula" : "Verbo");
+      const modeLabel = modeButton?.textContent?.trim() || (mode === targetObject.TENSE_MODE.sustantivo ? "CNN" : mode === targetObject.TENSE_MODE.adjetivo ? "Uso adjetival" : mode === targetObject.TENSE_MODE.adverbio ? "Uso adverbial" : mode === targetObject.TENSE_MODE.particula ? "Partícula" : "CNV");
       const voice = getCombinedMode();
       const voiceButton = targetObject.document.querySelector(`[data-combined-mode="${voice}"]`);
       const voiceLabel = voiceButton?.textContent?.trim() || (voice === targetObject.COMBINED_MODE.nonactive ? "No activo" : "Activo");
@@ -13317,7 +13383,7 @@ export function createUiStateApi(targetObject = globalThis) {
       const clauseLabel = clauseShell?.displayLabel || "";
       const parts = (() => {
         if (mode === targetObject.TENSE_MODE.particula) {
-          return ["Partículas · Andrews Lección 3", "inventario diagnóstico", "sin generación"];
+          return ["Partículas", "inventario diagnóstico", "sin generación"];
         }
         if (mode !== targetObject.TENSE_MODE.verbo) {
           return [clauseLabel, tenseLabel, sourceScopeLabel].filter(Boolean);
@@ -13328,7 +13394,11 @@ export function createUiStateApi(targetObject = globalThis) {
         return [clauseLabel, tenseLabel, derivationLabel, transitivityLabel, sourceScopeLabel || (includeVoiceInSummary ? voiceLabel : "")].filter(Boolean);
       })();
       const fallback = mode === targetObject.TENSE_MODE.verbo ? isSimpleView ? "Selecciona tiempo" : "Selecciona tiempo y derivación" : mode === targetObject.TENSE_MODE.particula ? "Ingresa una partícula" : "Selecciona tiempo";
-      summaryEl.removeAttribute("title");
+      if (mode === targetObject.TENSE_MODE.particula) {
+        summaryEl.title = "Andrews Lección 3";
+      } else {
+        summaryEl.removeAttribute("title");
+      }
       summaryEl.textContent = parts.length ? parts.join(" · ") : fallback;
     }
     function getOrthographyBridgeStatusInfo(value = "") {
@@ -13542,6 +13612,16 @@ export function createUiStateApi(targetObject = globalThis) {
         targetObject.TenseTabsState.selected = value;
         if (previous !== value) {
           resetToggleStateForTense(value);
+          const formalMode = getFormalTenseModeForFunctionTense(value);
+          const outputMode = getNawatOutputTenseMode(formalMode) || formalMode || "";
+          if (outputMode && targetObject.TenseModeState.mode !== outputMode) {
+            setStoredNawatTenseMode(outputMode);
+            setActiveTenseMode(outputMode, {
+              modeSystem: targetObject.TENSE_MODE_SYSTEM.unit || targetObject.TENSE_MODE_SYSTEM.nawat || "unit",
+              syncConventionState: false,
+              clearRoute: false
+            });
+          }
           const activeNawatRoute = getActiveNawatRouteProfile();
           const activeRouteTenseValues = [activeNawatRoute?.targetTenseValue || "", activeNawatRoute?.nawatTenseValue || "", activeNawatRoute?.routeTenseValue || "", activeNawatRoute?.sourceTenseValue || "", activeNawatRoute?.activeStationTenseValue || ""].filter(Boolean);
           if (activeNawatRoute && !activeRouteTenseValues.includes(value)) {
@@ -13905,6 +13985,9 @@ export function createUiStateApi(targetObject = globalThis) {
     api.isPotencialHabitualTense = isPotencialHabitualTense;
     api.allowsCollapsedDerivedNounSlot = allowsCollapsedDerivedNounSlot;
     api.isPotencialActiveTense = isPotencialActiveTense;
+    api.isFormalCnvFunctionTense = isFormalCnvFunctionTense;
+    api.isFormalCnnFunctionTense = isFormalCnnFunctionTense;
+    api.getFormalTenseModeForFunctionTense = getFormalTenseModeForFunctionTense;
     api.isPatientivoAdjectiveTense = isPatientivoAdjectiveTense;
     api.getPatientivoAdjectiveSourceForTense = getPatientivoAdjectiveSourceForTense;
     api.isIntransitiveOnlyActiveAdjectiveTense = isIntransitiveOnlyActiveAdjectiveTense;
@@ -14287,6 +14370,8 @@ export function createUiStateApi(targetObject = globalThis) {
     api.getTenseModeForUnitKind = getTenseModeForUnitKind;
     api.getNawatTenseModeValue = getNawatTenseModeValue;
     api.getNawatOutputTenseMode = getNawatOutputTenseMode;
+    api.resolveFormalTenseModeForFunctionMode = resolveFormalTenseModeForFunctionMode;
+    api.getFormalTenseModeForCurrentSelection = getFormalTenseModeForCurrentSelection;
     api.setStoredEuropeanTenseMode = setStoredEuropeanTenseMode;
     api.setStoredNawatTenseMode = setStoredNawatTenseMode;
     api.getActiveEuropeanTenseMode = getActiveEuropeanTenseMode;
@@ -14459,7 +14544,7 @@ export function createUiStateApi(targetObject = globalThis) {
 }
 
 export function installUiStateGlobals(targetObject = globalThis) {
-    const api = createUiStateApi(targetObject);
+    const api = createUiStateModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

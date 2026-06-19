@@ -1208,13 +1208,6 @@ body.is-nonverb-mode .calc-operator-grid--mode {
   grid-area: mode;
 }
 
-.calc-mode-taxonomy-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-  gap: var(--layout-gap-tight);
-  min-width: 0;
-}
-
 .calc-mode-taxonomy {
   display: grid;
   gap: 4px;
@@ -1255,10 +1248,6 @@ body.is-nonverb-mode .calc-operator-grid--mode {
 
   .calc-operator-grid--mode {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .calc-mode-taxonomy-grid {
-    grid-template-columns: 1fr;
   }
 
 }
@@ -1569,13 +1558,11 @@ body.is-nonverb-mode .calc-operator--derivation {
 
 .lesson4-inspector {
   display: grid;
-  gap: 6px;
+  gap: 7px;
   min-width: 0;
-  padding: 6px 7px;
-  border: 1px solid rgba(29, 26, 21, 0.11);
-  border-left: 3px solid rgba(58, 112, 121, 0.32);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.58);
+  padding: 7px 2px 2px;
+  border-top: 1px solid rgba(29, 26, 21, 0.1);
+  background: transparent;
 }
 
 .lesson4-inspector__heading {
@@ -1596,21 +1583,23 @@ body.is-nonverb-mode .calc-operator--derivation {
 
 .lesson4-inspector__body {
   display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(260px, 0.92fr);
-  gap: 6px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
   min-width: 0;
   align-items: start;
 }
 
 .lesson4-inspector__panel {
   display: grid;
-  gap: 5px;
+  grid-template-rows: auto auto;
+  gap: 6px;
   min-width: 0;
   align-content: start;
-  padding: 5px;
-  border: 1px solid rgba(29, 26, 21, 0.1);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.46);
+  padding-top: 6px;
+  border: 0;
+  border-top: 2px solid rgba(58, 112, 121, 0.24);
+  border-radius: 0;
+  background: transparent;
 }
 
 .lesson4-inspector__panel-heading {
@@ -1619,6 +1608,8 @@ body.is-nonverb-mode .calc-operator--derivation {
   justify-content: space-between;
   gap: 6px;
   min-width: 0;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(29, 26, 21, 0.08);
 }
 
 .lesson4-inspector__panel-title {
@@ -1639,7 +1630,7 @@ body.is-nonverb-mode .calc-operator--derivation {
 .lesson4-inspector__chips,
 .lesson4-inspector__diagnostics,
 .lesson4-inspector__formula-options,
-.lesson4-inspector__diagram-slots {
+.lesson4-inspector__diagram-node-row {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
@@ -1684,23 +1675,42 @@ body.is-nonverb-mode .calc-operator--derivation {
   background: rgba(243, 237, 246, 0.78);
 }
 
+.lesson4-inspector__formula-options {
+  padding-top: 4px;
+  border-top: 1px solid rgba(29, 26, 21, 0.07);
+}
+
 .lesson4-inspector__facts {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 5px;
+  gap: 3px;
   min-width: 0;
+  align-content: start;
+}
+
+.lesson4-inspector__facts > .lesson4-inspector__line:first-child {
+  padding-top: 0;
+  border-top: 0;
 }
 
 .lesson4-inspector__line {
   display: grid;
-  grid-template-columns: minmax(64px, max-content) minmax(0, 1fr);
-  gap: 4px;
+  grid-template-columns: minmax(58px, max-content) minmax(0, 1fr);
+  gap: 6px;
   min-width: 0;
   align-items: baseline;
+  padding-top: 3px;
+  border-top: 1px solid rgba(29, 26, 21, 0.06);
 }
 
-.lesson4-inspector__line[data-line-label="fórmula"] {
-  grid-column: auto;
+.lesson4-inspector__line--thesis .lesson4-inspector__line-value {
+  color: #244e57;
+  font-weight: 850;
+}
+
+.lesson4-inspector__line--context .lesson4-inspector__line-value {
+  color: var(--ink-soft);
+  font-weight: 600;
 }
 
 .lesson4-inspector__line-label {
@@ -1723,88 +1733,71 @@ body.is-nonverb-mode .calc-operator--derivation {
 
 .lesson4-inspector__diagram {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 5px;
+  gap: 0;
   min-width: 0;
-  align-items: stretch;
+  padding-top: 1px;
 }
 
-.lesson4-inspector__diagram-root {
+.lesson4-inspector__diagram-node {
   display: grid;
+  position: relative;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lesson4-inspector__diagram-node-row {
   align-items: center;
-  min-width: 42px;
-  padding: 4px 6px;
-  border: 1px solid rgba(36, 82, 92, 0.18);
-  border-radius: 8px;
-  background: rgba(229, 241, 242, 0.74);
+  padding: 2px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.lesson4-inspector__diagram-node--nuclear-clause > .lesson4-inspector__diagram-node-row {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(36, 82, 92, 0.2);
+}
+
+.lesson4-inspector__diagram-node--predicate > .lesson4-inspector__diagram-node-row,
+.lesson4-inspector__diagram-node--verbcore > .lesson4-inspector__diagram-node-row,
+.lesson4-inspector__diagram-node--nouncore > .lesson4-inspector__diagram-node-row {
   color: #244e57;
-  font-size: calc(0.62rem + var(--font-size-adjust));
-  font-weight: 850;
-  line-height: 1.1;
-  text-align: center;
 }
 
-.lesson4-inspector__diagram-branches {
-  display: grid;
-  grid-template-columns: minmax(104px, 0.72fr) minmax(0, 1.28fr);
-  gap: 5px;
-  min-width: 0;
+.lesson4-inspector__diagram-node--predicate-position.is-vacant > .lesson4-inspector__diagram-node-row {
+  color: #5d4129;
 }
 
-.lesson4-inspector__diagram-card {
-  display: grid;
-  gap: 4px;
-  align-content: start;
-  min-width: 0;
-  padding: 4px 5px;
-  border: 1px solid rgba(29, 26, 21, 0.12);
-  border-radius: 7px;
-  background: rgba(255, 255, 255, 0.58);
-}
-
-.lesson4-inspector__diagram-card-title {
-  color: var(--ink);
-  font-size: calc(0.58rem + var(--font-size-adjust));
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.lesson4-inspector__tree {
-  display: grid;
-  gap: 3px;
-  padding: 6px 7px;
-  border: 1px solid rgba(29, 26, 21, 0.12);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.52);
-  min-width: 0;
-}
-
-.lesson4-inspector__tree-node {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
-}
-
-.lesson4-inspector__tree-node[data-depth="1"] {
-  padding-left: 10px;
-}
-
-.lesson4-inspector__tree-node[data-depth="2"] {
-  padding-left: 20px;
-}
-
-.lesson4-inspector__tree-node[data-depth="3"] {
-  padding-left: 30px;
-}
-
-.lesson4-inspector__tree-label {
+.lesson4-inspector__diagram-node-label {
   color: var(--ink);
   font-size: calc(0.6rem + var(--font-size-adjust));
-  font-weight: 760;
-  line-height: 1.15;
+  font-weight: 820;
+  line-height: 1.1;
+}
+
+.lesson4-inspector__diagram-node-meta {
+  color: var(--ink-soft);
+  font-size: calc(0.54rem + var(--font-size-adjust));
+  font-weight: 700;
+  line-height: 1.12;
+}
+
+.lesson4-inspector__diagram-children {
+  display: grid;
+  gap: 1px;
   min-width: 0;
-  overflow-wrap: anywhere;
+  margin-left: 3px;
+  padding-left: 14px;
+  border-left: 1px solid rgba(36, 82, 92, 0.2);
+}
+
+.lesson4-inspector__diagram-children > .lesson4-inspector__diagram-node::before {
+  content: "";
+  position: absolute;
+  top: 11px;
+  left: -14px;
+  width: 10px;
+  border-top: 1px solid rgba(36, 82, 92, 0.2);
 }
 
 .lesson4-inspector__formula-option.is-active {
@@ -5164,6 +5157,11 @@ input[type="submit"]:hover {
   border-color: rgba(32, 82, 72, 0.2);
 }
 
+.person-sub__slot-chip--surface {
+  background: rgba(244, 248, 250, 0.92);
+  border-color: rgba(57, 86, 112, 0.24);
+}
+
 .person-sub__slot-chip--reflexivo {
   background: rgba(233, 244, 255, 0.82);
   border-color: rgba(40, 101, 148, 0.24);
@@ -7424,17 +7422,12 @@ input[type="submit"]:hover {
 
   .lesson4-inspector__facts,
   .lesson4-inspector__body,
-  .lesson4-inspector__diagram,
-  .lesson4-inspector__diagram-branches {
+  .lesson4-inspector__diagram {
     grid-template-columns: 1fr;
   }
 
   .lesson4-inspector__panel-heading {
     flex-wrap: wrap;
-  }
-
-  .lesson4-inspector__line[data-line-label="fórmula"] {
-    grid-column: 1 / -1;
   }
 }
 

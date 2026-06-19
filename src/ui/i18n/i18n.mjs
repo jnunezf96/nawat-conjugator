@@ -161,7 +161,7 @@ export function createUiI18nApi(targetObject = globalThis) {
     function changeLanguage() {
       var languageSwitch = targetObject.document.getElementById("language");
       var selectedLanguage = languageSwitch.checked ? "nawat" : "original";
-      var baseLabelElementIds = ["tutorial-title", "tutorial-trigger", "copyright-label", "panel-stack-tab-inputs", "panel-stack-tab-formula", "panel-stack-tab-output", "calc-mode-verb", "calc-mode-noun", "calc-mode-adjective", "calc-mode-adverb", "derivation-type-label", "ui-density-label", "ui-density-simple", "ui-density-advanced", "verb-source-scope-active", "verb-source-scope-nonactive", "verb-source-scope-both"];
+      var baseLabelElementIds = ["tutorial-title", "tutorial-trigger", "copyright-label", "panel-stack-tab-inputs", "panel-stack-tab-formula", "panel-stack-tab-output", "calc-nawat-mode-verb", "calc-nawat-mode-noun", "calc-nawat-mode-particle", "derivation-type-label", "ui-density-label", "ui-density-simple", "ui-density-advanced", "verb-source-scope-active", "verb-source-scope-nonactive", "verb-source-scope-both"];
       var keyedLabelElementIds = Array.from(targetObject.document.querySelectorAll("[data-ui-label-key][id]")).map(element => element.id);
       var labelElementIds = Array.from(new Set([...baseLabelElementIds, ...keyedLabelElementIds]));
       var translations = {

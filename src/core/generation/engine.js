@@ -978,7 +978,11 @@ function getCnvFormulaSourceStemVariants(sourceStem = "") {
     };
     addVariant(normalizedStem, "source-stem");
     if (/[aeiou]$/i.test(normalizedStem)) {
-        addVariant(normalizedStem.slice(0, -1), "source-final-vowel-removed");
+        const finalVowelRemoved = normalizedStem.slice(0, -1);
+        addVariant(finalVowelRemoved, "source-final-vowel-removed");
+        if (/m$/i.test(finalVowelRemoved)) {
+            addVariant(`${finalVowelRemoved.slice(0, -1)}n`, "source-final-vowel-removed-m-coda-n");
+        }
     }
     if (/ya$/i.test(normalizedStem)) {
         addVariant(`${normalizedStem.slice(0, -2)}sh`, "source-final-y-coda-sh");
@@ -1726,12 +1730,30 @@ function normalizeNuclearClauseSurfaceDiagnosticEntries(diagnostics = [], fallba
     });
 }
 
-function resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode = "") {
-    return resolvedTenseMode === TENSE_MODE.sustantivo
-        || resolvedTenseMode === TENSE_MODE.adjetivo
-        || resolvedTenseMode === TENSE_MODE.adverbio
-        ? "nominal-nuclear-clause"
-        : "verbal-nuclear-clause";
+function resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode = "", tense = "") {
+    if (resolvedTenseMode === TENSE_MODE.sustantivo) {
+        return "nominal-nuclear-clause";
+    }
+    if (resolvedTenseMode === TENSE_MODE.adverbio) {
+        return "verbal-nuclear-clause";
+    }
+    if (resolvedTenseMode === TENSE_MODE.adjetivo) {
+        const profile = typeof getNawatRouteProfile === "function"
+            ? getNawatRouteProfile(tense)
+            : null;
+        const profileMode = profile?.targetMode || profile?.nawatMode || "";
+        if (profileMode === TENSE_MODE.verbo || profileMode === "verbo") {
+            return "verbal-nuclear-clause";
+        }
+        const generatedRouteProfile = typeof resolveGeneratedDenominalRouteProfileSpec === "function"
+            ? resolveGeneratedDenominalRouteProfileSpec(tense)
+            : null;
+        if (generatedRouteProfile) {
+            return "verbal-nuclear-clause";
+        }
+        return "nominal-nuclear-clause";
+    }
+    return "verbal-nuclear-clause";
 }
 
 function normalizeGrammarFrameSurfaceForms(result = null) {
@@ -2411,7 +2433,7 @@ function buildNuclearClauseSurfaceBlockedResult({
         tense,
         routeFamily,
         routeStage,
-        unitKind: resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode),
+        unitKind: resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode, tense),
         pers1,
         pers2,
         obj1,
@@ -2483,8 +2505,8 @@ function normalizeGenerateWordDiagnosticEntries(diagnostics = [], fallbackDiagno
     return normalizeNuclearClauseSurfaceDiagnosticEntries(diagnostics, fallbackDiagnostic);
 }
 
-function resolveGenerateWordUnitKind(resolvedTenseMode = "") {
-    return resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode);
+function resolveGenerateWordUnitKind(resolvedTenseMode = "", tense = "") {
+    return resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode, tense);
 }
 
 function isGenerateWordGrammarFrameCandidate(value = null) {
@@ -2911,10 +2933,9 @@ function buildGeneratedNuclearClauseShellMetadata({
     if (typeof buildNuclearClauseShellMetadata !== "function") {
         return null;
     }
+    const formalUnitKind = resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode, tense);
     const isNominalShell = Boolean(nominalClauseMetadata?.nominalClauseFrame)
-        || resolvedTenseMode === TENSE_MODE.sustantivo
-        || resolvedTenseMode === TENSE_MODE.adjetivo
-        || resolvedTenseMode === TENSE_MODE.adverbio;
+        || formalUnitKind === "nominal-nuclear-clause";
     if (isNominalShell) {
         const numberConnector = nominalClauseMetadata?.num1Num2
             || nominalClauseMetadata?.nominalClauseFrame?.subject?.numberConnector
@@ -4562,6 +4583,25 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     );
     const generatedSurfaceSoundSpellingFrames = [];
     const generatedOutputSurfaceRecords = [];
+    const getGeneratedSurfaceTextVariants = (surface = "") => {
+        const normalizedSurface = String(surface || "").trim();
+        if (!normalizedSurface) {
+            return [];
+        }
+        const variants = typeof expandOptionalParentheticalForms === "function"
+            ? expandOptionalParentheticalForms([normalizedSurface])
+            : [normalizedSurface];
+        return variants
+            .map((variant) => String(variant || "").trim())
+            .filter((variant, index, list) => variant && list.indexOf(variant) === index);
+    };
+    const pushGeneratedSurfaceForm = (surface = "") => {
+        getGeneratedSurfaceTextVariants(surface).forEach((variant) => {
+            if (!forms.includes(variant)) {
+                forms.push(variant);
+            }
+        });
+    };
     const collectGeneratedSurfaceSoundSpellingFrames = (...sources) => {
         collectNuclearClauseSurfaceSoundSpellingFrames(...sources).forEach((frame) => {
             const key = getNuclearClauseSurfaceSoundSpellingFrameKey(frame);
@@ -4580,12 +4620,34 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         if (!surface && !segments.length) {
             return;
         }
-        if (generatedOutputSurfaceRecords.some((entry) => entry.surface === surface)) {
-            return;
-        }
-        generatedOutputSurfaceRecords.push({
-            surface,
-            segments,
+        const surfaceVariants = getGeneratedSurfaceTextVariants(surface);
+        const troncoSegmentIndex = segments.findIndex((segment) => (
+            segment?.role === "tronco" || segment?.slot === "tronco"
+        ));
+        const troncoVariants = troncoSegmentIndex >= 0
+            ? getGeneratedSurfaceTextVariants(segments[troncoSegmentIndex]?.value || "")
+            : [];
+        (surfaceVariants.length ? surfaceVariants : [surface]).forEach((surfaceVariant, variantIndex) => {
+            if (generatedOutputSurfaceRecords.some((entry) => entry.surface === surfaceVariant)) {
+                return;
+            }
+            const variantSegments = segments.map((segment, segmentIndex) => {
+                if (
+                    segmentIndex === troncoSegmentIndex
+                    && troncoVariants.length === surfaceVariants.length
+                    && troncoVariants[variantIndex]
+                ) {
+                    return {
+                        ...segment,
+                        value: troncoVariants[variantIndex],
+                    };
+                }
+                return { ...segment };
+            });
+            generatedOutputSurfaceRecords.push({
+                surface: surfaceVariant,
+                segments: variantSegments,
+            });
         });
     };
     const buildSurfaceFromCurrentSlots = (overrideTronco = troncoSlot, overrideSuffix = pers2Slot) => {
@@ -5901,9 +5963,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
                 directionalChainMeta: morphResult.directionalChainMeta,
                 surfaceRuleMeta: mergeSurfaceRuleMeta(morphResult.surfaceRuleMeta, suppletiveStemSet?.surfaceRuleMeta),
             });
-            if (baseText && !forms.includes(baseText)) {
-                forms.push(baseText);
-            }
+            pushGeneratedSurfaceForm(baseText);
             morphResult.alternateForms.forEach((form) => {
                 if (!form || !form.verb) {
                     return;
@@ -5923,14 +5983,12 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
                         form.surfaceRuleMeta
                     ),
                 });
-                if (altText && !forms.includes(altText)) {
-                    forms.push(altText);
-                }
+                pushGeneratedSurfaceForm(altText);
             });
         });
     } else {
         const baseText = buildSurfaceFromCurrentSlots();
-        forms.push(baseText);
+        pushGeneratedSurfaceForm(baseText);
         alternateForms.forEach((form) => {
             if (!form || !form.verb) {
                 return;
@@ -5950,9 +6008,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
                 ),
                 isYawiOptative: isYawiOptativeSingular,
             });
-            if (!forms.includes(altText)) {
-                forms.push(altText);
-            }
+            pushGeneratedSurfaceForm(altText);
         });
     }
     if (isYawi && tense === "presente" && directionalPrefix !== "wal") {
@@ -5961,15 +6017,11 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             ? yawiCanonicalLongPrefixed
             : yawiCanonicalShortPrefixed;
         const yawiText = buildSurfaceFromCurrentSlots(yawiSelectedForm, pers2Slot);
-        if (yawiText && !forms.includes(yawiText)) {
-            forms.push(yawiText);
-        }
+        pushGeneratedSurfaceForm(yawiText);
     }
     if (shouldAddYuVariant && (troncoSlot === yawiPresentShortPrefixed || troncoSlot === yawiPresentLongPrefixed)) {
         const yuText = buildSurfaceFromCurrentSlots(yawiYuVariantPrefixed);
-        if (!forms.includes(yuText)) {
-            forms.push(yuText);
-        }
+        pushGeneratedSurfaceForm(yuText);
     }
     const generatedText = forms.join(" / ");
     const generatedSoundSpellingFrames = collectNuclearClauseSurfaceSoundSpellingFrames(
@@ -6175,6 +6227,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         },
         posicionesFormula,
     };
+    const formalUnitKind = resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode, tense);
     const grammarFrame = buildNuclearClauseSurfaceGrammarFrame({
         result: resultPayload,
         override,
@@ -6184,7 +6237,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             || nominalClauseMetadata?.nominalizationProfile?.role?.nominalizationKind
             || (resolvedTenseMode === TENSE_MODE.verbo ? "vnc" : resolvedTenseMode),
         routeStage: "execute",
-        unitKind: nuclearClauseShell?.clauseKind || (resolvedTenseMode === TENSE_MODE.verbo ? "verbal-nuclear-clause" : "nominal-nuclear-clause"),
+        unitKind: formalUnitKind,
         pers1: pers1Slot,
         pers2: pers2Slot,
         obj1: obj1Slot,

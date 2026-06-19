@@ -10,6 +10,8 @@ function run(ctx = {}) {
     const css = fs.readFileSync(path.resolve(__dirname, "..", "..", "style.css"), "utf8");
     const staticLabels = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_labels.json"), "utf8");
     const staticModes = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_modes.json"), "utf8");
+    const staticModesJson = JSON.parse(staticModes);
+    const staticGroups = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_groups.json"), "utf8");
     const rendering = fs.readFileSync(path.resolve(__dirname, "..", "ui", "rendering", "rendering.js"), "utf8");
     const composer = fs.readFileSync(path.resolve(__dirname, "..", "ui", "composer", "composer.js"), "utf8");
     const events = fs.readFileSync(path.resolve(__dirname, "..", "ui", "events.js"), "utf8");
@@ -282,29 +284,28 @@ function run(ctx = {}) {
             && curriculum.includes("concept-glossary__item")
     );
     s.ok(
-        "#2 mode controls separate Andrews syntactical class from formal class so adjectival use can apply to verbal or nominal nuclear clauses",
-        html.includes('aria-label="Clase sintáctica y clase formal"')
-            && html.includes(">Clase sintáctica / clase formal<")
+        "#2 mode controls expose only Andrews formal classes: CNV, CNN, and Partícula",
+        html.includes('aria-label="Clase formal"')
+            && html.includes(">Clase formal<")
             && !html.includes("Unidad y función")
             && html.includes('id="calc-mode-operator-label"')
             && html.includes('data-ui-label-key="calc-mode-operator-label"')
-            && html.includes('id="calc-mode-system-function"')
-            && html.includes('data-ui-label-key="mode-system-function"')
-            && html.includes('data-mode-system="function"')
-            && html.includes('data-mode-role="function"')
-            && />\s*Clase sintáctica\s*<\/div>/.test(html)
-            && html.includes('data-function-role="verbal"')
-            && html.includes('data-function-role="nominal"')
-            && html.includes('data-function-role="adjectival"')
-            && html.includes('data-function-role="adverbial"')
-            && html.includes('aria-label="Clase sintáctica verbal"')
-            && html.includes('aria-label="Clase sintáctica nominal"')
-            && html.includes('aria-label="Clase sintáctica adjetival"')
-            && html.includes('aria-label="Clase sintáctica adverbial"')
+            && !html.includes('id="calc-mode-system-function"')
+            && !html.includes('data-mode-system="function"')
+            && !html.includes('data-mode-role="function"')
+            && !html.includes('data-function-role=')
+            && !html.includes("Clase sintáctica")
+            && !html.includes('data-mode-system="unit-route"')
+            && !html.includes('data-formal-route=')
+            && !html.includes('data-formal-owner=')
+            && !html.includes('data-function-role="adjectival"')
+            && !html.includes('data-function-role="adverbial"')
+            && !html.includes("CNV/CNN adjetival")
+            && !html.includes("CNV/CNN adverbial")
             && !html.includes('aria-label="Función verbal"')
             && !html.includes('title="Función verbal"')
-            && html.includes('data-ui-label-key="tense-tabs-function-adjectival"')
-            && />\s*Adjetival\s*<\/button>/.test(html)
+            && !html.includes('data-ui-label-key="tense-tabs-function-adjectival"')
+            && !html.includes('data-ui-label-key="tense-tabs-function-adverbial"')
             && html.includes('id="calc-mode-system-unit"')
             && html.includes('data-ui-label-key="mode-system-unit"')
             && html.includes('data-mode-system="unit"')
@@ -315,8 +316,10 @@ function run(ctx = {}) {
             && html.includes('data-unit-kind="particula"')
             && html.includes('data-ui-label-key="tense-tabs-unit-cnv"')
             && html.includes('data-ui-label-key="tense-tabs-unit-cnn"')
-            && />\s*Cláusula verbal\s*<\/button>/.test(html)
-            && />\s*Cláusula nominal\s*<\/button>/.test(html)
+            && html.includes('data-ui-label-key="tense-tabs-unit-particle"')
+            && />\s*CNV · cláusula verbal\s*<\/button>/.test(html)
+            && />\s*CNN · cláusula nominal\s*<\/button>/.test(html)
+            && />\s*Partícula\s*<\/button>/.test(html)
             && !html.includes("Convención europea")
             && !html.includes('data-mode-system="european"')
             && !html.includes('data-mode-system="nawat"')
@@ -324,15 +327,48 @@ function run(ctx = {}) {
             && !html.includes('id="calc-mode-system-nawat"')
             && staticLabels.includes('"mode-system-function"')
             && staticLabels.includes('"tense-tabs-function-adjectival"')
-            && staticLabels.includes('"labelEs": "Clase sintáctica"')
+            && staticLabels.includes('"labelEs": "Uso adjetival"')
+            && staticLabels.includes('"tense-tabs-unit-cnv": { "labelEs": "CNV · cláusula verbal"')
+            && staticLabels.includes('"tense-tabs-unit-cnn": { "labelEs": "CNN · cláusula nominal"')
+            && !staticLabels.includes("CNV/CNN adjetival")
+            && !staticLabels.includes("CNV/CNN adverbial")
+            && staticLabels.includes('"labelEs": "Ruta funcional"')
             && staticLabels.includes('"labelEs": "Clase formal"')
             && !staticLabels.includes("convención europea")
             && !staticLabels.includes('"labelEs": "nawat"')
+            && !staticLabels.includes("Clase sintáctica")
             && staticLabels.includes('"tense-tabs-unit-cnv"')
             && staticModes.includes('"function": { "value": "function"')
             && staticModes.includes('"unit": { "value": "unit"')
-            && staticModes.includes('"labelEs": "Clase sintáctica"')
+            && staticModes.includes('"labelEs": "Ruta funcional"')
             && staticModes.includes('"labelEs": "Clase formal"')
+            && !staticModes.includes("Clase sintáctica")
+            && Object.keys(staticModesJson.tenseMode || {}).join(",") === "verbo,sustantivo,particula"
+            && !Object.prototype.hasOwnProperty.call(staticModesJson, ["function", "Tense", "Mode"].join(""))
+            && Object.keys(staticModesJson.functionRole || {}).join(",") === "adjetivo,adverbio"
+            && !staticGroups.includes('"adjetivo": {')
+            && !staticGroups.includes('"adverbio": {')
+            && staticGroups.includes('"particula": {')
+            && staticGroups.includes('"CNV en función adjetival"')
+            && staticGroups.includes('"CNN en función adjetival"')
+            && staticGroups.includes('"CNV en función adverbial"')
+            && !staticGroups.includes('"heading": { "labelEs": "Función adjetival"')
+            && !staticGroups.includes('"heading": { "labelEs": "Función adverbial"')
+            && !staticModes.includes('"routeMode": "adjetivo"')
+            && !staticModes.includes('"routeMode": "adverbio"')
+            && !staticModes.includes('"targetMode": "adjetivo"')
+            && !staticModes.includes('"targetMode": "adverbio"')
+            && !staticModes.includes('"sourceMode": "adjetivo"')
+            && !staticModes.includes('"sourceMode": "adverbio"')
+            && staticModes.includes('"routeFunctionMode": "adjetivo"')
+            && !state.includes("operators.dataset.functionRole =")
+            && !state.includes("operators.dataset.functionMode =")
+            && state.includes("operators.dataset.routeFunctionRole")
+            && state.includes("operators.dataset.routeFunctionMode")
+            && panels.includes("buildFormalReroutedFunctionTenseGroups")
+            && !composer.includes("setActiveTenseMode(TENSE_MODE.adjetivo")
+            && !composer.includes('selector: "[data-tense-mode=\\"adjetivo\\"]"')
+            && !composer.includes('selector: "[data-tense-mode=\\"adverbio\\"]"')
     );
     s.ok(
         "Lesson 3 particle metadata reaches browser runtime as enabled diagnostic Partícula mode",
@@ -384,14 +420,16 @@ function run(ctx = {}) {
             && css.includes(".output-meta-strip .calc-summary")
             && css.includes(".output-result-controls--particle")
             && css.includes("#all-tense-conjugations.all-tense-conjugations--particle")
-            && rendering.includes("Partículas · Andrews Lección 3")
+            && rendering.includes('titleLabel.textContent = "Partículas"')
+            && rendering.includes("titleLabel.title = block.title")
             && !rendering.includes("Partícula · Andrews Lesson 3")
             && exportUi.includes("function buildParticleViewExportCSV")
             && exportUi.includes('"entrada Nawat"')
             && exportUi.includes('"fuente Andrews"')
             && exportUi.includes('"clase funcional"')
             && exportUi.includes('diagnosticId === "particle-candidate-empty"')
-            && state.includes('"Partículas · Andrews Lección 3", "inventario diagnóstico", "sin generación"')
+            && state.includes('"Partículas", "inventario diagnóstico", "sin generación"')
+            && state.includes('summaryEl.title = "Andrews Lección 3"')
             && state.includes("mode === TENSE_MODE.particula")
             && panels.includes("tenseMode === TENSE_MODE.particula")
     );
@@ -598,25 +636,67 @@ function run(ctx = {}) {
             && rendering.includes("function appendNuclearClauseShellSubLabels")
             && rendering.includes("function appendLesson4NuclearClauseInspector")
             && rendering.includes("function appendLesson4CompactDiagram")
+            && rendering.includes("function appendLesson4DiagramNode")
+            && rendering.includes("function getLesson4DiagramNodeLabel")
+            && rendering.includes("function getLesson4DiagramNodeMeta")
             && rendering.includes("function createLesson4InspectorPanel")
             && rendering.includes("function collectLesson4TreeNodes")
             && rendering.includes("result.nuclearClauseShell")
             && rendering.includes("evaluation.result?.nuclearClauseShell")
             && rendering.includes("Andrews Lección 4")
             && rendering.includes("cláusula nuclear")
-            && rendering.includes("sin generación")
+            && rendering.includes("clasificación")
             && rendering.includes("pronombres")
             && rendering.includes("referencia: contexto")
             && rendering.includes("jerarquía")
             && rendering.includes("lesson4?.activeFormula")
             && rendering.includes("function formatVisibleAndrewsFormula")
             && rendering.includes("function formatVisibleAndrewsSlotToken")
+            && rendering.includes("sujeto + predicado")
+            && rendering.includes("persona + número")
+            && rendering.includes("persona1-persona2 + número1-número2")
+            && rendering.includes("núcleo verbal + tiempo")
+            && rendering.includes("valencia + base")
+            && rendering.includes("estado + base")
+            && rendering.includes("núcleo verbal = valencia + base + tiempo")
+            && rendering.includes("núcleo nominal = estado + base")
+            && rendering.includes("diagrama Andrews: CN, sujeto, predicado y subposiciones")
+            && rendering.includes('createLesson4InspectorLine("tipo"')
+            && rendering.includes('createLesson4InspectorLine("uso"')
+            && rendering.includes('createLesson4InspectorLine("posición"')
+            && rendering.includes('createLesson4InspectorLine("pronombre"')
+            && rendering.includes('createLesson4InspectorLine("categorías"')
+            && rendering.includes('createLesson4InspectorLine("género"')
+            && rendering.includes('"casos"')
+            && rendering.includes("afijal")
+            && rendering.includes("referente único")
+            && rendering.includes('person: "persona"')
+            && rendering.includes('animacy: "animacidad"')
+            && rendering.includes('humanness: "humanidad"')
+            && rendering.includes('number: "número"')
+            && rendering.includes('case: "caso"')
+            && rendering.includes('categories.join(" · ")')
+            && rendering.includes("nominativo: sujeto · objetivo: predicado CNV · posesivo: predicado CNN")
+            && rendering.includes('createLesson4InspectorLine("contexto"')
+            && rendering.includes("lesson4-inspector__line--context")
+            && rendering.includes("lesson4-inspector__line--thesis")
+            && rendering.includes("Estructura Andrews")
+            && rendering.includes("Clasificación")
+            && !rendering.includes('createLesson4InspectorLine("fórmula"')
             && rendering.includes('formula ? `${label}: ${formatVisibleAndrewsFormula(formula)}` : label')
             && css.includes(".lesson4-inspector")
             && css.includes(".lesson4-inspector__body")
             && css.includes(".lesson4-inspector__panel")
+            && css.includes("grid-template-columns: repeat(2, minmax(0, 1fr));")
+            && css.includes("border-top: 2px solid rgba(58, 112, 121, 0.24);")
+            && css.includes(".lesson4-inspector__line--thesis .lesson4-inspector__line-value")
+            && css.includes(".lesson4-inspector__line--context .lesson4-inspector__line-value")
+            && css.includes(".lesson4-inspector__formula-options")
+            && css.includes("padding-top: 4px;")
             && css.includes(".lesson4-inspector__diagram")
-            && css.includes(".lesson4-inspector__diagram-branches")
+            && css.includes(".lesson4-inspector__diagram-node")
+            && css.includes(".lesson4-inspector__diagram-children")
+            && css.includes(".lesson4-inspector__diagram-node--predicate-position.is-vacant")
             && css.includes(".lesson4-inspector__formula-option.is-active")
     );
     s.ok(
@@ -714,7 +794,7 @@ function run(ctx = {}) {
         "ordinary NNC output uses a nominal-clause block with shared controls",
         rendering.includes("tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls")
             && rendering.includes("tense-block tense-block--ordinary-nnc")
-            && rendering.includes('label.textContent = "Cláusula nominal"')
+            && rendering.includes('label.textContent = "CNN ordinaria"')
             && !rendering.includes('label.textContent = "Sustantivo ordinario"')
             && !rendering.includes('visibleLabel: "Clase"')
             && !rendering.includes('ariaLabel: "Clase del conector de numero del sujeto"')
@@ -844,9 +924,9 @@ function run(ctx = {}) {
             && rendering.includes("resolveContinuationActionGroupMeta")
             && rendering.includes("appendContinuationAction")
             && rendering.includes("conjugation-continuation-group")
-            && rendering.includes('eyebrow: "Sustantivo"')
+            && rendering.includes('eyebrow: "CNN"')
             && rendering.includes('title: "Patientivo"')
-            && rendering.includes('eyebrow: "Adjetivo"')
+            && rendering.includes('eyebrow: "CNN"')
             && rendering.includes('title: "Compuesto"')
             && css.includes(".calc-guidance__chips")
             && css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), max-content));")
@@ -918,6 +998,8 @@ function run(ctx = {}) {
             && rendering.includes('`${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}`')
             && rendering.includes("persona1-persona2")
             && rendering.includes("número1-número2")
+            && rendering.includes("surfaceOutput: \"salida\"")
+            && rendering.includes("getConjugationSurfaceForms(result)")
             && rendering.includes("etapa #3 salida")
             && rendering.includes("procedimientos patientivos")
             && rendering.includes("renderGeneratedOutputSlotChips(personSub, evaluation.result)")
@@ -925,6 +1007,7 @@ function run(ctx = {}) {
             && css.includes(".person-sub__slot-strip")
             && css.includes(".person-sub__compact-text")
             && css.includes(".person-sub__slot-chip--formula")
+            && css.includes(".person-sub__slot-chip--surface")
             && css.includes(".person-sub__slot-chip--reflexivo")
             && css.includes(".person-sub__slot-chip--patientive")
             && css.includes(".person-sub__slot-chip--lesson2")
@@ -1277,7 +1360,7 @@ function run(ctx = {}) {
     s.ok(
         "applied adjectival NNC function entries render their explicit contract block instead of the default potential tab",
         rendering.includes("function renderAdjectivalNncFunctionConjugations")
-            && rendering.includes("const adjectivalFunctionOverride = activeTenseMode === TENSE_MODE.adjetivo")
+            && rendering.includes("const isFormalCnnAdjectivalTense = activeFormalTenseMode === TENSE_MODE.sustantivo")
             && rendering.includes("!adjectivalFunctionOverride")
             && rendering.includes("resolveAdjectivalNncFunctionOverrideFromInput(verbInput)")
             && rendering.includes('tenseBlock.dataset.tenseBlock = "adjetivo-nnc-funcion"')
@@ -3332,8 +3415,11 @@ function run(ctx = {}) {
                             title: chip.title,
                         })),
                     slotChips: ctx.buildGeneratedOutputSlotChips(result)
-                        .filter((chip) => ["STEM", "num1-num2"].includes(chip.kind))
+                        .filter((chip) => ["pers1-pers2", "STEM", "num1-num2"].includes(chip.kind))
                         .map((chip) => [chip.kind, chip.label, chip.value]),
+                    surfaceChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "surface")
+                        .map((chip) => [chip.label, chip.value]),
                 };
             })()
             : "rendering-runtime-not-loaded",
@@ -3357,9 +3443,144 @@ function run(ctx = {}) {
                     },
                 ],
                 slotChips: [
+                    ["pers1-pers2", "persona1-persona2", "0-0"],
                     ["STEM", "base", "(pish/piya)"],
                     ["num1-num2", "número1-número2", "ki-0/k-0"],
                 ],
+                surfaceChips: [["salida", "pishki / piyak"]],
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula renderer expands optional parenthetical preterit outputs before formula chips",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.verbo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                            tiempo: "preterito",
+                            posicionesFormula: {
+                                pers1: "",
+                                obj1: "ki",
+                                tronco: "tzuma",
+                                pers2: "",
+                                num2: "",
+                                tiempo: "preterito",
+                            },
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "ki",
+                        tronco: "tzuma",
+                        pers2: "",
+                        num2: "",
+                        tiempo: "preterito",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                });
+                return {
+                    surfaceForms: result.surfaceForms,
+                    formulaChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "formula")
+                        .map((chip) => chip.value),
+                    subjectChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "pers1-pers2")
+                        .map((chip) => chip.value),
+                    surfaceChips: ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "surface")
+                        .map((chip) => chip.value),
+                    parentheticalLeak: ctx.buildGeneratedOutputSlotChips(result)
+                        .some((chip) => /\([^)]*\([^)]*\)/.test(chip.value) || chip.value.includes("(ki)")),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                surfaceForms: ["kitzun", "kitzunki"],
+                formulaChips: [
+                    "#0-0+ki-0(tzun)0+0-0#",
+                    "#0-0+ki-0(tzun)0+ki-0#",
+                ],
+                subjectChips: ["0-0"],
+                surfaceChips: ["kitzun / kitzunki"],
+                parentheticalLeak: false,
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula renderer normalizes surface-zero slots consistently",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.verbo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                            tiempo: "preterito",
+                            posicionesFormula: {
+                                pers1: "",
+                                obj1: "ki",
+                                tronco: "ilpia",
+                                pers2: "",
+                                num2: "",
+                                tiempo: "preterito",
+                            },
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "ki",
+                        tronco: "ilpia",
+                        pers2: "",
+                        num2: "",
+                        tiempo: "preterito",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                });
+                const chips = ctx.buildGeneratedOutputSlotChips(result);
+                return {
+                    surfaceForms: result.surfaceForms,
+                    formulaChips: chips
+                        .filter((chip) => chip.kind === "formula")
+                        .map((chip) => chip.value),
+                    subjectChips: chips
+                        .filter((chip) => chip.kind === "pers1-pers2")
+                        .map((chip) => chip.value),
+                    numberChips: chips
+                        .filter((chip) => chip.kind === "num1-num2")
+                        .map((chip) => chip.value),
+                    surfaceChips: chips
+                        .filter((chip) => chip.kind === "surface")
+                        .map((chip) => chip.value),
+                    mixedZeroMarker: chips
+                        .filter((chip) => ["formula", "pers1-pers2", "num1-num2"].includes(chip.kind))
+                        .some((chip) => String(chip.value || "").includes("Ø")),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                surfaceForms: ["kilpij"],
+                formulaChips: ["#0-0+k-0(ilpij)0+0-0#"],
+                subjectChips: ["0-0"],
+                numberChips: ["0-0"],
+                surfaceChips: ["kilpij"],
+                mixedZeroMarker: false,
             }
             : "rendering-runtime-not-loaded"
     );
@@ -3500,7 +3721,7 @@ function run(ctx = {}) {
             : { result: "rendering-runtime-not-loaded", chips: [] },
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? {
-                result: "kimin(ki)",
+                result: "kimin / kiminki",
                 chips: [["", "m→n", true, true, true, true]],
             }
             : { result: "rendering-runtime-not-loaded", chips: [] }

@@ -315,11 +315,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         left: [],
         right: []
       },
-      adjetivo: {
-        left: [],
-        right: []
-      },
-      adverbio: {
+      particula: {
         left: [],
         right: []
       }
@@ -648,7 +644,12 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         targetObject.INSTRUMENTIVO_MODE = normalizeModeMap(data.instrumentivoMode);
       }
       if (data.tenseMode && typeof data.tenseMode === "object") {
-        targetObject.TENSE_MODE = normalizeModeMap(data.tenseMode);
+        FORMAL_TENSE_MODE = normalizeModeMap(data.tenseMode);
+        FUNCTION_TENSE_MODE = data.functionRole && typeof data.functionRole === "object" ? normalizeModeMap(data.functionRole) : {};
+        targetObject.TENSE_MODE = {
+          ...FORMAL_TENSE_MODE,
+          ...FUNCTION_TENSE_MODE
+        };
       }
       if (data.tenseModeSystem && typeof data.tenseModeSystem === "object") {
         TENSE_MODE_SYSTEM = normalizeModeMap(data.tenseModeSystem);
@@ -1119,6 +1120,8 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       lastNonSearchValue: ""
     };
     var TENSE_MODE_SYSTEM = {};
+    var FORMAL_TENSE_MODE = {};
+    var FUNCTION_TENSE_MODE = {};
     var NAWAT_TENSE_MODE = {};
     var NAWAT_ROUTE_PROFILES = {};
     var NawatRouteState = {
@@ -2158,6 +2161,18 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         enumerable: true,
         get() { return TENSE_MODE_SYSTEM; },
         set(value) { TENSE_MODE_SYSTEM = value; },
+    });
+    Object.defineProperty(api, "FORMAL_TENSE_MODE", {
+        configurable: true,
+        enumerable: true,
+        get() { return FORMAL_TENSE_MODE; },
+        set(value) { FORMAL_TENSE_MODE = value; },
+    });
+    Object.defineProperty(api, "FUNCTION_TENSE_MODE", {
+        configurable: true,
+        enumerable: true,
+        get() { return FUNCTION_TENSE_MODE; },
+        set(value) { FUNCTION_TENSE_MODE = value; },
     });
     Object.defineProperty(api, "NAWAT_TENSE_MODE", {
         configurable: true,

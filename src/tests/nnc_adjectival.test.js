@@ -946,6 +946,8 @@ function run(ctx) {
             });
             const summary = {
                 activeMode: typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "",
+                functionMode: typeof ctx.getActiveFunctionMode === "function" ? ctx.getActiveFunctionMode() : "",
+                unitKind: typeof ctx.getActiveUnitKind === "function" ? ctx.getActiveUnitKind() : "",
                 activeRouteId: typeof ctx.getActiveNawatRouteProfile === "function"
                     ? (ctx.getActiveNawatRouteProfile()?.id || "")
                     : "",
@@ -964,7 +966,9 @@ function run(ctx) {
             return summary;
         })(),
         {
-            activeMode: ctx.TENSE_MODE.adjetivo,
+            activeMode: ctx.TENSE_MODE.sustantivo,
+            functionMode: ctx.TENSE_MODE.adjetivo,
+            unitKind: "cnn",
             activeRouteId: "",
             datasetSurface: "tamachti",
             datasetRouteFamily: "adjectival-nnc",

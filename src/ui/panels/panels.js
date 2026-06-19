@@ -2075,6 +2075,76 @@ function resolveNominalTenseAvailabilityRecord({
     });
 }
 
+function getAndrewsFirstTenseTabsAriaLabel(tenseMode = TENSE_MODE.verbo) {
+    if (tenseMode === TENSE_MODE.verbo) {
+        return "Ranura tiempo/modo de la CNV";
+    }
+    if (isNominalTenseMode(tenseMode)) {
+        return "Función nominal sin ranura tiempo de CNN";
+    }
+    return "Opciones de salida";
+}
+
+function getAndrewsFirstUniversalTabsAriaLabel() {
+    return "Clases de tronco perfectivo";
+}
+
+function getAndrewsFirstTenseHoverTitle(tenseValue = "") {
+    const titles = {
+        presente: "Andrews Lecciones 5 y 7: presente indicativo, tronco imperfectivo, ranura tiempo Ø.",
+        "presente-habitual": "Andrews Lecciones 5 y 7: presente habitual indicativo sobre tronco imperfectivo.",
+        "presente-desiderativo": "Extensión Nawat/Pipil: la ruta conserva la arquitectura Andrews de CNV y ranura tiempo.",
+        imperfecto: "Andrews Lecciones 5 y 7: imperfecto indicativo, tronco imperfectivo, morfo ya.",
+        futuro: "Andrews Lecciones 5 y 7: futuro indicativo, tronco imperfectivo, morfo s.",
+        condicional: "Extensión Nawat/Pipil: la ruta conserva la arquitectura Andrews de CNV y ranura tiempo.",
+        preterito: "Andrews Lecciones 5 y 7: pretérito indicativo, tronco perfectivo, morfo Ø.",
+        "pasado-remoto": "Andrews Lecciones 5 y 7: pasado remoto indicativo, tronco perfectivo, morfo ka.",
+        perfecto: "Extensión Nawat/Pipil: resultado perfecto sobre la arquitectura Andrews de CNV.",
+        pluscuamperfecto: "Extensión Nawat/Pipil: resultado pluscuamperfecto sobre la arquitectura Andrews de CNV.",
+        "condicional-perfecto": "Extensión Nawat/Pipil: resultado condicional perfecto sobre la arquitectura Andrews de CNV.",
+        optativo: "Andrews Lecciones 5 y 9: optativo no pasado; Nawat no implementa admonitivo.",
+        "preterito-universal-1": "Andrews Lección 7: clase A de tronco perfectivo.",
+        "preterito-universal-2": "Andrews Lección 7: clase B de tronco perfectivo.",
+        "preterito-universal-4": "Andrews Lección 7: clase C de tronco perfectivo.",
+        "preterito-universal-3": "Andrews Lección 7: clase D de tronco perfectivo.",
+    };
+    return titles[String(tenseValue || "").trim()] || "Andrews dirige la arquitectura; Nawat/Pipil confirma la superficie.";
+}
+
+function getAndrewsFirstGroupHoverTitle(group = null) {
+    if (!group || typeof group !== "object") {
+        return "";
+    }
+    return getLocalizedLabel(group.hoverTitle, getIsNawat(), "")
+        || getLocalizedLabel(group.title, getIsNawat(), "")
+        || "";
+}
+
+function buildFormalReroutedFunctionTenseGroups(tenseMode = "", visibleTenses = []) {
+    const normalizedMode = String(tenseMode || "").trim();
+    if (normalizedMode !== TENSE_MODE.adjetivo && normalizedMode !== TENSE_MODE.adverbio) {
+        return null;
+    }
+    const visibleTenseSet = new Set(Array.isArray(visibleTenses) ? visibleTenses : []);
+    const sourceModes = normalizedMode === TENSE_MODE.adverbio
+        ? [TENSE_MODE.verbo]
+        : [TENSE_MODE.verbo, TENSE_MODE.sustantivo];
+    const mergeGroups = (side = "left") => sourceModes.flatMap((mode) => (
+        Array.isArray(TENSE_LINGUISTIC_GROUPS[mode]?.[side])
+            ? TENSE_LINGUISTIC_GROUPS[mode][side]
+            : []
+    )).map((group) => ({
+        ...group,
+        tenses: Array.isArray(group?.tenses)
+            ? group.tenses.filter((tenseValue) => visibleTenseSet.has(tenseValue))
+            : [],
+    })).filter((group) => group.tenses.length);
+    return {
+        left: mergeGroups("left"),
+        right: mergeGroups("right"),
+    };
+}
+
 function renderTenseTabs() {
     const container = document.getElementById("tense-tabs");
     if (!container) {
@@ -2168,7 +2238,9 @@ function renderTenseTabs() {
     const verbSemanticGroups = (!isNominalMode && tenseMode === TENSE_MODE.verbo)
         ? getVerbSemanticTenseGroups(visibleTenses)
         : [];
-    const modeGroups = TENSE_LINGUISTIC_GROUPS[tenseMode] || TENSE_LINGUISTIC_GROUPS.verbo;
+    const modeGroups = buildFormalReroutedFunctionTenseGroups(tenseMode, visibleTenses)
+        || TENSE_LINGUISTIC_GROUPS[tenseMode]
+        || TENSE_LINGUISTIC_GROUPS.verbo;
     const visibleTenseSet = new Set(visibleTenses);
     let requestedSelectionState = getCurrentResolvedConjugationSelectionState({ tenseMode });
     const selectedTenseValue = requestedSelectionState.tenseValue;
@@ -2675,6 +2747,7 @@ function renderTenseTabs() {
         label.className = "tense-tab-label";
         label.textContent = getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue);
         button.appendChild(label);
+        button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
         if (isNominalMode) {
             setTensePresenceBadges(button, {
                 active: activeOutput,
@@ -2726,11 +2799,7 @@ function renderTenseTabs() {
     mainWrap.setAttribute("role", "tablist");
     mainWrap.setAttribute(
         "aria-label",
-        getLocalizedLabel(
-            { labelEs: "Tiempos principales", labelNa: "Tiempos principales" },
-            isNawat,
-            "Tiempos principales"
-        )
+        getAndrewsFirstTenseTabsAriaLabel(tenseMode)
     );
     const appendTenseGroups = (groups, columnEl, columnKey = "") => {
         groups.forEach((group) => {
@@ -2740,12 +2809,16 @@ function renderTenseTabs() {
             }
             const groupEl = document.createElement("div");
             groupEl.className = "tense-tabs-group";
-            if (group.heading) {
-                const heading = document.createElement("div");
-                heading.className = "tense-tabs-heading";
-                heading.textContent = getLocalizedLabel(group.heading, isNawat, "");
-                groupEl.appendChild(heading);
+        if (group.heading) {
+            const heading = document.createElement("div");
+            heading.className = "tense-tabs-heading";
+            heading.textContent = getLocalizedLabel(group.heading, isNawat, "");
+            const hoverTitle = getAndrewsFirstGroupHoverTitle(group);
+            if (hoverTitle) {
+                heading.title = hoverTitle;
             }
+            groupEl.appendChild(heading);
+        }
             groupTenses.forEach((tenseValue) => {
                 const button = buildTenseButton(tenseValue, { columnKey });
                 groupEl.appendChild(button);
@@ -2787,9 +2860,9 @@ function renderTenseTabs() {
         outputUniversalContainer.hidden = !shouldShowOutputControls;
         outputUniversalContainer.setAttribute("role", "tablist");
         outputUniversalContainer.setAttribute("aria-label", getLocalizedLabel(
-            { labelEs: "Universal", labelNa: "Universal" },
+            { labelEs: getAndrewsFirstUniversalTabsAriaLabel(), labelNa: getAndrewsFirstUniversalTabsAriaLabel() },
             isNawat,
-            "Universal"
+            getAndrewsFirstUniversalTabsAriaLabel()
         ));
         if (shouldShowOutputControls) {
             const universalWrap = document.createElement("div");
@@ -2836,6 +2909,7 @@ function renderTenseTabs() {
                     ? getLocalizedLabel(classDetail.label, isNawat, tenseValue)
                     : tenseValue;
                 button.appendChild(label);
+                button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
                 button.setAttribute("aria-selected", String(button.classList.contains("is-active")));
                 button.disabled = endsWithConsonant || !available || hasOutput === false;
                 button.addEventListener("click", () => {

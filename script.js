@@ -305,8 +305,7 @@ async function loadStaticOptions() {
 var TENSE_LINGUISTIC_GROUPS = {
     verbo: { left: [], right: [] },
     sustantivo: { left: [], right: [] },
-    adjetivo: { left: [], right: [] },
-    adverbio: { left: [], right: [] },
+    particula: { left: [], right: [] },
 };
 function applyStaticGroups(data) {
     if (!data || typeof data !== "object") {
@@ -637,7 +636,14 @@ function applyStaticModes(data) {
         INSTRUMENTIVO_MODE = normalizeModeMap(data.instrumentivoMode);
     }
     if (data.tenseMode && typeof data.tenseMode === "object") {
-        TENSE_MODE = normalizeModeMap(data.tenseMode);
+        FORMAL_TENSE_MODE = normalizeModeMap(data.tenseMode);
+        FUNCTION_TENSE_MODE = data.functionRole && typeof data.functionRole === "object"
+            ? normalizeModeMap(data.functionRole)
+            : {};
+        TENSE_MODE = {
+            ...FORMAL_TENSE_MODE,
+            ...FUNCTION_TENSE_MODE,
+        };
     }
     if (data.tenseModeSystem && typeof data.tenseModeSystem === "object") {
         TENSE_MODE_SYSTEM = normalizeModeMap(data.tenseModeSystem);
@@ -1135,6 +1141,8 @@ var VerbInputState = {
     lastNonSearchValue: "",
 };
 var TENSE_MODE_SYSTEM = {};
+var FORMAL_TENSE_MODE = {};
+var FUNCTION_TENSE_MODE = {};
 var NAWAT_TENSE_MODE = {};
 var NAWAT_ROUTE_PROFILES = {};
 var NawatRouteState = {

@@ -71,6 +71,7 @@ const STATIC_MODES_DENOMINAL_ROUTE_FAMILIES = new Map([
     ["vi-awi", { verbalizer: "-awi", verbalizerType: "denominal-intransitive", valency: "intransitive", structuralAnalogue: "inceptive-stative-wi-route" }],
     ["vt-na", { verbalizer: "-na", verbalizerType: "denominal-transitive", valency: "transitive", structuralAnalogue: "nawat-transitive-route-no-andrews-suffix" }],
 ]);
+const OBSOLETE_FUNCTION_TENSE_MODE_KEY = ["function", "Tense", "Mode"].join("");
 
 const errors = [];
 
@@ -395,7 +396,7 @@ function checkRequiredTopLevelKeys(jsonByName) {
         "static_groups.json": ["tenseLinguisticGroups"],
         "static_labels.json": ["uiLabels", "personGroupLabels", "personSubLabels", "objectLabels", "tenseLabels", "tenseDescriptions", "preteritoClassDetailByKey"],
         "static_misc.json": ["nonanimateNounTenses", "subjectPersonNumberOrder", "nonactiveSuffixOrder"],
-        "static_modes.json": ["tenseMode", "tenseModeSystem", "nawatTenseMode", "nawatRouteProfiles"],
+        "static_modes.json": ["tenseMode", "functionRole", "tenseModeSystem", "nawatTenseMode", "nawatRouteProfiles"],
         "static_nnc.json": ["ordinaryNncFixtures"],
         "static_options.json": ["specificValencePrefixes", "nonspecificValencePrefixes", "nonspecificValenceAffixes", "objectPrefixes", "subjectCombinations", "subjectPersonGroups", "possessivePrefixes", "possessorLabels", "possessiveToObjectPrefix", "passiveImpersonalSubjectMap", "sustantivoVerbalTransitivePrefixes", "invalidCombinationKeys"],
         "static_orders.json": ["tenseOrder", "preteritoUniversalOrder"],
@@ -421,7 +422,28 @@ function checkNawatRouteProfiles(jsonByName) {
     const routeProfiles = asObject(modes.nawatRouteProfiles, "static_modes.nawatRouteProfiles");
     const tenseOrder = Array.isArray(orders.tenseOrder) ? orders.tenseOrder : [];
     const knownTenseSet = new Set([...tenseOrder, ...INTERNAL_TENSE_IDS]);
-    const tenseModeKeys = new Set(Object.keys(asObject(modes.tenseMode, "static_modes.tenseMode")));
+    const formalTenseMode = asObject(modes.tenseMode, "static_modes.tenseMode");
+    if (Object.prototype.hasOwnProperty.call(modes, OBSOLETE_FUNCTION_TENSE_MODE_KEY)) {
+        addError("static_modes has an obsolete function-tense mode field; use static_modes.functionRole so adjectival/adverbial stay function routes, not extra formal modes.");
+    }
+    const functionRole = asObject(modes.functionRole, "static_modes.functionRole");
+    const formalTenseModeKeys = new Set(Object.keys(formalTenseMode));
+    const functionRoleKeys = new Set(Object.keys(functionRole));
+    ["adjetivo", "adverbio"].forEach((key) => {
+        if (formalTenseModeKeys.has(key)) {
+            addError(`static_modes.tenseMode.${key} must not be a formal class; put it under static_modes.functionRole.`);
+        }
+    });
+    ["verbo", "sustantivo", "particula"].forEach((key) => {
+        if (!formalTenseModeKeys.has(key)) {
+            addError(`static_modes.tenseMode must include Andrews formal class "${key}".`);
+        }
+    });
+    ["adjetivo", "adverbio"].forEach((key) => {
+        if (!functionRoleKeys.has(key)) {
+            addError(`static_modes.functionRole must include rerouted function "${key}".`);
+        }
+    });
     const nawatModeKeys = new Set(Object.keys(asObject(modes.nawatTenseMode, "static_modes.nawatTenseMode")));
     const combinedModeKeys = new Set(Object.keys(asObject(modes.combinedMode, "static_modes.combinedMode")));
     const derivationModeKeys = new Set(Object.keys(asObject(modes.derivationMode, "static_modes.derivationMode")));
@@ -451,7 +473,7 @@ function checkNawatRouteProfiles(jsonByName) {
                 addError(`${where}.${field} must be a non-empty string.`);
             }
         });
-        ["routeTenseValue", "routeMode"].forEach((field) => {
+        ["routeTenseValue", "routeMode", "routeFunctionMode"].forEach((field) => {
             if (
                 Object.prototype.hasOwnProperty.call(profile, field)
                 && typeof profile[field] !== "string"
@@ -471,6 +493,19 @@ function checkNawatRouteProfiles(jsonByName) {
         if (profile.routeTenseValue && !profile.routeMode) {
             addError(`${where}.routeMode must be a non-empty string when routeTenseValue is set.`);
         }
+        if (profile.routeMode && !formalTenseModeKeys.has(profile.routeMode)) {
+            addError(`${where}.routeMode must be an Andrews formal class (verbo, sustantivo, particula), not a function role.`);
+        }
+        if (profile.routeFunctionMode && !functionRoleKeys.has(profile.routeFunctionMode)) {
+            addError(`${where}.routeFunctionMode references unknown function role "${profile.routeFunctionMode}".`);
+        }
+        if (
+            profile.routeTenseValue
+            && /^adjetivo-|^potencial(?:-|$)|adverbio/.test(profile.routeTenseValue)
+            && !profile.routeFunctionMode
+        ) {
+            addError(`${where}.routeFunctionMode must record the function route for function-named tense "${profile.routeTenseValue}".`);
+        }
         if (profile.routeTenseValue && profile.routeTenseValue !== key) {
             addError(`${where}.routeTenseValue must match its map key.`);
         }
@@ -483,10 +518,13 @@ function checkNawatRouteProfiles(jsonByName) {
             }
         });
         ["routeMode", "targetMode", "sourceMode"].forEach((field) => {
-            if (profile[field] && !tenseModeKeys.has(profile[field])) {
-                addError(`${where}.${field} references unknown tense mode "${profile[field]}".`);
+            if (profile[field] && !formalTenseModeKeys.has(profile[field])) {
+                addError(`${where}.${field} must be an Andrews formal class (verbo, sustantivo, particula), not a function role.`);
             }
         });
+        if (profile.routeFunctionMode && !functionRoleKeys.has(profile.routeFunctionMode)) {
+            addError(`${where}.routeFunctionMode references unknown function role "${profile.routeFunctionMode}".`);
+        }
         if (profile.nawatMode && !nawatModeKeys.has(profile.nawatMode)) {
             addError(`${where}.nawatMode references unknown Nawat mode "${profile.nawatMode}".`);
         }
@@ -1174,6 +1212,42 @@ function checkAndrewsTrajectoryDoc() {
     }
 }
 
+function checkAndrewsFormalClassSurfaces(jsonByName) {
+    const labels = asObject(jsonByName["static_labels.json"], "data/static_labels.json");
+    const uiLabels = asObject(labels.uiLabels, "static_labels.uiLabels");
+    const groups = asObject(jsonByName["static_groups.json"], "data/static_groups.json");
+    const tenseLinguisticGroups = asObject(groups.tenseLinguisticGroups, "static_groups.tenseLinguisticGroups");
+    const assertLabel = (key, expected) => {
+        const entry = asObject(uiLabels[key], `static_labels.uiLabels.${key}`);
+        ["labelEs", "labelNa"].forEach((field) => {
+            if (entry[field] !== expected) {
+                addError(`static_labels.uiLabels.${key}.${field} must be "${expected}" so visible formal classes stay CNV, CNN, Partícula.`);
+            }
+        });
+    };
+    assertLabel("tense-tabs-unit-cnv", "CNV · cláusula verbal");
+    assertLabel("tense-tabs-unit-cnn", "CNN · cláusula nominal");
+    assertLabel("tense-tabs-unit-particle", "Partícula");
+    assertLabel("tense-tabs-mode-verb", "CNV · cláusula verbal");
+    assertLabel("tense-tabs-mode-noun", "CNN · cláusula nominal");
+    const adjectiveModeLabel = String(uiLabels["tense-tabs-mode-adjective"]?.labelEs || "");
+    const adverbModeLabel = String(uiLabels["tense-tabs-mode-adverb"]?.labelEs || "");
+    if (/^Funci[oó]n\b/i.test(adjectiveModeLabel) || /^Funci[oó]n\b/i.test(adverbModeLabel)) {
+        addError("static_labels tense-tabs-mode-adjective/adverb must not surface as mode/class labels; use subordinate uso labels.");
+    }
+    ["adjetivo", "adverbio"].forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(tenseLinguisticGroups, key)) {
+            addError(`static_groups.tenseLinguisticGroups.${key} must not be a formal class group; route it under CNV or CNN.`);
+        }
+    });
+    const groupText = JSON.stringify(groups);
+    ["CNV en función adjetival", "CNN en función adjetival", "CNV en función adverbial"].forEach((label) => {
+        if (!groupText.includes(label)) {
+            addError(`static_groups must keep "${label}" so function routes stay visibly attached to Andrews formal classes.`);
+        }
+    });
+}
+
 function collectVisibleUiSpanishSurfaceErrors(options = {}) {
     const errorsFound = [];
     const htmlPath = path.join(ROOT, "index.html");
@@ -1747,6 +1821,7 @@ function main() {
 
     checkRequiredTopLevelKeys(jsonByName);
     checkNawatRouteProfiles(jsonByName);
+    checkAndrewsFormalClassSurfaces(jsonByName);
     checkTenseReferences(jsonByName);
     checkOptionReferences(jsonByName);
     checkStaticNncFixtureShape(jsonByName);

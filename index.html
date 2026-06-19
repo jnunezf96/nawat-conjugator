@@ -16,14 +16,14 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260616-lesson4-visible-006" />
+    <link rel="stylesheet" href="style.css?v=20260618-lesson4-css-a-plus-001" />
     <!-- Phase 1 baseline: keep this ordered script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/concepts/concepts.js?v=20260606-concepts-001" defer></script>
     <script src="src/core/particles/particles.js?v=20260616-particle-ui-groups-001" defer></script>
     <script src="src/core/sentence/sentence.js?v=20260606-sentence-layer-001" defer></script>
     <script src="src/core/grammar/frame.js?v=20260608-grammar-frame-001" defer></script>
     <script src="src/core/orthography/orthography.js?v=20260616-particle-ui-groups-001" defer></script>
-    <script src="src/core/clause/clause.js?v=20260617-vnc-formula-slots-001" defer></script>
+    <script src="src/core/clause/clause.js?v=20260618-lesson4-number-diagram-001" defer></script>
     <script src="src/core/clause/modification/modification.js?v=20260606-modification-boundary-001" defer></script>
     <script src="src/core/clause/adverbial/adverbial.js?v=20260606-adverbial-boundary-001" defer></script>
     <script src="src/core/clause/adjunction/adjunction.js?v=20260606-adjunction-boundary-001" defer></script>
@@ -67,11 +67,11 @@
     <script src="src/core/preterit/engine.js?v=20260402-regex-core-262" defer></script>
     <script src="src/core/preterit/api.js?v=20260403-import-isolate-002" defer></script>
     <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
-    <script src="src/ui/panels/panels.js?v=20260603-chip-route-default-001" defer></script>
+    <script src="src/ui/panels/panels.js?v=20260618-andrews-tense-blocks-001" defer></script>
     <script src="src/ui/export/export.js?v=20260618-slot-strip-export-001" defer></script>
-    <script src="src/ui/state.js?v=20260616-function-unit-mode-001" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260617-vnc-formula-slots-002" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260615-nnc-connector-state-003" defer></script>
+    <script src="src/ui/state.js?v=20260618-andrews-tense-blocks-001" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260618-andrews-tense-blocks-001" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260618-andrews-tense-blocks-001" defer></script>
     <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
@@ -1341,84 +1341,12 @@
                   <section
                     class="calc-operator calc-operator--mode formula-controls-section formula-controls-section--unit"
                     role="group"
-                    aria-label="Clase sintáctica y clase formal"
+                    aria-label="Clase formal"
                     data-andrews-section="4.2"
                     data-andrews-formula-role="clause-kind"
                   >
-                    <div class="calc-operator__label" id="calc-mode-operator-label" data-ui-label-key="calc-mode-operator-label">Clase sintáctica / clase formal</div>
-                    <div class="calc-mode-taxonomy-grid">
-                      <div class="calc-mode-taxonomy calc-mode-taxonomy--function" data-mode-system="function" data-mode-role="function">
-                        <div
-                          class="calc-mode-taxonomy__label"
-                          id="calc-mode-system-function"
-                          data-ui-label-key="mode-system-function"
-                        >
-                          Clase sintáctica
-                        </div>
-                        <div class="calc-operator-grid calc-operator-grid--mode" role="tablist" aria-labelledby="calc-mode-system-function">
-                          <button
-                            type="button"
-                            class="calc-operator-chip"
-                            data-tense-mode="verbo"
-                            data-mode-system="function"
-                            data-function-role="verbal"
-                            id="calc-mode-verb"
-                            role="tab"
-                            aria-selected="true"
-                            data-ui-label-key="tense-tabs-function-verbal"
-                            aria-label="Clase sintáctica verbal"
-                            title="Clase sintáctica verbal"
-                          >
-                            Verbal
-                          </button>
-                          <button
-                            type="button"
-                            class="calc-operator-chip"
-                            data-tense-mode="sustantivo"
-                            data-mode-system="function"
-                            data-function-role="nominal"
-                            id="calc-mode-noun"
-                            role="tab"
-                            aria-selected="false"
-                            data-ui-label-key="tense-tabs-function-nominal"
-                            aria-label="Clase sintáctica nominal"
-                            title="Clase sintáctica nominal"
-                          >
-                            Nominal
-                          </button>
-                          <button
-                            type="button"
-                            class="calc-operator-chip"
-                            data-tense-mode="adjetivo"
-                            data-mode-system="function"
-                            data-function-role="adjectival"
-                            id="calc-mode-adjective"
-                            role="tab"
-                            aria-selected="false"
-                            data-ui-label-key="tense-tabs-function-adjectival"
-                            aria-label="Clase sintáctica adjetival"
-                            title="Clase sintáctica adjetival"
-                          >
-                            Adjetival
-                          </button>
-                          <button
-                            type="button"
-                            class="calc-operator-chip"
-                            data-tense-mode="adverbio"
-                            data-mode-system="function"
-                            data-function-role="adverbial"
-                            id="calc-mode-adverb"
-                            role="tab"
-                            aria-selected="false"
-                            data-ui-label-key="tense-tabs-function-adverbial"
-                            aria-label="Clase sintáctica adverbial"
-                            title="Clase sintáctica adverbial"
-                          >
-                            Adverbial
-                          </button>
-                        </div>
-                      </div>
-                      <div class="calc-mode-taxonomy calc-mode-taxonomy--unit" data-mode-system="unit" data-mode-role="unit">
+                    <div class="calc-operator__label" id="calc-mode-operator-label" data-ui-label-key="calc-mode-operator-label">Clase formal</div>
+                    <div class="calc-mode-taxonomy calc-mode-taxonomy--unit" data-mode-system="unit" data-mode-role="unit">
                         <div
                           class="calc-mode-taxonomy__label"
                           id="calc-mode-system-unit"
@@ -1437,10 +1365,10 @@
                             role="tab"
                             aria-selected="true"
                             data-ui-label-key="tense-tabs-unit-cnv"
-                            aria-label="Clase formal: cláusula verbal"
-                            title="Clase formal: cláusula verbal"
+                            aria-label="Clase formal: CNV, cláusula nuclear verbal"
+                            title="Clase formal: CNV, cláusula nuclear verbal"
                           >
-                            Cláusula verbal
+                            CNV · cláusula verbal
                           </button>
                           <button
                             type="button"
@@ -1452,10 +1380,10 @@
                             role="tab"
                             aria-selected="false"
                             data-ui-label-key="tense-tabs-unit-cnn"
-                            aria-label="Clase formal: cláusula nominal"
-                            title="Clase formal: cláusula nominal"
+                            aria-label="Clase formal: CNN, cláusula nuclear nominal"
+                            title="Clase formal: CNN, cláusula nuclear nominal"
                           >
-                            Cláusula nominal
+                            CNN · cláusula nominal
                           </button>
                           <button
                             type="button"
@@ -1474,7 +1402,6 @@
                             Partícula
                           </button>
                         </div>
-                      </div>
                     </div>
                   </section>
                   <section

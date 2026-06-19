@@ -1448,6 +1448,169 @@ function run(ctx) {
         }
     );
     s.eq(
+        "CNV formula path expands tzuma optional preterit surfaces into separate stem and connector records",
+        (() => {
+            const result = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "ni",
+                            obj1: "ki",
+                            tronco: "tzuma",
+                            pers2: "",
+                            num2: "",
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "ni",
+                    obj1: "ki",
+                    tronco: "tzuma",
+                    pers2: "",
+                    num2: "",
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                result: result.result,
+                surfaceForms: result.surfaceForms,
+                baseRealizations: result.cnvFormulaSurfacePath?.surfaceStemRealizations,
+                connectorRealizations: result.cnvFormulaSurfacePath?.surfaceNumberConnectorRealizations,
+                pathsBySurface: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                    const bySlot = Object.fromEntries(
+                        (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                    );
+                    return {
+                        surface: record.surface,
+                        base: bySlot.base?.surfaceValue || "",
+                        connector: `${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`,
+                        hasParentheticalLeak: /\([^)]*\)/.test(record.surface)
+                            || /\([^)]*\)/.test(bySlot.base?.surfaceValue || ""),
+                    };
+                }),
+            };
+        })(),
+        {
+            result: "niktzun / niktzunki",
+            surfaceForms: ["niktzun", "niktzunki"],
+            baseRealizations: ["tzun"],
+            connectorRealizations: ["0-0", "ki-0"],
+            pathsBySurface: [
+                { surface: "niktzun", base: "tzun", connector: "0-0", hasParentheticalLeak: false },
+                { surface: "niktzunki", base: "tzun", connector: "ki-0", hasParentheticalLeak: false },
+            ],
+        }
+    );
+    s.eq(
+        "CNV formula path audits transitive preterit stems across different pre-final consonants",
+        (() => {
+            const verbs = ["piki", "tzuma", "tala", "tana", "tasa", "tacha", "paya", "mati", "taka"];
+            const buildProbe = (tronco) => ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.verbo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        tiempo: "preterito",
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "ki",
+                            tronco,
+                            pers2: "",
+                            num2: "",
+                            tiempo: "preterito",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ki",
+                    tronco,
+                    pers2: "",
+                    num2: "",
+                    tiempo: "preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return verbs.map((tronco) => {
+                const result = buildProbe(tronco);
+                return {
+                    tronco,
+                    result: result.result,
+                    paths: (result.cnvFormulaSurfacePath?.pathsBySurface || []).map((record) => {
+                        const bySlot = Object.fromEntries(
+                            (record.paths || []).map((entry) => [entry.formulaSlotKey, entry])
+                        );
+                        return `${record.surface}:${bySlot.base?.surfaceValue || ""}+${bySlot.num1?.surfaceValue || "0"}-${bySlot.num2?.surfaceValue || "0"}`;
+                    }),
+                };
+            });
+        })(),
+        [
+            {
+                tronco: "piki",
+                result: "kipik / kipikik",
+                paths: ["kipik:pik+0-0", "kipikik:piki+k-0"],
+            },
+            {
+                tronco: "tzuma",
+                result: "kitzun / kitzunki",
+                paths: ["kitzun:tzun+0-0", "kitzunki:tzun+ki-0"],
+            },
+            {
+                tronco: "tala",
+                result: "kital",
+                paths: ["kital:tal+0-0"],
+            },
+            {
+                tronco: "tana",
+                result: "kitanki",
+                paths: ["kitanki:tan+ki-0"],
+            },
+            {
+                tronco: "tasa",
+                result: "kitaski",
+                paths: ["kitaski:tas+ki-0"],
+            },
+            {
+                tronco: "tacha",
+                result: "kitachki / kitachak",
+                paths: ["kitachki:tach+ki-0", "kitachak:tacha+k-0"],
+            },
+            {
+                tronco: "paya",
+                result: "kipashki / kipayak",
+                paths: ["kipashki:pash+ki-0", "kipayak:paya+k-0"],
+            },
+            {
+                tronco: "mati",
+                result: "kimatki / kimatik",
+                paths: ["kimatki:mat+ki-0", "kimatik:mati+k-0"],
+            },
+            {
+                tronco: "taka",
+                result: "kitak / kitakak",
+                paths: ["kitak:tak+0-0", "kitakak:taka+k-0"],
+            },
+        ]
+    );
+    s.eq(
         "CNV formula path keeps maka preterit stem variant as stem, not connector-stripped ma",
         (() => {
             const buildProbe = (pers1, pers2 = "") => ctx.executeGenerateWordRequest({
