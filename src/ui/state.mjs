@@ -11450,6 +11450,13 @@ export function createUiStateModule(targetObject = globalThis) {
       setActiveTenseMode(station.mode, {
         modeSystem: targetObject.TENSE_MODE_SYSTEM.nawat || "nawat"
       });
+      const stationOutputMode = getNawatOutputTenseMode(getNawatTenseModeValue(station.mode)) || station.mode;
+      if (stationOutputMode === targetObject.TENSE_MODE.sustantivo) {
+        setActiveTenseMode(targetObject.TENSE_MODE.sustantivo, {
+          modeSystem: targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function",
+          clearRoute: false
+        });
+      }
       if (station.combinedMode && typeof setCombinedMode === "function") {
         setCombinedMode(station.combinedMode);
       } else {

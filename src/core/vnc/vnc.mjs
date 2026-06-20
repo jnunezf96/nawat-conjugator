@@ -1270,7 +1270,6 @@ export function createVncFacadeApi(targetObject = globalThis) {
       return {
         posicionesFormula: {
           pers1: "",
-          obj1: "",
           tronco: targetSurface,
           pers2: "",
           num2: "",
@@ -1322,6 +1321,8 @@ export function createVncFacadeApi(targetObject = globalThis) {
         };
       }
       const troncoInputSource = targetObject.resolveVerbInputSource(troncoControl?.value || "");
+      const hasExplicitFormulaPositions = options.posicionesFormula && typeof options.posicionesFormula === "object";
+      const explicitEntradaGrammarObject = options.entradaGrammarObject && typeof options.entradaGrammarObject === "object" ? options.entradaGrammarObject : null;
       const posicionesFormula = targetObject.getNuclearClauseSurfacePosicionesFormula({
         override,
         posicionesFormula: options.posicionesFormula,
@@ -1332,10 +1333,12 @@ export function createVncFacadeApi(targetObject = globalThis) {
       });
       return targetObject.executeNuclearClauseSurfaceRequest({
         options,
+        entradaGrammarObject: explicitEntradaGrammarObject,
         posicionesFormula,
         entradaTronco: {
           tieneControlTronco: Boolean(troncoControl),
-          valorTronco: troncoControl?.value || ""
+          valorTronco: troncoControl?.value || "",
+          entradaGrammarObject: explicitEntradaGrammarObject || (hasExplicitFormulaPositions ? null : troncoInputSource.entradaGrammarObject || null)
         },
         uiHooks: {
           clearError: id => {
@@ -1532,6 +1535,11 @@ export function createVncFacadeApi(targetObject = globalThis) {
         enumerable: true,
         get() { return VNC_LESSON6_SUBSECTION_INVENTORY; },
     });
+    Object.defineProperty(api, "VNC_LESSON6_SHOT_REPORT", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_LESSON6_SHOT_REPORT; },
+    });
     Object.defineProperty(api, "VNC_LESSON7_VALIDATION_REFS", {
         configurable: true,
         enumerable: true,
@@ -1612,6 +1620,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
     api.getVncLesson6ProjectiveObjectParadigm = getVncLesson6ProjectiveObjectParadigm;
     api.getVncLesson6ReflexiveObjectFrame = getVncLesson6ReflexiveObjectFrame;
     api.getVncLesson6SubsectionInventory = getVncLesson6SubsectionInventory;
+    api.getVncLesson6ShotReport = getVncLesson6ShotReport;
     api.buildVncLesson6PursuitFrame = buildVncLesson6PursuitFrame;
     api.getVncLesson7VerbstemStructureFrame = getVncLesson7VerbstemStructureFrame;
     api.getVncLesson7CitationFormFrame = getVncLesson7CitationFormFrame;

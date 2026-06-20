@@ -12062,6 +12062,7 @@ function run(ctx) {
     const stemNawatRoute = ctx.activateNawatRouteStation("denominal-vi-ti-preterit", "stem");
     s.eq("nawat route can travel to stem station", stemNawatRoute.activeStationKey, "stem");
     s.eq("nawat route stem station goes to noun convention", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
+    s.eq("nawat route stem station syncs function mode to noun convention", ctx.getActiveFunctionMode(), ctx.TENSE_MODE.sustantivo);
     s.eq("nawat route stem station selects patientivo", ctx.getSelectedTenseTab(), "patientivo");
     s.eq("nawat route stem station changes entrada to the stem", stemNawatRoute.activeStationInput, "pusuk");
     const verbalizerNawatRoute = ctx.activateNawatRouteStation("denominal-vi-ti-preterit", "verbalizer");
@@ -12089,6 +12090,7 @@ function run(ctx) {
         sourceVerb: "(pusuni)",
     });
     s.eq("patientivo nonactive route travels into noun convention", ctx.getActiveTenseMode(), ctx.TENSE_MODE.sustantivo);
+    s.eq("patientivo nonactive route syncs function mode to noun convention", ctx.getActiveFunctionMode(), ctx.TENSE_MODE.sustantivo);
     s.eq("patientivo nonactive route selects patientivo", ctx.getSelectedTenseTab(), "patientivo");
     s.eq("patientivo nonactive route stores branch state", activatedPatientivoRoute.activePatientivoBranch, "nonactive");
     s.eq("patientivo nonactive route switches combined mode", ctx.getCombinedMode(), ctx.COMBINED_MODE.nonactive);

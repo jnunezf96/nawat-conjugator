@@ -198,6 +198,332 @@ function getDerivationContinuationContractAndrewsRefs(record = null) {
     return refs.filter((entry, index, list) => list.indexOf(entry) === index);
 }
 
+function getDerivationContinuationSourceAdjunctSurface(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    return String(
+        source.patientivoSurface
+        || source.characteristicSurface
+        || source.actionNominalSurface
+        || source.preteritAgentiveStem
+        || source.customaryAgentiveStem
+        || source.nounStem
+        || source.incorporatedRoot
+        || ""
+    ).trim();
+}
+
+function getDerivationContinuationSourceAdjunctKind(record = null, outputKind = "") {
+    const source = record && typeof record === "object" ? record : {};
+    if (source.patientivoSurface) {
+        return "patientive-nounstem";
+    }
+    if (source.characteristicSurface) {
+        return "characteristic-property-nounstem";
+    }
+    if (source.actionNominalSurface) {
+        return "active-action-nounstem";
+    }
+    if (source.preteritAgentiveStem) {
+        return "preterit-agentive-nounstem";
+    }
+    if (source.customaryAgentiveStem) {
+        return "customary-agentive-nounstem";
+    }
+    if (source.nounStem) {
+        return "ordinary-nounstem";
+    }
+    if (/nominal|nnc|noun/i.test(String(outputKind || ""))) {
+        return "nounstem";
+    }
+    return "";
+}
+
+function getDerivationContinuationEmbedRole(record = null, outputKind = "") {
+    const source = record && typeof record === "object" ? record : {};
+    const formationFrame = source.formationFrame && typeof source.formationFrame === "object"
+        ? source.formationFrame
+        : {};
+    const framedRole = String(
+        formationFrame.incorporated?.role
+        || formationFrame.embed?.role
+        || ""
+    ).trim();
+    if (framedRole) {
+        return framedRole;
+    }
+    const kind = String(outputKind || source.outputKind || "").trim();
+    if (/complement/i.test(kind)) {
+        return "incorporated-complement";
+    }
+    if (/adverbial/i.test(kind)) {
+        return "incorporated-adverb";
+    }
+    if (/ownerhood/i.test(kind)) {
+        return "incorporated-ownerhood";
+    }
+    if (/compound-embed/i.test(kind)) {
+        return "compound-embed";
+    }
+    if (/nominal-compound/i.test(kind)) {
+        return "nominal-compound-embed";
+    }
+    return "";
+}
+
+function getDerivationContinuationEmbeddedRoot(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    const formationFrame = source.formationFrame && typeof source.formationFrame === "object"
+        ? source.formationFrame
+        : {};
+    return String(
+        formationFrame.incorporated?.root
+        || formationFrame.embed?.root
+        || source.incorporatedRoot
+        || source.nounStem
+        || ""
+    ).trim();
+}
+
+function getDerivationContinuationMatrixValence(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    const formationFrame = source.formationFrame && typeof source.formationFrame === "object"
+        ? source.formationFrame
+        : {};
+    return String(
+        source.matrix?.matrixValency
+        || source.matrix?.valency
+        || formationFrame.matrix?.matrixValency
+        || formationFrame.matrix?.valency
+        || ""
+    ).trim();
+}
+
+function getDerivationContinuationMatrixFrame(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    const formationFrame = source.formationFrame && typeof source.formationFrame === "object"
+        ? source.formationFrame
+        : {};
+    const matrix = source.matrix && typeof source.matrix === "object" ? source.matrix : {};
+    const framedMatrix = formationFrame.matrix && typeof formationFrame.matrix === "object"
+        ? formationFrame.matrix
+        : {};
+    return {
+        id: String(matrix.id || framedMatrix.id || "").trim(),
+        root: String(matrix.nawatRoot || matrix.root || framedMatrix.root || source.matrixRoot || "").trim(),
+        classicalMatrix: String(matrix.classicalMatrix || framedMatrix.classicalMatrix || "").trim(),
+        valence: getDerivationContinuationMatrixValence(source),
+        objectPrefix: String(matrix.objectPrefix || source.objectPrefix || "").trim(),
+        grammarSource: String(matrix.grammarSource || source.grammarSource || formationFrame.grammarSource || "").trim(),
+        status: String(matrix.status || "").trim(),
+        supported: matrix.supported === true || source.supported === true,
+    };
+}
+
+function getDerivationContinuationFinalFormulaShape(targetInput = "", outputKind = "") {
+    const target = String(targetInput || "").trim();
+    if (/^-?\([^()/]+\/[^()/]+\)$/.test(target)) {
+        return "compound-vnc-embed-before-matrix";
+    }
+    if (/^\([^()]+\)-\([^()]+\)$/.test(target)) {
+        return "adjacent-nnc-ownerhood-matrix";
+    }
+    if (/nominal-compound/i.test(String(outputKind || ""))) {
+        return "compound-nnc-embed-before-matrix";
+    }
+    return target ? "route-target-specific-shape" : "";
+}
+
+function getDerivationContinuationSourceExternalObjectSlots(sourceFormulaSlots = null) {
+    const slots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : {};
+    return ["obj1", "obj2", "obj3", "reflexivo"]
+        .map((slotId) => {
+            const slot = slots[slotId] && typeof slots[slotId] === "object"
+                ? slots[slotId]
+                : null;
+            const value = String(
+                slot?.token
+                || slot?.prefix
+                || slot?.displayPrefix
+                || slot?.surface
+                || slot?.value
+                || ""
+            ).trim();
+            return value ? { slotId, prefix: value, sourceLayer: "source-formula-slots" } : null;
+        })
+        .filter(Boolean);
+}
+
+function getDerivationContinuationRemainingExternalObjectSlots(record = null) {
+    const source = record && typeof record === "object" ? record : {};
+    const formationFrame = source.formationFrame && typeof source.formationFrame === "object"
+        ? source.formationFrame
+        : {};
+    const prefix = String(
+        source.objectPrefix
+        || source.objectTransfer?.objectPrefix
+        || formationFrame.outsideObject?.prefix
+        || source.matrix?.objectPrefix
+        || ""
+    ).trim();
+    return prefix ? [{
+        slotId: "obj1",
+        prefix,
+        owner: "matrix",
+        sourceLayer: "route-frame",
+    }] : [];
+}
+
+function getDerivationContinuationConsumedObjectSlot(embedRole = "") {
+    const role = String(embedRole || "").trim();
+    if (role === "incorporated-object") {
+        return "obj1";
+    }
+    if (/complement/i.test(role)) {
+        return "complement";
+    }
+    if (/ownerhood|possess/i.test(role)) {
+        return "possessor";
+    }
+    return "";
+}
+
+function buildDerivationContinuationObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    const matrixValenceFrameFixed = Boolean(resolvedMatrixValence);
+    return {
+        kind: "andrews-incorporation-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed,
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlotsOwnedBy: sourceSlots.length
+            ? "source-principal-vnc-formula-frame"
+            : "none",
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length
+            ? "matrix-route-frame"
+            : "none",
+        embeddedRoleLicensedBy: embedRole ? "andrews-incorporation-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: matrixValenceFrameFixed,
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+        objectSlotLicensingOrder: [
+            "source-principal-vnc",
+            "source-adjunct-nnc",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildDerivationContinuationIncorporationRouteFrame(record = null, {
+    outputKind = "",
+    supported = false,
+    targetInput = "",
+    routeStage = "",
+    andrewsRefs = [],
+} = {}) {
+    if (!record || typeof record !== "object") {
+        return null;
+    }
+    const kind = String(outputKind || record.outputKind || "").trim();
+    const embeddedRoot = getDerivationContinuationEmbeddedRoot(record);
+    const embedRole = getDerivationContinuationEmbedRole(record, kind);
+    const remainingExternalObjectSlots = getDerivationContinuationRemainingExternalObjectSlots(record);
+    const sourceExternalObjectSlots = getDerivationContinuationSourceExternalObjectSlots(record.sourceFormulaSlots);
+    const sourceInput = getDerivationContinuationContractSourceInput(record);
+    const sourceAdjunctSurface = getDerivationContinuationSourceAdjunctSurface(record);
+    const finalFormulaShape = getDerivationContinuationFinalFormulaShape(targetInput, kind);
+    if (!embeddedRoot && !embedRole && !finalFormulaShape) {
+        return null;
+    }
+    const stemInternalObjectSlotDelta = embedRole === "incorporated-object" ? 1 : 0;
+    const complementSlotDelta = /complement/i.test(embedRole) ? 1 : 0;
+    const adverbialFunctionDelta = /adverb/i.test(embedRole) ? 1 : 0;
+    const externalObjectSlotDelta = remainingExternalObjectSlots.length - sourceExternalObjectSlots.length;
+    const matrixValence = getDerivationContinuationMatrixValence(record);
+    const consumedObjectSlot = getDerivationContinuationConsumedObjectSlot(embedRole);
+    const objectSlotOwnership = buildDerivationContinuationObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+        consumedObjectSlot,
+        sourceExternalObjectSlots,
+        remainingExternalObjectSlots,
+    });
+    const matrixValenceFrameFixed = objectSlotOwnership.matrixValenceFrameFixed === true;
+    const refs = (Array.isArray(andrewsRefs) ? andrewsRefs : [])
+        .map((entry) => String(entry || "").trim())
+        .filter(Boolean);
+    return {
+        kind: "andrews-incorporation-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            surface: sourceInput,
+            formulaSlots: record.sourceFormulaSlots && typeof record.sourceFormulaSlots === "object"
+                ? record.sourceFormulaSlots
+                : null,
+            formulaEcho: String(record.sourceFormulaEcho || "").trim(),
+        },
+        sourceAdjunctNnc: {
+            surface: sourceAdjunctSurface,
+            stem: embeddedRoot,
+            kind: getDerivationContinuationSourceAdjunctKind(record, kind),
+            role: embedRole,
+        },
+        matrix: getDerivationContinuationMatrixFrame(record),
+        matrixValence,
+        embedRole,
+        embeddedRoot,
+        consumedObjectSlot,
+        sourceExternalObjectSlots,
+        remainingExternalObjectSlots,
+        remainingExternalObjectSlotIds: remainingExternalObjectSlots.map((slot) => slot.slotId),
+        objectSlotOwnership,
+        valenceDelta: externalObjectSlotDelta,
+        valenceEffects: {
+            sourceExternalObjectSlotCount: sourceExternalObjectSlots.length,
+            remainingExternalObjectSlotCount: remainingExternalObjectSlots.length,
+            externalObjectSlotDelta,
+            stemInternalObjectSlotDelta,
+            complementSlotDelta,
+            adverbialFunctionDelta,
+        },
+        andrewsSection: refs[0] || String(record.grammarSource || record.formationFrame?.grammarSource || "").trim(),
+        andrewsRefs: refs,
+        generationStatus: supported ? "supported" : "blocked",
+        generationAllowed: supported === true,
+        routeStage: String(routeStage || "").trim(),
+        finalFormulaShape,
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseRole: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+        boundaries: {
+            matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+            routeFrameOwnsEmbedRoleLicensing: true,
+            finalFormulaShapeDoesNotLicenseRole: true,
+            functionUseDoesNotLicenseRole: true,
+        },
+    };
+}
+
 function getDerivationContinuationDiagnosticLayerContract(entry = null) {
     const diagnosticId = typeof entry === "string"
         ? entry
@@ -273,8 +599,23 @@ function attachDerivationContinuationGrammarContract(record = null) {
         routeStage,
     });
     const andrewsRefs = getDerivationContinuationContractAndrewsRefs(record);
+    const incorporationRouteFrame = buildDerivationContinuationIncorporationRouteFrame(record, {
+        outputKind,
+        supported,
+        targetInput,
+        routeStage,
+        andrewsRefs,
+    });
+    const framedRecord = incorporationRouteFrame
+        ? {
+            ...record,
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
+        }
+        : record;
     const output = attachGrammarMetadataContract({
-        ...record,
+        ...framedRecord,
         diagnostics: [],
     }, {
         enumerable: false,
@@ -299,12 +640,22 @@ function attachDerivationContinuationGrammarContract(record = null) {
             patientivoSurface: String(record.patientivoSurface || "").trim(),
             sourceState: String(record.sourceState || "").trim(),
             sourceKind: String(record.sourceKind || "").trim(),
+            sourceFormulaSlots: record.sourceFormulaSlots && typeof record.sourceFormulaSlots === "object"
+                ? record.sourceFormulaSlots
+                : null,
+            sourceFormulaEcho: String(record.sourceFormulaEcho || "").trim(),
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
         },
         targetContract: {
             unitKind: "continuation-target",
             outputKind,
             targetInput,
             generationAllowed: supported,
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
             request: record.prelocativeRequest
                 || record.compoundRequest
                 || record.ownerhoodRequest
@@ -329,18 +680,32 @@ function attachDerivationContinuationGrammarContract(record = null) {
             targetInput,
             matrix: record.matrix || null,
             formationFrame: record.formationFrame || null,
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
         },
         morphBoundaryFrame: {
             formationFrame: record.formationFrame || null,
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
             objectTransfer: record.objectTransfer || null,
             omittedSuffix: String(record.omittedSuffix || "").trim(),
             nounClass: String(record.nounClass || "").trim(),
             ownerhoodKind: String(record.ownerhoodKind || "").trim(),
+            formulaSlots: record.sourceFormulaSlots && typeof record.sourceFormulaSlots === "object"
+                ? record.sourceFormulaSlots
+                : null,
+            formulaEcho: String(record.sourceFormulaEcho || "").trim(),
         },
         participantFrame: {
             object: record.objectTransfer || {
                 prefix: String(record.objectPrefix || "").trim(),
             },
+            objectSlotOwnership: incorporationRouteFrame?.objectSlotOwnership || null,
+            incorporationRouteFrame,
+            sourceRouteFrame: incorporationRouteFrame,
+            routeFrame: incorporationRouteFrame,
             possessor: {
                 prefix: String(record.possessorPrefix || "").trim(),
             },
@@ -2288,6 +2653,8 @@ function resolvePatientivoPrelocativeObjectTransfer({
 function buildPatientivoCharacteristicPropertyEmbedContinuationContract({
     characteristicSurface = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     possessorPrefix = "",
     matrixRoot = DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT,
 } = {}) {
@@ -2332,6 +2699,10 @@ function buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         grammarSource: "Andrews 39.9",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         characteristicSurface: normalizedCharacteristicSurface,
         sourceState: embedSource.sourceState,
         sourceRole: embedSource.sourceRole,
@@ -2356,6 +2727,8 @@ function buildPatientivoPrelocativeContinuationContract({
     patientivoSource = "",
     sourceTenseValue = "",
     sourceCombinedMode = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     patientivoNominalSuffix = "",
     matrixRoot = DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT,
     possessiveToObjectPrefix = null,
@@ -2422,6 +2795,10 @@ function buildPatientivoPrelocativeContinuationContract({
         sourceCombinedMode: normalizedSourceCombinedMode,
         sourceState: objectTransfer.sourceState,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         patientivoSurface: String(patientivoSurface || "").trim(),
         incorporatedRoot,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2437,6 +2814,8 @@ function buildPatientivoPrelocativeContinuationContract({
 function buildPatientivoCompoundEmbedContinuationContract({
     patientivoSurface = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     patientivoNominalSuffix = "",
     matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT,
 } = {}) {
@@ -2478,6 +2857,10 @@ function buildPatientivoCompoundEmbedContinuationContract({
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         patientivoSurface: String(patientivoSurface || "").trim(),
         incorporatedRoot,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2491,6 +2874,8 @@ function buildPatientivoCompoundEmbedContinuationContract({
 function buildPatientivoNominalCompoundContinuationContract({
     patientivoSurface = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     patientivoNominalSuffix = "",
     matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT,
 } = {}) {
@@ -2539,6 +2924,10 @@ function buildPatientivoNominalCompoundContinuationContract({
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         patientivoSurface: String(patientivoSurface || "").trim(),
         incorporatedRoot,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2561,6 +2950,8 @@ function buildPatientivoNominalCompoundContinuationContract({
 function buildActiveActionCompoundEmbedContinuationContract({
     actionNominalSurface = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2589,6 +2980,10 @@ function buildActiveActionCompoundEmbedContinuationContract({
         grammarSource: "Andrews 37.5.4",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         actionNominalSurface: normalizedActionNominalSurface,
         incorporatedRoot: normalizedActionNominalSurface,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2601,6 +2996,8 @@ function buildActiveActionCompoundEmbedContinuationContract({
 function buildActiveActionNominalCompoundContinuationContract({
     actionNominalSurface = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2635,6 +3032,10 @@ function buildActiveActionNominalCompoundContinuationContract({
         grammarSource: "Andrews 37.5.4",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         actionNominalSurface: normalizedActionNominalSurface,
         incorporatedRoot: normalizedActionNominalSurface,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2656,6 +3057,8 @@ function buildActiveActionNominalCompoundContinuationContract({
 function buildPreteritAgentiveCompoundEmbedContinuationContract({
     preteritAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2684,6 +3087,10 @@ function buildPreteritAgentiveCompoundEmbedContinuationContract({
         grammarSource: "Andrews 35.7",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2696,6 +3103,8 @@ function buildPreteritAgentiveCompoundEmbedContinuationContract({
 function buildPreteritAgentiveNominalCompoundContinuationContract({
     preteritAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2730,6 +3139,10 @@ function buildPreteritAgentiveNominalCompoundContinuationContract({
         grammarSource: "Andrews 35.7",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2751,6 +3164,8 @@ function buildPreteritAgentiveNominalCompoundContinuationContract({
 function buildCustomaryAgentiveNominalCompoundContinuationContract({
     customaryAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2785,6 +3200,10 @@ function buildCustomaryAgentiveNominalCompoundContinuationContract({
         grammarSource: "Andrews 36.3",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         customaryAgentiveStem: normalizedCustomaryAgentiveStem,
         incorporatedRoot: normalizedCustomaryAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2806,6 +3225,8 @@ function buildCustomaryAgentiveNominalCompoundContinuationContract({
 function buildCustomaryAgentiveCompoundEmbedContinuationContract({
     customaryAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT,
     objectPrefix = "",
 } = {}) {
@@ -2838,6 +3259,10 @@ function buildCustomaryAgentiveCompoundEmbedContinuationContract({
         grammarSource: matrixSpec.grammarSource || "Andrews 36.3",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         customaryAgentiveStem: normalizedCustomaryAgentiveStem,
         incorporatedRoot: normalizedCustomaryAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2859,6 +3284,8 @@ function buildCustomaryAgentiveCompoundEmbedContinuationContract({
 function buildPreteritAgentiveOwnerhoodContinuationContract({
     preteritAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
@@ -2887,6 +3314,10 @@ function buildPreteritAgentiveOwnerhoodContinuationContract({
         grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2908,6 +3339,8 @@ function buildPreteritAgentiveOwnerhoodContinuationContract({
 function buildPreteritAgentiveComplementContinuationContract({
     preteritAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT,
     objectPrefix = "",
 } = {}) {
@@ -2938,6 +3371,10 @@ function buildPreteritAgentiveComplementContinuationContract({
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -2959,6 +3396,8 @@ function buildPreteritAgentiveComplementContinuationContract({
 function buildPreteritAgentiveAdverbialContinuationContract({
     preteritAgentiveStem = "",
     sourceSurface = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT,
     objectPrefix = "",
 } = {}) {
@@ -2991,6 +3430,10 @@ function buildPreteritAgentiveAdverbialContinuationContract({
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
@@ -3015,6 +3458,8 @@ function buildOrdinaryNounOwnerhoodContinuationContract({
     nounClass = "",
     sourceSurface = "",
     sourceKind = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     matrixRoot = "",
     ownerhoodKind = "ownerhood",
 } = {}) {
@@ -3064,6 +3509,10 @@ function buildOrdinaryNounOwnerhoodContinuationContract({
         supported: uniqueDiagnostics.length === 0,
         sourceSurface: String(sourceSurface || "").trim(),
         sourceKind: String(sourceKind || "").trim(),
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+            ? sourceFormulaSlots
+            : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         evidenceStatus: String(sourceKind || "").trim() === "fixture"
             ? "source-fixture-backed"
             : "structural-open-stem",

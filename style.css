@@ -65,18 +65,18 @@
   --te-bg: var(--te-bg-active);
   --reflexive-bg: var(--reflexive-bg-active);
   --font-size-adjust: -1px;
-  --font-size-base: clamp(0.7rem, calc(0.2rem + var(--font-size-adjust)), 1rem);
-  --font-size-input: max(var(--font-size-base), 12px);
-  --font-size-button: clamp(0.52rem, calc(0.42rem + var(--font-size-adjust)), 0.72rem);
-  --font-size-label: clamp(0.56rem, calc(0.48rem + var(--font-size-adjust)), 0.76rem);
-  --font-size-heading: clamp(0.64rem, calc(0.56rem + var(--font-size-adjust)), 0.82rem);
-  --button-padding-y: 3px;
-  --button-padding-x: 8px;
+  --font-size-base: clamp(0.66rem, calc(0.18rem + var(--font-size-adjust)), 0.94rem);
+  --font-size-input: max(var(--font-size-base), 11px);
+  --font-size-button: clamp(0.48rem, calc(0.36rem + var(--font-size-adjust)), 0.66rem);
+  --font-size-label: clamp(0.52rem, calc(0.44rem + var(--font-size-adjust)), 0.7rem);
+  --font-size-heading: clamp(0.6rem, calc(0.52rem + var(--font-size-adjust)), 0.76rem);
+  --button-padding-y: 2px;
+  --button-padding-x: 7px;
   --font-size-large: calc(2.6rem + var(--font-size-adjust));
   --placeholder-color: rgba(59, 51, 40, 0.55);
   --font-title: "Fraunces", serif;
   --font-body: "Space Grotesk", sans-serif;
-  --mode-toggle-height: 30px;
+  --mode-toggle-height: 28px;
   --layout-gap-tight: 4px;
   --layout-gap-base: 8px;
   --layout-gap-wide: 10px;
@@ -254,9 +254,9 @@ p {
 
 .panel-stack {
   display: grid;
-  grid-template-columns: minmax(280px, var(--derivation-sidebar-width)) minmax(0, 1fr);
+  grid-template-columns: minmax(330px, 0.46fr) minmax(0, 1fr);
   grid-template-areas:
-    "inputs inputs"
+    "inputs output"
     "derivation output";
   align-items: start;
   align-content: start;
@@ -1498,11 +1498,73 @@ body.is-nonverb-mode .calc-operator--derivation {
 .tense-description {
   background: linear-gradient(135deg, rgba(255, 248, 232, 0.7), rgba(255, 255, 255, 0.9));
   border: 1px solid rgba(29, 26, 21, 0.12);
-  border-radius: 14px;
-  padding: 10px 14px;
+  border-radius: 10px;
+  padding: 6px 9px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
   box-shadow: var(--shadow-soft);
+}
+
+.tense-description__summary {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  min-width: 0;
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-size: calc(0.54rem + var(--font-size-adjust));
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1.15;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.tense-description__summary::-webkit-details-marker {
+  display: none;
+}
+
+.tense-description__summary::marker {
+  content: "";
+  font-size: 0;
+}
+
+.tense-description__summary::before {
+  content: ">";
+  flex: 0 0 auto;
+  color: rgba(216, 106, 58, 0.86);
+  font-size: 0.9em;
+  line-height: 1;
+  transform: translateY(-0.02em);
+}
+
+.tense-description[open] > .tense-description__summary::before {
+  content: "v";
+}
+
+.tense-description__summary-title,
+.tense-description__summary-value {
+  min-width: 0;
+}
+
+.tense-description__summary-value {
+  color: var(--ink);
+  font-weight: 800;
+  letter-spacing: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.tense-description__body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.tense-description[open] > .tense-description__body {
+  padding-top: 3px;
 }
 
 .tense-description__item {
@@ -1519,16 +1581,16 @@ body.is-nonverb-mode .calc-operator--derivation {
 }
 
 .tense-description__text {
-  font-size: calc(0.9rem + var(--font-size-adjust));
+  font-size: calc(0.82rem + var(--font-size-adjust));
   color: var(--ink);
   font-weight: 500;
 }
 
 .output-meta-strip .tense-description {
-  padding: 8px 10px;
-  border-radius: 12px;
+  padding: 5px 8px;
+  border-radius: 8px;
   display: grid;
-  gap: 6px;
+  gap: 4px;
   align-content: start;
   border-left: 3px solid rgba(216, 106, 58, 0.42);
   min-width: 0;
@@ -3415,6 +3477,14 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   color: rgba(120, 63, 28, 0.96);
 }
 
+.verb-composer__tagged-input-shell.has-slot-entry-button {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.verb-composer__tagged-input-shell.has-slot-entry-button .verb-composer__tagged-input-tag {
+  display: none;
+}
+
 .verb-composer__tagged-input-shell--prefix {
   border-color: rgba(29, 26, 21, 0.24);
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(245, 239, 228, 0.9));
@@ -3440,6 +3510,63 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
   font-weight: 700;
   color: rgba(72, 36, 14, 0.98);
   caret-color: rgba(216, 106, 58, 1);
+}
+
+.verb-composer__slot-entry-button {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+  align-items: center;
+  align-content: center;
+  width: 100%;
+  min-width: 0;
+  min-height: calc(var(--mode-toggle-height) - 2px);
+  padding: 2px 9px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: rgba(29, 26, 21, 0.9);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.1;
+  text-align: left;
+  cursor: text;
+}
+
+.verb-composer__slot-entry-label {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(29, 26, 21, 0.62);
+  font-size: 0.76em;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.verb-composer__slot-entry-value {
+  display: none;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.verb-composer__slot-entry-button.is-empty .verb-composer__slot-entry-value {
+  color: rgba(29, 26, 21, 0.48);
+  font-weight: 600;
+}
+
+.verb-composer__slot-entry-button.is-active {
+  background: rgba(216, 106, 58, 0.1);
+  color: rgba(72, 36, 14, 0.98);
+}
+
+.verb-composer__slot-entry-button:focus,
+.verb-composer__slot-entry-button:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px rgba(216, 106, 58, 0.35);
 }
 
 .verb-composer__tagged-input-control:focus,
@@ -3850,6 +3977,12 @@ body:not(.is-composer-input-mode) .verb-composer__placeholder {
 }
 
 .is-hidden-control {
+  display: none;
+}
+
+.verb-composer__tagged-input-shell .verb-composer__tagged-input-control.is-hidden-control,
+.verb-composer__embed-input-row .verb-composer__input.is-hidden-control,
+.verb-composer__matrix-input-row .verb-composer__input.is-hidden-control {
   display: none;
 }
 
@@ -5813,6 +5946,63 @@ input[type="submit"]:hover {
   min-width: 0;
 }
 
+.tense-block--ordinary-nnc-controls .object-toggle--stacked.object-toggle--with-label .object-toggle__label {
+  flex-basis: 100%;
+  max-width: 100%;
+  width: 100%;
+  line-height: 1;
+  text-align: left;
+}
+
+.tense-block--ordinary-nnc-controls {
+  margin-bottom: 8px;
+}
+
+.tense-block--ordinary-nnc-controls .tense-block__title {
+  margin-bottom: 5px;
+}
+
+.tense-block--ordinary-nnc-controls .tense-block__controls--stacked {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  align-items: start;
+  gap: 6px;
+}
+
+.tense-block--ordinary-nnc-controls .object-toggle--stacked.object-toggle--with-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  align-content: start;
+  gap: 3px;
+  min-height: 0;
+  padding: 5px;
+  border: 1px solid rgba(29, 26, 21, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.54);
+}
+
+.tense-block--ordinary-nnc-controls .object-toggle[data-toggle-slot="possessor"] {
+  grid-column: span 2;
+}
+
+.tense-block--ordinary-nnc-controls .object-toggle--stacked .object-toggle-button {
+  flex: 1 1 32px;
+  width: auto;
+  min-width: 0;
+  height: 22px;
+  min-height: 22px;
+  padding: 1px 6px;
+  border-radius: 7px;
+  font-size: 0.58rem;
+}
+
+@container (max-width: 520px) {
+  .tense-block--ordinary-nnc-controls .object-toggle[data-toggle-slot="possessor"] {
+    grid-column: span 1;
+  }
+}
+
 .tense-block__title {
   font-weight: bold;
   color: var(--ink-soft);
@@ -7058,7 +7248,7 @@ select:focus,
 .person-label,
 .person-sub,
 .conjugation-value {
-  font-size: calc(0.76rem + var(--font-size-adjust));
+  font-size: calc(0.72rem + var(--font-size-adjust));
 }
 
 .particle-row__form,
@@ -7293,7 +7483,10 @@ input[type="submit"]:hover {
 
 @media (min-width: 1025px) {
   .panel-stack {
-    grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+    grid-template-columns: minmax(330px, 0.46fr) minmax(0, 1fr);
+    grid-template-areas:
+      "inputs output"
+      "derivation output";
   }
 
   #panel-stack-pane-tense {
@@ -7627,7 +7820,7 @@ input[type="submit"]:hover {
 
 #container-inputs .panel-block-title .verb-block__utility-actions {
   display: grid;
-  grid-template-columns: repeat(3, 26px);
+  grid-template-columns: repeat(3, 24px);
   align-items: center;
   width: auto;
   padding: 0;
@@ -7639,14 +7832,14 @@ input[type="submit"]:hover {
 
 #container-inputs .verb-block__utility-actions .legend-help,
 #container-inputs .verb-block__utility-actions .legend-button {
-  width: 26px;
-  height: 24px;
+  width: 24px;
+  height: 22px;
 }
 
 #container-inputs .verb-block__utility-actions .tutorial-trigger {
-  width: 26px;
-  min-width: 26px;
-  min-height: 24px;
+  width: 24px;
+  min-width: 24px;
+  min-height: 22px;
   padding: 0;
   border-radius: 7px;
 }
@@ -7658,8 +7851,8 @@ input[type="submit"]:hover {
 
 #container-inputs .panel-block-title .verb-block__utility-actions .legend-button__icon,
 #container-inputs .panel-block-title .verb-block__utility-actions .tutorial-trigger .button-icon {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 #container-inputs .panel-block-title .verb-block__utility-actions .legend-button__icon svg,
@@ -7679,8 +7872,8 @@ input[type="submit"]:hover {
 }
 
 #container-inputs .panel-block-step {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
 #container-inputs .verb-block {
@@ -7706,9 +7899,15 @@ input[type="submit"]:hover {
 }
 
 #container-inputs .input-verb {
-  height: 26px;
-  min-height: 26px;
-  padding: 3px 8px;
+  height: 24px;
+  min-height: 24px;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+}
+
+#container-inputs .verb-prefix,
+#container-inputs .verb-letter {
+  font-size: 0.9em;
 }
 
 #container-inputs .verb-composer {
@@ -7758,11 +7957,6 @@ input[type="submit"]:hover {
 }
 
 #container-inputs #composer-slot-stage > .verb-composer__bottom-row {
-  grid-column: 1 / -1;
-  grid-row: 3;
-}
-
-#container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls {
   grid-column: 1 / -1;
   grid-row: 3;
 }
@@ -7858,21 +8052,21 @@ input[type="submit"]:hover {
 }
 
 #container-inputs #composer-slot-stage > .verb-entry-board-tabs .verb-entry-board-tabs__button {
-  min-height: 22px;
+  min-height: 19px;
   min-width: 0;
-  padding: 1px 8px;
+  padding: 1px 6px;
   border-radius: 7px;
-  font-size: 0.6rem;
+  font-size: 0.56rem;
   line-height: 1;
 }
 
 #container-inputs #composer-slot-stage > .verb-entry-board-tabs .verb-entry-board-tabs__button[data-composer-entry-board="general"] {
-  padding-inline: 7px;
+  padding-inline: 6px;
 }
 
 #container-inputs #composer-slot-stage > .verb-block__utility-actions {
   display: grid;
-  grid-template-columns: repeat(3, 26px);
+  grid-template-columns: repeat(3, 24px);
   align-items: center;
   gap: 2px;
   width: auto;
@@ -7887,14 +8081,14 @@ input[type="submit"]:hover {
 
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .legend-help,
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .legend-button {
-  width: 26px;
-  height: 24px;
+  width: 24px;
+  height: 22px;
 }
 
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .tutorial-trigger {
-  width: 26px;
-  min-width: 26px;
-  min-height: 24px;
+  width: 24px;
+  min-width: 24px;
+  min-height: 22px;
   padding: 0;
   border-radius: 7px;
 }
@@ -7906,8 +8100,8 @@ input[type="submit"]:hover {
 
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .legend-button__icon,
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .tutorial-trigger .button-icon {
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
 }
 
 #container-inputs #composer-slot-stage > .verb-block__utility-actions .legend-button__icon svg,
@@ -7931,14 +8125,14 @@ input[type="submit"]:hover {
 
 #container-inputs .verb-entry-board-tabs-label,
 #container-inputs .verb-composer__slot-tabs-label {
-  min-height: 22px;
-  padding: 1px 8px;
-  font-size: 0.6rem;
+  min-height: 19px;
+  padding: 1px 6px;
+  font-size: 0.56rem;
 }
 
 #container-inputs .verb-composer__slot-tabs .verb-composer__slot-tab {
-  min-height: 24px;
-  padding: 1px 8px;
+  min-height: 21px;
+  padding: 1px 6px;
 }
 
 #container-inputs #composer-slot-stage > .verb-composer__slot-tabs {
@@ -7946,13 +8140,13 @@ input[type="submit"]:hover {
 }
 
 #container-inputs #composer-slot-stage > .verb-composer__slot-tabs .verb-composer__slot-tab {
-  min-height: 22px;
+  min-height: 19px;
   padding-block: 1px;
 }
 
 #container-inputs .verb-composer__embed-input-row,
 #container-inputs .verb-composer__tagged-input-shell {
-  min-height: 28px;
+  min-height: 25px;
 }
 
 #container-inputs .verb-composer__tagged-input-shell {
@@ -7964,14 +8158,14 @@ input[type="submit"]:hover {
 }
 
 #container-inputs .verb-composer__tagged-input-tag {
-  height: 24px;
-  padding-inline: 8px;
+  height: 21px;
+  padding-inline: 6px;
 }
 
 #container-inputs .verb-composer__tagged-input-control {
-  height: 24px;
-  min-height: 24px;
-  padding: 2px 8px;
+  height: 21px;
+  min-height: 21px;
+  padding: 1px 6px;
 }
 
 #container-inputs .verb-composer__supportive-toggle-row {
@@ -7979,14 +8173,16 @@ input[type="submit"]:hover {
 }
 
 #container-inputs .verb-composer .verb-chip.verb-composer__supportive-i-button {
-  min-height: 20px;
-  padding: 1px 6px;
-  font-size: calc(var(--font-size-label) - 0.06rem);
+  min-height: 18px;
+  padding: 1px 5px;
+  font-size: calc(var(--font-size-label) - 0.08rem);
 }
 
 #container-inputs .verb-composer .verb-chip,
 #container-inputs .verb-composer__matrix-affix-trigger {
-  min-height: 24px;
+  min-height: 21px;
+  padding-inline: 6px;
+  font-size: calc(var(--font-size-label) - 0.04rem);
 }
 
 #container-inputs .verb-composer__serial-type-chips {
@@ -8000,7 +8196,7 @@ input[type="submit"]:hover {
   }
 
   #container-inputs .verb-block__utility-actions {
-    grid-template-columns: repeat(2, 26px);
+    grid-template-columns: repeat(2, 24px);
   }
 
   #container-inputs #composer-slot-stage {
@@ -8065,11 +8261,12 @@ input[type="submit"]:hover {
 /* #1 Entrada operation order: grouped by grammar band. */
 #container-inputs #composer-slot-stage {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "entry switch"
-    "source source"
-    "operations operations";
+    "entry"
+    "switch"
+    "source"
+    "operations";
   align-items: stretch;
   gap: 7px 8px;
   padding: 8px;
@@ -8095,9 +8292,9 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 #container-inputs #composer-slot-stage > .verb-entry-board-tabs {
   grid-area: entry;
   grid-column: 1;
-  justify-self: start;
+  justify-self: stretch;
   align-self: start;
-  width: auto;
+  width: 100%;
   max-width: 100%;
   padding: 3px;
   border-radius: 9px;
@@ -8106,8 +8303,9 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 
 #container-inputs #composer-slot-stage > .verb-composer__slot-tabs {
   grid-area: switch;
-  justify-self: end;
+  justify-self: stretch;
   align-self: start;
+  width: 100%;
   padding: 3px;
   border-radius: 9px;
   box-shadow: none;
@@ -8117,7 +8315,7 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   grid-area: source;
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(150px, 0.82fr) minmax(240px, 1.4fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   align-items: stretch;
   min-width: 0;
@@ -8132,7 +8330,7 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   grid-area: operations;
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: minmax(136px, 0.65fr) minmax(0, 1.35fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 7px;
   align-items: stretch;
   margin-top: 0;
@@ -8164,29 +8362,20 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 
 #container-inputs #composer-slot-stage > .verb-composer__bottom-row > .verb-composer__object-pair {
   display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
-}
-
-#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-controls {
-  grid-area: operations;
-  grid-column: 1 / -1;
-  align-self: stretch;
-  padding: 7px;
-  border: 1px solid rgba(29, 26, 21, 0.1);
-  background: rgba(255, 255, 255, 0.54);
+  padding: 3px;
 }
 
 #container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] {
   grid-template-areas:
-    "entry switch"
-    "source source"
-    "operations operations";
+    "entry"
+    "source";
 }
 
 #container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-class-tabs {
   grid-area: switch;
-  justify-self: end;
+  justify-self: stretch;
 }
 
 #container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__top-row {
@@ -8194,14 +8383,50 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 }
 
 #container-inputs #composer-slot-stage[data-operation-board="noun-to-verb"] > .verb-composer__top-row {
-  grid-template-columns: minmax(170px, 0.92fr) minmax(230px, 1.26fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 #container-inputs #composer-slot-stage[data-operation-board="noun-to-verb"] > .verb-composer__bottom-row {
-  grid-template-columns: minmax(0, 1.35fr) minmax(132px, 0.65fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-input-row,
+#container-inputs #composer-slot-stage .verb-composer__embed-input-row,
+#container-inputs #composer-slot-stage .verb-composer__tagged-input-shell {
+  min-width: 0;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-head .verb-composer__slot-tabs {
+  justify-self: stretch;
+  width: 100%;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  min-width: 0;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-input-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-affix-picker,
+#container-inputs #composer-slot-stage .verb-composer__matrix-affix-trigger {
+  width: 100%;
+  min-width: 0;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__matrix-affix-trigger {
+  justify-content: center;
 }
 
 #container-inputs #composer-slot-stage .verb-composer__tagged-input-shell {
+  grid-template-columns: minmax(72px, 0.42fr) minmax(0, 0.58fr);
   border-width: 1px;
   border-color: rgba(29, 26, 21, 0.16);
   border-radius: 9px;
@@ -8212,6 +8437,14 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 #container-inputs #composer-slot-stage .verb-composer__tagged-input-shell--verb {
   border-color: rgba(216, 106, 58, 0.5);
   background: rgba(255, 250, 242, 0.9);
+}
+
+#container-inputs #composer-slot-stage .verb-composer__tagged-input-shell.has-slot-entry-button {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#container-inputs #composer-slot-stage .verb-composer__tagged-input-shell.has-slot-entry-button .verb-composer__tagged-input-tag {
+  display: none;
 }
 
 #container-inputs #composer-slot-stage .verb-composer__tagged-input-tag {
@@ -8231,7 +8464,27 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   color: rgba(29, 26, 21, 0.88);
 }
 
+#container-inputs #composer-slot-stage .verb-composer__slot-entry-button {
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+  min-height: 24px;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  overflow: hidden;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__slot-entry-label {
+  font-size: 0.78em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 #container-inputs #composer-slot-stage .verb-composer__tagged-input-shell--verb .verb-composer__tagged-input-control {
+  color: rgba(72, 36, 14, 0.96);
+}
+
+#container-inputs #composer-slot-stage .verb-composer__tagged-input-shell--verb .verb-composer__slot-entry-button {
   color: rgba(72, 36, 14, 0.96);
 }
 
@@ -8240,18 +8493,79 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 #container-inputs #composer-slot-stage .verb-composer__bottom-row .verb-composer__sub-label {
   min-block-size: 0;
   inline-size: auto;
+  max-inline-size: 100%;
   font-size: 0.58rem;
   line-height: 1;
   letter-spacing: 0.05em;
   color: rgba(29, 26, 21, 0.58);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-#container-inputs #composer-slot-stage .verb-composer__matrix-head,
-#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-head,
-#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__embed-field > .verb-composer__sub-label {
-  min-block-size: 16px;
-  align-items: start;
+#container-inputs #composer-slot-stage > .verb-composer__top-row > .verb-composer__embed-field,
+#container-inputs #composer-slot-stage > .verb-composer__top-row > .verb-composer__matrix-field {
+  display: grid;
+  grid-template-rows: 24px minmax(24px, auto);
+  gap: 4px;
+  align-content: start;
+  align-items: stretch;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__embed-field > .verb-composer__sub-label,
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-head {
+  min-block-size: 24px;
+  align-items: center;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__embed-input-row,
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-input-row {
+  grid-row: 2;
+  align-self: start;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-head {
+  grid-row: 1;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-head > .verb-composer__sub-label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+#container-inputs #composer-slot-stage .verb-composer__slot-tabs--transitivity,
+#container-inputs #composer-slot-stage > .verb-composer__slot-tabs--transitivity,
+#container-inputs #composer-slot-stage .verb-composer__matrix-head .verb-composer__slot-tabs--transitivity {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+  justify-self: stretch;
+  padding: 3px;
+  border: 1px solid rgba(97, 122, 148, 0.14);
+  border-radius: 8px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(242, 239, 232, 0.9));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.62),
+    0 2px 6px rgba(29, 26, 21, 0.03);
+}
+
+#container-inputs #composer-slot-stage .verb-composer__slot-tabs--transitivity .verb-composer__slot-tab {
+  min-width: 0;
+  min-height: 19px;
+  padding: 1px 6px;
+  border-radius: 7px;
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #container-inputs #composer-slot-stage .verb-composer__chips {
@@ -8267,9 +8581,64 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   box-shadow: none;
 }
 
+#container-inputs #composer-slot-stage > .verb-entry-board-tabs .verb-entry-board-tabs__button,
+#container-inputs #composer-slot-stage .verb-composer__slot-tabs--transitivity .verb-composer__slot-tab {
+  min-height: 19px;
+  padding: 1px 6px;
+  font-size: 0.56rem;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    "entry"
+    "source";
+  grid-template-rows: auto auto;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage > .verb-entry-board-tabs {
+  grid-template-columns: auto repeat(3, minmax(0, 1fr));
+  justify-self: stretch;
+  width: 100%;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage > .verb-entry-board-tabs .verb-entry-board-tabs__button {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__slot-tabs--transitivity,
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__embed-field,
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__supportive-i-button {
+  display: none !important;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage > .verb-composer__top-row {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto;
+  width: 100%;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__matrix-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: 18px minmax(24px, auto);
+  width: 100%;
+}
+
+#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__matrix-head {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 @media (max-width: 1120px) {
   #container-inputs #composer-slot-stage {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   #container-inputs #composer-slot-stage > .verb-entry-board-tabs {
@@ -8277,10 +8646,9 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   }
 
   #container-inputs #composer-slot-stage > .verb-composer__slot-tabs:not(.verb-composer__ordinary-nnc-class-tabs) {
-    grid-column: 2;
+    grid-column: 1;
   }
 
-  #container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-controls,
   #container-inputs #composer-slot-stage > .verb-composer__top-row,
   #container-inputs #composer-slot-stage > .verb-composer__bottom-row {
     grid-column: 1 / -1;
@@ -8297,8 +8665,7 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
   #container-inputs #composer-slot-stage > .verb-entry-board-tabs,
   #container-inputs #composer-slot-stage > .verb-composer__slot-tabs,
   #container-inputs #composer-slot-stage > .verb-composer__top-row,
-  #container-inputs #composer-slot-stage > .verb-composer__bottom-row,
-  #container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls {
+  #container-inputs #composer-slot-stage > .verb-composer__bottom-row {
     grid-column: 1 / -1 !important;
     justify-self: stretch;
     width: 100%;
@@ -8313,19 +8680,19 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 
 /* Functional button scale: size follows job, not component accident. */
 :root {
-  --button-height-nav: 36px;
-  --button-height-choice: 32px;
-  --button-height-action: 30px;
-  --button-height-filter: 28px;
-  --button-height-chip: 24px;
-  --button-height-micro: 22px;
-  --button-height-icon: 24px;
+  --button-height-nav: 32px;
+  --button-height-choice: 28px;
+  --button-height-action: 26px;
+  --button-height-filter: 24px;
+  --button-height-chip: 21px;
+  --button-height-micro: 19px;
+  --button-height-icon: 22px;
 }
 
 .panel-stack-tab {
   min-height: var(--button-height-nav);
-  padding-inline: 14px;
-  font-size: calc(var(--font-size-label) + 0.01rem);
+  padding-inline: 10px;
+  font-size: var(--font-size-label);
 }
 
 .ui-density-button,
@@ -8337,7 +8704,7 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 }
 
 .panel-action-button {
-  padding-inline: 10px;
+  padding-inline: 8px;
 }
 
 .calc-operator-grid--mode,
@@ -8357,40 +8724,40 @@ body.is-ui-simple #container-inputs #composer-slot-stage > .verb-composer__botto
 .calc-operator-grid--voice .calc-operator-chip {
   flex: 0 1 auto;
   width: auto;
-  min-width: 86px;
+  min-width: 74px;
   min-height: var(--button-height-action);
-  padding-inline: 12px;
+  padding-inline: 8px;
   white-space: nowrap;
   text-wrap: initial;
 }
 
 .calc-operator-grid--derivation .calc-operator-chip {
-  min-width: 96px;
+  min-width: 82px;
 }
 
 .calc-operator-grid--mode .calc-operator-chip,
 .calc-operator-grid--derivation .calc-operator-chip {
-  font-size: 0.72rem;
+  font-size: 0.66rem;
 }
 
 .calc-operator-grid--causative-subtype .calc-operator-chip,
 .calc-operator-chip--sm {
   flex: 0 1 auto;
   width: auto;
-  min-width: 62px;
+  min-width: 54px;
   min-height: var(--button-height-chip);
-  padding-inline: 9px;
+  padding-inline: 7px;
   white-space: nowrap;
 }
 
 .causative-report-button {
   min-height: var(--button-height-filter);
-  padding-inline: 10px;
+  padding-inline: 8px;
 }
 
 .tense-tab {
   min-height: var(--button-height-choice);
-  padding: 5px 10px;
+  padding: 3px 8px;
 }
 
 .object-toggle-button,

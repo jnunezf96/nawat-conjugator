@@ -1417,6 +1417,270 @@ function buildCanonicalVerbSpecFromComposerSemantic(semantic = {}) {
     };
 }
 
+const ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER = Object.freeze([
+    "formula-boundary",
+    "stem-frame",
+    "valence-frame",
+    "object-frame",
+    "route-frame",
+    "function-use-frame",
+]);
+
+const ENTRADA_GRAMMAR_OBJECT_ANTI_CONFLATION_RULES = Object.freeze([
+    "Stem behavior is staged separately from valence behavior.",
+    "Valence behavior is staged separately from object slot ownership.",
+    "Object slots remain structural slots until the valence frame is fixed.",
+    "Function-use is downstream and may annotate only already licensed readings.",
+]);
+
+function cloneEntradaGrammarObjectRecord(record = null) {
+    if (!record || typeof record !== "object") {
+        return null;
+    }
+    try {
+        return JSON.parse(JSON.stringify(record));
+    } catch (_error) {
+        return null;
+    }
+}
+
+function hasEntradaGrammarFormulaSlotEvidence(sourceFormulaSlots = null, sourceFormulaEcho = "") {
+    return Boolean(
+        sourceFormulaSlots
+        && typeof sourceFormulaSlots === "object"
+        && Object.keys(sourceFormulaSlots).length
+    ) || Boolean(String(sourceFormulaEcho || "").trim());
+}
+
+function getEntradaGrammarFormulaSlotObjectValue(slot = null) {
+    if (!slot || typeof slot !== "object") {
+        return "";
+    }
+    return String(
+        slot.token
+        || slot.prefix
+        || slot.displayPrefix
+        || slot.surface
+        || slot.value
+        || ""
+    ).trim();
+}
+
+function buildEntradaGrammarFormulaObjectCoverage({
+    objectSlots = [],
+    sourceFormulaSlots = null,
+} = {}) {
+    const slots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : {};
+    const requiredObjectSlots = (Array.isArray(objectSlots) ? objectSlots : [])
+        .filter((entry) => entry?.ownsObjectSlot === true)
+        .map((entry) => ({
+            slotId: String(entry.slotId || "").trim(),
+            token: String(entry.token || "").trim(),
+        }))
+        .filter((entry) => entry.slotId && entry.token);
+    const missingObjectSlots = requiredObjectSlots.filter((entry) => {
+        const formulaValue = getEntradaGrammarFormulaSlotObjectValue(slots[entry.slotId]);
+        if (formulaValue === entry.token) {
+            return false;
+        }
+        if (entry.token === "mu" && getEntradaGrammarFormulaSlotObjectValue(slots.reflexivo) === "mu") {
+            return false;
+        }
+        return true;
+    });
+    return {
+        requiredObjectSlots,
+        missingObjectSlots,
+        objectSlotsCovered: missingObjectSlots.length === 0,
+    };
+}
+
+function buildEntradaGrammarObjectValenceSlots(spec = null) {
+    const transitivity = spec?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
+    const tokens = Array.isArray(spec?.valenceTokens)
+        ? spec.valenceTokens.map((entry) => (
+            normalizeComposerSecondaryValenceSurfaceToken(entry)
+            || normalizeComposerValenceToken(entry)
+        )).filter(Boolean)
+        : [];
+    const embeds = Array.isArray(spec?.valenceEmbeds)
+        ? spec.valenceEmbeds.map((entry) => normalizeRuleBase(entry)).filter(Boolean)
+        : [];
+    return tokens.map((token, index) => {
+        const ownsObjectSlot = transitivity !== COMPOSER_TRANSITIVITY.intransitive;
+        const slotId = ownsObjectSlot ? `obj${index + 1}` : `valence${index + 1}`;
+        return {
+            slotId,
+            token,
+            embed: embeds[index] || "",
+            role: ownsObjectSlot ? "object-marker" : "valence-marker",
+            ownsObjectSlot,
+            sourceLayer: ownsObjectSlot ? "object-frame" : "valence-frame",
+        };
+    });
+}
+
+function buildEntradaGrammarObjectObjectVector(valenceSlots = []) {
+    const vector = { obj1: "", obj2: "", obj3: "", reflexivo: "" };
+    (Array.isArray(valenceSlots) ? valenceSlots : [])
+        .filter((entry) => entry?.ownsObjectSlot === true)
+        .forEach((entry) => {
+            if (Object.prototype.hasOwnProperty.call(vector, entry.slotId)) {
+                vector[entry.slotId] = entry.token || "";
+            }
+            if (entry.slotId === "obj1" && entry.token === "mu") {
+                vector.reflexivo = "mu";
+            }
+        });
+    return vector;
+}
+
+function buildEntradaGrammarObjectCandidateFormulaSlots({
+    spec = null,
+    objectVector = null,
+} = {}) {
+    const slots = {};
+    const matrixStem = String(spec?.matrixStem || "").trim();
+    if (matrixStem) {
+        slots.predicateStem = {
+            slot: "predicateStem",
+            stem: matrixStem,
+            ruleBase: String(spec?.matrixRuleBase || matrixStem),
+            adjacentEmbed: String(spec?.adjacentEmbed || ""),
+            ownerLayer: "stem-frame",
+        };
+    }
+    ["obj1", "obj2", "obj3", "reflexivo"].forEach((slotId) => {
+        const value = String(objectVector?.[slotId] || "").trim();
+        if (value) {
+            slots[slotId] = {
+                slot: slotId,
+                token: value,
+                ownerLayer: "object-frame",
+            };
+        }
+    });
+    return slots;
+}
+
+function buildEntradaGrammarObjectFromCanonicalVerbSpec(spec = null, {
+    rawInput = "",
+    sourceBlock = "#1 Entrada",
+    sourceUnit = "CNV",
+    sourceKind = "verbal-nuclear-clause",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    valenceFrameFixed = null,
+    routeRecordId = "",
+} = {}) {
+    if (!spec || typeof spec !== "object") {
+        return null;
+    }
+    const transitivity = spec.transitivity || COMPOSER_TRANSITIVITY.intransitive;
+    const valenceSlots = buildEntradaGrammarObjectValenceSlots(spec);
+    const objectSlots = valenceSlots.filter((entry) => entry.ownsObjectSlot === true);
+    const objectVector = buildEntradaGrammarObjectObjectVector(valenceSlots);
+    const explicitFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? cloneEntradaGrammarObjectRecord(sourceFormulaSlots)
+        : null;
+    const formulaEvidencePresent = hasEntradaGrammarFormulaSlotEvidence(explicitFormulaSlots, sourceFormulaEcho);
+    const formulaObjectCoverage = buildEntradaGrammarFormulaObjectCoverage({
+        objectSlots,
+        sourceFormulaSlots: explicitFormulaSlots,
+    });
+    const resolvedValenceFrameFixed = valenceFrameFixed === null
+        ? formulaEvidencePresent && formulaObjectCoverage.objectSlotsCovered
+        : valenceFrameFixed === true;
+    const candidateFormulaSlots = buildEntradaGrammarObjectCandidateFormulaSlots({
+        spec,
+        objectVector,
+    });
+    return {
+        kind: "andrews-entrada-grammar-object",
+        version: 1,
+        sourceBlock: String(sourceBlock || "#1 Entrada"),
+        rawInput: String(rawInput || ""),
+        layerOrder: Array.from(ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER),
+        sourceUnit: String(sourceUnit || "CNV"),
+        sourceKind: String(sourceKind || "verbal-nuclear-clause"),
+        formulaBoundaryFrame: {
+            stageBlock: String(sourceBlock || "#1 Entrada"),
+            formulaType: String(sourceUnit || "CNV"),
+            frameFixed: formulaEvidencePresent,
+            valenceFrameFixed: resolvedValenceFrameFixed,
+            sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+            sourceFormulaSlots: explicitFormulaSlots,
+            candidateFormulaSlots,
+            candidateSlotsDoNotLicenseFunctionUse: true,
+            formulaEvidencePresent,
+            objectSlotsCovered: formulaObjectCoverage.objectSlotsCovered,
+            missingObjectSlots: formulaObjectCoverage.missingObjectSlots,
+        },
+        stemFrame: {
+            matrixStem: String(spec.matrixStem || ""),
+            matrixRuleBase: String(spec.matrixRuleBase || spec.matrixStem || ""),
+            adjacentEmbed: String(spec.adjacentEmbed || ""),
+            directionalPrefix: String(spec.directionalPrefix || ""),
+            supportiveMarker: String(spec.supportiveMarker || ""),
+            tiCausativeClass: String(spec.tiCausativeClass || ""),
+            rank: "verbstem",
+            sourceLayer: "stem-frame",
+        },
+        valenceFrame: {
+            transitivity,
+            tokens: valenceSlots.map((entry) => entry.token),
+            lexicalEmbeds: Array.isArray(spec.valenceEmbeds)
+                ? spec.valenceEmbeds.map((entry) => normalizeRuleBase(entry)).filter(Boolean)
+                : [],
+            slots: valenceSlots,
+            frameFixed: resolvedValenceFrameFixed,
+            fixedBy: resolvedValenceFrameFixed ? "formula-slot-evidence" : "",
+            sourceLayer: "valence-frame",
+        },
+        objectFrame: {
+            slots: objectSlots,
+            vector: objectVector,
+            hasObjectSlots: objectSlots.length > 0,
+            slotOwnership: objectSlots.length ? "entrada-object-frame" : "none",
+            frameFixed: resolvedValenceFrameFixed,
+            sourceLayer: "object-frame",
+        },
+        routeFrame: {
+            routeRecordId: String(routeRecordId || ""),
+            routeRankingAllowed: resolvedValenceFrameFixed,
+            requiresFixedValenceFrameBeforeFunctionUse: true,
+            sourceLayer: "route-frame",
+        },
+        functionUseFrame: {
+            status: "deferred",
+            evaluationOrder: "last",
+            downstreamOfValenceFrame: true,
+            mayAnnotateLicensedReadingsOnly: true,
+            consumesValenceObjectStructure: false,
+            createsValenceObjectStructure: false,
+            relocatesValenceObjectStructure: false,
+            reclassifiesValenceObjectStructure: false,
+            sourceLayer: "function-use-frame",
+        },
+        antiConflationRules: Array.from(ENTRADA_GRAMMAR_OBJECT_ANTI_CONFLATION_RULES),
+    };
+}
+
+function buildEntradaGrammarObjectFromComposerSemantic(semantic = null, options = {}) {
+    const spec = buildCanonicalVerbSpecFromComposerSemantic(semantic || {});
+    return buildEntradaGrammarObjectFromCanonicalVerbSpec(spec, options);
+}
+
+function buildEntradaGrammarObjectFromMovingTargetParsed(rawValue = "", movingTargetParsed = null, tiInputMetadata = null, options = {}) {
+    const spec = buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, movingTargetParsed, tiInputMetadata);
+    return buildEntradaGrammarObjectFromCanonicalVerbSpec(spec, {
+        rawInput: rawValue,
+        ...options,
+    });
+}
+
 function buildCompoundAstMetadata({
     sourceRawVerb = "",
     displayVerb = "",
@@ -1815,6 +2079,9 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         lexicalBoundPrefixes: outerLexicalPrefixes,
         compoundAst,
     });
+    const entradaGrammarObject = buildEntradaGrammarObjectFromCanonicalVerbSpec(spec, {
+        rawInput: sourceRawVerb,
+    });
     const canonical = {
         parseLanguage: "current-regex",
         verb: normalizedVerb,
@@ -1874,6 +2141,7 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         slashCompositeRuleBase: "",
         compoundAst,
         ordinaryNncFixtureClassifications,
+        entradaGrammarObject,
     };
     const semanticObjectSlotCount = Number.isFinite(tiInputMetadata?.semanticObjectSlotCount)
         ? Math.max(0, Math.min(MAX_OBJECT_SLOTS, Number(tiInputMetadata.semanticObjectSlotCount) || 0))
@@ -1943,6 +2211,7 @@ function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetada
         canonical,
         compoundAst,
         ordinaryNncFixtureClassifications,
+        entradaGrammarObject,
         canonicalRuleBase: canonical.ruleBase,
         canonicalFullRuleBase: canonical.fullRuleBase,
         tiCausativeClass,

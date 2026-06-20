@@ -87,26 +87,25 @@ function run(ctx = {}) {
             && composer.includes('stagePanel.dataset.operationBoard = board')
             && composer.includes('stagePanel.dataset.operationOrder = getComposerOperationOrderLabel(board)')
             && composer.includes('"Cláusula verbal: tablero -> valencia verbal -> direccional -> incorporado -> objeto 1/objeto 2 -> predicado base"')
-            && composer.includes('"Cláusula nominal: tablero -> pers1-pers2 -> predicado base -> conector num1-num2 -> referencia"')
+            && composer.includes('"Cláusula nominal: entrada -> predicado base; salida -> pers1-pers2 -> conector num1-num2 -> referencia"')
             && composer.includes('"Verbalización nominal: tablero -> fuente nominal -> verbalización -> valencia verbal -> objeto 1/objeto 2 -> direccional"')
             && composer.includes('setComposerOperationSlotMetadata(directionalHost, "directional-prefix", 10)')
             && composer.includes('setComposerOperationSlotMetadata(embedField, "incorporated-prefix", 20)')
             && composer.includes('setComposerOperationSlotMetadata(objectPair, "object-valency", 30)')
             && composer.includes('setComposerOperationSlotMetadata(matrixField, "predicate-core", 40)')
-            && composer.includes('setComposerOperationSlotMetadata(matrixField, "nnc-predicate", 30)')
-            && composer.includes('setComposerOperationSlotMetadata(classTabs, "nnc-num1-num2"')
+            && composer.includes('setComposerOperationSlotMetadata(matrixField, "nnc-predicate", 10)')
+            && !composer.includes('setComposerOperationSlotMetadata(classTabs, "nnc-num1-num2"')
             && composer.includes("const moveSlotContentChildren = (fromEl, toEl)")
             && composer.includes("const currentTopRow = Array.from(stagePanel.children)")
             && composer.includes('stagePanel.dataset.activeTransitivity = activeToken')
             && entradaComposerCss.includes("grid-template-areas:")
-            && entradaComposerCss.includes('"entry switch"')
-            && entradaComposerCss.includes('"source source"')
-            && entradaComposerCss.includes('"operations operations"')
+            && entradaComposerCss.includes('"entry"')
+            && entradaComposerCss.includes('"source"')
+            && entradaComposerCss.includes("justify-self: stretch;")
             && entradaComposerCss.includes("#container-inputs #composer-slot-stage > .verb-composer__top-row")
             && entradaComposerCss.includes("#container-inputs #composer-slot-stage > .verb-composer__bottom-row")
             && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="noun-to-verb"] > .verb-composer__top-row')
-            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-class-tabs')
-            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__ordinary-nnc-controls')
+            && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__top-row')
             && !entradaComposerCss.includes("display: contents")
     );
     s.ok(
@@ -155,6 +154,88 @@ function run(ctx = {}) {
             && !html.includes("Conjugador de verbos")
             && !html.includes("form-container-word")
             && !html.includes(">DERIVADA<")
+    );
+    s.ok(
+        "desktop workspace places #1 Entrada over #2 Formula left of #3 Salida",
+        css.includes('grid-template-columns: minmax(330px, 0.46fr) minmax(0, 1fr);')
+            && css.includes('"inputs output"')
+            && css.includes('"derivation output"')
+            && css.includes('#panel-stack-pane-inputs {\n  grid-area: inputs;')
+            && css.includes('#panel-stack-pane-tense {\n  grid-area: derivation;')
+            && css.includes('.panel-output-column {\n  grid-area: output;')
+    );
+    s.ok(
+        "entrada source controls fit inside the left workspace column",
+        css.includes("#container-inputs #composer-slot-stage > .verb-composer__top-row")
+            && css.includes("grid-template-columns: repeat(2, minmax(0, 1fr));")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__matrix-input-row")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__matrix-head .verb-composer__slot-tabs")
+            && css.includes("grid-template-columns: minmax(72px, 0.42fr) minmax(0, 0.58fr);")
+            && css.includes("#container-inputs #composer-slot-stage > .verb-composer__bottom-row > .verb-composer__object-pair")
+            && css.includes("grid-template-columns: minmax(0, 1fr);")
+            && !css.includes("grid-template-columns: minmax(150px, 0.82fr) minmax(240px, 1.4fr);")
+    );
+    s.ok(
+        "entrada top-row labels and transitivity tabs stay compact and level",
+        css.includes("#container-inputs #composer-slot-stage .verb-composer__slot-tabs--transitivity")
+            && css.includes("grid-template-columns: repeat(3, minmax(0, 1fr));")
+            && css.includes("font-size: 0.56rem;")
+            && css.includes("white-space: nowrap;")
+            && css.includes("text-overflow: ellipsis;")
+            && css.includes("grid-template-rows: 24px minmax(24px, auto);")
+            && css.includes("grid-template-columns: max-content minmax(0, 1fr);")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__embed-input-row")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-input-row")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__top-row .verb-composer__matrix-head > .verb-composer__sub-label")
+            && !css.includes(".verb-composer__stem-field.has-slot-entry-button > .verb-composer__sub-label,\n#container-inputs #composer-slot-stage .verb-composer__matrix-field.has-slot-entry-button")
+    );
+    s.ok(
+        "nominal entrada composer collapses to the predicate-base slot only",
+        css.includes('#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage')
+            && css.includes('grid-template-areas:\n    "entry"\n    "source";')
+            && css.includes('grid-template-columns: auto repeat(3, minmax(0, 1fr));')
+            && css.includes('#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__slot-tabs--transitivity')
+            && css.includes('#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__embed-field')
+            && css.includes('#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__supportive-i-button')
+            && css.includes('display: none !important;')
+            && css.includes('#container-inputs .verb-composer[data-entry-board="ordinary-nnc"] #composer-slot-stage .verb-composer__matrix-field')
+            && css.includes('grid-template-rows: 18px minmax(24px, auto);')
+    );
+    s.ok(
+        "entrada slot buttons select slot-input paths while visible typing stays in input#verb",
+        html.includes('id="verb"')
+            && html.includes('id="composer-stem-a"')
+            && composer.includes("var ComposerVerbSlotEntryTarget = null")
+            && composer.includes("var ComposerVerbSlotEntryLastVerbValue")
+            && composer.includes("function buildComposerSlotEntryButton")
+            && composer.includes("className = \"verb-composer__slot-entry-button\"")
+            && composer.includes("aria-controls\", \"verb\"")
+            && composer.includes("verbEl.dataset.composerSlotRouterBound")
+            && composer.includes("clearComposerSlotEntryTarget()")
+            && composer.includes("function getComposerSlotEntryStateValue")
+            && composer.includes("function handleComposerVerbSlotBeforeInput")
+            && composer.includes("function handleComposerVerbSlotInput")
+            && composer.includes("applyComposerSlotEntryTargetInputValue")
+            && composer.includes("targetInput.value = nextValue")
+            && composer.includes('verbEl.addEventListener("beforeinput", handleComposerVerbSlotBeforeInput)')
+            && composer.includes('verbEl.addEventListener("input", handleComposerVerbSlotInput)')
+            && composer.includes("const slotStemInputs = COMPOSER_SLOT_KEYS")
+            && composer.includes("const slotOtherControls = COMPOSER_SLOT_KEYS")
+            && composer.includes("inputEl.classList.add(\"is-hidden-control\")")
+            && composer.includes("shell.classList.add(\"has-slot-entry-button\")")
+            && composer.includes("field?.classList?.add(\"has-slot-entry-button\")")
+            && composer.includes("function getComposerSlotEntryButtonLabel")
+            && composer.includes("function getComposerSlotEntryButtonVisibleText")
+            && composer.includes("return normalizedValue ? `(${normalizedValue})` : \"\"")
+            && composer.includes("focusComposerSlotEntryTarget(inputEl")
+            && css.includes(".verb-composer__slot-entry-button")
+            && css.includes(".verb-composer__tagged-input-shell.has-slot-entry-button")
+            && css.includes(".verb-composer__slot-entry-label")
+            && css.includes(".verb-composer__slot-entry-value")
+            && css.includes("display: none;")
+            && !css.includes(".verb-composer__matrix-field.has-slot-entry-button .verb-composer__matrix-head > .verb-composer__sub-label")
+            && css.includes("#container-inputs #composer-slot-stage .verb-composer__slot-entry-button")
+            && css.includes(".verb-composer__tagged-input-shell .verb-composer__tagged-input-control.is-hidden-control")
     );
     s.eq(
         "static visible UI text excludes obsolete English grammar labels",
@@ -700,13 +781,16 @@ function run(ctx = {}) {
             && css.includes(".lesson4-inspector__formula-option.is-active")
     );
     s.ok(
-        "ordinary NNC entrada uses analogue input and digital composer controls",
+        "ordinary NNC entrada uses only stem input while output owns nominal controls",
         composer.includes("parseComposerOrdinaryNncAnalogueInput")
             && composer.includes("formatComposerOrdinaryNncAnalogueInput")
             && composer.includes("buildComposerOrdinaryNncInputBundle")
             && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
-            && composer.includes('selectionRequired = !nounClass')
-            && composer.includes('"ordinary-nnc-animacy"')
+            && composer.includes('const regexValue = stem')
+            && composer.includes('formatComposerOrdinaryNncAnalogueInput({ stem, nounClass: "" })')
+            && composer.includes('selectionRequired: ""')
+            && !composer.includes('selectionRequired = !nounClass')
+            && !composer.includes('"ordinary-nnc-animacy"')
             && composer.includes("function isComposerTransitivitySelected")
             && composer.includes('selectionRequired: "transitivity"')
             && composer.includes("function runVerbInputRefresh()")
@@ -714,26 +798,14 @@ function run(ctx = {}) {
             && composer.includes("renderActiveConjugations({")
             && composer.includes("verb: verbMeta.displayVerb")
             && composer.includes("renderComposerOrdinaryNncDigitalControls")
-            && composer.includes('controls.id = "composer-ordinary-nnc-controls"')
-            && composer.includes('classTabs.id = "composer-ordinary-nnc-class-tabs"')
-            && composer.includes('classTabs.className = "verb-composer__slot-tabs verb-composer__ordinary-nnc-class-tabs"')
-            && composer.includes('labelEl.textContent = "Conector num1-num2"')
-            && composer.includes('button.className = "verb-composer__slot-transitivity verb-composer__slot-tab"')
+            && composer.includes('document.getElementById("composer-ordinary-nnc-class-tabs")?.remove()')
+            && !composer.includes('controls.id = "composer-ordinary-nnc-controls"')
             && !composer.includes('label: "Clase"')
-            && composer.includes('label: "Animacidad"')
+            && !composer.includes('label: "Animacidad"')
             && !composer.includes('label: "Sujeto"')
             && !composer.includes('label: "Poseedor"')
             && !composer.includes('label: "Referencia"')
             && !composer.includes('label: "Tipo"')
-            && composer.includes('classTabs.setAttribute("aria-label", "Conector num1-num2 de la cláusula nominal")')
-            && composer.includes('classTabs.dataset.fixtureNounClass = fixedClass')
-            && composer.includes('const displayedClass = normalizeComposerOrdinaryNncNounClass(activeClass || "") || fixedClass')
-            && composer.includes('const activeClass = normalizeComposerOrdinaryNncNounClass(state.nounClass || "")')
-            && composer.includes('|| parsedInputClass')
-            && composer.includes('|| fixtureClass')
-            && composer.includes('button.dataset.fixtureAlternative = "true"')
-            && composer.includes('button.dataset.fixtureNounClass = fixedClass')
-            && composer.includes('button.classList.add("is-fixture-alternative")')
             && !composer.includes("bloqueado por ficha: conector")
             && composer.includes('const currentStem = currentAnalogue?.stem || getComposerActiveStemValue()')
             && composer.includes('setComposerActiveSlotStem(normalizeComposerStem(currentStem))')
@@ -742,30 +814,45 @@ function run(ctx = {}) {
             && composer.includes("syncComposerOrdinaryNncClassTabActiveState(nextPatch.nounClass)")
             && composer.includes("window.setTimeout(() => {")
             && composer.includes('const rawInputValue = document.getElementById("verb")?.value || ""')
-            && composer.includes('const parsedInputClass = normalizeComposerOrdinaryNncNounClass(')
             && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
-            && composer.includes('const selectedAnimacy = (')
-            && composer.includes(') || fixtureAnimacy')
-            && composer.includes('const hasFixtureAnimacy = Boolean(fixtureAnimacy)')
+            && rendering.includes('visibleLabel: "Conector num1-num2"')
+            && rendering.includes('visibleLabel: "Animacidad"')
+            && rendering.includes('setOrdinaryNncGenerationState({ nounClass: id || "zero" })')
+            && rendering.includes('animacy: id')
             && !composer.includes("Animacidad fija")
             && !composer.includes('disabled: animacyIsFixed')
             && !composer.includes("bloqueado por ficha: animado")
             && !composer.includes("bloqueado por ficha: inanimado")
-            && composer.includes('title: "clase t: (...V)t"')
-            && composer.includes('title: "clase ti: (...C)ti"')
-            && composer.includes('title: "clase in: (...C)in"')
-            && composer.includes('title: "clase Ø: (...C/V)"')
+            && rendering.includes('title: "conector t: (...V)t"')
+            && rendering.includes('title: "conector ti: (...C)ti"')
+            && rendering.includes('title: "conector in: (...C)in"')
+            && rendering.includes('title: "conector Ø: (...C/V)"')
             && rendering.includes("Selecciona un conector de número para saber su salida.")
             && rendering.includes("Selecciona una animacidad para saber su salida.")
             && rendering.includes("Selecciona una transitividad para saber su salida.")
             && html.includes('<option value="">Selecciona transitividad</option>')
-            && css.includes(".verb-composer__ordinary-nnc-controls")
-            && css.includes(".verb-composer__ordinary-nnc-class-tabs")
-            && css.includes(".verb-composer__ordinary-nnc-class-tabs .verb-composer__slot-tab.is-active")
-            && css.includes(".verb-composer__ordinary-nnc-chip.is-active")
-            && css.includes("rgba(18, 107, 97, 0.38)")
-            && css.includes("#container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls")
+            && css.includes(".tense-block--noun-shared-controls")
+            && !entradaComposerCss.includes("#container-inputs #composer-slot-stage > .verb-composer__ordinary-nnc-controls")
     );
+    if (typeof ctx.buildComposerOrdinaryNncInputBundle === "function") {
+        const nominalStemBundle = ctx.buildComposerOrdinaryNncInputBundle({
+            transitivity: "intransitive",
+            slotAStem: "shuchi",
+        }, "");
+        s.eq(
+            "ordinary NNC composer serializes the predicate stem inside formula parentheses",
+            {
+                regexValue: nominalStemBundle.regexValue,
+                stem: nominalStemBundle.stem,
+                selectionRequired: nominalStemBundle.selectionRequired,
+            },
+            {
+                regexValue: "(shuchi)",
+                stem: "shuchi",
+                selectionRequired: "",
+            }
+        );
+    }
     s.ok(
         "ordinary NNC connector visual state is synchronized before generation refresh can block",
         (() => {
@@ -798,7 +885,16 @@ function run(ctx = {}) {
             && !rendering.includes('label.textContent = "Sustantivo ordinario"')
             && !rendering.includes('visibleLabel: "Clase"')
             && !rendering.includes('ariaLabel: "Clase del conector de numero del sujeto"')
-            && !rendering.includes('visibleLabel: "Animacidad"')
+            && rendering.includes('visibleLabel: "Conector num1-num2"')
+            && rendering.includes('ariaLabel: "conector num1-num2 de la cláusula nuclear nominal"')
+            && rendering.includes('visibleLabel: "Animacidad"')
+            && rendering.includes('ariaLabel: "animacidad de la cláusula nuclear nominal"')
+            && css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked.object-toggle--with-label .object-toggle__label")
+            && css.includes("grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));")
+            && css.includes("flex-basis: 100%;")
+            && css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked .object-toggle-button")
+            && css.includes('.tense-block--ordinary-nnc-controls .object-toggle[data-toggle-slot="possessor"]')
+            && css.includes("grid-column: span 2;")
             && rendering.includes('visibleLabel: ANDREWS_RENDERING_TERMS.pers1Pers2')
             && rendering.includes('visibleLabel: "Estado/poseedor"')
             && rendering.includes('ariaLabel: "Estado/poseedor"')
@@ -922,12 +1018,18 @@ function run(ctx = {}) {
             && rendering.includes("conjugation-conversion-source-column")
             && rendering.includes("conjugation-conversion-target-column")
             && rendering.includes("resolveContinuationActionGroupMeta")
+            && rendering.includes("resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta")
+            && rendering.includes("auditVisibleContinuationRouteRecordGroups")
+            && rendering.includes("auditVisibleContinuationRouteOutputConsistency")
+            && rendering.includes("andrewsRouteRecordGroupId")
+            && rendering.includes("andrewsUiExpectedRouteRecordId")
             && rendering.includes("appendContinuationAction")
             && rendering.includes("conjugation-continuation-group")
-            && rendering.includes('eyebrow: "CNN"')
-            && rendering.includes('title: "Patientivo"')
-            && rendering.includes('eyebrow: "CNN"')
-            && rendering.includes('title: "Compuesto"')
+            && rendering.includes('eyebrow: "Registro"')
+            && rendering.includes('title: "CNV → CNN nominalizada"')
+            && rendering.includes('title: "núcleo CNV → CNN deverbal"')
+            && rendering.includes('title: "CNN → CNV denominal"')
+            && rendering.includes('title: "CNV → CNN → CNV"')
             && css.includes(".calc-guidance__chips")
             && css.includes("grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.5rem), max-content));")
             && css.includes(".conjugation-row--conversion-columns")
@@ -954,11 +1056,15 @@ function run(ctx = {}) {
             && rendering.includes("dataset.ownerhoodVerbInput")
             && rendering.includes("getOwnerhoodPreviewSurface")
             && rendering.includes("applyOrdinaryNounOwnerhoodRootsToVerbEntry")
+            && rendering.includes("sourceFormulaSlots: rowFormulaSlots")
+            && rendering.includes("sourceFormulaEcho: rowFormulaEcho")
+            && rendering.includes("sourceFormulaSlots: contract.sourceFormulaSlots || rowFormulaSlots || null")
             && rendering.includes("matriz de posesión:")
             && rendering.includes("V pretérito:")
             && composer.includes("function applyOrdinaryNounOwnerhoodRootsToVerbEntry")
             && composer.includes("resolveOrdinaryNounOwnerhoodMatrixSpec")
             && composer.includes("buildOrdinaryNounOwnerhoodVerbInput")
+            && composer.includes('dataset: { ordinaryNncOwnerhoodContinuation: "true" }')
             && composer.includes("ordinary-noun-ownerhood-entry")
     );
     s.ok(
@@ -1275,7 +1381,8 @@ function run(ctx = {}) {
             && rendering.includes("renderIntensifiedAdjectivalFunctionContinuation({")
             && vncFacade.includes('if (formation === "intensified-adjectival")')
             && vncFacade.includes("adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots")
-            && composer.includes("sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === \"object\" ? sourceFormulaSlots : null")
+            && composer.includes("const resolvedSourceFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === \"object\"")
+            && composer.includes("sourceFormulaSlots: resolvedSourceFormulaSlots && typeof resolvedSourceFormulaSlots === \"object\" ? resolvedSourceFormulaSlots : null")
             && composer.includes("encodeValue(override.adjectivalNnc?.sourceFormulaEcho)")
             && css.includes(".calc-guidance__chip--intensified-adjectival-function")
     );
@@ -1527,6 +1634,8 @@ function run(ctx = {}) {
             && rendering.includes("renderPreteritAgentiveOwnerhoodContinuation")
             && rendering.includes("buildPreteritAgentiveOwnerhoodContinuationContract")
             && rendering.includes("getPreteritAgentiveOwnerhoodMatrixInventory")
+            && rendering.includes("getFunctionUseContinuationFormulaSlotsFromResult")
+            && rendering.includes("getFunctionUseContinuationFormulaEchoFromResult")
             && rendering.includes("getPreteritAgentiveOwnerhoodPreviewSurface")
             && rendering.includes('continueButton.dataset.preteritAgentiveOwnerhoodContinuation = "true"')
             && rendering.includes("applyPreteritAgentiveOwnerhoodRootsToVerbEntry")
@@ -1540,6 +1649,8 @@ function run(ctx = {}) {
             && rendering.includes("getPreteritAgentiveAdverbialMatrixInventory")
             && rendering.includes('continueButton.dataset.preteritAgentiveAdverbialContinuation = "true"')
             && rendering.includes("applyPreteritAgentiveAdverbialRootsToVerbEntry")
+            && rendering.includes("sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null")
+            && rendering.includes("sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || \"\"")
             && rendering.includes('resolvedTense === "agentivo-preterito"')
             && rendering.includes("uso general:")
             && rendering.includes("Andrews 35.7:")
@@ -1549,10 +1660,300 @@ function run(ctx = {}) {
             && composer.includes("function applyPreteritAgentiveOwnerhoodRootsToVerbEntry")
             && composer.includes("function applyPreteritAgentiveComplementRootsToVerbEntry")
             && composer.includes("function applyPreteritAgentiveAdverbialRootsToVerbEntry")
+            && composer.includes("shouldBlockComposerFunctionUseValenceRouteAction({")
+            && composer.includes('dataset: { preteritAgentiveComplementContinuation: "true" }')
             && composer.includes("preterit-agentive-adverbial-entry")
             && composer.includes("preterit-agentive-complement-entry")
             && composer.includes("setSelectedTenseTab(\"pasado-remoto\")")
             && composer.includes("preterit-agentive-ownerhood-entry")
+    );
+    s.eq(
+        "function-use ownerhood/complement/adverbial composer actions hard-gate unresolved valence before mutating entry state",
+        typeof ctx.applyPreteritAgentiveOwnerhoodRootsToVerbEntry === "function"
+            && typeof ctx.applyPreteritAgentiveComplementRootsToVerbEntry === "function"
+            && typeof ctx.applyPreteritAgentiveAdverbialRootsToVerbEntry === "function"
+            && typeof ctx.applyOrdinaryNounOwnerhoodRootsToVerbEntry === "function"
+            && typeof ctx.applyPrelocativeRootsToVerbEntry === "function"
+            && typeof ctx.applyPatientivoCompoundEmbedRootsToVerbEntry === "function"
+            && typeof ctx.applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry === "function"
+            && typeof ctx.applyActiveActionCompoundEmbedRootsToVerbEntry === "function"
+            && typeof ctx.applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry === "function"
+            && typeof ctx.applyPatientivoNominalCompoundToOrdinaryNncEntry === "function"
+            && typeof ctx.applyActiveActionNominalCompoundToOrdinaryNncEntry === "function"
+            && typeof ctx.applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry === "function"
+            ? (() => {
+                const verbEl = ctx.document.getElementById("verb");
+                const before = "before-function-use-gate";
+                verbEl.value = before;
+                const blocked = [
+                    ctx.applyPreteritAgentiveOwnerhoodRootsToVerbEntry({
+                        preteritAgentiveStem: "tamachti",
+                        matrixRoot: "wa",
+                    }),
+                    ctx.applyPreteritAgentiveComplementRootsToVerbEntry({
+                        preteritAgentiveStem: "tamachti",
+                        matrixRoot: "mati",
+                    }),
+                    ctx.applyPreteritAgentiveAdverbialRootsToVerbEntry({
+                        preteritAgentiveStem: "tamachti",
+                        matrixRoot: "nemi",
+                    }),
+                    ctx.applyOrdinaryNounOwnerhoodRootsToVerbEntry({
+                        nounStem: "kal",
+                        nounClass: "zero",
+                        matrixRoot: "wa",
+                    }),
+                    ctx.applyPrelocativeRootsToVerbEntry({
+                        incorporatedRoot: "kal",
+                        matrixRoot: "tajtani",
+                    }),
+                    ctx.applyPatientivoCompoundEmbedRootsToVerbEntry({
+                        incorporatedRoot: "kal",
+                        matrixRoot: "miki",
+                    }),
+                    ctx.applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry({
+                        incorporatedRoot: "kal",
+                        matrixRoot: "chikawa",
+                    }),
+                    ctx.applyActiveActionCompoundEmbedRootsToVerbEntry({
+                        actionNominalSurface: "takwalis",
+                        matrixRoot: "tzajtzi",
+                    }),
+                    ctx.applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry({
+                        customaryAgentiveStem: "tamachtiani",
+                        matrixRoot: "tuka",
+                    }),
+                    ctx.applyPatientivoNominalCompoundToOrdinaryNncEntry({
+                        incorporatedRoot: "kal",
+                        matrixRoot: "kal",
+                    }),
+                    ctx.applyActiveActionNominalCompoundToOrdinaryNncEntry({
+                        actionNominalSurface: "takwalis",
+                        matrixRoot: "kal",
+                    }),
+                    ctx.applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry({
+                        customaryAgentiveStem: "tamachtiani",
+                        matrixRoot: "kal",
+                    }),
+                ];
+                return {
+                    blocked,
+                    verbValue: verbEl.value,
+                };
+            })()
+            : { blocked: [], verbValue: "composer-runtime-not-loaded" },
+        {
+            blocked: [false, false, false, false, false, false, false, false, false, false, false, false],
+            verbValue: "before-function-use-gate",
+        }
+    );
+    s.eq(
+        "function-use composer route actions accept fixed source formula slots before mutation",
+        typeof ctx.shouldBlockComposerFunctionUseValenceRouteAction === "function"
+            ? (() => {
+                const sourceFormulaSlots = {
+                    pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+                    predicateStem: { slot: "STEM", stem: "kal", displayStem: "kal" },
+                    obj1: { slot: "obj1", token: "", displayPrefix: "Ø" },
+                    num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+                };
+                const routeAction = ctx.shouldBlockComposerFunctionUseValenceRouteAction({
+                    dataset: { ordinaryNncOwnerhoodContinuation: "true" },
+                    routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    sourceFormulaSlots,
+                    sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
+                });
+                return {
+                    blocked: routeAction.blocked,
+                    routeRankingAllowed: routeAction.contract?.routeRankingAllowed,
+                    functionUseValenceGate: routeAction.contract?.functionUseValenceGate?.status || "",
+                    reason: routeAction.contract?.functionUseValenceGate?.reason || "",
+                };
+            })()
+            : { blocked: true, routeRankingAllowed: false, functionUseValenceGate: "composer-runtime-not-loaded", reason: "" },
+        {
+            blocked: false,
+            routeRankingAllowed: true,
+            functionUseValenceGate: "pass",
+            reason: "route-action-function-use-valence-frame-fixed",
+        }
+    );
+    s.eq(
+        "function-use composer route actions treat object-prefix writes as route-owned pressure, not function-use structure",
+        typeof ctx.shouldBlockComposerFunctionUseValenceRouteAction === "function"
+            ? (() => {
+                const sourceFormulaSlots = {
+                    pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+                    predicateStem: { slot: "STEM", stem: "mati", displayStem: "mati" },
+                    num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+                };
+                const sourceFormulaSlotsWithObject = {
+                    ...sourceFormulaSlots,
+                    obj1: { slot: "obj1", token: "ki", displayPrefix: "ki" },
+                };
+                const sourceFormulaSlotsWithDifferentObject = {
+                    ...sourceFormulaSlots,
+                    obj1: { slot: "obj1", token: "ta", displayPrefix: "ta" },
+                };
+                const routeOwnedFrame = {
+                    kind: "andrews-incorporation-route-frame",
+                    matrixValence: "transitive",
+                    routeFrameLicensesObjectSlotOwnership: true,
+                    remainingExternalObjectSlots: [{ slotId: "obj1", prefix: "ki" }],
+                    objectSlotOwnership: {
+                        kind: "andrews-incorporation-object-slot-ownership-frame",
+                        matrixValenceFrameFixed: true,
+                        functionUseOwnsObjectSlots: false,
+                        finalFormulaShapeOwnsObjectSlots: false,
+                    },
+                };
+                const buildAction = (extra = {}) => ctx.shouldBlockComposerFunctionUseValenceRouteAction({
+                    dataset: { preteritAgentiveComplementContinuation: "true" },
+                    routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    sourceFormulaSlots,
+                    sourceFormulaEcho: "#Ø-Ø(mati)Ø#",
+                    objectPrefix: "ki",
+                    ...extra,
+                });
+                const genericObjectPressure = buildAction();
+                const routeOwnedObjectPressure = buildAction({
+                    sourceRouteFrame: routeOwnedFrame,
+                });
+                const objectSlotFormulaEvidence = buildAction({
+                    sourceFormulaSlots: sourceFormulaSlotsWithObject,
+                    sourceFormulaEcho: "#Ø-ki(mati)Ø#",
+                });
+                const mismatchedObjectEvidence = buildAction({
+                    sourceFormulaSlots: sourceFormulaSlotsWithDifferentObject,
+                    sourceFormulaEcho: "#Ø-ta(mati)Ø#",
+                });
+                return {
+                    generic: {
+                        blocked: genericObjectPressure.blocked,
+                        reason: genericObjectPressure.contract?.functionUseValenceGate?.reason || "",
+                    },
+                    routeOwned: {
+                        blocked: routeOwnedObjectPressure.blocked,
+                        reason: routeOwnedObjectPressure.contract?.functionUseValenceGate?.reason || "",
+                    },
+                    objectSlotFormula: {
+                        blocked: objectSlotFormulaEvidence.blocked,
+                        reason: objectSlotFormulaEvidence.contract?.functionUseValenceGate?.reason || "",
+                    },
+                    mismatch: {
+                        blocked: mismatchedObjectEvidence.blocked,
+                        reason: mismatchedObjectEvidence.contract?.functionUseValenceGate?.reason || "",
+                    },
+                };
+            })()
+            : { generic: { blocked: true, reason: "composer-runtime-not-loaded" } },
+        {
+            generic: {
+                blocked: true,
+                reason: "route-action-function-use-valence-frame-unfixed",
+            },
+            routeOwned: {
+                blocked: false,
+                reason: "route-action-function-use-valence-frame-fixed",
+            },
+            objectSlotFormula: {
+                blocked: false,
+                reason: "route-action-function-use-valence-frame-fixed",
+            },
+            mismatch: {
+                blocked: true,
+                reason: "route-action-function-use-valence-frame-unfixed",
+            },
+        }
+    );
+    s.eq(
+        "function-use continuation renderers forward route ownership frames before composer mutation",
+        (() => {
+            const collectCallBlocks = (functionName) => {
+                const blocks = [];
+                let index = 0;
+                const needle = `${functionName}({`;
+                while (index >= 0) {
+                    const start = rendering.indexOf(needle, index);
+                    if (start < 0) {
+                        break;
+                    }
+                    const end = rendering.indexOf("});", start);
+                    blocks.push(end > start ? rendering.slice(start, end + 4) : rendering.slice(start));
+                    index = start + needle.length;
+                }
+                return blocks;
+            };
+            const forwardedFunctions = [
+                "applyOrdinaryNounOwnerhoodRootsToVerbEntry",
+                "applyActiveActionCompoundEmbedRootsToVerbEntry",
+                "applyActiveActionNominalCompoundToOrdinaryNncEntry",
+                "applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry",
+                "applyPreteritAgentiveOwnerhoodRootsToVerbEntry",
+                "applyPreteritAgentiveComplementRootsToVerbEntry",
+                "applyPreteritAgentiveAdverbialRootsToVerbEntry",
+                "applyPatientivoNominalCompoundToOrdinaryNncEntry",
+                "applyPatientivoCompoundEmbedRootsToVerbEntry",
+                "applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry",
+                "applyPrelocativeRootsToVerbEntry",
+                "applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry",
+            ];
+            const missingForwarding = forwardedFunctions.flatMap((functionName) => {
+                const blocks = collectCallBlocks(functionName);
+                if (!blocks.length) {
+                    return [`${functionName}:missing-call`];
+                }
+                return blocks
+                    .map((block, index) => (
+                        block.includes("getFunctionUseContinuationRouteOwnershipOptions(contract)")
+                            ? ""
+                            : `${functionName}:${index}`
+                    ))
+                    .filter(Boolean);
+            });
+            const composerFunctionsMissingRouteParams = forwardedFunctions.flatMap((functionName) => {
+                const start = composer.indexOf(`function ${functionName}({`);
+                if (start < 0) {
+                    return [`${functionName}:missing-function`];
+                }
+                const end = composer.indexOf("} = {}) {", start);
+                const params = end > start ? composer.slice(start, end) : "";
+                return ["grammarFrame", "sourceRouteFrame", "routeFrame", "incorporationRouteFrame", "objectSlotOwnership"]
+                    .filter((param) => !params.includes(param))
+                    .map((param) => `${functionName}:${param}`);
+            });
+            return { missingForwarding, composerFunctionsMissingRouteParams };
+        })(),
+        {
+            missingForwarding: [],
+            composerFunctionsMissingRouteParams: [],
+        }
+    );
+    s.eq(
+        "function-use continuation route ownership forwarding reads nested source and entry contracts",
+        (() => {
+            const start = rendering.indexOf("function getFunctionUseContinuationRouteOwnershipOptions");
+            const end = rendering.indexOf("function isAndrewsCnvCnnRouteActionFunctionUseHardBlocked", start);
+            const helper = start >= 0 && end > start ? rendering.slice(start, end) : "";
+            return {
+                readsBareSourceContractRoute: helper.includes("source.sourceContract?.sourceRouteFrame"),
+                readsBareTargetContractRoute: helper.includes("source.targetContract?.sourceRouteFrame"),
+                readsEntryRouteContractRoute: helper.includes("source.entryRouteContract?.sourceRouteFrame"),
+                readsGrammarSourceContractRoute: helper.includes("grammarFrame?.sourceContract?.sourceRouteFrame"),
+                readsNestedObjectOwnership: helper.includes("source.entryRouteContract?.sourceContract?.objectSlotOwnership"),
+                forwardsNestedFunctionUseGate: helper.includes("source.entryRouteContract?.sourceContract?.functionUseValenceGate"),
+                returnsResolvedGate: helper.includes("? functionUseValenceGate"),
+            };
+        })(),
+        {
+            readsBareSourceContractRoute: true,
+            readsBareTargetContractRoute: true,
+            readsEntryRouteContractRoute: true,
+            readsGrammarSourceContractRoute: true,
+            readsNestedObjectOwnership: true,
+            forwardsNestedFunctionUseGate: true,
+            returnsResolvedGate: true,
+        }
     );
     const characteristicComposerStart = composer.indexOf("function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry");
     const characteristicComposerEnd = composer.indexOf("function applyPatientivoNominalCompoundToOrdinaryNncEntry", characteristicComposerStart);
@@ -1617,6 +2018,17 @@ function run(ctx = {}) {
     s.ok(
         `linked promotion chips project LCM route datasets${linkedPromotionButtonsWithoutLcm.length ? ` (${linkedPromotionButtonsWithoutLcm.join(", ")})` : ""}`,
         linkedPromotionButtonBlocks.length >= 20 && linkedPromotionButtonsWithoutLcm.length === 0
+    );
+    const linkedPromotionButtonsWithoutRouteAction = linkedPromotionButtonBlocks
+        .filter(({ body }) => !body.includes("appendContinuationAction(") && !body.includes("applyAndrewsCnvCnnRouteActionDataset("))
+        .map(({ index, body }) => {
+            const line = rendering.slice(0, index).split("\n").length;
+            const dataset = body.match(/dataset\.([A-Za-z0-9_]+)\s*=/)?.[1] || "unknown";
+            return `${dataset}@${line}`;
+        });
+    s.ok(
+        `linked promotion chips pass through Andrews 7-record route-action projection${linkedPromotionButtonsWithoutRouteAction.length ? ` (${linkedPromotionButtonsWithoutRouteAction.join(", ")})` : ""}`,
+        linkedPromotionButtonBlocks.length >= 20 && linkedPromotionButtonsWithoutRouteAction.length === 0
     );
     s.ok(
         "calificativo general-use source-subject possessor lives in #3 salida rows",
@@ -1718,7 +2130,11 @@ function run(ctx = {}) {
             && rendering.includes("const appendVerbToNominalRowContinuations = ({")
             && rendering.includes('continueButton.dataset.verbNominalContinuation = "true"')
             && rendering.includes('continueButton.dataset.targetMode = "sustantivo"')
-            && rendering.includes('setActiveTenseMode(TENSE_MODE.sustantivo, { clearRoute: true });')
+            && rendering.includes("function activateCnnOutputModeForContinuation")
+            && rendering.includes("setActiveNawatTenseMode(TENSE_MODE.sustantivo, { syncOutput: true })")
+            && rendering.includes("modeSystem: typeof TENSE_MODE_SYSTEM !== \"undefined\"")
+            && rendering.includes("updateTenseModeTabs()")
+            && rendering.includes("activateCnnOutputModeForContinuation({ clearRoute: true });")
             && rendering.includes("appendVerbToNominalRowContinuations({")
     );
     s.ok(
@@ -1805,6 +2221,10 @@ function run(ctx = {}) {
             && rendering.includes("calc-guidance__chip--object-prefix-choice")
             && rendering.includes("objeto pendiente")
             && rendering.includes("objeto verbal seleccionado explícitamente")
+            && rendering.includes("applyAndrewsCnvCnnRouteActionDataset")
+            && rendering.includes("andrewsRouteRecordId")
+            && rendering.includes("registro CNN -> CNV")
+            && rendering.includes("compuertas Andrews")
             && rendering.includes('objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : ""')
             && rendering.includes('objectButton.dataset.tiSourceRequired = "true"')
             && rendering.includes('objectButton.dataset.huiSourceRequired = "true"')
@@ -4980,6 +5400,433 @@ function run(ctx = {}) {
                 resultOk: "false",
             }
             : { diagnosticLayer: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "shared route dataset attaches the 7-record Andrews action contract to continuation chips",
+        typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
+            ? (() => {
+                const makeElement = (dataset) => {
+                    const attributes = {};
+                    return {
+                        dataset: { ...dataset },
+                        title: "",
+                        textContent: "continuación",
+                        setAttribute(name, value) {
+                            attributes[name] = value;
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        attributes,
+                    };
+                };
+                const samples = [
+                    makeElement({ verbNominalContinuation: "true", targetTense: "agentivo-preterito" }),
+                    makeElement({ verbNominalContinuation: "true", targetTense: "sustantivo-verbal" }),
+                    makeElement({ denominalAndrewsContractRouteContinuation: "true" }),
+                    makeElement({ preteritAgentiveCompoundEmbedContinuation: "true" }),
+                ];
+                samples.forEach((element) => ctx.applyAndrewsCnvCnnRouteActionDataset(element, element));
+                return samples.map((element) => ({
+                    routeRecordId: element.dataset.andrewsRouteRecordId,
+                    expectedRouteRecordId: element.dataset.andrewsUiExpectedRouteRecordId,
+                    operation: element.dataset.andrewsUiOperation,
+                    gateCount: Number(element.dataset.andrewsRouteObstacleGateCount || 0),
+                    routeRankingAllowed: element.dataset.andrewsRouteRankingAllowed,
+                    functionUseValenceGate: element.dataset.andrewsRouteFunctionUseValenceGate,
+                    actionAllowed: element.dataset.andrewsRouteActionAllowed,
+                    diagnosticOnly: element.dataset.andrewsRouteDiagnosticOnly,
+                    titleHasSpanishRegister: /registro Andrews:/.test(element.title),
+                    titleHasGates: /compuertas Andrews:/.test(element.title),
+                    ariaMentionsGates: /compuertas Andrews/.test(element.attributes["aria-label"] || ""),
+                }));
+            })()
+            : [{ routeRecordId: "rendering-runtime-not-loaded" }],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                {
+                    routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    expectedRouteRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    operation: "nominalizacion agentiva",
+                    gateCount: 8,
+                    routeRankingAllowed: "true",
+                    functionUseValenceGate: "",
+                    actionAllowed: "true",
+                    diagnosticOnly: "false",
+                    titleHasSpanishRegister: true,
+                    titleHasGates: true,
+                    ariaMentionsGates: true,
+                },
+                {
+                    routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+                    expectedRouteRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+                    operation: "nominal deverbal sustantivo-verbal",
+                    gateCount: 8,
+                    routeRankingAllowed: "true",
+                    functionUseValenceGate: "",
+                    actionAllowed: "true",
+                    diagnosticOnly: "false",
+                    titleHasSpanishRegister: true,
+                    titleHasGates: true,
+                    ariaMentionsGates: true,
+                },
+                {
+                    routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    expectedRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    operation: "verbalizacion denominal",
+                    gateCount: 8,
+                    routeRankingAllowed: "true",
+                    functionUseValenceGate: "",
+                    actionAllowed: "true",
+                    diagnosticOnly: "false",
+                    titleHasSpanishRegister: true,
+                    titleHasGates: true,
+                    ariaMentionsGates: true,
+                },
+                {
+                    routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                    expectedRouteRecordId: "cnv-to-cnn-to-cnv-loop",
+                    operation: "bucle CNV-CNN-CNV",
+                    gateCount: 8,
+                    routeRankingAllowed: "false",
+                    functionUseValenceGate: "blocked",
+                    actionAllowed: "false",
+                    diagnosticOnly: "true",
+                    titleHasSpanishRegister: true,
+                    titleHasGates: true,
+                    ariaMentionsGates: true,
+                },
+            ]
+            : [{ routeRecordId: "rendering-runtime-not-loaded" }]
+    );
+    s.eq(
+        "shared route dataset exposes the function-use valence hard gate before action use",
+        typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
+            ? (() => {
+                const makeElement = (dataset) => ({
+                    dataset: { ...dataset },
+                    title: "",
+                    textContent: "continuación",
+                    setAttribute() {},
+                    getAttribute() {
+                        return "";
+                    },
+                });
+                const adverbial = makeElement({ preteritAgentiveAdverbialContinuation: "true" });
+                const ownerhood = makeElement({ ordinaryNncOwnerhoodContinuation: "true" });
+                [adverbial, ownerhood].forEach((element) => ctx.applyAndrewsCnvCnnRouteActionDataset(element, element));
+                return [adverbial, ownerhood].map((element) => ({
+                    routeRecordId: element.dataset.andrewsRouteRecordId,
+                    routeRankingAllowed: element.dataset.andrewsRouteRankingAllowed,
+                    functionUseValenceGate: element.dataset.andrewsRouteFunctionUseValenceGate,
+                    functionUseValenceReason: element.dataset.andrewsRouteFunctionUseValenceReason,
+                    actionAllowed: element.dataset.andrewsRouteActionAllowed,
+                    diagnosticOnly: element.dataset.andrewsRouteDiagnosticOnly,
+                }));
+            })()
+            : [{ routeRecordId: "rendering-runtime-not-loaded" }],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                {
+                    routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    routeRankingAllowed: "false",
+                    functionUseValenceGate: "blocked",
+                    functionUseValenceReason: "route-action-function-use-valence-frame-unfixed",
+                    actionAllowed: "false",
+                    diagnosticOnly: "true",
+                },
+                {
+                    routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    routeRankingAllowed: "false",
+                    functionUseValenceGate: "blocked",
+                    functionUseValenceReason: "route-action-function-use-valence-frame-unfixed",
+                    actionAllowed: "false",
+                    diagnosticOnly: "true",
+                },
+            ]
+            : [{ routeRecordId: "rendering-runtime-not-loaded" }]
+    );
+    s.eq(
+        "blocked Andrews function-use route chips stop click actions before state mutation",
+        typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
+            ? (() => {
+                const makeButton = (dataset) => {
+                    const attributes = {};
+                    const classes = new Set();
+                    const listeners = [];
+                    const button = {
+                        dataset: { ...dataset },
+                        title: "",
+                        textContent: "continuación",
+                        disabled: false,
+                        classList: {
+                            add(...values) {
+                                values.forEach((value) => classes.add(value));
+                            },
+                            contains(value) {
+                                return classes.has(value);
+                            },
+                        },
+                        setAttribute(name, value) {
+                            attributes[name] = value;
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        addEventListener(type, handler, options) {
+                            listeners.push({
+                                type,
+                                handler,
+                                capture: options === true || options?.capture === true,
+                            });
+                        },
+                        dispatchClick() {
+                            const event = {
+                                defaultPrevented: false,
+                                propagationStopped: false,
+                                immediateStopped: false,
+                                preventDefault() {
+                                    this.defaultPrevented = true;
+                                },
+                                stopPropagation() {
+                                    this.propagationStopped = true;
+                                },
+                                stopImmediatePropagation() {
+                                    this.immediateStopped = true;
+                                    this.propagationStopped = true;
+                                },
+                            };
+                            for (const listener of listeners.filter((entry) => entry.type === "click" && entry.capture)) {
+                                listener.handler(event);
+                                if (event.immediateStopped) {
+                                    return event;
+                                }
+                            }
+                            for (const listener of listeners.filter((entry) => entry.type === "click" && !entry.capture)) {
+                                listener.handler(event);
+                                if (event.immediateStopped) {
+                                    return event;
+                                }
+                            }
+                            return event;
+                        },
+                        attributes,
+                        classes,
+                    };
+                    return button;
+                };
+                const button = makeButton({ preteritAgentiveCompoundEmbedContinuation: "true" });
+                ctx.applyAndrewsCnvCnnRouteActionDataset(button, button);
+                let downstreamClickRan = false;
+                button.addEventListener("click", () => {
+                    downstreamClickRan = true;
+                });
+                const event = button.dispatchClick();
+                return {
+                    routeRecordId: button.dataset.andrewsRouteRecordId,
+                    routeRankingAllowed: button.dataset.andrewsRouteRankingAllowed,
+                    functionUseValenceGate: button.dataset.andrewsRouteFunctionUseValenceGate,
+                    actionAllowed: button.dataset.andrewsRouteActionAllowed,
+                    hardGateBlocked: button.dataset.andrewsRouteHardGateBlocked,
+                    actionBlocked: button.dataset.andrewsRouteActionBlocked,
+                    guardBound: button.dataset.andrewsRouteHardGateClickGuardBound,
+                    disabled: button.disabled,
+                    ariaDisabled: button.attributes["aria-disabled"] || "",
+                    unavailableClass: button.classes.has("is-unavailable"),
+                    gatedClass: button.classes.has("is-function-use-valence-gated"),
+                    defaultPrevented: event.defaultPrevented,
+                    immediateStopped: event.immediateStopped,
+                    downstreamClickRan,
+                };
+            })()
+            : { routeRecordId: "rendering-runtime-not-loaded" },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                routeRankingAllowed: "false",
+                functionUseValenceGate: "blocked",
+                actionAllowed: "false",
+                hardGateBlocked: "true",
+                actionBlocked: "function-use-valence-object",
+                guardBound: "true",
+                disabled: true,
+                ariaDisabled: "true",
+                unavailableClass: true,
+                gatedClass: true,
+                defaultPrevented: true,
+                immediateStopped: true,
+                downstreamClickRan: false,
+            }
+            : { routeRecordId: "rendering-runtime-not-loaded" }
+    );
+    s.ok(
+        "every visible continuation chip dataset in the conversion UI resolves to one of the 7 Andrews route records",
+        typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
+            ? (() => {
+                const makeElement = (dataset) => ({
+                    dataset: { ...dataset },
+                    title: "",
+                    textContent: "continuación",
+                    setAttribute() {},
+                    getAttribute() {
+                        return "";
+                    },
+                });
+                const samples = [
+                    { actionNounSourceSubjectPossessor: "ki" },
+                    { activeActionCompoundEmbedContinuation: "true" },
+                    { activeActionNominalCompoundContinuation: "true" },
+                    { compoundSourceAdjectivalFunctionContinuation: "true" },
+                    { customaryAgentiveCompoundEmbedContinuation: "true" },
+                    { customaryAgentiveNominalCompoundContinuation: "true" },
+                    { denominalAndrewsContractRouteContinuation: "true" },
+                    { denominalCompoundAdjectivalFunctionContinuation: "true" },
+                    { huaDeverbalYuContinuation: "true" },
+                    { instrumentivoSourceSubjectPossessor: "ki" },
+                    { intensifiedAdjectivalFunctionContinuation: "true" },
+                    { nominalizedVncAdjectivalFunctionContinuation: "true" },
+                    { ordinaryNncAdjectivalFunctionContinuation: "true" },
+                    { ordinaryNncOwnerhoodContinuation: "true" },
+                    { patientivoAdjectivalFunctionContinuation: "true" },
+                    { patientivoCharacteristicPropertyEmbedContinuation: "true" },
+                    { patientivoCompoundEmbedContinuation: "true" },
+                    { patientivoNominalCompoundContinuation: "true" },
+                    { patientivoPrelocativeContinuation: "true" },
+                    { patientivoTroncoConversion: "true" },
+                    { preteritAgentiveAdverbialContinuation: "true" },
+                    { preteritAgentiveComplementContinuation: "true" },
+                    { preteritAgentiveCompoundEmbedContinuation: "true" },
+                    { preteritAgentiveNominalCompoundContinuation: "true" },
+                    { preteritAgentiveOwnerhoodContinuation: "true" },
+                    { verbNominalContinuation: "true", targetTense: "agentivo-preterito" },
+                    { verbNominalContinuation: "true", targetTense: "sustantivo-verbal" },
+                    { verbPatientivoContinuation: "true" },
+                    { vncAdjectivalFunctionContinuation: "true" },
+                ].map(makeElement);
+                samples.forEach((element) => ctx.applyAndrewsCnvCnnRouteActionDataset(element, element));
+                const routeIds = new Set((typeof ctx.getAndrewsCnvCnnBackAndForthRouteRecords === "function"
+                    ? ctx.getAndrewsCnvCnnBackAndForthRouteRecords()
+                    : []
+                ).map((record) => record.id));
+                return samples.every((element) => routeIds.has(element.dataset.andrewsRouteRecordId));
+            })()
+            : true
+    );
+    s.eq(
+        "visible conversion group audit fails old function-first headers and passes route-record headers",
+        typeof ctx.auditVisibleContinuationRouteRecordGroups === "function"
+            ? (() => {
+                const makeGroup = ({ key, routeRecordId = "", eyebrow = "Registro", title = "CNV → CNN nominalizada", chipCount = 1 }) => ({
+                    dataset: {
+                        continuationGroup: key,
+                        andrewsRouteRecordGroupId: routeRecordId,
+                    },
+                    querySelector(selector) {
+                        if (selector === ".conjugation-continuation-group__eyebrow") {
+                            return { textContent: eyebrow };
+                        }
+                        if (selector === ".conjugation-continuation-group__title") {
+                            return { textContent: title };
+                        }
+                        return null;
+                    },
+                    querySelectorAll(selector) {
+                        return selector === ".calc-guidance__chip"
+                            ? Array.from({ length: chipCount }, () => ({}))
+                            : [];
+                    },
+                });
+                const routeGroup = makeGroup({
+                    key: "registro-cnv-cnn-nominalizada",
+                    routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                });
+                const oldGroup = makeGroup({
+                    key: "sustantivo-patientivo",
+                    eyebrow: "CNN",
+                    title: "Patientivo",
+                });
+                const root = {
+                    querySelectorAll(selector) {
+                        return selector === ".conjugation-conversion-actions .conjugation-continuation-group"
+                            ? [routeGroup, oldGroup]
+                            : [];
+                    },
+                };
+                return ctx.auditVisibleContinuationRouteRecordGroups(root);
+            })()
+            : { ok: true, groupCount: 0, missingRouteRecordGroups: [] },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                ok: false,
+                groupCount: 2,
+                missingRouteRecordGroups: [{
+                    key: "sustantivo-patientivo",
+                    eyebrow: "CNN",
+                    title: "Patientivo",
+                    chipCount: 1,
+                }],
+            }
+            : { ok: true, groupCount: 0, missingRouteRecordGroups: [] }
+    );
+    s.eq(
+        "visible route output audit compares chip operation, group route, Andrews route, and allowed action",
+        typeof ctx.auditVisibleContinuationRouteOutputConsistency === "function"
+            ? (() => {
+                const makeChip = (dataset, textContent = "→ salida") => ({
+                    dataset: { ...dataset },
+                    textContent,
+                    querySelectorAll() {
+                        return [];
+                    },
+                });
+                const goodChip = makeChip({
+                    verbPatientivoContinuation: "true",
+                    andrewsRouteRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+                    andrewsRouteActionAllowed: "true",
+                    andrewsUiOperation: "patientivo",
+                });
+                const mismatchChip = makeChip({
+                    verbPatientivoContinuation: "true",
+                    andrewsRouteRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    andrewsRouteActionAllowed: "true",
+                    andrewsUiOperation: "patientivo",
+                });
+                const group = {
+                    dataset: {
+                        continuationGroup: "registro-cnv-cnn-deverbal",
+                        andrewsRouteRecordGroupId: "cnv-core-to-cnn-nounstem-deverbal",
+                    },
+                    querySelectorAll(selector) {
+                        return selector === ".calc-guidance__chip" ? [goodChip, mismatchChip] : [];
+                    },
+                };
+                const root = {
+                    querySelectorAll(selector) {
+                        return selector === ".conjugation-conversion-actions .conjugation-continuation-group"
+                            ? [group]
+                            : [];
+                    },
+                };
+                const audit = ctx.auditVisibleContinuationRouteOutputConsistency(root);
+                return {
+                    ok: audit.ok,
+                    groupCount: audit.groupCount,
+                    chipCount: audit.chipCount,
+                    issueKinds: audit.inconsistencies.map((entry) => entry.kind),
+                };
+            })()
+            : { ok: true, groupCount: 0, chipCount: 0, issueKinds: [] },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                ok: false,
+                groupCount: 1,
+                chipCount: 2,
+                issueKinds: [
+                    "group-chip-route-mismatch",
+                    "ui-operation-andrews-route-mismatch",
+                ],
+            }
+            : { ok: true, groupCount: 0, chipCount: 0, issueKinds: [] }
     );
     s.eq(
         "shared renderer formats opt-in sentence-layer labels",

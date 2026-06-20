@@ -3,6 +3,9 @@
 
 "use strict";
 
+const GENERATION_VALENCY_OBJECT_SLOT_GATE_DIAGNOSTIC_ID = "generation-valency-object-slot-frame-unfixed";
+const GENERATION_VALENCY_OBJECT_SLOT_GATE_ROUTE_STAGE = "generation-valency-object-slot-gate";
+
 function normalizeGenerationValencySlotInput(input = {}) {
     const node = input && typeof input === "object" ? input : {};
     const {
@@ -604,11 +607,7 @@ function shouldDropBoundObjectPrefix(parsedVerb) {
     if (!boundPrefixes.length) {
         return false;
     }
-    return boundPrefixes.some((prefix) => (
-        SPECIFIC_VALENCE_PREFIX_SET.has(prefix)
-        || OBJECT_MARKERS.has(prefix)
-        || FUSION_PREFIXES.has(prefix)
-    ));
+    return boundPrefixes.some((prefix) => isGenerationValencyObjectOrFusionPrefix(prefix));
 }
 
 function shouldDropOccupiedSourceObjectPrefix(parsedVerb) {
@@ -621,17 +620,301 @@ function shouldDropOccupiedSourceObjectPrefix(parsedVerb) {
     return getAvailableObjectSlots(parsedVerb) <= 0;
 }
 
+function isGenerationValencyObjectOrFusionPrefix(prefix = "") {
+    const normalized = String(prefix || "").trim();
+    if (!normalized) {
+        return false;
+    }
+    return (
+        SPECIFIC_VALENCE_PREFIX_SET.has(normalized)
+        || OBJECT_MARKERS.has(normalized)
+        || FUSION_PREFIXES.has(normalized)
+        || ["k", "ki", "kin", "nech", "metz", "tech", "mech", "te", "ta", "mu", "m", "t"].includes(normalized)
+    );
+}
+
+function generationValencyEntradaGrammarObjectHasValenceObjectSignal(entradaGrammarObject = null) {
+    if (
+        !entradaGrammarObject
+        || typeof entradaGrammarObject !== "object"
+        || String(entradaGrammarObject.kind || "") !== "andrews-entrada-grammar-object"
+    ) {
+        return false;
+    }
+    const valenceFrame = entradaGrammarObject.valenceFrame && typeof entradaGrammarObject.valenceFrame === "object"
+        ? entradaGrammarObject.valenceFrame
+        : {};
+    const objectFrame = entradaGrammarObject.objectFrame && typeof entradaGrammarObject.objectFrame === "object"
+        ? entradaGrammarObject.objectFrame
+        : {};
+    return Boolean(
+        objectFrame.hasObjectSlots === true
+        || (Array.isArray(objectFrame.slots) && objectFrame.slots.length > 0)
+        || (Array.isArray(valenceFrame.slots) && valenceFrame.slots.length > 0)
+        || (Array.isArray(valenceFrame.tokens) && valenceFrame.tokens.length > 0)
+    );
+}
+
+function generationValencyEntradaGrammarObjectHasFixedFrame(entradaGrammarObject = null) {
+    return Boolean(
+        entradaGrammarObject
+        && typeof entradaGrammarObject === "object"
+        && String(entradaGrammarObject.kind || "") === "andrews-entrada-grammar-object"
+        && (
+            entradaGrammarObject.valenceFrame?.frameFixed === true
+            || entradaGrammarObject.objectFrame?.frameFixed === true
+            || entradaGrammarObject.formulaBoundaryFrame?.valenceFrameFixed === true
+            || (
+                entradaGrammarObject.formulaBoundaryFrame?.frameFixed === true
+                && entradaGrammarObject.formulaBoundaryFrame?.objectSlotsCovered === true
+            )
+        )
+    );
+}
+
+function generationValencyFrameHasFixedValenceEvidence(frame = null) {
+    if (!frame || typeof frame !== "object") {
+        return false;
+    }
+    if (
+        frame.frameFixed === false
+        || frame.valenceFrameFixed === false
+        || frame.sourceValenceFrameFixed === false
+    ) {
+        return false;
+    }
+    return Boolean(
+        frame.frameFixed === true
+        || frame.valenceFrameFixed === true
+        || frame.sourceValenceFrameFixed === true
+        || frame.objectFrameFixed === true
+        || frame.matrixValenceFrameFixed === true
+        || frame.valencyFrameFixed === true
+        || frame.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.participantFrame?.valenceFrame?.frameFixed === true
+        || frame.participantFrame?.valenceFrame?.valenceFrameFixed === true
+        || frame.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.incorporationRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.sourceContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.targetContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.targetContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+    );
+}
+
+function generationValencyFrameHasValenceObjectSignal(frame = null) {
+    if (!frame || typeof frame !== "object") {
+        return false;
+    }
+    const hasSlots = (...slotLists) => slotLists.some((slots) => Array.isArray(slots) && slots.length > 0);
+    return Boolean(
+        String(frame.kind || "") === "andrews-incorporation-route-frame"
+        || String(frame.matrixValence || "").trim()
+        || String(frame.consumedObjectSlot || "").trim()
+        || frame.routeFrameLicensesObjectSlotOwnership === true
+        || frame.routeFrameLicensesObjectSlotOwnership === false
+        || hasSlots(
+            frame.remainingExternalObjectSlots,
+            frame.sourceExternalObjectSlots,
+            frame.objectSlotOwnership?.remainingExternalObjectSlots,
+            frame.objectSlotOwnership?.sourceExternalObjectSlots,
+            frame.participantFrame?.objectSlotOwnership?.remainingExternalObjectSlots,
+            frame.participantFrame?.objectSlotOwnership?.sourceExternalObjectSlots,
+            frame.routeFrame?.remainingExternalObjectSlots,
+            frame.sourceRouteFrame?.remainingExternalObjectSlots,
+            frame.incorporationRouteFrame?.remainingExternalObjectSlots,
+            frame.routeContract?.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+            frame.routeContract?.targetContract?.routeFrame?.remainingExternalObjectSlots,
+            frame.routeContract?.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+            frame.routeContract?.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+            frame.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+            frame.targetContract?.routeFrame?.remainingExternalObjectSlots,
+            frame.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+            frame.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots
+        )
+        || frame.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.objectSlotOwnership?.matrixValenceFrameFixed === false
+        || frame.participantFrame?.valenceFrame
+        || frame.participantFrame?.object
+        || frame.routeContract?.sourceContract?.valenceFrame
+        || frame.routeContract?.targetContract?.valenceFrame
+        || frame.sourceContract?.valenceFrame
+        || frame.targetContract?.valenceFrame
+    );
+}
+
+function getGenerationValencyFrameCandidates(options = {}) {
+    const source = options && typeof options === "object" ? options : {};
+    return [
+        source.sourceFrame,
+        source.grammarFrame,
+        source.frames,
+        source.participantFrame,
+        source.sourceRouteFrame,
+        source.routeFrame,
+        source.incorporationRouteFrame,
+        source.objectSlotOwnership,
+        source.routeContract,
+        source.sourceContract,
+        source.targetContract,
+        source.grammarFrame?.participantFrame,
+        source.grammarFrame?.routeContract,
+        source.grammarFrame?.routeContract?.sourceContract,
+        source.grammarFrame?.routeContract?.targetContract,
+        source.frames?.participantFrame,
+        source.frames?.routeContract,
+        source.frames?.routeContract?.sourceContract,
+        source.frames?.routeContract?.targetContract,
+        source.routeContract?.sourceContract,
+        source.routeContract?.targetContract,
+    ].filter((candidate) => candidate && typeof candidate === "object");
+}
+
+function resolveGenerationValencyFrameFixed(options = {}) {
+    if (options.valenceFrameFixed === true || options.sourceValenceFrameFixed === true) {
+        return true;
+    }
+    if (options.valenceFrameFixed === false || options.sourceValenceFrameFixed === false) {
+        return false;
+    }
+    if (generationValencyEntradaGrammarObjectHasValenceObjectSignal(options.entradaGrammarObject)) {
+        return generationValencyEntradaGrammarObjectHasFixedFrame(options.entradaGrammarObject);
+    }
+    const frameCandidates = getGenerationValencyFrameCandidates(options);
+    if (frameCandidates.some((frame) => generationValencyFrameHasValenceObjectSignal(frame))) {
+        return frameCandidates.some((frame) => generationValencyFrameHasFixedValenceEvidence(frame));
+    }
+    return options.requireFixedValenceFrame === true ? false : true;
+}
+
+function buildGenerationValencyObjectSlotMutationGate({
+    operation = "",
+    mutationKind = "",
+    reason = "",
+    sourceObj1 = "",
+    sourceBaseObj1 = "",
+    sourceObj2 = "",
+    sourceObj3 = "",
+    targetObj1 = "",
+    targetBaseObj1 = "",
+    targetObj2 = "",
+    targetObj3 = "",
+    options = {},
+} = {}) {
+    const normalizedSourceObj1 = String(sourceObj1 || "");
+    const normalizedSourceBaseObj1 = String(sourceBaseObj1 || "");
+    const normalizedSourceObj2 = String(sourceObj2 || "");
+    const normalizedSourceObj3 = String(sourceObj3 || "");
+    const normalizedTargetObj1 = String(targetObj1 || "");
+    const normalizedTargetBaseObj1 = String(targetBaseObj1 || "");
+    const normalizedTargetObj2 = String(targetObj2 || "");
+    const normalizedTargetObj3 = String(targetObj3 || "");
+    const mutatesObjectSlot = normalizedSourceObj1 !== normalizedTargetObj1
+        || normalizedSourceBaseObj1 !== normalizedTargetBaseObj1
+        || normalizedSourceObj2 !== normalizedTargetObj2
+        || normalizedSourceObj3 !== normalizedTargetObj3;
+    const entradaHasValenceObjectSignal = generationValencyEntradaGrammarObjectHasValenceObjectSignal(options.entradaGrammarObject);
+    const frameCandidates = getGenerationValencyFrameCandidates(options);
+    const frameHasValenceObjectSignal = frameCandidates.some((frame) => generationValencyFrameHasValenceObjectSignal(frame));
+    const requiresFixedValenceFrame = options.requireFixedValenceFrame === true || entradaHasValenceObjectSignal || frameHasValenceObjectSignal;
+    const valenceFrameFixed = resolveGenerationValencyFrameFixed(options);
+    const status = mutatesObjectSlot && requiresFixedValenceFrame && !valenceFrameFixed
+        ? "blocked"
+        : "pass";
+    return {
+        kind: "generation-valency-object-slot-mutation-gate",
+        version: 1,
+        operation: String(operation || ""),
+        mutationKind: String(mutationKind || ""),
+        status,
+        diagnosticId: GENERATION_VALENCY_OBJECT_SLOT_GATE_DIAGNOSTIC_ID,
+        routeStage: GENERATION_VALENCY_OBJECT_SLOT_GATE_ROUTE_STAGE,
+        reason: status === "blocked"
+            ? "generation-valency-source-frame-unfixed"
+            : String(reason || "generation-valency-object-slot-mutation-licensed"),
+        generationAllowed: status !== "blocked",
+        routeRankingAllowed: status !== "blocked",
+        requiresFixedValenceFrame,
+        valenceFrameFixed,
+        entradaHasValenceObjectSignal,
+        frameHasValenceObjectSignal,
+        mutatesObjectSlot,
+        sourceVector: {
+            obj1: normalizedSourceObj1,
+            baseObj1: normalizedSourceBaseObj1,
+            obj2: normalizedSourceObj2,
+            obj3: normalizedSourceObj3,
+        },
+        targetVector: {
+            obj1: normalizedTargetObj1,
+            baseObj1: normalizedTargetBaseObj1,
+            obj2: normalizedTargetObj2,
+            obj3: normalizedTargetObj3,
+        },
+        boundaries: {
+            unresolvedValenceFrameIsHardGate: true,
+            objectSlotDeletionRequiresFixedValenceFrame: true,
+            objectSlotRelocationRequiresFixedValenceFrame: true,
+            objectSlotReclassificationRequiresFixedValenceFrame: true,
+            objectSlotCreationRequiresFixedValenceFrame: true,
+        },
+    };
+}
+
 function applyBoundMarkerSlotOverrides(parsedVerb, obj1 = "", baseObj1 = "", options = {}) {
     const preserveOccupiedSourceObjectPrefix = options.preserveOccupiedSourceObjectPrefix === true;
-    if (
-        shouldDropBoundObjectPrefix(parsedVerb)
-        || (!preserveOccupiedSourceObjectPrefix && shouldDropOccupiedSourceObjectPrefix(parsedVerb))
-    ) {
-        return { obj1: "", baseObj1: "" };
+    const dropBoundObjectPrefix = shouldDropBoundObjectPrefix(parsedVerb);
+    const dropOccupiedSourceObjectPrefix = !preserveOccupiedSourceObjectPrefix
+        && shouldDropOccupiedSourceObjectPrefix(parsedVerb);
+    const shouldDrop = dropBoundObjectPrefix || dropOccupiedSourceObjectPrefix;
+    const reason = dropBoundObjectPrefix
+        ? "bound-marker-owns-object-slot"
+        : (dropOccupiedSourceObjectPrefix ? "occupied-source-object-slot" : "");
+    const targetObj1 = shouldDrop ? "" : obj1;
+    const targetBaseObj1 = shouldDrop ? "" : baseObj1;
+    const valencyObjectSlotGate = buildGenerationValencyObjectSlotMutationGate({
+        operation: "apply-bound-marker-slot-overrides",
+        mutationKind: shouldDrop ? "delete-object-slot" : "none",
+        reason,
+        sourceObj1: obj1,
+        sourceBaseObj1: baseObj1,
+        targetObj1,
+        targetBaseObj1,
+        options,
+    });
+    if (valencyObjectSlotGate.status === "blocked") {
+        return {
+            obj1,
+            baseObj1,
+            blocked: true,
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            diagnosticId: valencyObjectSlotGate.diagnosticId,
+            routeStage: valencyObjectSlotGate.routeStage,
+            valencyObjectSlotGate,
+        };
+    }
+    if (shouldDrop) {
+        return {
+            obj1: "",
+            baseObj1: "",
+            valencyObjectSlotGate,
+        };
     }
     return {
         obj1,
         baseObj1,
+        valencyObjectSlotGate,
     };
 }
 
@@ -701,6 +984,10 @@ function applyPassiveImpersonalSlotAdjustments(input = {}) {
         morphologyObj1,
         hasPromotableObject,
     } = normalizeGenerationValencySlotInput(input);
+    const sourceObj1 = obj1;
+    const sourceObj2 = obj2;
+    const sourceObj3 = obj3;
+    const sourceMorphologyObj1 = morphologyObj1;
     if (!isPassiveImpersonalMode) {
         return {
             ...buildGenerationValencySlotFrame({
@@ -748,6 +1035,41 @@ function applyPassiveImpersonalSlotAdjustments(input = {}) {
     if (valencyAdjustedPrefix) {
         morphologyObj1 = obj1;
     }
+    const valencyObjectSlotGate = buildGenerationValencyObjectSlotMutationGate({
+        operation: "apply-passive-impersonal-slot-adjustments",
+        mutationKind: valencyAdjustedPrefix ? "delete-object-slots" : "none",
+        reason: valencyAdjustedPrefix ? "passive-impersonal-valency-adjustment" : "",
+        sourceObj1,
+        sourceBaseObj1: sourceMorphologyObj1 || sourceObj1,
+        sourceObj2,
+        sourceObj3,
+        targetObj1: obj1,
+        targetBaseObj1: morphologyObj1 || obj1,
+        targetObj2: obj2,
+        targetObj3: obj3,
+        options: input,
+    });
+    if (valencyObjectSlotGate.status === "blocked") {
+        return {
+            ...buildGenerationValencySlotFrame({
+                pers1,
+                pers2,
+                obj1: sourceObj1,
+                obj2: sourceObj2,
+                obj3: sourceObj3,
+            }),
+            verb,
+            analysisVerb,
+            preserveSubjectForPassive,
+            morphologyObj1: sourceMorphologyObj1,
+            blocked: true,
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            diagnosticId: valencyObjectSlotGate.diagnosticId,
+            routeStage: valencyObjectSlotGate.routeStage,
+            valencyObjectSlotGate,
+        };
+    }
     return {
         ...buildGenerationValencySlotFrame({
             pers1,
@@ -760,6 +1082,7 @@ function applyPassiveImpersonalSlotAdjustments(input = {}) {
         analysisVerb,
         preserveSubjectForPassive,
         morphologyObj1,
+        valencyObjectSlotGate,
     };
 }
 
@@ -824,6 +1147,32 @@ function applyPassiveImpersonalSlotOverrides(input = {}) {
         preservePers1Pers2: preserveSubjectForPassive,
         allowObj1: allowPassiveObject,
     });
+    const valencyObjectSlotGate = buildGenerationValencyObjectSlotMutationGate({
+        operation: "apply-passive-impersonal-slot-overrides",
+        mutationKind: obj1 !== updated.obj1 ? "delete-object-slot" : "none",
+        reason: obj1 !== updated.obj1 ? "passive-impersonal-slot-override" : "",
+        sourceObj1: obj1,
+        sourceBaseObj1: obj1,
+        targetObj1: updated.obj1,
+        targetBaseObj1: updated.obj1,
+        options: input,
+    });
+    if (valencyObjectSlotGate.status === "blocked") {
+        return {
+            ...buildGenerationValencySlotFrame({
+                pers1,
+                pers2,
+                obj1,
+            }),
+            morphologyObj1: obj1,
+            blocked: true,
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            diagnosticId: valencyObjectSlotGate.diagnosticId,
+            routeStage: valencyObjectSlotGate.routeStage,
+            valencyObjectSlotGate,
+        };
+    }
     return {
         ...buildGenerationValencySlotFrame({
             pers1: updated.pers1,
@@ -831,6 +1180,7 @@ function applyPassiveImpersonalSlotOverrides(input = {}) {
             obj1: updated.obj1,
         }),
         morphologyObj1: updated.obj1,
+        valencyObjectSlotGate,
     };
 }
 
@@ -842,17 +1192,48 @@ function applyReflexivoAutoSwitch(input = {}) {
         isPassiveImpersonal,
         clearError,
     } = normalizeGenerationValencySlotInput(input);
+    const sourceObj1 = obj1;
     let isReflexive = obj1 === "mu";
+    let shouldClearObjectError = false;
+    let mutationReason = "";
     if (!isPassiveImpersonal) {
         if (isPers1Obj1Reflexivo(pers1, pers2, obj1)) {
             obj1 = "mu";
             isReflexive = true;
-            if (clearError) {
-                clearError("object-prefix");
-            }
+            shouldClearObjectError = true;
+            mutationReason = "same-person-object-reflexive-auto-switch";
         } else if (obj1 === "mu") {
             isReflexive = true;
         }
+    }
+    const valencyObjectSlotGate = buildGenerationValencyObjectSlotMutationGate({
+        operation: "apply-reflexivo-auto-switch",
+        mutationKind: sourceObj1 !== obj1 ? "reclassify-object-slot-reflexive" : "none",
+        reason: mutationReason,
+        sourceObj1,
+        sourceBaseObj1: sourceObj1,
+        targetObj1: obj1,
+        targetBaseObj1: obj1,
+        options: input,
+    });
+    if (valencyObjectSlotGate.status === "blocked") {
+        return {
+            ...buildGenerationValencySlotFrame({
+                pers1,
+                pers2,
+                obj1: sourceObj1,
+            }),
+            isReflexive: sourceObj1 === "mu",
+            blocked: true,
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            diagnosticId: valencyObjectSlotGate.diagnosticId,
+            routeStage: valencyObjectSlotGate.routeStage,
+            valencyObjectSlotGate,
+        };
+    }
+    if (shouldClearObjectError && clearError) {
+        clearError("object-prefix");
     }
     return {
         ...buildGenerationValencySlotFrame({
@@ -861,5 +1242,6 @@ function applyReflexivoAutoSwitch(input = {}) {
             obj1,
         }),
         isReflexive,
+        valencyObjectSlotGate,
     };
 }

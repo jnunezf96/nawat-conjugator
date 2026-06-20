@@ -456,11 +456,10 @@ function syncComposerSupportiveITogglePlacement() {
 }
 
 function getComposerEmbedValueForSlot(slotKey, slotRefs = null) {
-    const refs = slotRefs || getVerbComposerElements().slots[slotKey] || {};
+    void slotRefs;
     const stateKeys = getComposerSlotStateKeys(slotKey);
-    const inputValue = normalizeComposerEmbedValue(refs.embedInput?.value || "");
     const stateValue = normalizeComposerEmbedValue(VerbComposerState[stateKeys.embed] || "");
-    return inputValue || stateValue;
+    return stateValue;
 }
 
 function syncComposerEmbedSlotUi(slotKey, slotRefs = null) {
@@ -541,12 +540,8 @@ function toggleComposerEmbedOpen(slotKey) {
     syncComposerEmbedSlotUi(slotKey, refs);
     syncComposerSlotChipVisibility();
     scheduleComposerSlotChipVisibilitySync();
-    if (nextOpen && refs.embedInput && typeof refs.embedInput.focus === "function" && !refs.embedInput.disabled) {
-        refs.embedInput.focus();
-        if (typeof refs.embedInput.setSelectionRange === "function") {
-            const caret = String(refs.embedInput.value || "").length;
-            refs.embedInput.setSelectionRange(caret, caret);
-        }
+    if (nextOpen) {
+        focusComposerSlotEntryTarget(refs.embedInput || getComposerPreferredEntryInput(), { selectAll: true });
     }
 }
 
@@ -1022,7 +1017,7 @@ function getComposerOperationBoard() {
 
 function getComposerOperationOrderLabel(board = "") {
     if (board === "ordinary-nnc") {
-        return "Cláusula nominal: tablero -> pers1-pers2 -> predicado base -> conector num1-num2 -> referencia";
+        return "Cláusula nominal: entrada -> predicado base; salida -> pers1-pers2 -> conector num1-num2 -> referencia";
     }
     if (board === COMPOSER_ENTRY_BOARD.nounToVerb) {
         return "Verbalización nominal: tablero -> fuente nominal -> verbalización -> valencia verbal -> objeto 1/objeto 2 -> direccional";
@@ -1084,7 +1079,6 @@ function syncComposerOperationSlotOrderMetadata(stagePanel = document.getElement
         && child.classList.contains("verb-composer__slot-tabs")
         && !child.classList.contains("verb-composer__ordinary-nnc-class-tabs")
     )) || null;
-    const classTabs = document.getElementById("composer-ordinary-nnc-class-tabs");
     const topRow = Array.from(stagePanel.children).find((child) => (
         child.classList && child.classList.contains("verb-composer__top-row")
     )) || null;
@@ -1095,15 +1089,12 @@ function syncComposerOperationSlotOrderMetadata(stagePanel = document.getElement
     const embedField = topRow?.querySelector(".verb-composer__embed-field") || null;
     const directionalHost = bottomRow?.querySelector(".verb-composer__directional-host") || null;
     const objectPair = bottomRow?.querySelector(".verb-composer__object-pair") || null;
-    const ordinaryControls = document.getElementById("composer-ordinary-nnc-controls");
 
     setComposerOperationSlotMetadata(entryBoardTabs, "entry-board", 1);
     setComposerOperationSlotMetadata(transitivityTabs, "vnc-valency-shell", 2);
-    setComposerOperationSlotMetadata(classTabs, "nnc-num1-num2", board === "ordinary-nnc" ? 40 : "");
-    setComposerOperationSlotMetadata(ordinaryControls, "nnc-subject-state-reference", 20);
 
     if (board === "ordinary-nnc") {
-        setComposerOperationSlotMetadata(matrixField, "nnc-predicate", 30);
+        setComposerOperationSlotMetadata(matrixField, "nnc-predicate", 10);
         setComposerOperationSlotMetadata(embedField, "inactive-embed", "");
         setComposerOperationSlotMetadata(directionalHost, "inactive-directional", "");
         setComposerOperationSlotMetadata(objectPair, "inactive-object-valency", "");
@@ -1435,73 +1426,9 @@ function renderComposerOrdinaryNncDigitalControls() {
     if (!stagePanel) {
         return;
     }
-    const active = typeof isOrdinaryNncGenerationModeEnabled === "function"
-        && isOrdinaryNncGenerationModeEnabled();
     let controls = document.getElementById("composer-ordinary-nnc-controls");
-    const state = typeof getOrdinaryNncGenerationState === "function"
-        ? getOrdinaryNncGenerationState()
-        : {};
-    const fixtureMetadata = active ? getComposerOrdinaryNncFixtureMetadata() : null;
-    const fixtureClass = fixtureMetadata?.nounClass || "";
-    const fixtureAnimacy = fixtureMetadata?.animacy || "";
-    const rawInputValue = document.getElementById("verb")?.value || "";
-    const parsedInputClass = normalizeComposerOrdinaryNncNounClass(
-        parseComposerOrdinaryNncAnalogueInput(rawInputValue)?.nounClass || ""
-    );
-    const activeClass = normalizeComposerOrdinaryNncNounClass(state.nounClass || "")
-        || parsedInputClass
-        || fixtureClass;
-    renderComposerOrdinaryNncClassTabs(stagePanel, { active, activeClass, fixtureNounClass: fixtureClass });
-    if (!active) {
-        controls?.remove();
-        return;
-    }
-    if (!controls) {
-        controls = document.createElement("div");
-        controls.id = "composer-ordinary-nnc-controls";
-        controls.className = "verb-composer__ordinary-nnc-controls";
-        controls.setAttribute("role", "group");
-        controls.setAttribute("aria-label", "Controles de cláusula nominal");
-    }
-    const topRow = Array.from(stagePanel.children).find((child) => (
-        child.classList && child.classList.contains("verb-composer__top-row")
-    )) || null;
-    const insertionPoint = topRow?.nextSibling || null;
-    if (controls.parentElement !== stagePanel || controls.previousSibling !== topRow) {
-        stagePanel.insertBefore(controls, insertionPoint);
-    }
-    controls.innerHTML = "";
-    const selectedAnimacy = (
-        state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : ""
-    ) || fixtureAnimacy;
-    const hasFixtureAnimacy = Boolean(fixtureAnimacy);
-    appendComposerOrdinaryNncChipGroup(controls, {
-        label: "Animacidad",
-        activeId: selectedAnimacy,
-        options: [
-            {
-                id: "inanimate",
-                label: "No anim",
-                title: hasFixtureAnimacy && fixtureAnimacy !== "inanimate"
-                    ? "ficha registrada: animado"
-                    : "solo sujeto Ø; plural distributivo",
-            },
-            {
-                id: "animate",
-                label: "Anim",
-                title: hasFixtureAnimacy && fixtureAnimacy !== "animate"
-                    ? "ficha registrada: inanimado"
-                    : "sujeto personal; plural -met o distributivo",
-            },
-        ],
-        onSelect: (id) => setComposerOrdinaryNncState({
-            animacy: id,
-            subjectKey: id === "animate" ? state.subjectKey : "3sg",
-            subjectPrefix: id === "animate" ? state.subjectPrefix : "",
-            subjectSuffix: id === "animate" ? state.subjectSuffix : "",
-            pluralType: "auto",
-        }),
-    });
+    controls?.remove();
+    document.getElementById("composer-ordinary-nnc-class-tabs")?.remove();
     syncComposerOperationSlotOrderMetadata(stagePanel);
 }
 
@@ -2218,6 +2145,36 @@ function getComposerSlotKeyByStemInput(stemInput = null) {
     }
     const inputId = String(stemInput.id || "");
     return COMPOSER_SLOT_KEYS.find((slotKey) => getComposerSlotConfig(slotKey)?.ids?.stem === inputId) || "";
+}
+
+function getComposerSlotInputDescriptor(inputEl = null) {
+    if (!inputEl || !inputEl.id) {
+        return null;
+    }
+    const inputId = String(inputEl.id || "");
+    for (const slotKey of COMPOSER_SLOT_KEYS) {
+        const config = getComposerSlotConfig(slotKey);
+        if (config?.ids?.stem === inputId) {
+            return { slotKey, role: "stem", stateKey: config.state.stem };
+        }
+        if (config?.ids?.embed === inputId) {
+            return { slotKey, role: "embed", stateKey: config.state.embed };
+        }
+        if (config?.ids?.objectEmbed === inputId) {
+            return { slotKey, role: "objectEmbed", stateKey: config.state.objectEmbed };
+        }
+    }
+    return null;
+}
+
+function getComposerSlotEntryRoleLabel(role = "") {
+    if (role === "stem") {
+        return "base";
+    }
+    if (role === "objectEmbed") {
+        return "incorporado objeto";
+    }
+    return "incorporado";
 }
 
 function getComposerSerialEditableSegmentIndexes(selectedType = "auto", slotCount = 1) {
@@ -3958,20 +3915,8 @@ function applyComposerTemplateSuffixSelection({
 }
 
 function focusComposerStemInputAtEditableBoundary(stemInput = null, slotKey = "") {
-    if (!stemInput || typeof stemInput.focus !== "function") {
-        return false;
-    }
-    const normalizedSlot = COMPOSER_SLOT_KEYS.includes(slotKey)
-        ? slotKey
-        : (getComposerSlotKeyByStemInput(stemInput) || "a");
-    stemInput.focus({ preventScroll: true });
-    if (typeof stemInput.setSelectionRange !== "function") {
-        return true;
-    }
-    const context = getComposerSerialMaskContextFromRaw(stemInput.value || "", normalizedSlot);
-    const caret = getComposerPreferredEditableBoundary(context.segmentRanges, { preferEnd: true });
-    stemInput.setSelectionRange(caret, caret);
-    return true;
+    void slotKey;
+    return focusComposerSlotEntryTarget(stemInput || getComposerPreferredEntryInput(), { selectAll: false });
 }
 
 function getComposerSerialTypeChipLabel(value = "") {
@@ -6262,7 +6207,7 @@ function buildComposerSemanticState(state = {}) {
     const supportiveMarker = normalizeSupportiveMarkerValue(
         state.supportiveMarker || ""
     );
-    return {
+    const semanticState = {
         transitivity,
         supportiveMarker,
         directional: {
@@ -6306,6 +6251,19 @@ function buildComposerSemanticState(state = {}) {
             realizedStemBase: realizedMatrixStemBase,
         },
     };
+    const entradaGrammarObject = typeof buildEntradaGrammarObjectFromComposerSemantic === "function"
+        ? buildEntradaGrammarObjectFromComposerSemantic(semanticState, {
+            rawInput: serializeComposerSemanticToRegexInput(semanticState),
+        })
+        : null;
+    if (entradaGrammarObject) {
+        Object.defineProperty(semanticState, "entradaGrammarObject", {
+            configurable: true,
+            enumerable: false,
+            value: entradaGrammarObject,
+        });
+    }
+    return semanticState;
 }
 
 function serializeComposerSemanticToRegexInput(semantic = {}) {
@@ -6435,18 +6393,15 @@ function buildComposerOrdinaryNncInputBundle(state, rawFallback = "") {
     const animacy = (
         uiState.animacy === "animate" || uiState.animacy === "inanimate" ? uiState.animacy : ""
     ) || fixtureAnimacy;
-    const regexValue = nounClass
-        ? formatComposerOrdinaryNncAnalogueInput({ stem, nounClass })
-        : stem;
-    const selectionRequired = !nounClass
-        ? "ordinary-nnc-class"
-        : (!animacy ? "ordinary-nnc-animacy" : "");
+    const regexValue = stem
+        ? formatComposerOrdinaryNncAnalogueInput({ stem, nounClass: "" })
+        : "";
     return {
         regexValue,
         stem,
         nounClass,
         animacy,
-        selectionRequired,
+        selectionRequired: "",
     };
 }
 
@@ -6476,6 +6431,7 @@ function buildComposerModeBundle(state, rawFallback = "") {
     }
     return {
         regexValue,
+        entradaGrammarObject: semantic.entradaGrammarObject || null,
     };
 }
 
@@ -6495,6 +6451,7 @@ function resolveVerbInputSource(rawValue = "", options = {}) {
         displayValue: regexValue,
         regexValue,
         parseValue: regexValue,
+        entradaGrammarObject: composerDisplayBundle.entradaGrammarObject || null,
     };
 }
 
@@ -7398,6 +7355,7 @@ function renderVerbComposerFromState() {
     syncComposerMatrixStemAffixSelects();
     syncComposerMatrixSerialUi();
     syncComposerSerialTypeChips();
+    syncComposerSlotEntryButtons();
     renderComposerOrdinaryNncDigitalControls();
     syncComposerSupportiveITogglePlacement();
     updateVerbComposerHint();
@@ -7635,6 +7593,21 @@ function buildAdjectivalNncFunctionEntryContract({
     const unitFrame = frame?.unitFrame || {};
     const resultFrame = frame?.resultFrame || {};
     const diagnosticFrame = frame?.diagnosticFrame || {};
+    const resolvedSourceFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : (
+            frame?.morphBoundaryFrame?.formulaSlots
+            || frame?.nuclearClauseFrame?.formulaSlots
+            || frame?.routeContract?.sourceContract?.sourceFormulaSlots
+            || null
+        );
+    const resolvedSourceFormulaEcho = String(
+        sourceFormulaEcho
+        || frame?.morphBoundaryFrame?.formulaEcho
+        || frame?.nuclearClauseFrame?.formulaEcho
+        || frame?.routeContract?.sourceContract?.sourceFormulaEcho
+        || ""
+    ).trim();
     const resolvedSurface = getAdjectivalNncFunctionEntrySurface({ surface, grammarFrame: frame });
     const authorityRefs = Array.isArray(authorityFrame.andrewsRefs)
         ? authorityFrame.andrewsRefs.map((entry) => String(entry || "").trim()).filter(Boolean)
@@ -7652,8 +7625,8 @@ function buildAdjectivalNncFunctionEntryContract({
         frames: frame || null,
         formation: String(formation || "").trim(),
         formulaEcho: String(formulaEcho || "").trim(),
-        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
-        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        sourceFormulaSlots: resolvedSourceFormulaSlots && typeof resolvedSourceFormulaSlots === "object" ? resolvedSourceFormulaSlots : null,
+        sourceFormulaEcho: resolvedSourceFormulaEcho,
         sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === "object" ? sourceCompoundFrame : null,
         sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === "object" ? sourceDenominalCompoundFrame : null,
         patientivoSource: String(patientivoSource || "").trim(),
@@ -7679,6 +7652,89 @@ function serializeAdjectivalNncFunctionEntryContract(contract = null) {
     } catch (_error) {
         return "";
     }
+}
+
+function getAdjectivalNncFunctionEntryValenceSourceKind({
+    formation = "",
+    entryContract = null,
+    grammarFrame = null,
+} = {}) {
+    const normalizedFormation = String(formation || "").trim();
+    const source = entryContract && typeof entryContract === "object" ? entryContract : {};
+    const frame = grammarFrame && typeof grammarFrame === "object" ? grammarFrame : {};
+    const sourceKind = String(
+        source.sourceClauseKind
+        || source.sourceCategory
+        || source.unitKind
+        || source.grammarFrame?.routeContract?.sourceContract?.sourceClauseKind
+        || source.grammarFrame?.routeContract?.sourceContract?.sourceCategory
+        || frame.routeContract?.sourceContract?.sourceClauseKind
+        || frame.routeContract?.sourceContract?.sourceCategory
+        || frame.unitFrame?.unitKind
+        || ""
+    ).trim();
+    if (sourceKind) {
+        return sourceKind;
+    }
+    return /(^|-)vnc|verbal/i.test(normalizedFormation)
+        ? "verbal-nuclear-clause"
+        : "";
+}
+
+function buildAdjectivalNncFunctionEntryMutationValenceGate({
+    formation = "",
+    entryContract = null,
+    grammarFrame = null,
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+} = {}) {
+    if (typeof buildFunctionUseValenceObjectHardGate !== "function") {
+        return null;
+    }
+    const contract = entryContract && typeof entryContract === "object" ? entryContract : {};
+    const sourceFrame = (
+        (grammarFrame && typeof grammarFrame === "object" ? grammarFrame : null)
+        || (contract.grammarFrame && typeof contract.grammarFrame === "object" ? contract.grammarFrame : null)
+        || (contract.frames && typeof contract.frames === "object" ? contract.frames : null)
+        || null
+    );
+    const resolvedSourceFormulaSlots = contract.sourceFormulaSlots && typeof contract.sourceFormulaSlots === "object"
+        ? contract.sourceFormulaSlots
+        : (sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null);
+    return buildFunctionUseValenceObjectHardGate({
+        override: {
+            adjectivalNnc: {
+                enabled: true,
+                entryRouteContract: contract,
+                grammarFrame: sourceFrame,
+                frames: sourceFrame,
+                sourceFormulaSlots: resolvedSourceFormulaSlots,
+                sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+            },
+        },
+        sourceFrame,
+        sourceFormulaSlots: resolvedSourceFormulaSlots,
+        sourceKind: getAdjectivalNncFunctionEntryValenceSourceKind({
+            formation,
+            entryContract: contract,
+            grammarFrame: sourceFrame,
+        }),
+        currentVector: null,
+        currentVectorOwnsValenceObjectSlots: false,
+        gateContext: "adjectival-nnc-function-entry-mutation",
+    });
+}
+
+function blockAdjectivalNncFunctionEntryMutationValenceGate(functionUseValenceGate = null, detail = {}) {
+    if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:function-use-valence-route-blocked", {
+            routeRecordId: "adjectival-nnc-function-entry",
+            reason: functionUseValenceGate?.reason || "",
+            diagnosticId: functionUseValenceGate?.diagnosticId || "function-use-valence-object-frame-unfixed",
+            ...detail,
+        });
+    }
+    return null;
 }
 
 function applyAdjectivalNncFunctionToVerbEntry({
@@ -7711,6 +7767,27 @@ function applyAdjectivalNncFunctionToVerbEntry({
         nominalizedVncKind,
         grammarFrame,
     });
+    const entryFunctionUseValenceGate = buildAdjectivalNncFunctionEntryMutationValenceGate({
+        formation,
+        entryContract,
+        grammarFrame,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+    });
+    if (entryFunctionUseValenceGate) {
+        entryContract.functionUseValenceGate = entryFunctionUseValenceGate;
+    }
+    if (entryFunctionUseValenceGate?.status === "blocked") {
+        blockAdjectivalNncFunctionEntryMutationValenceGate(entryFunctionUseValenceGate, {
+            source: "adjectival-nnc-function-entry",
+            formation: String(formation || "").trim(),
+            surface: normalizedSurface,
+        });
+        entryContract.blocked = true;
+        entryContract.mutationApplied = false;
+        return entryContract;
+    }
+    entryContract.mutationApplied = true;
     verbEl.value = normalizedSurface;
     verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface;
     verbEl.dataset.adjectivalNncFormation = String(formation || "").trim();
@@ -7770,6 +7847,14 @@ function applyPrelocativeRootsToVerbEntry({
     matrixSpecId = "",
     objectPrefix = "",
     possessorPrefix = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
     const normalizedMatrixRoot = normalizeComposerStem(matrixRoot || "tajtani");
@@ -7784,6 +7869,27 @@ function applyPrelocativeRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { patientivoPrelocativeContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        objectPrefix: promotedObjectPrefix,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "prelocative-entry",
+            incorporatedRoot: normalizedIncorporatedRoot,
+            matrixRoot: normalizedMatrixRoot,
+            objectPrefix: promotedObjectPrefix,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -7868,6 +7974,14 @@ function applyPatientivoCompoundEmbedRootsToVerbEntry({
     incorporatedRoot = "",
     matrixRoot = "miki",
     matrixSpecId = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
     const resolvedMatrixSpec = typeof resolvePatientivoCompoundEmbedMatrixSpec === "function"
@@ -7880,6 +7994,25 @@ function applyPatientivoCompoundEmbedRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { patientivoCompoundEmbedContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "patientivo-compound-embed-entry",
+            incorporatedRoot: normalizedIncorporatedRoot,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -7966,6 +8099,14 @@ function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry({
     matrixRoot = "chikawa",
     matrixSpecId = "",
     objectPrefix = "ki",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
     const resolvedMatrixSpec = typeof resolvePatientivoCharacteristicPropertyMatrixSpec === "function"
@@ -7979,6 +8120,27 @@ function applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { patientivoCharacteristicPropertyEmbedContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        objectPrefix: resolvedObjectPrefix,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "patientivo-characteristic-property-embed-entry",
+            incorporatedRoot: normalizedIncorporatedRoot,
+            matrixRoot: normalizedMatrixRoot,
+            objectPrefix: resolvedObjectPrefix,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8077,6 +8239,14 @@ function applyPatientivoNominalCompoundToOrdinaryNncEntry({
     animacy = "",
     ordinaryNncInput = "",
     compoundStem = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedIncorporatedRoot = normalizeComposerEmbedValue(incorporatedRoot);
     const resolvedMatrixSpec = typeof resolvePatientivoNominalCompoundMatrixSpec === "function"
@@ -8104,6 +8274,25 @@ function applyPatientivoNominalCompoundToOrdinaryNncEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedIncorporatedRoot || !normalizedMatrixRoot || !resolvedCompoundStem || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { patientivoNominalCompoundContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "patientivo-nominal-compound-entry",
+            incorporatedRoot: normalizedIncorporatedRoot,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8197,6 +8386,14 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
     actionNominalSurface = "",
     matrixRoot = "tzajtzi",
     matrixSpecId = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
     const resolvedMatrixSpec = typeof resolveActiveActionCompoundEmbedMatrixSpec === "function"
@@ -8209,6 +8406,25 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { activeActionCompoundEmbedContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "active-action-compound-embed-entry",
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8290,11 +8506,94 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
     return true;
 }
 
+function buildComposerFunctionUseValenceRouteActionContract({
+    dataset = null,
+    routeRecordId = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    objectPrefix = "",
+    obj1 = "",
+    obj2 = "",
+    obj3 = "",
+    reflexivo = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
+    entradaGrammarObject = null,
+} = {}) {
+    if (typeof buildAndrewsCnvCnnBackAndForthRouteActionContract !== "function") {
+        return null;
+    }
+    const composerSemantic = buildComposerSemanticState(VerbComposerState);
+    const explicitSourceFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : null;
+    const explicitSourceFormulaEcho = String(sourceFormulaEcho || "").trim();
+    const hasExplicitSourceFormulaEvidence = Boolean(explicitSourceFormulaSlots || explicitSourceFormulaEcho);
+    const resolvedEntradaGrammarObject = entradaGrammarObject && typeof entradaGrammarObject === "object"
+        ? entradaGrammarObject
+        : (hasExplicitSourceFormulaEvidence ? null : (composerSemantic.entradaGrammarObject || null));
+    const resolvedObjectPrefix = String(objectPrefix || obj1 || "").trim();
+    return buildAndrewsCnvCnnBackAndForthRouteActionContract({
+        dataset: dataset && typeof dataset === "object" ? dataset : {},
+        sourceFormulaSlots: explicitSourceFormulaSlots,
+        sourceFormulaEcho: explicitSourceFormulaEcho,
+        entradaGrammarObject: resolvedEntradaGrammarObject,
+        objectPrefix: resolvedObjectPrefix,
+        obj1: resolvedObjectPrefix,
+        obj2: String(obj2 || "").trim(),
+        obj3: String(obj3 || "").trim(),
+        reflexivo: String(reflexivo || "").trim(),
+        grammarFrame: grammarFrame && typeof grammarFrame === "object" ? grammarFrame : null,
+        sourceRouteFrame: sourceRouteFrame && typeof sourceRouteFrame === "object" ? sourceRouteFrame : null,
+        routeFrame: routeFrame && typeof routeFrame === "object" ? routeFrame : null,
+        incorporationRouteFrame: incorporationRouteFrame && typeof incorporationRouteFrame === "object" ? incorporationRouteFrame : null,
+        objectSlotOwnership: objectSlotOwnership && typeof objectSlotOwnership === "object" ? objectSlotOwnership : null,
+        functionUseValenceGate: functionUseValenceGate && typeof functionUseValenceGate === "object"
+            ? functionUseValenceGate
+            : null,
+    }, {
+        routeRecordId,
+        generationAllowed: true,
+    });
+}
+
+function blockComposerFunctionUseValenceRouteAction(contract = null, detail = {}) {
+    if (typeof dispatchAppEvent === "function") {
+        dispatchAppEvent("nawat:function-use-valence-route-blocked", {
+            routeRecordId: contract?.routeRecordId || "",
+            reason: contract?.functionUseValenceGate?.reason || "",
+            diagnosticId: contract?.functionUseValenceGate?.diagnosticId || "",
+            ...detail,
+        });
+    }
+    return false;
+}
+
+function shouldBlockComposerFunctionUseValenceRouteAction(options = {}) {
+    const contract = buildComposerFunctionUseValenceRouteActionContract(options);
+    if (contract?.routeRankingAllowed === false || contract?.functionUseValenceGate?.status === "blocked") {
+        return { blocked: true, contract };
+    }
+    return { blocked: false, contract };
+}
+
 function applyPreteritAgentiveOwnerhoodRootsToVerbEntry({
     preteritAgentiveStem = "",
     matrixRoot = "wa",
     matrixSpecId = "",
     ownerhoodVerbInput = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
     const resolvedMatrixSpec = typeof resolvePreteritAgentiveOwnerhoodMatrixSpec === "function"
@@ -8316,6 +8615,25 @@ function applyPreteritAgentiveOwnerhoodRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedOwnerhoodVerbInput || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { preteritAgentiveOwnerhoodContinuation: "true" },
+        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "preterit-agentive-ownerhood-entry",
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8394,6 +8712,14 @@ function applyPreteritAgentiveComplementRootsToVerbEntry({
     matrixSpecId = "",
     objectPrefix = "ki",
     complementVerbInput = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
     const resolvedMatrixSpec = typeof resolvePreteritAgentiveComplementMatrixSpec === "function"
@@ -8416,6 +8742,27 @@ function applyPreteritAgentiveComplementRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedComplementVerbInput || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { preteritAgentiveComplementContinuation: "true" },
+        routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        objectPrefix: resolvedObjectPrefix,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "preterit-agentive-complement-entry",
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixRoot: normalizedMatrixRoot,
+            objectPrefix: resolvedObjectPrefix,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8503,6 +8850,14 @@ function applyPreteritAgentiveAdverbialRootsToVerbEntry({
     matrixSpecId = "",
     objectPrefix = "",
     adverbialVerbInput = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedPreteritAgentiveStem = normalizeComposerEmbedValue(preteritAgentiveStem);
     const resolvedMatrixSpec = typeof resolvePreteritAgentiveAdverbialMatrixSpec === "function"
@@ -8527,6 +8882,27 @@ function applyPreteritAgentiveAdverbialRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedPreteritAgentiveStem || !normalizedMatrixRoot || !resolvedAdverbialVerbInput || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { preteritAgentiveAdverbialContinuation: "true" },
+        routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        objectPrefix: resolvedObjectPrefix,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "preterit-agentive-adverbial-entry",
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixRoot: normalizedMatrixRoot,
+            objectPrefix: resolvedObjectPrefix,
+        });
     }
     const isTransitiveMatrix = resolvedMatrixSpec?.matrixValency === "transitive";
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
@@ -8615,6 +8991,14 @@ function applyOrdinaryNounOwnerhoodRootsToVerbEntry({
     matrixRoot = "wa",
     matrixSpecId = "",
     ownerhoodVerbInput = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedNounStem = normalizeComposerEmbedValue(nounStem);
     const resolvedMatrixSpec = typeof resolveOrdinaryNounOwnerhoodMatrixSpec === "function"
@@ -8637,6 +9021,25 @@ function applyOrdinaryNounOwnerhoodRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedNounStem || !normalizedMatrixRoot || !resolvedOwnerhoodVerbInput || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { ordinaryNncOwnerhoodContinuation: "true" },
+        routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "ordinary-noun-ownerhood-entry",
+            nounStem: normalizedNounStem,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8717,6 +9120,17 @@ function applyActiveActionNominalCompoundToOrdinaryNncEntry({
     animacy = "",
     ordinaryNncInput = "",
     compoundStem = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
+    routeRecordId = "cnv-core-to-cnn-nounstem-deverbal",
+    routeDataset = null,
+    eventSource = "active-action-nominal-compound-entry",
 } = {}) {
     const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
     const resolvedMatrixSpec = typeof resolveActiveActionNominalCompoundMatrixSpec === "function"
@@ -8744,6 +9158,31 @@ function applyActiveActionNominalCompoundToOrdinaryNncEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !resolvedCompoundStem || !verbEl) {
         return false;
+    }
+    const resolvedRouteDataset = routeDataset && typeof routeDataset === "object"
+        ? routeDataset
+        : { activeActionNominalCompoundContinuation: "true" };
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: {
+            ...resolvedRouteDataset,
+            functionUseContinuation: "true",
+        },
+        routeRecordId,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: eventSource,
+            actionNominalSurface: normalizedActionNominalSurface,
+            matrixRoot: normalizedMatrixRoot,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -8841,6 +9280,14 @@ function applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry({
     animacy = "",
     ordinaryNncInput = "",
     compoundStem = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     return applyActiveActionNominalCompoundToOrdinaryNncEntry({
         actionNominalSurface: customaryAgentiveStem,
@@ -8850,6 +9297,17 @@ function applyCustomaryAgentiveNominalCompoundToOrdinaryNncEntry({
         animacy,
         ordinaryNncInput,
         compoundStem,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+        routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+        routeDataset: { customaryAgentiveNominalCompoundContinuation: "true" },
+        eventSource: "customary-agentive-nominal-compound-entry",
     });
 }
 
@@ -8859,6 +9317,14 @@ function applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry({
     matrixSpecId = "",
     objectPrefix = "ki",
     compoundVerbInput = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    grammarFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    incorporationRouteFrame = null,
+    objectSlotOwnership = null,
+    functionUseValenceGate = null,
 } = {}) {
     const normalizedCustomaryAgentiveStem = normalizeComposerEmbedValue(customaryAgentiveStem);
     const resolvedMatrixSpec = typeof resolveCustomaryAgentiveCompoundEmbedMatrixSpec === "function"
@@ -8881,6 +9347,27 @@ function applyCustomaryAgentiveCompoundEmbedRootsToVerbEntry({
     const verbEl = document.getElementById("verb");
     if (!normalizedCustomaryAgentiveStem || !normalizedMatrixRoot || !resolvedCompoundVerbInput || !verbEl) {
         return false;
+    }
+    const routeAction = shouldBlockComposerFunctionUseValenceRouteAction({
+        dataset: { customaryAgentiveCompoundEmbedContinuation: "true", functionUseContinuation: "true" },
+        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+        sourceFormulaSlots,
+        sourceFormulaEcho,
+        objectPrefix: resolvedObjectPrefix,
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame,
+        incorporationRouteFrame,
+        objectSlotOwnership,
+        functionUseValenceGate,
+    });
+    if (routeAction.blocked) {
+        return blockComposerFunctionUseValenceRouteAction(routeAction.contract, {
+            source: "customary-agentive-compound-embed-entry",
+            customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+            matrixRoot: normalizedMatrixRoot,
+            objectPrefix: resolvedObjectPrefix,
+        });
     }
     VerbComposerState.mode = VERB_INPUT_MODE.composer;
     VerbComposerState.entryBoard = COMPOSER_ENTRY_BOARD.general;
@@ -9419,6 +9906,408 @@ function removeLastTextUnit(value) {
 function getComposerPreferredEntryInput() {
     const { matrixStemInput, embedStemInput } = getVerbComposerElements();
     return matrixStemInput || embedStemInput || null;
+}
+
+function getComposerSlotEntryTargetInput() {
+    const inputId = String(ComposerVerbSlotEntryTarget?.inputId || "");
+    const inputEl = inputId ? document.getElementById(inputId) : null;
+    if (inputEl && getComposerSlotInputDescriptor(inputEl)) {
+        return inputEl;
+    }
+    return getComposerPreferredEntryInput();
+}
+
+function clearComposerSlotEntryTarget() {
+    ComposerVerbSlotEntryTarget = null;
+    syncComposerSlotEntryButtons();
+}
+
+function getComposerSlotEntryStateValue(inputEl = null, descriptor = null) {
+    const resolvedDescriptor = descriptor || getComposerSlotInputDescriptor(inputEl);
+    if (!resolvedDescriptor) {
+        return "";
+    }
+    const rawValue = VerbComposerState[resolvedDescriptor.stateKey] || "";
+    if (resolvedDescriptor.role === "stem") {
+        return formatComposerStemForInputDisplay(normalizeComposerStem(rawValue), {
+            slotKey: resolvedDescriptor.slotKey,
+            preferSplitFromStem: true,
+            templateSuffix: getComposerStemInputTemplateSuffix(inputEl, resolvedDescriptor.slotKey),
+            surfaceValue: COMPOSER_TEMPLATE_SURFACE_BY_SLOT[resolvedDescriptor.slotKey] || "",
+        });
+    }
+    return normalizeComposerEmbedValue(rawValue);
+}
+
+function getComposerSlotEntryTargetSelection(inputEl = null) {
+    const inputId = String(inputEl?.id || "");
+    if (!inputId || ComposerVerbSlotEntryTarget?.inputId !== inputId) {
+        const length = getComposerSlotEntryStateValue(inputEl).length;
+        return { start: length, end: length };
+    }
+    const valueLength = getComposerSlotEntryStateValue(inputEl).length;
+    const start = Math.max(0, Math.min(Number(ComposerVerbSlotEntryTarget.selectionStart) || 0, valueLength));
+    const end = Math.max(start, Math.min(Number(ComposerVerbSlotEntryTarget.selectionEnd) || start, valueLength));
+    return { start, end };
+}
+
+function setComposerSlotEntryTarget(inputEl = null, options = {}) {
+    if (!inputEl || !getComposerSlotInputDescriptor(inputEl)) {
+        clearComposerSlotEntryTarget();
+        return false;
+    }
+    const valueLength = getComposerSlotEntryStateValue(inputEl).length;
+    const selectAll = options.selectAll !== false;
+    const start = selectAll ? 0 : valueLength;
+    const end = selectAll ? valueLength : valueLength;
+    ComposerVerbSlotEntryTarget = {
+        inputId: inputEl.id,
+        selectionStart: start,
+        selectionEnd: end,
+    };
+    syncComposerSlotEntryButtons();
+    return true;
+}
+
+function getComposerVerbInputRangeForSlot(inputEl = null, verbValueOverride = null) {
+    const verbEl = document.getElementById("verb");
+    if (!verbEl || !inputEl) {
+        return null;
+    }
+    const descriptor = getComposerSlotInputDescriptor(inputEl);
+    const verbValue = verbValueOverride === null
+        ? String(verbEl.value || "")
+        : String(verbValueOverride || "");
+    const slotValue = getComposerSlotEntryStateValue(inputEl, descriptor).trim();
+    if (slotValue) {
+        const index = descriptor?.role === "stem"
+            ? verbValue.lastIndexOf(slotValue)
+            : verbValue.indexOf(slotValue);
+        if (index >= 0) {
+            return { start: index, end: index + slotValue.length };
+        }
+    }
+    const writable = getVerbInputWritableSelection(verbValue);
+    if (writable) {
+        return writable;
+    }
+    const end = verbValue.length;
+    return { start: end, end };
+}
+
+function focusComposerSlotEntryTarget(inputEl = null, options = {}) {
+    const targetInput = inputEl || getComposerSlotEntryTargetInput();
+    if (!targetInput || !setComposerSlotEntryTarget(targetInput, options)) {
+        return focusVisibleVerbSurfaceAtEnd();
+    }
+    const verbEl = document.getElementById("verb");
+    if (!isFocusableTextInput(verbEl, { allowReadOnly: true }) || typeof verbEl.focus !== "function") {
+        return false;
+    }
+    verbEl.focus();
+    const range = getComposerVerbInputRangeForSlot(targetInput);
+    if (range && typeof verbEl.setSelectionRange === "function") {
+        const selection = getComposerSlotEntryTargetSelection(targetInput);
+        const valueLength = getComposerSlotEntryStateValue(targetInput).length;
+        const startOffset = Math.max(0, Math.min(selection.start, valueLength));
+        const endOffset = Math.max(startOffset, Math.min(selection.end, valueLength));
+        const rangeText = String(verbEl.value || "").slice(range.start, range.end);
+        if (!valueLength && /^_+/.test(rangeText)) {
+            verbEl.setSelectionRange(range.start, range.end);
+        } else {
+            verbEl.setSelectionRange(range.start + startOffset, range.start + endOffset);
+        }
+    }
+    return true;
+}
+
+function getComposerSlotEntryButtonForInput(inputEl = null) {
+    const inputId = String(inputEl?.id || "");
+    if (!inputId) {
+        return null;
+    }
+    const selector = `.verb-composer__slot-entry-button[data-composer-slot-input-id="${escapeAttributeSelectorValue(inputId)}"]`;
+    return inputEl.closest(".verb-composer__tagged-input-shell")?.querySelector(selector) || null;
+}
+
+function buildComposerSlotEntryButton(inputEl = null) {
+    if (!inputEl || !inputEl.id) {
+        return null;
+    }
+    const descriptor = getComposerSlotInputDescriptor(inputEl);
+    if (!descriptor) {
+        return null;
+    }
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "verb-composer__slot-entry-button";
+    button.dataset.composerSlotInputId = inputEl.id;
+    button.dataset.composerSlotRole = descriptor.role;
+    button.dataset.composerSlotKey = descriptor.slotKey;
+    button.setAttribute("aria-controls", "verb");
+    button.addEventListener("click", (event) => {
+        event.preventDefault();
+        focusComposerSlotEntryTarget(inputEl, { selectAll: true });
+    });
+    const label = document.createElement("span");
+    label.className = "verb-composer__slot-entry-label";
+    const value = document.createElement("span");
+    value.className = "verb-composer__slot-entry-value";
+    button.appendChild(label);
+    button.appendChild(value);
+    return button;
+}
+
+function getComposerSlotEntryButtonLabel(inputEl = null, descriptor = null) {
+    const field = inputEl?.closest?.(".verb-composer__stem-field, .verb-composer__matrix-field, .verb-composer__bottom-field") || null;
+    const directSubLabel = Array.from(field?.children || [])
+        .find((child) => child?.classList?.contains("verb-composer__sub-label"));
+    const directText = String(directSubLabel?.textContent || "").trim();
+    const matrixText = String(field?.querySelector?.(".verb-composer__matrix-head > .verb-composer__sub-label")?.textContent || "").trim();
+    const tagText = String(inputEl?.closest?.(".verb-composer__tagged-input-shell")?.querySelector?.(".verb-composer__tagged-input-tag")?.textContent || "").trim();
+    if (descriptor?.role === "stem") {
+        return matrixText || directText || getComposerMatrixFieldLabel({
+            ordinaryNncActive: typeof isOrdinaryNncGenerationModeEnabled === "function"
+                && isOrdinaryNncGenerationModeEnabled(),
+            activeBoard: getComposerEntryBoard(),
+        });
+    }
+    return directText || matrixText || tagText || getComposerSlotEntryRoleLabel(descriptor?.role);
+}
+
+function isComposerOrdinaryNncStemSlot(inputEl = null, descriptor = null) {
+    const resolvedDescriptor = descriptor || getComposerSlotInputDescriptor(inputEl);
+    return Boolean(
+        resolvedDescriptor?.role === "stem"
+        && (
+            getComposerEntryBoard() === "ordinary-nnc"
+            || (
+                typeof isOrdinaryNncGenerationModeEnabled === "function"
+                && isOrdinaryNncGenerationModeEnabled()
+            )
+        )
+    );
+}
+
+function getComposerSlotEntryButtonVisibleText(inputEl = null, descriptor = null, value = "") {
+    const normalizedValue = String(value || "").trim();
+    if (isComposerOrdinaryNncStemSlot(inputEl, descriptor)) {
+        return normalizedValue ? `(${normalizedValue})` : "";
+    }
+    return getComposerSlotEntryButtonLabel(inputEl, descriptor);
+}
+
+function syncComposerSlotEntryButton(inputEl = null) {
+    if (!inputEl || !inputEl.id || !getComposerSlotInputDescriptor(inputEl)) {
+        return;
+    }
+    const shell = inputEl.closest(".verb-composer__tagged-input-shell");
+    if (!shell || typeof shell.querySelector !== "function" || typeof shell.appendChild !== "function") {
+        return;
+    }
+    inputEl.classList.add("is-hidden-control");
+    inputEl.tabIndex = -1;
+    inputEl.setAttribute("aria-hidden", "true");
+    const descriptor = getComposerSlotInputDescriptor(inputEl);
+    const field = inputEl.closest(".verb-composer__stem-field, .verb-composer__matrix-field, .verb-composer__bottom-field");
+    shell.classList.add("has-slot-entry-button");
+    field?.classList?.add("has-slot-entry-button");
+    const labelText = getComposerSlotEntryButtonLabel(inputEl, descriptor);
+    let button = getComposerSlotEntryButtonForInput(inputEl);
+    if (!button) {
+        button = buildComposerSlotEntryButton(inputEl);
+        if (!button) {
+            return;
+        }
+        shell.appendChild(button);
+    }
+    const value = getComposerSlotEntryStateValue(inputEl, descriptor).trim();
+    const visibleText = getComposerSlotEntryButtonVisibleText(inputEl, descriptor, value);
+    const labelNode = button.querySelector(".verb-composer__slot-entry-label");
+    const valueNode = button.querySelector(".verb-composer__slot-entry-value");
+    if (labelNode) {
+        labelNode.textContent = visibleText;
+    }
+    if (valueNode) {
+        valueNode.textContent = "";
+    }
+    button.classList.toggle("is-empty", !value);
+    button.classList.toggle("is-active", ComposerVerbSlotEntryTarget?.inputId === inputEl.id);
+    button.setAttribute("aria-pressed", String(ComposerVerbSlotEntryTarget?.inputId === inputEl.id));
+    button.title = `${labelText}: escribir en #verb`;
+    button.setAttribute("aria-label", `${labelText}, escribir en entrada principal`);
+}
+
+function syncComposerSlotEntryButtons() {
+    if (typeof document === "undefined") {
+        return;
+    }
+    const { slots } = getVerbComposerElements();
+    COMPOSER_SLOT_KEYS.forEach((slotKey) => {
+        const slotRefs = slots[slotKey] || {};
+        [
+            slotRefs.embedInput || null,
+            slotRefs.stemInput || null,
+            slotRefs.objectInput || null,
+        ].forEach(syncComposerSlotEntryButton);
+    });
+}
+
+function getComposerSlotEntryInsertionText(event) {
+    if (event.inputType === "insertFromPaste") {
+        return event.clipboardData?.getData("text/plain")
+            || event.dataTransfer?.getData("text/plain")
+            || event.data
+            || "";
+    }
+    return event.data || "";
+}
+
+function getComposerDeleteForwardValue(value = "", end = 0) {
+    const before = String(value || "").slice(0, end);
+    const after = String(value || "").slice(end);
+    const units = splitVerbLetters(after);
+    return before + units.slice(1).join("");
+}
+
+function applyComposerSlotEntryTargetInputValue(targetInput = null, nextValue = "") {
+    const descriptor = getComposerSlotInputDescriptor(targetInput);
+    if (!targetInput || !descriptor) {
+        return false;
+    }
+    targetInput.value = nextValue;
+    if (descriptor.role === "stem") {
+        VerbComposerState.stemManualOverride = true;
+    }
+    collectComposerStateFromControls();
+    let refreshedManualMatrixStem = false;
+    if (descriptor.role === "stem") {
+        applyComposerSyllableModeDefaultFromStem();
+    } else {
+        refreshedManualMatrixStem = maybeRefreshComposerManualMatrixStemFromEmbed();
+        maybeDeriveComposerStemFromSelectionsSource();
+        if (!VerbComposerState.stemManualOverride || refreshedManualMatrixStem) {
+            applyComposerSyllableModeDefaultFromStem();
+        }
+    }
+    syncComposerValenceAvailability();
+    renderVerbComposerFromState();
+    applyComposerStateToVerbInput({
+        triggerGenerate: true,
+        immediateRefresh: true,
+    });
+    return true;
+}
+
+function handleComposerVerbSlotBeforeInput(event) {
+    if (
+        !isVerbInputModeComposer()
+        || !ComposerVerbSlotEntryTarget?.inputId
+        || event?.target?.id !== "verb"
+        || event.isComposing
+    ) {
+        return false;
+    }
+    const targetInput = document.getElementById(ComposerVerbSlotEntryTarget.inputId);
+    if (!targetInput || !getComposerSlotInputDescriptor(targetInput)) {
+        clearComposerSlotEntryTarget();
+        return false;
+    }
+    const inputType = String(event.inputType || "");
+    const currentValue = String(targetInput.value || "");
+    const selection = getComposerSlotEntryTargetSelection(targetInput);
+    let nextValue = currentValue;
+    let nextCaret = selection.start;
+    if (inputType.startsWith("insert")) {
+        const insertion = getComposerSlotEntryInsertionText(event);
+        if (!insertion) {
+            return false;
+        }
+        nextValue = currentValue.slice(0, selection.start)
+            + insertion
+            + currentValue.slice(selection.end);
+        nextCaret = selection.start + insertion.length;
+    } else if (inputType === "deleteContentBackward") {
+        if (selection.start !== selection.end) {
+            nextValue = currentValue.slice(0, selection.start) + currentValue.slice(selection.end);
+            nextCaret = selection.start;
+        } else if (selection.start > 0) {
+            const before = currentValue.slice(0, selection.start);
+            const nextBefore = removeLastTextUnit(before);
+            nextValue = nextBefore + currentValue.slice(selection.end);
+            nextCaret = nextBefore.length;
+        }
+    } else if (inputType === "deleteContentForward") {
+        if (selection.start !== selection.end) {
+            nextValue = currentValue.slice(0, selection.start) + currentValue.slice(selection.end);
+            nextCaret = selection.start;
+        } else {
+            nextValue = getComposerDeleteForwardValue(currentValue, selection.end);
+            nextCaret = selection.start;
+        }
+    } else {
+        return false;
+    }
+    event.preventDefault();
+    if (typeof event.stopImmediatePropagation === "function") {
+        event.stopImmediatePropagation();
+    }
+    ComposerVerbSlotEntryTarget.selectionStart = nextCaret;
+    ComposerVerbSlotEntryTarget.selectionEnd = nextCaret;
+    applyComposerSlotEntryTargetInputValue(targetInput, nextValue);
+    focusComposerSlotEntryTarget(targetInput, { selectAll: false });
+    return true;
+}
+
+function handleComposerVerbSlotInput(event) {
+    if (
+        ComposerVerbSlotEntryInputSyncing
+        || VerbComposerState.isApplying
+        || !isVerbInputModeComposer()
+        || !ComposerVerbSlotEntryTarget?.inputId
+        || event?.target?.id !== "verb"
+        || event.isComposing
+    ) {
+        return false;
+    }
+    const targetInput = document.getElementById(ComposerVerbSlotEntryTarget.inputId);
+    if (!targetInput || !getComposerSlotInputDescriptor(targetInput)) {
+        clearComposerSlotEntryTarget();
+        return false;
+    }
+    const verbEl = event.target;
+    const previousVerbValue = ComposerVerbSlotEntryLastVerbValue;
+    const nextVerbValue = String(verbEl.value || "");
+    if (previousVerbValue === nextVerbValue) {
+        ComposerVerbSlotEntryLastVerbValue = nextVerbValue;
+        return false;
+    }
+    const range = getComposerVerbInputRangeForSlot(targetInput, previousVerbValue);
+    if (!range) {
+        ComposerVerbSlotEntryLastVerbValue = nextVerbValue;
+        return false;
+    }
+    const prefix = previousVerbValue.slice(0, range.start);
+    const suffix = previousVerbValue.slice(range.end);
+    if (!nextVerbValue.startsWith(prefix) || !nextVerbValue.endsWith(suffix)) {
+        clearComposerSlotEntryTarget();
+        return false;
+    }
+    const nextSlotValue = nextVerbValue.slice(prefix.length, nextVerbValue.length - suffix.length);
+    const selectionStart = typeof verbEl.selectionStart === "number"
+        ? verbEl.selectionStart
+        : prefix.length + nextSlotValue.length;
+    const nextCaret = Math.max(0, Math.min(selectionStart - prefix.length, nextSlotValue.length));
+    ComposerVerbSlotEntryInputSyncing = true;
+    try {
+        ComposerVerbSlotEntryTarget.selectionStart = nextCaret;
+        ComposerVerbSlotEntryTarget.selectionEnd = nextCaret;
+        applyComposerSlotEntryTargetInputValue(targetInput, nextSlotValue);
+        focusComposerSlotEntryTarget(targetInput, { selectAll: false });
+    } finally {
+        ComposerVerbSlotEntryInputSyncing = false;
+    }
+    return true;
 }
 
 function getComposerStemInputPreferredCaret(inputEl) {
@@ -10327,7 +11216,7 @@ function runScreenCalculatorAC() {
         syncComposerStateFromVerbInput("");
         renderVerbComposerFromState();
         applyComposerStateToVerbInput({ triggerGenerate: true });
-        getComposerPreferredEntryInput()?.focus();
+        focusComposerSlotEntryTarget(getComposerPreferredEntryInput(), { selectAll: true });
         updateTenseModeTabs();
         updateDerivationTypeControl();
         renderTenseTabs();
@@ -10357,6 +11246,16 @@ function runScreenCalculatorAC() {
 }
 
 function runScreenCalculatorCE() {
+    const verbInput = document.getElementById("verb");
+    if (isVerbInputModeComposer()) {
+        const preferredInput = getComposerSlotEntryTargetInput();
+        if (preferredInput && preferredInput.value) {
+            preferredInput.value = "";
+            dispatchTextInputUpdate(preferredInput);
+        }
+        focusComposerSlotEntryTarget(preferredInput, { selectAll: false });
+        return;
+    }
     const active = document.activeElement;
     if (isEditableTextInput(active)) {
         if (active.value) {
@@ -10364,16 +11263,6 @@ function runScreenCalculatorCE() {
             dispatchTextInputUpdate(active);
         }
         active.focus();
-        return;
-    }
-    const verbInput = document.getElementById("verb");
-    if (isVerbInputModeComposer()) {
-        const preferredInput = getComposerPreferredEntryInput();
-        if (preferredInput && preferredInput.value) {
-            preferredInput.value = "";
-            dispatchTextInputUpdate(preferredInput);
-            preferredInput.focus();
-        }
         return;
     }
     if (!verbInput || !verbInput.value) {
@@ -10385,6 +11274,19 @@ function runScreenCalculatorCE() {
 }
 
 function runScreenCalculatorDEL() {
+    const verbInput = document.getElementById("verb");
+    if (isVerbInputModeComposer()) {
+        const preferredInput = getComposerSlotEntryTargetInput();
+        if (preferredInput) {
+            const nextValue = removeLastTextUnit(preferredInput.value);
+            if (nextValue !== preferredInput.value) {
+                preferredInput.value = nextValue;
+                dispatchTextInputUpdate(preferredInput);
+            }
+            focusComposerSlotEntryTarget(preferredInput, { selectAll: false });
+        }
+        return;
+    }
     const active = document.activeElement;
     if (isEditableTextInput(active)) {
         const nextValue = removeLastTextUnit(active.value);
@@ -10393,19 +11295,6 @@ function runScreenCalculatorDEL() {
             dispatchTextInputUpdate(active);
         }
         active.focus();
-        return;
-    }
-    const verbInput = document.getElementById("verb");
-    if (isVerbInputModeComposer()) {
-        const preferredInput = getComposerPreferredEntryInput();
-        if (preferredInput) {
-            const nextValue = removeLastTextUnit(preferredInput.value);
-            if (nextValue !== preferredInput.value) {
-                preferredInput.value = nextValue;
-                dispatchTextInputUpdate(preferredInput);
-            }
-            preferredInput.focus();
-        }
         return;
     }
     if (!verbInput) {
@@ -10426,14 +11315,14 @@ function runScreenCalculatorANS() {
     const ansRegexBase = String(VerbScreenAnsState.regexBase || "").trim();
     const fallbackFromForm = getScreenCalculatorAnsFallbackFromForm();
     if (isVerbInputModeComposer()) {
-        const preferredInput = getComposerPreferredEntryInput();
+        const preferredInput = getComposerSlotEntryTargetInput();
         const nextStem = ansStem || ansRegexBase || fallbackFromForm;
         if (!preferredInput || !nextStem) {
             return;
         }
         preferredInput.value = nextStem;
         dispatchTextInputUpdate(preferredInput);
-        preferredInput.focus();
+        focusComposerSlotEntryTarget(preferredInput, { selectAll: false });
         return;
     }
     if (!verbInput) {
@@ -10480,7 +11369,7 @@ function runScreenCalculatorCycleTransitivity(direction = 1) {
         transitivitySelect.value = next;
     }
     onVerbComposerControlChange("other");
-    focusTextInputAtEnd(getComposerPreferredEntryInput());
+    focusComposerSlotEntryTarget(getComposerPreferredEntryInput(), { selectAll: false });
     return true;
 }
 
@@ -10633,14 +11522,7 @@ function handleComposerDoubleSpaceShortcut(event) {
     if (!isVerbInputModeComposer()) {
         setVerbInputMode(VERB_INPUT_MODE.composer, { syncFromInput: true });
     }
-    const preferredInput = getComposerPreferredEntryInput();
-    if (preferredInput) {
-        preferredInput.focus();
-        if (typeof preferredInput.setSelectionRange === "function") {
-            const caret = String(preferredInput.value || "").length;
-            preferredInput.setSelectionRange(caret, caret);
-        }
-    }
+    focusComposerSlotEntryTarget(getComposerPreferredEntryInput(), { selectAll: false });
     syncVerbScreenCalculatorState();
     return true;
 }
@@ -10713,7 +11595,7 @@ function initVerbComposer() {
                 setOrdinaryNncGenerationModeEnabled(false);
             }
             setComposerEntryBoard(board, { force: ordinaryNncWasActive });
-            getComposerPreferredEntryInput()?.focus();
+            focusComposerSlotEntryTarget(getComposerPreferredEntryInput(), { selectAll: true });
             syncVerbScreenCalculatorState();
         });
     });
@@ -10838,6 +11720,15 @@ function initVerbComposer() {
     if (supportiveICheckbox) {
         supportiveICheckbox.addEventListener("change", () => onVerbComposerControlChange("supportive"));
     }
+    const verbEl = document.getElementById("verb");
+    if (verbEl && verbEl.dataset.composerSlotRouterBound !== "1") {
+        verbEl.addEventListener("beforeinput", handleComposerVerbSlotBeforeInput);
+        verbEl.addEventListener("input", handleComposerVerbSlotInput);
+        verbEl.addEventListener("pointerdown", () => {
+            clearComposerSlotEntryTarget();
+        });
+        verbEl.dataset.composerSlotRouterBound = "1";
+    }
     const languageSwitch = document.getElementById("language");
     if (languageSwitch && languageSwitch.dataset.composerSlotTabsLabelBound !== "1") {
         languageSwitch.addEventListener("change", () => {
@@ -10860,7 +11751,6 @@ function initVerbComposer() {
             }
         }, { passive: true });
     }
-    const verbEl = document.getElementById("verb");
     syncComposerStateFromVerbInput(verbEl?.value || "");
     if (!getComposerActiveStemValue()) {
         VerbComposerState.syllableMode = COMPOSER_SYLLABLE_MODE.multisyllable;
@@ -11473,6 +12363,9 @@ var COMPOSER_ROOT_EMBED_INPUT_IDS = new Set([
     "composer-valence-embed-1",
     "composer-valence-embed-2",
 ]);
+var ComposerVerbSlotEntryTarget = null;
+var ComposerVerbSlotEntryLastVerbValue = "";
+var ComposerVerbSlotEntryInputSyncing = false;
 var AUTOFILL_ALIAS_SALT = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 var COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS = 450;
 var COMPOSER_SPACE_DOUBLE_READY_WINDOW_MS = 450;

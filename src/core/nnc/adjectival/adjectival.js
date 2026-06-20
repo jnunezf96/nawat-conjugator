@@ -1140,6 +1140,71 @@ function resolveAdjectivalNncGrammarFrameSourceInput(output = null, functionFram
     );
 }
 
+function cloneAdjectivalNncSourceRouteFrame(frame = null) {
+    if (!frame || typeof frame !== "object" || Array.isArray(frame)) {
+        return null;
+    }
+    return { ...frame };
+}
+
+function resolveAdjectivalNncSourceRouteFrame(output = null, functionFrame = null) {
+    const result = output && typeof output === "object" ? output : {};
+    const frame = functionFrame && typeof functionFrame === "object" ? functionFrame : {};
+    const inheritedGrammarFrame = result.grammarFrame && typeof result.grammarFrame === "object"
+        ? result.grammarFrame
+        : (result.frames && typeof result.frames === "object" ? result.frames : null);
+    const functionGrammarFrame = frame.grammarFrame && typeof frame.grammarFrame === "object"
+        ? frame.grammarFrame
+        : (frame.frames && typeof frame.frames === "object" ? frame.frames : null);
+    const candidates = [
+        result.incorporationRouteFrame,
+        result.compoundRouteFrame,
+        result.routeFrame,
+        result.denominalCompoundSourceFrame?.incorporationRouteFrame,
+        result.denominalCompoundSourceFrame?.compoundRouteFrame,
+        result.denominalCompoundSourceFrame?.routeFrame,
+        result.rootPlusYaAdjectivalNncFrame?.denominalCompoundSourceFrame?.incorporationRouteFrame,
+        result.rootPlusYaAdjectivalNncFrame?.denominalCompoundSourceFrame?.compoundRouteFrame,
+        result.rootPlusYaAdjectivalNncFrame?.denominalCompoundSourceFrame?.routeFrame,
+        frame.incorporationRouteFrame,
+        frame.compoundRouteFrame,
+        frame.routeFrame,
+        frame.denominalCompoundSourceFrame?.incorporationRouteFrame,
+        frame.denominalCompoundSourceFrame?.compoundRouteFrame,
+        frame.denominalCompoundSourceFrame?.routeFrame,
+        frame.sourceCompoundFrame?.incorporationRouteFrame,
+        frame.sourceCompoundFrame?.compoundRouteFrame,
+        frame.sourceCompoundFrame?.routeFrame,
+        frame.sourceDenominalCompoundFrame?.incorporationRouteFrame,
+        frame.sourceDenominalCompoundFrame?.compoundRouteFrame,
+        frame.sourceDenominalCompoundFrame?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.sourceRouteFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.incorporationRouteFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.sourceRouteFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.incorporationRouteFrame,
+        inheritedGrammarFrame?.participantFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.participantFrame?.routeFrame,
+        inheritedGrammarFrame?.participantFrame?.incorporationRouteFrame,
+        inheritedGrammarFrame?.stemFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.stemFrame?.routeFrame,
+        inheritedGrammarFrame?.stemFrame?.incorporationRouteFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.routeFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.incorporationRouteFrame,
+        functionGrammarFrame?.routeContract?.sourceContract?.sourceRouteFrame,
+        functionGrammarFrame?.routeContract?.sourceContract?.routeFrame,
+        functionGrammarFrame?.routeContract?.sourceContract?.incorporationRouteFrame,
+        functionGrammarFrame?.participantFrame?.sourceRouteFrame,
+        functionGrammarFrame?.participantFrame?.routeFrame,
+        functionGrammarFrame?.participantFrame?.incorporationRouteFrame,
+    ];
+    return cloneAdjectivalNncSourceRouteFrame(
+        candidates.find((candidate) => candidate && typeof candidate === "object") || null
+    );
+}
+
 function buildAdjectivalNncGrammarFrame(result = null) {
     if (typeof buildGrammarFrame !== "function") {
         return null;
@@ -1154,6 +1219,11 @@ function buildAdjectivalNncGrammarFrame(result = null) {
     const sourceFormulaEcho = output.formulaEcho || functionFrame.sourceFormulaEcho || "";
     const sourceInput = resolveAdjectivalNncGrammarFrameSourceInput(output, functionFrame, surface);
     const hasEmptyResultFrame = Boolean(getAdjectivalNncResultFramePayload(output) && !surface);
+    const sourceRouteFrame = resolveAdjectivalNncSourceRouteFrame(output, functionFrame);
+    const sourceRouteObjectSlotOwnership = sourceRouteFrame?.objectSlotOwnership
+        && typeof sourceRouteFrame.objectSlotOwnership === "object"
+        ? sourceRouteFrame.objectSlotOwnership
+        : null;
     const routeContract = typeof buildGrammarRouteContractFrame === "function"
         ? buildGrammarRouteContractFrame({
             routeFamily: "adjectival-nnc",
@@ -1169,11 +1239,15 @@ function buildAdjectivalNncGrammarFrame(result = null) {
                 sourceVoiceMode: functionFrame.sourceVoiceMode || "",
                 sourceDenominalCompoundFrame: functionFrame.sourceDenominalCompoundFrame || null,
                 sourceCompoundFrame: functionFrame.sourceCompoundFrame || null,
+                sourceRouteFrame,
+                routeFrame: sourceRouteFrame,
             },
             targetContract: {
                 outputKind: output.outputKind || "",
                 functionKind: functionFrame.functionKind || "",
                 generationRoute: output.generationRoute || "adjectival-nnc",
+                sourceRouteFrame,
+                routeFrame: sourceRouteFrame,
             },
             generationAllowed: ok,
             blockingDiagnostics: ok ? [] : diagnostics,
@@ -1221,15 +1295,29 @@ function buildAdjectivalNncGrammarFrame(result = null) {
         morphBoundaryFrame: {
             formulaSlots: sourceFormulaSlots,
             formulaEcho: String(sourceFormulaEcho || ""),
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
         },
         stemFrame: {
             stem: hasEmptyResultFrame ? "" : String(output.stem || surface || ""),
             sourceStem: hasEmptyResultFrame
                 ? ""
                 : (sourceInput || normalizeAdjectivalNncSurfaceValue(functionFrame.sourcePredicateStem || "")),
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
         },
         nuclearClauseFrame: null,
-        participantFrame: null,
+        participantFrame: {
+            sourceCategory: functionFrame.sourceCategory || "",
+            sourceClauseKind: functionFrame.sourceClauseKind || output.clauseKind || "",
+            functionKind: functionFrame.functionKind || "",
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
+            objectSlotOwnership: sourceRouteObjectSlotOwnership,
+            routeFrameLicensesObjectSlotOwnership: sourceRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+            finalFormulaShapeDoesNotLicenseObjectSlots: sourceRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+            functionUseDoesNotLicenseObjectSlots: sourceRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
+        },
         inflectionFrame: {
             tenseMode: "adjetivo",
             state: output.state || functionFrame.actualPredicateState || "",
@@ -1624,6 +1712,146 @@ function getAdjectivalNncDenominalCompoundSourceParts(parsedVerb = null) {
     return [];
 }
 
+function getDenominalCompoundAdjectivalNncSourceSurface(parsedVerb = null, compoundParts = []) {
+    const rawInput = String(
+        parsedVerb?.sourceRawVerb
+        || parsedVerb?.displayVerb
+        || parsedVerb?.displayCore
+        || ""
+    ).trim();
+    if (rawInput) {
+        return rawInput;
+    }
+    const parts = Array.isArray(compoundParts)
+        ? compoundParts.map((part) => normalizeAdjectivalNncText(part)).filter(Boolean)
+        : [];
+    return parts.length ? `(${parts.join("/")}/tiya)` : "";
+}
+
+function buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+} = {}) {
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    const matrixValenceFrameFixed = Boolean(resolvedMatrixValence);
+    return {
+        kind: "denominal-compound-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed,
+        consumedObjectSlot: "",
+        consumedObjectSlotOwnedBy: "none",
+        sourceExternalObjectSlots: [],
+        remainingExternalObjectSlots: [],
+        sourceExternalObjectSlotsOwnedBy: "none",
+        remainingExternalObjectSlotsOwnedBy: "none",
+        embeddedRoleLicensedBy: embedRole ? "denominal-compound-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: matrixValenceFrameFixed,
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+        objectSlotLicensingOrder: [
+            "source-principal-nnc",
+            "denominal-verbstem-route",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildDenominalCompoundAdjectivalNncRouteFrame({
+    parsedVerb = null,
+    rootPlusYaBase = "",
+    compoundParts = [],
+    matrixStem = "",
+    embeds = [],
+} = {}) {
+    const sourceSurface = getDenominalCompoundAdjectivalNncSourceSurface(parsedVerb, compoundParts);
+    const normalizedEmbeds = Array.isArray(embeds) ? embeds : [];
+    const sourceAdjunctNncs = normalizedEmbeds.map((entry) => ({
+        surface: String(entry?.value || ""),
+        stem: String(entry?.value || ""),
+        kind: String(entry?.kind || "nounstem"),
+        role: String(entry?.role || ""),
+        sourceLayer: String(entry?.source || "segmented-denominal-tiya"),
+    }));
+    const embedRole = sourceAdjunctNncs.length === 1
+        ? sourceAdjunctNncs[0].role
+        : (sourceAdjunctNncs.length ? "multiple-compound-noun-embeds" : "");
+    const embeddedRoot = sourceAdjunctNncs.length === 1 ? sourceAdjunctNncs[0].stem : "";
+    const matrixValence = "compound-nounstem-no-verbal-object-slots";
+    const objectSlotOwnership = buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+    });
+    const matrixValenceFrameFixed = objectSlotOwnership.matrixValenceFrameFixed === true;
+    return {
+        kind: "denominal-compound-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            surface: sourceSurface,
+            generatedVerbstem: String(parsedVerb?.verb || parsedVerb?.analysisVerb || ""),
+            formulaSlots: null,
+            formulaEcho: "",
+            sourceKind: "denominal-cnv-from-compound-nounstem",
+        },
+        sourcePrincipalNnc: {
+            surface: Array.isArray(compoundParts) ? compoundParts.join("/") : "",
+            sourceKind: "compound-nounstem",
+        },
+        sourceAdjunctNnc: sourceAdjunctNncs[0] || null,
+        sourceAdjunctNncs,
+        matrix: {
+            role: "matrix",
+            root: String(matrixStem || ""),
+            stem: String(matrixStem || ""),
+            sourceKind: "nounstem",
+        },
+        matrixValence,
+        embedRole,
+        embeddedRoot,
+        embeddedRoots: sourceAdjunctNncs.map((entry) => entry.stem).filter(Boolean),
+        consumedObjectSlot: "",
+        sourceExternalObjectSlots: [],
+        remainingExternalObjectSlots: [],
+        remainingExternalObjectSlotIds: [],
+        objectSlotOwnership,
+        valenceDelta: 0,
+        valenceEffects: {
+            sourceExternalObjectSlotCount: 0,
+            remainingExternalObjectSlotCount: 0,
+            externalObjectSlotDelta: 0,
+            stemInternalObjectSlotDelta: 0,
+            compoundNounstemEmbedCount: sourceAdjunctNncs.length,
+            denominalOperationDoesNotConsumeObjectSlot: true,
+        },
+        andrewsSection: "Andrews 41.3",
+        andrewsRefs: ["Andrews 41.3", "Andrews 54.2", "Andrews 40.8.1"],
+        generationStatus: "generated-source-carried-route-frame",
+        generationAllowed: false,
+        routeStage: "denominal-compound-source-frame",
+        sourceLayer: "route-frame",
+        sourceRootPlusYaBase: String(rootPlusYaBase || ""),
+        finalFormulaShape: "compound-nounstem-denominal-ti-adjectival-nnc",
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseRole: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+        boundaries: {
+            matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+            routeFrameOwnsEmbedRoleLicensing: true,
+            finalFormulaShapeDoesNotLicenseRole: true,
+            functionUseDoesNotLicenseRole: true,
+        },
+    };
+}
+
 function resolveDenominalCompoundAdjectivalNncSourceFrame({
     parsedVerb = null,
     rootPlusYaBase = "",
@@ -1646,6 +1874,13 @@ function resolveDenominalCompoundAdjectivalNncSourceFrame({
         index,
         explicit: true,
     }));
+    const routeFrame = buildDenominalCompoundAdjectivalNncRouteFrame({
+        parsedVerb,
+        rootPlusYaBase,
+        compoundParts,
+        matrixStem,
+        embeds,
+    });
     return {
         kind: "denominal-compound-nounstem-frame",
         version: ADJECTIVAL_NNC_GENERATION_VERSION,
@@ -1675,6 +1910,8 @@ function resolveDenominalCompoundAdjectivalNncSourceFrame({
         },
         generatedVerbstem: String(parsedVerb?.verb || parsedVerb?.analysisVerb || ""),
         sourceRootPlusYaBase: String(rootPlusYaBase || ""),
+        compoundRouteFrame: routeFrame,
+        routeFrame,
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -1977,6 +2214,8 @@ function buildVncAdjectivalNncFunctionFrame({
     sourceTenseValue = "",
     sourceCombinedMode = "",
     sourceVoiceMode = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     role = "predicate-surface",
 } = {}) {
     return {
@@ -1999,8 +2238,8 @@ function buildVncAdjectivalNncFunctionFrame({
         sourceTenseValue: String(sourceTenseValue || "").trim(),
         sourceCombinedMode: String(sourceCombinedMode || "").trim(),
         sourceVoiceMode: String(sourceVoiceMode || "").trim(),
-        sourceFormulaSlots: null,
-        sourceFormulaEcho: "",
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
+        sourceFormulaEcho: String(sourceFormulaEcho || ""),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         doesNotCreateNncStem: true,
@@ -2016,6 +2255,8 @@ function buildVncAdjectivalNncUnsupportedOutput({
     sourceTenseValue = "",
     sourceCombinedMode = "",
     sourceVoiceMode = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -2033,6 +2274,8 @@ function buildVncAdjectivalNncUnsupportedOutput({
             sourceTenseValue,
             sourceCombinedMode,
             sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
         }),
         diagnostics,
     });
@@ -2046,6 +2289,8 @@ function buildVncAdjectivalNncFunctionOutput({
     sourceTenseValue = "",
     sourceCombinedMode = "",
     sourceVoiceMode = "",
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
     role = "predicate-surface",
 } = {}) {
     const resolvedSurface = String(vncSurface || surface || stem || "").trim();
@@ -2056,6 +2301,8 @@ function buildVncAdjectivalNncFunctionOutput({
             sourceTenseValue,
             sourceCombinedMode,
             sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresVncSurface,
                 "VNC adjectival function generation follows Andrews 40.3 and requires a generated VNC surface from #3 salida."
@@ -2068,6 +2315,8 @@ function buildVncAdjectivalNncFunctionOutput({
         sourceTenseValue,
         sourceCombinedMode,
         sourceVoiceMode,
+        sourceFormulaSlots,
+        sourceFormulaEcho,
         role,
     });
     return attachAdjectivalNncGrammarContract({
@@ -2079,8 +2328,8 @@ function buildVncAdjectivalNncFunctionOutput({
         stem: resolvedSurface,
         state: "",
         generationRoute: "adjectival-nnc",
-        formulaSlots: null,
-        formulaEcho: "",
+        formulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
+        formulaEcho: String(sourceFormulaEcho || ""),
         adjectivalNncFunctionFrame: frame,
         vncAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -2102,6 +2351,15 @@ function cloneAdjectivalNncCompoundSourceFrame(frame = null) {
             : [],
         sourceInput: frame.sourceInput && typeof frame.sourceInput === "object"
             ? { ...frame.sourceInput }
+            : null,
+        compoundRouteFrame: frame.compoundRouteFrame && typeof frame.compoundRouteFrame === "object"
+            ? { ...frame.compoundRouteFrame }
+            : null,
+        incorporationRouteFrame: frame.incorporationRouteFrame && typeof frame.incorporationRouteFrame === "object"
+            ? { ...frame.incorporationRouteFrame }
+            : null,
+        routeFrame: frame.routeFrame && typeof frame.routeFrame === "object"
+            ? { ...frame.routeFrame }
             : null,
         boundaries: frame.boundaries && typeof frame.boundaries === "object"
             ? { ...frame.boundaries }
@@ -2291,6 +2549,15 @@ function cloneAdjectivalNncDenominalCompoundSourceFrame(frame = null) {
             : null,
         generatedVerbstem: String(frame.generatedVerbstem || "").trim(),
         sourceRootPlusYaBase: String(frame.sourceRootPlusYaBase || "").trim(),
+        compoundRouteFrame: frame.compoundRouteFrame && typeof frame.compoundRouteFrame === "object"
+            ? { ...frame.compoundRouteFrame }
+            : null,
+        incorporationRouteFrame: frame.incorporationRouteFrame && typeof frame.incorporationRouteFrame === "object"
+            ? { ...frame.incorporationRouteFrame }
+            : null,
+        routeFrame: frame.routeFrame && typeof frame.routeFrame === "object"
+            ? { ...frame.routeFrame }
+            : null,
         generatedSurfacePreserved: frame.generatedSurfacePreserved === true,
         hasModificationAst: frame.hasModificationAst === true,
         spellingAuthority: String(frame.spellingAuthority || "").trim(),

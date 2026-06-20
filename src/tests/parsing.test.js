@@ -259,6 +259,122 @@ function run(ctx) {
         embedBeforeMatrix: true,
         noClassicalSurfaceImport: true,
     });
+    s.eq(
+        "#1 entrada grammar object stages stem, valence, object, and function-use separately",
+        (() => {
+            const entrada = lexicalValenceAdjacentCompound.entradaGrammarObject;
+            return {
+                kind: entrada?.kind || "",
+                rawInput: entrada?.rawInput || "",
+                layerOrder: entrada?.layerOrder || [],
+                formulaFixed: entrada?.formulaBoundaryFrame?.frameFixed === true,
+                candidateDoesNotLicenseFunctionUse: entrada?.formulaBoundaryFrame?.candidateSlotsDoNotLicenseFunctionUse === true,
+                stem: {
+                    matrixStem: entrada?.stemFrame?.matrixStem || "",
+                    matrixRuleBase: entrada?.stemFrame?.matrixRuleBase || "",
+                    adjacentEmbed: entrada?.stemFrame?.adjacentEmbed || "",
+                    sourceLayer: entrada?.stemFrame?.sourceLayer || "",
+                },
+                valence: {
+                    transitivity: entrada?.valenceFrame?.transitivity || "",
+                    tokens: entrada?.valenceFrame?.tokens || [],
+                    lexicalEmbeds: entrada?.valenceFrame?.lexicalEmbeds || [],
+                    frameFixed: entrada?.valenceFrame?.frameFixed === true,
+                    sourceLayer: entrada?.valenceFrame?.sourceLayer || "",
+                },
+                object: {
+                    hasObjectSlots: entrada?.objectFrame?.hasObjectSlots === true,
+                    slots: (entrada?.objectFrame?.slots || []).map((slot) => ({
+                        slotId: slot.slotId,
+                        token: slot.token,
+                        role: slot.role,
+                        sourceLayer: slot.sourceLayer,
+                    })),
+                    vector: entrada?.objectFrame?.vector || {},
+                    frameFixed: entrada?.objectFrame?.frameFixed === true,
+                },
+                routeRankingAllowed: entrada?.routeFrame?.routeRankingAllowed === true,
+                functionUse: {
+                    status: entrada?.functionUseFrame?.status || "",
+                    evaluationOrder: entrada?.functionUseFrame?.evaluationOrder || "",
+                    downstreamOfValenceFrame: entrada?.functionUseFrame?.downstreamOfValenceFrame === true,
+                    mayAnnotateLicensedReadingsOnly: entrada?.functionUseFrame?.mayAnnotateLicensedReadingsOnly === true,
+                    createsValenceObjectStructure: entrada?.functionUseFrame?.createsValenceObjectStructure === true,
+                    reclassifiesValenceObjectStructure: entrada?.functionUseFrame?.reclassifiesValenceObjectStructure === true,
+                },
+            };
+        })(),
+        {
+            kind: "andrews-entrada-grammar-object",
+            rawInput: "(a)+ta-(ish-kwi)",
+            layerOrder: ["formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
+            formulaFixed: false,
+            candidateDoesNotLicenseFunctionUse: true,
+            stem: {
+                matrixStem: "kwi",
+                matrixRuleBase: "kwi",
+                adjacentEmbed: "ish",
+                sourceLayer: "stem-frame",
+            },
+            valence: {
+                transitivity: "transitive",
+                tokens: ["ta"],
+                lexicalEmbeds: ["a"],
+                frameFixed: false,
+                sourceLayer: "valence-frame",
+            },
+            object: {
+                hasObjectSlots: true,
+                slots: [{
+                    slotId: "obj1",
+                    token: "ta",
+                    role: "object-marker",
+                    sourceLayer: "object-frame",
+                }],
+                vector: { obj1: "ta", obj2: "", obj3: "", reflexivo: "" },
+                frameFixed: false,
+            },
+            routeRankingAllowed: false,
+            functionUse: {
+                status: "deferred",
+                evaluationOrder: "last",
+                downstreamOfValenceFrame: true,
+                mayAnnotateLicensedReadingsOnly: true,
+                createsValenceObjectStructure: false,
+                reclassifiesValenceObjectStructure: false,
+            },
+        }
+    );
+    const partialFormulaEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+ta-(ish-kwi)",
+        ctx.parseMovingTargetRegexInput("(a)+ta-(ish-kwi)"),
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "kwi", displayStem: "kwi" },
+            },
+            sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+        }
+    );
+    s.eq(
+        "#1 entrada formula evidence does not fix valence until staged object slots are covered",
+        {
+            formulaFixed: partialFormulaEntrada?.formulaBoundaryFrame?.frameFixed === true,
+            valenceFrameFixed: partialFormulaEntrada?.valenceFrame?.frameFixed === true,
+            objectFrameFixed: partialFormulaEntrada?.objectFrame?.frameFixed === true,
+            objectSlotsCovered: partialFormulaEntrada?.formulaBoundaryFrame?.objectSlotsCovered === true,
+            missingObjectSlots: partialFormulaEntrada?.formulaBoundaryFrame?.missingObjectSlots || [],
+            routeRankingAllowed: partialFormulaEntrada?.routeFrame?.routeRankingAllowed === true,
+        },
+        {
+            formulaFixed: true,
+            valenceFrameFixed: false,
+            objectFrameFixed: false,
+            objectSlotsCovered: false,
+            missingObjectSlots: [{ slotId: "obj1", token: "ta" }],
+            routeRankingAllowed: false,
+        }
+    );
 
     const malformedCompound = ctx.parseVerbInput("ta+(");
     s.eq("compoundAst: malformed compound-like input returns null", malformedCompound.compoundAst, null);

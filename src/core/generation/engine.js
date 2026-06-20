@@ -13,6 +13,10 @@ const NUCLEAR_CLAUSE_SURFACE_ENGINE = Object.freeze({
     generatedUnit: "nuclear-clause-surface",
 });
 
+const FUNCTION_USE_VALENCE_OBJECT_GATE_DIAGNOSTIC_ID = "function-use-valence-object-frame-unfixed";
+const FUNCTION_USE_VALENCE_OBJECT_GATE_ROUTE_STAGE = "function-use-valence-object-gate";
+const FUNCTION_USE_VALENCE_OBJECT_SLOTS = Object.freeze(["obj1", "obj2", "obj3", "reflexivo"]);
+
 function normalizeNuclearClauseSurfaceTenseValue(tenseValue = "") {
     return String(tenseValue || "").trim();
 }
@@ -46,6 +50,575 @@ function getAdjectivalNncGenerationOptions(override = null) {
     return override?.adjectivalNnc && typeof override.adjectivalNnc === "object"
         ? override.adjectivalNnc
         : {};
+}
+
+function normalizeFunctionUseValenceObjectSlot(value = "") {
+    const normalized = normalizeNuclearClauseSurfaceContractSurface(value);
+    return normalized === "Ø" ? "" : normalized;
+}
+
+function getFunctionUseValenceObjectSlotValue(slot = null) {
+    if (!slot) {
+        return "";
+    }
+    if (typeof slot !== "object") {
+        return normalizeFunctionUseValenceObjectSlot(slot);
+    }
+    const fields = [
+        "prefix",
+        "basePrefix",
+        "formulaPrefix",
+        "displayPrefix",
+        "surface",
+        "displaySurface",
+        "value",
+        "token",
+        "marker",
+        "morpheme",
+        "objectPrefix",
+        "obj1",
+    ];
+    for (const field of fields) {
+        const value = normalizeFunctionUseValenceObjectSlot(slot[field]);
+        if (value) {
+            return value;
+        }
+    }
+    return "";
+}
+
+function normalizeFunctionUseValenceObjectVector(vector = null) {
+    const source = vector && typeof vector === "object" ? vector : {};
+    const normalized = {
+        obj1: normalizeFunctionUseValenceObjectSlot(source.obj1),
+        obj2: normalizeFunctionUseValenceObjectSlot(source.obj2),
+        obj3: normalizeFunctionUseValenceObjectSlot(source.obj3),
+        reflexivo: normalizeFunctionUseValenceObjectSlot(source.reflexivo),
+    };
+    if (normalized.obj1 === "mu" && !normalized.reflexivo) {
+        normalized.reflexivo = "mu";
+    }
+    if (normalized.obj1 === "mu" && normalized.reflexivo === "mu") {
+        normalized.obj1 = "";
+    }
+    return normalized;
+}
+
+function mergeFunctionUseValenceObjectVector(target = null, source = null) {
+    const next = target && typeof target === "object"
+        ? { ...target }
+        : { obj1: "", obj2: "", obj3: "", reflexivo: "" };
+    FUNCTION_USE_VALENCE_OBJECT_SLOTS.forEach((slot) => {
+        const value = normalizeFunctionUseValenceObjectSlot(source?.[slot]);
+        if (value && !next[slot]) {
+            next[slot] = value;
+        }
+    });
+    return normalizeFunctionUseValenceObjectVector(next);
+}
+
+function getFunctionUseValenceObjectFormulaSlotId(key = "", slot = null) {
+    const label = [
+        key,
+        slot && typeof slot === "object" ? slot.slot : "",
+        slot && typeof slot === "object" ? slot.slotId : "",
+        slot && typeof slot === "object" ? slot.role : "",
+    ].map((value) => String(value || "").trim().toLowerCase()).join(" ");
+    const compactLabel = label.replace(/[^a-z0-9]/g, "");
+    if (
+        /(obj1|objectprefix|directobject)/.test(compactLabel)
+        || /(^|\b)(obj|object)(\b|$)/.test(label)
+    ) {
+        return "obj1";
+    }
+    if (/(obj2|secondaryobject)/.test(compactLabel)) {
+        return "obj2";
+    }
+    if (/(obj3|tertiaryobject)/.test(compactLabel)) {
+        return "obj3";
+    }
+    if (/reflex|reflexivo/.test(compactLabel)) {
+        return "reflexivo";
+    }
+    return "";
+}
+
+function collectFunctionUseValenceObjectVectorFromFormulaSlots(formulaSlots = null) {
+    const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+    if (!slots) {
+        return null;
+    }
+    let vector = normalizeFunctionUseValenceObjectVector({
+        obj1: getFunctionUseValenceObjectSlotValue(slots.obj1 || slots.objectPrefix),
+        obj2: getFunctionUseValenceObjectSlotValue(slots.obj2),
+        obj3: getFunctionUseValenceObjectSlotValue(slots.obj3),
+        reflexivo: getFunctionUseValenceObjectSlotValue(slots.reflexivo || slots.reflexive),
+    });
+    Object.entries(slots).forEach(([key, slot]) => {
+        const slotId = getFunctionUseValenceObjectFormulaSlotId(key, slot);
+        const value = getFunctionUseValenceObjectSlotValue(slot);
+        if (slotId && value) {
+            vector = mergeFunctionUseValenceObjectVector(vector, { [slotId]: value });
+        }
+    });
+    return vector;
+}
+
+function functionUseFormulaSlotsCoverValenceObjectFrame(formulaSlots = null) {
+    const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+    if (!slots) {
+        return false;
+    }
+    return Object.entries(slots).some(([key, slot]) => (
+        Boolean(getFunctionUseValenceObjectFormulaSlotId(key, slot))
+    ));
+}
+
+function collectFunctionUseValenceObjectVectorFromEntradaGrammarObject(entradaGrammarObject = null) {
+    if (
+        !entradaGrammarObject
+        || typeof entradaGrammarObject !== "object"
+        || String(entradaGrammarObject.kind || "") !== "andrews-entrada-grammar-object"
+    ) {
+        return null;
+    }
+    const objectVector = entradaGrammarObject.objectFrame?.vector
+        && typeof entradaGrammarObject.objectFrame.vector === "object"
+        ? entradaGrammarObject.objectFrame.vector
+        : null;
+    const fromVector = normalizeFunctionUseValenceObjectVector(objectVector);
+    const hasVectorValue = hasFunctionUseValenceObjectValues(fromVector);
+    if (hasVectorValue) {
+        return fromVector;
+    }
+    const slots = Array.isArray(entradaGrammarObject.objectFrame?.slots)
+        ? entradaGrammarObject.objectFrame.slots
+        : [];
+    return normalizeFunctionUseValenceObjectVector({
+        obj1: getFunctionUseValenceObjectSlotValue(slots.find((entry) => entry?.slotId === "obj1")),
+        obj2: getFunctionUseValenceObjectSlotValue(slots.find((entry) => entry?.slotId === "obj2")),
+        obj3: getFunctionUseValenceObjectSlotValue(slots.find((entry) => entry?.slotId === "obj3")),
+        reflexivo: getFunctionUseValenceObjectSlotValue(slots.find((entry) => entry?.slotId === "reflexivo")),
+    });
+}
+
+function entradaGrammarObjectHasFunctionUseFixedValenceEvidence(entradaGrammarObject = null) {
+    return Boolean(
+        entradaGrammarObject
+        && typeof entradaGrammarObject === "object"
+        && String(entradaGrammarObject.kind || "") === "andrews-entrada-grammar-object"
+        && (
+            entradaGrammarObject.valenceFrame?.frameFixed === true
+            || entradaGrammarObject.objectFrame?.frameFixed === true
+            || entradaGrammarObject.formulaBoundaryFrame?.valenceFrameFixed === true
+            || (
+                entradaGrammarObject.formulaBoundaryFrame?.frameFixed === true
+                && entradaGrammarObject.formulaBoundaryFrame?.objectSlotsCovered === true
+            )
+        )
+    );
+}
+
+function collectFunctionUseValenceObjectVectorFromFrame(frame = null) {
+    const grammarFrame = frame && typeof frame === "object" ? frame : null;
+    if (!grammarFrame) {
+        return null;
+    }
+    let vector = null;
+    [
+        grammarFrame.formulaSlots,
+        grammarFrame.slots,
+        grammarFrame.morphBoundaryFrame?.formulaSlots,
+        grammarFrame.nuclearClauseFrame?.formulaSlots,
+        grammarFrame.participantFrame?.valenceFrame?.nuclearClauseFormulaSlots,
+    ].forEach((formulaSlots) => {
+        const next = collectFunctionUseValenceObjectVectorFromFormulaSlots(formulaSlots);
+        if (next) {
+            vector = mergeFunctionUseValenceObjectVector(vector, next);
+        }
+    });
+    const participant = grammarFrame.participantFrame || null;
+    if (participant) {
+        vector = mergeFunctionUseValenceObjectVector(vector, {
+            obj1: getFunctionUseValenceObjectSlotValue(participant.obj1),
+            obj2: getFunctionUseValenceObjectSlotValue(participant.obj2),
+            obj3: getFunctionUseValenceObjectSlotValue(participant.obj3),
+            reflexivo: getFunctionUseValenceObjectSlotValue(participant.reflexivo),
+        });
+        const valenceFrame = participant.valenceFrame || null;
+        if (valenceFrame) {
+            vector = mergeFunctionUseValenceObjectVector(vector, {
+                obj1: getFunctionUseValenceObjectSlotValue(valenceFrame.obj1),
+                obj2: getFunctionUseValenceObjectSlotValue(valenceFrame.obj2),
+                obj3: getFunctionUseValenceObjectSlotValue(valenceFrame.obj3),
+                reflexivo: getFunctionUseValenceObjectSlotValue(valenceFrame.reflexivo),
+            });
+        }
+    }
+    [
+        grammarFrame.remainingExternalObjectSlots,
+        grammarFrame.sourceExternalObjectSlots,
+        grammarFrame.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.incorporationRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.sourceRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.participantFrame?.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.participantFrame?.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.participantFrame?.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.participantFrame?.sourceRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.sourceContract?.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.sourceContract?.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.routeContract?.targetContract?.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.targetContract?.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.routeContract?.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.targetContract?.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.routeContract?.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.sourceContract?.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.sourceContract?.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.targetContract?.objectSlotOwnership?.remainingExternalObjectSlots,
+        grammarFrame.targetContract?.objectSlotOwnership?.sourceExternalObjectSlots,
+        grammarFrame.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.targetContract?.routeFrame?.remainingExternalObjectSlots,
+        grammarFrame.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        grammarFrame.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+    ].forEach((slots) => {
+        (Array.isArray(slots) ? slots : []).forEach((slot) => {
+            if (!slot || typeof slot !== "object") {
+                return;
+            }
+            const slotId = getFunctionUseValenceObjectFormulaSlotId(slot.slotId || slot.slot || "", slot);
+            const value = getFunctionUseValenceObjectSlotValue(slot);
+            if (slotId && value) {
+                vector = mergeFunctionUseValenceObjectVector(vector, { [slotId]: value });
+            }
+        });
+    });
+    return vector ? normalizeFunctionUseValenceObjectVector(vector) : null;
+}
+
+function frameHasFunctionUseFixedValenceEvidence(frame = null) {
+    const source = frame && typeof frame === "object" ? frame : null;
+    if (!source) {
+        return false;
+    }
+    return Boolean(
+        isFunctionUseFixedValenceFrame(source.participantFrame?.valenceFrame)
+        || source.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.incorporationRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || (
+            String(source.kind || "") === "andrews-incorporation-route-frame"
+            && Boolean(String(source.matrixValence || "").trim())
+            && source.routeFrameLicensesObjectSlotOwnership === true
+        )
+        || isFunctionUseFixedValenceFrame(source.routeContract?.sourceContract?.valenceFrame)
+        || isFunctionUseFixedValenceFrame(source.routeContract?.targetContract?.valenceFrame)
+        || source.routeContract?.sourceContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeContract?.targetContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeContract?.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeContract?.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.routeContract?.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || isFunctionUseFixedValenceFrame(source.sourceContract?.valenceFrame)
+        || isFunctionUseFixedValenceFrame(source.targetContract?.valenceFrame)
+        || source.sourceContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.targetContract?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || source.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+    );
+}
+
+function hasFunctionUseValenceObjectValues(vector = null) {
+    const normalized = normalizeFunctionUseValenceObjectVector(vector);
+    return FUNCTION_USE_VALENCE_OBJECT_SLOTS.some((slot) => Boolean(normalized[slot]));
+}
+
+function getFunctionUseValenceObjectSignature(vector = null) {
+    const normalized = normalizeFunctionUseValenceObjectVector(vector);
+    return FUNCTION_USE_VALENCE_OBJECT_SLOTS
+        .map((slot) => `${slot}:${normalized[slot] || "Ø"}`)
+        .join("|");
+}
+
+function getFunctionUseValenceObjectDifferences(sourceVector = null, currentVector = null) {
+    const source = normalizeFunctionUseValenceObjectVector(sourceVector);
+    const current = normalizeFunctionUseValenceObjectVector(currentVector);
+    return FUNCTION_USE_VALENCE_OBJECT_SLOTS
+        .filter((slot) => source[slot] !== current[slot])
+        .map((slot) => ({
+            slot,
+            source: source[slot] || "",
+            current: current[slot] || "",
+        }));
+}
+
+function functionUseValenceObjectVectorCovers(requiredVector = null, evidenceVector = null) {
+    const required = normalizeFunctionUseValenceObjectVector(requiredVector);
+    const evidence = normalizeFunctionUseValenceObjectVector(evidenceVector);
+    return FUNCTION_USE_VALENCE_OBJECT_SLOTS.every((slot) => (
+        !required[slot] || required[slot] === evidence[slot]
+    ));
+}
+
+function isFunctionUseFixedValenceFrame(frame = null) {
+    if (!frame || typeof frame !== "object") {
+        return false;
+    }
+    if (
+        frame.frameFixed === false
+        || frame.valenceFrameFixed === false
+        || frame.sourceValenceFrameFixed === false
+    ) {
+        return false;
+    }
+    return Boolean(
+        frame.frameFixed === true
+        || frame.valenceFrameFixed === true
+        || frame.sourceValenceFrameFixed === true
+        || frame.objectFrameFixed === true
+        || frame.matrixValenceFrameFixed === true
+        || frame.valencyFrameFixed === true
+    );
+}
+
+function getFunctionUseValenceSourceKind({
+    adjectivalNnc = null,
+    entryRouteContract = null,
+    grammarFrame = null,
+} = {}) {
+    return String(
+        adjectivalNnc?.sourceClauseKind
+        || adjectivalNnc?.sourceCategory
+        || entryRouteContract?.sourceClauseKind
+        || entryRouteContract?.sourceCategory
+        || grammarFrame?.routeContract?.sourceContract?.sourceClauseKind
+        || grammarFrame?.routeContract?.sourceContract?.sourceCategory
+        || grammarFrame?.unitFrame?.unitKind
+        || ""
+    ).trim();
+}
+
+function isFunctionUseValenceSourceVerbal(sourceKind = "") {
+    return /verbal|vnc|cnv|verb/i.test(String(sourceKind || ""));
+}
+
+function buildFunctionUseValenceObjectHardGate({
+    override = null,
+    posicionesFormula = null,
+    sourceFrame = null,
+    sourceFormulaSlots = null,
+    entradaGrammarObject = null,
+    sourceKind = "",
+    currentVector = null,
+    currentVectorOwnsValenceObjectSlots = true,
+    forceBlockedReason = "",
+    gateContext = "function-use",
+    licensedCurrentValues = null,
+} = {}) {
+    const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    const entryRouteContract = adjectivalNnc.entryRouteContract && typeof adjectivalNnc.entryRouteContract === "object"
+        ? adjectivalNnc.entryRouteContract
+        : null;
+    const explicitSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+    const explicitSourceFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null;
+    const grammarFrame = (
+        explicitSourceFrame
+        || (adjectivalNnc.grammarFrame && typeof adjectivalNnc.grammarFrame === "object" ? adjectivalNnc.grammarFrame : null)
+        || (adjectivalNnc.frames && typeof adjectivalNnc.frames === "object" ? adjectivalNnc.frames : null)
+        || (entryRouteContract?.grammarFrame && typeof entryRouteContract.grammarFrame === "object" ? entryRouteContract.grammarFrame : null)
+        || (entryRouteContract?.frames && typeof entryRouteContract.frames === "object" ? entryRouteContract.frames : null)
+        || entryRouteContract
+    );
+    const entradaGrammarObjects = [
+        entradaGrammarObject,
+        adjectivalNnc.entradaGrammarObject,
+        adjectivalNnc.sourceEntradaGrammarObject,
+        entryRouteContract?.entradaGrammarObject,
+        entryRouteContract?.sourceEntradaGrammarObject,
+        grammarFrame?.routeContract?.sourceContract?.entradaGrammarObject,
+    ].filter((candidate) => (
+        candidate
+        && typeof candidate === "object"
+        && String(candidate.kind || "") === "andrews-entrada-grammar-object"
+    ));
+    let sourceVector = null;
+    let formulaObjectVector = null;
+    let hasFormulaEvidence = false;
+    let hasFormulaObjectSlotCoverage = false;
+    const registerFormulaEvidence = (formulaSlots = null) => {
+        if (!formulaSlots || typeof formulaSlots !== "object") {
+            return;
+        }
+        hasFormulaEvidence = true;
+        if (functionUseFormulaSlotsCoverValenceObjectFrame(formulaSlots)) {
+            hasFormulaObjectSlotCoverage = true;
+        }
+        const next = collectFunctionUseValenceObjectVectorFromFormulaSlots(formulaSlots);
+        if (next && hasFunctionUseValenceObjectValues(next)) {
+            formulaObjectVector = mergeFunctionUseValenceObjectVector(formulaObjectVector, next);
+        }
+        if (next) {
+            sourceVector = mergeFunctionUseValenceObjectVector(sourceVector, next);
+        }
+    };
+    [
+        explicitSourceFormulaSlots,
+        explicitSourceFrame?.formulaSlots,
+        explicitSourceFrame?.slots,
+        explicitSourceFrame?.nuclearClauseFrame?.formulaSlots,
+        adjectivalNnc.sourceFormulaSlots,
+        adjectivalNnc.formulaSlots,
+        entryRouteContract?.sourceFormulaSlots,
+        grammarFrame?.morphBoundaryFrame?.formulaSlots,
+        grammarFrame?.nuclearClauseFrame?.formulaSlots,
+    ].forEach(registerFormulaEvidence);
+    entradaGrammarObjects.forEach((grammarObject) => {
+        const next = collectFunctionUseValenceObjectVectorFromEntradaGrammarObject(grammarObject);
+        if (next) {
+            sourceVector = mergeFunctionUseValenceObjectVector(sourceVector, next);
+        }
+    });
+    const frameVector = collectFunctionUseValenceObjectVectorFromFrame(grammarFrame);
+    if (frameVector) {
+        sourceVector = mergeFunctionUseValenceObjectVector(sourceVector, frameVector);
+    }
+    const resolvedSourceKind = String(sourceKind || getFunctionUseValenceSourceKind({
+        adjectivalNnc,
+        entryRouteContract,
+        grammarFrame,
+    }) || "").trim();
+    const explicitCurrentVector = currentVector && typeof currentVector === "object" ? currentVector : null;
+    const normalizedCurrentVector = normalizeFunctionUseValenceObjectVector(explicitCurrentVector || {
+        obj1: posicionesFormula?.obj1
+            || override?.posicionesFormula?.obj1
+            || override?.obj1
+            || override?.objectPrefix
+            || adjectivalNnc.obj1
+            || adjectivalNnc.objectPrefix
+            || "",
+        obj2: posicionesFormula?.obj2
+            || override?.posicionesFormula?.obj2
+            || override?.obj2
+            || adjectivalNnc.obj2
+            || "",
+        obj3: posicionesFormula?.obj3
+            || override?.posicionesFormula?.obj3
+            || override?.obj3
+            || adjectivalNnc.obj3
+            || "",
+        reflexivo: posicionesFormula?.reflexivo
+            || override?.posicionesFormula?.reflexivo
+            || override?.reflexivo
+            || adjectivalNnc.reflexivo
+            || "",
+    });
+    const normalizedSourceVector = normalizeFunctionUseValenceObjectVector(sourceVector);
+    const hasSourceObjects = hasFunctionUseValenceObjectValues(normalizedSourceVector);
+    const hasCurrentObjects = hasFunctionUseValenceObjectValues(normalizedCurrentVector);
+    const currentOwnsValenceObjectSlots = currentVectorOwnsValenceObjectSlots === true;
+    const hasFrameValence = frameHasFunctionUseFixedValenceEvidence(grammarFrame);
+    const hasEntradaFixedValence = entradaGrammarObjects.some((grammarObject) => (
+        entradaGrammarObjectHasFunctionUseFixedValenceEvidence(grammarObject)
+    ));
+    const formulaObjectCoverage = !hasSourceObjects
+        || functionUseValenceObjectVectorCovers(normalizedSourceVector, formulaObjectVector);
+    const formulaCoversValenceFrame = formulaObjectCoverage
+        && (
+            !isFunctionUseValenceSourceVerbal(resolvedSourceKind)
+            || hasSourceObjects
+            || hasFormulaObjectSlotCoverage
+        );
+    const hasFormulaValence = hasEntradaFixedValence || (hasFormulaEvidence && formulaCoversValenceFrame);
+    const valenceFrameFixed = hasFrameValence || hasFormulaValence || !hasSourceObjects;
+    const differences = getFunctionUseValenceObjectDifferences(normalizedSourceVector, normalizedCurrentVector);
+    let status = "pass";
+    let reason = "function-use-does-not-claim-object-valence";
+    if (
+        !hasSourceObjects
+        && !hasCurrentObjects
+        && isFunctionUseValenceSourceVerbal(resolvedSourceKind)
+        && !hasFrameValence
+        && !hasFormulaValence
+    ) {
+        status = "blocked";
+        reason = "function-use-source-valence-frame-unfixed";
+    } else if (hasSourceObjects && !hasFrameValence && !hasFormulaValence) {
+        status = "blocked";
+        reason = "function-use-source-valence-frame-unfixed";
+    } else if (hasSourceObjects && hasCurrentObjects && differences.length) {
+        status = "blocked";
+        reason = "function-use-would-relocate-or-reclassify-valence-object";
+    } else if (hasSourceObjects && !hasCurrentObjects && currentOwnsValenceObjectSlots) {
+        status = "blocked";
+        reason = "function-use-would-delete-valence-object";
+    } else if (!hasSourceObjects && hasCurrentObjects) {
+        status = "blocked";
+        reason = isFunctionUseValenceSourceVerbal(resolvedSourceKind) || hasFrameValence || hasFormulaValence
+            ? "function-use-would-invent-valence-object"
+            : "function-use-has-current-object-without-source-valence-frame";
+    } else if (hasSourceObjects && !valenceFrameFixed) {
+        status = "blocked";
+        reason = "function-use-source-valence-frame-unfixed";
+    } else if (hasSourceObjects) {
+        reason = "function-use-preserves-fixed-source-valence-object";
+    }
+    if (forceBlockedReason) {
+        status = "blocked";
+        reason = String(forceBlockedReason || "").trim();
+    }
+    return {
+        kind: "function-use-valence-object-hard-gate",
+        version: 1,
+        gateContext: String(gateContext || "function-use"),
+        status,
+        generationAllowed: status !== "blocked",
+        routeRankingAllowed: status !== "blocked",
+        diagnosticId: FUNCTION_USE_VALENCE_OBJECT_GATE_DIAGNOSTIC_ID,
+        routeStage: FUNCTION_USE_VALENCE_OBJECT_GATE_ROUTE_STAGE,
+        reason,
+        sourceKind: resolvedSourceKind,
+        licensedCurrentValues: licensedCurrentValues && typeof licensedCurrentValues === "object"
+            ? { ...licensedCurrentValues }
+            : null,
+        sourceVector: normalizedSourceVector,
+        currentVector: normalizedCurrentVector,
+        sourceSignature: getFunctionUseValenceObjectSignature(normalizedSourceVector),
+        currentSignature: getFunctionUseValenceObjectSignature(normalizedCurrentVector),
+        differences,
+        hasSourceObjects,
+        hasCurrentObjects,
+        hasFrameValence,
+        hasEntradaFixedValence,
+        hasFormulaEvidence,
+        formulaObjectCoverage,
+        formulaObjectSlotCoverage: hasFormulaObjectSlotCoverage,
+        formulaCoversValenceFrame,
+        hasFormulaValence,
+        valenceFrameFixed,
+        currentVectorOwnsValenceObjectSlots: currentOwnsValenceObjectSlots,
+        slotOwnership: currentOwnsValenceObjectSlots
+            ? "current-vector-owns-valence-object-slots"
+            : "function-use-target-does-not-own-valence-object-slots",
+        sourceObjectPreservedAsMetadata: hasSourceObjects
+            && !hasCurrentObjects
+            && !currentOwnsValenceObjectSlots
+            && status !== "blocked",
+        boundaries: {
+            functionUseCannotConsumeValenceObject: true,
+            functionUseCannotDeleteValenceObject: true,
+            functionUseCannotInventValenceObject: true,
+            functionUseCannotRelocateValenceObject: true,
+            functionUseCannotReclassifyValenceObject: true,
+            functionUseMayAnnotateLicensedReadingsOnly: true,
+            unresolvedValenceFrameIsHardGate: true,
+        },
+    };
 }
 
 function resolveAdjectivalNncGenerationSurface(adjectivalNnc = null, fields = [], fallback = "") {
@@ -2046,6 +2619,70 @@ function resolveGrammarFrameAstFrame(result = null) {
         || null;
 }
 
+function cloneNuclearClauseSurfaceRouteFrame(frame = null) {
+    if (!frame || typeof frame !== "object" || Array.isArray(frame)) {
+        return null;
+    }
+    return { ...frame };
+}
+
+function resolveNuclearClauseSurfaceSourceRouteFrame(result = null) {
+    const output = result && typeof result === "object" ? result : {};
+    const inheritedGrammarFrame = output.grammarFrame && typeof output.grammarFrame === "object"
+        ? output.grammarFrame
+        : (output.frames && typeof output.frames === "object" ? output.frames : null);
+    const candidates = [
+        output.incorporationRouteFrame,
+        output.compoundRouteFrame,
+        output.routeFrame,
+        output.compoundFrame?.incorporationRouteFrame,
+        output.compoundFrame?.compoundRouteFrame,
+        output.compoundFrame?.routeFrame,
+        output.patientiveCompoundSourceFrame?.incorporationRouteFrame,
+        output.patientiveCompoundSourceFrame?.compoundRouteFrame,
+        output.patientiveCompoundSourceFrame?.routeFrame,
+        output.patientiveCompoundSourceFrame?.sourceCompoundFrame?.incorporationRouteFrame,
+        output.patientiveCompoundSourceFrame?.sourceCompoundFrame?.compoundRouteFrame,
+        output.patientiveCompoundSourceFrame?.sourceCompoundFrame?.routeFrame,
+        output.adjectivalCompoundSourceFrame?.incorporationRouteFrame,
+        output.adjectivalCompoundSourceFrame?.compoundRouteFrame,
+        output.adjectivalCompoundSourceFrame?.routeFrame,
+        output.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.incorporationRouteFrame,
+        output.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.compoundRouteFrame,
+        output.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.routeFrame,
+        output.denominalCompoundSourceFrame?.incorporationRouteFrame,
+        output.denominalCompoundSourceFrame?.compoundRouteFrame,
+        output.denominalCompoundSourceFrame?.routeFrame,
+        output.adjectivalNncFunctionFrame?.incorporationRouteFrame,
+        output.adjectivalNncFunctionFrame?.compoundRouteFrame,
+        output.adjectivalNncFunctionFrame?.routeFrame,
+        output.adjectivalNncFunctionFrame?.sourceCompoundFrame?.incorporationRouteFrame,
+        output.adjectivalNncFunctionFrame?.sourceCompoundFrame?.compoundRouteFrame,
+        output.adjectivalNncFunctionFrame?.sourceCompoundFrame?.routeFrame,
+        output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.incorporationRouteFrame,
+        output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame,
+        output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.sourceRouteFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.sourceContract?.incorporationRouteFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.sourceRouteFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.routeFrame,
+        inheritedGrammarFrame?.routeContract?.targetContract?.incorporationRouteFrame,
+        inheritedGrammarFrame?.participantFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.participantFrame?.routeFrame,
+        inheritedGrammarFrame?.participantFrame?.incorporationRouteFrame,
+        inheritedGrammarFrame?.stemFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.stemFrame?.routeFrame,
+        inheritedGrammarFrame?.stemFrame?.incorporationRouteFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.sourceRouteFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.routeFrame,
+        inheritedGrammarFrame?.morphBoundaryFrame?.incorporationRouteFrame,
+    ];
+    return cloneNuclearClauseSurfaceRouteFrame(
+        candidates.find((candidate) => candidate && typeof candidate === "object") || null
+    );
+}
+
 function buildNuclearClauseSurfaceGrammarFrame({
     result = null,
     override = null,
@@ -2061,6 +2698,7 @@ function buildNuclearClauseSurfaceGrammarFrame({
     posicionesFormula = null,
     verb = "",
     renderVerb = "",
+    entradaGrammarObject = null,
     nuclearClauseShell = null,
     cnvFormulaSurfacePath = null,
     vncValencyFrame = null,
@@ -2099,6 +2737,9 @@ function buildNuclearClauseSurfaceGrammarFrame({
     const outputOrthographyFrame = output.orthographyFrame && typeof output.orthographyFrame === "object"
         ? output.orthographyFrame
         : null;
+    const functionUseValenceGate = output.functionUseValenceGate && typeof output.functionUseValenceGate === "object"
+        ? output.functionUseValenceGate
+        : null;
     const soundSpellingFrames = collectNuclearClauseSurfaceSoundSpellingFrames(
         output.soundSpellingFrames,
         outputOrthographyFrame,
@@ -2113,11 +2754,46 @@ function buildNuclearClauseSurfaceGrammarFrame({
         renderVerb,
         verb,
     });
+    const activeEntradaGrammarObject = entradaGrammarObject && typeof entradaGrammarObject === "object"
+        ? entradaGrammarObject
+        : (output.entradaGrammarObject && typeof output.entradaGrammarObject === "object" ? output.entradaGrammarObject : null);
+    const sourceRouteFrame = resolveNuclearClauseSurfaceSourceRouteFrame(output);
+    const sourceRouteObjectSlotOwnership = sourceRouteFrame?.objectSlotOwnership
+        && typeof sourceRouteFrame.objectSlotOwnership === "object"
+        ? sourceRouteFrame.objectSlotOwnership
+        : null;
+    const andrewsRouteActionContract = typeof buildAndrewsCnvCnnBackAndForthRouteActionContract === "function"
+        ? buildAndrewsCnvCnnBackAndForthRouteActionContract({
+            ...output,
+            routeFamily: activeRouteFamily,
+            routeStage,
+            grammarFrame: output.grammarFrame || null,
+            entradaGrammarObject: activeEntradaGrammarObject,
+        }, {
+            generationAllowed: ok,
+            diagnosticOnly: !ok,
+        })
+        : null;
+    const activeCnvFormulaSurfacePathWithRoute = andrewsRouteActionContract
+        ? {
+            ...(activeCnvFormulaSurfacePath && typeof activeCnvFormulaSurfacePath === "object"
+                ? activeCnvFormulaSurfacePath
+                : { kind: "andrews-route-formula-surface-path", paths: [] }),
+            andrewsRouteRecordId: andrewsRouteActionContract.routeRecordId,
+            andrewsRouteObstacleGateIds: Array.from(andrewsRouteActionContract.obstacleGateIds || []),
+            andrewsRouteActionContract,
+        }
+        : activeCnvFormulaSurfacePath;
     const routeContract = typeof buildGrammarRouteContractFrame === "function"
         ? buildGrammarRouteContractFrame({
             routeFamily: activeRouteFamily,
             routeStage,
             sourceContract: {
+                andrewsRouteRecordId: andrewsRouteActionContract?.routeRecordId || "",
+                andrewsRouteTransition: andrewsRouteActionContract?.transition || "",
+                andrewsRouteSourceUnit: andrewsRouteActionContract?.sourceUnit || "",
+                andrewsRouteObstacleGateIds: Array.from(andrewsRouteActionContract?.obstacleGateIds || []),
+                andrewsRouteActionContract,
                 unitKind,
                 tenseMode: resolvedTenseMode,
                 tense,
@@ -2132,11 +2808,21 @@ function buildNuclearClauseSurfaceGrammarFrame({
                 sourceTenseValue: adjectivalFunctionFrame.sourceTenseValue || "",
                 sourceCombinedMode: adjectivalFunctionFrame.sourceCombinedMode || "",
                 sourceVoiceMode: adjectivalFunctionFrame.sourceVoiceMode || "",
+                functionUseValenceGate,
+                entradaGrammarObject: activeEntradaGrammarObject,
+                sourceRouteFrame,
+                routeFrame: sourceRouteFrame,
             },
             targetContract: {
+                andrewsRouteRecordId: andrewsRouteActionContract?.routeRecordId || "",
+                andrewsRouteTransition: andrewsRouteActionContract?.transition || "",
+                andrewsRouteTargetUnit: andrewsRouteActionContract?.targetUnit || "",
                 outputKind: output.outputKind || "",
                 generationRoute: output.generationRoute || activeRouteFamily,
                 surfaceEngineContract,
+                functionUseValenceGate,
+                sourceRouteFrame,
+                routeFrame: sourceRouteFrame,
             },
             generationAllowed: ok,
             blockingDiagnostics: ok ? [] : diagnostics,
@@ -2191,7 +2877,10 @@ function buildNuclearClauseSurfaceGrammarFrame({
         morphBoundaryFrame: {
             formulaSlots,
             formulaEcho: String(formulaEcho || ""),
-            cnvFormulaSurfacePath: activeCnvFormulaSurfacePath,
+            cnvFormulaSurfacePath: activeCnvFormulaSurfacePathWithRoute,
+            andrewsRouteActionContract,
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
             formulaSlotIsLiteralSpelling: false,
             invariants: surfaceEngineContract.invariants,
         },
@@ -2203,6 +2892,8 @@ function buildNuclearClauseSurfaceGrammarFrame({
             stemIsWholeOutput: false,
             affixIsStem: false,
             derivationScope: surfaceEngineContract.derivationScope,
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
         },
         nuclearClauseFrame: activeNuclearShell,
         participantFrame: {
@@ -2219,6 +2910,12 @@ function buildNuclearClauseSurfaceGrammarFrame({
                 prefix: String(poseedor || ""),
             },
             valenceFrame: vncValencyFrame || output.vncValencyFrame || null,
+            sourceRouteFrame,
+            routeFrame: sourceRouteFrame,
+            objectSlotOwnership: sourceRouteObjectSlotOwnership,
+            routeFrameLicensesObjectSlotOwnership: sourceRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+            finalFormulaShapeDoesNotLicenseObjectSlots: sourceRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+            functionUseDoesNotLicenseObjectSlots: sourceRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
         },
         inflectionFrame: {
             tenseMode: resolvedTenseMode,
@@ -2390,6 +3087,7 @@ function buildNuclearClauseSurfaceBlockedResult({
     posicionesFormula = null,
     verb = "",
     renderVerb = "",
+    entradaGrammarObject = null,
     isReflexive = false,
     resolvedDerivationMode = "",
     resolvedDerivationType = "",
@@ -2413,6 +3111,9 @@ function buildNuclearClauseSurfaceBlockedResult({
     }
     if (!Object.prototype.hasOwnProperty.call(resultPayload, "posicionesFormula")) {
         resultPayload.posicionesFormula = posicionesFormula && typeof posicionesFormula === "object" ? { ...posicionesFormula } : null;
+    }
+    if (entradaGrammarObject && !Object.prototype.hasOwnProperty.call(resultPayload, "entradaGrammarObject")) {
+        resultPayload.entradaGrammarObject = entradaGrammarObject;
     }
     const failedLayerContract = getNuclearClauseSurfaceFailedLayerContract(routeStage);
     const fallbackDiagnostic = buildNuclearClauseSurfaceDiagnosticEntry({
@@ -2441,6 +3142,7 @@ function buildNuclearClauseSurfaceBlockedResult({
         posicionesFormula,
         verb,
         renderVerb,
+        entradaGrammarObject,
         nuclearClauseShell,
         vncValencyFrame,
         resolvedDerivationMode,
@@ -2553,6 +3255,49 @@ function executeAdjectivalNncGenerationRoute({
     obj1 = "",
 } = {}) {
     const adjectivalNnc = getAdjectivalNncGenerationOptions(override);
+    const entradaGrammarObject = adjectivalNnc.entradaGrammarObject && typeof adjectivalNnc.entradaGrammarObject === "object"
+        ? adjectivalNnc.entradaGrammarObject
+        : (adjectivalNnc.entryRouteContract?.entradaGrammarObject || null);
+    const functionUseValenceGate = buildFunctionUseValenceObjectHardGate({
+        override,
+        entradaGrammarObject,
+        posicionesFormula: {
+            ...(override?.posicionesFormula && typeof override.posicionesFormula === "object" ? override.posicionesFormula : {}),
+            obj1,
+        },
+        currentVectorOwnsValenceObjectSlots: false,
+    });
+    if (functionUseValenceGate.status === "blocked") {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                outputKind: "adjectival-nnc-function",
+                generationRoute: "adjectival-nnc",
+                clauseKind: "nominal-nuclear-clause",
+                result: "—",
+                surfaceForms: [],
+                error: true,
+                supported: false,
+                functionUseValenceGate,
+                entradaGrammarObject,
+            },
+            message: "La función no puede consumir, crear, mover ni reclasificar objeto/valencia antes de fijar el marco de valencia.",
+            diagnosticId: functionUseValenceGate.diagnosticId,
+            routeFamily: "adjectival-nnc",
+            routeStage: functionUseValenceGate.routeStage,
+            resultMarker: "—",
+            override,
+            resolvedTenseMode: TENSE_MODE.adjetivo,
+            tense: "adjectival-nnc",
+            pers1,
+            pers2,
+            obj1,
+            posicionesFormula: override?.posicionesFormula || null,
+            verb,
+            renderVerb: verb,
+            entradaGrammarObject,
+            enumerableContract: false,
+        });
+    }
     const adjectivalPers1 = adjectivalNnc.pers1 ?? pers1;
     const adjectivalPers2 = adjectivalNnc.pers2 ?? adjectivalNnc.num2 ?? pers2;
     const adjectivalObj1 = adjectivalNnc.obj1 ?? obj1;
@@ -2593,6 +3338,8 @@ function executeAdjectivalNncGenerationRoute({
             sourceTenseValue: adjectivalNnc.sourceTenseValue ?? adjectivalNnc.sourceTense ?? "",
             sourceCombinedMode: adjectivalNnc.sourceCombinedMode ?? "",
             sourceVoiceMode: adjectivalNnc.sourceVoiceMode ?? "",
+            sourceFormulaSlots: adjectivalNnc.sourceFormulaSlots || adjectivalNnc.formulaSlots || null,
+            sourceFormulaEcho: adjectivalNnc.sourceFormulaEcho || adjectivalNnc.formulaEcho || "",
             role: adjectivalNnc.role ?? "predicate-surface",
         })
         : shouldUseCompoundSourceRoute && typeof buildCompoundSourceAdjectivalNncFunctionOutput === "function"
@@ -2770,6 +3517,8 @@ function executeAdjectivalNncGenerationRoute({
         stemProvenance: null,
         nuclearClauseShell,
         sentenceLayer,
+        functionUseValenceGate,
+        entradaGrammarObject,
     };
     const grammarFrame = buildNuclearClauseSurfaceGrammarFrame({
         result: resultPayload,
@@ -2789,6 +3538,7 @@ function executeAdjectivalNncGenerationRoute({
             result: resultPayload,
             verb: result.stem || verb,
         }),
+        entradaGrammarObject,
         nuclearClauseShell,
     });
     const resultContract = buildNuclearClauseSurfaceResultContract(resultPayload, grammarFrame);
@@ -3166,8 +3916,13 @@ function buildGeneratedVncValencyFrameMetadata({
         version: 1,
         lessonRange: "5-6",
         source: NUCLEAR_CLAUSE_SURFACE_ROUTE_FAMILY,
+        sourceLayer: "valence-frame",
         diagnosticOnly: true,
         doesNotGenerateForms: true,
+        frameFixed: true,
+        valenceFrameFixed: true,
+        objectFrameFixed: true,
+        fixedBy: "generated-nuclear-clause-surface",
         valency: isTransitiveFrame ? "transitive" : "intransitive",
         valencyLabel: isTransitiveFrame ? "transitiva" : "intransitiva",
         baseObjectSlots,
@@ -3425,6 +4180,7 @@ function buildGeneratedForwardDerivationFrameMetadata({
 function buildGeneratedCompoundFrameMetadata({
     resolvedTenseMode = "",
     parsedVerb = null,
+    nuclearClauseShell = null,
 } = {}) {
     const compoundAst = parsedVerb?.compoundAst || null;
     const allowsCompoundFrame = resolvedTenseMode === TENSE_MODE.verbo
@@ -3445,6 +4201,12 @@ function buildGeneratedCompoundFrameMetadata({
     if (!embeds.length) {
         return null;
     }
+    const compoundRouteFrame = buildGeneratedCompoundRouteFrameMetadata({
+        resolvedTenseMode,
+        compoundAst,
+        embeds,
+        nuclearClauseShell,
+    });
     return {
         kind: "compound-frame",
         version: 1,
@@ -3452,6 +4214,8 @@ function buildGeneratedCompoundFrameMetadata({
         source: "parse-compoundAst",
         diagnosticOnly: true,
         doesNotGenerateForms: true,
+        compoundRouteFrame,
+        routeFrame: compoundRouteFrame,
         matrix: {
             role: "matrix",
             stem: String(compoundAst.matrix?.stem || ""),
@@ -3480,6 +4244,187 @@ function buildGeneratedCompoundFrameMetadata({
     };
 }
 
+function getGeneratedCompoundFinalFormulaShape(sourceInput = "", compoundAst = null) {
+    const raw = String(sourceInput || "").trim();
+    if (/^-?\([^()/]+\/[^()/]+\)$/.test(raw)) {
+        return "compound-vnc-embed-before-matrix";
+    }
+    if (/^\([^()]+\)-\([^()]+\)$/.test(raw)) {
+        return "compound-verbstem-adjacent-embed-before-matrix";
+    }
+    if (compoundAst?.flags?.hasCompoundMarker === true) {
+        return "compound-verbstem-marked-boundary";
+    }
+    return raw ? "compound-verbstem-route-specific-shape" : "";
+}
+
+function getGeneratedCompoundExternalObjectSlots(nuclearClauseShell = null, compoundAst = null) {
+    const formulaSlots = nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object"
+        ? nuclearClauseShell.slots
+        : {};
+    const formulaSlotObjects = ["obj1", "obj2", "obj3", "reflexivo"]
+        .map((slotId) => {
+            const prefix = getFunctionUseValenceObjectSlotValue(formulaSlots[slotId]);
+            return prefix ? {
+                slotId,
+                prefix,
+                owner: "formula",
+                sourceLayer: "nuclear-clause-formula",
+            } : null;
+        })
+        .filter(Boolean);
+    if (formulaSlotObjects.length) {
+        return formulaSlotObjects;
+    }
+    const tokens = Array.isArray(compoundAst?.valency?.tokens)
+        ? compoundAst.valency.tokens
+        : [];
+    return tokens
+        .map((token, index) => {
+            const prefix = normalizeFunctionUseValenceObjectSlot(token);
+            return prefix ? {
+                slotId: `obj${index + 1}`,
+                prefix,
+                owner: "compound-valency",
+                sourceLayer: "compound-ast-valency",
+            } : null;
+        })
+        .filter(Boolean);
+}
+
+function buildGeneratedCompoundObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    const matrixValenceFrameFixed = Boolean(resolvedMatrixValence);
+    return {
+        kind: "generated-compound-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed,
+        consumedObjectSlot: "",
+        consumedObjectSlotOwnedBy: "none",
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        sourceExternalObjectSlotsOwnedBy: sourceSlots.length
+            ? "source-compound-route-frame"
+            : "none",
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length
+            ? "matrix-route-frame"
+            : "none",
+        embeddedRoleLicensedBy: embedRole ? "generated-compound-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: matrixValenceFrameFixed,
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+        objectSlotLicensingOrder: [
+            "source-principal-vnc",
+            "compound-ast-route-frame",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildGeneratedCompoundRouteFrameMetadata({
+    resolvedTenseMode = "",
+    compoundAst = null,
+    embeds = [],
+    nuclearClauseShell = null,
+} = {}) {
+    if (!compoundAst || compoundAst.kind !== "compound") {
+        return null;
+    }
+    const sourceInput = String(compoundAst.source?.rawInput || compoundAst.source?.displayVerb || "").trim();
+    const normalizedEmbeds = Array.isArray(embeds) ? embeds : [];
+    const sourceAdjunctNncs = normalizedEmbeds.map((entry) => ({
+        surface: String(entry?.value || ""),
+        stem: String(entry?.value || ""),
+        kind: String(entry?.kind || ""),
+        role: String(entry?.role || ""),
+        sourceLayer: String(entry?.source || ""),
+    }));
+    const remainingExternalObjectSlots = getGeneratedCompoundExternalObjectSlots(nuclearClauseShell, compoundAst);
+    const formulaSlots = nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object"
+        ? { ...nuclearClauseShell.slots }
+        : null;
+    const embedRole = normalizedEmbeds.length === 1
+        ? String(normalizedEmbeds[0]?.role || "")
+        : (normalizedEmbeds.length ? "multiple-embed-roles" : "");
+    const embeddedRoot = normalizedEmbeds.length === 1
+        ? String(normalizedEmbeds[0]?.value || "")
+        : "";
+    const matrixValence = String(compoundAst.valency?.transitivity || "");
+    const objectSlotOwnership = buildGeneratedCompoundObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+        sourceExternalObjectSlots: remainingExternalObjectSlots,
+        remainingExternalObjectSlots,
+    });
+    const matrixValenceFrameFixed = objectSlotOwnership.matrixValenceFrameFixed === true;
+    return {
+        kind: "generated-compound-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            surface: sourceInput,
+            formulaSlots,
+            formulaEcho: String(nuclearClauseShell?.formulaEcho || ""),
+        },
+        sourceAdjunctNnc: sourceAdjunctNncs[0] || null,
+        sourceAdjunctNncs,
+        matrix: {
+            role: "matrix",
+            root: String(compoundAst.matrix?.stem || ""),
+            ruleBase: String(compoundAst.matrix?.ruleBase || ""),
+        },
+        matrixValence,
+        embedRole,
+        embeddedRoot,
+        embeddedRoots: normalizedEmbeds.map((entry) => String(entry?.value || "")).filter(Boolean),
+        consumedObjectSlot: "",
+        sourceExternalObjectSlots: remainingExternalObjectSlots,
+        remainingExternalObjectSlots,
+        remainingExternalObjectSlotIds: remainingExternalObjectSlots.map((slot) => slot.slotId),
+        objectSlotOwnership,
+        valenceDelta: 0,
+        valenceEffects: {
+            sourceExternalObjectSlotCount: remainingExternalObjectSlots.length,
+            remainingExternalObjectSlotCount: remainingExternalObjectSlots.length,
+            externalObjectSlotDelta: 0,
+            stemInternalObjectSlotDelta: 0,
+            compoundRoleStillRequiresAndrewsRouteFrame: true,
+        },
+        andrewsSection: "Andrews 28",
+        andrewsRefs: ["Andrews 28", "Andrews 30"],
+        generationStatus: "generated-output-carried-diagnostic-route-frame",
+        generationAllowed: false,
+        routeStage: "parse-compound-ast",
+        resolvedTenseMode: String(resolvedTenseMode || ""),
+        finalFormulaShape: getGeneratedCompoundFinalFormulaShape(sourceInput, compoundAst),
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseRole: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+        boundaries: {
+            matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+            routeFrameOwnsEmbedRoleLicensing: true,
+            finalFormulaShapeDoesNotLicenseRole: true,
+            functionUseDoesNotLicenseRole: true,
+        },
+    };
+}
+
 function buildGeneratedPatientiveCompoundSourceFrameMetadata({
     resolvedTenseMode = "",
     compoundFrame = null,
@@ -3501,6 +4446,9 @@ function buildGeneratedPatientiveCompoundSourceFrameMetadata({
         ? surfaceForms.map((form) => String(form || "")).filter(Boolean)
         : [];
     const family = String(patientiveFamilyProfile.family || "");
+    const compoundRouteFrame = cloneNuclearClauseSurfaceRouteFrame(
+        compoundFrame.compoundRouteFrame || compoundFrame.routeFrame || null
+    );
     return {
         kind: "patientive-compound-source-frame",
         version: 1,
@@ -3520,6 +4468,8 @@ function buildGeneratedPatientiveCompoundSourceFrameMetadata({
         sourceFormulaSlots: nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object"
             ? { ...nuclearClauseShell.slots }
             : null,
+        compoundRouteFrame,
+        routeFrame: compoundRouteFrame ? { ...compoundRouteFrame } : null,
         sourceCompoundFrame: {
             kind: compoundFrame.kind,
             lessonRange: compoundFrame.lessonRange,
@@ -3534,6 +4484,12 @@ function buildGeneratedPatientiveCompoundSourceFrameMetadata({
                 : null,
             valency: compoundFrame.valency && typeof compoundFrame.valency === "object"
                 ? { ...compoundFrame.valency }
+                : null,
+            compoundRouteFrame: compoundFrame.compoundRouteFrame && typeof compoundFrame.compoundRouteFrame === "object"
+                ? { ...compoundFrame.compoundRouteFrame }
+                : null,
+            routeFrame: compoundFrame.routeFrame && typeof compoundFrame.routeFrame === "object"
+                ? { ...compoundFrame.routeFrame }
                 : null,
             flags: compoundFrame.flags && typeof compoundFrame.flags === "object"
                 ? { ...compoundFrame.flags }
@@ -3587,6 +4543,9 @@ function buildGeneratedAdjectivalCompoundSourceFrameMetadata({
     const forms = Array.isArray(surfaceForms)
         ? surfaceForms.map((form) => String(form || "")).filter(Boolean)
         : [];
+    const compoundRouteFrame = cloneNuclearClauseSurfaceRouteFrame(
+        compoundFrame.compoundRouteFrame || compoundFrame.routeFrame || null
+    );
     return {
         kind: "adjectival-compound-source-frame",
         version: 1,
@@ -3602,6 +4561,8 @@ function buildGeneratedAdjectivalCompoundSourceFrameMetadata({
         sourceFormulaSlots: nuclearClauseShell?.slots && typeof nuclearClauseShell.slots === "object"
             ? { ...nuclearClauseShell.slots }
             : null,
+        compoundRouteFrame,
+        routeFrame: compoundRouteFrame ? { ...compoundRouteFrame } : null,
         sourceCompoundFrame: {
             kind: compoundFrame.kind,
             lessonRange: compoundFrame.lessonRange,
@@ -3616,6 +4577,12 @@ function buildGeneratedAdjectivalCompoundSourceFrameMetadata({
                 : null,
             valency: compoundFrame.valency && typeof compoundFrame.valency === "object"
                 ? { ...compoundFrame.valency }
+                : null,
+            compoundRouteFrame: compoundFrame.compoundRouteFrame && typeof compoundFrame.compoundRouteFrame === "object"
+                ? { ...compoundFrame.compoundRouteFrame }
+                : null,
+            routeFrame: compoundFrame.routeFrame && typeof compoundFrame.routeFrame === "object"
+                ? { ...compoundFrame.routeFrame }
                 : null,
             flags: compoundFrame.flags && typeof compoundFrame.flags === "object"
                 ? { ...compoundFrame.flags }
@@ -3644,6 +4611,7 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
     objectPrefix = "",
     baseObjectPrefix = "",
     surfaceForms = [],
+    functionUseValenceGate = null,
 } = {}) {
     if (resolvedTenseMode !== TENSE_MODE.adverbio) {
         return null;
@@ -3709,6 +4677,9 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
             objectPrefix: normalizedObjectPrefix,
             baseObjectPrefix: normalizedBaseObjectPrefix,
         },
+        functionUseValenceGate: functionUseValenceGate && typeof functionUseValenceGate === "object"
+            ? functionUseValenceGate
+            : null,
         tense,
         classification: classification
             ? {
@@ -3729,6 +4700,7 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
             hasAdverbialNuclearClauseFrame: Boolean(clauseFrame),
             noFullAdverbialClauseEngine: true,
             configuredAdverbioSurfaceOnly: true,
+            functionUseAfterValenceFrameFixed: functionUseValenceGate?.generationAllowed === true,
         },
     };
 }
@@ -4356,6 +5328,23 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         : {};
     const tieneControlTronco = entradaTronco.tieneControlTronco === true;
     const valorTronco = String(entradaTronco.valorTronco || "");
+    let entradaGrammarObject = (
+        (request?.entradaGrammarObject && typeof request.entradaGrammarObject === "object" ? request.entradaGrammarObject : null)
+        || (entradaTronco.entradaGrammarObject && typeof entradaTronco.entradaGrammarObject === "object" ? entradaTronco.entradaGrammarObject : null)
+        || (override?.entradaGrammarObject && typeof override.entradaGrammarObject === "object" ? override.entradaGrammarObject : null)
+    );
+    const explicitEntradaGrammarObject = entradaGrammarObject;
+    if (
+        !entradaGrammarObject
+        && typeof parseMovingTargetRegexInput === "function"
+        && typeof buildEntradaGrammarObjectFromMovingTargetParsed === "function"
+    ) {
+        const entradaRawValue = String(valorTronco || troncoSlot || tronco || "");
+        const parsedEntrada = parseMovingTargetRegexInput(entradaRawValue);
+        if (parsedEntrada?.isValid === true) {
+            entradaGrammarObject = buildEntradaGrammarObjectFromMovingTargetParsed(entradaRawValue, parsedEntrada);
+        }
+    }
     const clearError = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "clearError");
     const setError = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "setError");
     const onSearchQueryOnly = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "onSearchQueryOnly");
@@ -4811,14 +5800,48 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         sourceSelectedProjectiveMarkers.length > 1
         && (sourceSelectedProjectiveObjectPrefix === "ta" || sourceSelectedProjectiveObjectPrefix === "te")
     ) ? sourceSelectedProjectiveObjectPrefix : "";
-    ({ obj1: obj1Slot, baseObj1: baseObj1Slot } = applyBoundMarkerSlotOverrides(
+    const boundMarkerSlotOverrides = applyBoundMarkerSlotOverrides(
         parsedVerb,
         obj1Slot,
         baseObj1Slot,
         {
             preserveOccupiedSourceObjectPrefix: isNominalOutputProfile,
+            entradaGrammarObject,
         }
-    ));
+    );
+    if (boundMarkerSlotOverrides.blocked === true) {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                result: "—",
+                surfaceForms: [],
+                generationAllowed: false,
+                routeRankingAllowed: false,
+                valencyObjectSlotGate: boundMarkerSlotOverrides.valencyObjectSlotGate || null,
+            },
+            message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+            diagnosticId: boundMarkerSlotOverrides.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+            routeFamily: "generation-valency",
+            routeStage: boundMarkerSlotOverrides.routeStage || "generation-valency-object-slot-gate",
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            pers1: pers1Slot,
+            pers2: pers2Slot,
+            obj1: obj1Slot,
+            poseedor: poseedorSlot,
+            posicionesFormula,
+            verb: troncoSlot,
+            renderVerb: troncoRender,
+            entradaGrammarObject,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
+    }
+    ({ obj1: obj1Slot, baseObj1: baseObj1Slot } = boundMarkerSlotOverrides);
     if (parsedVerb.hasImpersonalTaPrefix) {
         obj1Slot = "";
         baseObj1Slot = "";
@@ -5106,7 +6129,40 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         allowPassiveObject,
         morphologyObj1: morphologyObj1Slot,
         hasPromotableObject,
+        entradaGrammarObject: explicitEntradaGrammarObject,
     });
+    if (passiveValencyAdjustments.blocked === true) {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                result: "—",
+                surfaceForms: [],
+                generationAllowed: false,
+                routeRankingAllowed: false,
+                valencyObjectSlotGate: passiveValencyAdjustments.valencyObjectSlotGate || null,
+            },
+            message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+            diagnosticId: passiveValencyAdjustments.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+            routeFamily: "generation-valency",
+            routeStage: passiveValencyAdjustments.routeStage || "generation-valency-object-slot-gate",
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            pers1: pers1Slot,
+            pers2: pers2Slot,
+            obj1: obj1Slot,
+            poseedor: poseedorSlot,
+            posicionesFormula,
+            verb: troncoSlot,
+            renderVerb: troncoRender,
+            entradaGrammarObject,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
+    }
     troncoSlot = passiveValencyAdjustments.verb;
     analysisVerb = passiveValencyAdjustments.analysisVerb;
     pers1Slot = passiveValencyAdjustments.pers1;
@@ -5300,7 +6356,40 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             analysisVerb,
             preserveSubjectForPassive,
             allowPassiveObject,
+            entradaGrammarObject: explicitEntradaGrammarObject,
         });
+        if (passiveOverrides.blocked === true) {
+            return buildNuclearClauseSurfaceBlockedResult({
+                result: {
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeRankingAllowed: false,
+                    valencyObjectSlotGate: passiveOverrides.valencyObjectSlotGate || null,
+                },
+                message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+                diagnosticId: passiveOverrides.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+                routeFamily: "generation-valency",
+                routeStage: passiveOverrides.routeStage || "generation-valency-object-slot-gate",
+                resultMarker: "—",
+                override,
+                resolvedTenseMode,
+                tense,
+                pers1: pers1Slot,
+                pers2: pers2Slot,
+                obj1: obj1Slot,
+                poseedor: poseedorSlot,
+                posicionesFormula,
+                verb: troncoSlot,
+                renderVerb: troncoRender,
+                entradaGrammarObject,
+                isReflexive,
+                resolvedDerivationMode,
+                resolvedDerivationType,
+                resolvedVoiceMode,
+                enumerableContract: false,
+            });
+        }
         pers1Slot = passiveOverrides.pers1;
         pers2Slot = passiveOverrides.pers2;
         obj1Slot = passiveOverrides.obj1;
@@ -5315,9 +6404,42 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             pers2: pers2Slot,
             obj1: obj1Slot,
             isPassiveImpersonal,
+            entradaGrammarObject,
             clearError,
         })
         : { obj1Slot: obj1Slot, isReflexive: obj1Slot === "mu" };
+    if (reflexiveUpdate.blocked === true) {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                result: "—",
+                surfaceForms: [],
+                generationAllowed: false,
+                routeRankingAllowed: false,
+                valencyObjectSlotGate: reflexiveUpdate.valencyObjectSlotGate || null,
+            },
+            message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+            diagnosticId: reflexiveUpdate.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+            routeFamily: "generation-valency",
+            routeStage: reflexiveUpdate.routeStage || "generation-valency-object-slot-gate",
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            pers1: pers1Slot,
+            pers2: pers2Slot,
+            obj1: obj1Slot,
+            poseedor: poseedorSlot,
+            posicionesFormula,
+            verb: troncoSlot,
+            renderVerb: troncoRender,
+            entradaGrammarObject,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
+    }
     obj1Slot = reflexiveUpdate.obj1 ?? reflexiveUpdate.obj1Slot;
     isReflexive = reflexiveUpdate.isReflexive;
 
@@ -5539,6 +6661,66 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
                         return "Sustantivo verbal intransitivo va sin prefijo.";
                 }
             })();
+            if (tense === "pasado-remoto-adverbio-activo" && skipValidation) {
+                const blockedSlotKey = invalidSlotPlan.id === "object2"
+                    ? "obj2"
+                    : (invalidSlotPlan.id === "object3" ? "obj3" : "obj1");
+                const functionUseValenceGate = buildFunctionUseValenceObjectHardGate({
+                    override,
+                    posicionesFormula,
+                    sourceKind: "verbal-nuclear-clause",
+                    currentVector: {
+                        obj1: obj1Slot,
+                        obj2: indirectObjectMarker,
+                        obj3: thirdObjectMarker,
+                        reflexivo: isReflexive ? "mu" : "",
+                    },
+                    forceBlockedReason: isTransitiveVerb && slotPlans.length > 0
+                        ? "function-use-would-relocate-or-reclassify-valence-object"
+                        : "function-use-would-invent-valence-object",
+                    currentVectorOwnsValenceObjectSlots: true,
+                    gateContext: "adverbial-nuclear-function-use",
+                    licensedCurrentValues: {
+                        [blockedSlotKey]: (Array.isArray(invalidSlotPlan.toggleValues)
+                            ? invalidSlotPlan.toggleValues
+                            : [])
+                            .filter(Boolean),
+                    },
+                });
+                return buildNuclearClauseSurfaceBlockedResult({
+                    result: {
+                        outputKind: "adverbial-nuclear-function",
+                        generationRoute: "adverbio",
+                        clauseKind: "verbal-nuclear-clause",
+                        result: "—",
+                        error: true,
+                        supported: false,
+                        surfaceForms: [],
+                        isReflexive,
+                        functionUseValenceGate,
+                    },
+                    message: isTransitiveVerb && slotPlans.length > 0 ? transitiveMessage : intransitiveMessage,
+                    diagnosticId: functionUseValenceGate.diagnosticId,
+                    routeFamily: "adverbial-nuclear-function",
+                    routeStage: functionUseValenceGate.routeStage,
+                    resultMarker: "—",
+                    override,
+                    resolvedTenseMode,
+                    tense,
+                    pers1: pers1Slot,
+                    pers2: pers2Slot,
+                    obj1: obj1Slot,
+                    poseedor: poseedorSlot,
+                    posicionesFormula,
+                    verb: troncoSlot,
+                    renderVerb: troncoRender,
+                    isReflexive,
+                    resolvedDerivationMode,
+                    resolvedDerivationType,
+                    resolvedVoiceMode,
+                    enumerableContract: false,
+                });
+            }
             if (isTransitiveVerb && slotPlans.length > 0) {
                 const error = returnIfError(transitiveMessage, ["object-prefix"]);
                 if (error) return error;
@@ -5696,6 +6878,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         derivationType: resolvedDerivationType,
         isNonactiveMode: isNonactive,
         stemProvenanceSeed: forwardStemProvenance,
+        entradaGrammarObject,
     };
     appliedMorphology = applyMorphologyRules(baseMorphologyInput);
     if (!appliedMorphology?.error && allomorphySoundSpellingFrames.length) {
@@ -5709,11 +6892,13 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     }
     if (appliedMorphology?.error) {
         return buildNuclearClauseSurfaceBlockedResult({
-            result: { error: true },
+            result: { ...appliedMorphology, error: true },
             message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
-            diagnosticId: "nuclear-clause-surface-morphology-application-blocked",
+            diagnosticId: appliedMorphology.valencyObjectSlotGate?.diagnosticId
+                || "nuclear-clause-surface-morphology-application-blocked",
             routeFamily: NUCLEAR_CLAUSE_SURFACE_ROUTE_FAMILY,
-            routeStage: "morphology-application",
+            routeStage: appliedMorphology.valencyObjectSlotGate?.routeStage
+                || "morphology-application",
             resultMarker: null,
             override,
             resolvedTenseMode,
@@ -6123,6 +7308,88 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         isPassiveImpersonalMode,
         nuclearClauseShell,
     });
+    const adverbialFunctionSourceFormulaSlots = resolvedTenseMode === TENSE_MODE.adverbio
+        ? {
+            obj1: {
+                slot: "obj1",
+                prefix: baseObj1Slot || obj1Slot,
+                basePrefix: baseObj1Slot || obj1Slot,
+                displayPrefix: baseObj1Slot || obj1Slot || "Ø",
+            },
+            obj2: {
+                slot: "obj2",
+                prefix: indirectObjectMarker,
+                displayPrefix: indirectObjectMarker || "Ø",
+            },
+            obj3: {
+                slot: "obj3",
+                prefix: thirdObjectMarker,
+                displayPrefix: thirdObjectMarker || "Ø",
+            },
+            reflexivo: {
+                slot: "reflexivo",
+                prefix: isReflexive ? "mu" : "",
+                displayPrefix: isReflexive ? "mu" : "Ø",
+            },
+        }
+        : null;
+    const functionUseValenceGate = resolvedTenseMode === TENSE_MODE.adverbio
+        ? buildFunctionUseValenceObjectHardGate({
+            override,
+            posicionesFormula,
+            sourceFrame: nuclearClauseShell,
+            sourceFormulaSlots: adverbialFunctionSourceFormulaSlots || nuclearClauseShell?.formulaSlots || null,
+            entradaGrammarObject,
+            sourceKind: "verbal-nuclear-clause",
+            currentVector: {
+                obj1: baseObj1Slot || obj1Slot,
+                obj2: indirectObjectMarker,
+                obj3: thirdObjectMarker,
+                reflexivo: isReflexive ? "mu" : "",
+            },
+            currentVectorOwnsValenceObjectSlots: true,
+            gateContext: "adverbial-nuclear-function-use",
+        })
+        : null;
+    if (functionUseValenceGate?.status === "blocked") {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                outputKind: "adverbial-nuclear-function",
+                generationRoute: "adverbio",
+                clauseKind: "verbal-nuclear-clause",
+                result: "—",
+                error: true,
+                supported: false,
+                surfaceForms: [],
+                isReflexive,
+                functionUseValenceGate,
+                entradaGrammarObject,
+            },
+            message: "La función no puede consumir, crear, mover ni reclasificar objeto/valencia antes de fijar el marco de valencia.",
+            diagnosticId: functionUseValenceGate.diagnosticId,
+            routeFamily: "adverbial-nuclear-function",
+            routeStage: functionUseValenceGate.routeStage,
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            pers1: pers1Slot,
+            pers2: pers2Slot,
+            obj1: obj1Slot,
+            poseedor: poseedorSlot,
+            posicionesFormula,
+            verb: troncoSlot,
+            renderVerb: troncoRender,
+            entradaGrammarObject,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            nuclearClauseShell,
+            vncValencyFrame,
+            enumerableContract: false,
+        });
+    }
     const derivedVoiceFrame = buildGeneratedDerivedVoiceFrameMetadata({
         resolvedTenseMode,
         resolvedDerivationMode,
@@ -6159,6 +7426,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     const compoundFrame = buildGeneratedCompoundFrameMetadata({
         resolvedTenseMode,
         parsedVerb,
+        nuclearClauseShell,
     });
     const patientiveCompoundSourceFrame = buildGeneratedPatientiveCompoundSourceFrameMetadata({
         resolvedTenseMode,
@@ -6183,6 +7451,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         objectPrefix: obj1Slot,
         baseObjectPrefix: baseObj1Slot,
         surfaceForms: forms,
+        functionUseValenceGate,
     });
     const generatedAdverbialAdjunctionBoundaryFrame = buildGeneratedAdverbialAdjunctionBoundaryFrameMetadata({
         resolvedTenseMode,
@@ -6218,6 +7487,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         adverbialAdjunctionBoundaryFrame: generatedAdverbialAdjunctionBoundaryFrame
             || nominalClauseMetadata?.adverbialAdjunctionBoundaryFrame
             || null,
+        functionUseValenceGate,
         sentenceLayer,
         cnvFormulaSurfacePath,
         slotNameBridge,
@@ -6225,6 +7495,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         orthographyFrame: {
             soundSpellingFrames: generatedSoundSpellingFrames,
         },
+        entradaGrammarObject,
         posicionesFormula,
     };
     const formalUnitKind = resolveNuclearClauseSurfaceUnitKind(resolvedTenseMode, tense);
@@ -6245,6 +7516,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         posicionesFormula,
         verb: troncoSlot,
         renderVerb: troncoRender,
+        entradaGrammarObject,
         nuclearClauseShell,
         cnvFormulaSurfacePath,
         vncValencyFrame,

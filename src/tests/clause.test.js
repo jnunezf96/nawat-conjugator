@@ -47,10 +47,1655 @@ function run(ctx) {
             typeof ctx.buildNuclearClauseLesson4Frame,
             typeof ctx.buildVerbalNuclearClauseFormulaEchoFromSlots,
             typeof ctx.getAndrewsCnvCnnBackAndForthRouteRecords,
+            typeof ctx.getAndrewsCnvCnnBackAndForthRouteRecordById,
             typeof ctx.getAndrewsCnvCnnBackAndForthObstacleCatalog,
+            typeof ctx.getAndrewsCnvCnnBackAndForthDimensionSystem,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthDimensionalIndex,
+            typeof ctx.buildNuclearClauseFormulaFeatureFrame,
+            typeof ctx.buildNuclearClauseFormulaFeatureIndex,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthRouteFeatureFrame,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthResistanceStatistics,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthStatisticalEquationPatternAnalysis,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthRelationshipDiscoveryAnalysis,
+            typeof ctx.getAndrewsCnvCnnBackAndForthObstacleGatesForRoute,
+            typeof ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId,
+            typeof ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract,
             typeof ctx.buildAndrewsCnvCnnBackAndForthAudit,
         ],
-        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
+        [
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+        ]
+    );
+
+    s.eq(
+        "Andrews CNV/CNN route action contract makes a generated/control path answer route record and obstacle gates",
+        (() => {
+            const record = ctx.getAndrewsCnvCnnBackAndForthRouteRecordById("cnn-nounstem-to-cnv-verbstem-denominal");
+            const inferredDenominal = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                routeTemplateId: "inceptive-stative-ti",
+                sourceRequirement: {
+                    requirements: [{ id: "intransitive-ti-verbstem-source" }],
+                },
+            });
+            const inferredActionNominal = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                routeFamily: "action-nominal",
+                nominalizationProfile: {
+                    role: { nominalizationKind: "action-nominal" },
+                },
+            });
+            const inferredVerbNominalChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                dataset: {
+                    verbNominalContinuation: "true",
+                    targetTense: "agentivo-preterito",
+                },
+            });
+            const inferredCompoundLoopChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                dataset: {
+                    preteritAgentiveCompoundEmbedContinuation: "true",
+                },
+            });
+            const contract = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                routeTemplateId: "inceptive-stative-ti",
+                sourceRequirement: {
+                    requirements: [{ id: "intransitive-ti-verbstem-source" }],
+                },
+            }, {
+                routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                obstacleLimit: 3,
+            });
+            return {
+                recordTransition: record.transition,
+                inferredDenominal,
+                inferredActionNominal,
+                inferredVerbNominalChip,
+                inferredCompoundLoopChip,
+                contractKind: contract.kind,
+                contractRouteRecordId: contract.routeRecordId,
+                contractSourceUnit: contract.sourceUnit,
+                contractTargetUnit: contract.targetUnit,
+                contractRouteFrameKind: contract.routeFrame?.kind || "",
+                contractSourceRouteFrameKind: contract.sourceRouteFrame?.kind || "",
+                contractRouteFrameId: contract.routeFrame?.routeId || "",
+                contractRouteFrameFunctionUse: contract.routeFrame?.functionUsePosition || "",
+                contractRouteFrameLayerOrderLast: (contract.routeFrame?.layerOrder || []).slice(-1)[0] || "",
+                contractGateCount: contract.obstacleGateIds.length,
+                contractGatesHavePdfRefs: contract.obstacleGates.every((gate) => Array.isArray(gate.pdfPages) && gate.pdfPages.length > 0),
+                contractSourceRequirementGateIds: contract.sourceRequirementGateIds,
+            };
+        })(),
+        {
+            recordTransition: "CNN nounstem -> CNV verbstem",
+            inferredDenominal: "cnn-nounstem-to-cnv-verbstem-denominal",
+            inferredActionNominal: "cnv-core-to-cnn-nounstem-deverbal",
+            inferredVerbNominalChip: "cnv-predicate-to-cnn-nounstem-nominalization",
+            inferredCompoundLoopChip: "cnv-to-cnn-to-cnv-loop",
+            contractKind: "andrews-cnv-cnn-route-action-contract",
+            contractRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            contractSourceUnit: "CNN nounstem",
+            contractTargetUnit: "CNV verbstem",
+            contractRouteFrameKind: "andrews-cnv-cnn-route-coordinate-frame",
+            contractSourceRouteFrameKind: "andrews-cnv-cnn-route-coordinate-frame",
+            contractRouteFrameId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            contractRouteFrameFunctionUse: "downstream-after-route-frame",
+            contractRouteFrameLayerOrderLast: "function-use-frame",
+            contractGateCount: 3,
+            contractGatesHavePdfRefs: true,
+            contractSourceRequirementGateIds: ["intransitive-ti-verbstem-source"],
+        }
+    );
+
+    s.eq(
+        "Andrews route action contract hard-gates function-use routing until valence/object frame is fixed",
+        (() => {
+            const blocked = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    preteritAgentiveAdverbialContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const passed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    preteritAgentiveAdverbialContinuation: "true",
+                },
+                functionUseValenceGate: {
+                    status: "pass",
+                    routeRankingAllowed: true,
+                    generationAllowed: true,
+                    reason: "function-use-preserves-fixed-source-valence-object",
+                },
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const nonFunction = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    denominalAndrewsContractRouteContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const ownerhood = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    ordinaryNncOwnerhoodContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const predicateOnlySourceFormulaSlots = {
+                pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+                predicateStem: { slot: "STEM", stem: "kal", displayStem: "kal" },
+                num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+            };
+            const sourceFormulaSlots = {
+                ...predicateOnlySourceFormulaSlots,
+                obj1: { slot: "obj1", token: "", displayPrefix: "Ø" },
+            };
+            const sourceFormulaSlotsWithObject = {
+                ...sourceFormulaSlots,
+                obj1: { slot: "obj1", token: "ki", displayPrefix: "ki" },
+            };
+            const sourceFormulaSlotsWithDifferentObject = {
+                ...sourceFormulaSlots,
+                obj1: { slot: "obj1", token: "ta", displayPrefix: "ta" },
+            };
+            const transitiveEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+ta-(ish-kwi)");
+            const sparseEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+                "(a)+ta-(ish-kwi)",
+                transitiveEntradaParsed
+            );
+            const fixedEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+                "(a)+ta-(ish-kwi)",
+                transitiveEntradaParsed,
+                null,
+                {
+                    sourceFormulaSlots: {
+                        predicateStem: { slot: "STEM", stem: "kwi", displayStem: "kwi" },
+                        obj1: { slot: "obj1", token: "ta", displayPrefix: "ta" },
+                    },
+                    sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+                }
+            );
+            const partialEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+                "(a)+ta-(ish-kwi)",
+                transitiveEntradaParsed,
+                null,
+                {
+                    sourceFormulaSlots: {
+                        predicateStem: { slot: "STEM", stem: "kwi", displayStem: "kwi" },
+                    },
+                    sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+                }
+            );
+            const compoundEmbed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    patientivoCompoundEmbedContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const compoundEmbedFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    patientivoCompoundEmbedContinuation: "true",
+                },
+                sourceFormulaSlots,
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
+            }, {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const prelocative = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    patientivoPrelocativeContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const vncAdjectivalFunction = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const vncAdjectivalFunctionFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+                sourceFormulaSlots,
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const vncAdjectivalFunctionPredicateOnlyFormula = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+                sourceFormulaSlots: predicateOnlySourceFormulaSlots,
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const unresolvedParticipantValenceFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+                grammarFrame: ctx.buildGrammarFrame({
+                    participantFrame: {
+                        valenceFrame: {
+                            kind: "vnc-valency-frame",
+                            diagnosticOnly: true,
+                        },
+                    },
+                }),
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const falseFixedParticipantValenceFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+                grammarFrame: ctx.buildGrammarFrame({
+                    participantFrame: {
+                        valenceFrame: {
+                            kind: "vnc-valency-frame",
+                            frameFixed: false,
+                            valenceFrameFixed: false,
+                        },
+                    },
+                }),
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const fixedParticipantValenceFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    vncAdjectivalFunctionContinuation: "true",
+                },
+                grammarFrame: ctx.buildGrammarFrame({
+                    participantFrame: {
+                        valenceFrame: {
+                            kind: "vnc-valency-frame",
+                            frameFixed: true,
+                            valenceFrameFixed: true,
+                        },
+                    },
+                }),
+            }, {
+                routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const directObjectPressure = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceFormulaSlots,
+                sourceFormulaEcho: "#Ø-Ø(kal)Ø#",
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureObjectFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceFormulaSlots: sourceFormulaSlotsWithObject,
+                sourceFormulaEcho: "#Ø-ki(kal)Ø#",
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureMismatchedObject = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceFormulaSlots: sourceFormulaSlotsWithDifferentObject,
+                sourceFormulaEcho: "#Ø-ta(kal)Ø#",
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const buildParticipantRouteOwnershipFrame = (prefix) => ctx.buildGrammarFrame({
+                participantFrame: {
+                    objectSlotOwnership: {
+                        kind: "test-participant-route-object-slot-ownership-frame",
+                        matrixValenceFrameFixed: true,
+                    },
+                    sourceRouteFrame: {
+                        kind: "test-participant-source-route-frame",
+                        objectSlotOwnership: {
+                            kind: "test-participant-route-object-slot-ownership-frame",
+                            matrixValenceFrameFixed: true,
+                        },
+                        remainingExternalObjectSlots: [
+                            { slotId: "obj1", prefix, owner: "matrix-route-frame" },
+                        ],
+                        routeFrameLicensesObjectSlotOwnership: true,
+                        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+                        functionUseDoesNotLicenseObjectSlots: true,
+                    },
+                },
+            });
+            const directObjectPressureParticipantRouteFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                grammarFrame: buildParticipantRouteOwnershipFrame("ki"),
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureParticipantRouteMismatch = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                grammarFrame: buildParticipantRouteOwnershipFrame("ta"),
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureUnfixedRouteObject = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceRouteFrame: {
+                    kind: "test-unfixed-source-route-frame",
+                    remainingExternalObjectSlots: [
+                        { slotId: "obj1", prefix: "ki", owner: "matrix-route-frame" },
+                    ],
+                },
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const buildBareSourceContractRouteOwnership = (prefix) => ({
+                sourceRouteFrame: {
+                    kind: "test-bare-source-contract-source-route-frame",
+                    objectSlotOwnership: {
+                        kind: "test-bare-source-contract-object-slot-ownership-frame",
+                        matrixValenceFrameFixed: true,
+                    },
+                    remainingExternalObjectSlots: [
+                        { slotId: "obj1", prefix, owner: "source-contract-route-frame" },
+                    ],
+                },
+            });
+            const directObjectPressureSourceContractRouteFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceContract: buildBareSourceContractRouteOwnership("ki"),
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const directObjectPressureSourceContractRouteMismatch = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                    objectPrefix: "ki",
+                },
+                sourceContract: buildBareSourceContractRouteOwnership("ta"),
+            }, {
+                routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+                obstacleLimit: 1,
+                generationAllowed: true,
+            });
+            const entradaFunctionUseBlocked = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                },
+                entradaGrammarObject: sparseEntradaGrammarObject,
+            }, {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const entradaFunctionUsePartial = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                },
+                entradaGrammarObject: partialEntradaGrammarObject,
+                sourceFormulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "kwi", displayStem: "kwi" },
+                },
+                sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+            }, {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            const entradaFunctionUseFixed = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    functionUseContinuation: "true",
+                },
+                entradaGrammarObject: fixedEntradaGrammarObject,
+            }, {
+                routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                obstacleLimit: 8,
+                generationAllowed: true,
+            });
+            return {
+                blocked: {
+                    status: blocked.functionUseValenceGate?.status || "",
+                    reason: blocked.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: blocked.routeRankingAllowed,
+                    generationAllowed: blocked.generationAllowed,
+                    diagnosticOnly: blocked.diagnosticOnly,
+                    diagnosticId: blocked.functionUseValenceGate?.diagnosticId || "",
+                    routeStage: blocked.functionUseValenceGate?.routeStage || "",
+                    gateDomainsIncludeBoth: blocked.functionUseValenceGate?.gateDomains?.includes("function-use") === true
+                        && blocked.functionUseValenceGate?.gateDomains?.includes("valence-object") === true,
+                },
+                passed: {
+                    status: passed.functionUseValenceGate?.status || "",
+                    reason: passed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: passed.routeRankingAllowed,
+                    generationAllowed: passed.generationAllowed,
+                    diagnosticOnly: passed.diagnosticOnly,
+                },
+                nonFunction: {
+                    hasGate: Boolean(nonFunction.functionUseValenceGate),
+                    routeRankingAllowed: nonFunction.routeRankingAllowed,
+                    generationAllowed: nonFunction.generationAllowed,
+                },
+                ownerhood: {
+                    status: ownerhood.functionUseValenceGate?.status || "",
+                    reason: ownerhood.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: ownerhood.routeRankingAllowed,
+                    generationAllowed: ownerhood.generationAllowed,
+                    functionUseDomainFromDataset: ownerhood.functionUseValenceGate?.functionUseSignal === true,
+                    valenceObjectDomainFromRoute: ownerhood.functionUseValenceGate?.valenceObjectSignal === true,
+                },
+                compoundEmbed: {
+                    status: compoundEmbed.functionUseValenceGate?.status || "",
+                    routeRankingAllowed: compoundEmbed.routeRankingAllowed,
+                    generationAllowed: compoundEmbed.generationAllowed,
+                    functionUseDomainFromDataset: compoundEmbed.functionUseValenceGate?.functionUseSignal === true,
+                    valenceObjectDomainFromRoute: compoundEmbed.functionUseValenceGate?.valenceObjectSignal === true,
+                },
+                compoundEmbedFixed: {
+                    status: compoundEmbedFixed.functionUseValenceGate?.status || "",
+                    reason: compoundEmbedFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: compoundEmbedFixed.routeRankingAllowed,
+                    generationAllowed: compoundEmbedFixed.generationAllowed,
+                },
+                prelocative: {
+                    status: prelocative.functionUseValenceGate?.status || "",
+                    routeRankingAllowed: prelocative.routeRankingAllowed,
+                    generationAllowed: prelocative.generationAllowed,
+                    functionUseDomainFromDataset: prelocative.functionUseValenceGate?.functionUseSignal === true,
+                    valenceObjectDomainFromRoute: prelocative.functionUseValenceGate?.valenceObjectSignal === true,
+                },
+                vncAdjectivalFunction: {
+                    status: vncAdjectivalFunction.functionUseValenceGate?.status || "",
+                    routeRankingAllowed: vncAdjectivalFunction.routeRankingAllowed,
+                    generationAllowed: vncAdjectivalFunction.generationAllowed,
+                    functionUseDomainFromDataset: vncAdjectivalFunction.functionUseValenceGate?.functionUseSignal === true,
+                    valenceObjectDomainFromDataset: vncAdjectivalFunction.functionUseValenceGate?.valenceObjectSignal === true,
+                },
+                vncAdjectivalFunctionFixed: {
+                    status: vncAdjectivalFunctionFixed.functionUseValenceGate?.status || "",
+                    reason: vncAdjectivalFunctionFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: vncAdjectivalFunctionFixed.routeRankingAllowed,
+                    generationAllowed: vncAdjectivalFunctionFixed.generationAllowed,
+                },
+                vncAdjectivalFunctionPredicateOnlyFormula: {
+                    status: vncAdjectivalFunctionPredicateOnlyFormula.functionUseValenceGate?.status || "",
+                    reason: vncAdjectivalFunctionPredicateOnlyFormula.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: vncAdjectivalFunctionPredicateOnlyFormula.routeRankingAllowed,
+                    generationAllowed: vncAdjectivalFunctionPredicateOnlyFormula.generationAllowed,
+                },
+                unresolvedParticipantValenceFrame: {
+                    status: unresolvedParticipantValenceFrame.functionUseValenceGate?.status || "",
+                    reason: unresolvedParticipantValenceFrame.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: unresolvedParticipantValenceFrame.routeRankingAllowed,
+                    generationAllowed: unresolvedParticipantValenceFrame.generationAllowed,
+                },
+                falseFixedParticipantValenceFrame: {
+                    status: falseFixedParticipantValenceFrame.functionUseValenceGate?.status || "",
+                    reason: falseFixedParticipantValenceFrame.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: falseFixedParticipantValenceFrame.routeRankingAllowed,
+                    generationAllowed: falseFixedParticipantValenceFrame.generationAllowed,
+                },
+                fixedParticipantValenceFrame: {
+                    status: fixedParticipantValenceFrame.functionUseValenceGate?.status || "",
+                    reason: fixedParticipantValenceFrame.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: fixedParticipantValenceFrame.routeRankingAllowed,
+                    generationAllowed: fixedParticipantValenceFrame.generationAllowed,
+                },
+                directObjectPressure: {
+                    status: directObjectPressure.functionUseValenceGate?.status || "",
+                    routeRankingAllowed: directObjectPressure.routeRankingAllowed,
+                    generationAllowed: directObjectPressure.generationAllowed,
+                    functionUseDomainFromDataset: directObjectPressure.functionUseValenceGate?.functionUseSignal === true,
+                    valenceObjectSignal: directObjectPressure.functionUseValenceGate?.valenceObjectSignal === true,
+                    gateDomainCount: directObjectPressure.functionUseValenceGate?.gateDomains?.length || 0,
+                },
+                directObjectPressureFixed: {
+                    status: directObjectPressureFixed.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureFixed.routeRankingAllowed,
+                    generationAllowed: directObjectPressureFixed.generationAllowed,
+                },
+                directObjectPressureObjectFixed: {
+                    status: directObjectPressureObjectFixed.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureObjectFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureObjectFixed.routeRankingAllowed,
+                    generationAllowed: directObjectPressureObjectFixed.generationAllowed,
+                },
+                directObjectPressureMismatchedObject: {
+                    status: directObjectPressureMismatchedObject.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureMismatchedObject.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureMismatchedObject.routeRankingAllowed,
+                    generationAllowed: directObjectPressureMismatchedObject.generationAllowed,
+                },
+                directObjectPressureParticipantRouteFixed: {
+                    status: directObjectPressureParticipantRouteFixed.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureParticipantRouteFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureParticipantRouteFixed.routeRankingAllowed,
+                    generationAllowed: directObjectPressureParticipantRouteFixed.generationAllowed,
+                },
+                directObjectPressureParticipantRouteMismatch: {
+                    status: directObjectPressureParticipantRouteMismatch.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureParticipantRouteMismatch.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureParticipantRouteMismatch.routeRankingAllowed,
+                    generationAllowed: directObjectPressureParticipantRouteMismatch.generationAllowed,
+                },
+                directObjectPressureUnfixedRouteObject: {
+                    status: directObjectPressureUnfixedRouteObject.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureUnfixedRouteObject.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureUnfixedRouteObject.routeRankingAllowed,
+                    generationAllowed: directObjectPressureUnfixedRouteObject.generationAllowed,
+                },
+                directObjectPressureSourceContractRouteFixed: {
+                    status: directObjectPressureSourceContractRouteFixed.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureSourceContractRouteFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureSourceContractRouteFixed.routeRankingAllowed,
+                    generationAllowed: directObjectPressureSourceContractRouteFixed.generationAllowed,
+                },
+                directObjectPressureSourceContractRouteMismatch: {
+                    status: directObjectPressureSourceContractRouteMismatch.functionUseValenceGate?.status || "",
+                    reason: directObjectPressureSourceContractRouteMismatch.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: directObjectPressureSourceContractRouteMismatch.routeRankingAllowed,
+                    generationAllowed: directObjectPressureSourceContractRouteMismatch.generationAllowed,
+                },
+                entradaFunctionUseBlocked: {
+                    status: entradaFunctionUseBlocked.functionUseValenceGate?.status || "",
+                    reason: entradaFunctionUseBlocked.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: entradaFunctionUseBlocked.routeRankingAllowed,
+                    generationAllowed: entradaFunctionUseBlocked.generationAllowed,
+                    contractCarriesEntrada: entradaFunctionUseBlocked.entradaGrammarObject?.kind || "",
+                    layerOrder: entradaFunctionUseBlocked.entradaGrammarLayerOrder || [],
+                    objectVector: entradaFunctionUseBlocked.entradaGrammarObject?.objectFrame?.vector || {},
+                    functionUseStatus: entradaFunctionUseBlocked.entradaGrammarObject?.functionUseFrame?.status || "",
+                    valenceFrameFixed: entradaFunctionUseBlocked.entradaGrammarObject?.valenceFrame?.frameFixed === true,
+                    valenceObjectSignal: entradaFunctionUseBlocked.functionUseValenceGate?.valenceObjectSignal === true,
+                },
+                entradaFunctionUsePartial: {
+                    status: entradaFunctionUsePartial.functionUseValenceGate?.status || "",
+                    reason: entradaFunctionUsePartial.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: entradaFunctionUsePartial.routeRankingAllowed,
+                    generationAllowed: entradaFunctionUsePartial.generationAllowed,
+                    formulaFixed: entradaFunctionUsePartial.entradaGrammarObject?.formulaBoundaryFrame?.frameFixed === true,
+                    objectSlotsCovered: entradaFunctionUsePartial.entradaGrammarObject?.formulaBoundaryFrame?.objectSlotsCovered === true,
+                    valenceFrameFixed: entradaFunctionUsePartial.entradaGrammarObject?.valenceFrame?.frameFixed === true,
+                },
+                entradaFunctionUseFixed: {
+                    status: entradaFunctionUseFixed.functionUseValenceGate?.status || "",
+                    reason: entradaFunctionUseFixed.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: entradaFunctionUseFixed.routeRankingAllowed,
+                    generationAllowed: entradaFunctionUseFixed.generationAllowed,
+                    valenceFrameFixed: entradaFunctionUseFixed.entradaGrammarObject?.valenceFrame?.frameFixed === true,
+                },
+            };
+        })(),
+        {
+            blocked: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                diagnosticOnly: true,
+                diagnosticId: "function-use-valence-object-frame-unfixed",
+                routeStage: "function-use-valence-object-gate",
+                gateDomainsIncludeBoth: true,
+            },
+            passed: {
+                status: "pass",
+                reason: "function-use-preserves-fixed-source-valence-object",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+                diagnosticOnly: false,
+            },
+            nonFunction: {
+                hasGate: false,
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            ownerhood: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                functionUseDomainFromDataset: true,
+                valenceObjectDomainFromRoute: true,
+            },
+            compoundEmbed: {
+                status: "blocked",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                functionUseDomainFromDataset: true,
+                valenceObjectDomainFromRoute: true,
+            },
+            compoundEmbedFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            prelocative: {
+                status: "blocked",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                functionUseDomainFromDataset: true,
+                valenceObjectDomainFromRoute: true,
+            },
+            vncAdjectivalFunction: {
+                status: "blocked",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                functionUseDomainFromDataset: true,
+                valenceObjectDomainFromDataset: true,
+            },
+            vncAdjectivalFunctionFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            vncAdjectivalFunctionPredicateOnlyFormula: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            unresolvedParticipantValenceFrame: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            falseFixedParticipantValenceFrame: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            fixedParticipantValenceFrame: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            directObjectPressure: {
+                status: "blocked",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                functionUseDomainFromDataset: true,
+                valenceObjectSignal: true,
+                gateDomainCount: 5,
+            },
+            directObjectPressureFixed: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            directObjectPressureObjectFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            directObjectPressureMismatchedObject: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            directObjectPressureParticipantRouteFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            directObjectPressureParticipantRouteMismatch: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            directObjectPressureUnfixedRouteObject: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            directObjectPressureSourceContractRouteFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+            },
+            directObjectPressureSourceContractRouteMismatch: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+            },
+            entradaFunctionUseBlocked: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                contractCarriesEntrada: "andrews-entrada-grammar-object",
+                layerOrder: ["formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
+                objectVector: { obj1: "ta", obj2: "", obj3: "", reflexivo: "" },
+                functionUseStatus: "deferred",
+                valenceFrameFixed: false,
+                valenceObjectSignal: true,
+            },
+            entradaFunctionUsePartial: {
+                status: "blocked",
+                reason: "route-action-function-use-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                generationAllowed: false,
+                formulaFixed: true,
+                objectSlotsCovered: false,
+                valenceFrameFixed: false,
+            },
+            entradaFunctionUseFixed: {
+                status: "pass",
+                reason: "route-action-function-use-valence-frame-fixed",
+                routeRankingAllowed: true,
+                generationAllowed: true,
+                valenceFrameFixed: true,
+            },
+        }
+    );
+
+    s.eq(
+        "Andrews CNV/CNN interdimensional positioning system indexes route and obstacle gates",
+        (() => {
+            const dimensionSystem = ctx.getAndrewsCnvCnnBackAndForthDimensionSystem();
+            const routeFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame("cnv-to-cnn-to-cnv-loop");
+            const obstacleFrame = ctx.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame("nominalized-vnc-preterit-agentive-source-boundary");
+            const index = ctx.buildAndrewsCnvCnnBackAndForthDimensionalIndex();
+            const audit = ctx.buildAndrewsCnvCnnBackAndForthAudit();
+            return {
+                dimensionKind: dimensionSystem.kind,
+                dimensions: dimensionSystem.dimensions,
+                collapseBlocks: dimensionSystem.collapseSequence.map((entry) => entry.block),
+                routeCoordinate: {
+                    routeId: routeFrame.routeId,
+                    sourceFormulaType: routeFrame.sourceFormulaType,
+                    sourceFormulaPosition: routeFrame.sourceFormulaPosition,
+                    targetFormulaType: routeFrame.targetFormulaType,
+                    targetStemRank: routeFrame.targetStemRank,
+                    operation: routeFrame.operation,
+                    pathDepth: routeFrame.pathDepth,
+                    intermediateFormulaTypes: routeFrame.intermediateFormulaTypes,
+                    layerOrderLast: routeFrame.layerOrder.slice(-1)[0],
+                    valenceFrameDimension: routeFrame.valenceFrameDimension,
+                    objectSlotOwnership: routeFrame.objectSlotOwnership,
+                    sourceTargetRoute: routeFrame.sourceTargetRoute,
+                    functionUsePosition: routeFrame.functionUsePosition,
+                    stageBlocks: Object.values(routeFrame.stageFrames).map((entry) => entry.block),
+                },
+                obstacleCoordinate: {
+                    id: obstacleFrame.id,
+                    routeId: obstacleFrame.routeId,
+                    primaryGateDomain: obstacleFrame.primaryGateDomain,
+                    gateDomains: obstacleFrame.gateDomains,
+                    evidenceStatus: obstacleFrame.evidenceStatus,
+                    sourceFormulaType: obstacleFrame.sourceFormulaType,
+                    targetFormulaType: obstacleFrame.targetFormulaType,
+                    stage: obstacleFrame.stage,
+                    pathDepth: obstacleFrame.pathDepth,
+                    layerOrderLast: obstacleFrame.layerOrder.slice(-1)[0],
+                    objectSlotOwnership: obstacleFrame.objectSlotOwnership,
+                    sourceTargetRoute: obstacleFrame.sourceTargetRoute,
+                    functionUsePosition: obstacleFrame.functionUsePosition,
+                },
+                indexCounts: {
+                    routeCoordinateCount: index.routeCoordinateCount,
+                    obstacleCoordinateCount: index.obstacleCoordinateCount,
+                    auditObstacleCoordinateCount: audit.dimensionalIndex.obstacleCoordinateCount,
+                    sourceFormulaTypeCounts: index.sourceFormulaTypeCounts.map((entry) => [entry.value, entry.count]),
+                    targetFormulaTypeCounts: index.targetFormulaTypeCounts.map((entry) => [entry.value, entry.count]),
+                    pathDepthCounts: index.pathDepthCounts.map((entry) => [entry.value, entry.count]),
+                    operationCounts: index.operationCounts.map((entry) => [entry.value, entry.count]),
+                },
+            };
+        })(),
+        {
+            dimensionKind: "andrews-cnv-cnn-interdimensional-positioning-system",
+            dimensions: [
+                "source-unit",
+                "formula-boundary",
+                "formula-type",
+                "formula-position",
+                "stem-rank",
+                "valence-frame",
+                "object-slot-ownership",
+                "source-target-route",
+                "target-unit",
+                "route-operation",
+                "morph-boundary",
+                "evidence-status",
+                "path-depth",
+                "function-use",
+            ],
+            collapseBlocks: ["#1 Entrada", "#2 Fórmula/Rutas", "#3 Salida/Trayecto"],
+            routeCoordinate: {
+                routeId: "cnv-to-cnn-to-cnv-loop",
+                sourceFormulaType: "CNV",
+                sourceFormulaPosition: "core",
+                targetFormulaType: "CNV",
+                targetStemRank: "denominal-verbstem",
+                operation: "deverbal-nounstem-denominal-loop",
+                pathDepth: 2,
+                intermediateFormulaTypes: ["CNN"],
+                layerOrderLast: "function-use-frame",
+                valenceFrameDimension: "route-requires-valence-frame",
+                objectSlotOwnership: "source-route-frame-before-function-use",
+                sourceTargetRoute: "CNV->CNV",
+                functionUsePosition: "downstream-after-route-frame",
+                stageBlocks: ["#1 Entrada", "#2 Fórmula/Rutas", "#3 Salida/Trayecto"],
+            },
+            obstacleCoordinate: {
+                id: "nominalized-vnc-preterit-agentive-source-boundary",
+                routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                primaryGateDomain: "source-evidence",
+                gateDomains: ["source-evidence", "formula-boundary", "valence-object", "state-possessor-number", "operation-suffix"],
+                evidenceStatus: "blocking-or-requirement-gate",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNN",
+                stage: "#2 Fórmula/Rutas",
+                pathDepth: 1,
+                layerOrderLast: "function-use-frame",
+                objectSlotOwnership: "object-slot-gate-owned-by-valence-frame",
+                sourceTargetRoute: "CNV->CNN",
+                functionUsePosition: "function-use-not-primary-gate",
+            },
+            indexCounts: {
+                routeCoordinateCount: 7,
+                obstacleCoordinateCount: 1576,
+                auditObstacleCoordinateCount: 1576,
+                sourceFormulaTypeCounts: [["CNV", 1347], ["CNN", 229]],
+                targetFormulaTypeCounts: [["CNV", 1137], ["CNN", 439]],
+                pathDepthCounts: [["1", 814], ["2", 762]],
+                operationCounts: [
+                    ["deverbal-nounstem-denominal-loop", 731],
+                    ["nominalization", 239],
+                    ["denominal-verbstem", 198],
+                    ["deverbal-nounstem", 193],
+                    ["deverbal-verbstem", 184],
+                    ["denominal-verbstem-deverbal-chain", 24],
+                    ["cnn-cnv-cnn-active-action-loop", 7],
+                ],
+            },
+        }
+    );
+
+    s.eq(
+        "Andrews formula and route features rank most resistance and convert it toward least resistance",
+        (() => {
+            const vncFeature = ctx.buildNuclearClauseFormulaFeatureFrame(
+                "#pers1-pers2+obj1-obj2-obj3-reflexivo(STEM)tiempo+num1-num2#",
+                { formulaType: "CNV", stage: 99 }
+            );
+            const nncFeature = ctx.buildNuclearClauseFormulaFeatureFrame(
+                "#pers1-pers2(STEM)num1-num2#",
+                { formulaType: "CNN", stage: 99 }
+            );
+            const formulaIndex = ctx.buildNuclearClauseFormulaFeatureIndex();
+            const routeFeature = ctx.buildAndrewsCnvCnnBackAndForthRouteFeatureFrame("cnv-to-cnn-to-cnv-loop");
+            const obstacleFeature = ctx.buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame("nominalized-vnc-preterit-agentive-source-boundary");
+            const stats = ctx.buildAndrewsCnvCnnBackAndForthResistanceStatistics();
+            const audit = ctx.buildAndrewsCnvCnnBackAndForthAudit();
+            return {
+                vncFeature: {
+                    slotTokens: vncFeature.slotTokens,
+                    eventFeatures: {
+                        hasObjectSlot: vncFeature.eventFeatures.hasObjectSlot,
+                        hasTenseSlot: vncFeature.eventFeatures.hasTenseSlot,
+                        hasStateSlot: vncFeature.eventFeatures.hasStateSlot,
+                        predicateInsideParentheses: vncFeature.eventFeatures.predicateInsideParentheses,
+                    },
+                    numericFeatures: {
+                        formulaTypeCode: vncFeature.numericFeatures.formulaTypeCode,
+                        slotTokenCount: vncFeature.numericFeatures.slotTokenCount,
+                        positionBoundaryCount: vncFeature.numericFeatures.positionBoundaryCount,
+                        subpositionBoundaryCount: vncFeature.numericFeatures.subpositionBoundaryCount,
+                        complexityScore: vncFeature.complexityScore,
+                    },
+                },
+                nncFeature: {
+                    slotTokens: nncFeature.slotTokens,
+                    eventFeatures: {
+                        hasObjectSlot: nncFeature.eventFeatures.hasObjectSlot,
+                        hasTenseSlot: nncFeature.eventFeatures.hasTenseSlot,
+                        hasStateSlot: nncFeature.eventFeatures.hasStateSlot,
+                        hasNumberSlot: nncFeature.eventFeatures.hasNumberSlot,
+                    },
+                    numericFeatures: {
+                        formulaTypeCode: nncFeature.numericFeatures.formulaTypeCode,
+                        slotTokenCount: nncFeature.numericFeatures.slotTokenCount,
+                        positionBoundaryCount: nncFeature.numericFeatures.positionBoundaryCount,
+                        complexityScore: nncFeature.complexityScore,
+                    },
+                },
+                formulaIndex: {
+                    formulaFeatureCount: formulaIndex.formulaFeatureCount,
+                    stageCounts: formulaIndex.stageCounts.map((entry) => [entry.value, entry.count]),
+                    tenseFormulaCount: formulaIndex.tenseFormulaCount,
+                    stateFormulaCount: formulaIndex.stateFormulaCount,
+                    valenceFormulaCount: formulaIndex.valenceFormulaCount,
+                    objectFormulaCount: formulaIndex.objectFormulaCount,
+                },
+                routeFeature: {
+                    routeId: routeFeature.routeId,
+                    formulaTransition: routeFeature.formulaTransition,
+                    eventFeatures: routeFeature.eventFeatures,
+                    numericFeatures: {
+                        sourceFormulaTypeCode: routeFeature.numericFeatures.sourceFormulaTypeCode,
+                        targetFormulaTypeCode: routeFeature.numericFeatures.targetFormulaTypeCode,
+                        formulaTransitionCode: routeFeature.numericFeatures.formulaTransitionCode,
+                        operationCode: routeFeature.numericFeatures.operationCode,
+                        pathDepth: routeFeature.numericFeatures.pathDepth,
+                        intermediateFormulaTypeCount: routeFeature.numericFeatures.intermediateFormulaTypeCount,
+                    },
+                },
+                obstacleFeature: {
+                    id: obstacleFeature.id,
+                    routeId: obstacleFeature.routeId,
+                    primaryGateDomain: obstacleFeature.primaryGateDomain,
+                    numericFeatures: {
+                        pathDepth: obstacleFeature.numericFeatures.pathDepth,
+                        gateDomainCount: obstacleFeature.numericFeatures.gateDomainCount,
+                        evidenceStatusCode: obstacleFeature.numericFeatures.evidenceStatusCode,
+                        sourceEvidence: obstacleFeature.numericFeatures.sourceEvidence,
+                        formulaBoundary: obstacleFeature.numericFeatures.formulaBoundary,
+                        valenceObject: obstacleFeature.numericFeatures.valenceObject,
+                        statePossessorNumber: obstacleFeature.numericFeatures.statePossessorNumber,
+                        operationSuffix: obstacleFeature.numericFeatures.operationSuffix,
+                    },
+                },
+                resistance: {
+                    routeCount: stats.routeCount,
+                    obstacleFeatureCount: stats.obstacleFeatureCount,
+                    leastRanking: stats.leastResistanceRanking.map((entry) => [entry.routeId, entry.resistanceScore, entry.obstacleCount]),
+                    mostRanking: stats.mostResistanceRanking.map((entry) => [entry.routeId, entry.resistanceScore, entry.obstacleCount]),
+                    leastRoute: [
+                        stats.leastResistanceRoute.routeId,
+                        stats.leastResistanceRoute.resistanceScore,
+                        stats.leastResistanceRoute.obstacleCount,
+                    ],
+                    mostRoute: [
+                        stats.mostResistanceRoute.routeId,
+                        stats.mostResistanceRoute.resistanceScore,
+                        stats.mostResistanceRoute.obstacleCount,
+                    ],
+                    mostTopGateDomains: stats.mostResistanceRoute.gateDomainCounts.slice(0, 5)
+                        .map((entry) => [entry.value, entry.count]),
+                },
+                conversionPlan: {
+                    fromRouteId: stats.resistanceConversionPlan.fromRouteId,
+                    toRouteId: stats.resistanceConversionPlan.toRouteId,
+                    scoreReductionNeeded: stats.resistanceConversionPlan.scoreReductionNeeded,
+                    obstacleReductionNeeded: stats.resistanceConversionPlan.obstacleReductionNeeded,
+                    highResistanceDimensions: stats.resistanceConversionPlan.highResistanceDimensions
+                        .map((entry) => [entry.domain, entry.fromCount, entry.targetCount, entry.delta]),
+                    conversionEvents: stats.resistanceConversionPlan.conversionEvents,
+                    blockEvents: stats.resistanceConversionPlan.blockActions.map((entry) => entry.eventFeature),
+                },
+                auditResistance: {
+                    leastRouteId: audit.leastResistanceRoute.routeId,
+                    mostRouteId: audit.mostResistanceRoute.routeId,
+                    conversionFrom: audit.resistanceConversionPlan.fromRouteId,
+                    conversionTo: audit.resistanceConversionPlan.toRouteId,
+                },
+            };
+        })(),
+        {
+            vncFeature: {
+                slotTokens: ["pers1", "pers2", "obj1", "obj2", "obj3", "reflexivo", "STEM", "tiempo", "num1", "num2"],
+                eventFeatures: {
+                    hasObjectSlot: true,
+                    hasTenseSlot: true,
+                    hasStateSlot: false,
+                    predicateInsideParentheses: true,
+                },
+                numericFeatures: {
+                    formulaTypeCode: 1,
+                    slotTokenCount: 10,
+                    positionBoundaryCount: 2,
+                    subpositionBoundaryCount: 5,
+                    complexityScore: 25,
+                },
+            },
+            nncFeature: {
+                slotTokens: ["pers1", "pers2", "STEM", "num1", "num2"],
+                eventFeatures: {
+                    hasObjectSlot: false,
+                    hasTenseSlot: false,
+                    hasStateSlot: false,
+                    hasNumberSlot: true,
+                },
+                numericFeatures: {
+                    formulaTypeCode: 2,
+                    slotTokenCount: 5,
+                    positionBoundaryCount: 0,
+                    complexityScore: 11,
+                },
+            },
+            formulaIndex: {
+                formulaFeatureCount: 9,
+                stageCounts: [["3", 6], ["2", 2], ["1", 1]],
+                tenseFormulaCount: 4,
+                stateFormulaCount: 3,
+                valenceFormulaCount: 3,
+                objectFormulaCount: 0,
+            },
+            routeFeature: {
+                routeId: "cnv-to-cnn-to-cnv-loop",
+                formulaTransition: "CNV->CNV",
+                eventFeatures: [
+                    "transition:CNV->CNV",
+                    "operation:deverbal-nounstem-denominal-loop",
+                    "path-depth:2",
+                    "formula-type-retained",
+                    "intermediate:CNN",
+                ],
+                numericFeatures: {
+                    sourceFormulaTypeCode: 1,
+                    targetFormulaTypeCode: 1,
+                    formulaTransitionCode: 2,
+                    operationCode: 5,
+                    pathDepth: 2,
+                    intermediateFormulaTypeCount: 1,
+                },
+            },
+            obstacleFeature: {
+                id: "nominalized-vnc-preterit-agentive-source-boundary",
+                routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                primaryGateDomain: "source-evidence",
+                numericFeatures: {
+                    pathDepth: 1,
+                    gateDomainCount: 5,
+                    evidenceStatusCode: 2,
+                    sourceEvidence: 1,
+                    formulaBoundary: 1,
+                    valenceObject: 1,
+                    statePossessorNumber: 1,
+                    operationSuffix: 1,
+                },
+            },
+            resistance: {
+                routeCount: 7,
+                obstacleFeatureCount: 1576,
+                leastRanking: [
+                    ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7],
+                    ["cnn-to-cnv-to-cnv-deverbal-chain", 153, 24],
+                    ["cnv-verbstem-to-cnv-verbstem-deverbal", 464, 184],
+                    ["cnv-core-to-cnn-nounstem-deverbal", 482, 193],
+                    ["cnn-nounstem-to-cnv-verbstem-denominal", 505, 198],
+                    ["cnv-predicate-to-cnn-nounstem-nominalization", 587, 239],
+                    ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                ],
+                mostRanking: [
+                    ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                    ["cnv-predicate-to-cnn-nounstem-nominalization", 587, 239],
+                    ["cnn-nounstem-to-cnv-verbstem-denominal", 505, 198],
+                    ["cnv-core-to-cnn-nounstem-deverbal", 482, 193],
+                    ["cnv-verbstem-to-cnv-verbstem-deverbal", 464, 184],
+                    ["cnn-to-cnv-to-cnv-deverbal-chain", 153, 24],
+                    ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7],
+                ],
+                leastRoute: ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7],
+                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                mostTopGateDomains: [
+                    ["formula-boundary", 701],
+                    ["valence-object", 507],
+                    ["stem-rank-class", 458],
+                    ["function-use", 299],
+                    ["operation-suffix", 268],
+                ],
+            },
+            conversionPlan: {
+                fromRouteId: "cnv-to-cnn-to-cnv-loop",
+                toRouteId: "cnn-to-cnv-to-cnn-active-action-loop",
+                scoreReductionNeeded: 1523,
+                obstacleReductionNeeded: 724,
+                highResistanceDimensions: [
+                    ["formula-boundary", 701, 6, 695],
+                    ["valence-object", 507, 7, 500],
+                    ["stem-rank-class", 458, 6, 452],
+                    ["function-use", 299, 2, 297],
+                    ["operation-suffix", 268, 6, 262],
+                ],
+                conversionEvents: [
+                    "rank-source-before-generation",
+                    "split-route-into-formula-events",
+                    "materialize-intermediate-source",
+                    "pre-resolve-largest-gate-domains",
+                    "defer-surface-spelling-until-route-is-positioned",
+                ],
+                blockEvents: [
+                    "entrada:source-rank-vector",
+                    "formula:routed-gate-vector",
+                    "salida:next-source-vector",
+                ],
+            },
+            auditResistance: {
+                leastRouteId: "cnn-to-cnv-to-cnn-active-action-loop",
+                mostRouteId: "cnv-to-cnn-to-cnv-loop",
+                conversionFrom: "cnv-to-cnn-to-cnv-loop",
+                conversionTo: "cnn-to-cnv-to-cnn-active-action-loop",
+            },
+        }
+    );
+
+    s.eq(
+        "Andrews statistical equations find patterns that decrease resistance",
+        (() => {
+            const analysis = ctx.buildAndrewsCnvCnnBackAndForthStatisticalEquationPatternAnalysis();
+            const audit = ctx.buildAndrewsCnvCnnBackAndForthAudit();
+            return {
+                equationIds: analysis.equations.map((entry) => entry.id),
+                alpha: analysis.alpha,
+                hypothesisIds: analysis.hypothesisTests.map((entry) => entry.id),
+                scoreDistribution: analysis.scoreDistribution,
+                topZScores: analysis.routeZScoreFrames.slice(0, 2)
+                    .map((entry) => [entry.routeId, entry.zScore, entry.standardScoreLabel]),
+                bottomZScore: analysis.routeZScoreFrames.slice(-1)
+                    .map((entry) => [entry.routeId, entry.zScore, entry.standardScoreLabel]),
+                positiveCorrelationTargets: analysis.strongestPositiveCorrelations
+                    .map((entry) => [
+                        entry.feature,
+                        entry.pearsonR,
+                        entry.pValue,
+                        entry.qValue,
+                        entry.rejectsNullHypothesis,
+                        entry.rejectsFalseDiscoveryRate,
+                    ]),
+                significantRouteFeatureTests: analysis.significantRouteFeatureTests
+                    .map((entry) => [entry.feature, entry.pValue, entry.qValue]),
+                negativeCorrelationTargets: analysis.strongestNegativeCorrelations
+                    .map((entry) => [entry.feature, entry.pearsonR, entry.pValue, entry.qValue, entry.rejectsNullHypothesis]),
+                overrepresentedMostDomains: analysis.overrepresentedMostResistanceDomains
+                    .map((entry) => [entry.domain, entry.riskDifference, entry.logOddsRatio, entry.countDelta]),
+                overrepresentedLeastDomains: analysis.overrepresentedLeastResistanceDomains.slice(0, 4)
+                    .map((entry) => [entry.domain, entry.riskDifference, entry.logOddsRatio, entry.countDelta]),
+                informationGainTop: analysis.gateDomainInformationGainPatterns.slice(0, 5)
+                    .map((entry) => [
+                        entry.domain,
+                        entry.informationGain,
+                        entry.direction,
+                        entry.pValue,
+                        entry.qValue,
+                        entry.rejectsNullHypothesis,
+                        entry.presentLowProbability,
+                        entry.absentLowProbability,
+                    ]),
+                significantGateDomainTests: analysis.significantGateDomainTests
+                    .map((entry) => [entry.domain, entry.pValue, entry.qValue, entry.direction]),
+                lowResistanceDomains: analysis.lowResistanceAssociatedDomains
+                    .map((entry) => [entry.domain, entry.informationGain, entry.pValue, entry.qValue]),
+                equationDrivenReductionPatterns: analysis.equationDrivenReductionPatterns.map((entry) => ({
+                    equation: entry.equation,
+                    pattern: entry.pattern,
+                    topFeatures: entry.topFeatures
+                        ? entry.topFeatures.map((item) => [item.feature, item.pearsonR, item.pValue, item.qValue, item.rejectsNullHypothesis])
+                        : undefined,
+                    topDomains: entry.topDomains
+                        ? entry.topDomains.map((item) => [
+                            item.domain,
+                            item.riskDifference ?? item.informationGain,
+                            item.logOddsRatio ?? item.presentLowProbability,
+                            item.pValue ?? null,
+                            item.qValue ?? null,
+                            item.rejectsNullHypothesis ?? null,
+                        ])
+                        : undefined,
+                })),
+                auditEquationKind: audit.equationPatternAnalysis.kind,
+                auditEquationIds: audit.resistanceStatistics.equationPatternAnalysis.equations.map((entry) => entry.id),
+            };
+        })(),
+        {
+            equationIds: [
+                "z-score",
+                "pearson-correlation",
+                "risk-difference",
+                "haldane-anscombe-odds-ratio",
+                "information-gain",
+            ],
+            alpha: 0.05,
+            hypothesisIds: [
+                "route-feature-exact-permutation-test",
+                "gate-domain-fisher-exact-test",
+                "gate-domain-pair-fisher-exact-test",
+                "gate-domain-cooccurrence-fisher-exact-test",
+            ],
+            scoreDistribution: {
+                mean: 563.142857,
+                populationStandardDeviation: 469.571059,
+                median: 482,
+            },
+            topZScores: [
+                ["cnv-to-cnn-to-cnv-loop", 2.28689, "above-one-standard-deviation"],
+                ["cnv-predicate-to-cnn-nounstem-nominalization", 0.050806, "within-one-standard-deviation"],
+            ],
+            bottomZScore: [
+                ["cnn-to-cnv-to-cnn-active-action-loop", -0.956496, "within-one-standard-deviation"],
+            ],
+            positiveCorrelationTargets: [
+                ["obstacleCount", 0.999765, 0.000198412698, 0.001587301584, true, true],
+                ["blockingOrRequirementGateCount", 0.998946, 0.000992063492, 0.003968253968, true, true],
+                ["sourceOrNawatEvidenceGateCount", 0.941639, 0.004761904762, 0.012698412699, true, true],
+                ["uniqueGateDomainCount", 0.787609, 0.009523809524, 0.019047619048, true, true],
+            ],
+            significantRouteFeatureTests: [
+                ["obstacleCount", 0.000198412698, 0.001587301584],
+                ["blockingOrRequirementGateCount", 0.000992063492, 0.003968253968],
+                ["sourceOrNawatEvidenceGateCount", 0.004761904762, 0.012698412699],
+                ["uniqueGateDomainCount", 0.009523809524, 0.019047619048],
+            ],
+            negativeCorrelationTargets: [
+                ["formulaTypeChanged", -0.323102, 0.685714285714, 0.914285714285, false],
+            ],
+            overrepresentedMostDomains: [
+                ["formula-boundary", 0.101817, 1.669157, 695],
+                ["orthography-surface", 0.128591, 0.799096, 94],
+                ["function-use", 0.123314, 0.420989, 297],
+            ],
+            overrepresentedLeastDomains: [
+                ["operation-suffix", -0.490522, -2.012293, 262],
+                ["valence-object", -0.30643, -1.892429, 500],
+                ["source-evidence", -0.366816, -1.417721, 249],
+                ["stem-rank-class", -0.230604, -0.949678, 452],
+            ],
+            informationGainTop: [
+                ["function-use", 0.05222, "presence-associated-with-higher-resistance", 2e-12, 9e-12, true, 0.100193, 0.336802],
+                ["operation-suffix", 0.037343, "presence-associated-with-lower-resistance", 2e-12, 9e-12, true, 0.334702, 0.136213],
+                ["source-evidence", 0.022754, "presence-associated-with-lower-resistance", 6e-12, 1.8e-11, true, 0.333744, 0.179319],
+                ["state-possessor-number", 0.009376, "presence-associated-with-higher-resistance", 0.000007365457, 0.000016572278, true, 0.178824, 0.288445],
+                ["formula-boundary", 0.008546, "presence-associated-with-higher-resistance", 0.000014450115, 0.000026010207, true, 0.243953, 0.426357],
+            ],
+            significantGateDomainTests: [
+                ["function-use", 2e-12, 9e-12, "presence-associated-with-higher-resistance"],
+                ["operation-suffix", 2e-12, 9e-12, "presence-associated-with-lower-resistance"],
+                ["source-evidence", 6e-12, 1.8e-11, "presence-associated-with-lower-resistance"],
+                ["state-possessor-number", 0.000007365457, 0.000016572278, "presence-associated-with-higher-resistance"],
+                ["formula-boundary", 0.000014450115, 0.000026010207, "presence-associated-with-higher-resistance"],
+                ["valence-object", 0.000246980119, 0.000370470179, "presence-associated-with-lower-resistance"],
+            ],
+            lowResistanceDomains: [
+                ["operation-suffix", 0.037343, 2e-12, 9e-12],
+                ["source-evidence", 0.022754, 6e-12, 1.8e-11],
+                ["valence-object", 0.006401, 0.000246980119, 0.000370470179],
+                ["orthography-surface", 0.002669, 0.017806078351, 0.022893529308],
+            ],
+            equationDrivenReductionPatterns: [
+                {
+                    equation: "pearson-correlation",
+                    pattern: "positive route-feature correlation",
+                    topFeatures: [
+                        ["obstacleCount", 0.999765, 0.000198412698, 0.001587301584, true],
+                        ["blockingOrRequirementGateCount", 0.998946, 0.000992063492, 0.003968253968, true],
+                        ["sourceOrNawatEvidenceGateCount", 0.941639, 0.004761904762, 0.012698412699, true],
+                        ["uniqueGateDomainCount", 0.787609, 0.009523809524, 0.019047619048, true],
+                    ],
+                    topDomains: undefined,
+                },
+                {
+                    equation: "risk-difference + haldane-anscombe-odds-ratio",
+                    pattern: "domains overrepresented in the most-resistant route",
+                    topFeatures: undefined,
+                    topDomains: [
+                        ["formula-boundary", 0.101817, 1.669157, null, null, null],
+                        ["orthography-surface", 0.128591, 0.799096, null, null, null],
+                        ["function-use", 0.123314, 0.420989, null, null, null],
+                    ],
+                },
+                {
+                    equation: "information-gain",
+                    pattern: "domains whose presence partitions lower-resistance routes",
+                    topFeatures: undefined,
+                    topDomains: [
+                        ["operation-suffix", 0.037343, 0.334702, 2e-12, 9e-12, true],
+                        ["source-evidence", 0.022754, 0.333744, 6e-12, 1.8e-11, true],
+                        ["valence-object", 0.006401, 0.279014, 0.000246980119, 0.000370470179, true],
+                        ["orthography-surface", 0.002669, 0.318519, 0.017806078351, 0.022893529308, true],
+                    ],
+                },
+            ],
+            auditEquationKind: "andrews-cnv-cnn-statistical-equation-pattern-analysis",
+            auditEquationIds: [
+                "z-score",
+                "pearson-correlation",
+                "risk-difference",
+                "haldane-anscombe-odds-ratio",
+                "information-gain",
+            ],
+        }
+    );
+
+    s.eq(
+        "Andrews relationship discovery tests null hypotheses for new candidate obstacles",
+        (() => {
+            const discovery = ctx.buildAndrewsCnvCnnBackAndForthRelationshipDiscoveryAnalysis();
+            const audit = ctx.buildAndrewsCnvCnnBackAndForthAudit();
+            return {
+                kind: discovery.kind,
+                alpha: discovery.alpha,
+                pairCount: discovery.pairCount,
+                hypothesisIds: discovery.hypothesisTests.map((entry) => entry.id),
+                candidateObstacleCount: discovery.candidateObstacleCount,
+                candidateObstacleFrames: discovery.candidateObstacleFrames.map((entry) => [
+                    entry.candidateObstacleId,
+                    entry.candidateObstacleStatus,
+                    entry.informationGain,
+                    entry.pValue,
+                    entry.qValue,
+                    entry.highResistanceRiskDifference,
+                    entry.presentHighProbability,
+                    entry.absentHighProbability,
+                    entry.nullHypothesisRejected,
+                ]),
+                significantPairTests: discovery.significantGateDomainPairTests.slice(0, 12)
+                    .map((entry) => [
+                        entry.pairId,
+                        entry.informationGain,
+                        entry.pValue,
+                        entry.qValue,
+                        entry.direction,
+                        entry.highResistanceRiskDifference,
+                    ]),
+                newRelationshipCandidates: discovery.newRelationshipCandidates.map((entry) => [
+                    entry.pairId,
+                    entry.direction,
+                    entry.phiCoefficient,
+                    entry.pValue,
+                    entry.qValue,
+                    entry.logOddsRatio,
+                ]),
+                warning: discovery.relationshipWarning,
+                auditDiscovery: {
+                    kind: audit.relationshipDiscoveryAnalysis.kind,
+                    candidateObstacleCount: audit.resistanceStatistics.relationshipDiscoveryAnalysis.candidateObstacleCount,
+                    firstCandidate: audit.equationPatternAnalysis.candidateObstacleFrames[0].candidateObstacleId,
+                },
+            };
+        })(),
+        {
+            kind: "andrews-cnv-cnn-relationship-discovery-analysis",
+            alpha: 0.05,
+            pairCount: 36,
+            hypothesisIds: [
+                "gate-domain-pair-fisher-exact-test",
+                "gate-domain-cooccurrence-fisher-exact-test",
+            ],
+            candidateObstacleCount: 8,
+            candidateObstacleFrames: [
+                ["candidate-obstacle:formula-boundary+function-use", "statistical-candidate-not-grammar-rule", 0.048661, 2e-12, 2.2e-11, 0.23151, 0.901235, 0.669725, true],
+                ["candidate-obstacle:valence-object+function-use", "statistical-candidate-not-grammar-rule", 0.029801, 2e-12, 2.2e-11, 0.192234, 0.883951, 0.691716, true],
+                ["candidate-obstacle:stem-rank-class+function-use", "statistical-candidate-not-grammar-rule", 0.026655, 3e-12, 2.2e-11, 0.191338, 0.891176, 0.699838, true],
+                ["candidate-obstacle:operation-suffix+function-use", "statistical-candidate-not-grammar-rule", 0.01242, 2.7819e-7, 0.000001251855, 0.142546, 0.858156, 0.715611, true],
+                ["candidate-obstacle:formula-boundary+state-possessor-number", "statistical-candidate-not-grammar-rule", 0.010809, 0.000001637292, 0.000006549168, 0.119791, 0.830808, 0.711017, true],
+                ["candidate-obstacle:state-possessor-number+function-use", "statistical-candidate-not-grammar-rule", 0.008979, 0.000014392404, 0.000047102413, 0.154479, 0.880795, 0.726316, true],
+                ["candidate-obstacle:valence-object+state-possessor-number", "statistical-candidate-not-grammar-rule", 0.008758, 0.000016634765, 0.000049904295, 0.112421, 0.828571, 0.71615, true],
+                ["candidate-obstacle:formula-boundary+stem-rank-class", "statistical-candidate-not-grammar-rule", 0.005411, 0.000649719136, 0.001559325926, 0.077884, 0.772152, 0.694268, true],
+            ],
+            significantPairTests: [
+                ["formula-boundary+function-use", 0.048661, 2e-12, 2.2e-11, "pair-presence-associated-with-higher-resistance", 0.23151],
+                ["source-evidence+operation-suffix", 0.042784, 3e-12, 2.2e-11, "pair-presence-associated-with-lower-resistance", -0.218402],
+                ["valence-object+function-use", 0.029801, 2e-12, 2.2e-11, "pair-presence-associated-with-higher-resistance", 0.192234],
+                ["valence-object+operation-suffix", 0.028066, 2e-12, 2.2e-11, "pair-presence-associated-with-lower-resistance", -0.171032],
+                ["stem-rank-class+function-use", 0.026655, 3e-12, 2.2e-11, "pair-presence-associated-with-higher-resistance", 0.191338],
+                ["source-evidence+valence-object", 0.023073, 4e-12, 2.4e-11, "pair-presence-associated-with-lower-resistance", -0.156877],
+                ["formula-boundary+operation-suffix", 0.018951, 1.7e-10, 8.74e-10, "pair-presence-associated-with-lower-resistance", -0.141109],
+                ["operation-suffix+function-use", 0.01242, 2.7819e-7, 0.000001251855, "pair-presence-associated-with-higher-resistance", 0.142546],
+                ["formula-boundary+state-possessor-number", 0.010809, 0.000001637292, 0.000006549168, "pair-presence-associated-with-higher-resistance", 0.119791],
+                ["source-evidence+formula-boundary", 0.00942, 0.000006480476, 0.000023329714, "pair-presence-associated-with-lower-resistance", -0.100588],
+                ["state-possessor-number+function-use", 0.008979, 0.000014392404, 0.000047102413, "pair-presence-associated-with-higher-resistance", 0.154479],
+                ["valence-object+state-possessor-number", 0.008758, 0.000016634765, 0.000049904295, "pair-presence-associated-with-higher-resistance", 0.112421],
+            ],
+            newRelationshipCandidates: [
+                ["source-evidence+operation-suffix", "cooccurs-more-than-null", 0.363657, 2e-12, 2.4e-11, 1.576851],
+                ["source-evidence+valence-object", "cooccurs-more-than-null", 0.265242, 2e-12, 2.4e-11, 1.416324],
+                ["valence-object+operation-suffix", "cooccurs-more-than-null", 0.249034, 2e-12, 2.4e-11, 1.247004],
+                ["source-evidence+orthography-surface", "cooccurs-more-than-null", 0.131038, 2.22974e-7, 0.000001283107, 0.715545],
+                ["operation-suffix+orthography-surface", "cooccurs-more-than-null", 0.087116, 0.000564254362, 0.001692763086, 0.496949],
+                ["formula-boundary+stem-rank-class", "cooccurs-more-than-null", 0.08214, 0.001481205987, 0.004101801195, 0.595112],
+            ],
+            warning: "These are Andrews-catalog statistical candidates. They identify where architecture may need a named gate; they do not create Nawat surfaces or new grammar licenses.",
+            auditDiscovery: {
+                kind: "andrews-cnv-cnn-relationship-discovery-analysis",
+                candidateObstacleCount: 8,
+                firstCandidate: "candidate-obstacle:formula-boundary+function-use",
+            },
+        }
+    );
+
+    s.eq(
+        "Andrews route action contract reaches generated rows and formula-surface path",
+        typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: false,
+                        override: {
+                            tenseMode: "adjetivo",
+                            derivationMode: "active",
+                            voiceMode: "active",
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "(pusuni)",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "adjetivo-preterito-tik",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                }) || {};
+                const routeContract = result.grammarFrame?.routeContract || {};
+                const morphBoundaryFrame = result.grammarFrame?.morphBoundaryFrame || {};
+                const formulaSurfacePath = morphBoundaryFrame.cnvFormulaSurfacePath || {};
+                return {
+                    resultRouteRecordId: routeContract.sourceContract?.andrewsRouteRecordId || "",
+                    targetRouteRecordId: routeContract.targetContract?.andrewsRouteRecordId || "",
+                    morphRouteRecordId: morphBoundaryFrame.andrewsRouteActionContract?.routeRecordId || "",
+                    formulaPathRouteRecordId: formulaSurfacePath.andrewsRouteRecordId || "",
+                    formulaPathGateCount: Array.isArray(formulaSurfacePath.andrewsRouteObstacleGateIds)
+                        ? formulaSurfacePath.andrewsRouteObstacleGateIds.length
+                        : 0,
+                };
+            })()
+            : { resultRouteRecordId: "executeGenerateWordRequest unavailable" },
+        {
+            resultRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            targetRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            morphRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            formulaPathRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            formulaPathGateCount: 8,
+        }
+    );
+
+    s.eq(
+        "Andrews 40.10 example resolves through the CNV-CNN-CNV coordinate path",
+        (() => {
+            const probe = ctx.buildAndrewsCnvCnnSynonymLoopProbe();
+            const example = probe.examples.find((entry) => entry.stem === "chichiktiya") || {};
+            const routeFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(probe.routeId);
+            const sourceGate = ctx.getAndrewsCnvCnnBackAndForthObstacleCatalog()
+                .find((entry) => entry.routeId === probe.routeId && (entry.sourceRefs || []).includes("Andrews 40.10"));
+            const gateFrame = ctx.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(sourceGate);
+            return {
+                probeHit: probe.hit === true,
+                example: {
+                    stem: example.stem || "",
+                    expectedResult: example.expectedResult || "",
+                    result: example.result || "",
+                    formulaEcho: example.formulaEcho || "",
+                    sourceFormationSubtype: example.sourceFormationSubtype || "",
+                    sourceLessonRef: example.sourceLessonRef || "",
+                    sourcePattern: example.sourcePattern || "",
+                    andrewsSourcePattern: example.andrewsSourcePattern || "",
+                    synonymSetKind: example.synonymSetKind || "",
+                    outputContract: example.outputContract || "",
+                    doesNotGenerateSiblingForms: example.doesNotGenerateSiblingForms === true,
+                    hit: example.hit === true,
+                },
+                routeCoordinate: {
+                    routeId: routeFrame.routeId,
+                    transition: routeFrame.transition,
+                    sourceFormulaType: routeFrame.sourceFormulaType,
+                    sourceFormulaPosition: routeFrame.sourceFormulaPosition,
+                    intermediateFormulaTypes: routeFrame.intermediateFormulaTypes,
+                    targetFormulaType: routeFrame.targetFormulaType,
+                    targetStemRank: routeFrame.targetStemRank,
+                    operation: routeFrame.operation,
+                    pathDepth: routeFrame.pathDepth,
+                },
+                gateCoordinate: {
+                    id: gateFrame.id,
+                    sourceRefs: gateFrame.sourceRefs,
+                    gateDomains: gateFrame.gateDomains,
+                    evidenceStatus: gateFrame.evidenceStatus,
+                    stage: gateFrame.stage,
+                    pathDepth: gateFrame.pathDepth,
+                },
+            };
+        })(),
+        {
+            probeHit: true,
+            example: {
+                stem: "chichiktiya",
+                expectedResult: "chichiktik",
+                result: "chichiktik",
+                formulaEcho: "#Ø-Ø(chichikti)k#",
+                sourceFormationSubtype: "denominal-tiya",
+                sourceLessonRef: "Andrews 40.10",
+                sourcePattern: "k-ti-ya",
+                andrewsSourcePattern: "c-ti-ya",
+                synonymSetKind: "pair",
+                outputContract: "generate-current-source-only",
+                doesNotGenerateSiblingForms: true,
+                hit: true,
+            },
+            routeCoordinate: {
+                routeId: "cnv-to-cnn-to-cnv-loop",
+                transition: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
+                sourceFormulaType: "CNV",
+                sourceFormulaPosition: "core",
+                intermediateFormulaTypes: ["CNN"],
+                targetFormulaType: "CNV",
+                targetStemRank: "denominal-verbstem",
+                operation: "deverbal-nounstem-denominal-loop",
+                pathDepth: 2,
+            },
+            gateCoordinate: {
+                id: "synonym-source-no-sibling-generation",
+                sourceRefs: ["Andrews 40.10", "Andrews 40.11"],
+                gateDomains: ["source-evidence", "valence-object", "operation-suffix", "orthography-surface"],
+                evidenceStatus: "source-or-nawat-evidence-gate",
+                stage: "#2 Fórmula/Rutas",
+                pathDepth: 2,
+            },
+        }
     );
 
     s.eq(

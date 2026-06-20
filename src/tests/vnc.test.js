@@ -2781,6 +2781,190 @@ function run(ctx) {
     );
     s.eq("bound override drops occupied obj1", boundOverride.obj1, "");
     s.eq("bound override drops occupied base obj1", boundOverride.baseObj1, "");
+    const sparseBoundEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+ta-(ish-kwi)");
+    const sparseBoundEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+ta-(ish-kwi)",
+        sparseBoundEntradaParsed
+    );
+    const fixedBoundEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+ta-(ish-kwi)",
+        sparseBoundEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "kwi" },
+                obj1: { slot: "obj1", token: "ta" },
+            },
+            sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+        }
+    );
+    const blockedBoundOverride = ctx.applyBoundMarkerSlotOverrides(
+        {
+            hasBoundMarker: true,
+            derivationValencyDelta: 0,
+            derivationType: "",
+            boundPrefixes: ["ki"],
+        },
+        "ki",
+        "ki",
+        {
+            entradaGrammarObject: sparseBoundEntradaGrammarObject,
+        }
+    );
+    const fixedBoundOverride = ctx.applyBoundMarkerSlotOverrides(
+        {
+            hasBoundMarker: true,
+            derivationValencyDelta: 0,
+            derivationType: "",
+            boundPrefixes: ["ki"],
+        },
+        "ki",
+        "ki",
+        {
+            entradaGrammarObject: fixedBoundEntradaGrammarObject,
+        }
+    );
+    s.eq(
+        "bound marker object deletion is gated until entrada valence frame is fixed",
+        {
+            blockedStatus: blockedBoundOverride.valencyObjectSlotGate?.status || "",
+            blockedObj1Preserved: blockedBoundOverride.obj1,
+            blockedGenerationAllowed: blockedBoundOverride.generationAllowed,
+            blockedValenceFixed: blockedBoundOverride.valencyObjectSlotGate?.valenceFrameFixed,
+            fixedStatus: fixedBoundOverride.valencyObjectSlotGate?.status || "",
+            fixedObj1: fixedBoundOverride.obj1,
+            fixedGenerationAllowed: fixedBoundOverride.valencyObjectSlotGate?.generationAllowed,
+            fixedValenceFixed: fixedBoundOverride.valencyObjectSlotGate?.valenceFrameFixed,
+        },
+        {
+            blockedStatus: "blocked",
+            blockedObj1Preserved: "ki",
+            blockedGenerationAllowed: false,
+            blockedValenceFixed: false,
+            fixedStatus: "pass",
+            fixedObj1: "",
+            fixedGenerationAllowed: true,
+            fixedValenceFixed: true,
+        }
+    );
+    const unresolvedRouteFrameMutationGate = ctx.buildGenerationValencyObjectSlotMutationGate({
+        operation: "test-route-frame-object-slot-mutation",
+        mutationKind: "delete-object-slot",
+        sourceObj1: "ki",
+        sourceBaseObj1: "ki",
+        targetObj1: "",
+        targetBaseObj1: "",
+        options: {
+            sourceRouteFrame: {
+                kind: "andrews-incorporation-route-frame",
+                remainingExternalObjectSlots: [
+                    { slotId: "obj1", prefix: "ki" },
+                ],
+            },
+        },
+    });
+    const fixedRouteFrameMutationGate = ctx.buildGenerationValencyObjectSlotMutationGate({
+        operation: "test-route-frame-object-slot-mutation",
+        mutationKind: "delete-object-slot",
+        sourceObj1: "ki",
+        sourceBaseObj1: "ki",
+        targetObj1: "",
+        targetBaseObj1: "",
+        options: {
+            sourceRouteFrame: {
+                kind: "andrews-incorporation-route-frame",
+                remainingExternalObjectSlots: [
+                    { slotId: "obj1", prefix: "ki" },
+                ],
+                objectSlotOwnership: {
+                    matrixValenceFrameFixed: true,
+                },
+            },
+        },
+    });
+    s.eq(
+        "valency object-slot mutation gate reads route-frame valence ownership before deleting slots",
+        {
+            unresolvedStatus: unresolvedRouteFrameMutationGate.status,
+            unresolvedReason: unresolvedRouteFrameMutationGate.reason,
+            unresolvedRequiresFixedFrame: unresolvedRouteFrameMutationGate.requiresFixedValenceFrame,
+            unresolvedFrameSignal: unresolvedRouteFrameMutationGate.frameHasValenceObjectSignal,
+            unresolvedValenceFixed: unresolvedRouteFrameMutationGate.valenceFrameFixed,
+            fixedStatus: fixedRouteFrameMutationGate.status,
+            fixedReason: fixedRouteFrameMutationGate.reason,
+            fixedRequiresFixedFrame: fixedRouteFrameMutationGate.requiresFixedValenceFrame,
+            fixedFrameSignal: fixedRouteFrameMutationGate.frameHasValenceObjectSignal,
+            fixedValenceFixed: fixedRouteFrameMutationGate.valenceFrameFixed,
+        },
+        {
+            unresolvedStatus: "blocked",
+            unresolvedReason: "generation-valency-source-frame-unfixed",
+            unresolvedRequiresFixedFrame: true,
+            unresolvedFrameSignal: true,
+            unresolvedValenceFixed: false,
+            fixedStatus: "pass",
+            fixedReason: "generation-valency-object-slot-mutation-licensed",
+            fixedRequiresFixedFrame: true,
+            fixedFrameSignal: true,
+            fixedValenceFixed: true,
+        }
+    );
+    const preParsedBoundMaka = {
+        ...ctx.parseVerbInput("maka"),
+        sourceRawVerb: "maka",
+        hasBoundMarker: true,
+        boundPrefixes: ["ki"],
+        derivationValencyDelta: 0,
+        derivationType: "",
+    };
+    const boundGenerationBlocked = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                parsedVerb: preParsedBoundMaka,
+                entradaGrammarObject: sparseBoundEntradaGrammarObject,
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "ki",
+            tronco: "maka",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            obj2: "",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "presente",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "maka",
+        },
+    });
+    s.eq(
+        "generation hard-gates bound-marker object deletion when entrada valence is unresolved",
+        {
+            error: boundGenerationBlocked.error === true,
+            diagnosticId: boundGenerationBlocked.diagnostics?.[0]?.id || "",
+            routeStage: boundGenerationBlocked.diagnostics?.[0]?.routeStage || "",
+            gateStatus: boundGenerationBlocked.valencyObjectSlotGate?.status || "",
+            generationAllowed: boundGenerationBlocked.valencyObjectSlotGate?.generationAllowed,
+            routeRankingAllowed: boundGenerationBlocked.valencyObjectSlotGate?.routeRankingAllowed,
+        },
+        {
+            error: true,
+            diagnosticId: "generation-valency-object-slot-frame-unfixed",
+            routeStage: "generation-valency-object-slot-gate",
+            gateStatus: "blocked",
+            generationAllowed: false,
+            routeRankingAllowed: false,
+        }
+    );
 
     const passiveAdjustments = ctx.applyPassiveImpersonalSlotAdjustments({
         isPassiveImpersonalMode: true,
@@ -2801,6 +2985,116 @@ function run(ctx) {
     s.eq("passive valency adjusts clears obj1", passiveAdjustments.obj1, "");
     s.eq("passive valency adjusts clears obj2", passiveAdjustments.obj2, "");
     s.ok("passive valency adjusts preserves subject for promoted passive", passiveAdjustments.preserveSubjectForPassive);
+    const passiveAdjustmentsBlocked = ctx.applyPassiveImpersonalSlotAdjustments({
+        isPassiveImpersonalMode: true,
+        verb: "nemi",
+        analysisVerb: "nemi",
+        fusionPrefixes: [],
+        targetValency: 1,
+        pers1: "",
+        pers2: "",
+        obj1: "ki",
+        obj2: "ta",
+        obj3: "",
+        preserveSubjectForPassive: false,
+        allowPassiveObject: false,
+        morphologyObj1: "ki",
+        hasPromotableObject: true,
+        entradaGrammarObject: sparseBoundEntradaGrammarObject,
+    });
+    const passiveAdjustmentsFixed = ctx.applyPassiveImpersonalSlotAdjustments({
+        isPassiveImpersonalMode: true,
+        verb: "nemi",
+        analysisVerb: "nemi",
+        fusionPrefixes: [],
+        targetValency: 1,
+        pers1: "",
+        pers2: "",
+        obj1: "ki",
+        obj2: "ta",
+        obj3: "",
+        preserveSubjectForPassive: false,
+        allowPassiveObject: false,
+        morphologyObj1: "ki",
+        hasPromotableObject: true,
+        entradaGrammarObject: fixedBoundEntradaGrammarObject,
+    });
+    s.eq(
+        "passive impersonal object clearing is gated until entrada valence frame is fixed",
+        {
+            blockedStatus: passiveAdjustmentsBlocked.valencyObjectSlotGate?.status || "",
+            blockedObj1Preserved: passiveAdjustmentsBlocked.obj1,
+            blockedObj2Preserved: passiveAdjustmentsBlocked.obj2,
+            blockedGenerationAllowed: passiveAdjustmentsBlocked.generationAllowed,
+            fixedStatus: passiveAdjustmentsFixed.valencyObjectSlotGate?.status || "",
+            fixedObj1: passiveAdjustmentsFixed.obj1,
+            fixedObj2: passiveAdjustmentsFixed.obj2,
+            fixedGenerationAllowed: passiveAdjustmentsFixed.valencyObjectSlotGate?.generationAllowed,
+        },
+        {
+            blockedStatus: "blocked",
+            blockedObj1Preserved: "ki",
+            blockedObj2Preserved: "ta",
+            blockedGenerationAllowed: false,
+            fixedStatus: "pass",
+            fixedObj1: "",
+            fixedObj2: "",
+            fixedGenerationAllowed: true,
+        }
+    );
+    const passiveGenerationBlocked = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                parsedVerb: {
+                    ...ctx.parseVerbInput("maka"),
+                    sourceRawVerb: "maka",
+                },
+                entradaGrammarObject: sparseBoundEntradaGrammarObject,
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.passive,
+            },
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ki",
+            tronco: "maka",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            obj2: "ta",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "presente",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "maka",
+        },
+    });
+    s.eq(
+        "generation hard-gates passive impersonal object clearing when entrada valence is unresolved",
+        {
+            error: passiveGenerationBlocked.error === true,
+            diagnosticId: passiveGenerationBlocked.diagnostics?.[0]?.id || "",
+            routeStage: passiveGenerationBlocked.diagnostics?.[0]?.routeStage || "",
+            gateStatus: passiveGenerationBlocked.valencyObjectSlotGate?.status || "",
+            mutationKind: passiveGenerationBlocked.valencyObjectSlotGate?.mutationKind || "",
+            generationAllowed: passiveGenerationBlocked.valencyObjectSlotGate?.generationAllowed,
+            routeRankingAllowed: passiveGenerationBlocked.valencyObjectSlotGate?.routeRankingAllowed,
+        },
+        {
+            error: true,
+            diagnosticId: "generation-valency-object-slot-frame-unfixed",
+            routeStage: "generation-valency-object-slot-gate",
+            gateStatus: "blocked",
+            mutationKind: "delete-object-slots",
+            generationAllowed: false,
+            routeRankingAllowed: false,
+        }
+    );
     const lesson21Passive = ctx.buildLesson21PassiveVoicePursuitFrame();
     s.eq(
         "Lesson 21 passive pursuit frame keeps Andrews passive separate from current combined route",
@@ -2992,6 +3286,102 @@ function run(ctx) {
     s.eq("reflexive auto switch rewrites same-person obj1 to mu", reflexiveSwitch.obj1, "mu");
     s.ok("reflexive auto switch marks reflexive", reflexiveSwitch.isReflexive);
     s.eq("reflexive auto switch clears object-prefix error", clearedTarget, "object-prefix");
+    let blockedReflexiveClearedTarget = "";
+    const blockedReflexiveSwitch = ctx.applyReflexivoAutoSwitch({
+        pers1: "ni",
+        pers2: "",
+        obj1: "nech",
+        isPassiveImpersonal: false,
+        entradaGrammarObject: sparseBoundEntradaGrammarObject,
+        clearError: (id) => {
+            blockedReflexiveClearedTarget = id;
+        },
+    });
+    const fixedReflexiveSwitch = ctx.applyReflexivoAutoSwitch({
+        pers1: "ni",
+        pers2: "",
+        obj1: "nech",
+        isPassiveImpersonal: false,
+        entradaGrammarObject: fixedBoundEntradaGrammarObject,
+    });
+    s.eq(
+        "reflexive auto switch is gated until entrada valence frame is fixed",
+        {
+            blockedStatus: blockedReflexiveSwitch.valencyObjectSlotGate?.status || "",
+            blockedObj1Preserved: blockedReflexiveSwitch.obj1,
+            blockedIsReflexive: blockedReflexiveSwitch.isReflexive,
+            blockedGenerationAllowed: blockedReflexiveSwitch.generationAllowed,
+            blockedClearedTarget: blockedReflexiveClearedTarget,
+            fixedStatus: fixedReflexiveSwitch.valencyObjectSlotGate?.status || "",
+            fixedObj1: fixedReflexiveSwitch.obj1,
+            fixedIsReflexive: fixedReflexiveSwitch.isReflexive,
+            fixedGenerationAllowed: fixedReflexiveSwitch.valencyObjectSlotGate?.generationAllowed,
+        },
+        {
+            blockedStatus: "blocked",
+            blockedObj1Preserved: "nech",
+            blockedIsReflexive: false,
+            blockedGenerationAllowed: false,
+            blockedClearedTarget: "",
+            fixedStatus: "pass",
+            fixedObj1: "mu",
+            fixedIsReflexive: true,
+            fixedGenerationAllowed: true,
+        }
+    );
+    const reflexiveGenerationBlocked = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                parsedVerb: {
+                    ...ctx.parseVerbInput("maka"),
+                    sourceRawVerb: "maka",
+                },
+                entradaGrammarObject: sparseBoundEntradaGrammarObject,
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "nech",
+            tronco: "maka",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            obj2: "",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "presente",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "maka",
+        },
+    });
+    s.eq(
+        "generation hard-gates reflexive object reclassification when entrada valence is unresolved",
+        {
+            error: reflexiveGenerationBlocked.error === true,
+            diagnosticId: reflexiveGenerationBlocked.diagnostics?.[0]?.id || "",
+            routeStage: reflexiveGenerationBlocked.diagnostics?.[0]?.routeStage || "",
+            gateStatus: reflexiveGenerationBlocked.valencyObjectSlotGate?.status || "",
+            mutationKind: reflexiveGenerationBlocked.valencyObjectSlotGate?.mutationKind || "",
+            generationAllowed: reflexiveGenerationBlocked.valencyObjectSlotGate?.generationAllowed,
+            routeRankingAllowed: reflexiveGenerationBlocked.valencyObjectSlotGate?.routeRankingAllowed,
+        },
+        {
+            error: true,
+            diagnosticId: "generation-valency-object-slot-frame-unfixed",
+            routeStage: "generation-valency-object-slot-gate",
+            gateStatus: "blocked",
+            mutationKind: "reclassify-object-slot-reflexive",
+            generationAllowed: false,
+            routeRankingAllowed: false,
+        }
+    );
 
     const executeEngineResult = ctx.executeGenerateWordRequest({
         options: {
@@ -4069,7 +4459,25 @@ function run(ctx) {
             inflectionInsideStem: false,
         }
     );
+    const inheritedSurfaceOnlyRouteFrame = {
+        kind: "inherited-surface-only-route-frame",
+        objectSlotOwnership: {
+            kind: "inherited-surface-only-object-slot-ownership-frame",
+            matrixValenceFrameFixed: true,
+        },
+        routeFrameLicensesObjectSlotOwnership: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+    };
     const priorResultFrame = ctx.buildGrammarFrame({
+        routeContract: ctx.buildGrammarRouteContractFrame({
+            routeFamily: "inherited-source-route",
+            routeStage: "execute",
+            sourceContract: {
+                sourceRouteFrame: inheritedSurfaceOnlyRouteFrame,
+            },
+            generationAllowed: true,
+        }),
         resultFrame: ctx.buildGrammarResultFrame({
             ok: true,
             surface: "frame-engine-surface",
@@ -4098,6 +4506,10 @@ function run(ctx) {
             ok: rebuiltGenerateFrame.resultFrame.ok,
             sourceInput: rebuiltGenerateFrame.resultFrame.sourceInput,
             stem: rebuiltGenerateFrame.stemFrame.stem,
+            routeFrameKind: rebuiltGenerateFrame.routeContract.sourceContract.sourceRouteFrame.kind,
+            participantRouteFrameKind: rebuiltGenerateFrame.participantFrame.sourceRouteFrame.kind,
+            participantOwnershipKind: rebuiltGenerateFrame.participantFrame.objectSlotOwnership.kind,
+            participantMatrixValenceFrameFixed: rebuiltGenerateFrame.participantFrame.objectSlotOwnership.matrixValenceFrameFixed === true,
         },
         {
             surface: "frame-engine-a",
@@ -4105,6 +4517,10 @@ function run(ctx) {
             ok: true,
             sourceInput: "frame-engine-a",
             stem: "frame-engine-a",
+            routeFrameKind: "inherited-surface-only-route-frame",
+            participantRouteFrameKind: "inherited-surface-only-route-frame",
+            participantOwnershipKind: "inherited-surface-only-object-slot-ownership-frame",
+            participantMatrixValenceFrameFixed: true,
         }
     );
     s.eq(
@@ -4480,6 +4896,38 @@ function run(ctx) {
             valorTronco: "",
         },
     });
+    const compoundObjectRouteResult = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            override: {
+                parsedVerb: ctx.parseVerbInput("(a)+ta-(kwi)"),
+            },
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "",
+            tronco: "(a)+ta-(kwi)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+
+            tiempo: "presente",
+
+            },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
+        },
+    });
+    const unresolvedGeneratedCompoundRouteFrame = ctx.buildGeneratedCompoundRouteFrameMetadata({
+        compoundAst: {
+            kind: "compound",
+            source: { rawInput: "(shuchi)-(unknown)" },
+            matrix: { stem: "unknown", ruleBase: "unknown" },
+            valency: {},
+        },
+        embeds: [{ value: "shuchi", role: "outer-lexical", source: "test" }],
+    });
     s.eq(
         "compound frame exposes parser compoundAst metadata without changing output",
         {
@@ -4489,8 +4937,53 @@ function run(ctx) {
             embedRoles: compoundFrameResult.compoundFrame?.embeds?.map((entry) => entry.role),
             embedValues: compoundFrameResult.compoundFrame?.embeds?.map((entry) => entry.value),
             rawInput: compoundFrameResult.compoundFrame?.sourceInput?.rawInput,
+            routeFrameKind: compoundFrameResult.compoundFrame?.compoundRouteFrame?.kind || "",
+            routeFrameShape: compoundFrameResult.compoundFrame?.compoundRouteFrame?.finalFormulaShape || "",
+            routeFrameEmbedRole: compoundFrameResult.compoundFrame?.compoundRouteFrame?.embedRole || "",
+            routeFrameMatrixValence: compoundFrameResult.compoundFrame?.compoundRouteFrame?.matrixValence || "",
+            routeFrameSourceSurface: compoundFrameResult.compoundFrame?.compoundRouteFrame?.sourcePrincipalVnc?.surface || "",
+            routeFrameRouteLicensesRole: compoundFrameResult.compoundFrame?.compoundRouteFrame?.routeFrameLicensesEmbedRole === true,
+            routeFrameShapeDoesNotLicenseRole: compoundFrameResult.compoundFrame?.compoundRouteFrame?.finalFormulaShapeDoesNotLicenseRole === true,
+            routeFrameOwnershipKind: compoundFrameResult.compoundFrame?.compoundRouteFrame?.objectSlotOwnership?.kind || "",
+            routeFrameMatrixValenceFrameFixed: compoundFrameResult.compoundFrame?.compoundRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+            routeFrameLicensesObjectSlots: compoundFrameResult.compoundFrame?.compoundRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+            routeFrameShapeDoesNotLicenseObjectSlots: compoundFrameResult.compoundFrame?.compoundRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+            routeFrameFunctionUseDoesNotLicenseObjectSlots: compoundFrameResult.compoundFrame?.compoundRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
+            grammarSourceRouteFrameKind: compoundFrameResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+            grammarStemRouteFrameKind: compoundFrameResult.grammarFrame?.stemFrame?.sourceRouteFrame?.kind || "",
+            grammarMorphRouteFrameKind: compoundFrameResult.grammarFrame?.morphBoundaryFrame?.sourceRouteFrame?.kind || "",
+            grammarParticipantRouteFrameKind: compoundFrameResult.grammarFrame?.participantFrame?.sourceRouteFrame?.kind || "",
+            grammarParticipantOwnershipKind: compoundFrameResult.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+            grammarParticipantMatrixValenceFrameFixed: compoundFrameResult.grammarFrame?.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+            grammarParticipantFunctionUseDoesNotLicenseObjectSlots: compoundFrameResult.grammarFrame?.participantFrame?.functionUseDoesNotLicenseObjectSlots === true,
             changesSurfaceForms: compoundFrameResult.compoundFrame?.boundaries?.changesSurfaceForms,
             forms: compoundFrameResult.surfaceForms,
+            objectRoute: {
+                forms: compoundObjectRouteResult.surfaceForms,
+                routeFrameKind: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+                routeFrameShape: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.finalFormulaShape || "",
+                objectSlotPrefixes: (
+                    compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots || []
+                ).map((slot) => [slot.slotId, slot.prefix, slot.owner]),
+                ownershipKind: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.kind || "",
+                sourceExternalObjectSlotsOwnedBy: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.sourceExternalObjectSlotsOwnedBy || "",
+                remainingExternalObjectSlotsOwnedBy: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.remainingExternalObjectSlotsOwnedBy || "",
+                matrixValenceFrameFixed: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+                functionUseOwnsObjectSlots: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.functionUseOwnsObjectSlots === true,
+                finalFormulaShapeOwnsObjectSlots: compoundObjectRouteResult.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.finalFormulaShapeOwnsObjectSlots === true,
+                participantRouteFrameKind: compoundObjectRouteResult.grammarFrame?.participantFrame?.sourceRouteFrame?.kind || "",
+                participantOwnershipKind: compoundObjectRouteResult.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+                participantMatrixValenceFrameFixed: compoundObjectRouteResult.grammarFrame?.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+            },
+            unresolvedRouteFrame: {
+                matrixValence: unresolvedGeneratedCompoundRouteFrame?.matrixValence || "",
+                matrixValenceFrameFixed: unresolvedGeneratedCompoundRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+                routeFrameOwnsObjectSlotLicensing: unresolvedGeneratedCompoundRouteFrame?.objectSlotOwnership?.routeFrameOwnsObjectSlotLicensing === true,
+                matrixValenceFrameMustBeFixed: unresolvedGeneratedCompoundRouteFrame?.objectSlotOwnership?.matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership === true,
+                routeLicensesObjectSlotOwnership: unresolvedGeneratedCompoundRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+                finalShapeDoesNotLicenseObjectSlots: unresolvedGeneratedCompoundRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+                functionUseDoesNotLicenseObjectSlots: unresolvedGeneratedCompoundRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
+            },
         },
         {
             kind: "compound-frame",
@@ -4499,8 +4992,51 @@ function run(ctx) {
             embedRoles: ["outer-lexical"],
             embedValues: ["shuchi"],
             rawInput: "(shuchi)-(kwi)",
+            routeFrameKind: "generated-compound-route-frame",
+            routeFrameShape: "compound-verbstem-adjacent-embed-before-matrix",
+            routeFrameEmbedRole: "outer-lexical",
+            routeFrameMatrixValence: "transitive",
+            routeFrameSourceSurface: "(shuchi)-(kwi)",
+            routeFrameRouteLicensesRole: true,
+            routeFrameShapeDoesNotLicenseRole: true,
+            routeFrameOwnershipKind: "generated-compound-object-slot-ownership-frame",
+            routeFrameMatrixValenceFrameFixed: true,
+            routeFrameLicensesObjectSlots: true,
+            routeFrameShapeDoesNotLicenseObjectSlots: true,
+            routeFrameFunctionUseDoesNotLicenseObjectSlots: true,
+            grammarSourceRouteFrameKind: "generated-compound-route-frame",
+            grammarStemRouteFrameKind: "generated-compound-route-frame",
+            grammarMorphRouteFrameKind: "generated-compound-route-frame",
+            grammarParticipantRouteFrameKind: "generated-compound-route-frame",
+            grammarParticipantOwnershipKind: "generated-compound-object-slot-ownership-frame",
+            grammarParticipantMatrixValenceFrameFixed: true,
+            grammarParticipantFunctionUseDoesNotLicenseObjectSlots: true,
             changesSurfaceForms: false,
             forms: ["nishuchikwi"],
+            objectRoute: {
+                forms: ["niatakwi"],
+                routeFrameKind: "generated-compound-route-frame",
+                routeFrameShape: "compound-verbstem-marked-boundary",
+                objectSlotPrefixes: [["obj1", "ta", "compound-valency"]],
+                ownershipKind: "generated-compound-object-slot-ownership-frame",
+                sourceExternalObjectSlotsOwnedBy: "source-compound-route-frame",
+                remainingExternalObjectSlotsOwnedBy: "matrix-route-frame",
+                matrixValenceFrameFixed: true,
+                functionUseOwnsObjectSlots: false,
+                finalFormulaShapeOwnsObjectSlots: false,
+                participantRouteFrameKind: "generated-compound-route-frame",
+                participantOwnershipKind: "generated-compound-object-slot-ownership-frame",
+                participantMatrixValenceFrameFixed: true,
+            },
+            unresolvedRouteFrame: {
+                matrixValence: "",
+                matrixValenceFrameFixed: false,
+                routeFrameOwnsObjectSlotLicensing: false,
+                matrixValenceFrameMustBeFixed: true,
+                routeLicensesObjectSlotOwnership: false,
+                finalShapeDoesNotLicenseObjectSlots: true,
+                functionUseDoesNotLicenseObjectSlots: true,
+            },
         }
     );
     const sentenceLayerResult = ctx.executeGenerateWordRequest({

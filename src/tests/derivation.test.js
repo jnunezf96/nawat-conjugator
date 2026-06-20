@@ -1401,11 +1401,19 @@ function run(ctx) {
             result: "shuchiejka",
         }
     );
+    const ordinaryZeroClassFormulaSlots = {
+        pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+        predicateStem: { slot: "STEM", stem: "kal", displayStem: "kal" },
+        num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+    };
+    const ordinaryZeroClassFormulaEcho = "#Ø-Ø(kal)Ø#";
     const ordinaryZeroClassOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
         nounStem: "kal",
         nounClass: "zero",
         sourceSurface: "kal",
         sourceKind: "fixture",
+        sourceFormulaSlots: ordinaryZeroClassFormulaSlots,
+        sourceFormulaEcho: ordinaryZeroClassFormulaEcho,
     });
     const generatedOrdinaryZeroClassOwnerhoodSurface = ctx.executeGenerateWordRequest({
         posicionesFormula: {
@@ -1438,6 +1446,9 @@ function run(ctx) {
             nounClass: ordinaryZeroClassOwnerhoodContract.nounClass,
             matrixRoot: ordinaryZeroClassOwnerhoodContract.matrixRoot,
             surfaceMatrix: ordinaryZeroClassOwnerhoodContract.surfaceMatrix,
+            sourceFormulaEcho: ordinaryZeroClassOwnerhoodContract.sourceFormulaEcho,
+            frameFormulaEcho: ordinaryZeroClassOwnerhoodContract.grammarFrame?.morphBoundaryFrame?.formulaEcho || "",
+            framePredicateStem: ordinaryZeroClassOwnerhoodContract.grammarFrame?.morphBoundaryFrame?.formulaSlots?.predicateStem?.stem || "",
             ownerhoodVerbInput: ordinaryZeroClassOwnerhoodContract.ownerhoodVerbInput,
             result: generatedOrdinaryZeroClassOwnerhoodSurface.result,
         },
@@ -1447,6 +1458,9 @@ function run(ctx) {
             nounClass: "zero",
             matrixRoot: "wa",
             surfaceMatrix: "waj",
+            sourceFormulaEcho: ordinaryZeroClassFormulaEcho,
+            frameFormulaEcho: ordinaryZeroClassFormulaEcho,
+            framePredicateStem: "kal",
             ownerhoodVerbInput: "(kal)-(wa)",
             result: "kalwajka",
         }
@@ -1726,6 +1740,160 @@ function run(ctx) {
                 outsideObjectOriginRole: "possessor",
                 outsideObjectPrefix: "nech",
                 possessorBecomesOutsideObject: true,
+            },
+        }
+    );
+    s.eq(
+        "Andrews incorporation route frames distinguish object, complement, and adverb roles behind a shared final formula shape",
+        (() => {
+            const routeFrames = [
+                characteristicContract.incorporationRouteFrame,
+                preteritAgentiveComplementContract.incorporationRouteFrame,
+                preteritAgentiveAdverbialContract.incorporationRouteFrame,
+            ];
+            const unresolvedMatrixValenceRouteFrame = ctx.buildDerivationContinuationIncorporationRouteFrame({
+                outputKind: "test-incorporated-object-continuation-contract",
+                grammarSource: "Andrews test",
+                supported: true,
+                sourceSurface: "source-vnc",
+                sourceFormulaSlots: {
+                    obj1: { slot: "obj1", prefix: "ki" },
+                    predicateStem: { slot: "STEM", stem: "source" },
+                },
+                incorporatedRoot: "kal",
+                formationFrame: {
+                    incorporated: {
+                        role: "incorporated-object",
+                        root: "kal",
+                    },
+                    matrix: {
+                        root: "mati",
+                    },
+                },
+            }, {
+                outputKind: "test-incorporated-object-continuation-contract",
+                supported: true,
+                targetInput: "-(kal/mati)",
+                routeStage: "preview-continuation",
+                andrewsRefs: ["Andrews test"],
+            });
+            return {
+                finalFormulaShapes: routeFrames.map((frame) => frame?.finalFormulaShape || ""),
+                embedRoles: routeFrames.map((frame) => frame?.embedRole || ""),
+                consumedObjectSlots: routeFrames.map((frame) => frame?.consumedObjectSlot || ""),
+                matrixValences: routeFrames.map((frame) => frame?.matrixValence || ""),
+                valenceDeltas: routeFrames.map((frame) => frame?.valenceDelta ?? null),
+                stemInternalObjectSlotDeltas: routeFrames.map((frame) => frame?.valenceEffects?.stemInternalObjectSlotDelta ?? null),
+                complementSlotDeltas: routeFrames.map((frame) => frame?.valenceEffects?.complementSlotDelta ?? null),
+                adverbialFunctionDeltas: routeFrames.map((frame) => frame?.valenceEffects?.adverbialFunctionDelta ?? null),
+                remainingExternalObjectSlots: routeFrames.map((frame) => (
+                    Array.isArray(frame?.remainingExternalObjectSlots)
+                        ? frame.remainingExternalObjectSlots.map((slot) => `${slot.slotId}:${slot.prefix}`)
+                        : []
+                )),
+                objectSlotOwnershipKinds: routeFrames.map((frame) => frame?.objectSlotOwnership?.kind || ""),
+                consumedObjectSlotOwners: routeFrames.map((frame) => frame?.objectSlotOwnership?.consumedObjectSlotOwnedBy || ""),
+                remainingObjectSlotOwners: routeFrames.map((frame) => frame?.objectSlotOwnership?.remainingExternalObjectSlotsOwnedBy || ""),
+                embeddedRoleLicensers: routeFrames.map((frame) => frame?.objectSlotOwnership?.embeddedRoleLicensedBy || ""),
+                matrixValenceFramesFixed: routeFrames.map((frame) => frame?.objectSlotOwnership?.matrixValenceFrameFixed === true),
+                sourcePrincipalSurfaces: routeFrames.map((frame) => frame?.sourcePrincipalVnc?.surface || ""),
+                sourceAdjunctKinds: routeFrames.map((frame) => frame?.sourceAdjunctNnc?.kind || ""),
+                andrewsSections: routeFrames.map((frame) => frame?.andrewsSection || ""),
+                generationStatuses: routeFrames.map((frame) => frame?.generationStatus || ""),
+                topLevelRouteFrameKind: characteristicContract.routeFrame?.kind || "",
+                contractCarriesFrame: characteristicContract.grammarFrame?.morphBoundaryFrame?.incorporationRouteFrame?.embedRole || "",
+                grammarSourceRouteFrameKind: characteristicContract.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+                grammarTargetRouteFrameKind: characteristicContract.grammarFrame?.routeContract?.targetContract?.sourceRouteFrame?.kind || "",
+                grammarStemRouteFrameKind: characteristicContract.grammarFrame?.stemFrame?.sourceRouteFrame?.kind || "",
+                grammarMorphRouteFrameKind: characteristicContract.grammarFrame?.morphBoundaryFrame?.sourceRouteFrame?.kind || "",
+                grammarParticipantRouteFrameKind: characteristicContract.grammarFrame?.participantFrame?.sourceRouteFrame?.kind || "",
+                routeLicensesRole: routeFrames.every((frame) => frame?.routeFrameLicensesEmbedRole === true),
+                finalShapeDoesNotLicenseRole: routeFrames.every((frame) => frame?.finalFormulaShapeDoesNotLicenseRole === true),
+                functionUseDoesNotLicenseRole: routeFrames.every((frame) => frame?.functionUseDoesNotLicenseRole === true),
+                routeLicensesObjectSlotOwnership: routeFrames.every((frame) => frame?.routeFrameLicensesObjectSlotOwnership === true),
+                finalShapeDoesNotLicenseObjectSlots: routeFrames.every((frame) => frame?.finalFormulaShapeDoesNotLicenseObjectSlots === true),
+                functionUseDoesNotLicenseObjectSlots: routeFrames.every((frame) => (
+                    frame?.functionUseDoesNotLicenseObjectSlots === true
+                    && frame?.objectSlotOwnership?.functionUseOwnsObjectSlots === false
+                    && frame?.objectSlotOwnership?.finalFormulaShapeOwnsObjectSlots === false
+                )),
+                participantOwnershipFrameKind: characteristicContract.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+                unresolvedMatrixValenceRouteFrame: {
+                    matrixValence: unresolvedMatrixValenceRouteFrame?.matrixValence || "",
+                    matrixValenceFrameFixed: unresolvedMatrixValenceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+                    routeFrameOwnsObjectSlotLicensing: unresolvedMatrixValenceRouteFrame?.objectSlotOwnership?.routeFrameOwnsObjectSlotLicensing === true,
+                    matrixValenceFrameMustBeFixed: unresolvedMatrixValenceRouteFrame?.objectSlotOwnership?.matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership === true,
+                    routeLicensesObjectSlotOwnership: unresolvedMatrixValenceRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+                    finalShapeDoesNotLicenseObjectSlots: unresolvedMatrixValenceRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+                    functionUseDoesNotLicenseObjectSlots: unresolvedMatrixValenceRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
+                },
+            };
+        })(),
+        {
+            finalFormulaShapes: [
+                "compound-vnc-embed-before-matrix",
+                "compound-vnc-embed-before-matrix",
+                "compound-vnc-embed-before-matrix",
+            ],
+            embedRoles: [
+                "incorporated-object",
+                "incorporated-complement",
+                "incorporated-adverb",
+            ],
+            consumedObjectSlots: ["obj1", "complement", ""],
+            matrixValences: ["transitive", "transitive", "intransitive"],
+            valenceDeltas: [1, 1, 0],
+            stemInternalObjectSlotDeltas: [1, 0, 0],
+            complementSlotDeltas: [0, 1, 0],
+            adverbialFunctionDeltas: [0, 0, 1],
+            remainingExternalObjectSlots: [
+                ["obj1:ki"],
+                ["obj1:ki"],
+                [],
+            ],
+            objectSlotOwnershipKinds: [
+                "andrews-incorporation-object-slot-ownership-frame",
+                "andrews-incorporation-object-slot-ownership-frame",
+                "andrews-incorporation-object-slot-ownership-frame",
+            ],
+            consumedObjectSlotOwners: ["route-frame", "route-frame", "none"],
+            remainingObjectSlotOwners: ["matrix-route-frame", "matrix-route-frame", "none"],
+            embeddedRoleLicensers: [
+                "andrews-incorporation-route-frame",
+                "andrews-incorporation-route-frame",
+                "andrews-incorporation-route-frame",
+            ],
+            matrixValenceFramesFixed: [true, true, true],
+            sourcePrincipalSurfaces: ["mikkayut", "tamatki", "tamatki"],
+            sourceAdjunctKinds: [
+                "characteristic-property-nounstem",
+                "preterit-agentive-nounstem",
+                "preterit-agentive-nounstem",
+            ],
+            andrewsSections: ["Andrews 39.9", "Andrews 35.12", "Andrews 35.12"],
+            generationStatuses: ["supported", "supported", "supported"],
+            topLevelRouteFrameKind: "andrews-incorporation-route-frame",
+            contractCarriesFrame: "incorporated-object",
+            grammarSourceRouteFrameKind: "andrews-incorporation-route-frame",
+            grammarTargetRouteFrameKind: "andrews-incorporation-route-frame",
+            grammarStemRouteFrameKind: "andrews-incorporation-route-frame",
+            grammarMorphRouteFrameKind: "andrews-incorporation-route-frame",
+            grammarParticipantRouteFrameKind: "andrews-incorporation-route-frame",
+            routeLicensesRole: true,
+            finalShapeDoesNotLicenseRole: true,
+            functionUseDoesNotLicenseRole: true,
+            routeLicensesObjectSlotOwnership: true,
+            finalShapeDoesNotLicenseObjectSlots: true,
+            functionUseDoesNotLicenseObjectSlots: true,
+            participantOwnershipFrameKind: "andrews-incorporation-object-slot-ownership-frame",
+            unresolvedMatrixValenceRouteFrame: {
+                matrixValence: "",
+                matrixValenceFrameFixed: false,
+                routeFrameOwnsObjectSlotLicensing: false,
+                matrixValenceFrameMustBeFixed: true,
+                routeLicensesObjectSlotOwnership: false,
+                finalShapeDoesNotLicenseObjectSlots: true,
+                functionUseDoesNotLicenseObjectSlots: true,
             },
         }
     );

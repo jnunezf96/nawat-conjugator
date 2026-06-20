@@ -16,14 +16,14 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260618-lesson4-css-a-plus-001" />
+    <link rel="stylesheet" href="style.css?v=20260619-slot-entry-buttons-005" />
     <!-- Phase 1 baseline: keep this ordered script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/concepts/concepts.js?v=20260606-concepts-001" defer></script>
     <script src="src/core/particles/particles.js?v=20260616-particle-ui-groups-001" defer></script>
     <script src="src/core/sentence/sentence.js?v=20260606-sentence-layer-001" defer></script>
     <script src="src/core/grammar/frame.js?v=20260608-grammar-frame-001" defer></script>
     <script src="src/core/orthography/orthography.js?v=20260616-particle-ui-groups-001" defer></script>
-    <script src="src/core/clause/clause.js?v=20260618-lesson4-number-diagram-001" defer></script>
+    <script src="src/core/clause/clause.js?v=20260619-route-record-actions-001" defer></script>
     <script src="src/core/clause/modification/modification.js?v=20260606-modification-boundary-001" defer></script>
     <script src="src/core/clause/adverbial/adverbial.js?v=20260606-adverbial-boundary-001" defer></script>
     <script src="src/core/clause/adjunction/adjunction.js?v=20260606-adjunction-boundary-001" defer></script>
@@ -53,7 +53,7 @@
     <script src="src/core/generation/request.js?v=20260403-import-isolate-008" defer></script>
     <script src="src/core/generation/morphology_engine.js?v=20260404-tronco-lvv-ua-004" defer></script>
     <script src="src/core/generation/runtime_support.js?v=20260403-import-isolate-007" defer></script>
-    <script src="src/core/generation/engine.js?v=20260617-vnc-formula-slots-002" defer></script>
+    <script src="src/core/generation/engine.js?v=20260619-route-record-actions-001" defer></script>
     <script src="src/core/nnc/nnc.js?v=20260617-vnc-formula-slots-001" defer></script>
     <script src="src/core/nnc/compound/compound.js?v=20260606-nnc-compound-boundary-001" defer></script>
     <script src="src/core/nnc/adjectival/adjectival.js?v=20260617-vnc-formula-slots-001" defer></script>
@@ -70,8 +70,8 @@
     <script src="src/ui/panels/panels.js?v=20260618-andrews-tense-blocks-001" defer></script>
     <script src="src/ui/export/export.js?v=20260618-slot-strip-export-001" defer></script>
     <script src="src/ui/state.js?v=20260618-andrews-tense-blocks-001" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260618-andrews-tense-blocks-001" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260618-andrews-tense-blocks-001" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260619-route-record-actions-001" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260619-slot-entry-buttons-003" defer></script>
     <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
     <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
@@ -1274,7 +1274,13 @@
             </div>
             <div class="output-meta-strip">
               <div class="calc-summary" id="calc-summary" aria-live="polite"></div>
-              <div class="tense-description" id="tense-description" aria-live="polite"></div>
+              <details class="tense-description" id="tense-description" aria-live="polite">
+                <summary class="tense-description__summary">
+                  <span class="tense-description__summary-title">Descripción</span>
+                  <span class="tense-description__summary-value"></span>
+                </summary>
+                <div class="tense-description__body"></div>
+              </details>
             </div>
             <div class="output-result-controls" id="output-result-controls">
               <div

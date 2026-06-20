@@ -13089,6 +13089,13 @@ function activateNawatRouteStation(routeKey = "", stationKey = "", {
     setActiveTenseMode(station.mode, {
         modeSystem: TENSE_MODE_SYSTEM.nawat || "nawat",
     });
+    const stationOutputMode = getNawatOutputTenseMode(getNawatTenseModeValue(station.mode)) || station.mode;
+    if (stationOutputMode === TENSE_MODE.sustantivo) {
+        setActiveTenseMode(TENSE_MODE.sustantivo, {
+            modeSystem: TENSE_MODE_SYSTEM.function || TENSE_MODE_SYSTEM.european || "function",
+            clearRoute: false,
+        });
+    }
     if (station.combinedMode && typeof setCombinedMode === "function") {
         setCombinedMode(station.combinedMode);
     } else {

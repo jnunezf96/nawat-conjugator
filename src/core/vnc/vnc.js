@@ -1405,7 +1405,6 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
     return {
         posicionesFormula: {
             pers1: "",
-            obj1: "",
             tronco: targetSurface,
             pers2: "",
             num2: "",
@@ -1457,6 +1456,10 @@ function generateNuclearClauseSurface(options = {}) {
         };
     }
     const troncoInputSource = resolveVerbInputSource(troncoControl?.value || "");
+    const hasExplicitFormulaPositions = options.posicionesFormula && typeof options.posicionesFormula === "object";
+    const explicitEntradaGrammarObject = options.entradaGrammarObject && typeof options.entradaGrammarObject === "object"
+        ? options.entradaGrammarObject
+        : null;
     const posicionesFormula = getNuclearClauseSurfacePosicionesFormula({
         override,
         posicionesFormula: options.posicionesFormula,
@@ -1467,10 +1470,12 @@ function generateNuclearClauseSurface(options = {}) {
     });
     return executeNuclearClauseSurfaceRequest({
         options,
+        entradaGrammarObject: explicitEntradaGrammarObject,
         posicionesFormula,
         entradaTronco: {
             tieneControlTronco: Boolean(troncoControl),
             valorTronco: troncoControl?.value || "",
+            entradaGrammarObject: explicitEntradaGrammarObject || (hasExplicitFormulaPositions ? null : (troncoInputSource.entradaGrammarObject || null)),
         },
         uiHooks: {
             clearError: (id) => {

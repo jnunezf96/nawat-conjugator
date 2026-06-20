@@ -599,11 +599,87 @@ export function createUiRenderingModule(targetObject = globalThis) {
       section.appendChild(body);
       panel.appendChild(section);
     }
+    function ensureTenseDescriptionBody(panel = null) {
+      if (!panel) {
+        return null;
+      }
+      const tagName = String(panel.tagName || "").toLowerCase();
+      if (tagName !== "details") {
+        return panel;
+      }
+      const children = () => Array.from(panel.children || []);
+      let summary = children().find(child => child.classList?.contains("tense-description__summary"));
+      if (!summary) {
+        summary = targetObject.document.createElement("summary");
+        summary.className = "tense-description__summary";
+        panel.prepend(summary);
+      }
+      let title = Array.from(summary.children || []).find(child => child.classList?.contains("tense-description__summary-title"));
+      if (!title) {
+        title = targetObject.document.createElement("span");
+        title.className = "tense-description__summary-title";
+        title.textContent = "Descripción";
+        summary.prepend(title);
+      }
+      let value = Array.from(summary.children || []).find(child => child.classList?.contains("tense-description__summary-value"));
+      if (!value) {
+        value = targetObject.document.createElement("span");
+        value.className = "tense-description__summary-value";
+        summary.appendChild(value);
+      }
+      let body = children().find(child => child.classList?.contains("tense-description__body"));
+      if (!body) {
+        body = targetObject.document.createElement("div");
+        body.className = "tense-description__body";
+        panel.appendChild(body);
+      }
+      return body;
+    }
+    function updateTenseDescriptionSummary(panel = null, entries = []) {
+      if (!panel || String(panel.tagName || "").toLowerCase() !== "details") {
+        return;
+      }
+      const summary = Array.from(panel.children || []).find(child => child.classList?.contains("tense-description__summary"));
+      const value = Array.from(summary?.children || []).find(child => child.classList?.contains("tense-description__summary-value"));
+      if (!value) {
+        return;
+      }
+      const labels = (Array.isArray(entries) ? entries : []).map(entry => String(entry?.label || "").trim()).filter(Boolean);
+      value.textContent = labels.slice(0, 2).join(" · ");
+    }
+    function appendTenseDescriptionEntries(body = null, entries = []) {
+      if (!body) {
+        return;
+      }
+      body.innerHTML = "";
+      (Array.isArray(entries) ? entries : []).forEach(entry => {
+        if (!entry || !entry.label) {
+          return;
+        }
+        const item = targetObject.document.createElement("div");
+        item.className = "tense-description__item";
+        const label = targetObject.document.createElement("div");
+        label.className = "tense-description__label";
+        label.textContent = entry.label;
+        if (entry.hoverTitle) {
+          label.title = entry.hoverTitle;
+        }
+        item.appendChild(label);
+        if (entry.description) {
+          const text = targetObject.document.createElement("div");
+          text.className = "tense-description__text";
+          text.textContent = entry.description;
+          item.appendChild(text);
+        }
+        body.appendChild(item);
+      });
+    }
     function updateTensePanelDescription() {
       const panel = targetObject.document.getElementById("tense-description");
       if (!panel) {
         return;
       }
+      const body = ensureTenseDescriptionBody(panel);
       const entries = [];
       const tenseMode = targetObject.getActiveTenseMode();
       applyOutputPanelShellForTenseMode(tenseMode);
@@ -618,25 +694,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           hoverTitle: "Andrews Lección 3",
           description: "Inventario diagnóstico: partículas, negativas, colocaciones e interjecciones; sin generación verbal o nominal."
         });
-        panel.innerHTML = "";
-        entries.forEach(entry => {
-          const item = targetObject.document.createElement("div");
-          item.className = "tense-description__item";
-          const label = targetObject.document.createElement("div");
-          label.className = "tense-description__label";
-          label.textContent = entry.label;
-          if (entry.hoverTitle) {
-            label.title = entry.hoverTitle;
-          }
-          item.appendChild(label);
-          if (entry.description) {
-            const text = targetObject.document.createElement("div");
-            text.className = "tense-description__text";
-            text.textContent = entry.description;
-            item.appendChild(text);
-          }
-          panel.appendChild(item);
-        });
+        updateTenseDescriptionSummary(panel, entries);
+        appendTenseDescriptionEntries(body, entries);
         return;
       }
       if (tenseMode === targetObject.TENSE_MODE.verbo) {
@@ -682,26 +741,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const clauseShell = typeof targetObject.getCurrentNuclearClauseShell === "function" ? targetObject.getCurrentNuclearClauseShell({
         mode: tenseMode
       }) : null;
-      panel.innerHTML = "";
-      entries.forEach(entry => {
-        if (!entry || !entry.label) {
-          return;
-        }
-        const item = targetObject.document.createElement("div");
-        item.className = "tense-description__item";
-        const label = targetObject.document.createElement("div");
-        label.className = "tense-description__label";
-        label.textContent = entry.label;
-        item.appendChild(label);
-        if (entry.description) {
-          const text = targetObject.document.createElement("div");
-          text.className = "tense-description__text";
-          text.textContent = entry.description;
-          item.appendChild(text);
-        }
-        panel.appendChild(item);
-      });
-      appendLesson4NuclearClauseInspector(panel, clauseShell);
+      updateTenseDescriptionSummary(panel, entries);
+      appendTenseDescriptionEntries(body, entries);
+      appendLesson4NuclearClauseInspector(body, clauseShell);
     }
     function getExplainabilitySelectedTense(tenseOverride = null) {
       if (tenseOverride) {
@@ -754,6 +796,33 @@ export function createUiRenderingModule(targetObject = globalThis) {
         return targetObject.VerbScreenAnsState.provenance;
       }
       return null;
+    }
+    function activateCnnOutputModeForContinuation({
+      clearRoute = true
+    } = {}) {
+      if (typeof targetObject.TENSE_MODE === "undefined" || !targetObject.TENSE_MODE?.sustantivo) {
+        return;
+      }
+      if (typeof targetObject.setActiveNawatTenseMode === "function") {
+        targetObject.setActiveNawatTenseMode(targetObject.TENSE_MODE.sustantivo, {
+          syncOutput: true
+        });
+      } else if (typeof targetObject.setActiveTenseMode === "function") {
+        targetObject.setActiveTenseMode(targetObject.TENSE_MODE.sustantivo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.nawat || targetObject.TENSE_MODE_SYSTEM.unit || "nawat" : "nawat",
+          clearRoute
+        });
+      }
+      if (typeof targetObject.setActiveTenseMode === "function") {
+        targetObject.setActiveTenseMode(targetObject.TENSE_MODE.sustantivo, {
+          modeSystem: typeof targetObject.TENSE_MODE_SYSTEM !== "undefined" ? targetObject.TENSE_MODE_SYSTEM.function || targetObject.TENSE_MODE_SYSTEM.european || "function" : "function",
+          syncConventionState: true,
+          clearRoute: false
+        });
+      }
+      if (typeof targetObject.updateTenseModeTabs === "function") {
+        targetObject.updateTenseModeTabs();
+      }
     }
     function getSharedLetterPrefixLength(leftValue = "", rightValue = "") {
       const leftLetters = targetObject.splitVerbLetters(targetObject.normalizeDerivationStemValue(leftValue));
@@ -1395,153 +1464,243 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continuationColumn.appendChild(actions);
       }
     }
+    function resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta(routeRecordId = "") {
+      switch (String(routeRecordId || "").trim()) {
+        case "cnv-predicate-to-cnn-nounstem-nominalization":
+          return {
+            key: "registro-cnv-cnn-nominalizada",
+            routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+            mode: "sustantivo",
+            eyebrow: "Registro",
+            title: "CNV → CNN nominalizada"
+          };
+        case "cnv-core-to-cnn-nounstem-deverbal":
+          return {
+            key: "registro-cnv-cnn-deverbal",
+            routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+            mode: "sustantivo",
+            eyebrow: "Registro",
+            title: "núcleo CNV → CNN deverbal"
+          };
+        case "cnn-nounstem-to-cnv-verbstem-denominal":
+          return {
+            key: "registro-cnn-cnv-denominal",
+            routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            mode: "verbo",
+            eyebrow: "Registro",
+            title: "CNN → CNV denominal"
+          };
+        case "cnv-verbstem-to-cnv-verbstem-deverbal":
+          return {
+            key: "registro-cnv-cnv-deverbal",
+            routeRecordId: "cnv-verbstem-to-cnv-verbstem-deverbal",
+            mode: "verbo",
+            eyebrow: "Registro",
+            title: "CNV → CNV deverbal"
+          };
+        case "cnv-to-cnn-to-cnv-loop":
+          return {
+            key: "registro-cnv-cnn-cnv",
+            routeRecordId: "cnv-to-cnn-to-cnv-loop",
+            mode: "verbo",
+            eyebrow: "Registro",
+            title: "CNV → CNN → CNV"
+          };
+        case "cnn-to-cnv-to-cnn-active-action-loop":
+          return {
+            key: "registro-cnn-cnv-cnn-accion",
+            routeRecordId: "cnn-to-cnv-to-cnn-active-action-loop",
+            mode: "sustantivo",
+            eyebrow: "Registro",
+            title: "CNN → CNV → CNN acción"
+          };
+        case "cnn-to-cnv-to-cnv-deverbal-chain":
+          return {
+            key: "registro-cnn-cnv-cnv",
+            routeRecordId: "cnn-to-cnv-to-cnv-deverbal-chain",
+            mode: "verbo",
+            eyebrow: "Registro",
+            title: "CNN → CNV → CNV"
+          };
+        default:
+          return null;
+      }
+    }
+    function getVisibleContinuationChipRouteExpectation(chip = null) {
+      const dataset = chip?.dataset || {};
+      const has = key => Boolean(dataset[key]);
+      const expected = ({
+        datasetKey = "",
+        routeRecordId = "",
+        operationEs = ""
+      } = {}) => ({
+        datasetKey,
+        routeRecordId,
+        operationEs
+      });
+      if (has("denominalAndrewsContractRouteContinuation") || has("ordinaryNncOwnerhoodContinuation")) {
+        return expected({
+          datasetKey: has("ordinaryNncOwnerhoodContinuation") ? "ordinaryNncOwnerhoodContinuation" : "denominalAndrewsContractRouteContinuation",
+          routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+          operationEs: has("ordinaryNncOwnerhoodContinuation") ? "posesion denominal" : "verbalizacion denominal"
+        });
+      }
+      if (has("verbPatientivoContinuation") || has("patientivoPrelocativeContinuation")) {
+        return expected({
+          datasetKey: has("patientivoPrelocativeContinuation") ? "patientivoPrelocativeContinuation" : "verbPatientivoContinuation",
+          routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+          operationEs: has("patientivoPrelocativeContinuation") ? "patientivo prelocativo" : "patientivo"
+        });
+      }
+      if (has("patientivoTroncoConversion") || has("huaDeverbalYuContinuation")) {
+        return expected({
+          datasetKey: has("huaDeverbalYuContinuation") ? "huaDeverbalYuContinuation" : "patientivoTroncoConversion",
+          routeRecordId: "cnv-to-cnn-to-cnv-loop",
+          operationEs: has("huaDeverbalYuContinuation") ? "yu deverbal a verbalizacion" : "tronco patientivo reincorporable"
+        });
+      }
+      if (has("verbNominalContinuation")) {
+        const targetTense = String(dataset.targetTense || "").trim();
+        const isAgentive = targetTense.startsWith("agentivo");
+        return expected({
+          datasetKey: "verbNominalContinuation",
+          routeRecordId: isAgentive ? "cnv-predicate-to-cnn-nounstem-nominalization" : "cnv-core-to-cnn-nounstem-deverbal",
+          operationEs: isAgentive ? "nominalizacion agentiva" : `nominal deverbal ${targetTense || ""}`.trim()
+        });
+      }
+      if (has("vncAdjectivalFunctionContinuation") || has("nominalizedVncAdjectivalFunctionContinuation") || has("preteritAgentiveNominalCompoundContinuation") || has("customaryAgentiveNominalCompoundContinuation") || has("preteritAgentiveComplementContinuation") || has("preteritAgentiveAdverbialContinuation")) {
+        return expected({
+          datasetKey: ["vncAdjectivalFunctionContinuation", "nominalizedVncAdjectivalFunctionContinuation", "preteritAgentiveNominalCompoundContinuation", "customaryAgentiveNominalCompoundContinuation", "preteritAgentiveComplementContinuation", "preteritAgentiveAdverbialContinuation"].find(has) || "",
+          routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+          operationEs: "nominalizacion o funcion derivada de predicado CNV"
+        });
+      }
+      if (has("ordinaryNncAdjectivalFunctionContinuation") || has("patientivoAdjectivalFunctionContinuation") || has("intensifiedAdjectivalFunctionContinuation") || has("compoundSourceAdjectivalFunctionContinuation") || has("activeActionNominalCompoundContinuation") || has("patientivoNominalCompoundContinuation") || has("actionNounSourceSubjectPossessor") || has("instrumentivoSourceSubjectPossessor")) {
+        return expected({
+          datasetKey: ["ordinaryNncAdjectivalFunctionContinuation", "patientivoAdjectivalFunctionContinuation", "intensifiedAdjectivalFunctionContinuation", "compoundSourceAdjectivalFunctionContinuation", "activeActionNominalCompoundContinuation", "patientivoNominalCompoundContinuation", "actionNounSourceSubjectPossessor", "instrumentivoSourceSubjectPossessor"].find(has) || "",
+          routeRecordId: "cnv-core-to-cnn-nounstem-deverbal",
+          operationEs: "funcion o composicion sobre tronco nominal deverbal"
+        });
+      }
+      if (has("activeActionCompoundEmbedContinuation") || has("customaryAgentiveCompoundEmbedContinuation") || has("preteritAgentiveCompoundEmbedContinuation") || has("patientivoCompoundEmbedContinuation") || has("patientivoCharacteristicPropertyEmbedContinuation") || has("preteritAgentiveOwnerhoodContinuation") || has("denominalCompoundAdjectivalFunctionContinuation")) {
+        return expected({
+          datasetKey: ["activeActionCompoundEmbedContinuation", "customaryAgentiveCompoundEmbedContinuation", "preteritAgentiveCompoundEmbedContinuation", "patientivoCompoundEmbedContinuation", "patientivoCharacteristicPropertyEmbedContinuation", "preteritAgentiveOwnerhoodContinuation", "denominalCompoundAdjectivalFunctionContinuation"].find(has) || "",
+          routeRecordId: "cnv-to-cnn-to-cnv-loop",
+          operationEs: "bucle CNV-CNN-CNV"
+        });
+      }
+      return null;
+    }
+    function isAndrewsCnvCnnRouteRecordContinuationGroup(group = null) {
+      const dataset = group?.dataset || {};
+      const routeRecordId = String(dataset.andrewsRouteRecordGroupId || "").trim();
+      return Boolean(resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta(routeRecordId));
+    }
+    function auditVisibleContinuationRouteRecordGroups(root = null) {
+      const scope = root || (typeof targetObject.document !== "undefined" ? targetObject.document : null);
+      const groups = Array.from(scope?.querySelectorAll?.(".conjugation-conversion-actions .conjugation-continuation-group") || []);
+      const missingRouteRecordGroups = groups.filter(group => !isAndrewsCnvCnnRouteRecordContinuationGroup(group)).map(group => ({
+        key: String(group?.dataset?.continuationGroup || "").trim(),
+        eyebrow: String(group?.querySelector?.(".conjugation-continuation-group__eyebrow")?.textContent || "").trim(),
+        title: String(group?.querySelector?.(".conjugation-continuation-group__title")?.textContent || "").trim(),
+        chipCount: Number(group?.querySelectorAll?.(".calc-guidance__chip")?.length || 0)
+      }));
+      return {
+        ok: missingRouteRecordGroups.length === 0,
+        groupCount: groups.length,
+        missingRouteRecordGroups
+      };
+    }
+    function auditVisibleContinuationRouteOutputConsistency(root = null) {
+      const scope = root || (typeof targetObject.document !== "undefined" ? targetObject.document : null);
+      const groups = Array.from(scope?.querySelectorAll?.(".conjugation-conversion-actions .conjugation-continuation-group") || []);
+      const inconsistencies = [];
+      groups.forEach(group => {
+        const groupRouteRecordId = String(group?.dataset?.andrewsRouteRecordGroupId || "").trim();
+        const groupKey = String(group?.dataset?.continuationGroup || "").trim();
+        const chips = Array.from(group?.querySelectorAll?.(".calc-guidance__chip") || []);
+        chips.forEach(chip => {
+          const dataset = chip?.dataset || {};
+          const chipRouteRecordId = String(dataset.andrewsRouteRecordId || "").trim();
+          const expected = getVisibleContinuationChipRouteExpectation(chip);
+          const chipInfo = {
+            groupKey,
+            groupRouteRecordId,
+            chipRouteRecordId,
+            expectedRouteRecordId: expected?.routeRecordId || "",
+            datasetKey: expected?.datasetKey || "",
+            operationEs: String(dataset.andrewsUiOperation || expected?.operationEs || "").trim(),
+            label: String(chip?.textContent || "").replace(/\s+/g, " ").trim()
+          };
+          if (!chipRouteRecordId) {
+            inconsistencies.push({
+              kind: "missing-chip-route-record",
+              ...chipInfo
+            });
+          }
+          if (groupRouteRecordId && chipRouteRecordId && groupRouteRecordId !== chipRouteRecordId) {
+            inconsistencies.push({
+              kind: "group-chip-route-mismatch",
+              ...chipInfo
+            });
+          }
+          if (expected?.routeRecordId && chipRouteRecordId && expected.routeRecordId !== chipRouteRecordId) {
+            inconsistencies.push({
+              kind: "ui-operation-andrews-route-mismatch",
+              ...chipInfo
+            });
+          }
+          if (!expected && chipRouteRecordId) {
+            inconsistencies.push({
+              kind: "unknown-ui-operation-route-record",
+              ...chipInfo
+            });
+          }
+          if (chipRouteRecordId && !String(dataset.andrewsRouteActionAllowed || "").trim()) {
+            inconsistencies.push({
+              kind: "missing-allowed-action-state",
+              ...chipInfo
+            });
+          }
+        });
+      });
+      return {
+        ok: inconsistencies.length === 0,
+        groupCount: groups.length,
+        chipCount: groups.reduce((count, group) => count + Number(group?.querySelectorAll?.(".calc-guidance__chip")?.length || 0), 0),
+        inconsistencies
+      };
+    }
     function resolveContinuationActionGroupMeta(action = null) {
       const dataset = action?.dataset || {};
       const classList = action?.classList || {
         contains: () => false
       };
-      if (dataset.verbPatientivoContinuation) {
-        return {
-          key: "sustantivo-patientivo",
-          mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Patientivo"
-        };
-      }
-      if (dataset.verbNominalContinuation) {
-        const targetTense = String(dataset.targetTense || "").trim();
-        if (targetTense.startsWith("agentivo")) {
-          return {
-            key: "sustantivo-agentivo",
-            mode: "sustantivo",
-            eyebrow: "CNN",
-            title: "Agentivo"
-          };
-        }
-        if (targetTense === "sustantivo-verbal") {
-          return {
-            key: "sustantivo-accion",
-            mode: "sustantivo",
-            eyebrow: "CNN",
-            title: "Acción"
-          };
-        }
-        if (targetTense === "instrumentivo") {
-          return {
-            key: "sustantivo-instrumentivo",
-            mode: "sustantivo",
-            eyebrow: "CNN",
-            title: "Instrumentivo"
-          };
-        }
-        if (targetTense === "calificativo-instrumentivo") {
-          return {
-            key: "sustantivo-calificativo",
-            mode: "sustantivo",
-            eyebrow: "CNN",
-            title: "Calificativo"
-          };
-        }
-        if (targetTense === "locativo-temporal") {
-          return {
-            key: "sustantivo-locativo",
-            mode: "sustantivo",
-            eyebrow: "CNN",
-            title: "Lugar/tiempo"
-          };
-        }
-        return {
-          key: "sustantivo-nominalizacion",
-          mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Nominalización"
-        };
-      }
-      if (dataset.patientivoAdjectivalFunctionContinuation || dataset.nominalizedVncAdjectivalFunctionContinuation || dataset.intensifiedAdjectivalFunctionContinuation || dataset.compoundSourceAdjectivalFunctionContinuation || dataset.denominalCompoundAdjectivalFunctionContinuation) {
-        return {
-          key: "adjetivo-funcion",
-          mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Función adjetival"
-        };
-      }
-      if (dataset.activeActionNominalCompoundContinuation || dataset.customaryAgentiveNominalCompoundContinuation || dataset.preteritAgentiveNominalCompoundContinuation || dataset.patientivoNominalCompoundContinuation) {
-        return {
-          key: "sustantivo-compuesto",
-          mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Compuesto"
-        };
-      }
-      if (dataset.actionNounSourceSubjectPossessor || dataset.instrumentivoSourceSubjectPossessor) {
-        return {
-          key: "sustantivo-posesivo",
-          mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Posesivo"
-        };
-      }
-      if (dataset.ordinaryNncOwnerhoodContinuation || dataset.preteritAgentiveOwnerhoodContinuation) {
-        return {
-          key: "verbo-posesion",
-          mode: "verbo",
-          eyebrow: "CNV",
-          title: "Posesión"
-        };
-      }
-      if (dataset.activeActionCompoundEmbedContinuation || dataset.customaryAgentiveCompoundEmbedContinuation || dataset.preteritAgentiveCompoundEmbedContinuation || dataset.patientivoCompoundEmbedContinuation || dataset.patientivoCharacteristicPropertyEmbedContinuation) {
-        return {
-          key: "verbo-compuesto",
-          mode: "verbo",
-          eyebrow: "CNV",
-          title: "Compuesto"
-        };
-      }
-      if (dataset.preteritAgentiveComplementContinuation || dataset.patientivoPrelocativeContinuation) {
-        return {
-          key: "verbo-complemento",
-          mode: "verbo",
-          eyebrow: "CNV",
-          title: "Complemento"
-        };
-      }
-      if (dataset.denominalAndrewsContractRouteContinuation) {
-        return {
-          key: "verbo-andrews-denominal",
-          mode: "verbo",
-          eyebrow: "CNV",
-          title: "Andrews denominal"
-        };
-      }
-      if (dataset.preteritAgentiveAdverbialContinuation) {
-        return {
-          key: "verbo-manera",
-          mode: "verbo",
-          eyebrow: "CNV",
-          title: "Manera"
-        };
+      const routeRecordGroup = resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta(dataset.andrewsRouteRecordId);
+      if (routeRecordGroup) {
+        return routeRecordGroup;
       }
       if (classList.contains("calc-guidance__chip--mode-adjetivo")) {
         return {
-          key: "adjetivo-otros",
+          key: "registro-pendiente-adjetivo",
           mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Función adjetival"
+          eyebrow: "Registro pendiente",
+          title: "continuación sin registro Andrews"
         };
       }
       if (classList.contains("calc-guidance__chip--mode-sustantivo")) {
         return {
-          key: "sustantivo-otros",
+          key: "registro-pendiente-sustantivo",
           mode: "sustantivo",
-          eyebrow: "CNN",
-          title: "Continuación"
+          eyebrow: "Registro pendiente",
+          title: "continuación sin registro Andrews"
         };
       }
       return {
-        key: "verbo-otros",
+        key: "registro-pendiente-verbo",
         mode: "verbo",
-        eyebrow: "CNV",
-        title: "Continuación"
+        eyebrow: "Registro pendiente",
+        title: "continuación sin registro Andrews"
       };
     }
     function getOrCreateContinuationActionGroup(actions = null, meta = {}) {
@@ -1556,6 +1715,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const group = targetObject.document.createElement("section");
       group.className = ["conjugation-continuation-group", meta.mode ? `conjugation-continuation-group--${meta.mode}` : ""].filter(Boolean).join(" ");
       group.dataset.continuationGroup = key;
+      if (meta.routeRecordId) {
+        group.dataset.andrewsRouteRecordGroup = "true";
+        group.dataset.andrewsRouteRecordGroupId = meta.routeRecordId;
+      }
       const header = targetObject.document.createElement("header");
       header.className = "conjugation-continuation-group__header";
       const eyebrow = targetObject.document.createElement("span");
@@ -1575,6 +1738,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       if (!actions || !action) {
         return null;
       }
+      applyAndrewsCnvCnnRouteActionDataset(action, action);
       const meta = resolveContinuationActionGroupMeta(action);
       const group = getOrCreateContinuationActionGroup(actions, meta);
       if (!group) {
@@ -1614,6 +1778,181 @@ export function createUiRenderingModule(targetObject = globalThis) {
       value.append(surfaceText, actions);
       applyConjugationConversionColumnLayout(value, surfaceText, actions);
       return actions;
+    }
+    function getAndrewsCnvCnnRouteSourceRequirementIdsForRendering(frameLike = null) {
+      const sourceRequirements = Array.isArray(frameLike?.sourceRequirement?.requirements) ? frameLike.sourceRequirement.requirements : [];
+      const routeDiagnostics = Array.isArray(frameLike?.routeDiagnostics) ? frameLike.routeDiagnostics : [];
+      return [...sourceRequirements.map(entry => String(entry?.id || entry || "").trim()), ...routeDiagnostics.map(entry => String(entry?.id || entry?.code || "").trim())].filter(Boolean);
+    }
+    function getAndrewsCnvCnnRouteActionContractForRendering(frameLike = null) {
+      if (!frameLike || typeof frameLike !== "object") {
+        return null;
+      }
+      const frame = getGrammarFrameForRendering(frameLike);
+      const embedded = frame?.morphBoundaryFrame?.andrewsRouteActionContract || frame?.routeContract?.sourceContract?.andrewsRouteActionContract || frame?.routeContract?.targetContract?.andrewsRouteActionContract || frameLike.andrewsRouteActionContract || null;
+      if (embedded?.routeRecordId) {
+        return embedded;
+      }
+      if (typeof targetObject.buildAndrewsCnvCnnBackAndForthRouteActionContract === "function") {
+        return targetObject.buildAndrewsCnvCnnBackAndForthRouteActionContract(frameLike, {
+          sourceRequirementIds: getAndrewsCnvCnnRouteSourceRequirementIdsForRendering(frameLike)
+        });
+      }
+      const dataset = frameLike.dataset || {};
+      const routeRecordId = String(dataset.andrewsRouteRecordId || frameLike.routeRecordId || "").trim();
+      if (!routeRecordId) {
+        return null;
+      }
+      return {
+        routeRecordId,
+        transition: String(dataset.andrewsRouteRecordTransition || "").trim(),
+        sourceUnit: String(dataset.andrewsRouteSourceUnit || "").trim(),
+        targetUnit: String(dataset.andrewsRouteTargetUnit || "").trim(),
+        obstacleGateIds: String(dataset.andrewsRouteObstacleGates || "").split("|").filter(Boolean),
+        obstacleGates: []
+      };
+    }
+    function formatAndrewsCnvCnnRouteTransitionForRendering(transition = "") {
+      const value = String(transition || "").trim();
+      if (!value) {
+        return "";
+      }
+      return value.replace(/\bCNV predicate\b/g, "predicado CNV").replace(/\bCNV core\b/g, "núcleo CNV").replace(/\bCNV verbstem\b/g, "tronco CNV").replace(/\bCNN deverbal nounstem\b/g, "tronco deverbal CNN").replace(/\bCNN active-action nounstem\b/g, "tronco de acción activa CNN").replace(/\bCNN nounstem or root-ranked noun source\b/g, "fuente nominal CNN o raíz nominal").replace(/\bCNN nounstem through ti\/hui denominal verbstem\b/g, "tronco CNN vía verbalización ti/hui").replace(/\bCNN nounstem\b/g, "tronco CNN").replace(/\bCNN denominal verbstem\b/g, "tronco denominal CNV").replace(/\bCNV denominal\/deverbal verbstem\b/g, "tronco denominal/deverbal CNV").replace(/\bCNV denominal verbstem\b/g, "tronco denominal CNV").replace(/\bCNV deverbal verbstem\b/g, "tronco deverbal CNV").replace(/->/g, "→");
+    }
+    function appendAndrewsCnvCnnRouteActionTitle(element = null, contract = null) {
+      if (!element || !contract?.routeRecordId) {
+        return;
+      }
+      const transition = formatAndrewsCnvCnnRouteTransitionForRendering(contract.transition);
+      const obstacleGateIds = Array.isArray(contract.obstacleGateIds) ? contract.obstacleGateIds.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const details = [`registro Andrews: ${transition || contract.routeRecordId}`, obstacleGateIds.length ? `compuertas Andrews: ${obstacleGateIds.join(", ")}` : ""].filter(Boolean);
+      if (!details.length || String(element.title || "").includes("registro Andrews:")) {
+        return;
+      }
+      element.title = [element.title || "", ...details].filter(Boolean).join("; ");
+      if (typeof element.setAttribute === "function") {
+        const currentLabel = String(element.getAttribute("aria-label") || element.textContent || "").trim();
+        const nextLabel = [currentLabel, transition ? `registro ${transition}` : "", obstacleGateIds.length ? `${obstacleGateIds.length} compuertas Andrews` : ""].filter(Boolean).join(" · ");
+        if (nextLabel) {
+          element.setAttribute("aria-label", nextLabel);
+        }
+      }
+    }
+    function applyAndrewsCnvCnnRouteActionDataset(element = null, frameLike = null) {
+      if (!element?.dataset) {
+        return null;
+      }
+      const contract = getAndrewsCnvCnnRouteActionContractForRendering(frameLike);
+      if (!contract?.routeRecordId) {
+        return null;
+      }
+      const expectation = getVisibleContinuationChipRouteExpectation(element);
+      const obstacleGateIds = Array.isArray(contract.obstacleGateIds) ? contract.obstacleGateIds.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      element.dataset.andrewsRouteRecordId = contract.routeRecordId;
+      element.dataset.andrewsRouteRecordTransition = String(contract.transition || "").trim();
+      element.dataset.andrewsRouteRecordKind = String(contract.routeKind || "").trim();
+      element.dataset.andrewsRouteSourceUnit = String(contract.sourceUnit || "").trim();
+      element.dataset.andrewsRouteTargetUnit = String(contract.targetUnit || "").trim();
+      element.dataset.andrewsRouteObstacleGates = obstacleGateIds.join("|");
+      element.dataset.andrewsRouteObstacleGateCount = String(obstacleGateIds.length);
+      const routeRankingAllowed = contract.routeRankingAllowed !== false;
+      const functionUseValenceGate = contract.functionUseValenceGate && typeof contract.functionUseValenceGate === "object" ? contract.functionUseValenceGate : null;
+      const generationAllowed = routeRankingAllowed && (typeof contract.generationAllowed === "boolean" ? contract.generationAllowed : !(element.disabled === true || element.classList?.contains?.("is-unavailable")));
+      element.dataset.andrewsRouteRankingAllowed = String(routeRankingAllowed);
+      element.dataset.andrewsRouteFunctionUseValenceGate = String(functionUseValenceGate?.status || "");
+      element.dataset.andrewsRouteFunctionUseValenceReason = String(functionUseValenceGate?.reason || "");
+      element.dataset.andrewsRouteActionAllowed = String(generationAllowed);
+      element.dataset.andrewsRouteDiagnosticOnly = String(contract.diagnosticOnly === true || generationAllowed !== true);
+      applyAndrewsCnvCnnRouteActionHardGateState(element, contract);
+      if (expectation) {
+        element.dataset.andrewsUiDatasetKey = expectation.datasetKey;
+        element.dataset.andrewsUiExpectedRouteRecordId = expectation.routeRecordId;
+        element.dataset.andrewsUiOperation = expectation.operationEs;
+      }
+      appendAndrewsCnvCnnRouteActionTitle(element, contract);
+      return contract;
+    }
+    function getFunctionUseContinuationRouteOwnershipOptions(contract = null) {
+      const source = contract && typeof contract === "object" ? contract : {};
+      const grammarFrame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
+      const sourceRouteFrame = source.sourceRouteFrame || source.routeFrame || source.incorporationRouteFrame || source.sourceContract?.sourceRouteFrame || source.sourceContract?.routeFrame || source.targetContract?.sourceRouteFrame || source.targetContract?.routeFrame || source.entryRouteContract?.sourceRouteFrame || source.entryRouteContract?.routeFrame || grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame || grammarFrame?.routeContract?.sourceContract?.routeFrame || grammarFrame?.routeContract?.targetContract?.sourceRouteFrame || grammarFrame?.routeContract?.targetContract?.routeFrame || grammarFrame?.sourceContract?.sourceRouteFrame || grammarFrame?.sourceContract?.routeFrame || grammarFrame?.targetContract?.sourceRouteFrame || grammarFrame?.targetContract?.routeFrame || grammarFrame?.participantFrame?.sourceRouteFrame || grammarFrame?.participantFrame?.routeFrame || source.adjectivalNncFunctionFrame?.sourceRouteFrame || source.adjectivalNncFunctionFrame?.routeFrame || source.adverbialNuclearFrame?.sourceRouteFrame || source.adverbialNuclearFrame?.routeFrame || null;
+      const objectSlotOwnership = source.objectSlotOwnership || sourceRouteFrame?.objectSlotOwnership || source.sourceContract?.objectSlotOwnership || source.targetContract?.objectSlotOwnership || source.entryRouteContract?.objectSlotOwnership || source.entryRouteContract?.sourceContract?.objectSlotOwnership || source.entryRouteContract?.targetContract?.objectSlotOwnership || grammarFrame?.participantFrame?.objectSlotOwnership || grammarFrame?.sourceContract?.objectSlotOwnership || grammarFrame?.targetContract?.objectSlotOwnership || grammarFrame?.routeContract?.sourceContract?.objectSlotOwnership || grammarFrame?.routeContract?.targetContract?.objectSlotOwnership || null;
+      const functionUseValenceGate = source.functionUseValenceGate || source.sourceContract?.functionUseValenceGate || source.targetContract?.functionUseValenceGate || source.entryRouteContract?.functionUseValenceGate || source.entryRouteContract?.sourceContract?.functionUseValenceGate || source.entryRouteContract?.targetContract?.functionUseValenceGate || grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate || grammarFrame?.routeContract?.targetContract?.functionUseValenceGate || grammarFrame?.routeContract?.functionUseValenceGate || null;
+      return {
+        grammarFrame,
+        sourceRouteFrame,
+        routeFrame: source.routeFrame || sourceRouteFrame || null,
+        incorporationRouteFrame: source.incorporationRouteFrame || sourceRouteFrame || null,
+        objectSlotOwnership,
+        functionUseValenceGate: functionUseValenceGate && typeof functionUseValenceGate === "object" ? functionUseValenceGate : null
+      };
+    }
+    function isAndrewsCnvCnnRouteActionFunctionUseHardBlocked(element = null) {
+      const dataset = element?.dataset || {};
+      const gateStatus = String(dataset.andrewsRouteFunctionUseValenceGate || "").trim();
+      const rankingAllowed = String(dataset.andrewsRouteRankingAllowed || "").trim();
+      const hardGateBlocked = String(dataset.andrewsRouteHardGateBlocked || "").trim();
+      return gateStatus === "blocked" || rankingAllowed === "false" || hardGateBlocked === "true";
+    }
+    function blockAndrewsCnvCnnRouteActionHardGateEvent(element = null, event = null) {
+      if (!isAndrewsCnvCnnRouteActionFunctionUseHardBlocked(element)) {
+        return false;
+      }
+      if (event && typeof event.preventDefault === "function") {
+        event.preventDefault();
+      }
+      if (event && typeof event.stopImmediatePropagation === "function") {
+        event.stopImmediatePropagation();
+      } else if (event && typeof event.stopPropagation === "function") {
+        event.stopPropagation();
+      }
+      if (typeof targetObject.dispatchAppEvent === "function") {
+        const dataset = element?.dataset || {};
+        targetObject.dispatchAppEvent("nawat:function-use-valence-route-blocked", {
+          routeRecordId: String(dataset.andrewsRouteRecordId || "").trim(),
+          reason: String(dataset.andrewsRouteFunctionUseValenceReason || "").trim(),
+          diagnosticId: "function-use-valence-object-frame-unfixed",
+          source: "route-action-element"
+        });
+      }
+      return true;
+    }
+    function attachAndrewsCnvCnnRouteActionHardGateClickGuard(element = null) {
+      if (!element?.dataset || typeof element.addEventListener !== "function") {
+        return false;
+      }
+      if (element.dataset.andrewsRouteHardGateClickGuardBound === "true") {
+        return true;
+      }
+      element.dataset.andrewsRouteHardGateClickGuardBound = "true";
+      element.addEventListener("click", event => {
+        blockAndrewsCnvCnnRouteActionHardGateEvent(element, event);
+      }, true);
+      return true;
+    }
+    function applyAndrewsCnvCnnRouteActionHardGateState(element = null, contract = null) {
+      if (!element?.dataset || !contract) {
+        return false;
+      }
+      const functionUseValenceGate = contract.functionUseValenceGate && typeof contract.functionUseValenceGate === "object" ? contract.functionUseValenceGate : null;
+      const blocked = contract.routeRankingAllowed === false || functionUseValenceGate?.status === "blocked" || functionUseValenceGate?.routeRankingAllowed === false || functionUseValenceGate?.generationAllowed === false;
+      element.dataset.andrewsRouteHardGateBlocked = String(blocked);
+      attachAndrewsCnvCnnRouteActionHardGateClickGuard(element);
+      if (!blocked) {
+        return false;
+      }
+      element.dataset.andrewsRouteActionBlocked = "function-use-valence-object";
+      element.dataset.functionUseValenceHardGate = "true";
+      if ("disabled" in element) {
+        element.disabled = true;
+      }
+      if (typeof element.setAttribute === "function") {
+        element.setAttribute("aria-disabled", "true");
+      }
+      if (element.classList && typeof element.classList.add === "function") {
+        element.classList.add("is-unavailable", "is-function-use-valence-gated");
+      }
+      return true;
     }
     function renderDenominalAndrewsContractRouteContinuationForValue({
       value,
@@ -1673,6 +2012,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         objectButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "calc-guidance__chip--object-prefix-choice", "is-source-satisfied"].join(" ");
         objectButton.dataset.denominalAndrewsContractRouteContinuation = "true";
         objectButton.dataset.denominalAndrewsObjectPrefixChoice = "true";
+        objectButton.dataset.andrewsRouteRecordId = "cnn-nounstem-to-cnv-verbstem-denominal";
         objectButton.dataset.contractId = route.contractId || "";
         objectButton.dataset.routeTemplateId = route.routeTemplateId || "";
         objectButton.dataset.targetInput = targetInput;
@@ -1710,15 +2050,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
           objectButton.classList.add("is-i-hui-a-hui-source");
         }
         applyGrammarFrameRouteDataset(objectButton, route);
+        const objectRouteActionContract = applyAndrewsCnvCnnRouteActionDataset(objectButton, {
+          ...route,
+          routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal"
+        });
         const objectLabel = targetObject.document.createElement("span");
         objectLabel.className = "calc-guidance__chip-label";
         objectLabel.textContent = `${prefix} → ${targetInput}`;
         objectButton.appendChild(objectLabel);
         const objectSubLabel = targetObject.document.createElement("span");
         objectSubLabel.className = "calc-guidance__chip-sublabel";
-        objectSubLabel.textContent = [`Andrews ${route.range || ""}`, `objeto ${prefix}`, hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, "fuente Andrews", resolvedTargetTense].filter(Boolean).join(" · ");
+        objectSubLabel.textContent = [`Andrews ${route.range || ""}`, `objeto ${prefix}`, hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, "registro CNN -> CNV", objectRouteActionContract?.obstacleGateIds?.length ? `compuertas ${objectRouteActionContract.obstacleGateIds.length}` : "", "fuente Andrews", resolvedTargetTense].filter(Boolean).join(" · ");
         objectButton.appendChild(objectSubLabel);
-        objectButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `objeto verbal: ${prefix}`, `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, "objeto verbal seleccionado explícitamente", "no crea ficha lexical"].filter(Boolean).join("; ");
+        objectButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `objeto verbal: ${prefix}`, `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, objectRouteActionContract?.requiredBoundary ? `límite Andrews: ${objectRouteActionContract.requiredBoundary}` : "", objectRouteActionContract?.obstacleGateIds?.length ? `compuertas Andrews: ${objectRouteActionContract.obstacleGateIds.join(", ")}` : "", "objeto verbal seleccionado explícitamente", "no crea ficha lexical"].filter(Boolean).join("; ");
         objectButton.addEventListener("click", () => {
           setActiveNawatDenominalAndrewsContractRouteRenderContext(route);
           targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
@@ -1743,6 +2087,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.type = "button";
         continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews"].join(" ");
         continueButton.dataset.denominalAndrewsContractRouteContinuation = "true";
+        continueButton.dataset.andrewsRouteRecordId = "cnn-nounstem-to-cnv-verbstem-denominal";
         continueButton.dataset.contractId = route.contractId || "";
         continueButton.dataset.routeTemplateId = route.routeTemplateId || "";
         if (route.executableRuleId) {
@@ -1752,6 +2097,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.dataset.targetInput = targetInput;
         continueButton.dataset.targetTense = resolvedTargetTense;
         applyGrammarFrameRouteDataset(continueButton, route);
+        const continueRouteActionContract = applyAndrewsCnvCnnRouteActionDataset(continueButton, {
+          ...route,
+          routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal"
+        });
         const routeDiagnostics = Array.isArray(route.routeDiagnostics) ? route.routeDiagnostics : [];
         const hasRouteWarning = routeDiagnostics.some(diagnostic => diagnostic?.severity === "warning");
         const hasRouteNote = routeDiagnostics.some(diagnostic => diagnostic?.severity === "info");
@@ -1857,9 +2206,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.appendChild(continueLabel);
         const continueSubLabel = targetObject.document.createElement("span");
         continueSubLabel.className = "calc-guidance__chip-sublabel";
-        continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", sourceEvidencePending ? "fuente pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", resolvedTargetTense].filter(Boolean).join(" · ");
+        continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", "registro CNN -> CNV", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas ${continueRouteActionContract.obstacleGateIds.length}` : "", sourceEvidencePending ? "fuente pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", resolvedTargetTense].filter(Boolean).join(" · ");
         continueButton.appendChild(continueSubLabel);
-        continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, sourceEvidencePending ? "requiere fuente Andrews verificada" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
+        continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, sourceEvidencePending ? "requiere fuente Andrews verificada" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", continueRouteActionContract?.requiredBoundary ? `límite Andrews: ${continueRouteActionContract.requiredBoundary}` : "", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas Andrews: ${continueRouteActionContract.obstacleGateIds.join(", ")}` : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
         continueButton.addEventListener("click", () => {
           setActiveNawatDenominalAndrewsContractRouteRenderContext(route);
           targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
@@ -2868,6 +3217,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       const frame = getGrammarFrameForRendering(frameLike);
       if (!frame) {
+        applyAndrewsCnvCnnRouteActionDataset(element, frameLike);
         return null;
       }
       const authorityFrame = frame.authorityFrame || {};
@@ -2901,6 +3251,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       element.dataset.grammarDiagnosticLayer = String(primaryDiagnostic.failedLayer || inferredLayer.failedLayer || "").trim();
       element.dataset.grammarDiagnosticContractLayer = String(primaryDiagnostic.contractLayer || inferredLayer.contractLayer || "").trim();
       element.dataset.grammarResultOk = String(resultFrame.ok === true);
+      applyAndrewsCnvCnnRouteActionDataset(element, frameLike);
       return frame;
     }
     function attachUiRouteControlGrammarContract(record = null, {
@@ -4204,11 +4555,6 @@ export function createUiRenderingModule(targetObject = globalThis) {
         states: ["absolutive"],
         numbers: ["singular"]
       }) : null;
-      const fixtureAnimacy = fixtureProbe?.fixture?.animacy || "";
-      const selectedAnimacy = fixtureAnimacy || (state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : "");
-      const activeAnimacy = selectedAnimacy || "inanimate";
-      const isAnimateNnc = activeAnimacy === "animate";
-      const activePluralType = state.pluralType === "auto" ? isAnimateNnc ? "count" : "distributive" : state.pluralType;
       const normalizeOrdinaryNncUiNounClass = (value = "") => {
         const normalized = String(value || "").trim().toLowerCase();
         if (normalized === "0" || normalized === "ø" || normalized === "zero") {
@@ -4216,8 +4562,14 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
         return ["t", "ti", "in"].includes(normalized) ? normalized : "";
       };
-      const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass);
+      const fixtureNounClass = normalizeOrdinaryNncUiNounClass(fixtureProbe?.fixture?.nounClass || "");
+      const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass || fixtureNounClass);
       const requestNounClass = fixtureProbe ? "" : activeNounClass;
+      const fixtureAnimacy = fixtureProbe?.fixture?.animacy || "";
+      const selectedAnimacy = fixtureAnimacy || (state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : "");
+      const activeAnimacy = selectedAnimacy || "inanimate";
+      const isAnimateNnc = activeAnimacy === "animate";
+      const activePluralType = state.pluralType === "auto" ? isAnimateNnc ? "count" : "distributive" : state.pluralType;
       const nounSubjectOptionById = new Map((typeof targetObject.getSubjectToggleOptions === "function" ? targetObject.getSubjectToggleOptions() : []).map(entry => [entry.id, entry]));
       const subjectEntries = (Array.isArray(targetObject.SUBJECT_COMBINATIONS) ? targetObject.SUBJECT_COMBINATIONS : []).filter(entry => isAnimateNnc || entry.personSubKey === "3sg");
       const getOrdinaryNncSubjectMarkerLabel = entry => {
@@ -4326,6 +4678,70 @@ export function createUiRenderingModule(targetObject = globalThis) {
       controlsTitle.appendChild(controlsLabel);
       const controls = targetObject.document.createElement("div");
       controls.className = "tense-block__controls tense-block__controls--stacked";
+      const nounClassToggle = buildToggleControl({
+        options: [{
+          id: "t",
+          label: "t",
+          title: "conector t: (...V)t"
+        }, {
+          id: "ti",
+          label: "ti",
+          title: "conector ti: (...C)ti"
+        }, {
+          id: "in",
+          label: "in",
+          title: "conector in: (...C)in"
+        }, {
+          id: "zero",
+          label: "Ø",
+          title: "conector Ø: (...C/V)"
+        }].map(entry => ({
+          ...entry,
+          title: fixtureNounClass && entry.id !== fixtureNounClass ? `${entry.title}; ficha registrada: ${getOrdinaryNncNounClassLabel(fixtureNounClass)}` : entry.title
+        })),
+        activeId: activeNounClass,
+        ariaLabel: "conector num1-num2 de la cláusula nuclear nominal",
+        visibleLabel: "Conector num1-num2",
+        onSelect: id => {
+          targetObject.setOrdinaryNncGenerationState({
+            nounClass: id || "zero"
+          });
+          rerender();
+        },
+        getTitle: entry => entry.title
+      });
+      nounClassToggle.toggle.dataset.toggleType = "meta";
+      nounClassToggle.toggle.dataset.toggleSlot = "num1-num2";
+      controls.appendChild(nounClassToggle.toggle);
+      const hasFixtureAnimacy = Boolean(fixtureAnimacy);
+      const animacyToggle = buildToggleControl({
+        options: [{
+          id: "inanimate",
+          label: "Inanim",
+          title: hasFixtureAnimacy && fixtureAnimacy !== "inanimate" ? "ficha registrada: animado" : "solo sujeto Ø; plural distributivo"
+        }, {
+          id: "animate",
+          label: "Anim",
+          title: hasFixtureAnimacy && fixtureAnimacy !== "animate" ? "ficha registrada: inanimado" : "sujeto personal; plural -met o distributivo"
+        }],
+        activeId: selectedAnimacy,
+        ariaLabel: "animacidad de la cláusula nuclear nominal",
+        visibleLabel: "Animacidad",
+        onSelect: id => {
+          targetObject.setOrdinaryNncGenerationState({
+            animacy: id,
+            subjectKey: id === "animate" ? state.subjectKey : "3sg",
+            subjectPrefix: id === "animate" ? state.subjectPrefix : "",
+            subjectSuffix: id === "animate" ? state.subjectSuffix : "",
+            pluralType: "auto"
+          });
+          rerender();
+        },
+        getTitle: entry => entry.title
+      });
+      animacyToggle.toggle.dataset.toggleType = "meta";
+      animacyToggle.toggle.dataset.toggleSlot = "animacy";
+      controls.appendChild(animacyToggle.toggle);
       const subjectToggle = buildToggleControl({
         options: (subjectEntries.length ? subjectEntries : [{
           personSubKey: "3sg",
@@ -4654,6 +5070,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           nounClass,
           sourceSurface: surfaceDisplay,
           sourceKind: result.source?.sourceKind || "",
+          sourceFormulaSlots: rowFormulaSlots,
+          sourceFormulaEcho: rowFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "",
           ownerhoodKind: matrixSpec.ownerhoodKind || "ownerhood"
         })).filter(entry => entry?.supported);
@@ -4696,7 +5114,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               nounClass: contract.nounClass,
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
-              ownerhoodVerbInput: contract.ownerhoodVerbInput
+              ownerhoodVerbInput: contract.ownerhoodVerbInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || rowFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || rowFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -6192,7 +6613,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.appendChild(continueSubLabel);
           continueButton.title = [`V ${tenseValue}: ${sourceDisplay}`, `S ${targetTense}: ${previewSurface}`].filter(Boolean).join("; ");
           continueButton.addEventListener("click", () => {
-            targetObject.setActiveTenseMode(targetObject.TENSE_MODE.sustantivo, {
+            activateCnnOutputModeForContinuation({
               clearRoute: true
             });
             targetObject.setSelectedTenseTab(targetTense);
@@ -8575,7 +8996,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
             sourceTenseValue,
             sourceCombinedMode
           }) : "";
-          targetObject.setActiveTenseMode(targetObject.TENSE_MODE.sustantivo);
+          activateCnnOutputModeForContinuation({
+            clearRoute: true
+          });
           setActiveNawatPatientivoBranch(patientivoSource);
           if (patientivoNominalSuffix && typeof targetObject.setToggleStateValue === "function" && typeof targetObject.getPatientivoNominalSuffixKey === "function" && typeof targetObject.SUSTANTIVO_VERBAL_PREFIXES !== "undefined" && typeof targetObject.PatientivoNominalSuffixState !== "undefined" && targetObject.PatientivoNominalSuffixState) {
             targetObject.setToggleStateValue(targetObject.PatientivoNominalSuffixState, targetObject.getPatientivoNominalSuffixKey(Array.from(targetObject.SUSTANTIVO_VERBAL_PREFIXES).join("|")), patientivoNominalSuffix, {
@@ -9163,6 +9586,17 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
         return forms;
       };
+      const getFunctionUseContinuationFormulaSlotsFromResult = (result = null) => {
+        const source = result && typeof result === "object" ? result : {};
+        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
+        const formulaSlots = source.nuclearClauseShell?.formulaSlots || source.nuclearClauseShell?.slots || source.nncBasic?.formulaSlots || source.clauseFrame?.formulaSlots || source.formulaSlots || frame?.morphBoundaryFrame?.formulaSlots || frame?.nuclearClauseFrame?.formulaSlots || null;
+        return formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+      };
+      const getFunctionUseContinuationFormulaEchoFromResult = (result = null, formulaSlots = null) => {
+        const source = result && typeof result === "object" ? result : {};
+        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
+        return String(source.nuclearClauseShell?.formulaEcho || source.nncBasic?.formulaEcho || source.clauseFrame?.formulaEcho || source.formulaEcho || frame?.morphBoundaryFrame?.formulaEcho || frame?.nuclearClauseFrame?.formulaEcho || (typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(formulaSlots) : "") || "").trim();
+      };
       const getCustomaryAgentiveStemsFromEvaluation = (evaluation = {}) => {
         const result = evaluation?.result || {};
         if (result?.nominalizationProfile?.nominalKind !== "agentivo") {
@@ -9267,6 +9701,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actionNominalSurfaces.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getActiveActionCompoundEmbedMatrixInventory === "function" ? targetObject.getActiveActionCompoundEmbedMatrixInventory() : [{
           id: "tzahtzi",
           nawatRoot: "tzajtzi",
@@ -9275,6 +9711,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionCompoundEmbedContinuationContract({
           actionNominalSurface,
           sourceSurface: actionNominalSurface,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "tzajtzi"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9292,7 +9730,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
             targetObject.applyActiveActionCompoundEmbedRootsToVerbEntry({
               actionNominalSurface: contract.actionNominalSurface,
               matrixRoot: contract.matrixRoot,
-              matrixSpecId: contract.matrix?.id || ""
+              matrixSpecId: contract.matrix?.id || "",
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9339,6 +9780,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actionNominalSurfaces.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getActiveActionNominalCompoundMatrixInventory === "function" ? targetObject.getActiveActionNominalCompoundMatrixInventory() : [{
           id: "cal-li",
           nawatRoot: "kal",
@@ -9348,6 +9791,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionNominalCompoundContinuationContract({
           actionNominalSurface,
           sourceSurface: actionNominalSurface,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "kal"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9369,7 +9814,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               nounClass: contract.matrix?.nounClass || "zero",
               animacy: contract.matrix?.animacy || "inanimate",
               compoundStem: contract.compoundStem,
-              ordinaryNncInput: contract.ordinaryNncInput
+              ordinaryNncInput: contract.ordinaryNncInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9416,6 +9864,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!customaryAgentiveStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getCustomaryAgentiveNominalCompoundMatrixInventory === "function" ? targetObject.getCustomaryAgentiveNominalCompoundMatrixInventory() : [{
           id: "cal-li",
           nawatRoot: "kal",
@@ -9425,6 +9875,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = customaryAgentiveStems.flatMap(customaryAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildCustomaryAgentiveNominalCompoundContinuationContract({
           customaryAgentiveStem,
           sourceSurface: customaryAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "kal"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9446,7 +9898,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               nounClass: contract.matrix?.nounClass || "zero",
               animacy: contract.matrix?.animacy || "inanimate",
               compoundStem: contract.compoundStem,
-              ordinaryNncInput: contract.ordinaryNncInput
+              ordinaryNncInput: contract.ordinaryNncInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9493,6 +9948,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!customaryAgentiveStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getCustomaryAgentiveCompoundEmbedMatrixInventory === "function" ? targetObject.getCustomaryAgentiveCompoundEmbedMatrixInventory() : [{
           id: "toca-incorporated-complement",
           nawatRoot: "tuka",
@@ -9502,6 +9959,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = customaryAgentiveStems.flatMap(customaryAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildCustomaryAgentiveCompoundEmbedContinuationContract({
           customaryAgentiveStem,
           sourceSurface: customaryAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "tuka",
           objectPrefix: matrixSpec.objectPrefix || "ki"
         }))).filter(entry => entry?.supported);
@@ -9522,7 +9981,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
               objectPrefix: contract.objectPrefix,
-              compoundVerbInput: contract.compoundVerbInput
+              compoundVerbInput: contract.compoundVerbInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9571,6 +10033,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!generalUseStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPreteritAgentiveCompoundEmbedMatrixInventory === "function" ? targetObject.getPreteritAgentiveCompoundEmbedMatrixInventory() : [{
           id: "tzahtzi",
           nawatRoot: "tzajtzi",
@@ -9579,6 +10043,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = generalUseStems.flatMap(preteritAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildPreteritAgentiveCompoundEmbedContinuationContract({
           preteritAgentiveStem,
           sourceSurface: preteritAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "tzajtzi"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9596,7 +10062,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
             targetObject.applyActiveActionCompoundEmbedRootsToVerbEntry({
               actionNominalSurface: contract.preteritAgentiveStem,
               matrixRoot: contract.matrixRoot,
-              matrixSpecId: contract.matrix?.id || ""
+              matrixSpecId: contract.matrix?.id || "",
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9643,6 +10112,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!generalUseStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPreteritAgentiveNominalCompoundMatrixInventory === "function" ? targetObject.getPreteritAgentiveNominalCompoundMatrixInventory() : [{
           id: "cal-li",
           nawatRoot: "kal",
@@ -9652,6 +10123,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = generalUseStems.flatMap(preteritAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildPreteritAgentiveNominalCompoundContinuationContract({
           preteritAgentiveStem,
           sourceSurface: preteritAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "kal"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9673,7 +10146,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
               nounClass: contract.matrix?.nounClass || "zero",
               animacy: contract.matrix?.animacy || "inanimate",
               compoundStem: contract.compoundStem,
-              ordinaryNncInput: contract.ordinaryNncInput
+              ordinaryNncInput: contract.ordinaryNncInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              routeRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+              routeDataset: {
+                preteritAgentiveNominalCompoundContinuation: "true"
+              },
+              eventSource: "preterit-agentive-nominal-compound-entry",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9720,6 +10201,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!generalUseStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPreteritAgentiveOwnerhoodMatrixInventory === "function" ? targetObject.getPreteritAgentiveOwnerhoodMatrixInventory() : [{
           id: "tla-hua-ownerhood",
           nawatRoot: "wa",
@@ -9729,6 +10212,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = generalUseStems.flatMap(preteritAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildPreteritAgentiveOwnerhoodContinuationContract({
           preteritAgentiveStem,
           sourceSurface: preteritAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "wa"
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
@@ -9747,7 +10232,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               preteritAgentiveStem: contract.preteritAgentiveStem,
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
-              ownerhoodVerbInput: contract.ownerhoodVerbInput
+              ownerhoodVerbInput: contract.ownerhoodVerbInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9795,6 +10283,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!generalUseStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPreteritAgentiveComplementMatrixInventory === "function" ? targetObject.getPreteritAgentiveComplementMatrixInventory() : [{
           id: "te-tla-mati",
           nawatRoot: "mati",
@@ -9803,6 +10293,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = generalUseStems.flatMap(preteritAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildPreteritAgentiveComplementContinuationContract({
           preteritAgentiveStem,
           sourceSurface: preteritAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "mati",
           objectPrefix: matrixSpec.objectPrefix || "ki"
         }))).filter(entry => entry?.supported);
@@ -9823,7 +10315,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
               objectPrefix: contract.objectPrefix || "ki",
-              complementVerbInput: contract.complementVerbInput
+              complementVerbInput: contract.complementVerbInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9872,6 +10367,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!generalUseStems.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPreteritAgentiveAdverbialMatrixInventory === "function" ? targetObject.getPreteritAgentiveAdverbialMatrixInventory() : [{
           id: "nemi-adverbial-manner",
           nawatRoot: "nemi",
@@ -9881,6 +10378,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = generalUseStems.flatMap(preteritAgentiveStem => matrixInventory.map(matrixSpec => targetObject.buildPreteritAgentiveAdverbialContinuationContract({
           preteritAgentiveStem,
           sourceSurface: preteritAgentiveStem,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           matrixRoot: matrixSpec.nawatRoot || "nemi",
           objectPrefix: matrixSpec.objectPrefix || ""
         }))).filter(entry => entry?.supported);
@@ -9901,7 +10400,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
               objectPrefix: contract.objectPrefix || "",
-              adverbialVerbInput: contract.adverbialVerbInput
+              adverbialVerbInput: contract.adverbialVerbInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -9951,6 +10453,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!patientivoSurface) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPatientivoNominalCompoundMatrixInventory === "function" ? targetObject.getPatientivoNominalCompoundMatrixInventory() : [{
           id: "cal-li",
           nawatRoot: "kal",
@@ -9960,6 +10464,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = matrixInventory.map(matrixSpec => targetObject.buildPatientivoNominalCompoundContinuationContract({
           patientivoSurface,
           sourceSurface: "",
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           patientivoNominalSuffix: activePatientivoNominalSuffix,
           matrixRoot: matrixSpec.nawatRoot || "kal"
         })).filter(entry => entry?.supported);
@@ -9982,7 +10488,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               nounClass: contract.matrix?.nounClass || "zero",
               animacy: contract.matrix?.animacy || "inanimate",
               compoundStem: contract.compoundStem,
-              ordinaryNncInput: contract.ordinaryNncInput
+              ordinaryNncInput: contract.ordinaryNncInput,
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -10021,15 +10530,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
         return true;
       };
       const getAdjectivalNncFormulaSlotsForContinuation = (result = null) => {
-        const source = result && typeof result === "object" ? result : {};
-        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
-        const formulaSlots = source.nuclearClauseShell?.formulaSlots || source.nncBasic?.formulaSlots || source.clauseFrame?.formulaSlots || source.formulaSlots || frame?.morphBoundaryFrame?.formulaSlots || null;
+        const formulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(result);
         return formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
       };
       const getAdjectivalNncFormulaEchoForContinuation = (result = null, formulaSlots = null) => {
-        const source = result && typeof result === "object" ? result : {};
-        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
-        return String(source.nuclearClauseShell?.formulaEcho || source.nncBasic?.formulaEcho || source.clauseFrame?.formulaEcho || source.formulaEcho || frame?.morphBoundaryFrame?.formulaEcho || (typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(formulaSlots) : "") || "").trim();
+        return getFunctionUseContinuationFormulaEchoFromResult(result, formulaSlots);
       };
       const isAndrews41ReduplicativeAdjectivalSource = (result = null) => {
         const source = result && typeof result === "object" ? result : {};
@@ -10434,6 +10939,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!patientivoSurface) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPatientivoCompoundEmbedMatrixInventory === "function" ? targetObject.getPatientivoCompoundEmbedMatrixInventory() : [{
           id: "miqui",
           nawatRoot: "miki",
@@ -10442,6 +10949,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = matrixInventory.map(matrixSpec => targetObject.buildPatientivoCompoundEmbedContinuationContract({
           patientivoSurface,
           sourceSurface: "",
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           patientivoNominalSuffix: activePatientivoNominalSuffix,
           matrixRoot: matrixSpec.nawatRoot || "miki"
         })).filter(entry => entry?.supported);
@@ -10460,7 +10969,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
             targetObject.applyPatientivoCompoundEmbedRootsToVerbEntry({
               incorporatedRoot: contract.incorporatedRoot,
               matrixRoot: contract.matrixRoot,
-              matrixSpecId: contract.matrix?.id || ""
+              matrixSpecId: contract.matrix?.id || "",
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -10509,6 +11021,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!forms.length) {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPatientivoCharacteristicPropertyMatrixInventory === "function" ? targetObject.getPatientivoCharacteristicPropertyMatrixInventory() : [{
           id: "chic-a-hu-a",
           nawatRoot: "chikawa",
@@ -10517,6 +11031,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const contracts = forms.flatMap(form => matrixInventory.map(matrixSpec => targetObject.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
           characteristicSurface: form,
           sourceSurface: form,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           possessorPrefix,
           matrixRoot: matrixSpec.nawatRoot || "chikawa"
         }))).filter(entry => entry?.supported);
@@ -10536,7 +11052,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               incorporatedRoot: contract.incorporatedRoot,
               matrixRoot: contract.matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
-              objectPrefix: contract.objectPrefix || "ki"
+              objectPrefix: contract.objectPrefix || "ki",
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -10663,6 +11182,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (typeof targetObject.buildPatientivoPrelocativeContinuationContract !== "function") {
           return false;
         }
+        const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
+        const sourceFormulaEcho = getFunctionUseContinuationFormulaEchoFromResult(evaluation?.result, sourceFormulaSlots);
         const matrixInventory = typeof targetObject.getPatientivoPrelocativeMatrixInventory === "function" ? targetObject.getPatientivoPrelocativeMatrixInventory() : [{
           id: "tla-tlani",
           nawatRoot: "tajtani",
@@ -10676,6 +11197,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           patientivoSource,
           sourceTenseValue,
           sourceCombinedMode,
+          sourceFormulaSlots,
+          sourceFormulaEcho,
           patientivoNominalSuffix: activePatientivoNominalSuffix,
           matrixRoot: matrixSpec.nawatRoot || "ni"
         })).filter(entry => entry?.supported);
@@ -10707,7 +11230,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
               matrixRoot,
               matrixSpecId: contract.matrix?.id || "",
               objectPrefix: objectTransfer.objectPrefix,
-              possessorPrefix: possessorPrefix || ""
+              possessorPrefix: possessorPrefix || "",
+              sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
+              sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
@@ -12440,9 +12966,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.getLesson4InspectorPronounLabels = getLesson4InspectorPronounLabels;
     api.getLesson4InspectorPronounCategoryLabel = getLesson4InspectorPronounCategoryLabel;
     api.appendLesson4NuclearClauseInspector = appendLesson4NuclearClauseInspector;
+    api.ensureTenseDescriptionBody = ensureTenseDescriptionBody;
+    api.updateTenseDescriptionSummary = updateTenseDescriptionSummary;
+    api.appendTenseDescriptionEntries = appendTenseDescriptionEntries;
     api.updateTensePanelDescription = updateTensePanelDescription;
     api.getExplainabilitySelectedTense = getExplainabilitySelectedTense;
     api.resolveOutputPanelProvenance = resolveOutputPanelProvenance;
+    api.activateCnnOutputModeForContinuation = activateCnnOutputModeForContinuation;
     api.getSharedLetterPrefixLength = getSharedLetterPrefixLength;
     api.getSurfaceFamilyBaseCutIndex = getSurfaceFamilyBaseCutIndex;
     api.getLetterSliceText = getLetterSliceText;
@@ -12506,10 +13036,25 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.createConjugationConversionActionsContainer = createConjugationConversionActionsContainer;
     api.getConjugationConversionActionsForValue = getConjugationConversionActionsForValue;
     api.applyConjugationConversionColumnLayout = applyConjugationConversionColumnLayout;
+    api.resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta = resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta;
+    api.getVisibleContinuationChipRouteExpectation = getVisibleContinuationChipRouteExpectation;
+    api.isAndrewsCnvCnnRouteRecordContinuationGroup = isAndrewsCnvCnnRouteRecordContinuationGroup;
+    api.auditVisibleContinuationRouteRecordGroups = auditVisibleContinuationRouteRecordGroups;
+    api.auditVisibleContinuationRouteOutputConsistency = auditVisibleContinuationRouteOutputConsistency;
     api.resolveContinuationActionGroupMeta = resolveContinuationActionGroupMeta;
     api.getOrCreateContinuationActionGroup = getOrCreateContinuationActionGroup;
     api.appendContinuationAction = appendContinuationAction;
     api.ensureDenominalAndrewsRouteContinuationDisplay = ensureDenominalAndrewsRouteContinuationDisplay;
+    api.getAndrewsCnvCnnRouteSourceRequirementIdsForRendering = getAndrewsCnvCnnRouteSourceRequirementIdsForRendering;
+    api.getAndrewsCnvCnnRouteActionContractForRendering = getAndrewsCnvCnnRouteActionContractForRendering;
+    api.formatAndrewsCnvCnnRouteTransitionForRendering = formatAndrewsCnvCnnRouteTransitionForRendering;
+    api.appendAndrewsCnvCnnRouteActionTitle = appendAndrewsCnvCnnRouteActionTitle;
+    api.applyAndrewsCnvCnnRouteActionDataset = applyAndrewsCnvCnnRouteActionDataset;
+    api.getFunctionUseContinuationRouteOwnershipOptions = getFunctionUseContinuationRouteOwnershipOptions;
+    api.isAndrewsCnvCnnRouteActionFunctionUseHardBlocked = isAndrewsCnvCnnRouteActionFunctionUseHardBlocked;
+    api.blockAndrewsCnvCnnRouteActionHardGateEvent = blockAndrewsCnvCnnRouteActionHardGateEvent;
+    api.attachAndrewsCnvCnnRouteActionHardGateClickGuard = attachAndrewsCnvCnnRouteActionHardGateClickGuard;
+    api.applyAndrewsCnvCnnRouteActionHardGateState = applyAndrewsCnvCnnRouteActionHardGateState;
     api.renderDenominalAndrewsContractRouteContinuationForValue = renderDenominalAndrewsContractRouteContinuationForValue;
     api.getVerbToNominalContinuationSpecsForTense = getVerbToNominalContinuationSpecsForTense;
     api.appendNawatLinkedGrammarStageSubLabels = appendNawatLinkedGrammarStageSubLabels;

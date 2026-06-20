@@ -763,12 +763,22 @@ function run(ctx) {
     s.eq(
         "VNC adjectival function UI promotion preserves generated VNC source contract",
         (() => {
+            const sourceFormulaSlots = {
+                pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+                obj1: { slot: "obj1", prefix: "", displayPrefix: "Ø" },
+                predicateStem: { slot: "STEM", stem: "nemi", displayStem: "nemi" },
+                tensePosition: { slot: "tiempo", tense: "presente", displayTense: "presente" },
+                num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+            };
+            const sourceFormulaEcho = "#Ø-Ø(nemi)presente+Ø#";
             const direct = ctx.buildVncAdjectivalNncFunctionOutput({
                 vncSurface: "nemi",
                 sourceVerb: "(nemi)",
                 sourceTenseValue: "presente",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
                 sourceVoiceMode: ctx.VOICE_MODE.active,
+                sourceFormulaSlots,
+                sourceFormulaEcho,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -812,6 +822,8 @@ function run(ctx) {
                 routedInflectionSourceTenseValue: routed.grammarFrame?.inflectionFrame?.sourceTenseValue || "",
                 routedSourceCategory: routed.grammarFrame?.routeContract?.sourceContract?.sourceCategory || "",
                 routedDoesNotCreateNncStem: routed.adjectivalNncFunctionFrame?.doesNotCreateNncStem === true,
+                routedGateReason: routed.functionUseValenceGate?.reason || "",
+                routedGateFormulaFixed: routed.functionUseValenceGate?.hasFormulaValence === true,
             };
             if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
                 ctx.clearAdjectivalNncFunctionEntryState(verbEl);
@@ -836,6 +848,224 @@ function run(ctx) {
             routedInflectionSourceTenseValue: "presente",
             routedSourceCategory: "verbal-nuclear-clause",
             routedDoesNotCreateNncStem: true,
+            routedGateReason: "function-use-does-not-claim-object-valence",
+            routedGateFormulaFixed: true,
+        }
+    );
+    s.eq(
+        "function-use hard-gates unresolved or conflicting object valence before adjectival routing",
+        (() => {
+            const verbEl = ctx.document.getElementById("verb");
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const clear = () => {
+                if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
+                    ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+                }
+            };
+            const executeWithEntry = ({
+                direct,
+                formation,
+                sourceFormulaSlots = null,
+                sourceFormulaEcho = "",
+                obj1 = "",
+                nestedObj1 = "",
+            }) => {
+                clear();
+                const beforeValue = `before-${formation || "entry"}`;
+                verbEl.value = beforeValue;
+                const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                    surface: direct.result,
+                    formation,
+                    sourceFormulaSlots,
+                    sourceFormulaEcho,
+                    grammarFrame: direct.grammarFrame,
+                    refresh: false,
+                });
+                if (entryContract?.blocked === true) {
+                    return {
+                        ok: false,
+                        result: "—",
+                        diagnostics: [{ id: entryContract.functionUseValenceGate?.diagnosticId || "" }],
+                        functionUseValenceGate: entryContract.functionUseValenceGate || null,
+                        entryMutationBlocked: true,
+                        verbValueAfterBlockedMutation: verbEl.value,
+                    };
+                }
+                const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
+                if (nestedObj1 && override?.adjectivalNnc) {
+                    override.adjectivalNnc.obj1 = nestedObj1;
+                }
+                const routed = ctx.executeGenerateWordRequest({
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1,
+                        tronco: direct.result,
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                    },
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override,
+                    },
+                });
+                return routed;
+            };
+            const ordinary = ctx.generateAdjectivalNncFunctionOutput({
+                stem: "shuchi",
+                nounClass: "t",
+            });
+            const invented = executeWithEntry({
+                direct: ordinary,
+                formation: "ordinary-absolutive",
+                obj1: "ki",
+            });
+            const nestedInvented = executeWithEntry({
+                direct: ordinary,
+                formation: "ordinary-absolutive",
+                nestedObj1: "ki",
+            });
+            const sourceFormulaSlots = {
+                pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+                obj1: { slot: "obj1", prefix: "ki", displayPrefix: "ki" },
+                predicateStem: { slot: "STEM", stem: "nemi", displayStem: "nemi" },
+                tensePosition: { slot: "tiempo", tense: "presente", displayTense: "presente" },
+                num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+            };
+            const sourceFormulaEcho = "#Ø-Ø+ki(nemi)presente+Ø#";
+            const vncFunction = ctx.buildVncAdjectivalNncFunctionOutput({
+                vncSurface: "kinemi",
+                sourceVerb: "(nemi)",
+                sourceTenseValue: "presente",
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceVoiceMode: ctx.VOICE_MODE.active,
+            });
+            const unresolvedVerbal = executeWithEntry({
+                direct: vncFunction,
+                formation: "vnc-adjectival",
+                obj1: "",
+            });
+            const preserved = executeWithEntry({
+                direct: vncFunction,
+                formation: "vnc-adjectival",
+                sourceFormulaSlots,
+                sourceFormulaEcho,
+                obj1: "",
+            });
+            const reclassified = executeWithEntry({
+                direct: vncFunction,
+                formation: "vnc-adjectival",
+                sourceFormulaSlots,
+                sourceFormulaEcho,
+                obj1: "ta",
+            });
+            clear();
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode, { syncConventionState: false });
+            }
+            return {
+                invented: {
+                    ok: invented.ok,
+                    result: invented.result,
+                    diagnosticIds: invented.diagnostics.map((entry) => entry.id),
+                    reason: invented.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: invented.functionUseValenceGate?.routeRankingAllowed,
+                    currentObj1: invented.functionUseValenceGate?.currentVector?.obj1 || "",
+                    routeGateReason: invented.grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate?.reason || "",
+                },
+                nestedInvented: {
+                    ok: nestedInvented.ok,
+                    result: nestedInvented.result,
+                    diagnosticIds: nestedInvented.diagnostics.map((entry) => entry.id),
+                    reason: nestedInvented.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: nestedInvented.functionUseValenceGate?.routeRankingAllowed,
+                    currentObj1: nestedInvented.functionUseValenceGate?.currentVector?.obj1 || "",
+                    routeGateReason: nestedInvented.grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate?.reason || "",
+                },
+                preserved: {
+                    ok: preserved.ok,
+                    result: preserved.result,
+                    reason: preserved.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: preserved.functionUseValenceGate?.routeRankingAllowed,
+                    sourceObj1: preserved.functionUseValenceGate?.sourceVector?.obj1 || "",
+                    currentObj1: preserved.functionUseValenceGate?.currentVector?.obj1 || "",
+                    slotOwnership: preserved.functionUseValenceGate?.slotOwnership || "",
+                    sourceObjectPreservedAsMetadata: preserved.functionUseValenceGate?.sourceObjectPreservedAsMetadata,
+                    routedSourceObj1: preserved.grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate?.sourceVector?.obj1 || "",
+                },
+                unresolvedVerbal: {
+                    ok: unresolvedVerbal.ok,
+                    result: unresolvedVerbal.result,
+                    entryMutationBlocked: unresolvedVerbal.entryMutationBlocked === true,
+                    verbValueAfterBlockedMutation: unresolvedVerbal.verbValueAfterBlockedMutation || "",
+                    diagnosticIds: unresolvedVerbal.diagnostics.map((entry) => entry.id),
+                    reason: unresolvedVerbal.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: unresolvedVerbal.functionUseValenceGate?.routeRankingAllowed,
+                    sourceKind: unresolvedVerbal.functionUseValenceGate?.sourceKind || "",
+                    hasFormulaValence: unresolvedVerbal.functionUseValenceGate?.hasFormulaValence,
+                },
+                reclassified: {
+                    ok: reclassified.ok,
+                    result: reclassified.result,
+                    diagnosticIds: reclassified.diagnostics.map((entry) => entry.id),
+                    reason: reclassified.functionUseValenceGate?.reason || "",
+                    routeRankingAllowed: reclassified.functionUseValenceGate?.routeRankingAllowed,
+                    differences: reclassified.functionUseValenceGate?.differences || [],
+                },
+            };
+        })(),
+        {
+            invented: {
+                ok: false,
+                result: "—",
+                diagnosticIds: ["function-use-valence-object-frame-unfixed"],
+                reason: "function-use-would-invent-valence-object",
+                routeRankingAllowed: false,
+                currentObj1: "ki",
+                routeGateReason: "function-use-would-invent-valence-object",
+            },
+            nestedInvented: {
+                ok: false,
+                result: "—",
+                diagnosticIds: ["function-use-valence-object-frame-unfixed"],
+                reason: "function-use-would-invent-valence-object",
+                routeRankingAllowed: false,
+                currentObj1: "ki",
+                routeGateReason: "function-use-would-invent-valence-object",
+            },
+            preserved: {
+                ok: true,
+                result: "kinemi",
+                reason: "function-use-preserves-fixed-source-valence-object",
+                routeRankingAllowed: true,
+                sourceObj1: "ki",
+                currentObj1: "",
+                slotOwnership: "function-use-target-does-not-own-valence-object-slots",
+                sourceObjectPreservedAsMetadata: true,
+                routedSourceObj1: "ki",
+            },
+            unresolvedVerbal: {
+                ok: false,
+                result: "—",
+                entryMutationBlocked: true,
+                verbValueAfterBlockedMutation: "before-vnc-adjectival",
+                diagnosticIds: ["function-use-valence-object-frame-unfixed"],
+                reason: "function-use-source-valence-frame-unfixed",
+                routeRankingAllowed: false,
+                sourceKind: "verbal-nuclear-clause",
+                hasFormulaValence: false,
+            },
+            reclassified: {
+                ok: false,
+                result: "—",
+                diagnosticIds: ["function-use-valence-object-frame-unfixed"],
+                reason: "function-use-would-relocate-or-reclassify-valence-object",
+                routeRankingAllowed: false,
+                differences: [
+                    { slot: "obj1", source: "ki", current: "ta" },
+                ],
+            },
         }
     );
     s.eq(
@@ -1346,7 +1576,25 @@ function run(ctx) {
     s.eq(
         "adjectival NNC grammar contract reads LCM result-frame surface forms",
         (() => {
+            const inheritedSurfaceOnlyRouteFrame = {
+                kind: "inherited-adjectival-route-frame",
+                objectSlotOwnership: {
+                    kind: "inherited-adjectival-object-slot-ownership-frame",
+                    matrixValenceFrameFixed: true,
+                },
+                routeFrameLicensesObjectSlotOwnership: true,
+                finalFormulaShapeDoesNotLicenseObjectSlots: true,
+                functionUseDoesNotLicenseObjectSlots: true,
+            };
             const grammarFrame = ctx.buildGrammarFrame({
+                routeContract: ctx.buildGrammarRouteContractFrame({
+                    routeFamily: "adjectival-nnc",
+                    routeStage: "execute",
+                    sourceContract: {
+                        sourceRouteFrame: inheritedSurfaceOnlyRouteFrame,
+                    },
+                    generationAllowed: true,
+                }),
                 resultFrame: ctx.buildGrammarResultFrame({
                     surfaceForms: ["frame-adjective-a / frame-adjective-b"],
                     outputKind: "adjectival-nnc-function",
@@ -1374,6 +1622,9 @@ function run(ctx) {
                 frameSurface: routed.grammarFrame.resultFrame.surface,
                 frameSurfaceForms: routed.grammarFrame.resultFrame.surfaceForms,
                 generationAllowed: routed.grammarFrame.routeContract.generationAllowed,
+                routeFrameKind: routed.grammarFrame.routeContract.sourceContract.sourceRouteFrame.kind,
+                participantRouteFrameKind: routed.grammarFrame.participantFrame.sourceRouteFrame.kind,
+                participantOwnershipKind: routed.grammarFrame.participantFrame.objectSlotOwnership.kind,
             };
         })(),
         {
@@ -1383,6 +1634,57 @@ function run(ctx) {
             frameSurface: "frame-adjective-a",
             frameSurfaceForms: ["frame-adjective-a", "frame-adjective-b"],
             generationAllowed: true,
+            routeFrameKind: "inherited-adjectival-route-frame",
+            participantRouteFrameKind: "inherited-adjectival-route-frame",
+            participantOwnershipKind: "inherited-adjectival-object-slot-ownership-frame",
+        }
+    );
+    s.eq(
+        "denominal compound object slot ownership waits for matrix valence before licensing",
+        (() => {
+            const unresolved = ctx.buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame({
+                embedRole: "adjacent-compound-noun-embed",
+            });
+            const fixed = ctx.buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame({
+                embedRole: "adjacent-compound-noun-embed",
+                matrixValence: "compound-nounstem-no-verbal-object-slots",
+            });
+            return {
+                unresolved: {
+                    matrixValence: unresolved.matrixValence,
+                    matrixValenceFrameFixed: unresolved.matrixValenceFrameFixed,
+                    routeFrameOwnsObjectSlotLicensing: unresolved.routeFrameOwnsObjectSlotLicensing,
+                    matrixValenceFrameMustBeFixed: unresolved.matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership,
+                    functionUseOwnsObjectSlots: unresolved.functionUseOwnsObjectSlots,
+                    finalFormulaShapeOwnsObjectSlots: unresolved.finalFormulaShapeOwnsObjectSlots,
+                },
+                fixed: {
+                    matrixValence: fixed.matrixValence,
+                    matrixValenceFrameFixed: fixed.matrixValenceFrameFixed,
+                    routeFrameOwnsObjectSlotLicensing: fixed.routeFrameOwnsObjectSlotLicensing,
+                    matrixValenceFrameMustBeFixed: fixed.matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership,
+                    functionUseOwnsObjectSlots: fixed.functionUseOwnsObjectSlots,
+                    finalFormulaShapeOwnsObjectSlots: fixed.finalFormulaShapeOwnsObjectSlots,
+                },
+            };
+        })(),
+        {
+            unresolved: {
+                matrixValence: "",
+                matrixValenceFrameFixed: false,
+                routeFrameOwnsObjectSlotLicensing: false,
+                matrixValenceFrameMustBeFixed: true,
+                functionUseOwnsObjectSlots: false,
+                finalFormulaShapeOwnsObjectSlots: false,
+            },
+            fixed: {
+                matrixValence: "compound-nounstem-no-verbal-object-slots",
+                matrixValenceFrameFixed: true,
+                routeFrameOwnsObjectSlotLicensing: true,
+                matrixValenceFrameMustBeFixed: true,
+                functionUseOwnsObjectSlots: false,
+                finalFormulaShapeOwnsObjectSlots: false,
+            },
         }
     );
     s.eq(
@@ -1938,6 +2240,8 @@ function run(ctx) {
                     generatedSurfacePreserved: generated.adjectivalCompoundSourceFrame?.generatedSurfacePreserved,
                     hasModificationAst: generated.adjectivalCompoundSourceFrame?.hasModificationAst,
                     sourceFormulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+                    sourceRouteFrameKind: generated.adjectivalCompoundSourceFrame?.compoundRouteFrame?.kind || "",
+                    sourceRouteFrameShape: generated.adjectivalCompoundSourceFrame?.compoundRouteFrame?.finalFormulaShape || "",
                     sourceMatrixStem: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.matrix?.stem || "",
                     sourceEmbedRoles: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
                     sourceEmbedValues: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.value) || [],
@@ -1969,6 +2273,8 @@ function run(ctx) {
                 generatedSurfacePreserved: true,
                 hasModificationAst: false,
                 sourceFormulaEcho: "#Ø-Ø(amikik)Ø#",
+                sourceRouteFrameKind: "generated-compound-route-frame",
+                sourceRouteFrameShape: "compound-vnc-embed-before-matrix",
                 sourceMatrixStem: "miki",
                 sourceEmbedRoles: ["adjacent-core-embed"],
                 sourceEmbedValues: ["a"],
@@ -2024,9 +2330,12 @@ function run(ctx) {
                     sourceCategory: direct.adjectivalNncFunctionFrame?.sourceCategory || "",
                     sourceMatrixStem: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.matrix?.stem || "",
                     sourceEmbedRoles: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+                    sourceRouteFrameKind: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.compoundRouteFrame?.kind || "",
+                    sourceRouteFrameShape: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.compoundRouteFrame?.finalFormulaShape || "",
                     generatedSurfacePreserved: direct.adjectivalNncFunctionFrame?.generatedSurfacePreserved,
                     hasModificationAst: direct.adjectivalNncFunctionFrame?.hasModificationAst,
                     routeFamily: direct.grammarFrame?.routeContract?.routeFamily || "",
+                    grammarSourceRouteFrameKind: direct.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
                     resultOk: direct.grammarFrame?.resultFrame?.ok,
                 },
                 blocked: blocked.diagnostics.map((entry) => entry.id),
@@ -2043,9 +2352,12 @@ function run(ctx) {
                 sourceCategory: "compound-verbstem",
                 sourceMatrixStem: "miki",
                 sourceEmbedRoles: ["adjacent-core-embed"],
+                sourceRouteFrameKind: "generated-compound-route-frame",
+                sourceRouteFrameShape: "compound-vnc-embed-before-matrix",
                 generatedSurfacePreserved: true,
                 hasModificationAst: false,
                 routeFamily: "adjectival-nnc",
+                grammarSourceRouteFrameKind: "generated-compound-route-frame",
                 resultOk: true,
             },
             blocked: ["adjectival-nnc-requires-compound-source-frame"],
@@ -2177,6 +2489,23 @@ function run(ctx) {
                     embedRoles: generated.denominalCompoundSourceFrame?.embeds?.map((entry) => entry.role) || [],
                     embedValues: generated.denominalCompoundSourceFrame?.embeds?.map((entry) => entry.value) || [],
                     rawInput: generated.denominalCompoundSourceFrame?.sourceInput?.rawInput || "",
+                    sourceRouteFrameKind: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.kind || "",
+                    sourceRouteFrameShape: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.finalFormulaShape || "",
+                    sourceRouteFrameEmbedRole: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.embedRole || "",
+                    sourceRouteFrameMatrixValence: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.matrixValence || "",
+                    sourceRouteFrameConsumedObjectSlot: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.consumedObjectSlot || "",
+                    sourceRouteFrameLicensesRole: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.routeFrameLicensesEmbedRole === true,
+                    sourceRouteFrameOwnershipKind: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.objectSlotOwnership?.kind || "",
+                    sourceRouteFrameMatrixValenceFrameFixed: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
+                    sourceRouteFrameLicensesObjectSlots: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+                    sourceRouteFrameShapeDoesNotLicenseObjectSlots: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.finalFormulaShapeDoesNotLicenseObjectSlots === true,
+                    sourceRouteFrameFunctionUseDoesNotLicenseObjectSlots: generated.denominalCompoundSourceFrame?.compoundRouteFrame?.functionUseDoesNotLicenseObjectSlots === true,
+                    grammarSourceRouteFrameKind: generated.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+                    grammarStemRouteFrameKind: generated.grammarFrame?.stemFrame?.sourceRouteFrame?.kind || "",
+                    grammarMorphRouteFrameKind: generated.grammarFrame?.morphBoundaryFrame?.sourceRouteFrame?.kind || "",
+                    grammarParticipantRouteFrameKind: generated.grammarFrame?.participantFrame?.sourceRouteFrame?.kind || "",
+                    grammarParticipantOwnershipKind: generated.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+                    grammarParticipantMatrixValenceFrameFixed: generated.grammarFrame?.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
                 },
                 direct: {
                     supported: direct.supported,
@@ -2191,6 +2520,15 @@ function run(ctx) {
                     sourceMatrixStem: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.matrix?.stem || "",
                     generatedSurfacePreserved: direct.adjectivalNncFunctionFrame?.generatedSurfacePreserved,
                     hasModificationAst: direct.adjectivalNncFunctionFrame?.hasModificationAst,
+                    sourceRouteFrameKind: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.kind || "",
+                    sourceRouteFrameShape: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.finalFormulaShape || "",
+                    sourceRouteFrameOwnershipKind: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.objectSlotOwnership?.kind || "",
+                    grammarSourceRouteFrameOwnershipKind: direct.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.kind || "",
+                    grammarSourceRouteFrameKind: direct.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+                    grammarTargetRouteFrameKind: direct.grammarFrame?.routeContract?.targetContract?.sourceRouteFrame?.kind || "",
+                    grammarParticipantRouteFrameKind: direct.grammarFrame?.participantFrame?.sourceRouteFrame?.kind || "",
+                    grammarParticipantOwnershipKind: direct.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+                    grammarParticipantMatrixValenceFrameFixed: direct.grammarFrame?.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true,
                     routeFamily: direct.grammarFrame?.routeContract?.routeFamily || "",
                     resultOk: direct.grammarFrame?.resultFrame?.ok,
                 },
@@ -2211,6 +2549,23 @@ function run(ctx) {
                 embedRoles: ["adjacent-compound-noun-embed"],
                 embedValues: ["xilo"],
                 rawInput: "(xilo/tzon/tiya)",
+                sourceRouteFrameKind: "denominal-compound-route-frame",
+                sourceRouteFrameShape: "compound-nounstem-denominal-ti-adjectival-nnc",
+                sourceRouteFrameEmbedRole: "adjacent-compound-noun-embed",
+                sourceRouteFrameMatrixValence: "compound-nounstem-no-verbal-object-slots",
+                sourceRouteFrameConsumedObjectSlot: "",
+                sourceRouteFrameLicensesRole: true,
+                sourceRouteFrameOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                sourceRouteFrameMatrixValenceFrameFixed: true,
+                sourceRouteFrameLicensesObjectSlots: true,
+                sourceRouteFrameShapeDoesNotLicenseObjectSlots: true,
+                sourceRouteFrameFunctionUseDoesNotLicenseObjectSlots: true,
+                grammarSourceRouteFrameKind: "denominal-compound-route-frame",
+                grammarStemRouteFrameKind: "denominal-compound-route-frame",
+                grammarMorphRouteFrameKind: "denominal-compound-route-frame",
+                grammarParticipantRouteFrameKind: "denominal-compound-route-frame",
+                grammarParticipantOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                grammarParticipantMatrixValenceFrameFixed: true,
             },
             direct: {
                 supported: true,
@@ -2225,6 +2580,15 @@ function run(ctx) {
                 sourceMatrixStem: "tzon",
                 generatedSurfacePreserved: true,
                 hasModificationAst: false,
+                sourceRouteFrameKind: "denominal-compound-route-frame",
+                sourceRouteFrameShape: "compound-nounstem-denominal-ti-adjectival-nnc",
+                sourceRouteFrameOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                grammarSourceRouteFrameOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                grammarSourceRouteFrameKind: "denominal-compound-route-frame",
+                grammarTargetRouteFrameKind: "denominal-compound-route-frame",
+                grammarParticipantRouteFrameKind: "denominal-compound-route-frame",
+                grammarParticipantOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                grammarParticipantMatrixValenceFrameFixed: true,
                 routeFamily: "adjectival-nnc",
                 resultOk: true,
             },
@@ -2280,11 +2644,15 @@ function run(ctx) {
                 overrideDenominalSurface: override?.adjectivalNnc?.denominalCompoundSurface || "",
                 overrideSourceMatrix: override?.adjectivalNnc?.sourceDenominalCompoundFrame?.matrix?.stem || "",
                 overrideFormulaEcho: override?.adjectivalNnc?.sourceFormulaEcho || "",
+                overrideRouteFrameKind: override?.adjectivalNnc?.sourceDenominalCompoundFrame?.compoundRouteFrame?.kind || "",
                 routedResult: routed.result,
                 routedFormulaEcho: routed.formulaEcho,
                 routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
                 routedSourceMatrix: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.matrix?.stem || "",
                 routedEmbedRoles: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+                routedSourceRouteFrameKind: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.kind || "",
+                routedGrammarRouteFrameKind: routed.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
+                routedGrammarRouteFrameShape: routed.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.finalFormulaShape || "",
             };
             if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
                 ctx.clearAdjectivalNncFunctionEntryState(verbEl);
@@ -2301,11 +2669,15 @@ function run(ctx) {
             overrideDenominalSurface: "xilotzontik",
             overrideSourceMatrix: "tzon",
             overrideFormulaEcho: "#Ø-Ø(xilotzonti)k#",
+            overrideRouteFrameKind: "denominal-compound-route-frame",
             routedResult: "xilotzontik",
             routedFormulaEcho: "#Ø-Ø(xilotzonti)k#",
             routedFunctionKind: "denominal-compound-adjectival",
             routedSourceMatrix: "tzon",
             routedEmbedRoles: ["adjacent-compound-noun-embed"],
+            routedSourceRouteFrameKind: "denominal-compound-route-frame",
+            routedGrammarRouteFrameKind: "denominal-compound-route-frame",
+            routedGrammarRouteFrameShape: "compound-nounstem-denominal-ti-adjectival-nnc",
         }
     );
     s.eq(

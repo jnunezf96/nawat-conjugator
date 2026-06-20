@@ -58,6 +58,8 @@ const ANDREWS_NUCLEAR_SLOT = Object.freeze({
 
 const VERBAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA = "#pers1-pers2+obj1-obj2-obj3-reflexivo(STEM)tiempo+num1-num2#";
 const NOMINAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA = "#pers1-pers2(STEM)num1-num2#";
+const ANDREWS_CNV_CNN_FUNCTION_USE_VALENCE_OBJECT_GATE_DIAGNOSTIC_ID = "function-use-valence-object-frame-unfixed";
+const ANDREWS_CNV_CNN_FUNCTION_USE_VALENCE_OBJECT_GATE_ROUTE_STAGE = "function-use-valence-object-gate";
 
 const NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS = Object.freeze({
     dyadic: "dyadic",
@@ -295,6 +297,281 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS = Object.freeze([
         directiveEs: "El ya deverbal puede apoyarse en un tronco denominal ti/hui previo; ese paso intermedio debe quedar visible como fuente, no borrado por la etiqueta deverbal.",
         implementationProbe: "generateNawatDenominalAndrewsContractRoutePreview",
         requiredBoundary: "No saltar directamente de CNN a ya deverbal; conservar CNN -> CNV denominal -> CNV deverbal.",
+    }),
+]);
+
+const ANDREWS_CNV_CNN_DESUPERPOSITION_LAYER_ORDER = Object.freeze([
+    "formula-boundary",
+    "stem-frame",
+    "valence-frame",
+    "object-frame",
+    "route-frame",
+    "function-use-frame",
+]);
+
+const ANDREWS_CNV_CNN_BACK_AND_FORTH_DIMENSION_SYSTEM = Object.freeze({
+    kind: "andrews-cnv-cnn-interdimensional-positioning-system",
+    version: 2,
+    dimensions: Object.freeze([
+        "source-unit",
+        "formula-boundary",
+        "formula-type",
+        "formula-position",
+        "stem-rank",
+        "valence-frame",
+        "object-slot-ownership",
+        "source-target-route",
+        "target-unit",
+        "route-operation",
+        "morph-boundary",
+        "evidence-status",
+        "path-depth",
+        "function-use",
+    ]),
+    collapseSequence: Object.freeze([
+        Object.freeze({
+            block: "#1 Entrada",
+            collapses: Object.freeze([
+                "source-unit",
+                "formula-boundary",
+                "stem-rank",
+                "valence-frame",
+                "object-slot-ownership",
+                "known-source-markers",
+            ]),
+        }),
+        Object.freeze({
+            block: "#2 Fórmula/Rutas",
+            collapses: Object.freeze([
+                "formula-type",
+                "formula-position",
+                "source-target-route",
+                "target-unit",
+                "route-operation",
+                "morph-boundary",
+            ]),
+        }),
+        Object.freeze({
+            block: "#3 Salida/Trayecto",
+            collapses: Object.freeze([
+                "evidence-status",
+                "result-status",
+                "path-depth",
+                "next-source",
+                "function-use",
+            ]),
+        }),
+    ]),
+});
+
+const ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_COORDINATE_PROFILES = Object.freeze({
+    "cnv-predicate-to-cnn-nounstem-nominalization": Object.freeze({
+        sourceFormulaType: "CNV",
+        sourceFormulaPosition: "predicate",
+        sourceStemRank: "predicate",
+        targetFormulaType: "CNN",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "nounstem",
+        operation: "nominalization",
+        morphBoundary: "CNV predicate reanalyzed as CNN nounstem",
+        pathDepth: 1,
+        intermediateFormulaTypes: Object.freeze([]),
+    }),
+    "cnv-core-to-cnn-nounstem-deverbal": Object.freeze({
+        sourceFormulaType: "CNV",
+        sourceFormulaPosition: "core",
+        sourceStemRank: "verbal-core",
+        targetFormulaType: "CNN",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "deverbal-nounstem",
+        operation: "deverbal-nounstem",
+        morphBoundary: "CNV core converted to CNN nounstem",
+        pathDepth: 1,
+        intermediateFormulaTypes: Object.freeze([]),
+    }),
+    "cnn-nounstem-to-cnv-verbstem-denominal": Object.freeze({
+        sourceFormulaType: "CNN",
+        sourceFormulaPosition: "predicate-stem",
+        sourceStemRank: "nounstem",
+        targetFormulaType: "CNV",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "denominal-verbstem",
+        operation: "denominal-verbstem",
+        morphBoundary: "CNN nounstem converted to CNV verbstem",
+        pathDepth: 1,
+        intermediateFormulaTypes: Object.freeze([]),
+    }),
+    "cnv-verbstem-to-cnv-verbstem-deverbal": Object.freeze({
+        sourceFormulaType: "CNV",
+        sourceFormulaPosition: "predicate-stem",
+        sourceStemRank: "verbstem",
+        targetFormulaType: "CNV",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "deverbal-verbstem",
+        operation: "deverbal-verbstem",
+        morphBoundary: "CNV verbstem converted to CNV verbstem",
+        pathDepth: 1,
+        intermediateFormulaTypes: Object.freeze([]),
+    }),
+    "cnv-to-cnn-to-cnv-loop": Object.freeze({
+        sourceFormulaType: "CNV",
+        sourceFormulaPosition: "core",
+        sourceStemRank: "verbal-core",
+        targetFormulaType: "CNV",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "denominal-verbstem",
+        operation: "deverbal-nounstem-denominal-loop",
+        morphBoundary: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
+        pathDepth: 2,
+        intermediateFormulaTypes: Object.freeze(["CNN"]),
+    }),
+    "cnn-to-cnv-to-cnn-active-action-loop": Object.freeze({
+        sourceFormulaType: "CNN",
+        sourceFormulaPosition: "predicate-stem",
+        sourceStemRank: "nounstem",
+        targetFormulaType: "CNN",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "active-action-nounstem",
+        operation: "cnn-cnv-cnn-active-action-loop",
+        morphBoundary: "CNN nounstem -> CNV verbstem -> CNN active-action nounstem",
+        pathDepth: 2,
+        intermediateFormulaTypes: Object.freeze(["CNV"]),
+    }),
+    "cnn-to-cnv-to-cnv-deverbal-chain": Object.freeze({
+        sourceFormulaType: "CNN",
+        sourceFormulaPosition: "predicate-stem",
+        sourceStemRank: "nounstem",
+        targetFormulaType: "CNV",
+        targetFormulaPosition: "predicate-stem",
+        targetStemRank: "deverbal-verbstem",
+        operation: "denominal-verbstem-deverbal-chain",
+        morphBoundary: "CNN nounstem -> CNV denominal verbstem -> CNV deverbal verbstem",
+        pathDepth: 2,
+        intermediateFormulaTypes: Object.freeze(["CNV"]),
+    }),
+});
+
+const ANDREWS_FORMULA_TYPE_NUMERIC_CODES = Object.freeze({
+    CNV: 1,
+    VNC: 1,
+    CNN: 2,
+    NNC: 2,
+    unknown: 0,
+});
+
+const ANDREWS_CNV_CNN_FORMULA_POSITION_CODES = Object.freeze({
+    predicate: 1,
+    core: 2,
+    "predicate-stem": 3,
+    unknown: 0,
+});
+
+const ANDREWS_CNV_CNN_STEM_RANK_CODES = Object.freeze({
+    predicate: 1,
+    "verbal-core": 2,
+    nounstem: 3,
+    verbstem: 4,
+    "deverbal-nounstem": 5,
+    "denominal-verbstem": 6,
+    "deverbal-verbstem": 7,
+    "active-action-nounstem": 8,
+    unknown: 0,
+});
+
+const ANDREWS_CNV_CNN_FORMULA_TRANSITION_CODES = Object.freeze({
+    "CNV->CNN": 1,
+    "CNV->CNV": 2,
+    "CNN->CNV": 3,
+    "CNN->CNN": 4,
+    unknown: 0,
+});
+
+const ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS = Object.freeze([
+    "source-evidence",
+    "formula-boundary",
+    "valence-object",
+    "state-possessor-number",
+    "stem-rank-class",
+    "operation-suffix",
+    "function-use",
+    "orthography-surface",
+    "route-gate",
+]);
+
+const ANDREWS_CNV_CNN_EVIDENCE_STATUS_CODES = Object.freeze({
+    "andrews-structural-gate": 1,
+    "blocking-or-requirement-gate": 2,
+    "source-or-nawat-evidence-gate": 3,
+    unknown: 0,
+});
+
+const ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS = Object.freeze({
+    obstacleCount: 1,
+    uniqueGateDomainCount: 10,
+    pathDepthBeyondOne: 25,
+    sourceOrNawatEvidenceGateCount: 2,
+    blockingOrRequirementGateCount: 1,
+    formulaTypeChanged: 5,
+    intermediateFormulaTypeCount: 5,
+});
+
+const ANDREWS_CNV_CNN_STATISTICAL_EQUATIONS = Object.freeze([
+    Object.freeze({
+        id: "z-score",
+        equation: "z = (x - mu) / sigma",
+        use: "standardize each route resistance score against the route distribution",
+    }),
+    Object.freeze({
+        id: "pearson-correlation",
+        equation: "r = cov(X,Y) / (sigma_X * sigma_Y)",
+        use: "measure which numeric route features rise or fall with resistance",
+    }),
+    Object.freeze({
+        id: "risk-difference",
+        equation: "RD = P(pattern | most-resistant) - P(pattern | least-resistant)",
+        use: "compare gate-domain rates in the most-resistant and least-resistant routes",
+    }),
+    Object.freeze({
+        id: "haldane-anscombe-odds-ratio",
+        equation: "OR = ((a + 0.5)(d + 0.5)) / ((b + 0.5)(c + 0.5))",
+        use: "stabilize odds-ratio estimates when a route has zero cells",
+    }),
+    Object.freeze({
+        id: "information-gain",
+        equation: "IG(Y,X) = H(Y) - H(Y | X)",
+        use: "find gate domains that partition low-resistance and high-resistance obstacle records",
+    }),
+]);
+
+const ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA = 0.05;
+const ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS = Object.freeze([
+    Object.freeze({
+        id: "route-feature-exact-permutation-test",
+        nullHypothesis: "H0: route feature values are exchangeable with route resistance scores; there is no association between the feature and resistance.",
+        test: "Exact two-sided permutation test over Pearson correlation.",
+        pValueDefinition: "p = count(|r_permuted| >= |r_observed|) / n!",
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+    }),
+    Object.freeze({
+        id: "gate-domain-fisher-exact-test",
+        nullHypothesis: "H0: gate-domain presence is independent of low/high resistance class in the Andrews obstacle catalog.",
+        test: "Two-sided Fisher exact test on a 2x2 gate-domain-by-resistance-class table.",
+        pValueDefinition: "p = sum hypergeometric probabilities as or more extreme than the observed table.",
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+    }),
+    Object.freeze({
+        id: "gate-domain-pair-fisher-exact-test",
+        nullHypothesis: "H0: paired gate-domain presence is independent of low/high resistance class in the Andrews obstacle catalog.",
+        test: "Two-sided Fisher exact test on a 2x2 paired-gate-domain-by-resistance-class table.",
+        pValueDefinition: "p = sum hypergeometric probabilities as or more extreme than the observed paired-domain table.",
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+    }),
+    Object.freeze({
+        id: "gate-domain-cooccurrence-fisher-exact-test",
+        nullHypothesis: "H0: two gate domains are independent of each other in the Andrews obstacle catalog.",
+        test: "Two-sided Fisher exact test on a 2x2 gate-domain co-occurrence table.",
+        pValueDefinition: "p = sum hypergeometric probabilities as or more extreme than the observed co-occurrence table.",
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
     }),
 ]);
 
@@ -13651,6 +13928,2674 @@ function getAndrewsCnvCnnBackAndForthObstacleCatalog() {
         .filter(Boolean);
 }
 
+function cloneAndrewsCnvCnnBackAndForthDimensionSystem() {
+    return {
+        ...ANDREWS_CNV_CNN_BACK_AND_FORTH_DIMENSION_SYSTEM,
+        dimensions: Array.from(ANDREWS_CNV_CNN_BACK_AND_FORTH_DIMENSION_SYSTEM.dimensions || []),
+        collapseSequence: Array.from(ANDREWS_CNV_CNN_BACK_AND_FORTH_DIMENSION_SYSTEM.collapseSequence || [])
+            .map((entry) => ({
+                ...entry,
+                collapses: Array.from(entry.collapses || []),
+            })),
+    };
+}
+
+function getAndrewsCnvCnnBackAndForthDimensionSystem() {
+    return cloneAndrewsCnvCnnBackAndForthDimensionSystem();
+}
+
+function cloneAndrewsCnvCnnBackAndForthRouteCoordinateProfile(profile = null) {
+    if (!profile || typeof profile !== "object") {
+        return null;
+    }
+    return {
+        ...profile,
+        intermediateFormulaTypes: Array.from(profile.intermediateFormulaTypes || []),
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(recordOrRouteId = null) {
+    const record = typeof recordOrRouteId === "string"
+        ? getAndrewsCnvCnnBackAndForthRouteRecordById(recordOrRouteId)
+        : cloneAndrewsCnvCnnBackAndForthRouteRecord(recordOrRouteId);
+    if (!record) {
+        return null;
+    }
+    const profile = cloneAndrewsCnvCnnBackAndForthRouteCoordinateProfile(
+        ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_COORDINATE_PROFILES[record.id]
+    ) || {};
+    const sourceFormulaType = profile.sourceFormulaType || "";
+    const targetFormulaType = profile.targetFormulaType || "";
+    const formulaTransition = getAndrewsCnvCnnFormulaTransition(sourceFormulaType, targetFormulaType);
+    const routeHasVerbalValenceFrame = sourceFormulaType === "CNV" || targetFormulaType === "CNV";
+    return {
+        kind: "andrews-cnv-cnn-route-coordinate-frame",
+        version: 1,
+        routeId: record.id,
+        routeKind: record.routeKind,
+        transition: record.transition,
+        sourceUnit: record.sourceUnit,
+        targetUnit: record.targetUnit,
+        pdfSearchTerm: record.pdfSearchTerm,
+        andrewsRefs: Array.from(record.andrewsRefs || []),
+        sourceFormulaType: profile.sourceFormulaType || "",
+        sourceFormulaPosition: profile.sourceFormulaPosition || "",
+        sourceStemRank: profile.sourceStemRank || "",
+        targetFormulaType: profile.targetFormulaType || "",
+        targetFormulaPosition: profile.targetFormulaPosition || "",
+        targetStemRank: profile.targetStemRank || "",
+        operation: profile.operation || record.routeKind || "",
+        morphBoundary: profile.morphBoundary || record.requiredBoundary || "",
+        pathDepth: Number(profile.pathDepth || 1),
+        intermediateFormulaTypes: Array.from(profile.intermediateFormulaTypes || []),
+        layerOrder: Array.from(ANDREWS_CNV_CNN_DESUPERPOSITION_LAYER_ORDER),
+        formulaBoundary: "source-and-target-formula-boundary",
+        valenceFrameDimension: routeHasVerbalValenceFrame
+            ? "route-requires-valence-frame"
+            : "state-frame-without-verbal-valence-slot",
+        objectSlotOwnership: "source-route-frame-before-function-use",
+        sourceTargetRoute: formulaTransition,
+        functionUsePosition: "downstream-after-route-frame",
+        stageFrames: {
+            entrada: {
+                block: "#1 Entrada",
+                role: "source-marker-collapse",
+            },
+            formula: {
+                block: "#2 Fórmula/Rutas",
+                role: "route-and-slot-collapse",
+            },
+            salida: {
+                block: "#3 Salida/Trayecto",
+                role: "result-and-next-source-collapse",
+            },
+        },
+        evidenceFrame: {
+            grammarAuthority: "Andrews PDF",
+            spellingAuthority: "Nawat/Pipil evidence",
+            evidenceStatus: "route-coordinate",
+        },
+        dimensionVector: {
+            sourceUnit: record.sourceUnit,
+            formulaBoundary: "source-and-target-formula-boundary",
+            sourceFormulaType: profile.sourceFormulaType || "",
+            sourceFormulaPosition: profile.sourceFormulaPosition || "",
+            sourceStemRank: profile.sourceStemRank || "",
+            valenceFrame: routeHasVerbalValenceFrame
+                ? "route-requires-valence-frame"
+                : "state-frame-without-verbal-valence-slot",
+            objectSlotOwnership: "source-route-frame-before-function-use",
+            sourceTargetRoute: formulaTransition,
+            routeOperation: profile.operation || record.routeKind || "",
+            morphBoundary: profile.morphBoundary || record.requiredBoundary || "",
+            targetUnit: record.targetUnit,
+            targetFormulaType: profile.targetFormulaType || "",
+            targetFormulaPosition: profile.targetFormulaPosition || "",
+            targetStemRank: profile.targetStemRank || "",
+            pathDepth: Number(profile.pathDepth || 1),
+            functionUse: "downstream-after-route-frame",
+        },
+    };
+}
+
+function getAndrewsCnvCnnBackAndForthObstacleGateDomains(entry = null) {
+    const text = [entry?.id, entry?.obstacleEs, entry?.requiredProbe, ...(entry?.sourceRefs || [])]
+        .map((value) => String(value || "").toLowerCase())
+        .join(" ");
+    const domains = [];
+    const add = (domain, pattern) => {
+        if (pattern.test(text) && !domains.includes(domain)) {
+            domains.push(domain);
+        }
+    };
+    add("source-evidence", /source|fuente|evidence|evidencia|verified|confirmed|lexical|lexema|ra[ií]z|root|stock/);
+    add("formula-boundary", /formula|slot|position|boundary|frontera|posici[oó]n|represented|representad|predicate|predicado|subject|sujeto/);
+    add("valence-object", /valence|valencia|object|objeto|reflex|projective|proyectiv|te\b|tla\b|ta\b|mu\b|transitive|intransitive|ditransitive|bitransitive|passive|impersonal/);
+    add("state-possessor-number", /state|estado|absolutive|absolutiv|possess|poses|possessor|poseedor|number|n[uú]mero|plural|singular|common/);
+    add("stem-rank-class", /stem|tronco|nounstem|verbstem|compound|compuest|class|clase|monomorphemic|dimorphemic|matrix|matriz|embed|incorpor/);
+    add("operation-suffix", /suffix|sufij|nominaliz|deverbal|denominal|agentive|agentivo|patientive|patientivo|instrument|locativ|causative|causativ|applicative|aplicativ|ti\b|hui\b|wi\b|hua\b|wa\b|ya\b|lia\b|liz\b|lis\b|tla\b/);
+    add("function-use", /adjectiv|adjetiv|adverb|supplement|suplement|function|funci[oó]n|ownerhood|posesion|complement|classifier|count|conteo/);
+    add("orthography-surface", /nawat|pipil|orthograph|ortograf|spelling|surface|superficie|classical|cl[aá]sic|letter|letra|glottal|fonol/);
+    return domains.length ? domains : ["route-gate"];
+}
+
+function getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus(entry = null) {
+    const text = [entry?.id, entry?.obstacleEs, entry?.requiredProbe]
+        .map((value) => String(value || "").toLowerCase())
+        .join(" ");
+    if (/nawat|pipil|orthograph|ortograf|spelling|confirmed|unconfirmed|evidence|evidencia|source-limited|source evidence/.test(text)) {
+        return "source-or-nawat-evidence-gate";
+    }
+    if (/block|bloque|no |not |cannot|falta|missing|exigir|requires|require/.test(text)) {
+        return "blocking-or-requirement-gate";
+    }
+    return "andrews-structural-gate";
+}
+
+function buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(entryOrId = null) {
+    const entry = typeof entryOrId === "string"
+        ? ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG.find((item) => item.id === entryOrId)
+        : entryOrId;
+    const obstacle = cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry(entry);
+    if (!obstacle) {
+        return null;
+    }
+    const routeFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(obstacle.routeId);
+    const gateDomains = getAndrewsCnvCnnBackAndForthObstacleGateDomains(obstacle);
+    const functionUsePosition = gateDomains.includes("function-use")
+        ? "function-use-after-valence-frame"
+        : "function-use-not-primary-gate";
+    const objectSlotOwnership = gateDomains.includes("valence-object")
+        ? "object-slot-gate-owned-by-valence-frame"
+        : "object-slot-not-primary-gate";
+    return {
+        kind: "andrews-cnv-cnn-obstacle-coordinate-frame",
+        version: 1,
+        id: obstacle.id,
+        routeId: obstacle.routeId,
+        coordinateId: `${obstacle.routeId}:${obstacle.id}`,
+        sourceRefs: Array.from(obstacle.sourceRefs || []),
+        pdfPages: Array.from(obstacle.pdfPages || []),
+        gateDomains,
+        primaryGateDomain: gateDomains[0] || "route-gate",
+        evidenceStatus: getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus(obstacle),
+        stage: "#2 Fórmula/Rutas",
+        pathDepth: Number(routeFrame?.pathDepth || 1),
+        routeOperation: routeFrame?.operation || "",
+        sourceFormulaType: routeFrame?.sourceFormulaType || "",
+        targetFormulaType: routeFrame?.targetFormulaType || "",
+        sourceStemRank: routeFrame?.sourceStemRank || "",
+        targetStemRank: routeFrame?.targetStemRank || "",
+        layerOrder: Array.from(ANDREWS_CNV_CNN_DESUPERPOSITION_LAYER_ORDER),
+        formulaBoundary: routeFrame?.formulaBoundary || "",
+        valenceFrameDimension: routeFrame?.valenceFrameDimension || "",
+        objectSlotOwnership,
+        sourceTargetRoute: routeFrame?.sourceTargetRoute || "",
+        functionUsePosition,
+        dimensionVector: {
+            sourceUnit: routeFrame?.sourceUnit || "",
+            formulaBoundary: routeFrame?.formulaBoundary || "",
+            sourceFormulaType: routeFrame?.sourceFormulaType || "",
+            sourceFormulaPosition: routeFrame?.sourceFormulaPosition || "",
+            sourceStemRank: routeFrame?.sourceStemRank || "",
+            valenceFrame: routeFrame?.valenceFrameDimension || "",
+            objectSlotOwnership,
+            sourceTargetRoute: routeFrame?.sourceTargetRoute || "",
+            routeOperation: routeFrame?.operation || "",
+            gateDomain: gateDomains[0] || "route-gate",
+            evidenceStatus: getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus(obstacle),
+            targetUnit: routeFrame?.targetUnit || "",
+            targetFormulaType: routeFrame?.targetFormulaType || "",
+            targetFormulaPosition: routeFrame?.targetFormulaPosition || "",
+            targetStemRank: routeFrame?.targetStemRank || "",
+            pathDepth: Number(routeFrame?.pathDepth || 1),
+            functionUse: functionUsePosition,
+        },
+    };
+}
+
+function countAndrewsCnvCnnDimensionValues(items = [], getValues = () => []) {
+    const counts = new Map();
+    (Array.isArray(items) ? items : []).forEach((item) => {
+        const values = getValues(item);
+        (Array.isArray(values) ? values : [values])
+            .map((value) => String(value || "").trim())
+            .filter(Boolean)
+            .forEach((value) => {
+                counts.set(value, (counts.get(value) || 0) + 1);
+            });
+    });
+    return Array.from(counts.entries())
+        .sort((left, right) => {
+            if (right[1] !== left[1]) {
+                return right[1] - left[1];
+            }
+            return left[0].localeCompare(right[0]);
+        })
+        .map(([value, count]) => ({ value, count }));
+}
+
+function buildAndrewsCnvCnnBackAndForthDimensionalIndex({
+    includeObstacleCoordinates = false,
+} = {}) {
+    const routeCoordinateFrames = getAndrewsCnvCnnBackAndForthRouteRecords()
+        .map((record) => buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(record))
+        .filter(Boolean);
+    const obstacleCoordinateFrames = getAndrewsCnvCnnBackAndForthObstacleCatalog()
+        .map((entry) => buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(entry))
+        .filter(Boolean);
+    const index = {
+        kind: "andrews-cnv-cnn-dimensional-index",
+        version: 1,
+        dimensionSystem: getAndrewsCnvCnnBackAndForthDimensionSystem(),
+        routeCoordinateCount: routeCoordinateFrames.length,
+        obstacleCoordinateCount: obstacleCoordinateFrames.length,
+        routeCoordinateFrames,
+        routeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.routeId),
+        sourceFormulaTypeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.sourceFormulaType),
+        targetFormulaTypeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.targetFormulaType),
+        operationCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.routeOperation),
+        gateDomainCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.gateDomains),
+        evidenceStatusCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.evidenceStatus),
+        pathDepthCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => String(frame.pathDepth)),
+        stageCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.stage),
+    };
+    if (includeObstacleCoordinates === true) {
+        index.obstacleCoordinateFrames = obstacleCoordinateFrames;
+    }
+    return index;
+}
+
+function getAndrewsFeatureNumericCode(value = "", codeMap = {}) {
+    const raw = String(value || "").trim();
+    const keys = [raw, raw.toUpperCase(), raw.toLowerCase()].filter(Boolean);
+    for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(codeMap, key)) {
+            return Number(codeMap[key]);
+        }
+    }
+    return Number(codeMap.unknown || 0);
+}
+
+function getAndrewsFormulaTypeNumericCode(formulaType = "") {
+    return getAndrewsFeatureNumericCode(formulaType, ANDREWS_FORMULA_TYPE_NUMERIC_CODES);
+}
+
+function getAndrewsCnvCnnFormulaPositionNumericCode(position = "") {
+    return getAndrewsFeatureNumericCode(position, ANDREWS_CNV_CNN_FORMULA_POSITION_CODES);
+}
+
+function getAndrewsCnvCnnStemRankNumericCode(stemRank = "") {
+    return getAndrewsFeatureNumericCode(stemRank, ANDREWS_CNV_CNN_STEM_RANK_CODES);
+}
+
+function getAndrewsCnvCnnEvidenceStatusNumericCode(status = "") {
+    return getAndrewsFeatureNumericCode(status, ANDREWS_CNV_CNN_EVIDENCE_STATUS_CODES);
+}
+
+function getAndrewsCnvCnnFormulaTransition(sourceFormulaType = "", targetFormulaType = "") {
+    const source = String(sourceFormulaType || "").trim().toUpperCase();
+    const target = String(targetFormulaType || "").trim().toUpperCase();
+    return source && target ? `${source}->${target}` : "unknown";
+}
+
+function getAndrewsCnvCnnFormulaTransitionNumericCode(sourceFormulaType = "", targetFormulaType = "") {
+    return getAndrewsFeatureNumericCode(
+        getAndrewsCnvCnnFormulaTransition(sourceFormulaType, targetFormulaType),
+        ANDREWS_CNV_CNN_FORMULA_TRANSITION_CODES
+    );
+}
+
+function getAndrewsCnvCnnOperationNumericCode(operation = "") {
+    const normalized = String(operation || "").trim();
+    if (!normalized) {
+        return 0;
+    }
+    const operationOrder = ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS
+        .map((record) => {
+            const profile = ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_COORDINATE_PROFILES[record.id] || {};
+            return profile.operation || record.routeKind || "";
+        });
+    const index = operationOrder.indexOf(normalized);
+    return index >= 0 ? index + 1 : 0;
+}
+
+function getNuclearClausePredicatePositionStatusNumericCode(status = "") {
+    switch (normalizeNuclearClausePredicatePositionStatus(status)) {
+        case NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.dyadic:
+            return 2;
+        case NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.monadic:
+            return 1;
+        case NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.vacant:
+            return 0;
+        default:
+            return -1;
+    }
+}
+
+function countAndrewsFormulaPattern(formula = "", pattern = /(?:)/g) {
+    return (String(formula || "").match(pattern) || []).length;
+}
+
+function getAndrewsFormulaSlotTokens(formula = "") {
+    return (String(formula || "").match(/[A-Za-z][A-Za-z0-9]*/g) || [])
+        .map((token) => String(token || "").trim())
+        .filter(Boolean);
+}
+
+function buildNuclearClauseFormulaFeatureFrame(recordOrFormula = "", options = {}) {
+    const record = recordOrFormula && typeof recordOrFormula === "object"
+        ? recordOrFormula
+        : { formula: String(recordOrFormula || "") };
+    const formula = String(options.formula || record.formula || "");
+    const slotTokens = getAndrewsFormulaSlotTokens(formula);
+    const normalizedTokens = slotTokens.map((token) => token.toLowerCase());
+    const hasToken = (pattern) => normalizedTokens.some((token) => pattern.test(token));
+    const boundaryCount = countAndrewsFormulaPattern(formula, /#/g);
+    const positionBoundaryCount = countAndrewsFormulaPattern(formula, /\+/g);
+    const subpositionBoundaryCount = countAndrewsFormulaPattern(formula, /-/g);
+    const stemBoundaryPairCount = Math.min(
+        countAndrewsFormulaPattern(formula, /\(/g),
+        countAndrewsFormulaPattern(formula, /\)/g)
+    );
+    const formulaType = options.formulaType || record.formulaType || "";
+    const predicatePositionStatus = options.predicatePositionStatus || record.predicatePositionStatus || "";
+    const eventFeatures = {
+        hasForeAftBoundary: boundaryCount > 0,
+        hasPositionBoundary: positionBoundaryCount > 0,
+        hasSubpositionBoundary: subpositionBoundaryCount > 0,
+        hasStemBoundary: stemBoundaryPairCount > 0,
+        hasPersonSlot: hasToken(/^(pers|person)/),
+        hasValenceSlot: hasToken(/^(va|va1|va2|valence)$/),
+        hasStateSlot: hasToken(/^(st|st1|st2|state)$/),
+        hasObjectSlot: hasToken(/^(obj|object|reflexivo|reflexive)/),
+        hasTenseSlot: hasToken(/^(tns|tense|tiempo)/),
+        hasNumberSlot: hasToken(/^(num|number)/),
+        predicateInsideParentheses: /\([^)]*(STEM|stem)[^)]*\)/.test(formula),
+    };
+    const stage = Number(options.stage || record.stage || 0);
+    const numericFeatures = {
+        stage,
+        formulaTypeCode: getAndrewsFormulaTypeNumericCode(formulaType),
+        predicatePositionStatusCode: getNuclearClausePredicatePositionStatusNumericCode(predicatePositionStatus),
+        slotTokenCount: slotTokens.length,
+        uniqueSlotTokenCount: new Set(normalizedTokens).size,
+        boundaryCount,
+        positionBoundaryCount,
+        subpositionBoundaryCount,
+        stemBoundaryPairCount,
+        hasForeAftBoundary: eventFeatures.hasForeAftBoundary ? 1 : 0,
+        hasPositionBoundary: eventFeatures.hasPositionBoundary ? 1 : 0,
+        hasSubpositionBoundary: eventFeatures.hasSubpositionBoundary ? 1 : 0,
+        hasStemBoundary: eventFeatures.hasStemBoundary ? 1 : 0,
+        hasPersonSlot: eventFeatures.hasPersonSlot ? 1 : 0,
+        hasValenceSlot: eventFeatures.hasValenceSlot ? 1 : 0,
+        hasStateSlot: eventFeatures.hasStateSlot ? 1 : 0,
+        hasObjectSlot: eventFeatures.hasObjectSlot ? 1 : 0,
+        hasTenseSlot: eventFeatures.hasTenseSlot ? 1 : 0,
+        hasNumberSlot: eventFeatures.hasNumberSlot ? 1 : 0,
+        predicateInsideParentheses: eventFeatures.predicateInsideParentheses ? 1 : 0,
+    };
+    const complexityScore = numericFeatures.slotTokenCount
+        + numericFeatures.boundaryCount
+        + (numericFeatures.positionBoundaryCount * 2)
+        + numericFeatures.subpositionBoundaryCount
+        + (numericFeatures.stemBoundaryPairCount * 2)
+        + numericFeatures.hasValenceSlot
+        + numericFeatures.hasStateSlot
+        + numericFeatures.hasObjectSlot
+        + numericFeatures.hasTenseSlot;
+    return {
+        kind: "nuclear-clause-formula-feature-frame",
+        version: 1,
+        formulaId: [
+            `stage-${stage || "unknown"}`,
+            formulaType || "CN",
+            predicatePositionStatus || record.role || options.role || "general",
+        ].join(":"),
+        formula,
+        formulaType,
+        formulaTypeCode: numericFeatures.formulaTypeCode,
+        stage,
+        sourceSection: options.sourceSection || record.sourceSection || "",
+        predicatePositionStatus,
+        predicatePositionStatusCode: numericFeatures.predicatePositionStatusCode,
+        slotTokens,
+        eventFeatures,
+        numericFeatures,
+        complexityScore,
+    };
+}
+
+function buildNuclearClauseFormulaFeatureIndex() {
+    const inventory = getNuclearClauseLesson4FormulaInventory();
+    const formulaFeatureFrames = [];
+    formulaFeatureFrames.push(buildNuclearClauseFormulaFeatureFrame({
+        stage: inventory.stage1.stage,
+        sourceSection: inventory.stage1.sourceSection,
+        role: inventory.stage1.role,
+        formulaType: "CN",
+        formula: inventory.stage1.formula,
+    }));
+    Object.entries(inventory.stage2.formulas || {}).forEach(([formulaType, formula]) => {
+        formulaFeatureFrames.push(buildNuclearClauseFormulaFeatureFrame({
+            stage: inventory.stage2.stage,
+            sourceSection: inventory.stage2.sourceSection,
+            formulaType,
+            formula,
+        }));
+    });
+    ["VNC", "NNC"].forEach((formulaType) => {
+        (inventory.stage3[formulaType] || []).forEach((record) => {
+            formulaFeatureFrames.push(buildNuclearClauseFormulaFeatureFrame(record));
+        });
+    });
+    return {
+        kind: "nuclear-clause-formula-feature-index",
+        version: 1,
+        formulaFeatureCount: formulaFeatureFrames.length,
+        formulaFeatureFrames,
+        stageCounts: countAndrewsCnvCnnDimensionValues(formulaFeatureFrames, (frame) => String(frame.stage)),
+        formulaTypeCounts: countAndrewsCnvCnnDimensionValues(formulaFeatureFrames, (frame) => frame.formulaType || "CN"),
+        tenseFormulaCount: formulaFeatureFrames.filter((frame) => frame.eventFeatures.hasTenseSlot).length,
+        stateFormulaCount: formulaFeatureFrames.filter((frame) => frame.eventFeatures.hasStateSlot).length,
+        valenceFormulaCount: formulaFeatureFrames.filter((frame) => frame.eventFeatures.hasValenceSlot).length,
+        objectFormulaCount: formulaFeatureFrames.filter((frame) => frame.eventFeatures.hasObjectSlot).length,
+        numberFormulaCount: formulaFeatureFrames.filter((frame) => frame.eventFeatures.hasNumberSlot).length,
+    };
+}
+
+function getAndrewsCnvCnnGateDomainFeatureKey(domain = "") {
+    return String(domain || "")
+        .trim()
+        .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
+        .replace(/[^A-Za-z0-9]/g, "");
+}
+
+function buildAndrewsCnvCnnGateDomainFeatureVector(gateDomains = []) {
+    const domainSet = new Set((Array.isArray(gateDomains) ? gateDomains : [])
+        .map((domain) => String(domain || "").trim())
+        .filter(Boolean));
+    return Object.fromEntries(ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS.map((domain) => ([
+        getAndrewsCnvCnnGateDomainFeatureKey(domain),
+        domainSet.has(domain) ? 1 : 0,
+    ])));
+}
+
+function buildAndrewsCnvCnnBackAndForthRouteFeatureFrame(recordOrRouteId = null) {
+    const routeFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(recordOrRouteId);
+    if (!routeFrame) {
+        return null;
+    }
+    const formulaTransition = getAndrewsCnvCnnFormulaTransition(routeFrame.sourceFormulaType, routeFrame.targetFormulaType);
+    const formulaTypeChanged = routeFrame.sourceFormulaType !== routeFrame.targetFormulaType;
+    const intermediateFormulaTypeCount = Array.isArray(routeFrame.intermediateFormulaTypes)
+        ? routeFrame.intermediateFormulaTypes.length
+        : 0;
+    const numericFeatures = {
+        sourceFormulaTypeCode: getAndrewsFormulaTypeNumericCode(routeFrame.sourceFormulaType),
+        targetFormulaTypeCode: getAndrewsFormulaTypeNumericCode(routeFrame.targetFormulaType),
+        sourceFormulaPositionCode: getAndrewsCnvCnnFormulaPositionNumericCode(routeFrame.sourceFormulaPosition),
+        targetFormulaPositionCode: getAndrewsCnvCnnFormulaPositionNumericCode(routeFrame.targetFormulaPosition),
+        sourceStemRankCode: getAndrewsCnvCnnStemRankNumericCode(routeFrame.sourceStemRank),
+        targetStemRankCode: getAndrewsCnvCnnStemRankNumericCode(routeFrame.targetStemRank),
+        formulaTransitionCode: getAndrewsCnvCnnFormulaTransitionNumericCode(routeFrame.sourceFormulaType, routeFrame.targetFormulaType),
+        operationCode: getAndrewsCnvCnnOperationNumericCode(routeFrame.operation),
+        pathDepth: Number(routeFrame.pathDepth || 1),
+        intermediateFormulaTypeCount,
+        formulaTypeChanged: formulaTypeChanged ? 1 : 0,
+        andrewsRefCount: Array.isArray(routeFrame.andrewsRefs) ? routeFrame.andrewsRefs.length : 0,
+    };
+    return {
+        kind: "andrews-cnv-cnn-route-feature-frame",
+        version: 1,
+        routeId: routeFrame.routeId,
+        routeKind: routeFrame.routeKind,
+        operation: routeFrame.operation,
+        formulaTransition,
+        sourceFormulaType: routeFrame.sourceFormulaType,
+        targetFormulaType: routeFrame.targetFormulaType,
+        sourceFormulaPosition: routeFrame.sourceFormulaPosition,
+        targetFormulaPosition: routeFrame.targetFormulaPosition,
+        sourceStemRank: routeFrame.sourceStemRank,
+        targetStemRank: routeFrame.targetStemRank,
+        pathDepth: routeFrame.pathDepth,
+        intermediateFormulaTypes: Array.from(routeFrame.intermediateFormulaTypes || []),
+        eventFeatures: [
+            `transition:${formulaTransition}`,
+            `operation:${routeFrame.operation}`,
+            `path-depth:${routeFrame.pathDepth}`,
+            formulaTypeChanged ? "formula-type-change" : "formula-type-retained",
+            ...(routeFrame.intermediateFormulaTypes || []).map((formulaType) => `intermediate:${formulaType}`),
+        ],
+        numericFeatures,
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame(entryOrId = null) {
+    const coordinateFrame = buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(entryOrId);
+    if (!coordinateFrame) {
+        return null;
+    }
+    const gateDomainFeatureVector = buildAndrewsCnvCnnGateDomainFeatureVector(coordinateFrame.gateDomains);
+    const numericFeatures = {
+        pathDepth: Number(coordinateFrame.pathDepth || 1),
+        gateDomainCount: Array.isArray(coordinateFrame.gateDomains) ? coordinateFrame.gateDomains.length : 0,
+        evidenceStatusCode: getAndrewsCnvCnnEvidenceStatusNumericCode(coordinateFrame.evidenceStatus),
+        sourceRefCount: Array.isArray(coordinateFrame.sourceRefs) ? coordinateFrame.sourceRefs.length : 0,
+        pdfPageCount: Array.isArray(coordinateFrame.pdfPages) ? coordinateFrame.pdfPages.length : 0,
+        routeOperationCode: getAndrewsCnvCnnOperationNumericCode(coordinateFrame.routeOperation),
+        sourceFormulaTypeCode: getAndrewsFormulaTypeNumericCode(coordinateFrame.sourceFormulaType),
+        targetFormulaTypeCode: getAndrewsFormulaTypeNumericCode(coordinateFrame.targetFormulaType),
+        ...gateDomainFeatureVector,
+    };
+    return {
+        kind: "andrews-cnv-cnn-obstacle-feature-frame",
+        version: 1,
+        id: coordinateFrame.id,
+        routeId: coordinateFrame.routeId,
+        coordinateId: coordinateFrame.coordinateId,
+        gateDomains: Array.from(coordinateFrame.gateDomains || []),
+        primaryGateDomain: coordinateFrame.primaryGateDomain,
+        evidenceStatus: coordinateFrame.evidenceStatus,
+        eventFeatures: [
+            `route:${coordinateFrame.routeId}`,
+            `evidence:${coordinateFrame.evidenceStatus}`,
+            `primary-gate:${coordinateFrame.primaryGateDomain}`,
+            ...(coordinateFrame.gateDomains || []).map((domain) => `gate:${domain}`),
+        ],
+        numericFeatures,
+    };
+}
+
+function getAndrewsCnvCnnCountValue(counts = [], value = "") {
+    return Number((Array.isArray(counts) ? counts : [])
+        .find((entry) => entry.value === value)?.count || 0);
+}
+
+function roundAndrewsCnvCnnStatistic(value = 0, places = 6) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+        return 0;
+    }
+    const factor = 10 ** Math.max(0, Number(places) || 0);
+    return Math.round(numeric * factor) / factor;
+}
+
+function getAndrewsCnvCnnMean(values = []) {
+    const numericValues = (Array.isArray(values) ? values : [])
+        .map(Number)
+        .filter(Number.isFinite);
+    if (!numericValues.length) {
+        return 0;
+    }
+    return numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length;
+}
+
+function getAndrewsCnvCnnPopulationStandardDeviation(values = []) {
+    const numericValues = (Array.isArray(values) ? values : [])
+        .map(Number)
+        .filter(Number.isFinite);
+    if (!numericValues.length) {
+        return 0;
+    }
+    const mean = getAndrewsCnvCnnMean(numericValues);
+    const variance = numericValues.reduce((sum, value) => sum + ((value - mean) ** 2), 0) / numericValues.length;
+    return Math.sqrt(variance);
+}
+
+function getAndrewsCnvCnnMedian(values = []) {
+    const numericValues = (Array.isArray(values) ? values : [])
+        .map(Number)
+        .filter(Number.isFinite)
+        .sort((left, right) => left - right);
+    if (!numericValues.length) {
+        return 0;
+    }
+    const middle = Math.floor(numericValues.length / 2);
+    return numericValues.length % 2
+        ? numericValues[middle]
+        : (numericValues[middle - 1] + numericValues[middle]) / 2;
+}
+
+function getAndrewsCnvCnnZScore(value = 0, values = []) {
+    const mean = getAndrewsCnvCnnMean(values);
+    const standardDeviation = getAndrewsCnvCnnPopulationStandardDeviation(values);
+    if (!standardDeviation) {
+        return 0;
+    }
+    return (Number(value || 0) - mean) / standardDeviation;
+}
+
+function getAndrewsCnvCnnPearsonCorrelation(xValues = [], yValues = []) {
+    const xs = (Array.isArray(xValues) ? xValues : []).map(Number);
+    const ys = (Array.isArray(yValues) ? yValues : []).map(Number);
+    const length = Math.min(xs.length, ys.length);
+    if (length < 2) {
+        return 0;
+    }
+    const x = xs.slice(0, length).filter(Number.isFinite);
+    const y = ys.slice(0, length).filter(Number.isFinite);
+    if (x.length !== length || y.length !== length) {
+        return 0;
+    }
+    const xMean = getAndrewsCnvCnnMean(x);
+    const yMean = getAndrewsCnvCnnMean(y);
+    const numerator = x.reduce((sum, value, index) => sum + ((value - xMean) * (y[index] - yMean)), 0);
+    const xDenominator = x.reduce((sum, value) => sum + ((value - xMean) ** 2), 0);
+    const yDenominator = y.reduce((sum, value) => sum + ((value - yMean) ** 2), 0);
+    const denominator = Math.sqrt(xDenominator * yDenominator);
+    return denominator ? numerator / denominator : 0;
+}
+
+function getAndrewsCnvCnnExactPermutationPValueForPearson(xValues = [], yValues = []) {
+    const xs = (Array.isArray(xValues) ? xValues : []).map(Number);
+    const ys = (Array.isArray(yValues) ? yValues : []).map(Number);
+    const length = Math.min(xs.length, ys.length);
+    if (length < 2 || xs.some((value) => !Number.isFinite(value)) || ys.some((value) => !Number.isFinite(value))) {
+        return 1;
+    }
+    const observed = Math.abs(getAndrewsCnvCnnPearsonCorrelation(xs, ys));
+    if (!observed) {
+        return 1;
+    }
+    const used = new Array(length).fill(false);
+    const permuted = [];
+    let total = 0;
+    let extreme = 0;
+    const visit = () => {
+        if (permuted.length === length) {
+            total += 1;
+            const candidate = Math.abs(getAndrewsCnvCnnPearsonCorrelation(xs, permuted));
+            if (candidate + 1e-12 >= observed) {
+                extreme += 1;
+            }
+            return;
+        }
+        for (let index = 0; index < length; index += 1) {
+            if (used[index]) {
+                continue;
+            }
+            used[index] = true;
+            permuted.push(ys[index]);
+            visit();
+            permuted.pop();
+            used[index] = false;
+        }
+    };
+    visit();
+    return total ? extreme / total : 1;
+}
+
+function getAndrewsCnvCnnEntropyFromCounts(counts = []) {
+    const numericCounts = (Array.isArray(counts) ? counts : [])
+        .map(Number)
+        .filter((value) => Number.isFinite(value) && value >= 0);
+    const total = numericCounts.reduce((sum, value) => sum + value, 0);
+    if (!total) {
+        return 0;
+    }
+    return numericCounts.reduce((entropy, count) => {
+        if (!count) {
+            return entropy;
+        }
+        const probability = count / total;
+        return entropy - (probability * Math.log2(probability));
+    }, 0);
+}
+
+function getAndrewsCnvCnnInformationGainFromBinarySplit({
+    presentLow = 0,
+    presentHigh = 0,
+    absentLow = 0,
+    absentHigh = 0,
+} = {}) {
+    const presentCounts = [Number(presentLow || 0), Number(presentHigh || 0)];
+    const absentCounts = [Number(absentLow || 0), Number(absentHigh || 0)];
+    const totalLow = presentCounts[0] + absentCounts[0];
+    const totalHigh = presentCounts[1] + absentCounts[1];
+    const total = totalLow + totalHigh;
+    if (!total) {
+        return {
+            baseEntropy: 0,
+            conditionalEntropy: 0,
+            informationGain: 0,
+        };
+    }
+    const presentTotal = presentCounts[0] + presentCounts[1];
+    const absentTotal = absentCounts[0] + absentCounts[1];
+    const baseEntropy = getAndrewsCnvCnnEntropyFromCounts([totalLow, totalHigh]);
+    const conditionalEntropy = ((presentTotal / total) * getAndrewsCnvCnnEntropyFromCounts(presentCounts))
+        + ((absentTotal / total) * getAndrewsCnvCnnEntropyFromCounts(absentCounts));
+    return {
+        baseEntropy,
+        conditionalEntropy,
+        informationGain: baseEntropy - conditionalEntropy,
+    };
+}
+
+function getAndrewsCnvCnnHaldaneAnscombeOddsRatio({
+    a = 0,
+    b = 0,
+    c = 0,
+    d = 0,
+} = {}) {
+    return ((Number(a || 0) + 0.5) * (Number(d || 0) + 0.5))
+        / ((Number(b || 0) + 0.5) * (Number(c || 0) + 0.5));
+}
+
+const ANDREWS_CNV_CNN_LOG_FACTORIAL_CACHE = [0];
+
+function getAndrewsCnvCnnLogFactorial(value = 0) {
+    const n = Math.max(0, Math.floor(Number(value) || 0));
+    for (let index = ANDREWS_CNV_CNN_LOG_FACTORIAL_CACHE.length; index <= n; index += 1) {
+        ANDREWS_CNV_CNN_LOG_FACTORIAL_CACHE[index] = ANDREWS_CNV_CNN_LOG_FACTORIAL_CACHE[index - 1] + Math.log(index);
+    }
+    return ANDREWS_CNV_CNN_LOG_FACTORIAL_CACHE[n];
+}
+
+function getAndrewsCnvCnnLogCombination(n = 0, k = 0) {
+    const total = Math.max(0, Math.floor(Number(n) || 0));
+    const selected = Math.max(0, Math.floor(Number(k) || 0));
+    if (selected > total) {
+        return Number.NEGATIVE_INFINITY;
+    }
+    return getAndrewsCnvCnnLogFactorial(total)
+        - getAndrewsCnvCnnLogFactorial(selected)
+        - getAndrewsCnvCnnLogFactorial(total - selected);
+}
+
+function getAndrewsCnvCnnHypergeometricProbability({
+    a = 0,
+    row1 = 0,
+    col1 = 0,
+    total = 0,
+} = {}) {
+    const left = Math.max(0, Math.floor(Number(a) || 0));
+    const firstRow = Math.max(0, Math.floor(Number(row1) || 0));
+    const firstColumn = Math.max(0, Math.floor(Number(col1) || 0));
+    const all = Math.max(0, Math.floor(Number(total) || 0));
+    const secondColumn = all - firstColumn;
+    const logProbability = getAndrewsCnvCnnLogCombination(firstColumn, left)
+        + getAndrewsCnvCnnLogCombination(secondColumn, firstRow - left)
+        - getAndrewsCnvCnnLogCombination(all, firstRow);
+    return Number.isFinite(logProbability) ? Math.exp(logProbability) : 0;
+}
+
+function getAndrewsCnvCnnFisherExactTwoSidedPValue({
+    a = 0,
+    b = 0,
+    c = 0,
+    d = 0,
+} = {}) {
+    const observedA = Math.max(0, Math.floor(Number(a) || 0));
+    const observedB = Math.max(0, Math.floor(Number(b) || 0));
+    const observedC = Math.max(0, Math.floor(Number(c) || 0));
+    const observedD = Math.max(0, Math.floor(Number(d) || 0));
+    const row1 = observedA + observedB;
+    const row2 = observedC + observedD;
+    const col1 = observedA + observedC;
+    const total = row1 + row2;
+    if (!total || !row1 || !row2) {
+        return 1;
+    }
+    const minA = Math.max(0, col1 - row2);
+    const maxA = Math.min(row1, col1);
+    const observedProbability = getAndrewsCnvCnnHypergeometricProbability({
+        a: observedA,
+        row1,
+        col1,
+        total,
+    });
+    let pValue = 0;
+    for (let candidateA = minA; candidateA <= maxA; candidateA += 1) {
+        const probability = getAndrewsCnvCnnHypergeometricProbability({
+            a: candidateA,
+            row1,
+            col1,
+            total,
+        });
+        if (probability <= observedProbability + 1e-12) {
+            pValue += probability;
+        }
+    }
+    return Math.min(1, Math.max(0, pValue));
+}
+
+function applyAndrewsCnvCnnBenjaminiHochberg(frames = [], pValueKey = "pValue") {
+    const source = Array.isArray(frames) ? frames : [];
+    const sorted = source
+        .map((frame, index) => ({
+            index,
+            pValue: Number(frame?.[pValueKey]),
+        }))
+        .filter((entry) => Number.isFinite(entry.pValue))
+        .sort((left, right) => left.pValue - right.pValue || left.index - right.index);
+    const qValues = new Map();
+    let nextQ = 1;
+    for (let index = sorted.length - 1; index >= 0; index -= 1) {
+        const rank = index + 1;
+        const rawQ = (sorted[index].pValue * sorted.length) / rank;
+        nextQ = Math.min(nextQ, rawQ);
+        qValues.set(sorted[index].index, Math.min(1, nextQ));
+    }
+    return source.map((frame, index) => {
+        const qValue = qValues.has(index) ? qValues.get(index) : 1;
+        return {
+            ...frame,
+            qValue: roundAndrewsCnvCnnStatistic(qValue, 12),
+            rejectsFalseDiscoveryRate: qValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+        };
+    });
+}
+
+function buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(routeFeatureFrame = null, obstacleFeatureFrames = [], totalObstacleCount = 0) {
+    if (!routeFeatureFrame) {
+        return null;
+    }
+    const routeObstacles = (Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : [])
+        .filter((frame) => frame.routeId === routeFeatureFrame.routeId);
+    const gateDomainCounts = countAndrewsCnvCnnDimensionValues(routeObstacles, (frame) => frame.gateDomains);
+    const evidenceStatusCounts = countAndrewsCnvCnnDimensionValues(routeObstacles, (frame) => frame.evidenceStatus);
+    const uniqueGateDomainCount = gateDomainCounts.length;
+    const obstacleCount = routeObstacles.length;
+    const sourceOrNawatEvidenceGateCount = getAndrewsCnvCnnCountValue(evidenceStatusCounts, "source-or-nawat-evidence-gate");
+    const blockingOrRequirementGateCount = getAndrewsCnvCnnCountValue(evidenceStatusCounts, "blocking-or-requirement-gate");
+    const formulaTypeChanged = routeFeatureFrame.numericFeatures.formulaTypeChanged === 1;
+    const pathDepth = Number(routeFeatureFrame.numericFeatures.pathDepth || 1);
+    const intermediateFormulaTypeCount = Number(routeFeatureFrame.numericFeatures.intermediateFormulaTypeCount || 0);
+    const scoreTerms = {
+        obstacleCount,
+        domainBreadthPenalty: uniqueGateDomainCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.uniqueGateDomainCount,
+        pathDepthPenalty: Math.max(0, pathDepth - 1) * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.pathDepthBeyondOne,
+        evidencePenalty: sourceOrNawatEvidenceGateCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.sourceOrNawatEvidenceGateCount,
+        requirementPenalty: blockingOrRequirementGateCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.blockingOrRequirementGateCount,
+        formulaShiftPenalty: formulaTypeChanged ? ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.formulaTypeChanged : 0,
+        intermediatePenalty: intermediateFormulaTypeCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.intermediateFormulaTypeCount,
+    };
+    const resistanceScore = Object.values(scoreTerms).reduce((sum, value) => sum + Number(value || 0), 0);
+    return {
+        kind: "andrews-cnv-cnn-route-resistance-record",
+        version: 1,
+        routeId: routeFeatureFrame.routeId,
+        routeKind: routeFeatureFrame.routeKind,
+        operation: routeFeatureFrame.operation,
+        formulaTransition: routeFeatureFrame.formulaTransition,
+        pathDepth,
+        intermediateFormulaTypeCount,
+        obstacleCount,
+        obstacleShareBasisPoints: totalObstacleCount ? Math.round((obstacleCount / totalObstacleCount) * 10000) : 0,
+        uniqueGateDomainCount,
+        gateDomainCounts,
+        evidenceStatusCounts,
+        sourceOrNawatEvidenceGateCount,
+        blockingOrRequirementGateCount,
+        andrewsStructuralGateCount: getAndrewsCnvCnnCountValue(evidenceStatusCounts, "andrews-structural-gate"),
+        formulaTypeChanged,
+        scoreTerms,
+        resistanceScore,
+        numericFeatures: {
+            ...routeFeatureFrame.numericFeatures,
+            obstacleCount,
+            obstacleShareBasisPoints: totalObstacleCount ? Math.round((obstacleCount / totalObstacleCount) * 10000) : 0,
+            uniqueGateDomainCount,
+            sourceOrNawatEvidenceGateCount,
+            blockingOrRequirementGateCount,
+            resistanceScore,
+        },
+        eventFeatures: [
+            ...routeFeatureFrame.eventFeatures,
+            `obstacle-count:${obstacleCount}`,
+            `unique-gate-domain-count:${uniqueGateDomainCount}`,
+            `resistance-score:${resistanceScore}`,
+        ],
+    };
+}
+
+function getAndrewsCnvCnnRouteResistanceCorrelationFeatures() {
+    return [
+        {
+            feature: "obstacleCount",
+            label: "unresolved gate count",
+            actionWhenPositive: "Reduce unresolved gates before expanding route output.",
+        },
+        {
+            feature: "blockingOrRequirementGateCount",
+            label: "blocking or requirement gates",
+            actionWhenPositive: "Turn requirements into #1/#2 prechecks instead of late route failures.",
+        },
+        {
+            feature: "sourceOrNawatEvidenceGateCount",
+            label: "source/Nawat evidence gates",
+            actionWhenPositive: "Resolve source evidence before surface realization.",
+        },
+        {
+            feature: "uniqueGateDomainCount",
+            label: "gate-domain breadth",
+            actionWhenPositive: "Split broad routes into narrower dimensional subroutes.",
+        },
+        {
+            feature: "andrewsStructuralGateCount",
+            label: "Andrews structural gates",
+            actionWhenPositive: "Expose the structural gate as a formula event before generation.",
+        },
+        {
+            feature: "pathDepth",
+            label: "path depth",
+            actionWhenPositive: "Materialize each intermediate source so the path is not hidden.",
+        },
+        {
+            feature: "intermediateFormulaTypeCount",
+            label: "intermediate formula type count",
+            actionWhenPositive: "Name intermediate CNV/CNN stops as route events.",
+        },
+        {
+            feature: "formulaTypeChanged",
+            label: "formula type change",
+            actionWhenPositive: "Keep formula-type changes explicit at the boundary.",
+        },
+    ];
+}
+
+function getAndrewsCnvCnnRouteFeatureValue(routeRecord = null, feature = "") {
+    if (!routeRecord || typeof routeRecord !== "object") {
+        return 0;
+    }
+    if (Object.prototype.hasOwnProperty.call(routeRecord, feature)) {
+        return Number(routeRecord[feature] || 0);
+    }
+    if (routeRecord.numericFeatures && Object.prototype.hasOwnProperty.call(routeRecord.numericFeatures, feature)) {
+        return Number(routeRecord.numericFeatures[feature] || 0);
+    }
+    return 0;
+}
+
+function buildAndrewsCnvCnnRouteZScoreFrames(routeStatistics = []) {
+    const records = Array.isArray(routeStatistics) ? routeStatistics : [];
+    const scores = records.map((record) => Number(record.resistanceScore || 0));
+    const mean = getAndrewsCnvCnnMean(scores);
+    const standardDeviation = getAndrewsCnvCnnPopulationStandardDeviation(scores);
+    return records
+        .map((record) => {
+            const zScore = getAndrewsCnvCnnZScore(record.resistanceScore, scores);
+            return {
+                routeId: record.routeId,
+                resistanceScore: record.resistanceScore,
+                zScore: roundAndrewsCnvCnnStatistic(zScore),
+                standardScoreLabel: zScore > 1
+                    ? "above-one-standard-deviation"
+                    : (zScore < -1 ? "below-one-standard-deviation" : "within-one-standard-deviation"),
+            };
+        })
+        .sort((left, right) => right.zScore - left.zScore || left.routeId.localeCompare(right.routeId))
+        .map((entry) => ({
+            ...entry,
+            populationMeanResistance: roundAndrewsCnvCnnStatistic(mean),
+            populationStandardDeviation: roundAndrewsCnvCnnStatistic(standardDeviation),
+        }));
+}
+
+function buildAndrewsCnvCnnRoutePearsonCorrelationFrames(routeStatistics = []) {
+    const records = Array.isArray(routeStatistics) ? routeStatistics : [];
+    const resistanceScores = records.map((record) => Number(record.resistanceScore || 0));
+    const frames = getAndrewsCnvCnnRouteResistanceCorrelationFeatures()
+        .map((definition) => {
+            const featureValues = records.map((record) => getAndrewsCnvCnnRouteFeatureValue(record, definition.feature));
+            const pearsonR = getAndrewsCnvCnnPearsonCorrelation(featureValues, resistanceScores);
+            const pValue = getAndrewsCnvCnnExactPermutationPValueForPearson(featureValues, resistanceScores);
+            return {
+                feature: definition.feature,
+                label: definition.label,
+                equation: "pearson-correlation",
+                hypothesisTestId: "route-feature-exact-permutation-test",
+                nullHypothesis: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS
+                    .find((entry) => entry.id === "route-feature-exact-permutation-test")?.nullHypothesis || "",
+                test: "Exact two-sided permutation test over Pearson correlation.",
+                sampleSize: records.length,
+                pearsonR: roundAndrewsCnvCnnStatistic(pearsonR),
+                absolutePearsonR: roundAndrewsCnvCnnStatistic(Math.abs(pearsonR)),
+                pValue: roundAndrewsCnvCnnStatistic(pValue, 12),
+                alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                lowPValue: pValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                rejectsNullHypothesis: pValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                direction: pearsonR > 0
+                    ? "feature-increase-associated-with-higher-resistance"
+                    : (pearsonR < 0
+                        ? "feature-increase-associated-with-lower-resistance"
+                        : "no-linear-association"),
+                decreaseResistanceAction: pearsonR > 0
+                    ? definition.actionWhenPositive
+                    : "Treat as a route-shape contrast, not a count-reduction target.",
+            };
+        })
+        .sort((left, right) => right.absolutePearsonR - left.absolutePearsonR || left.feature.localeCompare(right.feature));
+    return applyAndrewsCnvCnnBenjaminiHochberg(frames)
+        .sort((left, right) => right.absolutePearsonR - left.absolutePearsonR || left.feature.localeCompare(right.feature));
+}
+
+function getAndrewsCnvCnnRouteGateDomainCount(routeRecord = null, domain = "") {
+    return Number((Array.isArray(routeRecord?.gateDomainCounts) ? routeRecord.gateDomainCounts : [])
+        .find((entry) => entry.value === domain)?.count || 0);
+}
+
+function buildAndrewsCnvCnnGateDomainRiskEquationFrames(mostResistanceRoute = null, leastResistanceRoute = null) {
+    if (!mostResistanceRoute || !leastResistanceRoute) {
+        return [];
+    }
+    const mostTotal = Number(mostResistanceRoute.obstacleCount || 0);
+    const leastTotal = Number(leastResistanceRoute.obstacleCount || 0);
+    return ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS
+        .map((domain) => {
+            const mostCount = getAndrewsCnvCnnRouteGateDomainCount(mostResistanceRoute, domain);
+            const leastCount = getAndrewsCnvCnnRouteGateDomainCount(leastResistanceRoute, domain);
+            const mostWithout = Math.max(0, mostTotal - mostCount);
+            const leastWithout = Math.max(0, leastTotal - leastCount);
+            const mostProbability = mostTotal ? mostCount / mostTotal : 0;
+            const leastProbability = leastTotal ? leastCount / leastTotal : 0;
+            const riskDifference = mostProbability - leastProbability;
+            const oddsRatio = getAndrewsCnvCnnHaldaneAnscombeOddsRatio({
+                a: mostCount,
+                b: mostWithout,
+                c: leastCount,
+                d: leastWithout,
+            });
+            return {
+                domain,
+                equation: "risk-difference + haldane-anscombe-odds-ratio",
+                mostCount,
+                mostWithout,
+                leastCount,
+                leastWithout,
+                countDelta: mostCount - leastCount,
+                mostProbability: roundAndrewsCnvCnnStatistic(mostProbability),
+                leastProbability: roundAndrewsCnvCnnStatistic(leastProbability),
+                riskDifference: roundAndrewsCnvCnnStatistic(riskDifference),
+                oddsRatio: roundAndrewsCnvCnnStatistic(oddsRatio),
+                logOddsRatio: roundAndrewsCnvCnnStatistic(Math.log(oddsRatio || 1)),
+                direction: riskDifference > 0
+                    ? "overrepresented-in-most-resistance"
+                    : (riskDifference < 0
+                        ? "overrepresented-in-least-resistance"
+                        : "balanced"),
+                decreaseResistanceAction: riskDifference > 0
+                    ? getAndrewsCnvCnnResistanceConversionAction(domain, mostCount, leastCount).action
+                    : "Preserve this as an explicit low-resistance route feature instead of collapsing it into a hidden gate.",
+            };
+        })
+        .sort((left, right) => {
+            if (Math.abs(right.riskDifference) !== Math.abs(left.riskDifference)) {
+                return Math.abs(right.riskDifference) - Math.abs(left.riskDifference);
+            }
+            return right.countDelta - left.countDelta;
+        });
+}
+
+function buildAndrewsCnvCnnGateDomainInformationGainFrames(routeStatistics = [], obstacleFeatureFrames = []) {
+    const routeScores = new Map((Array.isArray(routeStatistics) ? routeStatistics : [])
+        .map((record) => [record.routeId, Number(record.resistanceScore || 0)]));
+    const scores = Array.from(routeScores.values());
+    const medianResistance = getAndrewsCnvCnnMedian(scores);
+    const obstacles = (Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : [])
+        .map((frame) => ({
+            routeId: frame.routeId,
+            gateDomains: Array.isArray(frame.gateDomains) ? frame.gateDomains : [],
+            resistanceClass: Number(routeScores.get(frame.routeId) || 0) <= medianResistance ? "low-resistance" : "high-resistance",
+        }));
+    const frames = ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS
+        .map((domain) => {
+            const present = obstacles.filter((frame) => frame.gateDomains.includes(domain));
+            const absent = obstacles.filter((frame) => !frame.gateDomains.includes(domain));
+            const presentLow = present.filter((frame) => frame.resistanceClass === "low-resistance").length;
+            const presentHigh = present.length - presentLow;
+            const absentLow = absent.filter((frame) => frame.resistanceClass === "low-resistance").length;
+            const absentHigh = absent.length - absentLow;
+            const fisherPValue = getAndrewsCnvCnnFisherExactTwoSidedPValue({
+                a: presentLow,
+                b: presentHigh,
+                c: absentLow,
+                d: absentHigh,
+            });
+            const gain = getAndrewsCnvCnnInformationGainFromBinarySplit({
+                presentLow,
+                presentHigh,
+                absentLow,
+                absentHigh,
+            });
+            const presentLowProbability = present.length ? presentLow / present.length : 0;
+            const absentLowProbability = absent.length ? absentLow / absent.length : 0;
+            return {
+                domain,
+                equation: "information-gain",
+                hypothesisTestId: "gate-domain-fisher-exact-test",
+                nullHypothesis: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS
+                    .find((entry) => entry.id === "gate-domain-fisher-exact-test")?.nullHypothesis || "",
+                test: "Two-sided Fisher exact test on gate-domain presence by low/high resistance class.",
+                alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                pValue: roundAndrewsCnvCnnStatistic(fisherPValue, 12),
+                lowPValue: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                rejectsNullHypothesis: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                independenceWarning: "Andrews obstacle-catalog records are route-clustered; this p-value is a catalog-pattern diagnostic, not independent surface evidence.",
+                medianResistance,
+                presentLow,
+                presentHigh,
+                absentLow,
+                absentHigh,
+                presentLowProbability: roundAndrewsCnvCnnStatistic(presentLowProbability),
+                absentLowProbability: roundAndrewsCnvCnnStatistic(absentLowProbability),
+                baseEntropy: roundAndrewsCnvCnnStatistic(gain.baseEntropy),
+                conditionalEntropy: roundAndrewsCnvCnnStatistic(gain.conditionalEntropy),
+                informationGain: roundAndrewsCnvCnnStatistic(gain.informationGain),
+                direction: presentLowProbability > absentLowProbability
+                    ? "presence-associated-with-lower-resistance"
+                    : (presentLowProbability < absentLowProbability
+                        ? "presence-associated-with-higher-resistance"
+                        : "balanced"),
+                decreaseResistanceAction: presentLowProbability > absentLowProbability
+                    ? "Keep this domain explicit and early because its presence partitions lower-resistance routes."
+                    : "Split or pre-resolve this domain because its presence partitions higher-resistance routes.",
+            };
+        })
+        .sort((left, right) => right.informationGain - left.informationGain || left.domain.localeCompare(right.domain));
+    return applyAndrewsCnvCnnBenjaminiHochberg(frames)
+        .sort((left, right) => right.informationGain - left.informationGain || left.domain.localeCompare(right.domain));
+}
+
+function getAndrewsCnvCnnGateDomainPairs() {
+    const pairs = [];
+    ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS.forEach((left, leftIndex) => {
+        ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS.slice(leftIndex + 1).forEach((right) => {
+            pairs.push([left, right]);
+        });
+    });
+    return pairs;
+}
+
+function buildAndrewsCnvCnnResistanceClassObstacleSamples(routeStatistics = [], obstacleFeatureFrames = []) {
+    const routeScores = new Map((Array.isArray(routeStatistics) ? routeStatistics : [])
+        .map((record) => [record.routeId, Number(record.resistanceScore || 0)]));
+    const medianResistance = getAndrewsCnvCnnMedian(Array.from(routeScores.values()));
+    const samples = (Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : [])
+        .map((frame) => {
+            const resistanceScore = Number(routeScores.get(frame.routeId) || 0);
+            return {
+                routeId: frame.routeId,
+                gateDomains: Array.isArray(frame.gateDomains) ? frame.gateDomains : [],
+                resistanceScore,
+                resistanceClass: resistanceScore <= medianResistance ? "low-resistance" : "high-resistance",
+            };
+        });
+    return {
+        medianResistance,
+        samples,
+    };
+}
+
+function buildAndrewsCnvCnnGateDomainPairResistanceFrames(routeStatistics = [], obstacleFeatureFrames = []) {
+    const { medianResistance, samples } = buildAndrewsCnvCnnResistanceClassObstacleSamples(routeStatistics, obstacleFeatureFrames);
+    const frames = getAndrewsCnvCnnGateDomainPairs()
+        .map(([domainA, domainB]) => {
+            const present = samples.filter((sample) => sample.gateDomains.includes(domainA) && sample.gateDomains.includes(domainB));
+            const absent = samples.filter((sample) => !(sample.gateDomains.includes(domainA) && sample.gateDomains.includes(domainB)));
+            const presentLow = present.filter((sample) => sample.resistanceClass === "low-resistance").length;
+            const presentHigh = present.length - presentLow;
+            const absentLow = absent.filter((sample) => sample.resistanceClass === "low-resistance").length;
+            const absentHigh = absent.length - absentLow;
+            const fisherPValue = getAndrewsCnvCnnFisherExactTwoSidedPValue({
+                a: presentLow,
+                b: presentHigh,
+                c: absentLow,
+                d: absentHigh,
+            });
+            const gain = getAndrewsCnvCnnInformationGainFromBinarySplit({
+                presentLow,
+                presentHigh,
+                absentLow,
+                absentHigh,
+            });
+            const presentLowProbability = present.length ? presentLow / present.length : 0;
+            const presentHighProbability = present.length ? presentHigh / present.length : 0;
+            const absentLowProbability = absent.length ? absentLow / absent.length : 0;
+            const absentHighProbability = absent.length ? absentHigh / absent.length : 0;
+            const highResistanceRiskDifference = presentHighProbability - absentHighProbability;
+            const oddsRatio = getAndrewsCnvCnnHaldaneAnscombeOddsRatio({
+                a: presentHigh,
+                b: presentLow,
+                c: absentHigh,
+                d: absentLow,
+            });
+            return {
+                pairId: `${domainA}+${domainB}`,
+                domains: [domainA, domainB],
+                equation: "information-gain + gate-domain-pair-fisher-exact-test",
+                hypothesisTestId: "gate-domain-pair-fisher-exact-test",
+                nullHypothesis: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS
+                    .find((entry) => entry.id === "gate-domain-pair-fisher-exact-test")?.nullHypothesis || "",
+                test: "Two-sided Fisher exact test on paired gate-domain presence by low/high resistance class.",
+                alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                pValue: roundAndrewsCnvCnnStatistic(fisherPValue, 12),
+                lowPValue: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                rejectsNullHypothesis: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                independenceWarning: "Andrews obstacle-catalog records are route-clustered; this p-value is a catalog-pattern diagnostic, not independent surface evidence.",
+                medianResistance,
+                presentCount: present.length,
+                presentLow,
+                presentHigh,
+                absentLow,
+                absentHigh,
+                presentLowProbability: roundAndrewsCnvCnnStatistic(presentLowProbability),
+                presentHighProbability: roundAndrewsCnvCnnStatistic(presentHighProbability),
+                absentLowProbability: roundAndrewsCnvCnnStatistic(absentLowProbability),
+                absentHighProbability: roundAndrewsCnvCnnStatistic(absentHighProbability),
+                highResistanceRiskDifference: roundAndrewsCnvCnnStatistic(highResistanceRiskDifference),
+                oddsRatio: roundAndrewsCnvCnnStatistic(oddsRatio),
+                logOddsRatio: roundAndrewsCnvCnnStatistic(Math.log(oddsRatio || 1)),
+                baseEntropy: roundAndrewsCnvCnnStatistic(gain.baseEntropy),
+                conditionalEntropy: roundAndrewsCnvCnnStatistic(gain.conditionalEntropy),
+                informationGain: roundAndrewsCnvCnnStatistic(gain.informationGain),
+                direction: highResistanceRiskDifference > 0
+                    ? "pair-presence-associated-with-higher-resistance"
+                    : (highResistanceRiskDifference < 0
+                        ? "pair-presence-associated-with-lower-resistance"
+                        : "balanced"),
+                candidateObstacleId: `candidate-obstacle:${domainA}+${domainB}`,
+                candidateObstacleStatus: "statistical-candidate-not-grammar-rule",
+                action: highResistanceRiskDifference > 0
+                    ? `Treat ${domainA} + ${domainB} as a candidate compound obstacle and split it before route expansion.`
+                    : `Treat ${domainA} + ${domainB} as an explicit early feature pair that may reduce route ambiguity.`,
+            };
+        })
+        .sort((left, right) => right.informationGain - left.informationGain || left.pairId.localeCompare(right.pairId));
+    return applyAndrewsCnvCnnBenjaminiHochberg(frames)
+        .sort((left, right) => right.informationGain - left.informationGain || left.pairId.localeCompare(right.pairId));
+}
+
+function buildAndrewsCnvCnnGateDomainCooccurrenceFrames(obstacleFeatureFrames = []) {
+    const samples = (Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : [])
+        .map((frame) => ({
+            gateDomains: Array.isArray(frame.gateDomains) ? frame.gateDomains : [],
+        }));
+    const frames = getAndrewsCnvCnnGateDomainPairs()
+        .map(([domainA, domainB]) => {
+            const both = samples.filter((sample) => sample.gateDomains.includes(domainA) && sample.gateDomains.includes(domainB)).length;
+            const aOnly = samples.filter((sample) => sample.gateDomains.includes(domainA) && !sample.gateDomains.includes(domainB)).length;
+            const bOnly = samples.filter((sample) => !sample.gateDomains.includes(domainA) && sample.gateDomains.includes(domainB)).length;
+            const neither = samples.length - both - aOnly - bOnly;
+            const fisherPValue = getAndrewsCnvCnnFisherExactTwoSidedPValue({
+                a: both,
+                b: aOnly,
+                c: bOnly,
+                d: neither,
+            });
+            const oddsRatio = getAndrewsCnvCnnHaldaneAnscombeOddsRatio({
+                a: both,
+                b: aOnly,
+                c: bOnly,
+                d: neither,
+            });
+            const phiDenominator = Math.sqrt(
+                (both + aOnly)
+                * (bOnly + neither)
+                * (both + bOnly)
+                * (aOnly + neither)
+            );
+            const phiCoefficient = phiDenominator
+                ? ((both * neither) - (aOnly * bOnly)) / phiDenominator
+                : 0;
+            return {
+                pairId: `${domainA}+${domainB}`,
+                domains: [domainA, domainB],
+                equation: "gate-domain-cooccurrence-fisher-exact-test",
+                hypothesisTestId: "gate-domain-cooccurrence-fisher-exact-test",
+                nullHypothesis: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS
+                    .find((entry) => entry.id === "gate-domain-cooccurrence-fisher-exact-test")?.nullHypothesis || "",
+                test: "Two-sided Fisher exact test on gate-domain co-occurrence.",
+                alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                pValue: roundAndrewsCnvCnnStatistic(fisherPValue, 12),
+                lowPValue: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                rejectsNullHypothesis: fisherPValue < ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+                both,
+                aOnly,
+                bOnly,
+                neither,
+                oddsRatio: roundAndrewsCnvCnnStatistic(oddsRatio),
+                logOddsRatio: roundAndrewsCnvCnnStatistic(Math.log(oddsRatio || 1)),
+                phiCoefficient: roundAndrewsCnvCnnStatistic(phiCoefficient),
+                direction: oddsRatio > 1
+                    ? "cooccurs-more-than-null"
+                    : (oddsRatio < 1 ? "cooccurs-less-than-null" : "independent-or-balanced"),
+                relationshipStatus: "statistical-relationship-candidate",
+            };
+        })
+        .sort((left, right) => {
+            if (Math.abs(right.phiCoefficient) !== Math.abs(left.phiCoefficient)) {
+                return Math.abs(right.phiCoefficient) - Math.abs(left.phiCoefficient);
+            }
+            return left.pairId.localeCompare(right.pairId);
+        });
+    return applyAndrewsCnvCnnBenjaminiHochberg(frames)
+        .sort((left, right) => {
+            if (Math.abs(right.phiCoefficient) !== Math.abs(left.phiCoefficient)) {
+                return Math.abs(right.phiCoefficient) - Math.abs(left.phiCoefficient);
+            }
+            return left.pairId.localeCompare(right.pairId);
+        });
+}
+
+function buildAndrewsCnvCnnBackAndForthRelationshipDiscoveryAnalysis({
+    routeStatistics = null,
+    obstacleFeatureFrames = null,
+} = {}) {
+    let resolvedRouteStatistics = Array.isArray(routeStatistics) ? routeStatistics : null;
+    let resolvedObstacleFeatureFrames = Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : null;
+    if (!resolvedRouteStatistics || !resolvedObstacleFeatureFrames) {
+        const routeFeatureFrames = getAndrewsCnvCnnBackAndForthRouteRecords()
+            .map((record) => buildAndrewsCnvCnnBackAndForthRouteFeatureFrame(record))
+            .filter(Boolean);
+        resolvedObstacleFeatureFrames = getAndrewsCnvCnnBackAndForthObstacleCatalog()
+            .map((entry) => buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame(entry))
+            .filter(Boolean);
+        resolvedRouteStatistics = routeFeatureFrames
+            .map((frame) => buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(
+                frame,
+                resolvedObstacleFeatureFrames,
+                resolvedObstacleFeatureFrames.length
+            ))
+            .filter(Boolean);
+    }
+    const gateDomainPairResistancePatterns = buildAndrewsCnvCnnGateDomainPairResistanceFrames(
+        resolvedRouteStatistics,
+        resolvedObstacleFeatureFrames
+    );
+    const gateDomainCooccurrenceRelationships = buildAndrewsCnvCnnGateDomainCooccurrenceFrames(resolvedObstacleFeatureFrames);
+    const significantGateDomainPairTests = gateDomainPairResistancePatterns
+        .filter((entry) => entry.rejectsNullHypothesis === true && entry.rejectsFalseDiscoveryRate === true);
+    const candidateObstacleFrames = significantGateDomainPairTests
+        .filter((entry) => entry.direction === "pair-presence-associated-with-higher-resistance")
+        .slice(0, 8)
+        .map((entry) => ({
+            candidateObstacleId: entry.candidateObstacleId,
+            candidateObstacleStatus: entry.candidateObstacleStatus,
+            domains: Array.from(entry.domains || []),
+            informationGain: entry.informationGain,
+            pValue: entry.pValue,
+            qValue: entry.qValue,
+            highResistanceRiskDifference: entry.highResistanceRiskDifference,
+            presentHighProbability: entry.presentHighProbability,
+            absentHighProbability: entry.absentHighProbability,
+            action: entry.action,
+            nullHypothesisRejected: entry.rejectsNullHypothesis,
+        }));
+    const significantGateDomainRelationships = gateDomainCooccurrenceRelationships
+        .filter((entry) => entry.rejectsNullHypothesis === true && entry.rejectsFalseDiscoveryRate === true);
+    return {
+        kind: "andrews-cnv-cnn-relationship-discovery-analysis",
+        version: 1,
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+        hypothesisTests: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS
+            .filter((entry) => [
+                "gate-domain-pair-fisher-exact-test",
+                "gate-domain-cooccurrence-fisher-exact-test",
+            ].includes(entry.id))
+            .map((entry) => ({ ...entry })),
+        pairCount: getAndrewsCnvCnnGateDomainPairs().length,
+        gateDomainPairResistancePatterns,
+        significantGateDomainPairTests,
+        candidateObstacleFrames,
+        candidateObstacleCount: candidateObstacleFrames.length,
+        gateDomainCooccurrenceRelationships,
+        significantGateDomainRelationships,
+        newRelationshipCandidates: significantGateDomainRelationships
+            .filter((entry) => entry.direction === "cooccurs-more-than-null")
+            .slice(0, 8),
+        relationshipWarning: "These are Andrews-catalog statistical candidates. They identify where architecture may need a named gate; they do not create Nawat surfaces or new grammar licenses.",
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthStatisticalEquationPatternAnalysis({
+    routeStatistics = null,
+    obstacleFeatureFrames = null,
+    mostResistanceRoute = null,
+    leastResistanceRoute = null,
+} = {}) {
+    let resolvedRouteStatistics = Array.isArray(routeStatistics) ? routeStatistics : null;
+    let resolvedObstacleFeatureFrames = Array.isArray(obstacleFeatureFrames) ? obstacleFeatureFrames : null;
+    if (!resolvedRouteStatistics || !resolvedObstacleFeatureFrames) {
+        const routeFeatureFrames = getAndrewsCnvCnnBackAndForthRouteRecords()
+            .map((record) => buildAndrewsCnvCnnBackAndForthRouteFeatureFrame(record))
+            .filter(Boolean);
+        resolvedObstacleFeatureFrames = getAndrewsCnvCnnBackAndForthObstacleCatalog()
+            .map((entry) => buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame(entry))
+            .filter(Boolean);
+        resolvedRouteStatistics = routeFeatureFrames
+            .map((frame) => buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(
+                frame,
+                resolvedObstacleFeatureFrames,
+                resolvedObstacleFeatureFrames.length
+            ))
+            .filter(Boolean);
+    }
+    const leastRanking = resolvedRouteStatistics.slice()
+        .sort((left, right) => left.resistanceScore - right.resistanceScore || left.routeId.localeCompare(right.routeId));
+    const mostRanking = resolvedRouteStatistics.slice()
+        .sort((left, right) => right.resistanceScore - left.resistanceScore || left.routeId.localeCompare(right.routeId));
+    const resolvedLeastResistanceRoute = leastResistanceRoute || leastRanking[0] || null;
+    const resolvedMostResistanceRoute = mostResistanceRoute || mostRanking[0] || null;
+    const routeZScoreFrames = buildAndrewsCnvCnnRouteZScoreFrames(resolvedRouteStatistics);
+    const routeFeatureCorrelations = buildAndrewsCnvCnnRoutePearsonCorrelationFrames(resolvedRouteStatistics);
+    const gateDomainRiskPatterns = buildAndrewsCnvCnnGateDomainRiskEquationFrames(
+        resolvedMostResistanceRoute,
+        resolvedLeastResistanceRoute
+    );
+    const gateDomainInformationGainPatterns = buildAndrewsCnvCnnGateDomainInformationGainFrames(
+        resolvedRouteStatistics,
+        resolvedObstacleFeatureFrames
+    );
+    const relationshipDiscoveryAnalysis = buildAndrewsCnvCnnBackAndForthRelationshipDiscoveryAnalysis({
+        routeStatistics: resolvedRouteStatistics,
+        obstacleFeatureFrames: resolvedObstacleFeatureFrames,
+    });
+    return {
+        kind: "andrews-cnv-cnn-statistical-equation-pattern-analysis",
+        version: 1,
+        equations: ANDREWS_CNV_CNN_STATISTICAL_EQUATIONS.map((entry) => ({ ...entry })),
+        hypothesisTests: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS.map((entry) => ({ ...entry })),
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+        routeCount: resolvedRouteStatistics.length,
+        obstacleFeatureCount: resolvedObstacleFeatureFrames.length,
+        scoreDistribution: {
+            mean: routeZScoreFrames[0]?.populationMeanResistance || 0,
+            populationStandardDeviation: routeZScoreFrames[0]?.populationStandardDeviation || 0,
+            median: getAndrewsCnvCnnMedian(resolvedRouteStatistics.map((record) => record.resistanceScore)),
+        },
+        routeZScoreFrames,
+        routeFeatureCorrelations,
+        significantRouteFeatureTests: routeFeatureCorrelations
+            .filter((entry) => entry.rejectsNullHypothesis === true && entry.rejectsFalseDiscoveryRate === true)
+            .slice(0, 4),
+        strongestPositiveCorrelations: routeFeatureCorrelations
+            .filter((entry) => entry.pearsonR > 0)
+            .slice(0, 4),
+        strongestNegativeCorrelations: routeFeatureCorrelations
+            .filter((entry) => entry.pearsonR < 0)
+            .sort((left, right) => left.pearsonR - right.pearsonR)
+            .slice(0, 3),
+        gateDomainRiskPatterns,
+        overrepresentedMostResistanceDomains: gateDomainRiskPatterns
+            .filter((entry) => entry.direction === "overrepresented-in-most-resistance" && entry.logOddsRatio > 0)
+            .sort((left, right) => right.logOddsRatio - left.logOddsRatio || right.countDelta - left.countDelta),
+        overrepresentedLeastResistanceDomains: gateDomainRiskPatterns
+            .filter((entry) => entry.direction === "overrepresented-in-least-resistance")
+            .sort((left, right) => left.logOddsRatio - right.logOddsRatio || right.countDelta - left.countDelta),
+        gateDomainInformationGainPatterns,
+        significantGateDomainTests: gateDomainInformationGainPatterns
+            .filter((entry) => entry.rejectsNullHypothesis === true && entry.rejectsFalseDiscoveryRate === true)
+            .slice(0, 6),
+        lowResistanceAssociatedDomains: gateDomainInformationGainPatterns
+            .filter((entry) => entry.direction === "presence-associated-with-lower-resistance"),
+        highResistanceAssociatedDomains: gateDomainInformationGainPatterns
+            .filter((entry) => entry.direction === "presence-associated-with-higher-resistance"),
+        relationshipDiscoveryAnalysis,
+        candidateObstacleFrames: relationshipDiscoveryAnalysis.candidateObstacleFrames,
+        newRelationshipCandidates: relationshipDiscoveryAnalysis.newRelationshipCandidates,
+        equationDrivenReductionPatterns: [
+            {
+                equation: "pearson-correlation",
+                pattern: "positive route-feature correlation",
+                topFeatures: routeFeatureCorrelations
+                    .filter((entry) => entry.pearsonR > 0)
+                    .slice(0, 4)
+                    .map((entry) => ({
+                        feature: entry.feature,
+                        pearsonR: entry.pearsonR,
+                        pValue: entry.pValue,
+                        qValue: entry.qValue,
+                        rejectsNullHypothesis: entry.rejectsNullHypothesis,
+                        action: entry.decreaseResistanceAction,
+                    })),
+            },
+            {
+                equation: "risk-difference + haldane-anscombe-odds-ratio",
+                pattern: "domains overrepresented in the most-resistant route",
+                topDomains: gateDomainRiskPatterns
+                    .filter((entry) => entry.direction === "overrepresented-in-most-resistance" && entry.logOddsRatio > 0)
+                    .sort((left, right) => right.logOddsRatio - left.logOddsRatio || right.countDelta - left.countDelta)
+                    .slice(0, 4)
+                    .map((entry) => ({
+                        domain: entry.domain,
+                        riskDifference: entry.riskDifference,
+                        logOddsRatio: entry.logOddsRatio,
+                        countDelta: entry.countDelta,
+                        action: entry.decreaseResistanceAction,
+                    })),
+            },
+            {
+                equation: "information-gain",
+                pattern: "domains whose presence partitions lower-resistance routes",
+                topDomains: gateDomainInformationGainPatterns
+                    .filter((entry) => entry.direction === "presence-associated-with-lower-resistance")
+                    .slice(0, 4)
+                    .map((entry) => ({
+                        domain: entry.domain,
+                        informationGain: entry.informationGain,
+                        pValue: entry.pValue,
+                        qValue: entry.qValue,
+                        rejectsNullHypothesis: entry.rejectsNullHypothesis,
+                        presentLowProbability: entry.presentLowProbability,
+                        absentLowProbability: entry.absentLowProbability,
+                        action: entry.decreaseResistanceAction,
+                    })),
+            },
+        ],
+    };
+}
+
+function getAndrewsCnvCnnResistanceConversionAction(domain = "", fromCount = 0, targetCount = 0) {
+    const actionsByDomain = {
+        "source-evidence": "Resolve Andrews/Nawat source evidence before expanding the route.",
+        "formula-boundary": "Split the route into formula-boundary events before any surface preview.",
+        "valence-object": "Collect object, reflexive, and projective markers in #1 Entrada before route ranking.",
+        "state-possessor-number": "Keep state, possessor, and number outside the predicate stem and pre-resolve them as gates.",
+        "stem-rank-class": "Rank the input as core, nounstem, verbstem, or derived stem before choosing a route.",
+        "operation-suffix": "Classify the derivational operation and suffix family before spelling realization.",
+        "function-use": "Tag adjectival, adverbial, ownerhood, and classifier uses as route functions, not formal classes.",
+        "orthography-surface": "Run Andrews structure first and apply Nawat/Pipil spelling only after the route is positioned.",
+        "route-gate": "Keep the unresolved item as a route gate until a stronger dimensional feature is known.",
+    };
+    return {
+        domain,
+        eventFeature: `convert-gate:${domain}`,
+        fromCount: Number(fromCount || 0),
+        targetCount: Number(targetCount || 0),
+        delta: Math.max(0, Number(fromCount || 0) - Number(targetCount || 0)),
+        action: actionsByDomain[domain] || actionsByDomain["route-gate"],
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthResistanceConversionPlanFromStats(mostResistanceRoute = null, leastResistanceRoute = null) {
+    if (!mostResistanceRoute || !leastResistanceRoute) {
+        return null;
+    }
+    const targetGateDomainCounts = new Map((leastResistanceRoute.gateDomainCounts || [])
+        .map((entry) => [entry.value, entry.count]));
+    const highResistanceDimensions = (mostResistanceRoute.gateDomainCounts || [])
+        .map((entry) => getAndrewsCnvCnnResistanceConversionAction(
+            entry.value,
+            entry.count,
+            targetGateDomainCounts.get(entry.value) || 0
+        ))
+        .sort((left, right) => {
+            if (right.delta !== left.delta) {
+                return right.delta - left.delta;
+            }
+            return right.fromCount - left.fromCount;
+        });
+    return {
+        kind: "andrews-cnv-cnn-most-to-least-resistance-conversion-plan",
+        version: 1,
+        fromRouteId: mostResistanceRoute.routeId,
+        toRouteId: leastResistanceRoute.routeId,
+        fromResistanceScore: mostResistanceRoute.resistanceScore,
+        targetResistanceScore: leastResistanceRoute.resistanceScore,
+        scoreReductionNeeded: Math.max(0, mostResistanceRoute.resistanceScore - leastResistanceRoute.resistanceScore),
+        fromObstacleCount: mostResistanceRoute.obstacleCount,
+        targetObstacleCount: leastResistanceRoute.obstacleCount,
+        obstacleReductionNeeded: Math.max(0, mostResistanceRoute.obstacleCount - leastResistanceRoute.obstacleCount),
+        highResistanceDimensions: highResistanceDimensions.slice(0, 5),
+        conversionEvents: [
+            "rank-source-before-generation",
+            "split-route-into-formula-events",
+            "materialize-intermediate-source",
+            "pre-resolve-largest-gate-domains",
+            "defer-surface-spelling-until-route-is-positioned",
+        ],
+        blockActions: [
+            {
+                block: "#1 Entrada",
+                eventFeature: "entrada:source-rank-vector",
+                action: "Convert the user's limited markers into source formula type, formula position, and stem-rank codes.",
+            },
+            {
+                block: "#2 Fórmula/Rutas",
+                eventFeature: "formula:routed-gate-vector",
+                action: "Convert each route gate into numeric gate-domain, evidence-status, operation, and path-depth features.",
+            },
+            {
+                block: "#3 Salida/Trayecto",
+                eventFeature: "salida:next-source-vector",
+                action: "Emit current-source output only when gates pass, then expose any intermediate stem as the next source.",
+            },
+        ],
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthResistanceStatistics({
+    includeObstacleFeatureFrames = false,
+} = {}) {
+    const formulaFeatureIndex = buildNuclearClauseFormulaFeatureIndex();
+    const routeFeatureFrames = getAndrewsCnvCnnBackAndForthRouteRecords()
+        .map((record) => buildAndrewsCnvCnnBackAndForthRouteFeatureFrame(record))
+        .filter(Boolean);
+    const obstacleFeatureFrames = getAndrewsCnvCnnBackAndForthObstacleCatalog()
+        .map((entry) => buildAndrewsCnvCnnBackAndForthObstacleFeatureFrame(entry))
+        .filter(Boolean);
+    const totalObstacleCount = obstacleFeatureFrames.length;
+    const routeStatistics = routeFeatureFrames
+        .map((frame) => buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(frame, obstacleFeatureFrames, totalObstacleCount))
+        .filter(Boolean);
+    const leastResistanceRanking = routeStatistics.slice()
+        .sort((left, right) => {
+            if (left.resistanceScore !== right.resistanceScore) {
+                return left.resistanceScore - right.resistanceScore;
+            }
+            return left.routeId.localeCompare(right.routeId);
+        });
+    const mostResistanceRanking = routeStatistics.slice()
+        .sort((left, right) => {
+            if (right.resistanceScore !== left.resistanceScore) {
+                return right.resistanceScore - left.resistanceScore;
+            }
+            return left.routeId.localeCompare(right.routeId);
+        });
+    const leastResistanceRoute = leastResistanceRanking[0] || null;
+    const mostResistanceRoute = mostResistanceRanking[0] || null;
+    const resistanceConversionPlan = buildAndrewsCnvCnnBackAndForthResistanceConversionPlanFromStats(
+        mostResistanceRoute,
+        leastResistanceRoute
+    );
+    const equationPatternAnalysis = buildAndrewsCnvCnnBackAndForthStatisticalEquationPatternAnalysis({
+        routeStatistics,
+        obstacleFeatureFrames,
+        mostResistanceRoute,
+        leastResistanceRoute,
+    });
+    const relationshipDiscoveryAnalysis = equationPatternAnalysis.relationshipDiscoveryAnalysis;
+    const index = {
+        kind: "andrews-cnv-cnn-resistance-statistics",
+        version: 1,
+        featureWeights: { ...ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS },
+        equations: ANDREWS_CNV_CNN_STATISTICAL_EQUATIONS.map((entry) => ({ ...entry })),
+        formulaFeatureIndex,
+        routeFeatureFrames,
+        routeStatistics,
+        routeCount: routeStatistics.length,
+        obstacleFeatureCount: totalObstacleCount,
+        leastResistanceRoute,
+        mostResistanceRoute,
+        leastResistanceRanking: leastResistanceRanking.map((entry) => ({
+            routeId: entry.routeId,
+            resistanceScore: entry.resistanceScore,
+            obstacleCount: entry.obstacleCount,
+        })),
+        mostResistanceRanking: mostResistanceRanking.map((entry) => ({
+            routeId: entry.routeId,
+            resistanceScore: entry.resistanceScore,
+            obstacleCount: entry.obstacleCount,
+        })),
+        resistanceConversionPlan,
+        equationPatternAnalysis,
+        relationshipDiscoveryAnalysis,
+    };
+    if (includeObstacleFeatureFrames === true) {
+        index.obstacleFeatureFrames = obstacleFeatureFrames;
+    }
+    return index;
+}
+
+function getAndrewsCnvCnnBackAndForthRouteRecordById(routeId = "") {
+    const normalizedRouteId = String(routeId || "").trim();
+    const record = ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS
+        .find((entry) => entry.id === normalizedRouteId);
+    return cloneAndrewsCnvCnnBackAndForthRouteRecord(record);
+}
+
+function getAndrewsCnvCnnBackAndForthObstacleGatesForRoute(routeId = "", {
+    sourceRequirementIds = [],
+    limit = 8,
+} = {}) {
+    const normalizedRouteId = String(routeId || "").trim();
+    if (!normalizedRouteId) {
+        return [];
+    }
+    const requirementIds = new Set((Array.isArray(sourceRequirementIds) ? sourceRequirementIds : [])
+        .map((entry) => String(entry || "").trim())
+        .filter(Boolean));
+    const candidates = ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG
+        .filter((entry) => entry.routeId === normalizedRouteId)
+        .map((entry) => {
+            const requiredProbe = String(entry.requiredProbe || "");
+            const obstacle = String(entry.obstacleEs || "");
+            const matchScore = Array.from(requirementIds)
+                .filter((id) => (
+                    String(entry.id || "").includes(id)
+                    || requiredProbe.includes(id)
+                    || obstacle.includes(id)
+                )).length;
+            return { entry, matchScore };
+        })
+        .sort((left, right) => {
+            if (right.matchScore !== left.matchScore) {
+                return right.matchScore - left.matchScore;
+            }
+            const leftPage = Number(left.entry.pdfPages?.[0] || 0);
+            const rightPage = Number(right.entry.pdfPages?.[0] || 0);
+            return leftPage - rightPage;
+        });
+    const max = Math.max(0, Number(limit) || 0);
+    return candidates
+        .slice(0, max || candidates.length)
+        .map(({ entry }) => cloneAndrewsCnvCnnBackAndForthObstacleCatalogEntry(entry))
+        .filter(Boolean);
+}
+
+function inferAndrewsCnvCnnBackAndForthRouteRecordId(input = null) {
+    if (!input || typeof input !== "object") {
+        return "";
+    }
+    const dataset = input.dataset && typeof input.dataset === "object"
+        ? input.dataset
+        : {};
+    const datasetFlag = (key) => Boolean(dataset[key]);
+    if (datasetFlag("denominalAndrewsContractRouteContinuation") || datasetFlag("ordinaryNncOwnerhoodContinuation")) {
+        return "cnn-nounstem-to-cnv-verbstem-denominal";
+    }
+    if (datasetFlag("verbPatientivoContinuation") || datasetFlag("patientivoPrelocativeContinuation")) {
+        return "cnv-core-to-cnn-nounstem-deverbal";
+    }
+    if (datasetFlag("patientivoTroncoConversion") || datasetFlag("huaDeverbalYuContinuation")) {
+        return "cnv-to-cnn-to-cnv-loop";
+    }
+    if (datasetFlag("verbNominalContinuation")) {
+        const targetTense = String(dataset.targetTense || "").trim();
+        return targetTense.startsWith("agentivo")
+            ? "cnv-predicate-to-cnn-nounstem-nominalization"
+            : "cnv-core-to-cnn-nounstem-deverbal";
+    }
+    if (
+        datasetFlag("vncAdjectivalFunctionContinuation")
+        || datasetFlag("nominalizedVncAdjectivalFunctionContinuation")
+        || datasetFlag("preteritAgentiveNominalCompoundContinuation")
+        || datasetFlag("customaryAgentiveNominalCompoundContinuation")
+        || datasetFlag("preteritAgentiveComplementContinuation")
+        || datasetFlag("preteritAgentiveAdverbialContinuation")
+    ) {
+        return "cnv-predicate-to-cnn-nounstem-nominalization";
+    }
+    if (
+        datasetFlag("ordinaryNncAdjectivalFunctionContinuation")
+        || datasetFlag("patientivoAdjectivalFunctionContinuation")
+        || datasetFlag("intensifiedAdjectivalFunctionContinuation")
+        || datasetFlag("compoundSourceAdjectivalFunctionContinuation")
+        || datasetFlag("activeActionNominalCompoundContinuation")
+        || datasetFlag("patientivoNominalCompoundContinuation")
+        || datasetFlag("actionNounSourceSubjectPossessor")
+        || datasetFlag("instrumentivoSourceSubjectPossessor")
+    ) {
+        return "cnv-core-to-cnn-nounstem-deverbal";
+    }
+    if (
+        datasetFlag("activeActionCompoundEmbedContinuation")
+        || datasetFlag("customaryAgentiveCompoundEmbedContinuation")
+        || datasetFlag("preteritAgentiveCompoundEmbedContinuation")
+        || datasetFlag("patientivoCompoundEmbedContinuation")
+        || datasetFlag("patientivoCharacteristicPropertyEmbedContinuation")
+        || datasetFlag("preteritAgentiveOwnerhoodContinuation")
+        || datasetFlag("denominalCompoundAdjectivalFunctionContinuation")
+    ) {
+        return "cnv-to-cnn-to-cnv-loop";
+    }
+    const directIds = [
+        input.andrewsRouteRecordId,
+        input.routeRecordId,
+        input.conversionRouteRecordId,
+        input.routeId,
+        dataset.andrewsRouteRecordId,
+        dataset.routeRecordId,
+        dataset.conversionRouteRecordId,
+        dataset.routeId,
+        input.routeContract?.sourceContract?.andrewsRouteRecordId,
+        input.routeContract?.targetContract?.andrewsRouteRecordId,
+        input.grammarFrame?.routeContract?.sourceContract?.andrewsRouteRecordId,
+        input.grammarFrame?.routeContract?.targetContract?.andrewsRouteRecordId,
+        input.frames?.routeContract?.sourceContract?.andrewsRouteRecordId,
+        input.frames?.routeContract?.targetContract?.andrewsRouteRecordId,
+    ].map((entry) => String(entry || "").trim());
+    const direct = directIds.find((entry) => getAndrewsCnvCnnBackAndForthRouteRecordById(entry));
+    if (direct) {
+        return direct;
+    }
+    const routeFamily = String(input.routeFamily
+        || input.generationRoute
+        || input.outputKind
+        || input.grammarFrame?.routeContract?.routeFamily
+        || input.frames?.routeContract?.routeFamily
+        || "").trim();
+    const routeStage = String(input.routeStage
+        || input.grammarFrame?.routeContract?.routeStage
+        || input.frames?.routeContract?.routeStage
+        || "").trim();
+    const routeTemplateId = String(input.routeTemplateId || input.contractId || "").trim();
+    const nominalizationKind = String(input.nominalizationProfile?.role?.nominalizationKind
+        || input.nominalizationKind
+        || input.grammarFrame?.routeContract?.targetContract?.nominalizationKind
+        || "").trim();
+    if (/adjectival-nnc|root-plus-ya|denominal-tiya|denominal-compound/i.test(routeFamily) || input.denominalCompoundSourceFrame) {
+        return "cnv-to-cnn-to-cnv-loop";
+    }
+    const denominalFamily = input.denominalFamilyProfile || input.andrewsContractRoutePreview;
+    if (
+        denominalFamily
+        || /denominal|inceptive-stative|verbializing|ti-ya|hui-ya|andrews-contract/i.test(routeTemplateId)
+        || /denominal/i.test(routeFamily)
+    ) {
+        return "cnn-nounstem-to-cnv-verbstem-denominal";
+    }
+    if (/deverbal.*verbstem|ti-ya|hui-ya/i.test(routeFamily) || /next-source|linked-grammar-path-stage/i.test(routeStage)) {
+        return "cnv-verbstem-to-cnv-verbstem-deverbal";
+    }
+    if (/action-nominal|instrumentivo|patientive|potential-patient|locativo-temporal|calificativo/i.test(nominalizationKind || routeFamily)) {
+        return "cnv-core-to-cnn-nounstem-deverbal";
+    }
+    if (/agentive|agentivo|nominalized-vnc|present-agentive|preterit-agentive|customary-agentive|future-agentive/i.test(nominalizationKind || routeFamily)) {
+        return "cnv-predicate-to-cnn-nounstem-nominalization";
+    }
+    return "";
+}
+
+function getAndrewsCnvCnnBackAndForthRouteActionGateDomains(gates = []) {
+    const domains = [];
+    (Array.isArray(gates) ? gates : []).forEach((gate) => {
+        getAndrewsCnvCnnBackAndForthObstacleGateDomains(gate).forEach((domain) => {
+            if (domain && !domains.includes(domain)) {
+                domains.push(domain);
+            }
+        });
+    });
+    return domains;
+}
+
+function cloneAndrewsCnvCnnBackAndForthEntradaGrammarObject(record = null) {
+    if (!record || typeof record !== "object") {
+        return null;
+    }
+    try {
+        return JSON.parse(JSON.stringify(record));
+    } catch (_error) {
+        return null;
+    }
+}
+
+function getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const candidates = [
+        input.entradaGrammarObject,
+        input.sourceGrammarObject,
+        input.sourceEntradaGrammarObject,
+        input.result?.entradaGrammarObject,
+        input.evaluation?.result?.entradaGrammarObject,
+        input.grammarFrame?.routeContract?.sourceContract?.entradaGrammarObject,
+        input.frames?.routeContract?.sourceContract?.entradaGrammarObject,
+        input.routeContract?.sourceContract?.entradaGrammarObject,
+        input.andrewsRouteActionContract?.entradaGrammarObject,
+    ];
+    return candidates.find((candidate) => (
+        candidate
+        && typeof candidate === "object"
+        && String(candidate.kind || "") === "andrews-entrada-grammar-object"
+    )) || null;
+}
+
+function entradaGrammarObjectHasValenceObjectSignal(entradaGrammarObject = null) {
+    if (!entradaGrammarObject || typeof entradaGrammarObject !== "object") {
+        return false;
+    }
+    const valenceFrame = entradaGrammarObject.valenceFrame && typeof entradaGrammarObject.valenceFrame === "object"
+        ? entradaGrammarObject.valenceFrame
+        : {};
+    const objectFrame = entradaGrammarObject.objectFrame && typeof entradaGrammarObject.objectFrame === "object"
+        ? entradaGrammarObject.objectFrame
+        : {};
+    const objectVector = objectFrame.vector && typeof objectFrame.vector === "object"
+        ? objectFrame.vector
+        : {};
+    return (
+        objectFrame.hasObjectSlots === true
+        || (Array.isArray(objectFrame.slots) && objectFrame.slots.length > 0)
+        || (Array.isArray(valenceFrame.slots) && valenceFrame.slots.length > 0)
+        || (Array.isArray(valenceFrame.tokens) && valenceFrame.tokens.length > 0)
+        || Object.values(objectVector).some((value) => Boolean(String(value || "").trim()))
+        || /transitive|bitransitive|ditransitive/i.test(String(valenceFrame.transitivity || ""))
+    );
+}
+
+function entradaGrammarObjectHasFixedValenceEvidence(entradaGrammarObject = null) {
+    if (!entradaGrammarObject || typeof entradaGrammarObject !== "object") {
+        return false;
+    }
+    return (
+        entradaGrammarObject.valenceFrame?.frameFixed === true
+        || entradaGrammarObject.objectFrame?.frameFixed === true
+        || entradaGrammarObject.formulaBoundaryFrame?.valenceFrameFixed === true
+        || (
+            entradaGrammarObject.formulaBoundaryFrame?.frameFixed === true
+            && entradaGrammarObject.formulaBoundaryFrame?.objectSlotsCovered === true
+        )
+    );
+}
+
+function getAndrewsCnvCnnBackAndForthEmbeddedFunctionUseValenceGate(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const candidates = [
+        input.functionUseValenceGate,
+        input.adverbialNuclearFrame?.functionUseValenceGate,
+        input.adjectivalNncFunctionFrame?.functionUseValenceGate,
+        input.adjectivalNnc?.functionUseValenceGate,
+        input.result?.functionUseValenceGate,
+        input.result?.adverbialNuclearFrame?.functionUseValenceGate,
+        input.result?.adjectivalNncFunctionFrame?.functionUseValenceGate,
+        input.evaluation?.result?.functionUseValenceGate,
+        input.grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate,
+        input.grammarFrame?.routeContract?.targetContract?.functionUseValenceGate,
+        input.grammarFrame?.routeContract?.functionUseValenceGate,
+        input.frames?.routeContract?.sourceContract?.functionUseValenceGate,
+        input.frames?.routeContract?.targetContract?.functionUseValenceGate,
+        input.frames?.routeContract?.functionUseValenceGate,
+        input.routeContract?.sourceContract?.functionUseValenceGate,
+        input.routeContract?.targetContract?.functionUseValenceGate,
+        input.routeContract?.functionUseValenceGate,
+        input.andrewsRouteActionContract?.functionUseValenceGate,
+    ];
+    return candidates.find((candidate) => candidate && typeof candidate === "object") || null;
+}
+
+function getAndrewsCnvCnnBackAndForthRouteActionFrameCandidates(input = null) {
+    if (!input || typeof input !== "object") {
+        return [];
+    }
+    return [
+        input.grammarFrame,
+        input.frames,
+        input.participantFrame,
+        input.sourceContract,
+        input.targetContract,
+        input.result?.grammarFrame,
+        input.result?.frames,
+        input.result?.participantFrame,
+        input.result?.sourceContract,
+        input.result?.targetContract,
+        input.evaluation?.result?.grammarFrame,
+        input.evaluation?.result?.frames,
+        input.evaluation?.result?.participantFrame,
+        input.evaluation?.result?.sourceContract,
+        input.evaluation?.result?.targetContract,
+        input.sourceRouteFrame,
+        input.routeFrame,
+        input.incorporationRouteFrame,
+        input.objectSlotOwnership,
+        input.routeContract,
+        input.grammarFrame?.routeContract,
+        input.frames?.routeContract,
+        input.adjectivalNnc?.grammarFrame,
+        input.adjectivalNnc?.frames,
+        input.adjectivalNnc?.entryRouteContract,
+        input.adjectivalNnc?.entryRouteContract?.grammarFrame,
+        input.adjectivalNnc?.entryRouteContract?.frames,
+        input.adverbialNuclearFrame?.grammarFrame,
+        input.adverbialNuclearFrame?.frames,
+        input.adjectivalNncFunctionFrame?.grammarFrame,
+        input.adjectivalNncFunctionFrame?.frames,
+        input.andrewsRouteActionContract?.grammarFrame,
+        input.andrewsRouteActionContract?.frames,
+    ].filter((candidate) => candidate && typeof candidate === "object");
+}
+
+function hasAndrewsCnvCnnBackAndForthFormulaSlotEvidence(source = null) {
+    if (!source || typeof source !== "object") {
+        return false;
+    }
+    const candidates = [
+        source.formulaSlots,
+        source.slots,
+        source.posicionesFormula,
+        source.sourceFormulaSlots,
+        source.nuclearClauseFrame?.formulaSlots,
+        source.nuclearClauseShell?.formulaSlots,
+        source.morphBoundaryFrame?.formulaSlots,
+        source.routeContract?.sourceContract?.formulaSlots,
+        source.routeContract?.targetContract?.formulaSlots,
+        source.sourceContract?.formulaSlots,
+        source.targetContract?.formulaSlots,
+    ];
+    return candidates.some((candidate) => (
+        candidate
+        && typeof candidate === "object"
+        && Object.keys(candidate).some((key) => /obj|reflex|pers|predicate|stem|tronco|num|tense|tiempo|state|estado/i.test(key))
+    ));
+}
+
+function getAndrewsCnvCnnBackAndForthObjectSlotId(key = "", slot = null) {
+    const label = [
+        key,
+        slot && typeof slot === "object" ? slot.slot : "",
+        slot && typeof slot === "object" ? slot.slotId : "",
+        slot && typeof slot === "object" ? slot.role : "",
+    ].map((value) => String(value || "").trim().toLowerCase()).join(" ");
+    const compactLabel = label.replace(/[^a-z0-9]/g, "");
+    if (
+        /(obj1|objectprefix|directobject)/.test(compactLabel)
+        || /(^|\b)(obj|object)(\b|$)/.test(label)
+    ) {
+        return "obj1";
+    }
+    if (/(obj2|secondaryobject)/.test(compactLabel)) {
+        return "obj2";
+    }
+    if (/(obj3|tertiaryobject)/.test(compactLabel)) {
+        return "obj3";
+    }
+    if (/reflex|reflexivo/.test(compactLabel)) {
+        return "reflexivo";
+    }
+    return "";
+}
+
+function getAndrewsCnvCnnBackAndForthObjectSlotValue(slot = null) {
+    if (!slot || typeof slot !== "object") {
+        return String(slot || "").trim();
+    }
+    return String(
+        slot.token
+        || slot.prefix
+        || slot.displayPrefix
+        || slot.surface
+        || slot.value
+        || slot.connector
+        || slot.displayConnector
+        || ""
+    ).trim();
+}
+
+function normalizeAndrewsCnvCnnBackAndForthObjectVector(vector = null) {
+    const source = vector && typeof vector === "object" ? vector : {};
+    return {
+        obj1: String(source.obj1 || source.objectPrefix || "").trim(),
+        obj2: String(source.obj2 || "").trim(),
+        obj3: String(source.obj3 || "").trim(),
+        reflexivo: String(source.reflexivo || source.reflexive || "").trim(),
+    };
+}
+
+function mergeAndrewsCnvCnnBackAndForthObjectVector(base = null, next = null) {
+    const merged = normalizeAndrewsCnvCnnBackAndForthObjectVector(base);
+    const incoming = normalizeAndrewsCnvCnnBackAndForthObjectVector(next);
+    ["obj1", "obj2", "obj3", "reflexivo"].forEach((slotId) => {
+        if (!merged[slotId] && incoming[slotId]) {
+            merged[slotId] = incoming[slotId];
+        }
+    });
+    return merged;
+}
+
+function andrewsCnvCnnBackAndForthObjectVectorHasValue(vector = null) {
+    const normalized = normalizeAndrewsCnvCnnBackAndForthObjectVector(vector);
+    return ["obj1", "obj2", "obj3", "reflexivo"].some((slotId) => Boolean(normalized[slotId]));
+}
+
+function collectAndrewsCnvCnnBackAndForthObjectVectorFromFormulaSlots(formulaSlots = null) {
+    if (!formulaSlots || typeof formulaSlots !== "object") {
+        return null;
+    }
+    let vector = null;
+    Object.entries(formulaSlots).forEach(([key, slot]) => {
+        const slotId = getAndrewsCnvCnnBackAndForthObjectSlotId(key, slot);
+        const value = getAndrewsCnvCnnBackAndForthObjectSlotValue(slot);
+        if (!slotId || !value) {
+            return;
+        }
+        vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, { [slotId]: value });
+    });
+    return andrewsCnvCnnBackAndForthObjectVectorHasValue(vector) ? vector : null;
+}
+
+function hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPosition(formulaSlots = null) {
+    if (!formulaSlots || typeof formulaSlots !== "object") {
+        return false;
+    }
+    return Object.entries(formulaSlots).some(([key, slot]) => (
+        Boolean(getAndrewsCnvCnnBackAndForthObjectSlotId(key, slot))
+    ));
+}
+
+function collectAndrewsCnvCnnBackAndForthObjectVectorFromSource(source = null) {
+    if (!source || typeof source !== "object") {
+        return null;
+    }
+    let vector = null;
+    [
+        source.formulaSlots,
+        source.slots,
+        source.posicionesFormula,
+        source.sourceFormulaSlots,
+        source.nuclearClauseFrame?.formulaSlots,
+        source.nuclearClauseShell?.formulaSlots,
+        source.morphBoundaryFrame?.formulaSlots,
+        source.routeContract?.sourceContract?.formulaSlots,
+        source.routeContract?.targetContract?.formulaSlots,
+        source.sourceContract?.formulaSlots,
+        source.targetContract?.formulaSlots,
+    ].forEach((formulaSlots) => {
+        const next = collectAndrewsCnvCnnBackAndForthObjectVectorFromFormulaSlots(formulaSlots);
+        if (next) {
+            vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, next);
+        }
+    });
+    [
+        source.remainingExternalObjectSlots,
+        source.sourceExternalObjectSlots,
+        source.objectSlotOwnership?.remainingExternalObjectSlots,
+        source.objectSlotOwnership?.sourceExternalObjectSlots,
+        source.incorporationRouteFrame?.remainingExternalObjectSlots,
+        source.routeFrame?.remainingExternalObjectSlots,
+        source.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.participantFrame?.objectSlotOwnership?.remainingExternalObjectSlots,
+        source.participantFrame?.objectSlotOwnership?.sourceExternalObjectSlots,
+        source.participantFrame?.routeFrame?.remainingExternalObjectSlots,
+        source.participantFrame?.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.grammarFrame?.participantFrame?.routeFrame?.remainingExternalObjectSlots,
+        source.grammarFrame?.participantFrame?.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.routeContract?.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+        source.routeContract?.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.routeContract?.targetContract?.routeFrame?.remainingExternalObjectSlots,
+        source.routeContract?.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.sourceContract?.routeFrame?.remainingExternalObjectSlots,
+        source.sourceContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+        source.targetContract?.routeFrame?.remainingExternalObjectSlots,
+        source.targetContract?.sourceRouteFrame?.remainingExternalObjectSlots,
+    ].forEach((slots) => {
+        (Array.isArray(slots) ? slots : []).forEach((slot) => {
+            if (!slot || typeof slot !== "object") {
+                return;
+            }
+            const slotId = getAndrewsCnvCnnBackAndForthObjectSlotId(slot.slotId || slot.slot || "", slot);
+            const value = getAndrewsCnvCnnBackAndForthObjectSlotValue(slot);
+            if (slotId && value) {
+                vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, { [slotId]: value });
+            }
+        });
+    });
+    return andrewsCnvCnnBackAndForthObjectVectorHasValue(vector) ? vector : null;
+}
+
+function hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPositionEvidence(source = null) {
+    if (!source || typeof source !== "object") {
+        return false;
+    }
+    return [
+        source.formulaSlots,
+        source.slots,
+        source.posicionesFormula,
+        source.sourceFormulaSlots,
+        source.nuclearClauseFrame?.formulaSlots,
+        source.nuclearClauseShell?.formulaSlots,
+        source.morphBoundaryFrame?.formulaSlots,
+        source.routeContract?.sourceContract?.formulaSlots,
+        source.routeContract?.targetContract?.formulaSlots,
+        source.sourceContract?.formulaSlots,
+        source.targetContract?.formulaSlots,
+    ].some((formulaSlots) => hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPosition(formulaSlots));
+}
+
+function collectAndrewsCnvCnnBackAndForthObjectVectorFromSourceFormulaSlotsOnly(source = null) {
+    if (!source || typeof source !== "object") {
+        return null;
+    }
+    let vector = null;
+    [
+        source.formulaSlots,
+        source.slots,
+        source.posicionesFormula,
+        source.sourceFormulaSlots,
+        source.nuclearClauseFrame?.formulaSlots,
+        source.nuclearClauseShell?.formulaSlots,
+        source.morphBoundaryFrame?.formulaSlots,
+        source.routeContract?.sourceContract?.formulaSlots,
+        source.routeContract?.targetContract?.formulaSlots,
+        source.sourceContract?.formulaSlots,
+        source.targetContract?.formulaSlots,
+    ].forEach((formulaSlots) => {
+        const next = collectAndrewsCnvCnnBackAndForthObjectVectorFromFormulaSlots(formulaSlots);
+        if (next) {
+            vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, next);
+        }
+    });
+    return andrewsCnvCnnBackAndForthObjectVectorHasValue(vector) ? vector : null;
+}
+
+function hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPositionEvidenceInSources(input = null, frames = []) {
+    if (hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPositionEvidence(input)) {
+        return true;
+    }
+    return (Array.isArray(frames) ? frames : []).some((frame) => (
+        hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPositionEvidence(frame)
+    ));
+}
+
+function collectAndrewsCnvCnnBackAndForthDirectObjectPressureVector(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const dataset = input.dataset && typeof input.dataset === "object" ? input.dataset : {};
+    let vector = mergeAndrewsCnvCnnBackAndForthObjectVector(null, {
+        obj1: input.objectPrefix || input.obj1 || dataset.objectPrefix || dataset.obj1 || "",
+        obj2: input.obj2 || dataset.obj2 || "",
+        obj3: input.obj3 || dataset.obj3 || "",
+        reflexivo: input.reflexivo || input.reflexive || dataset.reflexivo || dataset.reflexive || "",
+    });
+    [
+        input.currentObjectVector,
+        input.objectVector,
+        input.posicionesFormula,
+        dataset.currentObjectVector,
+        dataset.objectVector,
+        dataset.posicionesFormula,
+    ].forEach((candidate) => {
+        if (candidate && typeof candidate === "object") {
+            vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, candidate);
+        }
+    });
+    const normalized = normalizeAndrewsCnvCnnBackAndForthObjectVector(vector);
+    return andrewsCnvCnnBackAndForthObjectVectorHasValue(normalized) ? normalized : null;
+}
+
+function collectAndrewsCnvCnnBackAndForthObjectVectorFromEntradaGrammarObject(entradaGrammarObject = null) {
+    if (!entradaGrammarObject || typeof entradaGrammarObject !== "object") {
+        return null;
+    }
+    let vector = collectAndrewsCnvCnnBackAndForthObjectVectorFromFormulaSlots(
+        entradaGrammarObject.formulaBoundaryFrame?.sourceFormulaSlots
+    );
+    const objectFrame = entradaGrammarObject.objectFrame && typeof entradaGrammarObject.objectFrame === "object"
+        ? entradaGrammarObject.objectFrame
+        : null;
+    if (objectFrame?.frameFixed === true || entradaGrammarObject.valenceFrame?.frameFixed === true) {
+        vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, objectFrame?.vector || null);
+        (Array.isArray(objectFrame?.slots) ? objectFrame.slots : []).forEach((slot) => {
+            if (!slot || typeof slot !== "object") {
+                return;
+            }
+            vector = mergeAndrewsCnvCnnBackAndForthObjectVector(vector, {
+                [String(slot.slotId || "")]: slot.token || "",
+            });
+        });
+    }
+    return andrewsCnvCnnBackAndForthObjectVectorHasValue(vector) ? vector : null;
+}
+
+function andrewsCnvCnnBackAndForthObjectVectorCovers(required = null, evidence = null) {
+    const requiredVector = normalizeAndrewsCnvCnnBackAndForthObjectVector(required);
+    const evidenceVector = normalizeAndrewsCnvCnnBackAndForthObjectVector(evidence);
+    return ["obj1", "obj2", "obj3", "reflexivo"].every((slotId) => (
+        !requiredVector[slotId] || requiredVector[slotId] === evidenceVector[slotId]
+    ));
+}
+
+function hasAndrewsCnvCnnBackAndForthObjectSlotFormulaEvidence(input = null, frames = [], requiredVector = null) {
+    let evidenceVector = collectAndrewsCnvCnnBackAndForthObjectVectorFromSource(input);
+    const entradaObjectVector = collectAndrewsCnvCnnBackAndForthObjectVectorFromEntradaGrammarObject(
+        getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input)
+    );
+    if (entradaObjectVector) {
+        evidenceVector = mergeAndrewsCnvCnnBackAndForthObjectVector(evidenceVector, entradaObjectVector);
+    }
+    (Array.isArray(frames) ? frames : []).forEach((frame) => {
+        const next = collectAndrewsCnvCnnBackAndForthObjectVectorFromSource(frame);
+        if (next) {
+            evidenceVector = mergeAndrewsCnvCnnBackAndForthObjectVector(evidenceVector, next);
+        }
+    });
+    if (!andrewsCnvCnnBackAndForthObjectVectorHasValue(requiredVector)) {
+        return andrewsCnvCnnBackAndForthObjectVectorHasValue(evidenceVector);
+    }
+    return andrewsCnvCnnBackAndForthObjectVectorCovers(requiredVector, evidenceVector);
+}
+
+function hasAndrewsCnvCnnBackAndForthFormulaSlotObjectCoverageEvidence(input = null, frames = [], requiredVector = null) {
+    let evidenceVector = collectAndrewsCnvCnnBackAndForthObjectVectorFromSourceFormulaSlotsOnly(input);
+    const entradaObjectVector = collectAndrewsCnvCnnBackAndForthObjectVectorFromEntradaGrammarObject(
+        getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input)
+    );
+    if (entradaObjectVector) {
+        evidenceVector = mergeAndrewsCnvCnnBackAndForthObjectVector(evidenceVector, entradaObjectVector);
+    }
+    (Array.isArray(frames) ? frames : []).forEach((frame) => {
+        const next = collectAndrewsCnvCnnBackAndForthObjectVectorFromSourceFormulaSlotsOnly(frame);
+        if (next) {
+            evidenceVector = mergeAndrewsCnvCnnBackAndForthObjectVector(evidenceVector, next);
+        }
+    });
+    if (!andrewsCnvCnnBackAndForthObjectVectorHasValue(requiredVector)) {
+        return andrewsCnvCnnBackAndForthObjectVectorHasValue(evidenceVector);
+    }
+    return andrewsCnvCnnBackAndForthObjectVectorCovers(requiredVector, evidenceVector);
+}
+
+function hasAndrewsCnvCnnBackAndForthFunctionUseSignal(input = null) {
+    if (!input || typeof input !== "object") {
+        return false;
+    }
+    if (getAndrewsCnvCnnBackAndForthEmbeddedFunctionUseValenceGate(input)) {
+        return true;
+    }
+    if (
+        input.adverbialNuclearFrame
+        || input.adjectivalNncFunctionFrame
+        || input.functionKind
+        || input.sourceFunctionKind
+        || input.adjectivalNnc
+    ) {
+        return true;
+    }
+    const dataset = input.dataset && typeof input.dataset === "object" ? input.dataset : {};
+    const values = [
+        input.routeFamily,
+        input.generationRoute,
+        input.outputKind,
+        input.routeStage,
+        input.contractId,
+        input.routeTemplateId,
+        input.nominalizationKind,
+        input.nominalizationProfile?.role?.nominalizationKind,
+        input.grammarFrame?.routeContract?.routeFamily,
+        input.grammarFrame?.routeContract?.routeStage,
+        input.frames?.routeContract?.routeFamily,
+        input.frames?.routeContract?.routeStage,
+        ...Object.keys(dataset),
+        ...Object.values(dataset),
+    ].map((value) => String(value || "").toLowerCase());
+    return values.some((value) => /function|funci[oó]n|adjectiv|adjetiv|adverb|ownerhood|posesion|complement|supplement|suplement|classifier|count|conteo|compoundembed|prelocative|propertyembed/.test(value));
+}
+
+function hasAndrewsCnvCnnBackAndForthValenceObjectSignal(input = null, gateDomains = []) {
+    if (Array.isArray(gateDomains) && gateDomains.includes("valence-object")) {
+        return true;
+    }
+    if (!input || typeof input !== "object") {
+        return false;
+    }
+    if (getAndrewsCnvCnnBackAndForthEmbeddedFunctionUseValenceGate(input)) {
+        return true;
+    }
+    if (entradaGrammarObjectHasValenceObjectSignal(getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input))) {
+        return true;
+    }
+    if (
+        input.objectPrefix
+        || input.obj1
+        || input.obj2
+        || input.obj3
+        || input.reflexivo
+        || input.valence
+        || input.valenceFrame
+        || input.objectTransfer
+        || input.currentObjectVector
+        || input.sourceObjectVector
+        || input.participantFrame?.object
+        || input.participantFrame?.valenceFrame
+        || input.grammarFrame?.participantFrame?.object
+        || input.frames?.participantFrame?.object
+    ) {
+        return true;
+    }
+    const dataset = input.dataset && typeof input.dataset === "object" ? input.dataset : {};
+    const values = [
+        input.routeFamily,
+        input.generationRoute,
+        input.outputKind,
+        input.routeStage,
+        input.routeRecordId,
+        input.routeTemplateId,
+        input.grammarFrame?.routeContract?.routeFamily,
+        input.grammarFrame?.routeContract?.routeStage,
+        input.frames?.routeContract?.routeFamily,
+        input.frames?.routeContract?.routeStage,
+        ...Object.keys(dataset),
+        ...Object.values(dataset),
+    ].map((value) => String(value || "").toLowerCase());
+    return values.some((value) => /valence|valencia|object|objeto|objprefix|objectprefix|reflex|projective|proyectiv|transitive|intransitive|ditransitive|bitransitive|vnc|cnv|verbal|ownerhood|posesion|complement|adverbial|compoundembed|prelocative|propertyembed/.test(value));
+}
+
+function hasAndrewsCnvCnnBackAndForthExplicitValenceFrameFixedEvidence(input = null) {
+    return Boolean(
+        input
+        && typeof input === "object"
+        && (
+            input.sourceValenceFrameFixed === true
+            || input.valenceFrameFixed === true
+            || input.grammarFrame?.routeContract?.sourceContract?.valenceFrameFixed === true
+            || input.frames?.routeContract?.sourceContract?.valenceFrameFixed === true
+        )
+    );
+}
+
+function isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame = null) {
+    if (!frame || typeof frame !== "object") {
+        return false;
+    }
+    if (
+        frame.frameFixed === false
+        || frame.valenceFrameFixed === false
+        || frame.sourceValenceFrameFixed === false
+    ) {
+        return false;
+    }
+    return Boolean(
+        frame.frameFixed === true
+        || frame.valenceFrameFixed === true
+        || frame.sourceValenceFrameFixed === true
+        || frame.objectFrameFixed === true
+        || frame.matrixValenceFrameFixed === true
+        || frame.valencyFrameFixed === true
+    );
+}
+
+function hasAndrewsCnvCnnBackAndForthRouteFrameValenceEvidence(frames = []) {
+    return (Array.isArray(frames) ? frames : []).some((frame) => (
+        isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame.participantFrame?.valenceFrame)
+        || frame.participantFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.incorporationRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || (
+            String(frame.kind || "") === "andrews-incorporation-route-frame"
+            && Boolean(String(frame.matrixValence || "").trim())
+            && frame.routeFrameLicensesObjectSlotOwnership === true
+        )
+        || isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame.routeContract?.sourceContract?.valenceFrame)
+        || isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame.routeContract?.targetContract?.valenceFrame)
+        || frame.routeContract?.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.routeContract?.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame.sourceContract?.valenceFrame)
+        || isAndrewsCnvCnnBackAndForthFixedValenceFrame(frame.targetContract?.valenceFrame)
+        || frame.sourceContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.targetContract?.routeFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+        || frame.targetContract?.sourceRouteFrame?.objectSlotOwnership?.matrixValenceFrameFixed === true
+    ));
+}
+
+function hasAndrewsCnvCnnBackAndForthFixedValenceEvidence(input = null, embeddedGate = null) {
+    if (!input || typeof input !== "object") {
+        return false;
+    }
+    if (
+        embeddedGate
+        && typeof embeddedGate === "object"
+        && String(embeddedGate.status || "pass") !== "blocked"
+        && embeddedGate.routeRankingAllowed !== false
+        && embeddedGate.generationAllowed !== false
+    ) {
+        return true;
+    }
+    const entradaGrammarObject = getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input);
+    const frames = getAndrewsCnvCnnBackAndForthRouteActionFrameCandidates(input);
+    const directObjectPressureVector = collectAndrewsCnvCnnBackAndForthDirectObjectPressureVector(input);
+    if (directObjectPressureVector) {
+        const hasObjectSlotEvidence = hasAndrewsCnvCnnBackAndForthObjectSlotFormulaEvidence(input, frames);
+        const objectSlotEvidenceCoversPressure = hasAndrewsCnvCnnBackAndForthObjectSlotFormulaEvidence(
+            input,
+            frames,
+            directObjectPressureVector
+        );
+        const formulaSlotCoverageFixesPressure = hasAndrewsCnvCnnBackAndForthFormulaSlotObjectCoverageEvidence(
+            input,
+            frames,
+            directObjectPressureVector
+        );
+        if (hasObjectSlotEvidence && !objectSlotEvidenceCoversPressure) {
+            return false;
+        }
+        if (
+            hasAndrewsCnvCnnBackAndForthExplicitValenceFrameFixedEvidence(input)
+            || hasAndrewsCnvCnnBackAndForthRouteFrameValenceEvidence(frames)
+            || formulaSlotCoverageFixesPressure
+        ) {
+            return true;
+        }
+        return false;
+    }
+    if (entradaGrammarObjectHasFixedValenceEvidence(entradaGrammarObject)) {
+        return true;
+    }
+    if (entradaGrammarObjectHasValenceObjectSignal(entradaGrammarObject)) {
+        return hasAndrewsCnvCnnBackAndForthExplicitValenceFrameFixedEvidence(input);
+    }
+    if (hasAndrewsCnvCnnBackAndForthExplicitValenceFrameFixedEvidence(input)) {
+        return true;
+    }
+    if (hasAndrewsCnvCnnBackAndForthRouteFrameValenceEvidence(frames)) {
+        return true;
+    }
+    if (hasAndrewsCnvCnnBackAndForthFormulaObjectSlotPositionEvidenceInSources(input, frames)) {
+        return true;
+    }
+    return false;
+}
+
+function getAndrewsCnvCnnBackAndForthFunctionUseValenceGateStatus(embeddedGate = null) {
+    if (!embeddedGate || typeof embeddedGate !== "object") {
+        return "pass";
+    }
+    if (
+        String(embeddedGate.status || "") === "blocked"
+        || embeddedGate.routeRankingAllowed === false
+        || embeddedGate.generationAllowed === false
+    ) {
+        return "blocked";
+    }
+    return String(embeddedGate.status || "pass");
+}
+
+function buildAndrewsCnvCnnBackAndForthRouteActionFunctionUseValenceGate(input = null, gates = []) {
+    const gateDomains = getAndrewsCnvCnnBackAndForthRouteActionGateDomains(gates);
+    const functionUseSignal = hasAndrewsCnvCnnBackAndForthFunctionUseSignal(input);
+    const valenceObjectSignal = hasAndrewsCnvCnnBackAndForthValenceObjectSignal(input, gateDomains);
+    if (!functionUseSignal || !valenceObjectSignal) {
+        return null;
+    }
+    const embeddedGate = getAndrewsCnvCnnBackAndForthEmbeddedFunctionUseValenceGate(input);
+    const embeddedStatus = getAndrewsCnvCnnBackAndForthFunctionUseValenceGateStatus(embeddedGate);
+    const status = embeddedGate
+        ? embeddedStatus
+        : (hasAndrewsCnvCnnBackAndForthFixedValenceEvidence(input, embeddedGate) ? "pass" : "blocked");
+    const reason = embeddedGate
+        ? String(embeddedGate.reason || (status === "blocked"
+            ? "route-action-embedded-function-use-valence-gate-blocked"
+            : "route-action-embedded-function-use-valence-gate-passed"))
+        : (status === "blocked"
+            ? "route-action-function-use-valence-frame-unfixed"
+            : "route-action-function-use-valence-frame-fixed");
+    return {
+        kind: "andrews-cnv-cnn-route-action-function-use-valence-gate",
+        version: 1,
+        status,
+        diagnosticId: ANDREWS_CNV_CNN_FUNCTION_USE_VALENCE_OBJECT_GATE_DIAGNOSTIC_ID,
+        routeStage: ANDREWS_CNV_CNN_FUNCTION_USE_VALENCE_OBJECT_GATE_ROUTE_STAGE,
+        reason,
+        routeRankingAllowed: status !== "blocked",
+        generationAllowed: status !== "blocked",
+        requiresFixedValenceFrame: true,
+        gateDomains,
+        functionUseSignal,
+        valenceObjectSignal,
+        embeddedFunctionUseValenceGate: embeddedGate || null,
+        boundaries: {
+            functionUseCannotConsumeValenceObject: true,
+            functionUseCannotDeleteValenceObject: true,
+            functionUseCannotInventValenceObject: true,
+            functionUseCannotRelocateValenceObject: true,
+            functionUseCannotReclassifyValenceObject: true,
+            functionUseMayAnnotateLicensedReadingsOnly: true,
+            unresolvedValenceFrameIsHardGate: true,
+        },
+    };
+}
+
+function buildAndrewsCnvCnnBackAndForthRouteActionContract(input = null, {
+    routeRecordId = "",
+    sourceRequirementIds = [],
+    obstacleLimit = 8,
+    sourceUnit = "",
+    targetUnit = "",
+    generationAllowed = null,
+    diagnosticOnly = false,
+} = {}) {
+    const resolvedRouteId = String(routeRecordId || inferAndrewsCnvCnnBackAndForthRouteRecordId(input) || "").trim();
+    const record = getAndrewsCnvCnnBackAndForthRouteRecordById(resolvedRouteId);
+    if (!record) {
+        return null;
+    }
+    const routeSourceRequirements = Array.isArray(input?.sourceRequirement?.requirements)
+        ? input.sourceRequirement.requirements.map((entry) => String(entry?.id || entry || "").trim()).filter(Boolean)
+        : [];
+    const routeDiagnosticIds = Array.isArray(input?.routeDiagnostics)
+        ? input.routeDiagnostics.map((entry) => String(entry?.id || entry?.code || "").trim()).filter(Boolean)
+        : [];
+    const datasetGateIds = input?.dataset && typeof input.dataset === "object"
+        ? Object.keys(input.dataset).filter((key) => Boolean(input.dataset[key]))
+        : [];
+    const gateSeedIds = [
+        ...sourceRequirementIds,
+        ...routeSourceRequirements,
+        ...routeDiagnosticIds,
+        ...datasetGateIds,
+    ].map((entry) => String(entry || "").trim()).filter(Boolean);
+    const gates = getAndrewsCnvCnnBackAndForthObstacleGatesForRoute(resolvedRouteId, {
+        sourceRequirementIds: gateSeedIds,
+        limit: obstacleLimit,
+    });
+    const entradaGrammarObject = getAndrewsCnvCnnBackAndForthEntradaGrammarObject(input);
+    const functionUseValenceGate = buildAndrewsCnvCnnBackAndForthRouteActionFunctionUseValenceGate(input, gates);
+    const routeRankingAllowed = functionUseValenceGate?.routeRankingAllowed !== false;
+    const resolvedGenerationAllowed = generationAllowed === null
+        ? null
+        : generationAllowed === true && routeRankingAllowed;
+    const routeCoordinateFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(record);
+    return {
+        kind: "andrews-cnv-cnn-route-action-contract",
+        version: 1,
+        routeRecordId: record.id,
+        routeKind: record.routeKind,
+        transition: record.transition,
+        sourceUnit: sourceUnit || record.sourceUnit,
+        targetUnit: targetUnit || record.targetUnit,
+        pdfSearchTerm: record.pdfSearchTerm,
+        andrewsRefs: Array.from(record.andrewsRefs || []),
+        directiveEs: record.directiveEs,
+        requiredBoundary: record.requiredBoundary,
+        routeCoordinateFrame,
+        sourceRouteFrame: routeCoordinateFrame,
+        routeFrame: routeCoordinateFrame,
+        sourceRouteFrameRequired: true,
+        sourceRequirementGateIds: gateSeedIds,
+        obstacleGateIds: gates.map((entry) => entry.id),
+        obstacleGates: gates,
+        entradaGrammarObject: cloneAndrewsCnvCnnBackAndForthEntradaGrammarObject(entradaGrammarObject),
+        entradaGrammarLayerOrder: Array.isArray(entradaGrammarObject?.layerOrder)
+            ? Array.from(entradaGrammarObject.layerOrder)
+            : [],
+        functionUseValenceGate,
+        routeRankingAllowed,
+        generationAllowed: resolvedGenerationAllowed,
+        diagnosticOnly: diagnosticOnly === true || routeRankingAllowed !== true,
+    };
+}
+
 function isAndrewsCnvCnnBackAndForthProbeAvailable(probe = "") {
     switch (String(probe || "")) {
         case "buildLesson36NominalizedVncPursuitFrame":
@@ -14019,6 +16964,8 @@ function buildAndrewsCnvCnnBackAndForthEnginePathProbes() {
 function buildAndrewsCnvCnnBackAndForthAudit() {
     const routeRecords = getAndrewsCnvCnnBackAndForthRouteRecords();
     const obstacleCatalog = getAndrewsCnvCnnBackAndForthObstacleCatalog();
+    const dimensionalIndex = buildAndrewsCnvCnnBackAndForthDimensionalIndex();
+    const resistanceStatistics = buildAndrewsCnvCnnBackAndForthResistanceStatistics();
     const obstacleCatalogRouteCounts = routeRecords.map((record) => ({
         routeId: record.id,
         count: obstacleCatalog.filter((entry) => entry.routeId === record.id).length,
@@ -14042,7 +16989,9 @@ function buildAndrewsCnvCnnBackAndForthAudit() {
         grammarAuthority: "Andrews PDF",
         spellingAuthority: "Nawat/Pipil evidence",
         formalClasses: ["CNV", "CNN", "Partícula"],
+        dimensionSystem: dimensionalIndex.dimensionSystem,
         routeRecords,
+        routeCoordinateFrames: dimensionalIndex.routeCoordinateFrames,
         obstacleCatalog,
         obstacleCatalogCount: obstacleCatalog.length,
         obstacleCatalogPageCount: new Set(obstacleCatalog.flatMap((entry) => entry.pdfPages || [])).size,
@@ -14051,6 +17000,14 @@ function buildAndrewsCnvCnnBackAndForthAudit() {
             .map((entry) => entry.id),
         obstacleCatalogRouteCounts,
         obstacleCatalogRouteGaps,
+        dimensionalIndex,
+        formulaFeatureIndex: resistanceStatistics.formulaFeatureIndex,
+        resistanceStatistics,
+        leastResistanceRoute: resistanceStatistics.leastResistanceRoute,
+        mostResistanceRoute: resistanceStatistics.mostResistanceRoute,
+        resistanceConversionPlan: resistanceStatistics.resistanceConversionPlan,
+        equationPatternAnalysis: resistanceStatistics.equationPatternAnalysis,
+        relationshipDiscoveryAnalysis: resistanceStatistics.relationshipDiscoveryAnalysis,
         probeStatuses,
         enginePathProbes,
         enginePathProbeCount: enginePathProbes.length,
