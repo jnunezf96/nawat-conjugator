@@ -430,9 +430,13 @@ function run(ctx = {}) {
             && !staticGroups.includes('"adjetivo": {')
             && !staticGroups.includes('"adverbio": {')
             && staticGroups.includes('"particula": {')
-            && staticGroups.includes('"CNV en función adjetival"')
-            && staticGroups.includes('"CNN en función adjetival"')
-            && staticGroups.includes('"CNV en función adverbial"')
+            && !staticGroups.includes('"CNV en función adjetival"')
+            && !staticGroups.includes('"CNN en función adjetival"')
+            && !staticGroups.includes('"CNV en función adverbial"')
+            && !staticGroups.includes('"presente-desiderativo"')
+            && !staticGroups.includes('"condicional"')
+            && !staticGroups.includes('"perfecto"')
+            && !staticGroups.includes('"potencial"')
             && !staticGroups.includes('"heading": { "labelEs": "Función adjetival"')
             && !staticGroups.includes('"heading": { "labelEs": "Función adverbial"')
             && !staticModes.includes('"routeMode": "adjetivo"')
@@ -3784,7 +3788,7 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "visible CNV formula renderer shows base surface realizations from formula path",
+        "visible CNV formula renderer aligns formula chips to surface-line variants",
         typeof ctx.formatVisibleCnvFormulaEcho === "function" && typeof ctx.buildGeneratedOutputSlotChips === "function"
             ? (() => {
                 const result = {
@@ -3864,15 +3868,56 @@ function run(ctx = {}) {
                 ],
                 slotChips: [
                     ["pers1-pers2", "persona1-persona2", "0-0"],
-                    ["STEM", "base", "(pish/piya)"],
-                    ["num1-num2", "número1-número2", "ki-0/k-0"],
+                    ["STEM", "base", "(piya)"],
+                    ["num1-num2", "número1-número2", "ki-0"],
                 ],
                 surfaceChips: [["salida", "pishki / piyak"]],
             }
             : "rendering-runtime-not-loaded"
     );
     s.eq(
-        "visible CNV formula renderer expands optional parenthetical preterit outputs before formula chips",
+        "visible CNV formula chip takes salida from the same LCM surface line as the row",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.buildGrammarFrame === "function" && typeof ctx.buildGrammarResultFrame === "function"
+            ? (() => {
+                const result = {
+                    nuclearClauseShell: {
+                        kind: "nuclear-clause-shell",
+                        formulaType: "VNC",
+                        formulaEcho: "#ni-Ø+m-etz(mana)Ø+Ø-Ø#",
+                    },
+                    surfaceForms: ["stale-result-surface"],
+                    cnvFormulaSurfacePath: {
+                        pathsBySurface: [
+                            {
+                                surface: "stale-path-surface",
+                                paths: [
+                                    { formulaSlotKey: "base", formulaMorph: "mana", surfaceValue: "ana" },
+                                ],
+                            },
+                        ],
+                    },
+                };
+                result.grammarFrame = ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surfaceForms: ["nimetzmana"],
+                        outputKind: "vnc",
+                    }),
+                });
+                return ctx.buildGeneratedOutputSlotChips(result)
+                    .filter((chip) => chip.kind === "formula" || chip.kind === "surface")
+                    .map((chip) => [chip.kind, chip.value, chip.title || ""]);
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                ["formula", "#ni-0+m-etz(mana)0+0-0#", "Fórmula CNV: #ni-0+m-etz(mana)0+0-0# · salida: nimetzmana"],
+                ["surface", "nimetzmana", ""],
+            ]
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula renderer aligns preterit formula chips to surface expansion",
         typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
             ? (() => {
                 const result = ctx.executeGenerateWordRequest({
@@ -3933,6 +3978,364 @@ function run(ctx = {}) {
                 subjectChips: ["0-0"],
                 surfaceChips: ["kitzun / kitzunki"],
                 parentheticalLeak: false,
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula chips project to surface lines for Andrews-converted Nawat stem samples",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const formulaToSurface = (value = "") => String(value || "")
+                    .replace(/^Fórmula CNV:\s*/u, "")
+                    .replace(/[>#]/g, "")
+                    .replace(/[()]/g, "")
+                    .replace(/[+\-]/g, "")
+                    .replace(/[Ø0∅]/g, "")
+                    .replace(/\s+/g, "")
+                    .trim();
+                const samples = [
+                    { source: "Andrews L7 piya/pish class alternation", tronco: "piya", tiempo: "preterito", obj1: "ki" },
+                    { source: "Andrews L7 a-final perfective contraction", tronco: "tzuma", tiempo: "preterito", obj1: "ki" },
+                    { source: "Andrews L6 m-itz object bridge", tronco: "mana", tiempo: "presente", obj1: "metz" },
+                    { source: "Andrews L7 vowel-stem future surface", tronco: "ilpia", tiempo: "futuro", obj1: "kin" },
+                    { source: "Andrews L7 i-stem preterit surface", tronco: "ita", tiempo: "preterito", obj1: "kin" },
+                    { source: "Andrews L7 vowel-stem reflexive bridge", tronco: "altia", tiempo: "condicional", obj1: "mu" },
+                ];
+                return samples.flatMap((sample) => {
+                    const result = ctx.executeGenerateWordRequest({
+                        options: {
+                            silent: true,
+                            skipValidation: true,
+                            override: {
+                                tenseMode: ctx.TENSE_MODE.verbo,
+                                derivationMode: ctx.DERIVATION_MODE.active,
+                                voiceMode: ctx.VOICE_MODE.active,
+                                tiempo: sample.tiempo,
+                                posicionesFormula: {
+                                    pers1: "",
+                                    obj1: sample.obj1,
+                                    tronco: sample.tronco,
+                                    pers2: "",
+                                    num2: "",
+                                    tiempo: sample.tiempo,
+                                },
+                            },
+                        },
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: sample.obj1,
+                            tronco: sample.tronco,
+                            pers2: "",
+                            num2: "",
+                            tiempo: sample.tiempo,
+                        },
+                        entradaTronco: {
+                            tieneControlTronco: false,
+                            valorTronco: "",
+                        },
+                    });
+                    const formulaSurfaces = ctx.buildGeneratedOutputSlotChips(result)
+                        .filter((chip) => chip.kind === "formula")
+                        .map((chip) => formulaToSurface(chip.value))
+                        .filter(Boolean);
+                    const surfaceForms = ctx.getConjugationSurfaceForms(result);
+                    return surfaceForms
+                        .filter((surface) => !formulaSurfaces.includes(surface))
+                        .map((surface) => ({
+                            source: sample.source,
+                            tronco: sample.tronco,
+                            tiempo: sample.tiempo,
+                            obj1: sample.obj1,
+                            missingSurface: surface,
+                            formulaSurfaces,
+                            surfaceForms,
+                        }));
+                });
+            })()
+            : ["rendering-runtime-not-loaded"],
+        ctx.__TEST_RUNTIME_MODE__ === "module" ? [] : ["rendering-runtime-not-loaded"]
+    );
+    s.eq(
+        "visible CNV formula chip assigns kinh to the va2 in~inh allomorph",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const summarize = (tronco, tiempo) => {
+                    const result = ctx.executeGenerateWordRequest({
+                        options: {
+                            silent: true,
+                            skipValidation: true,
+                            override: {
+                                tenseMode: ctx.TENSE_MODE.verbo,
+                                derivationMode: ctx.DERIVATION_MODE.active,
+                                voiceMode: ctx.VOICE_MODE.active,
+                                tiempo,
+                                posicionesFormula: {
+                                    pers1: "",
+                                    obj1: "kin",
+                                    tronco,
+                                    pers2: "",
+                                    num2: "",
+                                    tiempo,
+                                },
+                            },
+                        },
+                        posicionesFormula: {
+                            pers1: "",
+                            obj1: "kin",
+                            tronco,
+                            pers2: "",
+                            num2: "",
+                            tiempo,
+                        },
+                        entradaTronco: {
+                            tieneControlTronco: false,
+                            valorTronco: "",
+                        },
+                    });
+                    return {
+                        surfaceForms: result.surfaceForms,
+                        formulaChips: ctx.buildGeneratedOutputSlotChips(result)
+                            .filter((chip) => chip.kind === "formula")
+                            .map((chip) => chip.value),
+                    };
+                };
+                return {
+                    ilpiaFuture: summarize("ilpia", "futuro"),
+                    itaPreterit: summarize("ita", "preterito"),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                ilpiaFuture: {
+                    surfaceForms: ["kinhilpis"],
+                    formulaChips: ["#0-0+k-inh(ilpi)s+0-0#"],
+                },
+                itaPreterit: {
+                    surfaceForms: ["kinhitzki", "kinhitak"],
+                    formulaChips: [
+                        "#0-0+k-inh(itz)0+ki-0#",
+                        "#0-0+k-inh(ita)0+k-0#",
+                    ],
+                },
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula chips keep Lesson 8 wal/al directionals in their own formula slot",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const summarize = ({
+                    pers1 = "",
+                    obj1 = "",
+                    tronco,
+                    tiempo = "presente",
+                }) => {
+                    const result = ctx.executeGenerateWordRequest({
+                        options: {
+                            silent: true,
+                            skipValidation: true,
+                            override: {
+                                tenseMode: ctx.TENSE_MODE.verbo,
+                                derivationMode: ctx.DERIVATION_MODE.active,
+                                voiceMode: ctx.VOICE_MODE.active,
+                                tiempo,
+                                posicionesFormula: {
+                                    pers1,
+                                    obj1,
+                                    tronco,
+                                    pers2: "",
+                                    num2: "",
+                                    tiempo,
+                                },
+                            },
+                        },
+                        posicionesFormula: {
+                            pers1,
+                            obj1,
+                            tronco,
+                            pers2: "",
+                            num2: "",
+                            tiempo,
+                        },
+                        entradaTronco: {
+                            tieneControlTronco: false,
+                            valorTronco: "",
+                        },
+                    });
+                    const chips = ctx.buildGeneratedOutputSlotChips(result);
+                    return {
+                        surfaceForms: result.surfaceForms,
+                        formulaChips: chips
+                            .filter((chip) => chip.kind === "formula")
+                            .map((chip) => chip.value),
+                        directionalChips: chips
+                            .filter((chip) => chip.kind === "directional")
+                            .map((chip) => chip.value),
+                    };
+                };
+                return {
+                    intransitiveThird: summarize({ tronco: "wal+(chulua)" }),
+                    intransitiveFirst: summarize({ pers1: "ni", tronco: "wal+(chulua)" }),
+                    transitiveFirstThird: summarize({ pers1: "ni", obj1: "ki", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                    transitiveFirstThirdPlural: summarize({ pers1: "ni", obj1: "kin", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                    transitiveFirstSecond: summarize({ pers1: "ni", obj1: "metz", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                    transitiveSecondFirst: summarize({ pers1: "ti", obj1: "nech", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                    transitiveThirdThird: summarize({ obj1: "ki", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                    transitiveThirdReflexive: summarize({ obj1: "mu", tronco: "wal-(ilpia)", tiempo: "futuro" }),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                intransitiveThird: {
+                    surfaceForms: ["walchulua"],
+                    formulaChips: ["#0-0+wal(chulua)0+0-0#"],
+                    directionalChips: ["wal"],
+                },
+                intransitiveFirst: {
+                    surfaceForms: ["nalchulua"],
+                    formulaChips: ["#n-0+al(chulua)0+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveFirstThird: {
+                    surfaceForms: ["nalilpis"],
+                    formulaChips: ["#n-0+al+0-0(ilpi)s+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveFirstThirdPlural: {
+                    surfaceForms: ["nalinhilpis"],
+                    formulaChips: ["#n-0+al+0-inh(ilpi)s+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveFirstSecond: {
+                    surfaceForms: ["nalmetzilpis"],
+                    formulaChips: ["#n-0+al+m-etz(ilpi)s+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveSecondFirst: {
+                    surfaceForms: ["talnechilpis"],
+                    formulaChips: ["#t-0+al+n-ech(ilpi)s+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveThirdThird: {
+                    surfaceForms: ["kalilpis"],
+                    formulaChips: ["#0-0+k-0+al(ilpi)s+0-0#"],
+                    directionalChips: ["al"],
+                },
+                transitiveThirdReflexive: {
+                    surfaceForms: ["walmuilpis"],
+                    formulaChips: ["#0-0+wal+m-u(ilpi)s+0-0#"],
+                    directionalChips: ["wal"],
+                },
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula chips keep Lesson 8 un directional as regular Lesson 2 prefix",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const summarize = ({
+                    pers1 = "",
+                    obj1 = "",
+                    tronco,
+                    tiempo = "presente",
+                }) => {
+                    const result = ctx.executeGenerateWordRequest({
+                        options: {
+                            silent: true,
+                            skipValidation: true,
+                            override: {
+                                tenseMode: ctx.TENSE_MODE.verbo,
+                                derivationMode: ctx.DERIVATION_MODE.active,
+                                voiceMode: ctx.VOICE_MODE.active,
+                                tiempo,
+                                posicionesFormula: {
+                                    pers1,
+                                    obj1,
+                                    tronco,
+                                    pers2: "",
+                                    num2: "",
+                                    tiempo,
+                                },
+                            },
+                        },
+                        posicionesFormula: {
+                            pers1,
+                            obj1,
+                            tronco,
+                            pers2: "",
+                            num2: "",
+                            tiempo,
+                        },
+                        entradaTronco: {
+                            tieneControlTronco: false,
+                            valorTronco: "",
+                        },
+                    });
+                    const chips = ctx.buildGeneratedOutputSlotChips(result);
+                    return {
+                        surfaceForms: result.surfaceForms,
+                        formulaChips: chips
+                            .filter((chip) => chip.kind === "formula")
+                            .map((chip) => chip.value),
+                        subjectChips: chips
+                            .filter((chip) => chip.kind === "pers1-pers2")
+                            .map((chip) => chip.value),
+                        directionalChips: chips
+                            .filter((chip) => chip.kind === "directional")
+                            .map((chip) => chip.value),
+                        objectChips: chips
+                            .filter((chip) => chip.kind === "obj1")
+                            .map((chip) => chip.value),
+                    };
+                };
+                return {
+                    intransitiveThird: summarize({ tronco: "un+(chulua)" }),
+                    intransitiveFirst: summarize({ pers1: "ni", tronco: "un+(chulua)" }),
+                    intransitiveSecond: summarize({ pers1: "ti", tronco: "un+(chulua)" }),
+                    vowelStemFirst: summarize({ pers1: "ni", tronco: "un+(itta)" }),
+                    nonspecificFirst: summarize({ pers1: "ni", obj1: "te", tronco: "un-(ilpia)", tiempo: "futuro" }),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                intransitiveThird: {
+                    surfaceForms: ["unchulua"],
+                    formulaChips: ["#0-0+un(chulua)0+0-0#"],
+                    subjectChips: ["0-0"],
+                    directionalChips: ["un"],
+                    objectChips: ["Ø"],
+                },
+                intransitiveFirst: {
+                    surfaceForms: ["nunchulua"],
+                    formulaChips: ["#n-0+un(chulua)0+0-0#"],
+                    subjectChips: ["n-0"],
+                    directionalChips: ["un"],
+                    objectChips: ["Ø"],
+                },
+                intransitiveSecond: {
+                    surfaceForms: ["tunchulua"],
+                    formulaChips: ["#t-0+un(chulua)0+0-0#"],
+                    subjectChips: ["t-0"],
+                    directionalChips: ["un"],
+                    objectChips: ["Ø"],
+                },
+                vowelStemFirst: {
+                    surfaceForms: ["nunhitta"],
+                    formulaChips: ["#n-0+un(hitta)0+0-0#"],
+                    subjectChips: ["n-0"],
+                    directionalChips: ["un"],
+                    objectChips: ["Ø"],
+                },
+                nonspecificFirst: {
+                    surfaceForms: ["nunteilpis"],
+                    formulaChips: ["#n-0+un+te(ilpi)s+0-0#"],
+                    subjectChips: ["n-0"],
+                    directionalChips: ["un"],
+                    objectChips: ["te"],
+                },
             }
             : "rendering-runtime-not-loaded"
     );

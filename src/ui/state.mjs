@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/state.js.
 
-export function createUiStateModule(targetObject = globalThis) {
+export function createStateModule(targetObject = globalThis) {
     function getSubjectPersonSelections() {
       const selections = [];
       targetObject.SUBJECT_PERSON_NUMBER_ORDER.forEach(number => {
@@ -12303,12 +12303,13 @@ export function createUiStateModule(targetObject = globalThis) {
         }
       }
     }
+    const FORMULA_CNV_LEGACY_TAB_TENSES = new Set(["presente-desiderativo", "adjetivo-preterito", "adjetivo-perfecto", "adjetivo-preterito-tik", "adjetivo-perfecto-tik", "adjetivo-preterito-naj", "adjetivo-perfecto-naj", "pasado-remoto-adverbio-activo", "perfecto", "pluscuamperfecto", "condicional-perfecto", "condicional"]);
     function getTenseOrderForMode(mode) {
       if (mode === targetObject.TENSE_MODE.particula) {
         return [];
       }
       if (mode === targetObject.TENSE_MODE.sustantivo) {
-        return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "potencial", "potencial-habitual", ...targetObject.PATIENTIVO_ADJECTIVE_TENSE_ORDER, "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
+        return ["sustantivo-verbal", "agentivo", "agentivo-presente", "agentivo-preterito", "agentivo-futuro", "patientivo", "instrumentivo", "calificativo-instrumentivo", "locativo-temporal"];
       }
       if (mode === targetObject.TENSE_MODE.adjetivo) {
         return targetObject.ADJECTIVE_TAB_TENSE_ORDER;
@@ -12316,7 +12317,7 @@ export function createUiStateModule(targetObject = globalThis) {
       if (mode === targetObject.TENSE_MODE.adverbio) {
         return ["pasado-remoto-adverbio-activo"];
       }
-      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "agentivo" && tense !== "agentivo-presente" && tense !== "agentivo-preterito" && tense !== "agentivo-futuro" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal");
+      return targetObject.TENSE_ORDER.filter(tense => tense !== "sustantivo-verbal" && tense !== "potencial" && tense !== "potencial-habitual" && !targetObject.PATIENTIVO_ADJECTIVE_TENSE_SET.has(tense) && tense !== "agentivo" && tense !== "agentivo-presente" && tense !== "agentivo-preterito" && tense !== "agentivo-futuro" && tense !== "patientivo" && tense !== "instrumentivo" && tense !== "calificativo-instrumentivo" && tense !== "locativo-temporal" && !FORMULA_CNV_LEGACY_TAB_TENSES.has(tense));
     }
     function isNounPossessionSplitTense(tenseValue) {
       return tenseValue === "instrumentivo";
@@ -14428,6 +14429,11 @@ export function createUiStateModule(targetObject = globalThis) {
     api.setVerbSourceScope = setVerbSourceScope;
     api.getCombinedMode = getCombinedMode;
     api.setCombinedMode = setCombinedMode;
+    Object.defineProperty(api, "FORMULA_CNV_LEGACY_TAB_TENSES", {
+        configurable: true,
+        enumerable: true,
+        get() { return FORMULA_CNV_LEGACY_TAB_TENSES; },
+    });
     api.getTenseOrderForMode = getTenseOrderForMode;
     api.isNounPossessionSplitTense = isNounPossessionSplitTense;
     api.isNounTenseVisibleForCombinedMode = isNounTenseVisibleForCombinedMode;
@@ -14550,8 +14556,8 @@ export function createUiStateModule(targetObject = globalThis) {
     return api;
 }
 
-export function installUiStateGlobals(targetObject = globalThis) {
-    const api = createUiStateModule(targetObject);
+export function installStateModule(targetObject = globalThis) {
+    const api = createStateModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

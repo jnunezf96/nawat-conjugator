@@ -10,7 +10,7 @@
         {
           "heading": { "labelEs": "CNV indicativa · imperfectivo no pasado", "labelNa": "CNV indicativa · imperfectivo no pasado" },
           "hoverTitle": { "labelEs": "Andrews Lecciones 5 y 7: tiempos indicativos sobre tronco imperfectivo.", "labelNa": "Andrews Lecciones 5 y 7: tiempos indicativos sobre tronco imperfectivo." },
-          "tenses": ["presente", "presente-habitual", "presente-desiderativo"]
+          "tenses": ["presente", "presente-habitual"]
         },
         {
           "heading": { "labelEs": "CNV indicativa · imperfectivo pasado", "labelNa": "CNV indicativa · imperfectivo pasado" },
@@ -22,25 +22,8 @@
             "labelEs": "CNV indicativa · imperfectivo proyectivo",
             "labelNa": "CNV indicativa · imperfectivo proyectivo"
           },
-          "hoverTitle": { "labelEs": "Andrews Lecciones 5 y 7: futuro indicativo; condicional es extensión Nawat en la misma ruta imperfectiva.", "labelNa": "Andrews Lecciones 5 y 7: futuro indicativo; condicional es extensión Nawat en la misma ruta imperfectiva." },
-          "tenses": ["futuro", "condicional"]
-        },
-        {
-          "heading": { "labelEs": "CNV en función adjetival", "labelNa": "CNV en función adjetival" },
-          "hoverTitle": { "labelEs": "Andrews: la función adjetival no crea una cuarta clase formal; estas salidas siguen siendo CNV.", "labelNa": "Andrews: la función adjetival no crea una cuarta clase formal; estas salidas siguen siendo CNV." },
-          "tenses": [
-            "adjetivo-preterito",
-            "adjetivo-perfecto",
-            "adjetivo-preterito-tik",
-            "adjetivo-perfecto-tik",
-            "adjetivo-preterito-naj",
-            "adjetivo-perfecto-naj"
-          ]
-        },
-        {
-          "heading": { "labelEs": "CNV en función adverbial", "labelNa": "CNV en función adverbial" },
-          "hoverTitle": { "labelEs": "Andrews: la función adverbial se enruta por la clase formal CNV cuando la salida configurada lo permite.", "labelNa": "Andrews: la función adverbial se enruta por la clase formal CNV cuando la salida configurada lo permite." },
-          "tenses": ["pasado-remoto-adverbio-activo"]
+          "hoverTitle": { "labelEs": "Andrews Lecciones 5 y 7: futuro indicativo sobre tronco imperfectivo.", "labelNa": "Andrews Lecciones 5 y 7: futuro indicativo sobre tronco imperfectivo." },
+          "tenses": ["futuro"]
         }
       ],
       "right": [
@@ -51,14 +34,6 @@
           },
           "hoverTitle": { "labelEs": "Andrews Lecciones 5 y 7: pretérito y pasado remoto sobre tronco perfectivo.", "labelNa": "Andrews Lecciones 5 y 7: pretérito y pasado remoto sobre tronco perfectivo." },
           "tenses": ["preterito", "pasado-remoto"]
-        },
-        {
-          "heading": {
-            "labelEs": "Extensión Nawat · perfecto resultativo",
-            "labelNa": "Extensión Nawat · perfecto resultativo"
-          },
-          "hoverTitle": { "labelEs": "Andrews Lecciones 5 y 7 dirigen la ranura; estas superficies perfectas dependen de evidencia Nawat/Pipil.", "labelNa": "Andrews Lecciones 5 y 7 dirigen la ranura; estas superficies perfectas dependen de evidencia Nawat/Pipil." },
-          "tenses": ["perfecto", "pluscuamperfecto", "condicional-perfecto"]
         }
       ]
     },
@@ -76,16 +51,6 @@
             "instrumentivo",
             "calificativo-instrumentivo",
             "locativo-temporal"
-          ]
-        },
-        {
-          "heading": { "labelEs": "CNN en función adjetival", "labelNa": "CNN en función adjetival" },
-          "hoverTitle": { "labelEs": "Andrews: la función adjetival no crea otra clase formal; estas salidas se leen como CNN.", "labelNa": "Andrews: la función adjetival no crea otra clase formal; estas salidas se leen como CNN." },
-          "tenses": [
-            "potencial",
-            "potencial-habitual",
-            "adjetivo-patientivo-no-activo",
-            "adjetivo-patientivo-perfectivo"
           ]
         }
       ],

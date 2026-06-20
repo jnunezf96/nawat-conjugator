@@ -3791,7 +3791,13 @@ export function createNncApi(targetObject = globalThis) {
       indirectObjectMarker = "",
       thirdObjectMarker = "",
       mode,
-      possessivePrefix
+      possessivePrefix,
+      entradaGrammarObject = null,
+      sourceFrame = null,
+      sourceRouteFrame = null,
+      routeFrame = null,
+      valenceFrameFixed = null,
+      sourceValenceFrameFixed = null
     }) {
       const commonNumberSuffix = "";
       const context = targetObject.buildVerbDerivedNominalBuilderContext({
@@ -3823,6 +3829,41 @@ export function createNncApi(targetObject = globalThis) {
         indirectObjectMarker: resolvedIndirectObjectMarker,
         thirdObjectMarker: resolvedThirdObjectMarker
       } = context;
+      const reflexiveInstrumentivoStemContext = (Array.isArray(forwardStemContexts) ? forwardStemContexts : []).find(stemContext => stemContext?.morphologyObjectPrefix === "mu");
+      if (reflexiveInstrumentivoStemContext) {
+        const instrumentivoReflexiveObjectGate = typeof targetObject.buildGenerationValencyObjectSlotMutationGate === "function" ? targetObject.buildGenerationValencyObjectSlotMutationGate({
+          operation: "instrumentivo-reflexive-source-object-reclassification",
+          mutationKind: "reclassify-object-slot",
+          sourceObj1: reflexiveInstrumentivoStemContext.morphologyObjectPrefix,
+          sourceBaseObj1: reflexiveInstrumentivoStemContext.morphologyObjectPrefix,
+          sourceObj2: resolvedIndirectObjectMarker,
+          sourceObj3: resolvedThirdObjectMarker,
+          targetObj1: "ne",
+          targetBaseObj1: "ne",
+          targetObj2: resolvedIndirectObjectMarker,
+          targetObj3: resolvedThirdObjectMarker,
+          options: {
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
+            requireFixedValenceFrame: true
+          }
+        }) : null;
+        if (instrumentivoReflexiveObjectGate?.status === "blocked") {
+          return attachVerbDerivedNominalGrammarContract({
+            error: true,
+            valencyObjectSlotGate: instrumentivoReflexiveObjectGate
+          }, {
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: instrumentivoReflexiveObjectGate.diagnosticId,
+            routeStage: instrumentivoReflexiveObjectGate.routeStage
+          });
+        }
+      }
       if (mode === targetObject.INSTRUMENTIVO_MODE.absolutivo) {
         const entries = [];
         forwardStemContexts.forEach(stemContext => {
@@ -3862,7 +3903,13 @@ export function createNncApi(targetObject = globalThis) {
               isNounContext: true,
               ...targetObject.buildMorphologyMetaOptions(verbMeta),
               indirectObjectMarker: resolvedIndirectObjectMarker,
-              thirdObjectMarker: resolvedThirdObjectMarker
+              thirdObjectMarker: resolvedThirdObjectMarker,
+              entradaGrammarObject,
+              sourceFrame,
+              sourceRouteFrame,
+              routeFrame,
+              valenceFrameFixed,
+              sourceValenceFrameFixed
             });
             if (!applied || !applied.verb) {
               return;
@@ -3951,7 +3998,13 @@ export function createNncApi(targetObject = globalThis) {
           isNounContext: true,
           ...targetObject.buildMorphologyMetaOptions(verbMeta),
           indirectObjectMarker: resolvedIndirectObjectMarker,
-          thirdObjectMarker: resolvedThirdObjectMarker
+          thirdObjectMarker: resolvedThirdObjectMarker,
+          entradaGrammarObject,
+          sourceFrame,
+          sourceRouteFrame,
+          routeFrame,
+          valenceFrameFixed,
+          sourceValenceFrameFixed
         });
         if (!applied || !applied.verb) {
           return;
@@ -4022,7 +4075,13 @@ export function createNncApi(targetObject = globalThis) {
       thirdObjectMarker = "",
       possessivePrefix,
       actionNounStemUse = "",
-      combinedMode = ""
+      combinedMode = "",
+      entradaGrammarObject = null,
+      sourceFrame = null,
+      sourceRouteFrame = null,
+      routeFrame = null,
+      valenceFrameFixed = null,
+      sourceValenceFrameFixed = null
     }) {
       const resolvedActionNounStemUse = String(actionNounStemUse || "");
       const context = targetObject.buildVerbDerivedNominalBuilderContext({
@@ -4076,6 +4135,41 @@ export function createNncApi(targetObject = globalThis) {
           rawVerb,
           diagnosticId: "calificativo-instrumentivo-transitive-source-blocked"
         });
+      }
+      const reflexiveGeneralUseStemContext = isActiveGeneralActionStem ? (Array.isArray(forwardStemContexts) ? forwardStemContexts : []).find(stemContext => stemContext?.morphologyObjectPrefix === "mu") : null;
+      if (reflexiveGeneralUseStemContext) {
+        const calificativoReflexiveObjectGate = typeof targetObject.buildGenerationValencyObjectSlotMutationGate === "function" ? targetObject.buildGenerationValencyObjectSlotMutationGate({
+          operation: "calificativo-instrumentivo-active-action-reflexive-source-object-reclassification",
+          mutationKind: "reclassify-object-slot",
+          sourceObj1: reflexiveGeneralUseStemContext.morphologyObjectPrefix,
+          sourceBaseObj1: reflexiveGeneralUseStemContext.morphologyObjectPrefix,
+          sourceObj2: resolvedIndirectObjectMarker,
+          sourceObj3: resolvedThirdObjectMarker,
+          targetObj1: "ne",
+          targetBaseObj1: "ne",
+          targetObj2: resolvedIndirectObjectMarker,
+          targetObj3: resolvedThirdObjectMarker,
+          options: {
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
+            requireFixedValenceFrame: true
+          }
+        }) : null;
+        if (calificativoReflexiveObjectGate?.status === "blocked") {
+          return attachVerbDerivedNominalGrammarContract({
+            error: true,
+            valencyObjectSlotGate: calificativoReflexiveObjectGate
+          }, {
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: calificativoReflexiveObjectGate.diagnosticId,
+            routeStage: calificativoReflexiveObjectGate.routeStage
+          });
+        }
       }
       const shouldCollapseMarkerEcho = Boolean(targetObject.getForwardDerivationConfig(targetObject.getNounDerivationTypeFromMeta(verbMeta)) && (resolvedIndirectObjectMarker || resolvedThirdObjectMarker));
       const calificativoMatrixBase = targetObject.normalizeRuleBase(verbMeta?.exactBaseVerb || verbMeta?.sourceBase || verbMeta?.canonical?.sourceBase || nounSourceModel?.matrixBase || "");
@@ -4221,7 +4315,13 @@ export function createNncApi(targetObject = globalThis) {
       indirectObjectMarker = "",
       thirdObjectMarker = "",
       possessivePrefix,
-      combinedMode
+      combinedMode,
+      entradaGrammarObject = null,
+      sourceFrame = null,
+      sourceRouteFrame = null,
+      routeFrame = null,
+      valenceFrameFixed = null,
+      sourceValenceFrameFixed = null
     }) {
       const resolvedMode = combinedMode || targetObject.getCombinedMode();
       const isNonactive = resolvedMode === targetObject.COMBINED_MODE.nonactive;
@@ -4255,6 +4355,45 @@ export function createNncApi(targetObject = globalThis) {
       } = context;
       const possessorInput = typeof possessivePrefix === "string" ? possessivePrefix : "";
       const isImpersonal = isNonactive && !possessorInput;
+      const nonactivePassiveObjectPrefix = isNonactive ? targetObject.applyPassiveImpersonal({
+        pers1: "",
+        pers2: "",
+        obj1: resolvedObjectPrefix
+      }).obj1 : resolvedObjectPrefix;
+      if (isNonactive && nonactivePassiveObjectPrefix !== resolvedObjectPrefix) {
+        const locativoTemporalObjectSlotGate = typeof targetObject.buildGenerationValencyObjectSlotMutationGate === "function" ? targetObject.buildGenerationValencyObjectSlotMutationGate({
+          operation: "locativo-temporal-nonactive-source-object-adjustment",
+          mutationKind: nonactivePassiveObjectPrefix ? "reclassify-object-slot" : "delete-object-slot",
+          sourceObj1: resolvedObjectPrefix,
+          sourceBaseObj1: resolvedObjectPrefix,
+          sourceObj2: resolvedIndirectObjectMarker,
+          sourceObj3: resolvedThirdObjectMarker,
+          targetObj1: nonactivePassiveObjectPrefix,
+          targetBaseObj1: nonactivePassiveObjectPrefix,
+          targetObj2: resolvedIndirectObjectMarker,
+          targetObj3: resolvedThirdObjectMarker,
+          options: {
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
+            requireFixedValenceFrame: true
+          }
+        }) : null;
+        if (locativoTemporalObjectSlotGate?.status === "blocked") {
+          return attachVerbDerivedNominalGrammarContract({
+            error: true,
+            valencyObjectSlotGate: locativoTemporalObjectSlotGate
+          }, {
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.locativoTemporal,
+            rawVerb,
+            diagnosticId: locativoTemporalObjectSlotGate.diagnosticId,
+            routeStage: locativoTemporalObjectSlotGate.routeStage
+          });
+        }
+      }
       const entries = [];
       forwardStemContexts.forEach(stemContext => {
         let nonactiveStemSpecs = [stemContext.stemSpec || targetObject.buildLiteralMorphStemSpec(stemContext.verb)];
@@ -4284,13 +4423,7 @@ export function createNncApi(targetObject = globalThis) {
         }
         let sourceObjectPrefix = resolvedObjectPrefix;
         if (isNonactive) {
-          const passive = targetObject.applyPassiveImpersonal({
-            pers1: "",
-            pers2: "",
-            obj1: resolvedObjectPrefix,
-            analysisVerb: targetObject.stripDirectionalPrefixFromStem(nonactiveStemEntries[0].stem, directionalPrefix)
-          });
-          sourceObjectPrefix = passive.obj1;
+          sourceObjectPrefix = nonactivePassiveObjectPrefix;
         }
         const locativeObjectPrefix = sourceObjectPrefix === resolvedObjectPrefix ? stemContext.morphologyObjectPrefix : sourceObjectPrefix;
         nonactiveStemEntries.forEach(({
@@ -4313,7 +4446,13 @@ export function createNncApi(targetObject = globalThis) {
             isNounContext: true,
             ...targetObject.buildMorphologyMetaOptions(verbMeta),
             indirectObjectMarker: resolvedIndirectObjectMarker,
-            thirdObjectMarker: resolvedThirdObjectMarker
+            thirdObjectMarker: resolvedThirdObjectMarker,
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed
           });
           if (!applied || !applied.verb) {
             return;

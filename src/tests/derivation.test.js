@@ -1791,6 +1791,16 @@ function run(ctx) {
                         ? frame.remainingExternalObjectSlots.map((slot) => `${slot.slotId}:${slot.prefix}`)
                         : []
                 )),
+                ownershipSourceExternalObjectSlots: routeFrames.map((frame) => (
+                    Array.isArray(frame?.objectSlotOwnership?.sourceExternalObjectSlots)
+                        ? frame.objectSlotOwnership.sourceExternalObjectSlots.map((slot) => `${slot.slotId}:${slot.prefix}`)
+                        : []
+                )),
+                ownershipRemainingExternalObjectSlots: routeFrames.map((frame) => (
+                    Array.isArray(frame?.objectSlotOwnership?.remainingExternalObjectSlots)
+                        ? frame.objectSlotOwnership.remainingExternalObjectSlots.map((slot) => `${slot.slotId}:${slot.prefix}`)
+                        : []
+                )),
                 objectSlotOwnershipKinds: routeFrames.map((frame) => frame?.objectSlotOwnership?.kind || ""),
                 consumedObjectSlotOwners: routeFrames.map((frame) => frame?.objectSlotOwnership?.consumedObjectSlotOwnedBy || ""),
                 remainingObjectSlotOwners: routeFrames.map((frame) => frame?.objectSlotOwnership?.remainingExternalObjectSlotsOwnedBy || ""),
@@ -1847,6 +1857,16 @@ function run(ctx) {
             complementSlotDeltas: [0, 1, 0],
             adverbialFunctionDeltas: [0, 0, 1],
             remainingExternalObjectSlots: [
+                ["obj1:ki"],
+                ["obj1:ki"],
+                [],
+            ],
+            ownershipSourceExternalObjectSlots: [
+                [],
+                [],
+                [],
+            ],
+            ownershipRemainingExternalObjectSlots: [
                 ["obj1:ki"],
                 ["obj1:ki"],
                 [],

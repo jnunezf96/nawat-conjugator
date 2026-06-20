@@ -14079,6 +14079,21 @@ function setCombinedMode(mode) {
     }
 }
 
+const FORMULA_CNV_LEGACY_TAB_TENSES = new Set([
+    "presente-desiderativo",
+    "adjetivo-preterito",
+    "adjetivo-perfecto",
+    "adjetivo-preterito-tik",
+    "adjetivo-perfecto-tik",
+    "adjetivo-preterito-naj",
+    "adjetivo-perfecto-naj",
+    "pasado-remoto-adverbio-activo",
+    "perfecto",
+    "pluscuamperfecto",
+    "condicional-perfecto",
+    "condicional",
+]);
+
 function getTenseOrderForMode(mode) {
     if (mode === TENSE_MODE.particula) {
         return [];
@@ -14091,9 +14106,6 @@ function getTenseOrderForMode(mode) {
             "agentivo-preterito",
             "agentivo-futuro",
             "patientivo",
-            "potencial",
-            "potencial-habitual",
-            ...PATIENTIVO_ADJECTIVE_TENSE_ORDER,
             "instrumentivo",
             "calificativo-instrumentivo",
             "locativo-temporal",
@@ -14118,6 +14130,7 @@ function getTenseOrderForMode(mode) {
         && tense !== "instrumentivo"
         && tense !== "calificativo-instrumentivo"
         && tense !== "locativo-temporal"
+        && !FORMULA_CNV_LEGACY_TAB_TENSES.has(tense)
     ));
 }
 

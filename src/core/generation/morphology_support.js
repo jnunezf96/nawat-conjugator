@@ -112,7 +112,9 @@ function buildWalDirectionalPlan({
         ? hasSubjectValent
         : (forceNonspecificDirectional
             ? (hasSubjectValent && !isThirdPersonSubject)
-            : (!forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasSubjectValent)))
+            : (forceIntransitiveDirectional
+                ? (hasSubjectValent && !isThirdPersonSubject)
+                : (!isIntransitiveVerb && hasSecondValent && hasSubjectValent))))
         && (!hasNonspecificObject || allowMainlineThirdPersonAlWithNonspecific);
     return {
         handler: "wal",
@@ -376,6 +378,69 @@ function realizeWalDirectionalChain({
     };
 }
 
+function realizeRegularDirectionalChain({
+    pers1 = "",
+    obj1 = "",
+    tronco = "",
+    directionalChainMeta = null,
+}) {
+    const meta = directionalChainMeta && typeof directionalChainMeta === "object"
+        ? directionalChainMeta
+        : null;
+    const directionalInputPrefix = String(meta?.directionalInputPrefix || "");
+    const directionalOutputPrefix = String(meta?.directionalOutputPrefix || directionalInputPrefix || "");
+    if (!directionalInputPrefix || !directionalOutputPrefix) {
+        return { pers1, obj1, tronco, soundSpellingFrames: [] };
+    }
+    const basePers1 = String(meta.pers1Base || meta.baseSubjectPrefix || pers1 || "");
+    const baseObj1 = String(meta.obj1Base || meta.baseObjectPrefix || obj1 || "");
+    const baseObj2 = String(meta.obj2 || meta.indirectObjectMarker || "");
+    const baseObj3 = String(meta.obj3 || meta.thirdObjectMarker || "");
+    const soundSpellingFrames = [];
+    let realizedPers1 = String(pers1 || "");
+    let realizedTronco = String(tronco || "");
+    if (realizedTronco.startsWith(directionalInputPrefix)) {
+        realizedTronco = realizedTronco.slice(directionalInputPrefix.length);
+    }
+    if (/^[aeiu]/.test(directionalOutputPrefix)) {
+        if (basePers1 === "ni" || basePers1 === "n") {
+            if (realizedPers1 !== "n") {
+                pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
+                    ruleId: "pers1-ni-before-vowel-n",
+                    source: realizedPers1 || "ni",
+                    target: "n",
+                    slot: "pers1",
+                    syllablePosition: "pers1-obj1-boundary",
+                }, realizedPers1 || "ni", "n", "pers1");
+            }
+            realizedPers1 = "n";
+        } else if (basePers1 === "ti" || basePers1 === "t") {
+            if (realizedPers1 !== "t") {
+                pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
+                    ruleId: "pers1-ti-before-vowel-t",
+                    source: realizedPers1 || "ti",
+                    target: "t",
+                    slot: "pers1",
+                    syllablePosition: "pers1-obj1-boundary",
+                }, realizedPers1 || "ti", "t", "pers1");
+            }
+            realizedPers1 = "t";
+        }
+    }
+    const markerChain = buildDirectionalMarkerChain({
+        obj1Base: baseObj1,
+        obj2: baseObj2,
+        obj3: baseObj3,
+        pers1: basePers1,
+    });
+    return {
+        pers1: realizedPers1,
+        obj1: normalizeValenceMarkerOrder(`${directionalOutputPrefix}${markerChain}`),
+        tronco: realizedTronco,
+        soundSpellingFrames,
+    };
+}
+
 function resolveDirectionalOutputChain({
     pers1 = "",
     obj1 = "",
@@ -404,7 +469,12 @@ function resolveDirectionalOutputChain({
                 : [],
         };
     }
-    return { pers1, obj1, tronco, soundSpellingFrames: [] };
+    return realizeRegularDirectionalChain({
+        pers1,
+        obj1,
+        tronco,
+        directionalChainMeta: meta,
+    });
 }
 
 function adjustPatientivoPossessiveSuffix(

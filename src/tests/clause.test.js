@@ -872,7 +872,7 @@ function run(ctx) {
                 routeRankingAllowed: false,
                 generationAllowed: false,
                 contractCarriesEntrada: "andrews-entrada-grammar-object",
-                layerOrder: ["formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
+                layerOrder: ["morph-boundary-frame", "formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
                 objectVector: { obj1: "ta", obj2: "", obj3: "", reflexivo: "" },
                 functionUseStatus: "deferred",
                 valenceFrameFixed: false,
@@ -903,6 +903,7 @@ function run(ctx) {
             const dimensionSystem = ctx.getAndrewsCnvCnnBackAndForthDimensionSystem();
             const routeFrame = ctx.buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame("cnv-to-cnn-to-cnv-loop");
             const obstacleFrame = ctx.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame("nominalized-vnc-preterit-agentive-source-boundary");
+            const functionUseObstacleFrame = ctx.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame("numeral-counting-preterit-agentive-classifier-boundary");
             const index = ctx.buildAndrewsCnvCnnBackAndForthDimensionalIndex();
             const audit = ctx.buildAndrewsCnvCnnBackAndForthAudit();
             return {
@@ -940,6 +941,14 @@ function run(ctx) {
                     sourceTargetRoute: obstacleFrame.sourceTargetRoute,
                     functionUsePosition: obstacleFrame.functionUsePosition,
                 },
+                functionUseObstacleCoordinate: {
+                    id: functionUseObstacleFrame.id,
+                    gateDomainsIncludeFunctionUse: functionUseObstacleFrame.gateDomains.includes("function-use"),
+                    objectSlotOwnership: functionUseObstacleFrame.objectSlotOwnership,
+                    functionUsePosition: functionUseObstacleFrame.functionUsePosition,
+                    dimensionFunctionUse: functionUseObstacleFrame.dimensionVector.functionUse,
+                    layerOrderLast: functionUseObstacleFrame.layerOrder.slice(-1)[0],
+                },
                 indexCounts: {
                     routeCoordinateCount: index.routeCoordinateCount,
                     obstacleCoordinateCount: index.obstacleCoordinateCount,
@@ -948,6 +957,11 @@ function run(ctx) {
                     targetFormulaTypeCounts: index.targetFormulaTypeCounts.map((entry) => [entry.value, entry.count]),
                     pathDepthCounts: index.pathDepthCounts.map((entry) => [entry.value, entry.count]),
                     operationCounts: index.operationCounts.map((entry) => [entry.value, entry.count]),
+                    functionUsePositionCounts: index.functionUsePositionCounts.map((entry) => [entry.value, entry.count]),
+                    objectSlotOwnershipCounts: index.objectSlotOwnershipCounts.map((entry) => [entry.value, entry.count]),
+                    sourceTargetRouteCounts: index.sourceTargetRouteCounts.map((entry) => [entry.value, entry.count]),
+                    valenceFrameDimensionCounts: index.valenceFrameDimensionCounts.map((entry) => [entry.value, entry.count]),
+                    coordinateCoverage: index.obstacleCoordinateCoverage,
                 },
             };
         })(),
@@ -1001,6 +1015,14 @@ function run(ctx) {
                 sourceTargetRoute: "CNV->CNN",
                 functionUsePosition: "function-use-not-primary-gate",
             },
+            functionUseObstacleCoordinate: {
+                id: "numeral-counting-preterit-agentive-classifier-boundary",
+                gateDomainsIncludeFunctionUse: true,
+                objectSlotOwnership: "object-slot-gate-owned-by-valence-frame",
+                functionUsePosition: "downstream-after-route-frame",
+                dimensionFunctionUse: "downstream-after-route-frame",
+                layerOrderLast: "function-use-frame",
+            },
             indexCounts: {
                 routeCoordinateCount: 7,
                 obstacleCoordinateCount: 1576,
@@ -1017,6 +1039,20 @@ function run(ctx) {
                     ["denominal-verbstem-deverbal-chain", 24],
                     ["cnn-cnv-cnn-active-action-loop", 7],
                 ],
+                functionUsePositionCounts: [["function-use-not-primary-gate", 1057], ["downstream-after-route-frame", 519]],
+                objectSlotOwnershipCounts: [["object-slot-gate-owned-by-valence-frame", 1258], ["object-slot-not-primary-gate", 318]],
+                sourceTargetRouteCounts: [["CNV->CNV", 915], ["CNV->CNN", 432], ["CNN->CNV", 222], ["CNN->CNN", 7]],
+                valenceFrameDimensionCounts: [["route-requires-valence-frame", 1569], ["state-frame-without-verbal-valence-slot", 7]],
+                coordinateCoverage: {
+                    obstacleCatalogCount: 1576,
+                    obstacleCoordinateCount: 1576,
+                    allObstacleCatalogItemsHaveCoordinateFrame: true,
+                    missingObstacleCoordinateIds: [],
+                    functionUseGateCoordinateCount: 519,
+                    functionUseGatesDownstreamAfterRouteFrame: true,
+                    valenceObjectGateCoordinateCount: 1258,
+                    valenceObjectGatesOwnedByValenceFrame: true,
+                },
             },
         }
     );
@@ -5257,6 +5293,163 @@ function run(ctx) {
                 objectiveCaseOnlyInVncPredicate: true,
                 possessiveCaseOnlyInNncPredicate: true,
             },
+        }
+    );
+
+    s.eq(
+        "Lesson 6 governing frame maps Andrews va and va1-va2 into Nawat object morphs",
+        (() => {
+            const inventory = ctx.getLesson6NawatValenceGoverningInventory();
+            const summarize = (value, options = {}) => {
+                const frame = ctx.buildLesson6NawatValenceGoverningFrame(value, options);
+                return {
+                    value,
+                    governingPath: frame?.governingPath || "",
+                    sourceSections: frame?.sourceSections || [],
+                    formula: frame?.formula || "",
+                    valencePosition: frame?.valencePosition || "",
+                    governingSlotId: frame?.governingSlotId || "",
+                    predicatePositionStatus: frame?.predicatePositionStatus || "",
+                    classicalMorph: frame?.classicalMorph || "",
+                    classicalDyad: frame?.classicalDyad || "",
+                    nawatDyad: frame?.nawatDyad || "",
+                    visibleFormulaPrefix: frame?.visibleFormulaPrefix || "",
+                    va: frame?.va?.morph || "",
+                    va1: frame?.va1?.morph || "",
+                    va2: frame?.va2?.morph || "",
+                    stemCondition: frame?.stemCondition || "",
+                };
+            };
+            return {
+                kind: inventory.kind,
+                sourceSections: inventory.sourceSections,
+                monadicFormula: inventory.monadic.formula,
+                dyadicSpecificFormula: inventory.dyadicSpecificProjective.formula,
+                dyadicReflexiveFormula: inventory.dyadicMainlineReflexive.formula,
+                frames: [
+                    summarize("ta"),
+                    summarize("metz", { visibleFormulaPrefix: "m-etz" }),
+                    summarize("mu", { stem: "miki", visibleFormulaPrefix: "m-u" }),
+                    summarize("mu", { stem: "ita", visibleFormulaPrefix: "m-0" }),
+                ],
+            };
+        })(),
+        {
+            kind: "andrews-lesson-6-nawat-valence-governing-frame",
+            sourceSections: ["Andrews §6.2", "Andrews §6.3", "Andrews §6.4", "Andrews §6.5", "Andrews §6.6"],
+            monadicFormula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+            dyadicSpecificFormula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+            dyadicReflexiveFormula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+            frames: [
+                {
+                    value: "ta",
+                    governingPath: "monadic-nonspecific-projective-nonhuman",
+                    sourceSections: ["Andrews §6.2"],
+                    formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                    valencePosition: "va",
+                    governingSlotId: "va",
+                    predicatePositionStatus: "monadic",
+                    classicalMorph: "tla",
+                    classicalDyad: "",
+                    nawatDyad: "",
+                    visibleFormulaPrefix: "ta",
+                    va: "ta",
+                    va1: "",
+                    va2: "",
+                    stemCondition: "",
+                },
+                {
+                    value: "metz",
+                    governingPath: "dyadic-specific-projective-non-third",
+                    sourceSections: ["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"],
+                    formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    valencePosition: "va1-va2",
+                    governingSlotId: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    classicalMorph: "",
+                    classicalDyad: "m-itz",
+                    nawatDyad: "m-etz",
+                    visibleFormulaPrefix: "m-etz",
+                    va: "",
+                    va1: "m",
+                    va2: "etz",
+                    stemCondition: "",
+                },
+                {
+                    value: "mu",
+                    governingPath: "dyadic-mainline-reflexive-reciprocative",
+                    sourceSections: ["Andrews §6.6"],
+                    formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    valencePosition: "va1-va2",
+                    governingSlotId: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    classicalMorph: "",
+                    classicalDyad: "m-o",
+                    nawatDyad: "m-u",
+                    visibleFormulaPrefix: "m-u",
+                    va: "",
+                    va1: "m",
+                    va2: "u",
+                    stemCondition: "o-to-u-nawat-bridge",
+                },
+                {
+                    value: "mu",
+                    governingPath: "dyadic-mainline-reflexive-reciprocative",
+                    sourceSections: ["Andrews §6.6"],
+                    formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    valencePosition: "va1-va2",
+                    governingSlotId: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    classicalMorph: "",
+                    classicalDyad: "m-0",
+                    nawatDyad: "m-0",
+                    visibleFormulaPrefix: "m-0",
+                    va: "",
+                    va1: "m",
+                    va2: "0",
+                    stemCondition: "vowel-initial-stem-allomorph",
+                },
+            ],
+        }
+    );
+    s.eq(
+        "Lesson 6 governing frame keeps 3pl va2 as in with inh surface allomorph",
+        (() => {
+            const frame = ctx.buildLesson6NawatValenceGoverningFrame("kinh");
+            return {
+                value: "kinh",
+                governingPath: frame?.governingPath || "",
+                sourceSections: frame?.sourceSections || [],
+                formula: frame?.formula || "",
+                valencePosition: frame?.valencePosition || "",
+                governingSlotId: frame?.governingSlotId || "",
+                predicatePositionStatus: frame?.predicatePositionStatus || "",
+                classicalDyad: frame?.classicalDyad || "",
+                nawatDyad: frame?.nawatDyad || "",
+                surfaceMorph: frame?.surfaceMorph || "",
+                surfaceMorphs: frame?.surfaceMorphs || [],
+                visibleFormulaPrefix: frame?.visibleFormulaPrefix || "",
+                va1: frame?.va1?.morph || "",
+                va2: frame?.va2?.morph || "",
+                va2Allomorphs: frame?.va2?.surfaceAllomorphs || [],
+            };
+        })(),
+        {
+            value: "kinh",
+            governingPath: "dyadic-specific-projective-third",
+            sourceSections: ["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"],
+            formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+            valencePosition: "va1-va2",
+            governingSlotId: "va1-va2",
+            predicatePositionStatus: "dyadic",
+            classicalDyad: "qu-im",
+            nawatDyad: "k-in",
+            surfaceMorph: "kinh",
+            surfaceMorphs: ["kin", "kinh"],
+            visibleFormulaPrefix: "k-inh",
+            va1: "k",
+            va2: "in",
+            va2Allomorphs: ["in", "inh"],
         }
     );
 

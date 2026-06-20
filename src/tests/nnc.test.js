@@ -135,7 +135,9 @@ function run(ctx) {
         derivationMode = ctx.DERIVATION_MODE.active,
         voiceMode = ctx.VOICE_MODE.active,
         actionNounStemUse = "",
+        entradaGrammarObject = null,
     }) => ({
+        entradaGrammarObject,
         options: {
             silent: true,
             skipValidation: false,
@@ -736,6 +738,69 @@ function run(ctx) {
         hasInstrumentivoAuthority: true,
         enumerableContract: false,
     });
+    const instrumentivoReflexiveEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+mu-(ish-cuepa)");
+    const sparseInstrumentivoReflexiveEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+mu-(ish-cuepa)",
+        instrumentivoReflexiveEntradaParsed
+    );
+    const fixedInstrumentivoReflexiveEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+mu-(ish-cuepa)",
+        instrumentivoReflexiveEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "cuepa" },
+                obj1: { slot: "obj1", token: "mu" },
+            },
+            sourceFormulaEcho: "#Ø-mu(cuepa)Ø#",
+        }
+    );
+    const cuepaInstrumentivoMeta = ctx.parseVerbInput("-(cuepa)");
+    const sparseReflexiveInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(cuepa)",
+        verbMeta: cuepaInstrumentivoMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "mu",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "nu",
+        entradaGrammarObject: sparseInstrumentivoReflexiveEntrada,
+    });
+    const fixedReflexiveInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(cuepa)",
+        verbMeta: cuepaInstrumentivoMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "mu",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "nu",
+        entradaGrammarObject: fixedInstrumentivoReflexiveEntrada,
+    });
+    s.eq(
+        "instrumentivo reflexive source object reclassification is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.status || "",
+            sparseOperation: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.mutationKind || "",
+            sparseSourceObj1: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            sparseTargetObj1: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRouteRankingAllowed: sparseReflexiveInstrumentivo.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedError: fixedReflexiveInstrumentivo.error === true,
+            fixedResult: fixedReflexiveInstrumentivo.result || "",
+            fixedRuntimePrefix: fixedReflexiveInstrumentivo.entries?.[0]?.runtimeObjectPrefix || "",
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "instrumentivo-reflexive-source-object-reclassification",
+            sparseMutationKind: "reclassify-object-slot",
+            sparseSourceObj1: "mu",
+            sparseTargetObj1: "ne",
+            sparseRouteRankingAllowed: false,
+            fixedError: false,
+            fixedResult: "nunecuepaya",
+            fixedRuntimePrefix: "ne",
+        }
+    );
     s.eq(
         "verb-derived nominal reader prefers LCM result-frame surfaces before stale stale aliases",
         (() => {
@@ -1092,6 +1157,16 @@ function run(ctx) {
         diagnosticContractLayer: "routeContract",
     });
     const reflexiveCuepaMeta = ctx.parseVerbInput("-(cuepa)");
+    const sparseReflexiveGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "-(cuepa)",
+        verbMeta: reflexiveCuepaMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "mu",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+        entradaGrammarObject: sparseInstrumentivoReflexiveEntrada,
+    });
     const reflexiveGeneralUseActiveAction = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "-(cuepa)",
         verbMeta: reflexiveCuepaMeta,
@@ -1100,11 +1175,32 @@ function run(ctx) {
         objectPrefix: "mu",
         possessivePrefix: "nu",
         actionNounStemUse: "general-use",
+        entradaGrammarObject: fixedInstrumentivoReflexiveEntrada,
     });
     s.eq(
-        "Andrews 36.11 active-action reflexive source uses shuntline ne inside the nounstem",
-        reflexiveGeneralUseActiveAction.result,
-        "nunecuepka"
+        "calificativo-instrumentivo active-action reflexive source reclassification is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.status || "",
+            sparseOperation: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.mutationKind || "",
+            sparseSourceObj1: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            sparseTargetObj1: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRouteRankingAllowed: sparseReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedError: reflexiveGeneralUseActiveAction.error === true,
+            fixedResult: reflexiveGeneralUseActiveAction.result || "",
+            fixedResultCarriesShuntlinePrefix: /(^|u)necuepka$/.test(reflexiveGeneralUseActiveAction.result || ""),
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "calificativo-instrumentivo-active-action-reflexive-source-object-reclassification",
+            sparseMutationKind: "reclassify-object-slot",
+            sparseSourceObj1: "mu",
+            sparseTargetObj1: "ne",
+            sparseRouteRankingAllowed: false,
+            fixedError: false,
+            fixedResult: "nunecuepka",
+            fixedResultCarriesShuntlinePrefix: true,
+        }
     );
 
     const generatedCalificativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
@@ -1193,12 +1289,35 @@ function run(ctx) {
         blockedGeneratedTransitiveGeneralUseActiveAction.error,
         true
     );
+    const blockedGeneratedReflexiveGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
+        tense: "calificativo-instrumentivo",
+        verb: "-(cuepa)",
+        objectPrefix: "mu",
+        possessivePrefix: "nu",
+        actionNounStemUse: "general-use",
+    }));
+    s.eq(
+        "generateWord explicit active-action reflexive general-use blocks shuntline reclassification without fixed entrada valence frame",
+        {
+            error: blockedGeneratedReflexiveGeneralUseActiveAction.error === true,
+            gateStatus: blockedGeneratedReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.status || "",
+            operation: blockedGeneratedReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.operation || "",
+            routeRankingAllowed: blockedGeneratedReflexiveGeneralUseActiveAction.valencyObjectSlotGate?.routeRankingAllowed,
+        },
+        {
+            error: true,
+            gateStatus: "blocked",
+            operation: "calificativo-instrumentivo-active-action-reflexive-source-object-reclassification",
+            routeRankingAllowed: false,
+        }
+    );
     const generatedReflexiveGeneralUseActiveAction = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "calificativo-instrumentivo",
         verb: "-(cuepa)",
         objectPrefix: "mu",
         possessivePrefix: "nu",
         actionNounStemUse: "general-use",
+        entradaGrammarObject: fixedInstrumentivoReflexiveEntrada,
     }));
     s.eq(
         "generateWord explicit active-action reflexive general-use maps mu to shuntline ne",
@@ -1273,6 +1392,65 @@ function run(ctx) {
         patientiveFamily: "",
         adjectivalFunction: "",
     });
+    const locativoTemporalObjectEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+(ish-mati)");
+    const sparseLocativoTemporalObjectEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+(ish-mati)",
+        locativoTemporalObjectEntradaParsed
+    );
+    const fixedLocativoTemporalObjectEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+(ish-mati)",
+        locativoTemporalObjectEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "mati" },
+                obj1: { slot: "obj1", token: "ki" },
+            },
+            sourceFormulaEcho: "#Ø-ki(mati)Ø#",
+        }
+    );
+    const locativoTemporalMatiMeta = ctx.parseVerbInput("-(mati)");
+    const sparseNonactiveLocativoTemporal = ctx.getLocativoTemporalResult({
+        rawVerb: "-(mati)",
+        verbMeta: locativoTemporalMatiMeta,
+        objectPrefix: "ki",
+        possessivePrefix: "",
+        combinedMode: ctx.COMBINED_MODE.nonactive,
+        entradaGrammarObject: sparseLocativoTemporalObjectEntrada,
+    });
+    const fixedNonactiveLocativoTemporal = ctx.getLocativoTemporalResult({
+        rawVerb: "-(mati)",
+        verbMeta: locativoTemporalMatiMeta,
+        objectPrefix: "ki",
+        possessivePrefix: "",
+        combinedMode: ctx.COMBINED_MODE.nonactive,
+        entradaGrammarObject: fixedLocativoTemporalObjectEntrada,
+    });
+    s.eq(
+        "locativo-temporal nonactive source object adjustment is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.status || "",
+            sparseOperation: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.mutationKind || "",
+            sparseSourceObj1: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            sparseTargetObj1: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRouteRankingAllowed: sparseNonactiveLocativoTemporal.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedError: fixedNonactiveLocativoTemporal.error === true,
+            fixedResult: fixedNonactiveLocativoTemporal.result || "",
+            fixedRuntimePrefixes: fixedNonactiveLocativoTemporal.entries?.map((entry) => entry.runtimeObjectPrefix || "") || [],
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "locativo-temporal-nonactive-source-object-adjustment",
+            sparseMutationKind: "delete-object-slot",
+            sparseSourceObj1: "ki",
+            sparseTargetObj1: "",
+            sparseRouteRankingAllowed: false,
+            fixedError: false,
+            fixedResult: "machuyan / matuyan / matiluyan",
+            fixedRuntimePrefixes: ["", "", ""],
+        }
+    );
 
     const generatedLocativo = ctx.executeGenerateWordRequest(buildSilentNounRequest({
         tense: "locativo-temporal",

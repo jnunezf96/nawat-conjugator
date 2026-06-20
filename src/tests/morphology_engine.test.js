@@ -1909,11 +1909,25 @@ function run(ctx) {
             formulaEcho: "#ti-Ø(nematiluni)met#",
         }
     );
+    const instrumentiveReflexiveEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+mu-(ish-mati)");
+    const fixedInstrumentiveReflexiveEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+mu-(ish-mati)",
+        instrumentiveReflexiveEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "mati" },
+                obj1: { slot: "obj1", token: "mu" },
+            },
+            sourceFormulaEcho: "#Ø-mu(mati)Ø#",
+        }
+    );
     const absolutiveInstrumentiveReflexive = ctx.generateWord({
         silent: true,
         skipValidation: true,
         override: {
             tenseMode: ctx.TENSE_MODE.sustantivo,
+            entradaGrammarObject: fixedInstrumentiveReflexiveEntradaGrammarObject,
         },
         posicionesFormula: {
             pers1: "",
@@ -1945,6 +1959,7 @@ function run(ctx) {
         skipValidation: true,
         override: {
             tenseMode: ctx.TENSE_MODE.sustantivo,
+            entradaGrammarObject: fixedInstrumentiveReflexiveEntradaGrammarObject,
         },
         posicionesFormula: {
             pers1: "",
@@ -3620,6 +3635,15 @@ function run(ctx) {
             adverbialKind: adverbioMatiVi.adverbialNuclearFrame?.adverbial?.kind,
             sourceStem: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.stem,
             sourceValency: adverbioMatiVi.adverbialNuclearFrame?.sourceVnc?.valency,
+            gateReason: adverbioMatiVi.functionUseValenceGate?.reason || "",
+            routeFrameKind: adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.kind || "",
+            routeFrameGenerationStatus: adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.generationStatus || "",
+            routeFrameObjectSlots: (adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.sourceExternalObjectSlots || [])
+                .map((slot) => `${slot.slotId}:${slot.prefix}`),
+            routeFrameLicensesObjectSlots: adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+            functionUseOwnsObjectSlots: adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.objectSlotOwnership?.functionUseOwnsObjectSlots === true,
+            finalShapeOwnsObjectSlots: adverbioMatiVi.adverbialNuclearFrame?.sourceRouteFrame?.objectSlotOwnership?.finalFormulaShapeOwnsObjectSlots === true,
+            grammarParticipantOwnershipKind: adverbioMatiVi.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
             clauseFrameKind: adverbioMatiVi.adverbialNuclearClauseFrame?.kind,
             clauseFrameDegree: adverbioMatiVi.adverbialNuclearClauseFrame?.adverbialization?.degree,
             clauseFrameDomain: adverbioMatiVi.adverbialNuclearClauseFrame?.adverbialization?.semanticDomain,
@@ -3635,6 +3659,14 @@ function run(ctx) {
             adverbialKind: "manner-surface",
             sourceStem: "mati",
             sourceValency: "intransitive",
+            gateReason: "function-use-does-not-claim-object-valence",
+            routeFrameKind: "adverbial-nuclear-function-route-frame",
+            routeFrameGenerationStatus: "generated-after-fixed-valence-frame",
+            routeFrameObjectSlots: [],
+            routeFrameLicensesObjectSlots: true,
+            functionUseOwnsObjectSlots: false,
+            finalShapeOwnsObjectSlots: false,
+            grammarParticipantOwnershipKind: "adverbial-nuclear-function-object-slot-ownership-frame",
             clauseFrameKind: "adverbial-nuclear-clause-frame",
             clauseFrameDegree: "first-degree",
             clauseFrameDomain: "manner",
@@ -3690,6 +3722,16 @@ function run(ctx) {
             slotOwnership: adverbioMatiVtTa.functionUseValenceGate?.slotOwnership || "",
             frameGateReason: adverbioMatiVtTa.adverbialNuclearFrame?.functionUseValenceGate?.reason || "",
             routeGateReason: adverbioMatiVtTa.grammarFrame?.routeContract?.sourceContract?.functionUseValenceGate?.reason || "",
+            routeFrameKind: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.kind || "",
+            routeFrameGenerationStatus: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.generationStatus || "",
+            routeFrameObjectSlots: (adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.sourceExternalObjectSlots || [])
+                .map((slot) => `${slot.slotId}:${slot.prefix}`),
+            routeFrameConsumesObjectSlot: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.consumedObjectSlot || "",
+            routeFrameLicensesObjectSlots: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.routeFrameLicensesObjectSlotOwnership === true,
+            functionUseOwnsObjectSlots: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.objectSlotOwnership?.functionUseOwnsObjectSlots === true,
+            finalShapeOwnsObjectSlots: adverbioMatiVtTa.adverbialNuclearFrame?.sourceRouteFrame?.objectSlotOwnership?.finalFormulaShapeOwnsObjectSlots === true,
+            grammarParticipantOwnershipKind: adverbioMatiVtTa.grammarFrame?.participantFrame?.objectSlotOwnership?.kind || "",
+            grammarSourceRouteFrameKind: adverbioMatiVtTa.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
             forms: adverbioMatiVtTa.surfaceForms,
         },
         {
@@ -3703,6 +3745,15 @@ function run(ctx) {
             slotOwnership: "current-vector-owns-valence-object-slots",
             frameGateReason: "function-use-preserves-fixed-source-valence-object",
             routeGateReason: "function-use-preserves-fixed-source-valence-object",
+            routeFrameKind: "adverbial-nuclear-function-route-frame",
+            routeFrameGenerationStatus: "generated-after-fixed-valence-frame",
+            routeFrameObjectSlots: ["obj1:ta"],
+            routeFrameConsumesObjectSlot: "",
+            routeFrameLicensesObjectSlots: true,
+            functionUseOwnsObjectSlots: false,
+            finalShapeOwnsObjectSlots: false,
+            grammarParticipantOwnershipKind: "adverbial-nuclear-function-object-slot-ownership-frame",
+            grammarSourceRouteFrameKind: "adverbial-nuclear-function-route-frame",
             forms: ["tamatka", "tamatika"],
         }
     );
@@ -4114,6 +4165,41 @@ function run(ctx) {
             fixedEntradaFixedEvidence: true,
         }
     );
+    const activeWrapperSparseMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "activo-tronco-perfecto",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        entradaGrammarObject: sparseEntradaGrammarObject,
+    });
+    s.eq(
+        "morphology active-wrapper object slot clearing is gated before unresolved entrada can reach function-use routing",
+        {
+            error: activeWrapperSparseMorphology.error === true,
+            gateStatus: activeWrapperSparseMorphology.valencyObjectSlotGate?.status || "",
+            operation: activeWrapperSparseMorphology.valencyObjectSlotGate?.operation || "",
+            mutationKind: activeWrapperSparseMorphology.valencyObjectSlotGate?.mutationKind || "",
+            sourceObj1: activeWrapperSparseMorphology.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            targetObj1: activeWrapperSparseMorphology.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            routeRankingAllowed: activeWrapperSparseMorphology.valencyObjectSlotGate?.routeRankingAllowed,
+        },
+        {
+            error: true,
+            gateStatus: "blocked",
+            operation: "morphology-tronco-naj-active-wrapper-object-slot-clearing",
+            mutationKind: "delete-object-slots",
+            sourceObj1: "ta",
+            targetObj1: "",
+            routeRankingAllowed: false,
+        }
+    );
     const preteritAgentiveSparseMorphology = ctx.applyMorphologyRules({
         subjectPrefix: "",
         objectPrefix: "ta",
@@ -4454,7 +4540,7 @@ function run(ctx) {
         },
     });
     s.eq(
-        "potential active object slot clearing is gated until entrada valence frame is fixed",
+        "potential noun-like object slot clearing is gated until entrada valence frame is fixed",
         {
             sparseStatus: potentialActiveSparseMorphology.valencyObjectSlotGate?.status || "",
             sparseOperation: potentialActiveSparseMorphology.valencyObjectSlotGate?.operation || "",
@@ -4472,7 +4558,7 @@ function run(ctx) {
         },
         {
             sparseStatus: "blocked",
-            sparseOperation: "potential-active-object-slot-clearing",
+            sparseOperation: "potential-noun-like-object-slot-clearing",
             sparseMutationKind: "delete-object-slots",
             sparseTargetObj1: "",
             sparseRouteRankingAllowed: false,
@@ -4483,7 +4569,224 @@ function run(ctx) {
             generationDiagnosticId: "generation-valency-object-slot-frame-unfixed",
             generationRouteStage: "generation-valency-object-slot-gate",
             generationGateStatus: "blocked",
+            generationGateOperation: "potential-noun-like-object-slot-clearing",
+        }
+    );
+    const activeAdverbSparseMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "pasado-remoto-adverbio-activo",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        entradaGrammarObject: sparseEntradaGrammarObject,
+    });
+    const activeAdverbFixedMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "pasado-remoto-adverbio-activo",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        entradaGrammarObject: fixedEntradaGrammarObject,
+    });
+    const activeAdverbSparseGeneration = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tenseMode: ctx.TENSE_MODE.adverbio,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+                entradaGrammarObject: sparseEntradaGrammarObject,
+            },
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "pasado-remoto-adverbio-activo",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
+        },
+    });
+    s.eq(
+        "active adverbial object slot clearing is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: activeAdverbSparseMorphology.valencyObjectSlotGate?.status || "",
+            sparseOperation: activeAdverbSparseMorphology.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: activeAdverbSparseMorphology.valencyObjectSlotGate?.mutationKind || "",
+            sparseTargetObj1: activeAdverbSparseMorphology.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRouteRankingAllowed: activeAdverbSparseMorphology.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedVerb: activeAdverbFixedMorphology.verb || "",
+            fixedObjectPrefix: activeAdverbFixedMorphology.objectPrefix || "",
+            fixedSubjectSuffix: activeAdverbFixedMorphology.subjectSuffix || "",
+            generationOk: activeAdverbSparseGeneration.ok,
+            generationDiagnosticId: activeAdverbSparseGeneration.diagnostics?.[0]?.id || "",
+            generationRouteStage: activeAdverbSparseGeneration.diagnostics?.[0]?.routeStage || "",
+            generationGateStatus: activeAdverbSparseGeneration.valencyObjectSlotGate?.status || "",
+            generationGateOperation: activeAdverbSparseGeneration.valencyObjectSlotGate?.operation || "",
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "potential-active-object-slot-clearing",
+            sparseMutationKind: "delete-object-slots",
+            sparseTargetObj1: "",
+            sparseRouteRankingAllowed: false,
+            fixedVerb: "tamatka",
+            fixedObjectPrefix: "",
+            fixedSubjectSuffix: "",
+            generationOk: false,
+            generationDiagnosticId: "generation-valency-object-slot-frame-unfixed",
+            generationRouteStage: "generation-valency-object-slot-gate",
+            generationGateStatus: "blocked",
             generationGateOperation: "potential-active-object-slot-clearing",
+        }
+    );
+    const nonfiniteActiveSparseMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "ni",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "activo-no-finito",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        entradaGrammarObject: sparseEntradaGrammarObject,
+    });
+    const nonfiniteActiveFixedMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "ni",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "activo-no-finito",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        entradaGrammarObject: fixedEntradaGrammarObject,
+    });
+    s.eq(
+        "nonfinite active object slot clearing is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: nonfiniteActiveSparseMorphology.valencyObjectSlotGate?.status || "",
+            sparseOperation: nonfiniteActiveSparseMorphology.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: nonfiniteActiveSparseMorphology.valencyObjectSlotGate?.mutationKind || "",
+            sparseTargetObj1: nonfiniteActiveSparseMorphology.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRouteRankingAllowed: nonfiniteActiveSparseMorphology.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedError: nonfiniteActiveFixedMorphology.error === true,
+            fixedSubjectPrefix: nonfiniteActiveFixedMorphology.subjectPrefix || "",
+            fixedObjectPrefix: nonfiniteActiveFixedMorphology.objectPrefix || "",
+            fixedSubjectSuffix: nonfiniteActiveFixedMorphology.subjectSuffix || "",
+            fixedVerb: nonfiniteActiveFixedMorphology.verb || "",
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "nonfinite-active-object-slot-clearing",
+            sparseMutationKind: "delete-object-slots",
+            sparseTargetObj1: "",
+            sparseRouteRankingAllowed: false,
+            fixedError: false,
+            fixedSubjectPrefix: "",
+            fixedObjectPrefix: "",
+            fixedSubjectSuffix: "",
+            fixedVerb: "mati",
+        }
+    );
+    const troncoDefaultingEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+(ish-salua)");
+    const troncoDefaultingSparseEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+(ish-salua)",
+        troncoDefaultingEntradaParsed
+    );
+    const troncoDefaultingFixedEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+(ish-salua)",
+        troncoDefaultingEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "salua" },
+                obj1: { slot: "obj1", token: "ta" },
+            },
+            sourceFormulaEcho: "#Ø-ta(salua)Ø#",
+        }
+    );
+    const patientivoTroncoDefaultingSparseMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "",
+        subjectSuffix: "",
+        verb: "salua",
+        tense: "patientivo",
+        analysisVerb: "salua",
+        rawAnalysisVerb: "salua",
+        analysisExactVerb: "salua",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        isUnderlyingTransitive: true,
+        patientivoSource: "tronco-verbal",
+        entradaGrammarObject: troncoDefaultingSparseEntradaGrammarObject,
+    });
+    const patientivoTroncoDefaultingFixedMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "",
+        subjectSuffix: "",
+        verb: "salua",
+        tense: "patientivo",
+        analysisVerb: "salua",
+        rawAnalysisVerb: "salua",
+        analysisExactVerb: "salua",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+        isUnderlyingTransitive: true,
+        patientivoSource: "tronco-verbal",
+        entradaGrammarObject: troncoDefaultingFixedEntradaGrammarObject,
+    });
+    s.eq(
+        "patientivo tronco object slot defaulting is gated until entrada valence frame is fixed",
+        {
+            sparseStatus: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.status || "",
+            sparseOperation: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.operation || "",
+            sparseMutationKind: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.mutationKind || "",
+            sparseTargetObj1: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            sparseRequiresFixedValenceFrame: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.requiresFixedValenceFrame,
+            sparseRouteRankingAllowed: patientivoTroncoDefaultingSparseMorphology.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedError: patientivoTroncoDefaultingFixedMorphology.error === true,
+            fixedVerb: patientivoTroncoDefaultingFixedMorphology.verb || "",
+            fixedObjectPrefix: patientivoTroncoDefaultingFixedMorphology.objectPrefix || "",
+            fixedSubjectSuffix: patientivoTroncoDefaultingFixedMorphology.subjectSuffix || "",
+        },
+        {
+            sparseStatus: "blocked",
+            sparseOperation: "patientivo-tronco-object-slot-defaulting",
+            sparseMutationKind: "create-object-slot",
+            sparseTargetObj1: "ta",
+            sparseRequiresFixedValenceFrame: true,
+            sparseRouteRankingAllowed: false,
+            fixedError: false,
+            fixedVerb: "sal",
+            fixedObjectPrefix: "ta",
+            fixedSubjectSuffix: "ti",
         }
     );
     const teEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+te-(ish-kwi)");

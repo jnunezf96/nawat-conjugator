@@ -652,6 +652,7 @@ const LESSON6_DIRECT_NAWAT_OBJECT_DYAD_BY_PREFIX = Object.freeze({
     ki: "ki-0",
     k: "k-0",
     kin: "k-in",
+    kinh: "k-inh",
 });
 const LESSON6_MONADIC_DIRECT_NAWAT_OBJECTS = Object.freeze({
     ne: Object.freeze({
@@ -810,13 +811,16 @@ function splitLesson6DirectNawatDyad(value = "") {
             linearPieces: [personCase || "", number || "0"],
         };
     }
-    if (directValue === "k-in") {
+    if (directValue === "k-in" || directValue === "k-inh") {
+        const surfaceVa2 = directValue === "k-inh" ? "inh" : "";
         return {
             va: "",
             va1: "k",
             va2: "in",
             functionalVa1: "k-0",
             functionalVa2: "in",
+            surfaceVa2,
+            surfaceLinearMorph: surfaceVa2 ? "k-inh" : "",
             val1Features: {
                 person: "k",
                 objective: "0",
@@ -824,7 +828,7 @@ function splitLesson6DirectNawatDyad(value = "") {
             val2Features: {
                 number: "in",
             },
-            linearPieces: ["k", "in"],
+            linearPieces: ["k", surfaceVa2 || "in"],
         };
     }
     if (directValue === "m-u" || directValue === "m-0") {
@@ -878,11 +882,21 @@ function getLesson6DirectNawatObjectDyadFrame(obj1 = "", {
         );
     if (directDyad) {
         const subslots = splitLesson6DirectNawatDyad(directDyad);
+        const governingFrame = typeof buildLesson6NawatValenceGoverningFrame === "function"
+            ? buildLesson6NawatValenceGoverningFrame(surfaceScopedPrefix, {
+                stem,
+                visibleFormulaPrefix: directDyad,
+            })
+            : null;
         return {
             sourcePrefix: normalized,
             surfaceScopedPrefix,
             visibleFormulaPrefix: directDyad,
             formulaPosition: "va1-va2",
+            governingFrame,
+            governingPath: governingFrame?.governingPath || "",
+            governingSlotId: governingFrame?.valencePosition || "va1-va2",
+            sourceSections: governingFrame?.sourceSections || [],
             predicatePositionStatus: "dyadic",
             trajectory: surfaceScopedPrefix === "mu" || directDyad === "m-u" || directDyad === "m-0"
                 ? "reflexive-reciprocative"
@@ -893,6 +907,9 @@ function getLesson6DirectNawatObjectDyadFrame(obj1 = "", {
             va2: subslots.va2,
             functionalVa1: subslots.functionalVa1 || subslots.va1,
             functionalVa2: subslots.functionalVa2 || subslots.va2,
+            surfaceVa1: subslots.surfaceVa1 || "",
+            surfaceVa2: subslots.surfaceVa2 || "",
+            surfaceLinearMorph: subslots.surfaceLinearMorph || "",
             val1Features: subslots.val1Features || null,
             val2Features: subslots.val2Features || null,
             linearPieces: subslots.linearPieces || null,
@@ -901,10 +918,20 @@ function getLesson6DirectNawatObjectDyadFrame(obj1 = "", {
     }
     const monadicFrame = LESSON6_MONADIC_DIRECT_NAWAT_OBJECTS[normalized];
     if (monadicFrame) {
+        const governingFrame = typeof buildLesson6NawatValenceGoverningFrame === "function"
+            ? buildLesson6NawatValenceGoverningFrame(normalized, {
+                stem,
+                visibleFormulaPrefix: normalized,
+            })
+            : null;
         return {
             sourcePrefix: normalized,
             visibleFormulaPrefix: normalized,
             formulaPosition: "va",
+            governingFrame,
+            governingPath: governingFrame?.governingPath || "",
+            governingSlotId: governingFrame?.valencePosition || "va",
+            sourceSections: governingFrame?.sourceSections || [],
             predicatePositionStatus: "monadic",
             va: normalized,
             ...monadicFrame,
@@ -916,6 +943,140 @@ function getLesson6DirectNawatObjectDyadFrame(obj1 = "", {
 
 function getLesson6DirectNawatFormulaObjectPrefix(obj1 = "", options = {}) {
     return getLesson6DirectNawatObjectDyadFrame(obj1, options)?.visibleFormulaPrefix || String(obj1 || "");
+}
+
+function getGeneratedWalDirectionalFormulaObjectPrefix(formulaObject = "", baseObjectPrefix = "", {
+    subjectPrefix = "",
+    shouldUseAl = false,
+} = {}) {
+    const object = String(formulaObject || "");
+    const baseObject = String(baseObjectPrefix || "");
+    if (!shouldUseAl) {
+        return object;
+    }
+    const subject = String(subjectPrefix || "");
+    const dropsKBeforeAl = subject === "ni" || subject === "n" || subject === "ti" || subject === "t";
+    if (!dropsKBeforeAl) {
+        if (object === "ki-0" && (baseObject === "ki" || baseObject === "k")) {
+            return "k-0";
+        }
+        return object;
+    }
+    if (object === "k-in" || object === "k-inh" || baseObject === "kin") {
+        return "0-inh";
+    }
+    if (object === "ki-0" || object === "k-0" || baseObject === "ki" || baseObject === "k") {
+        return "0-0";
+    }
+    return object;
+}
+
+function buildGeneratedWalDirectionalFormulaFrame({
+    directionalChainMeta = null,
+    subjectPrefix = "",
+    baseObjectPrefix = "",
+    formulaObjectPrefix = "",
+    formulaReflexivePrefix = "",
+} = {}) {
+    const meta = directionalChainMeta && typeof directionalChainMeta === "object"
+        ? directionalChainMeta
+        : null;
+    if (!meta || meta.directionalInputPrefix !== "wal") {
+        return null;
+    }
+    const plan = meta.directionalPlan && typeof meta.directionalPlan === "object"
+        ? meta.directionalPlan
+        : buildWalDirectionalPlan({
+            directionalOutputPrefix: meta.directionalOutputPrefix || "wal",
+            pers1Base: meta.baseSubjectPrefix || subjectPrefix,
+            obj1Base: meta.baseObjectPrefix || baseObjectPrefix,
+            obj2: meta.indirectObjectMarker || "",
+            obj3: meta.thirdObjectMarker || "",
+            directionalRuleMode: meta.directionalRuleMode || "",
+            hasSubjectValent: meta.hasSubjectValent !== false,
+            isTaFusion: meta.isTaFusion === true,
+            isIntransitiveVerb: meta.isIntransitiveVerb === true,
+        });
+    const prefix = plan.shouldUseAl === true ? "al" : "wal";
+    const effectiveBaseObject = String(meta.baseObjectPrefix || baseObjectPrefix || "");
+    const effectiveFormulaObject = getGeneratedWalDirectionalFormulaObjectPrefix(
+        formulaObjectPrefix,
+        effectiveBaseObject,
+        {
+            subjectPrefix: meta.baseSubjectPrefix || subjectPrefix,
+            shouldUseAl: plan.shouldUseAl === true,
+        }
+    );
+    const hasObject = Boolean(effectiveFormulaObject || formulaReflexivePrefix);
+    const position = plan.shouldUseAl === true
+        && (effectiveBaseObject === "ki" || effectiveBaseObject === "k" || effectiveBaseObject === "kin")
+        && !(String(meta.baseSubjectPrefix || subjectPrefix || ""))
+        ? "after-object"
+        : "before-object";
+    return {
+        prefix,
+        position,
+        formulaObj1: effectiveFormulaObject,
+        formulaReflexive: formulaReflexivePrefix,
+        formulaPers1: plan.shouldUseAl === true && subjectPrefix === "ni"
+            ? "n"
+            : (plan.shouldUseAl === true && subjectPrefix === "ti" ? "t" : subjectPrefix),
+        shouldUseAl: plan.shouldUseAl === true,
+        hasObject,
+        plan,
+    };
+}
+
+function buildGeneratedDirectionalFormulaFrame({
+    directionalChainMeta = null,
+    subjectPrefix = "",
+    baseObjectPrefix = "",
+    formulaObjectPrefix = "",
+    formulaReflexivePrefix = "",
+} = {}) {
+    const walFrame = buildGeneratedWalDirectionalFormulaFrame({
+        directionalChainMeta,
+        subjectPrefix,
+        baseObjectPrefix,
+        formulaObjectPrefix,
+        formulaReflexivePrefix,
+    });
+    if (walFrame) {
+        return walFrame;
+    }
+    const meta = directionalChainMeta && typeof directionalChainMeta === "object"
+        ? directionalChainMeta
+        : null;
+    const prefix = String(meta?.directionalInputPrefix || meta?.directionalOutputPrefix || "");
+    if (!prefix) {
+        return null;
+    }
+    const hasObject = Boolean(formulaObjectPrefix || formulaReflexivePrefix);
+    const formulaPers1 = /^[aeiu]/.test(prefix) && subjectPrefix === "ni"
+        ? "n"
+        : (/^[aeiu]/.test(prefix) && subjectPrefix === "ti" ? "t" : subjectPrefix);
+    return {
+        prefix,
+        position: "before-object",
+        formulaObj1: formulaObjectPrefix,
+        formulaReflexive: formulaReflexivePrefix,
+        formulaPers1,
+        shouldUseAl: false,
+        hasObject,
+        plan: meta.directionalPlan || null,
+    };
+}
+
+function stripGeneratedDirectionalPrefixFromFormulaStem(stem = "", directionalChainMeta = null) {
+    const value = String(stem || "");
+    const meta = directionalChainMeta && typeof directionalChainMeta === "object"
+        ? directionalChainMeta
+        : null;
+    const prefix = String(meta?.directionalInputPrefix || "");
+    if (!value || !prefix || !value.startsWith(prefix)) {
+        return value;
+    }
+    return value.slice(prefix.length);
 }
 
 function getNuclearClauseSurfaceEngineInvariants() {
@@ -1113,6 +1274,7 @@ function collectNuclearClauseSurfaceSoundSpellingFrames(...sources) {
 const CNV_FORMULA_SURFACE_SLOT_ROLES = Object.freeze({
     pers1: Object.freeze(["pers1"]),
     pers2: Object.freeze(["pers2"]),
+    directional: Object.freeze(["obj1"]),
     va: Object.freeze(["obj1"]),
     va1: Object.freeze(["obj1"]),
     va2: Object.freeze(["obj1"]),
@@ -1459,6 +1621,10 @@ function buildCnvFormulaLesson7AspectSurfaceSlots({
     if (pers1 && pers1 !== "Ø") {
         surfaceSlots.pers1 = pers1;
     }
+    const directional = String(slots.directional?.displayPrefix || slots.directional?.prefix || "");
+    if (directional && directional !== "Ø") {
+        surfaceSlots.directional = directional;
+    }
     if (base !== undefined) {
         surfaceSlots.base = String(base || "Ø");
     }
@@ -1486,9 +1652,11 @@ function buildCnvFormulaLesson7AspectSurfaceSlots({
     const [linearVa1, linearVa2] = splitCnvFormulaSubslots(objectMorph);
     const va1 = objectFunctionalSubslots?.va1 || linearVa1;
     const va2 = objectFunctionalSubslots?.va2 || linearVa2;
+    const surfaceVa1 = objectFunctionalSubslots?.surfaceVa1 || va1;
+    const surfaceVa2 = objectFunctionalSubslots?.surfaceVa2 || va2;
     surfaceSlots.va = "";
-    surfaceSlots.va1 = va1 === "Ø" || va1 === "0" ? "" : va1;
-    surfaceSlots.va2 = va2 === "Ø" || va2 === "0" ? "" : va2;
+    surfaceSlots.va1 = surfaceVa1 === "Ø" || surfaceVa1 === "0" ? "" : surfaceVa1;
+    surfaceSlots.va2 = surfaceVa2 === "Ø" || surfaceVa2 === "0" ? "" : surfaceVa2;
     return surfaceSlots;
 }
 
@@ -1705,6 +1873,32 @@ function getCnvFormulaLesson7SurfaceSlots(formulaSlots = null, surface = "", seg
     const particlePrefix = getCnvSurfacePathSegmentValue(normalizedSegments, "particulaPrepuesta");
     const tronco = getCnvSurfacePathSegmentValue(normalizedSegments, "tronco");
     const surfacePers2 = getCnvSurfacePathSegmentValue(normalizedSegments, "pers2");
+    const objectMorph = getCnvFormulaObjectMorph(slots);
+    const directionalMorph = String(slots.directional?.displayPrefix || slots.directional?.prefix || "");
+    const directionalSurface = normalizeCnvFormulaMorphForSurface(directionalMorph);
+    const objectSegment = getCnvSurfacePathSegmentValue(normalizedSegments, "obj1");
+    const hasKInhObjectSurface = objectMorph === "k-in" && (
+        normalizeCnvFormulaMorphForSurface(objectSegment) === "kinh"
+        || String(surface || "").includes("kinh")
+    );
+    const reflexiveMorph = String(slots.reflexivo?.displayPrefix || slots.reflexivo?.prefix || "");
+    const objectSlotKey = reflexiveMorph && reflexiveMorph !== "Ø" ? "reflexivo" : "obj1";
+    const getKInhObjectFormulaSlotOverride = () => {
+        if (!hasKInhObjectSurface) {
+            return {};
+        }
+        const sourceSlot = slots[objectSlotKey] || {};
+        return {
+            [objectSlotKey]: {
+                ...sourceSlot,
+                lesson6DirectNawatDyad: {
+                    ...(sourceSlot.lesson6DirectNawatDyad || {}),
+                    surfaceVa2: "inh",
+                    surfaceLinearMorph: "k-inh",
+                },
+            },
+        };
+    };
     const readExternalSuffix = (suffix = "") => {
         const value = String(suffix || "");
         if (!value) {
@@ -1763,8 +1957,18 @@ function getCnvFormulaLesson7SurfaceSlots(formulaSlots = null, surface = "", seg
         };
     };
     const buildFromCore = (coreSurface = "", formulaSlotOverrides = {}) => {
-        const predicate = readPredicateCore(coreSurface);
-        const strippedBase = stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(predicate.base, slots);
+        let coreForPredicate = String(coreSurface || "");
+        if (directionalSurface && coreForPredicate.startsWith(directionalSurface)) {
+            coreForPredicate = coreForPredicate.slice(directionalSurface.length);
+        }
+        const predicate = readPredicateCore(coreForPredicate);
+        const shouldStripFoldedBasePrefixes = tenseValue && tenseValue !== "presente";
+        const strippedBase = shouldStripFoldedBasePrefixes
+            ? stripCnvFormulaPreteritFoldedBasePrefixesWithTrace(predicate.base, slots)
+            : {
+                base: predicate.base,
+                strippedPrefixes: [],
+            };
         const copiedSubjectPrefix = strippedBase.strippedPrefixes
             .find((relation) => relation.sourceSlot === "pers1")?.surfacePrefix || "";
         return buildCnvFormulaLesson7AspectSurfaceSlots({
@@ -1785,6 +1989,9 @@ function getCnvFormulaLesson7SurfaceSlots(formulaSlots = null, surface = "", seg
         });
     };
     if (tronco) {
+        if (hasKInhObjectSurface) {
+            return buildFromCore(tronco.startsWith("h") ? tronco.slice(1) : tronco, getKInhObjectFormulaSlotOverride());
+        }
         return buildFromCore(tronco);
     }
     let text = String(surface || "");
@@ -1811,10 +2018,12 @@ function getCnvFormulaLesson7SurfaceSlots(formulaSlots = null, surface = "", seg
             displayPrefix: "",
         };
     }
-    const objectMorph = getCnvFormulaObjectMorph(slots);
     if (objectMorph && objectMorph !== "Ø") {
         const objectSurface = normalizeCnvFormulaMorphForSurface(objectMorph);
-        if (objectSurface && core.startsWith(objectSurface)) {
+        if (hasKInhObjectSurface && core.startsWith("kinh")) {
+            Object.assign(formulaSlotOverrides, getKInhObjectFormulaSlotOverride());
+            core = core.slice("kinh".length);
+        } else if (objectSurface && core.startsWith(objectSurface)) {
             core = core.slice(objectSurface.length);
         }
     }
@@ -1892,6 +2101,9 @@ function getCnvFormulaObjectFunctionalSubslots(formulaSlots = null) {
         val1Features: source.val1Features || null,
         val2Features: source.val2Features || null,
         visibleFormulaPrefix: String(source.visibleFormulaPrefix || ""),
+        surfaceVa1: String(source.surfaceVa1 || ""),
+        surfaceVa2: String(source.surfaceVa2 || ""),
+        surfaceLinearMorph: String(source.surfaceLinearMorph || ""),
         linearPieces: Array.isArray(source.linearPieces) ? source.linearPieces.slice() : [],
     };
 }
@@ -1899,6 +2111,7 @@ function getCnvFormulaObjectFunctionalSubslots(formulaSlots = null) {
 function buildCnvFormulaAndrewsPathSlots(formulaSlots = null) {
     const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : {};
     const subject = slots.pers1Pers2 || {};
+    const directional = slots.directional || {};
     const predicate = slots.predicateStem || {};
     const tense = slots.tensePosition || {};
     const connector = slots.num1Num2 || {};
@@ -1923,6 +2136,15 @@ function buildCnvFormulaAndrewsPathSlots(formulaSlots = null) {
             formulaMorph: String(subject.displayCase || subject.case || subject.pers2 || "Ø") || "Ø",
         },
     ];
+    const directionalMorph = String(directional.displayPrefix || directional.prefix || "");
+    if (directionalMorph && directionalMorph !== "Ø") {
+        pathSlots.push({
+            formulaSlotKey: "directional",
+            formulaSlot: "directional",
+            formulaRole: "directional-prefix",
+            formulaMorph: directionalMorph,
+        });
+    }
     if (objectMorph && objectMorph !== "Ø") {
         if (objectMorph.includes("-")) {
             const [va1, va2] = splitCnvFormulaSubslots(objectMorph);
@@ -2662,6 +2884,8 @@ function resolveNuclearClauseSurfaceSourceRouteFrame(result = null) {
         output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.incorporationRouteFrame,
         output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame,
         output.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.routeFrame,
+        output.adverbialNuclearFrame?.sourceRouteFrame,
+        output.adverbialNuclearFrame?.routeFrame,
         inheritedGrammarFrame?.routeContract?.sourceContract?.sourceRouteFrame,
         inheritedGrammarFrame?.routeContract?.sourceContract?.routeFrame,
         inheritedGrammarFrame?.routeContract?.sourceContract?.incorporationRouteFrame,
@@ -3675,6 +3899,7 @@ function buildGeneratedNuclearClauseShellMetadata({
     formulaObj2 = null,
     formulaObj3 = null,
     formulaReflexive = null,
+    formulaDirectional = null,
     formulaVerb = "",
     formulaSubjectSuffix = "",
     formulaNumberConnector = null,
@@ -3769,6 +3994,7 @@ function buildGeneratedNuclearClauseShellMetadata({
             obj3: verbalFormulaObj3,
             reflexivo: verbalFormulaReflexive,
         },
+        directional: formulaDirectional,
         predicate: {
             stem: formulaVerb || renderVerb || verb,
         },
@@ -4602,6 +4828,86 @@ function buildGeneratedAdjectivalCompoundSourceFrameMetadata({
     };
 }
 
+function getAdverbialNuclearRouteFrameObjectSlots(vector = null) {
+    const source = vector && typeof vector === "object" ? vector : {};
+    return ["obj1", "obj2", "obj3", "reflexivo"]
+        .map((slotId) => ({
+            slotId,
+            prefix: String(source[slotId] || ""),
+            owner: "source-valence-frame",
+        }))
+        .filter((slot) => slot.prefix);
+}
+
+function buildAdverbialNuclearFunctionRouteFrame({
+    sourceStem = "",
+    finalStem = "",
+    analysisStem = "",
+    sourceValency = "",
+    tense = "",
+    functionUseValenceGate = null,
+} = {}) {
+    const gate = functionUseValenceGate && typeof functionUseValenceGate === "object"
+        ? functionUseValenceGate
+        : null;
+    const sourceExternalObjectSlots = getAdverbialNuclearRouteFrameObjectSlots(gate?.sourceVector);
+    const remainingExternalObjectSlots = getAdverbialNuclearRouteFrameObjectSlots(gate?.currentVector);
+    const matrixValenceFrameFixed = gate?.generationAllowed === true;
+    return {
+        kind: "adverbial-nuclear-function-route-frame",
+        version: 1,
+        sourceFormula: "CNV predicate -> adverbial function reading",
+        finalFormulaShape: "configured-adverbio-surface",
+        andrewsSection: "Andrews Lesson 44",
+        generationStatus: matrixValenceFrameFixed ? "generated-after-fixed-valence-frame" : "blocked-until-fixed-valence-frame",
+        sourcePrincipalVnc: {
+            role: "source-vnc",
+            stem: String(sourceStem || ""),
+            finalStem: String(finalStem || ""),
+            analysisStem: String(analysisStem || ""),
+            tense,
+            valence: String(sourceValency || ""),
+            externalObjectSlots: sourceExternalObjectSlots.map((slot) => ({ ...slot })),
+        },
+        sourceAdjunctNnc: null,
+        embedRole: "none",
+        consumedObjectSlot: "",
+        consumedObjectSlotOwnedBy: "none",
+        matrixValence: String(sourceValency || ""),
+        matrixValenceFrameFixed,
+        valenceDelta: {
+            sourceExternalObjectSlotCount: sourceExternalObjectSlots.length,
+            consumedObjectSlotCount: 0,
+            remainingExternalObjectSlotCount: remainingExternalObjectSlots.length,
+        },
+        sourceExternalObjectSlots,
+        remainingExternalObjectSlots,
+        routeFrameLicensesEmbedRole: false,
+        routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        functionUseValenceGate: gate,
+        objectSlotOwnership: {
+            kind: "adverbial-nuclear-function-object-slot-ownership-frame",
+            matrixValence: String(sourceValency || ""),
+            matrixValenceFrameFixed,
+            matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+            routeFrameOwnsObjectSlotLicensing: matrixValenceFrameFixed,
+            routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed,
+            sourceExternalObjectSlots: sourceExternalObjectSlots.map((slot) => ({ ...slot })),
+            remainingExternalObjectSlots: remainingExternalObjectSlots.map((slot) => ({ ...slot })),
+            consumedObjectSlot: "",
+            consumedObjectSlotOwnedBy: "none",
+            sourceExternalObjectSlotsOwnedBy: sourceExternalObjectSlots.length ? "source-valence-frame" : "none",
+            remainingExternalObjectSlotsOwnedBy: remainingExternalObjectSlots.length ? "matrix-route-frame" : "none",
+            functionUseOwnsObjectSlots: false,
+            finalFormulaShapeOwnsObjectSlots: false,
+            functionUseMayAnnotateLicensedReadingsOnly: true,
+        },
+    };
+}
+
 function buildGeneratedAdverbialNuclearFrameMetadata({
     resolvedTenseMode = "",
     tense = "",
@@ -4626,6 +4932,14 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
     const normalizedObjectPrefix = String(objectPrefix || "");
     const normalizedBaseObjectPrefix = String(baseObjectPrefix || normalizedObjectPrefix || "");
     const sourceValency = normalizedObjectPrefix || normalizedBaseObjectPrefix ? "transitive" : "intransitive";
+    const sourceRouteFrame = buildAdverbialNuclearFunctionRouteFrame({
+        sourceStem,
+        finalStem: String(verb || ""),
+        analysisStem: String(analysisVerb || verb || ""),
+        sourceValency,
+        tense,
+        functionUseValenceGate,
+    });
     const classification = typeof classifyAdverbialNuclearCandidate === "function"
         ? classifyAdverbialNuclearCandidate({
             source: sourceStem,
@@ -4661,6 +4975,9 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
         source: NUCLEAR_CLAUSE_SURFACE_ROUTE_FAMILY,
         diagnosticOnly: false,
         doesNotGenerateForms: true,
+        sourceRouteFrame,
+        routeFrame: sourceRouteFrame,
+        objectSlotOwnership: sourceRouteFrame.objectSlotOwnership,
         adverbialNuclearClauseFrame: clauseFrame,
         adverbial: {
             kind: "manner-surface",
@@ -4677,6 +4994,9 @@ function buildGeneratedAdverbialNuclearFrameMetadata({
             objectPrefix: normalizedObjectPrefix,
             baseObjectPrefix: normalizedBaseObjectPrefix,
         },
+        routeFrameLicensesObjectSlotOwnership: sourceRouteFrame.routeFrameLicensesObjectSlotOwnership,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
         functionUseValenceGate: functionUseValenceGate && typeof functionUseValenceGate === "object"
             ? functionUseValenceGate
             : null,
@@ -5441,9 +5761,6 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     if (isPatientivoAdjectiveProfile) {
         poseedorSlot = "";
     }
-    if (isTroncoNajActiveWrapperTense) {
-        obj1Slot = "";
-    }
     let baseObj1Slot = obj1Slot;
     let isReflexive = obj1Slot === "mu";
     let isYawiOptativeSingular = false;
@@ -5457,6 +5774,70 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     const yawiYuVariant = getSuppletiveYawiYuVariant();
     let primaryFormSpec = null;
     let troncoRender = "";
+    const returnGenerationValencyObjectSlotGateBlockedResult = (
+        valencyObjectSlotGate,
+        {
+            routeFamily = "generation-valency",
+            resultMarker = "—",
+            verb = troncoSlot,
+            renderVerb = troncoRender,
+        } = {},
+    ) => buildNuclearClauseSurfaceBlockedResult({
+        result: {
+            result: resultMarker,
+            surfaceForms: [],
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            valencyObjectSlotGate,
+        },
+        message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+        diagnosticId: valencyObjectSlotGate?.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+        routeFamily,
+        routeStage: valencyObjectSlotGate?.routeStage || "generation-valency-object-slot-gate",
+        resultMarker,
+        override,
+        resolvedTenseMode,
+        tense,
+        pers1: pers1Slot,
+        pers2: pers2Slot,
+        obj1: obj1Slot,
+        poseedor: poseedorSlot,
+        posicionesFormula,
+        verb,
+        renderVerb,
+        entradaGrammarObject,
+        isReflexive,
+        resolvedDerivationMode,
+        resolvedDerivationType,
+        resolvedVoiceMode,
+        enumerableContract: false,
+    });
+    if (isTroncoNajActiveWrapperTense) {
+        const troncoNajActiveWrapperSlotGate = typeof buildGenerationValencyObjectSlotMutationGate === "function"
+            ? buildGenerationValencyObjectSlotMutationGate({
+                operation: "apply-tronco-naj-active-wrapper-slot-clearing",
+                mutationKind: "delete-object-slots",
+                sourceObj1: obj1Slot,
+                sourceBaseObj1: baseObj1Slot,
+                sourceObj2: "",
+                sourceObj3: "",
+                targetObj1: "",
+                targetBaseObj1: "",
+                targetObj2: "",
+                targetObj3: "",
+                options: {
+                    entradaGrammarObject,
+                    requireFixedValenceFrame: true,
+                },
+            })
+            : null;
+        if (troncoNajActiveWrapperSlotGate?.status === "blocked") {
+            return returnGenerationValencyObjectSlotGateBlockedResult(troncoNajActiveWrapperSlotGate);
+        }
+        obj1Slot = "";
+    }
+    baseObj1Slot = obj1Slot;
+    isReflexive = obj1Slot === "mu";
 
     const returnError = (message, errorTargets = []) => {
         if (skipValidation) {
@@ -5843,6 +6224,55 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     }
     ({ obj1: obj1Slot, baseObj1: baseObj1Slot } = boundMarkerSlotOverrides);
     if (parsedVerb.hasImpersonalTaPrefix) {
+        const impersonalTaPrefixSlotGate = typeof buildGenerationValencyObjectSlotMutationGate === "function"
+            ? buildGenerationValencyObjectSlotMutationGate({
+                operation: "apply-impersonal-ta-prefix-slot-clearing",
+                mutationKind: "delete-object-slots",
+                sourceObj1: obj1Slot,
+                sourceBaseObj1: baseObj1Slot,
+                sourceObj2: indirectObjectMarker,
+                sourceObj3: thirdObjectMarker,
+                targetObj1: "",
+                targetBaseObj1: "",
+                targetObj2: "",
+                targetObj3: "",
+                options: {
+                    entradaGrammarObject,
+                },
+            })
+            : null;
+        if (impersonalTaPrefixSlotGate?.status === "blocked") {
+            return buildNuclearClauseSurfaceBlockedResult({
+                result: {
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeRankingAllowed: false,
+                    valencyObjectSlotGate: impersonalTaPrefixSlotGate,
+                },
+                message: GENERATE_WORD_NO_OUTPUT_MESSAGE,
+                diagnosticId: impersonalTaPrefixSlotGate.diagnosticId || "generation-valency-object-slot-frame-unfixed",
+                routeFamily: "generation-valency",
+                routeStage: impersonalTaPrefixSlotGate.routeStage || "generation-valency-object-slot-gate",
+                resultMarker: "—",
+                override,
+                resolvedTenseMode,
+                tense,
+                pers1: pers1Slot,
+                pers2: pers2Slot,
+                obj1: obj1Slot,
+                poseedor: poseedorSlot,
+                posicionesFormula,
+                verb: troncoSlot,
+                renderVerb: troncoRender,
+                entradaGrammarObject,
+                isReflexive,
+                resolvedDerivationMode,
+                resolvedDerivationType,
+                resolvedVoiceMode,
+                enumerableContract: false,
+            });
+        }
         obj1Slot = "";
         baseObj1Slot = "";
         indirectObjectMarker = "";
@@ -5857,6 +6287,27 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         derivationType: resolvedDerivationType,
     }));
     if (isTroncoNajActiveWrapperTense) {
+        const troncoNajResolvedSlotGate = typeof buildGenerationValencyObjectSlotMutationGate === "function"
+            ? buildGenerationValencyObjectSlotMutationGate({
+                operation: "apply-tronco-naj-active-wrapper-resolved-slot-clearing",
+                mutationKind: "delete-object-slots",
+                sourceObj1: obj1Slot,
+                sourceBaseObj1: baseObj1Slot,
+                sourceObj2: indirectObjectMarker,
+                sourceObj3: thirdObjectMarker,
+                targetObj1: "",
+                targetBaseObj1: "",
+                targetObj2: "",
+                targetObj3: "",
+                options: {
+                    entradaGrammarObject,
+                    requireFixedValenceFrame: true,
+                },
+            })
+            : null;
+        if (troncoNajResolvedSlotGate?.status === "blocked") {
+            return returnGenerationValencyObjectSlotGateBlockedResult(troncoNajResolvedSlotGate);
+        }
         obj1Slot = "";
         indirectObjectMarker = "";
         thirdObjectMarker = "";
@@ -6942,8 +7393,8 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     )
         ? getGeneratedPreteritFoldedObjectPrefix(morphologyObj1Slot, inputPers1)
         : realizedFormulaObj1Slot;
-    const formulaReflexiveBeforeInflection = isReflexive ? getLesson6DirectNawatFormulaObjectPrefix("mu", formulaStemContext) : "";
-    const formulaObj1BeforeInflection = isReflexive
+    let formulaReflexiveBeforeInflection = isReflexive ? getLesson6DirectNawatFormulaObjectPrefix("mu", formulaStemContext) : "";
+    let formulaObj1BeforeInflection = isReflexive
         ? formulaReflexiveBeforeInflection
         : (classPerfectiveFormulaProfile?.formulaObject || getLesson6DirectNawatFormulaObjectPrefix(foldedPreteritFormulaObj1Slot, formulaStemContext));
     const formulaObj2BeforeInflection = getLesson6DirectNawatFormulaObjectPrefix(indirectObjectMarker, formulaStemContext);
@@ -7042,6 +7493,23 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         inputPers2
     );
     let formulaShellSubjectSuffix = "";
+    const directionalFormulaFrame = buildGeneratedDirectionalFormulaFrame({
+        directionalChainMeta: appliedMorphology?.directionalChainMeta || null,
+        subjectPrefix: inputPers1,
+        baseObjectPrefix: morphologyObj1Slot,
+        formulaObjectPrefix: formulaObj1BeforeInflection,
+        formulaReflexivePrefix: formulaReflexiveBeforeInflection,
+    });
+    if (directionalFormulaFrame) {
+        formulaShellVerb = stripGeneratedDirectionalPrefixFromFormulaStem(
+            formulaShellVerb,
+            appliedMorphology?.directionalChainMeta || null
+        );
+        formulaObj1BeforeInflection = isReflexive ? "" : directionalFormulaFrame.formulaObj1;
+        formulaReflexiveBeforeInflection = isReflexive
+            ? (directionalFormulaFrame.formulaReflexive || formulaReflexiveBeforeInflection)
+            : formulaReflexiveBeforeInflection;
+    }
     let formulaShellCapturedFromStemCandidate = false;
     if (isNominalOutputProfile && isPatientivoPossessed) {
         primaryFormSpec = withNominalFormSpecSuffix(primaryFormSpec, pers2Slot, {
@@ -7267,12 +7735,23 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         isReflexive,
         verb: troncoSlot,
         renderVerb: troncoRender,
-        formulaPers1: formulaPers1BeforeInflection,
+        formulaPers1: directionalFormulaFrame?.formulaPers1 ?? formulaPers1BeforeInflection,
         formulaPers2: "",
         formulaObj1: formulaObj1BeforeInflection,
         formulaObj2: formulaObj2BeforeInflection,
         formulaObj3: formulaObj3BeforeInflection,
         formulaReflexive: formulaReflexiveBeforeInflection,
+        formulaDirectional: directionalFormulaFrame
+            ? {
+                prefix: directionalFormulaFrame.prefix,
+                position: directionalFormulaFrame.position,
+                allomorphy: {
+                    source: "wal",
+                    surface: directionalFormulaFrame.prefix,
+                    shouldUseAl: directionalFormulaFrame.shouldUseAl,
+                },
+            }
+            : null,
         formulaVerb: formulaShellVerb,
         formulaSubjectSuffix: formulaShellSubjectSuffix,
         formulaNumberConnector: preteritCnvConnectorProfile?.primaryConnector || inputPers2,

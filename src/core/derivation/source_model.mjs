@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/derivation/source_model.js.
 
-export function createDerivationSourceModelModule(targetObject = globalThis) {
+export function createDerivationSourceModelApi(targetObject = globalThis) {
     function buildNonactiveSourceChain(verbMeta, verb, analysisVerb) {
       const model = buildDerivationSourceModel(verbMeta, verb, analysisVerb);
       const outerPieces = Array.isArray(model?.outerPieces) ? model.outerPieces : [];
@@ -280,6 +280,14 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         matrixValenceFrameFixed,
         consumedObjectSlot: String(consumedObjectSlot || "").trim(),
         consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlots: sourceSlots.map(slot => ({
+          ...slot
+        })),
+        remainingExternalObjectSlots: remainingSlots.map(slot => ({
+          ...slot
+        })),
+        sourceExternalObjectSlotIds: sourceSlots.map(slot => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map(slot => String(slot?.slotId || "")).filter(Boolean),
         sourceExternalObjectSlotsOwnedBy: sourceSlots.length ? "source-principal-vnc-formula-frame" : "none",
         remainingExternalObjectSlotsOwnedBy: remainingSlots.length ? "matrix-route-frame" : "none",
         embeddedRoleLicensedBy: embedRole ? "andrews-incorporation-route-frame" : "none",
@@ -3257,7 +3265,7 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
 }
 
 export function installDerivationSourceModelGlobals(targetObject = globalThis) {
-    const api = createDerivationSourceModelModule(targetObject);
+    const api = createDerivationSourceModelApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

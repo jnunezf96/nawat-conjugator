@@ -265,6 +265,102 @@ function cloneNominalizationLessonRecord(record) {
     );
 }
 
+function buildLesson35PreteritAgentiveIncorporationObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    return {
+        kind: "lesson-35-preterit-agentive-incorporation-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed: Boolean(resolvedMatrixValence),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        sourceExternalObjectSlotIds: sourceSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length ? "matrix-route-frame" : "none",
+        embeddedRoleLicensedBy: embedRole ? "lesson-35-preterit-agentive-incorporation-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: Boolean(resolvedMatrixValence),
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        objectSlotLicensingOrder: [
+            "source-principal-vnc",
+            "preterit-agentive-nnc",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildLesson35PreteritAgentiveIncorporationRouteFrame({
+    embedRole = "",
+    matrixValence = "",
+    matrixFamilies = [],
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+    valenceDelta = {},
+    generationStatus = "diagnostic-only-nawat-evidence-required",
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const objectSlotOwnership = buildLesson35PreteritAgentiveIncorporationObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+        consumedObjectSlot,
+        sourceExternalObjectSlots: sourceSlots,
+        remainingExternalObjectSlots: remainingSlots,
+    });
+    return {
+        kind: "lesson-35-preterit-agentive-incorporation-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            formulaType: "CNV",
+            sourceSection: "Andrews 35.12",
+            surface: "",
+            generationStatus,
+        },
+        sourceAdjunctNnc: {
+            formulaType: "CNN",
+            stemKind: "preterit-agentive-nounstem",
+            role: String(embedRole || "").trim(),
+            sourceSection: "Andrews 35.12",
+        },
+        matrix: {
+            valence: String(matrixValence || "").trim(),
+            families: Array.from(matrixFamilies || []),
+        },
+        matrixValence,
+        embedRole: String(embedRole || "").trim(),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        objectSlotOwnership,
+        valenceDelta: { ...valenceDelta },
+        andrewsSection: "Andrews 35.12",
+        generationStatus,
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true,
+        finalFormulaShape: "preterit-agentive-nounstem-incorporated-in-vnc-matrix",
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+    };
+}
+
 function getLesson35PreteritAgentiveSubsectionInventory() {
     return LESSON35_PRETERIT_AGENTIVE_SUBSECTION_INVENTORY.map((entry) => ({
         ...entry,
@@ -288,6 +384,35 @@ function buildLesson35PreteritAgentivePursuitFrame() {
     const abundantOwnerhoodFrame = cloneNominalizationLessonRecord(LESSON35_ABUNDANT_OWNERHOOD_FRAME);
     const ownerhoodAnalysisFrame = cloneNominalizationLessonRecord(LESSON35_OWNERHOOD_ANALYSIS_FRAME);
     const vncEmbedAdverbialFrame = cloneNominalizationLessonRecord(LESSON35_VNC_EMBED_ADVERBIAL_FRAME);
+    const incorporatedObjectRouteFrame = buildLesson35PreteritAgentiveIncorporationRouteFrame({
+        embedRole: "incorporated-object",
+        matrixValence: "object-incorporating-vnc-matrix-valence",
+        matrixFamilies: ["preterit-agentive-object-incorporation"],
+        consumedObjectSlot: "obj1",
+        valenceDelta: {
+            incorporatedObjectSlots: 1,
+            adverbialFunctionSlots: 0,
+            remainingExternalObjectSlots: 0,
+        },
+    });
+    const incorporatedAdverbRouteFrame = buildLesson35PreteritAgentiveIncorporationRouteFrame({
+        embedRole: "incorporated-adverb",
+        matrixValence: "adverbial-manner-vnc-matrix-valence",
+        matrixFamilies: ["intransitive-matrix", "transitive-matrix"],
+        consumedObjectSlot: "",
+        valenceDelta: {
+            incorporatedObjectSlots: 0,
+            adverbialFunctionSlots: 1,
+            remainingExternalObjectSlots: 0,
+        },
+    });
+    vncEmbedAdverbialFrame.incorporatedObjectRouteFrame = incorporatedObjectRouteFrame;
+    vncEmbedAdverbialFrame.incorporatedAdverbRouteFrame = incorporatedAdverbRouteFrame;
+    vncEmbedAdverbialFrame.routeFrames = [incorporatedObjectRouteFrame, incorporatedAdverbRouteFrame];
+    vncEmbedAdverbialFrame.objectSlotOwnershipFrames = [
+        incorporatedObjectRouteFrame.objectSlotOwnership,
+        incorporatedAdverbRouteFrame.objectSlotOwnership,
+    ];
     const remainingGaps = [
         "Current preterit-agentive generation and continuations are partial, not complete Lesson 35 coverage.",
         "Number-position alternations, affinity-stem selection, activated projective-object hybrids, old-person lexical boundaries, and all matrix subclass selections remain diagnostic.",
@@ -396,6 +521,8 @@ function buildLesson35PreteritAgentivePursuitFrame() {
             projectiveObjectInsideRestrictedStem: absolutiveFrame.projectiveObjectInsideNounstem,
             possessorSource: "external possessor in possessive preterit-agentive NNC",
             adverbialFocusCanTargetSubjectOrObject: vncEmbedAdverbialFrame.adverbialModificationCanFocusSubjectOrObject,
+            incorporatedObjectRouteFrame,
+            incorporatedAdverbRouteFrame,
         },
         targetContract: {
             metadataKind: "lesson-35-preterit-agentive-pursuit-frame",
@@ -1601,6 +1728,102 @@ const LESSON39_CHARACTERISTIC_PROPERTY_EMBED_FRAME = Object.freeze({
     mistranslationWarningForTonacatepetl: true,
 });
 
+function buildLesson39PatientiveIncorporationObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    return {
+        kind: "lesson-39-patientive-incorporation-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed: Boolean(resolvedMatrixValence),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        sourceExternalObjectSlotIds: sourceSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length ? "matrix-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: Boolean(resolvedMatrixValence),
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        objectSlotLicensingOrder: [
+            "source-principal-vnc",
+            "patientive-source-nnc",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildLesson39PatientiveIncorporationRouteFrame({
+    sourceSection = "",
+    embedRole = "",
+    matrixValence = "",
+    matrixFamilies = [],
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+    valenceDelta = {},
+    generationStatus = "diagnostic-only-nawat-evidence-required",
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const objectSlotOwnership = buildLesson39PatientiveIncorporationObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+        consumedObjectSlot,
+        sourceExternalObjectSlots: sourceSlots,
+        remainingExternalObjectSlots: remainingSlots,
+    });
+    return {
+        kind: "lesson-39-patientive-incorporation-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            formulaType: "CNV",
+            sourceSection: String(sourceSection || ""),
+            surface: "",
+            generationStatus,
+        },
+        sourceAdjunctNnc: {
+            formulaType: "CNN",
+            stemKind: "patientive-nounstem",
+            role: String(embedRole || "").trim(),
+            sourceSection: String(sourceSection || ""),
+        },
+        matrix: {
+            valence: String(matrixValence || "").trim(),
+            families: Array.from(matrixFamilies || []),
+        },
+        matrixValence,
+        embedRole: String(embedRole || "").trim(),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        objectSlotOwnership,
+        valenceDelta: { ...valenceDelta },
+        andrewsSection: String(sourceSection || ""),
+        generationStatus,
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true,
+        finalFormulaShape: "patientive-nounstem-incorporated-in-matrix",
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+    };
+}
+
 const LESSON39_PATIENTIVE_OPERATIONS_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson39-perfective-patientive", andrewsSection: "39.1", category: "perfective-patientive", directiveEs: "El patientivo perfectivo viene del tronco activo perfectivo, clase tli, y se modela por analogia pasiva o impersonal.", engineSurface: "partial perfective patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
     Object.freeze({ id: "lesson39-perfective-passive-analogy", andrewsSection: "39.1.1", category: "perfective-passive-analogy", directiveEs: "Una fuente transitiva puede seguir analogia pasiva y usar los objetos que corresponderian a una CNV pasiva.", engineSurface: "partial perfective patientivo passive-analogy gate", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
@@ -1649,6 +1872,54 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
     const incorporatedComplementFrame = cloneNominalizationLessonRecord(LESSON39_INCORPORATED_COMPLEMENT_FRAME);
     const incorporatedObjectFrame = cloneNominalizationLessonRecord(LESSON39_INCORPORATED_OBJECT_FRAME);
     const characteristicPropertyEmbedFrame = cloneNominalizationLessonRecord(LESSON39_CHARACTERISTIC_PROPERTY_EMBED_FRAME);
+    const complementRemainingExternalObjectSlots = [
+        {
+            slotId: "mainline-object",
+            role: "possessor-pronoun-transformed-to-object",
+            source: "possessive-source-frame",
+            owner: "matrix-route-frame",
+        },
+    ];
+    const objectRemainingExternalObjectSlots = [
+        {
+            slotId: "applicative-object",
+            role: "possessor-pronoun-transformed-to-applicative-object",
+            source: "possessive-source-frame",
+            owner: "matrix-route-frame",
+        },
+    ];
+    const incorporatedComplementRouteFrame = buildLesson39PatientiveIncorporationRouteFrame({
+        sourceSection: "Andrews 39.7",
+        embedRole: "incorporated-complement",
+        matrixValence: "object-complement-matrix-valence",
+        matrixFamilies: incorporatedComplementFrame.absolutiveSourceFrame.matrixFamilies,
+        consumedObjectSlot: "complement-slot",
+        remainingExternalObjectSlots: complementRemainingExternalObjectSlots,
+        valenceDelta: {
+            complementSlots: 1,
+            incorporatedObjectSlots: 0,
+            remainingExternalObjectSlots: complementRemainingExternalObjectSlots.length,
+        },
+    });
+    incorporatedComplementFrame.incorporationRouteFrame = incorporatedComplementRouteFrame;
+    incorporatedComplementFrame.routeFrame = incorporatedComplementRouteFrame;
+    incorporatedComplementFrame.objectSlotOwnership = incorporatedComplementRouteFrame.objectSlotOwnership;
+    const incorporatedObjectRouteFrame = buildLesson39PatientiveIncorporationRouteFrame({
+        sourceSection: "Andrews 39.8",
+        embedRole: "incorporated-object",
+        matrixValence: "inside-and-outside-object-matrix-valence",
+        matrixFamilies: incorporatedObjectFrame.matrices,
+        consumedObjectSlot: "obj1",
+        remainingExternalObjectSlots: objectRemainingExternalObjectSlots,
+        valenceDelta: {
+            complementSlots: 0,
+            incorporatedObjectSlots: 1,
+            remainingExternalObjectSlots: objectRemainingExternalObjectSlots.length,
+        },
+    });
+    incorporatedObjectFrame.incorporationRouteFrame = incorporatedObjectRouteFrame;
+    incorporatedObjectFrame.routeFrame = incorporatedObjectRouteFrame;
+    incorporatedObjectFrame.objectSlotOwnership = incorporatedObjectRouteFrame.objectSlotOwnership;
     const remainingGaps = [
         "Current Lesson 39 patientive operations are partial and do not complete every perfective, imperfective, characteristic-property, root/stock, multiple-derivation, compound-embed, incorporated-complement, incorporated-object, or characteristic-property-embed pattern.",
         "Perfective and imperfective patientive generation has current source gates, but full lexical source coverage, passive/impersonal analogies, compound ownerhood restrictions, and Nawat/Pipil examples remain evidence-needed.",
@@ -1755,6 +2026,8 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
             semanticRole: "patient/result/property entity",
             possessorCanTransformToObjectInIncorporatedComplement: incorporatedComplementFrame.possessiveSourceFrame.possessorPronounTransformsToMainlineObjectPronoun,
             possessorCanTransformToApplicativeObjectInIncorporatedObject: incorporatedObjectFrame.possessorPronounTransformsToApplicativeObject,
+            incorporatedComplementRouteFrame,
+            incorporatedObjectRouteFrame,
             valencePrincipleViolationsAreDiagnostic: true,
         },
         targetContract: {

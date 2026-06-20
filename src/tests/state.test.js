@@ -11488,6 +11488,26 @@ function run(ctx) {
             && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-preterito")
             && !ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo).includes("agentivo-futuro")
     );
+    s.eq(
+        "#2 Formula CNV tabs keep only Andrews slot-backed finite categories",
+        ctx.getTenseOrderForMode(ctx.TENSE_MODE.verbo),
+        ["presente", "optativo", "presente-habitual", "imperfecto", "preterito", "pasado-remoto", "futuro"]
+    );
+    s.eq(
+        "#2 Formula CNN tabs keep nominal route/state families, not function or tense aliases",
+        ctx.getTenseOrderForMode(ctx.TENSE_MODE.sustantivo),
+        [
+            "sustantivo-verbal",
+            "agentivo",
+            "agentivo-presente",
+            "agentivo-preterito",
+            "agentivo-futuro",
+            "patientivo",
+            "instrumentivo",
+            "calificativo-instrumentivo",
+            "locativo-temporal",
+        ]
+    );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
     s.eq("direct active preterit route resolves route tense", directPreteritRoute.routeTenseValue, "adjetivo-preterito");
     s.eq(

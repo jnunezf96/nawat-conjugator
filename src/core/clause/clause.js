@@ -301,6 +301,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS = Object.freeze([
 ]);
 
 const ANDREWS_CNV_CNN_DESUPERPOSITION_LAYER_ORDER = Object.freeze([
+    "morph-boundary-frame",
     "formula-boundary",
     "stem-frame",
     "valence-frame",
@@ -333,6 +334,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_DIMENSION_SYSTEM = Object.freeze({
             block: "#1 Entrada",
             collapses: Object.freeze([
                 "source-unit",
+                "morph-boundary",
                 "formula-boundary",
                 "stem-rank",
                 "valence-frame",
@@ -14083,7 +14085,7 @@ function buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(entryOrId = null)
     const routeFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(obstacle.routeId);
     const gateDomains = getAndrewsCnvCnnBackAndForthObstacleGateDomains(obstacle);
     const functionUsePosition = gateDomains.includes("function-use")
-        ? "function-use-after-valence-frame"
+        ? "downstream-after-route-frame"
         : "function-use-not-primary-gate";
     const objectSlotOwnership = gateDomains.includes("valence-object")
         ? "object-slot-gate-owned-by-valence-frame"
@@ -14161,24 +14163,48 @@ function buildAndrewsCnvCnnBackAndForthDimensionalIndex({
     const routeCoordinateFrames = getAndrewsCnvCnnBackAndForthRouteRecords()
         .map((record) => buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(record))
         .filter(Boolean);
-    const obstacleCoordinateFrames = getAndrewsCnvCnnBackAndForthObstacleCatalog()
+    const obstacleCatalog = getAndrewsCnvCnnBackAndForthObstacleCatalog();
+    const obstacleCoordinateFrames = obstacleCatalog
         .map((entry) => buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame(entry))
         .filter(Boolean);
+    const missingObstacleCoordinateIds = obstacleCatalog
+        .filter((entry) => !obstacleCoordinateFrames.some((frame) => frame.id === entry.id))
+        .map((entry) => entry.id);
+    const functionUseGateFrames = obstacleCoordinateFrames
+        .filter((frame) => Array.isArray(frame.gateDomains) && frame.gateDomains.includes("function-use"));
+    const valenceObjectGateFrames = obstacleCoordinateFrames
+        .filter((frame) => Array.isArray(frame.gateDomains) && frame.gateDomains.includes("valence-object"));
     const index = {
         kind: "andrews-cnv-cnn-dimensional-index",
         version: 1,
         dimensionSystem: getAndrewsCnvCnnBackAndForthDimensionSystem(),
         routeCoordinateCount: routeCoordinateFrames.length,
+        obstacleCatalogCount: obstacleCatalog.length,
         obstacleCoordinateCount: obstacleCoordinateFrames.length,
         routeCoordinateFrames,
         routeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.routeId),
         sourceFormulaTypeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.sourceFormulaType),
         targetFormulaTypeCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.targetFormulaType),
         operationCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.routeOperation),
+        valenceFrameDimensionCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.valenceFrameDimension),
+        objectSlotOwnershipCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.objectSlotOwnership),
+        sourceTargetRouteCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.sourceTargetRoute),
+        functionUsePositionCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.functionUsePosition),
         gateDomainCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.gateDomains),
         evidenceStatusCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.evidenceStatus),
         pathDepthCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => String(frame.pathDepth)),
         stageCounts: countAndrewsCnvCnnDimensionValues(obstacleCoordinateFrames, (frame) => frame.stage),
+        obstacleCoordinateCoverage: {
+            obstacleCatalogCount: obstacleCatalog.length,
+            obstacleCoordinateCount: obstacleCoordinateFrames.length,
+            allObstacleCatalogItemsHaveCoordinateFrame: obstacleCoordinateFrames.length === obstacleCatalog.length
+                && missingObstacleCoordinateIds.length === 0,
+            missingObstacleCoordinateIds,
+            functionUseGateCoordinateCount: functionUseGateFrames.length,
+            functionUseGatesDownstreamAfterRouteFrame: functionUseGateFrames.every((frame) => frame.functionUsePosition === "downstream-after-route-frame"),
+            valenceObjectGateCoordinateCount: valenceObjectGateFrames.length,
+            valenceObjectGatesOwnedByValenceFrame: valenceObjectGateFrames.every((frame) => frame.objectSlotOwnership === "object-slot-gate-owned-by-valence-frame"),
+        },
     };
     if (includeObstacleCoordinates === true) {
         index.obstacleCoordinateFrames = obstacleCoordinateFrames;
@@ -17715,6 +17741,7 @@ const LESSON6_SPECIFIC_PROJECTIVE_OBJECT_PREFIXES = Object.freeze([
     "ki",
     "k",
     "kin",
+    "kinh",
     "n-ech",
     "t-ech",
     "m-etz",
@@ -17722,16 +17749,370 @@ const LESSON6_SPECIFIC_PROJECTIVE_OBJECT_PREFIXES = Object.freeze([
     "ki-0",
     "k-0",
     "k-in",
-    "m-u",
-    "m-0",
+    "k-inh",
 ]);
 const LESSON6_NONSPECIFIC_PROJECTIVE_OBJECT_PREFIXES = Object.freeze(["te", "ta"]);
 const LESSON6_MONADIC_OBJECT_PREFIXES = Object.freeze(["ne", ...LESSON6_NONSPECIFIC_PROJECTIVE_OBJECT_PREFIXES]);
+const LESSON6_MAINLINE_REFLEXIVE_OBJECT_PREFIXES = Object.freeze(["mu", "m-u", "m-0"]);
+
+const LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY = Object.freeze({
+    kind: "andrews-lesson-6-nawat-valence-governing-frame",
+    version: 1,
+    sourceLesson: "Andrews Lesson 6",
+    sourceSections: Object.freeze(["Andrews §6.2", "Andrews §6.3", "Andrews §6.4", "Andrews §6.5", "Andrews §6.6"]),
+    governs: "CNV objective valence morphs before formula/function-use interpretation",
+    monadic: Object.freeze({
+        sourceSection: "Andrews §6.2",
+        formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+        valencePosition: "va",
+        predicatePositionStatus: "monadic",
+        slot: Object.freeze({
+            slotId: "va",
+            carries: Object.freeze(["object-function"]),
+            possibleMorphs: Object.freeze(["ne", "te", "ta"]),
+        }),
+        nawatMorphs: Object.freeze([
+            Object.freeze({
+                surfaceMorph: "ne",
+                formulaMorph: "ne",
+                trajectory: "reflexive-reciprocative",
+                specificity: "specific",
+                prominence: "shuntline",
+            }),
+            Object.freeze({
+                surfaceMorph: "te",
+                formulaMorph: "te",
+                trajectory: "projective",
+                specificity: "nonspecific",
+                humanness: "human",
+                prominence: "mainline",
+            }),
+            Object.freeze({
+                classicalMorph: "tla",
+                surfaceMorph: "ta",
+                formulaMorph: "ta",
+                trajectory: "projective",
+                specificity: "nonspecific",
+                humanness: "nonhuman",
+                prominence: "mainline",
+            }),
+        ]),
+    }),
+    dyadicSpecificProjective: Object.freeze({
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        appliesWhen: Object.freeze({
+            case: "objective",
+            prominence: "mainline",
+            specificity: "specific",
+            trajectory: "projective",
+        }),
+        va1: Object.freeze({
+            thirdPersonCarries: Object.freeze(["person", "objective-case"]),
+            nonThirdPersonCarries: Object.freeze(["person", "number"]),
+        }),
+        va2: Object.freeze({
+            thirdPersonCarries: Object.freeze(["number"]),
+            nonThirdPersonCarries: Object.freeze(["objective-case"]),
+        }),
+        nawatDyads: Object.freeze([
+            Object.freeze({ surfaceMorph: "nech", classicalDyad: "n-ech", nawatDyad: "n-ech" }),
+            Object.freeze({ surfaceMorph: "tech", classicalDyad: "t-ech", nawatDyad: "t-ech" }),
+            Object.freeze({ surfaceMorph: "metz", classicalDyad: "m-itz", nawatDyad: "m-etz" }),
+            Object.freeze({ surfaceMorph: "metzin", classicalDyad: "am-ech", nawatDyad: "m-etz-in" }),
+            Object.freeze({ surfaceMorph: "ki", classicalDyad: "qui-0", nawatDyad: "ki-0" }),
+            Object.freeze({ surfaceMorph: "k", classicalDyad: "c-0/qu-0", nawatDyad: "k-0" }),
+            Object.freeze({ surfaceMorph: "kin", surfaceMorphs: Object.freeze(["kin", "kinh"]), classicalDyad: "qu-im", nawatDyad: "k-in", nawatDyadAllomorphs: Object.freeze(["k-in", "k-inh"]) }),
+        ]),
+    }),
+    dyadicMainlineReflexive: Object.freeze({
+        sourceSection: "Andrews §6.6",
+        formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        appliesWhen: Object.freeze({
+            case: "objective",
+            prominence: "mainline",
+            trajectory: "reflexive-reciprocative",
+        }),
+        subjectPersonNumberReflected: true,
+        objectRepeatsSubjectInformationOnlyForFirstPerson: true,
+        pluralMayBeReciprocal: true,
+        va1: Object.freeze({
+            carries: Object.freeze(["person", "number"]),
+            classicalMorphs: Object.freeze(["n", "t", "m"]),
+            nawatSupportedMorphs: Object.freeze(["m"]),
+        }),
+        va2: Object.freeze({
+            carries: Object.freeze(["objective-case"]),
+            classicalMorph: "o",
+            vowelInitialStemAllomorph: "0",
+            nawatMorphs: Object.freeze(["u", "0"]),
+        }),
+        nawatDyads: Object.freeze([
+            Object.freeze({ surfaceMorph: "mu", classicalDyad: "m-o", nawatDyad: "m-u" }),
+            Object.freeze({ surfaceMorph: "m", classicalDyad: "m-0", nawatDyad: "m-0" }),
+        ]),
+    }),
+});
+
+const LESSON6_NAWAT_VALENCE_GOVERNING_SURFACE_FRAMES = Object.freeze({
+    ne: Object.freeze({
+        governingPath: "monadic-shuntline-reflexive-reciprocative",
+        sourceSections: Object.freeze(["Andrews §6.2"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.monadic.formula,
+        valencePosition: "va",
+        predicatePositionStatus: "monadic",
+        surfaceMorph: "ne",
+        formulaMorph: "ne",
+        trajectory: "reflexive-reciprocative",
+        specificity: "specific",
+        prominence: "shuntline",
+        va: Object.freeze({ morph: "ne", carries: Object.freeze(["shuntline-reflexive-reciprocative-object"]) }),
+    }),
+    te: Object.freeze({
+        governingPath: "monadic-nonspecific-projective-human",
+        sourceSections: Object.freeze(["Andrews §6.2"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.monadic.formula,
+        valencePosition: "va",
+        predicatePositionStatus: "monadic",
+        surfaceMorph: "te",
+        formulaMorph: "te",
+        trajectory: "projective",
+        specificity: "nonspecific",
+        humanness: "human",
+        prominence: "mainline",
+        va: Object.freeze({ morph: "te", carries: Object.freeze(["nonspecific-projective-object", "human"]) }),
+    }),
+    ta: Object.freeze({
+        governingPath: "monadic-nonspecific-projective-nonhuman",
+        sourceSections: Object.freeze(["Andrews §6.2"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.monadic.formula,
+        valencePosition: "va",
+        predicatePositionStatus: "monadic",
+        classicalMorph: "tla",
+        surfaceMorph: "ta",
+        formulaMorph: "ta",
+        trajectory: "projective",
+        specificity: "nonspecific",
+        humanness: "nonhuman",
+        prominence: "mainline",
+        va: Object.freeze({ morph: "ta", classicalMorph: "tla", carries: Object.freeze(["nonspecific-projective-object", "nonhuman"]) }),
+    }),
+    nech: Object.freeze({
+        governingPath: "dyadic-specific-projective-non-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "n-ech",
+        nawatDyad: "n-ech",
+        surfaceMorph: "nech",
+        formulaMorph: "n-ech",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ morph: "n", carries: Object.freeze(["person", "number"]), features: Object.freeze({ person: "first", number: "singular" }) }),
+        va2: Object.freeze({ morph: "ech", carries: Object.freeze(["objective-case"]), classicalMorpheme: "/e:c/" }),
+    }),
+    tech: Object.freeze({
+        governingPath: "dyadic-specific-projective-non-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "t-ech",
+        nawatDyad: "t-ech",
+        surfaceMorph: "tech",
+        formulaMorph: "t-ech",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ morph: "t", carries: Object.freeze(["person", "number"]), features: Object.freeze({ person: "first", number: "plural" }) }),
+        va2: Object.freeze({ morph: "ech", carries: Object.freeze(["objective-case"]), classicalMorpheme: "/e:c/" }),
+    }),
+    metz: Object.freeze({
+        governingPath: "dyadic-specific-projective-non-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "m-itz",
+        nawatDyad: "m-etz",
+        surfaceMorph: "metz",
+        formulaMorph: "m-etz",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ morph: "m", carries: Object.freeze(["person", "number"]), features: Object.freeze({ person: "second", number: "singular" }) }),
+        va2: Object.freeze({ classicalMorph: "itz", morph: "etz", carries: Object.freeze(["objective-case"]), classicalMorpheme: "/e:c/" }),
+    }),
+    metzin: Object.freeze({
+        governingPath: "dyadic-specific-projective-non-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "am-ech",
+        nawatDyad: "m-etz-in",
+        surfaceMorph: "metzin",
+        formulaMorph: "m-etz-in",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ classicalMorph: "am", morph: "m-in", carries: Object.freeze(["person", "number"]), features: Object.freeze({ person: "second", number: "plural" }) }),
+        va2: Object.freeze({ classicalMorph: "ech", morph: "etz", carries: Object.freeze(["objective-case"]), classicalMorpheme: "/e:c/" }),
+    }),
+    ki: Object.freeze({
+        governingPath: "dyadic-specific-projective-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "qui-0",
+        nawatDyad: "ki-0",
+        surfaceMorph: "ki",
+        formulaMorph: "ki-0",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ classicalMorphs: Object.freeze(["c", "qu", "qui"]), morph: "ki", carries: Object.freeze(["person", "objective-case"]), features: Object.freeze({ person: "third" }) }),
+        va2: Object.freeze({ morph: "0", carries: Object.freeze(["number"]), features: Object.freeze({ number: "singular" }) }),
+    }),
+    k: Object.freeze({
+        governingPath: "dyadic-specific-projective-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "c-0/qu-0",
+        nawatDyad: "k-0",
+        surfaceMorph: "k",
+        formulaMorph: "k-0",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ classicalMorphs: Object.freeze(["c", "qu"]), morph: "k", carries: Object.freeze(["person", "objective-case"]), features: Object.freeze({ person: "third" }) }),
+        va2: Object.freeze({ morph: "0", carries: Object.freeze(["number"]), features: Object.freeze({ number: "singular" }) }),
+    }),
+    kin: Object.freeze({
+        governingPath: "dyadic-specific-projective-third",
+        sourceSections: Object.freeze(["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"]),
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicSpecificProjective.formula,
+        valencePosition: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: "qu-im",
+        nawatDyad: "k-in",
+        surfaceMorph: "kin",
+        surfaceMorphs: Object.freeze(["kin", "kinh"]),
+        formulaMorph: "k-in",
+        trajectory: "projective",
+        specificity: "specific",
+        prominence: "mainline",
+        va1: Object.freeze({ classicalMorphs: Object.freeze(["qu"]), morph: "k", carries: Object.freeze(["person", "objective-case"]), features: Object.freeze({ person: "third" }) }),
+        va2: Object.freeze({ classicalMorph: "im", morph: "in", surfaceAllomorphs: Object.freeze(["in", "inh"]), carries: Object.freeze(["number"]), features: Object.freeze({ number: "plural" }) }),
+    }),
+});
+
+function cloneLesson6Frame(frame = null) {
+    return frame && typeof frame === "object" ? JSON.parse(JSON.stringify(frame)) : null;
+}
+
+function getLesson6NawatValenceGoverningInventory() {
+    return cloneLesson6Frame(LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY);
+}
+
+function buildLesson6NawatReflexiveGoverningFrame(value = "", { stem = "", visibleFormulaPrefix = "" } = {}) {
+    const normalizedValue = String(value || "").trim();
+    const visible = String(visibleFormulaPrefix || "").trim();
+    const isReflexiveValue = ["mu", "m", "m-u", "m-0"].includes(normalizedValue);
+    const isReflexiveFormula = ["m-u", "m-0"].includes(visible);
+    if (!isReflexiveValue && !isReflexiveFormula) {
+        return null;
+    }
+    const dyad = visible || (normalizedValue === "m-0" || normalizedValue === "m" ? "m-0" : "m-u");
+    const va2 = dyad === "m-0" ? "0" : "u";
+    const frame = {
+        kind: "andrews-lesson-6-nawat-valence-governing-selection",
+        governingPath: "dyadic-mainline-reflexive-reciprocative",
+        sourceSections: ["Andrews §6.6"],
+        formula: LESSON6_NAWAT_VALENCE_GOVERNING_INVENTORY.dyadicMainlineReflexive.formula,
+        valencePosition: "va1-va2",
+        governingSlotId: "va1-va2",
+        predicatePositionStatus: "dyadic",
+        classicalDyad: va2 === "0" ? "m-0" : "m-o",
+        nawatDyad: dyad,
+        visibleFormulaPrefix: dyad,
+        surfaceMorph: normalizedValue === "m" ? "m" : "mu",
+        formulaMorph: dyad,
+        trajectory: "reflexive-reciprocative",
+        specificity: "specific",
+        prominence: "mainline",
+        subjectPersonNumberReflected: true,
+        objectRepeatsSubjectInformationOnlyForFirstPerson: true,
+        pluralMayBeReciprocal: true,
+        stemCondition: va2 === "0" ? "vowel-initial-stem-allomorph" : "o-to-u-nawat-bridge",
+        stem: String(stem || ""),
+        va1: {
+            classicalMorph: "m",
+            morph: "m",
+            carries: ["person", "number"],
+            features: { person: "nonfirst", number: "common" },
+        },
+        va2: {
+            classicalMorph: va2 === "0" ? "0" : "o",
+            morph: va2,
+            carries: ["objective-case"],
+        },
+    };
+    return frame;
+}
+
+function buildLesson6NawatValenceGoverningFrame(value = "", options = {}) {
+    const normalized = String(value || "").trim();
+    if (!normalized) {
+        return null;
+    }
+    const visibleFormulaPrefix = String(options?.visibleFormulaPrefix || "").trim();
+    const directSurface = {
+        "n-ech": "nech",
+        "t-ech": "tech",
+        "m-etz": "metz",
+        "m-etz-in": "metzin",
+        "ki-0": "ki",
+        "k-0": "k",
+        "k-in": "kin",
+        "k-inh": "kin",
+        "kinh": "kin",
+    }[normalized] || normalized;
+    const baseFrame = LESSON6_NAWAT_VALENCE_GOVERNING_SURFACE_FRAMES[directSurface];
+    if (baseFrame) {
+        const frame = cloneLesson6Frame(baseFrame);
+        const allomorphicVisibleFormulaPrefix = normalized === "k-inh" || normalized === "kinh"
+            ? "k-inh"
+            : "";
+        return {
+            kind: "andrews-lesson-6-nawat-valence-governing-selection",
+            ...frame,
+            governingSlotId: frame?.valencePosition || "",
+            visibleFormulaPrefix: visibleFormulaPrefix || allomorphicVisibleFormulaPrefix || frame?.formulaMorph || normalized,
+            surfaceMorph: normalized === "kinh" ? "kinh" : frame?.surfaceMorph,
+            stem: String(options?.stem || ""),
+        };
+    }
+    return buildLesson6NawatReflexiveGoverningFrame(normalized, options);
+}
 
 function getLesson6VerbalObjectPositionStatus(objectPrefix = "", reflexivePrefix = "") {
     const objectValue = String(objectPrefix || "").trim();
     const reflexiveValue = String(reflexivePrefix || "").trim();
-    if (reflexiveValue || objectValue === "mu") {
+    if (
+        reflexiveValue
+        || LESSON6_MAINLINE_REFLEXIVE_OBJECT_PREFIXES.includes(objectValue)
+        || buildLesson6NawatReflexiveGoverningFrame(objectValue)
+    ) {
         return NUCLEAR_CLAUSE_PREDICATE_POSITION_STATUS.dyadic;
     }
     if (LESSON6_SPECIFIC_PROJECTIVE_OBJECT_PREFIXES.includes(objectValue)) {
@@ -17892,6 +18273,7 @@ function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     const object2 = getNuclearClauseFormulaSlot(formulaSlots, "obj2") || {};
     const object3 = getNuclearClauseFormulaSlot(formulaSlots, "obj3") || {};
     const reflexive = getNuclearClauseFormulaSlot(formulaSlots, "reflexivo") || {};
+    const directional = getNuclearClauseFormulaSlot(formulaSlots, "directional") || {};
     const predicate = getNuclearClauseFormulaSlot(formulaSlots, "predicateStem") || {};
     const tense = getNuclearClauseFormulaSlot(formulaSlots, "tensePosition") || {};
     const numberConnector = getNuclearClauseFormulaSlot(formulaSlots, "num1Num2") || {};
@@ -17901,6 +18283,7 @@ function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     const object2Display = String(object2.displayPrefix || object2.prefix || "");
     const object3Display = String(object3.displayPrefix || object3.prefix || "");
     const reflexiveDisplay = String(reflexive.displayPrefix || reflexive.prefix || "");
+    const directionalDisplay = String(directional.displayPrefix || directional.prefix || "");
     const rawPredicateDisplay = String(predicate.displayStem || predicate.stem || "∅") || "∅";
     const normalizedPredicateDisplay = rawPredicateDisplay.trim() || "∅";
     const predicateDisplay = (
@@ -17934,7 +18317,20 @@ function buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots = null) {
     if ((reflexive.prefix || reflexiveDisplay) && reflexiveDisplay !== "Ø" && reflexiveDisplay !== objectDisplay) {
         objectChain.push(reflexiveDisplay);
     }
-    const objectPart = objectChain.length ? `+${objectChain.join("-")}` : "";
+    const prePredicateParts = [];
+    const objectText = objectChain.join("-");
+    const directionalText = directionalDisplay && directionalDisplay !== "Ø" ? directionalDisplay : "";
+    if (directionalText && directional.position === "after-object" && objectText) {
+        prePredicateParts.push(objectText, directionalText);
+    } else {
+        if (directionalText) {
+            prePredicateParts.push(directionalText);
+        }
+        if (objectText) {
+            prePredicateParts.push(objectText);
+        }
+    }
+    const objectPart = prePredicateParts.length ? `+${prePredicateParts.join("+")}` : "";
     return `#${subjectDisplay}-${subjectCaseDisplay}${objectPart}${predicateDisplay}${tenseDisplay}+${numberConnectorDisplay}#`;
 }
 
@@ -17944,6 +18340,7 @@ function buildVerbalNuclearClauseShell({
     object2 = null,
     object3 = null,
     reflexive = null,
+    directional = null,
     predicate = null,
     tenseValue = "",
     tenseLabel = "",
@@ -18026,6 +18423,18 @@ function buildVerbalNuclearClauseShell({
         isPresent: Boolean(reflexivePrefix),
         label: reflexive?.label || "",
     };
+    const directionalPrefix = directional?.prefix ?? directional?.directionalPrefix ?? "";
+    const directionalSlot = {
+        slot: "directional",
+        role: "directional-prefix",
+        prefix: String(directionalPrefix || ""),
+        displayPrefix: String(directionalPrefix || "") || "Ø",
+        isPresent: Boolean(directionalPrefix),
+        position: String(directional?.position || "before-object"),
+        sourceLesson: "Andrews Lesson 8",
+        allomorphy: directional?.allomorphy || null,
+        label: directional?.label || "",
+    };
     const predicateStem = predicate?.stem ?? predicate?.verb ?? "";
     const predicateSlot = {
         slot: ANDREWS_NUCLEAR_SLOT.predicateStem,
@@ -18073,6 +18482,7 @@ function buildVerbalNuclearClauseShell({
             ...reflexiveSlot,
             slot: ANDREWS_NUCLEAR_SLOT.reflexive,
         },
+        ...(directionalSlot.isPresent ? { directional: directionalSlot } : {}),
         predicateStem: {
             ...predicateSlot,
             slot: ANDREWS_NUCLEAR_SLOT.predicateStem,
@@ -18124,6 +18534,7 @@ function buildVerbalNuclearClauseShell({
             obj2: object2Slot,
             obj3: object3Slot,
             reflexivo: reflexiveSlot,
+            ...(directionalSlot.isPresent ? { directional: directionalSlot } : {}),
             predicateStem: predicateSlot,
             tensePosition: tenseSlot,
             num1Num2: numberConnectorSlot,

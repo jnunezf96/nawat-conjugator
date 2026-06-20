@@ -902,6 +902,7 @@ function applyMorphologyRules({
         targetBaseObjectPrefix = baseObjectPrefix,
         targetObj2 = indirectObjectMarker,
         targetObj3 = thirdObjectMarker,
+        requireFixedValenceFrame = false,
     } = {}) => {
         if (typeof buildGenerationValencyObjectSlotMutationGate !== "function") {
             return null;
@@ -925,6 +926,7 @@ function applyMorphologyRules({
                 routeFrame,
                 valenceFrameFixed,
                 sourceValenceFrameFixed,
+                requireFixedValenceFrame,
             },
         });
     };
@@ -1374,6 +1376,18 @@ function applyMorphologyRules({
         const patientivoAdjectiveSource = getPatientivoAdjectiveSourceForTense(tense) || "nonactive";
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
         if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+            const patientiveAdjectiveTroncoDefaultingGate = buildMorphologyValencyObjectSlotMutationGate({
+                operation: "patientive-adjective-tronco-object-slot-defaulting",
+                mutationKind: "create-object-slot",
+                targetObjectPrefix: "ta",
+                targetBaseObjectPrefix: baseObjectPrefix,
+                targetObj2: indirectObjectMarker,
+                targetObj3: thirdObjectMarker,
+                requireFixedValenceFrame: true,
+            });
+            if (patientiveAdjectiveTroncoDefaultingGate?.status === "blocked") {
+                return returnMorphologyValencyGateBlocked(patientiveAdjectiveTroncoDefaultingGate);
+            }
             objectPrefix = "ta";
         }
         if (patientivoAdjectiveSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
@@ -1520,6 +1534,18 @@ function applyMorphologyRules({
             objectPrefix = "ne";
         }
         if (patientivoSource === "tronco-verbal" && isTransitive && !objectPrefix) {
+            const patientivoTroncoDefaultingGate = buildMorphologyValencyObjectSlotMutationGate({
+                operation: "patientivo-tronco-object-slot-defaulting",
+                mutationKind: "create-object-slot",
+                targetObjectPrefix: "ta",
+                targetBaseObjectPrefix: baseObjectPrefix,
+                targetObj2: indirectObjectMarker,
+                targetObj3: thirdObjectMarker,
+                requireFixedValenceFrame: true,
+            });
+            if (patientivoTroncoDefaultingGate?.status === "blocked") {
+                return returnMorphologyValencyGateBlocked(patientivoTroncoDefaultingGate);
+            }
             objectPrefix = "ta";
         }
         if (patientivoSource === "tronco-verbal" && isTransitive && objectPrefix !== "ta") {
@@ -2067,7 +2093,16 @@ function applyMorphologyRules({
             possessivePrefix,
             actionNounStemUse,
             combinedMode,
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
         });
+        if (calificativoResult?.valencyObjectSlotGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(calificativoResult.valencyObjectSlotGate);
+        }
         if (
             !calificativoResult
             || calificativoResult.error
@@ -2090,7 +2125,16 @@ function applyMorphologyRules({
             thirdObjectMarker,
             mode: resolvedInstrumentivoMode,
             possessivePrefix,
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
         });
+        if (instrumentivoResult?.valencyObjectSlotGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(instrumentivoResult.valencyObjectSlotGate);
+        }
         if (
             !instrumentivoResult
             || instrumentivoResult.error
@@ -2109,7 +2153,16 @@ function applyMorphologyRules({
             thirdObjectMarker,
             possessivePrefix,
             combinedMode,
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
         });
+        if (locativoResult?.valencyObjectSlotGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(locativoResult.valencyObjectSlotGate);
+        }
         if (
             !locativoResult
             || locativoResult.error
@@ -2120,6 +2173,17 @@ function applyMorphologyRules({
     }
 
     if (tense === "activo-no-finito") {
+        const nonfiniteActiveValencyGate = buildMorphologyValencyObjectSlotMutationGate({
+            operation: "nonfinite-active-object-slot-clearing",
+            mutationKind: "delete-object-slots",
+            targetObjectPrefix: "",
+            targetBaseObjectPrefix: "",
+            targetObj2: "",
+            targetObj3: "",
+        });
+        if (nonfiniteActiveValencyGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(nonfiniteActiveValencyGate);
+        }
         subjectPrefix = "";
         objectPrefix = "";
         subjectSuffix = "";
@@ -2136,6 +2200,20 @@ function applyMorphologyRules({
         const isTroncoTikActiveWrapper = tense === "activo-tronco-preterito";
         const isTroncoNajActiveWrapper = tense === "activo-tronco-perfecto";
         const isTroncoActiveWrapper = isTroncoTikActiveWrapper || isTroncoNajActiveWrapper;
+        const activeWrapperSlotClearingGate = buildMorphologyValencyObjectSlotMutationGate({
+            operation: isTroncoNajActiveWrapper
+                ? "morphology-tronco-naj-active-wrapper-object-slot-clearing"
+                : "morphology-tronco-tik-active-wrapper-object-slot-clearing",
+            mutationKind: "delete-object-slots",
+            targetObjectPrefix: "",
+            targetBaseObjectPrefix: "",
+            targetObj2: indirectObjectMarker,
+            targetObj3: thirdObjectMarker,
+            requireFixedValenceFrame: true,
+        });
+        if (activeWrapperSlotClearingGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(activeWrapperSlotClearingGate);
+        }
         const sourceSubjectSuffix = resolveTroncoSourceSuffix(activeWrapperSourceTense, baseSubjectSuffix);
         const wrapperObjectPrefix = isTroncoNajActiveWrapper && !forceTransitiveBase ? "ta" : objectPrefix;
         const wrapperIndirectObjectMarker = isTroncoNajActiveWrapper
@@ -2570,6 +2648,17 @@ function applyMorphologyRules({
         }
     }
     if (isPotencialNounLikeTense) {
+        const potentialNounLikeValencyGate = buildMorphologyValencyObjectSlotMutationGate({
+            operation: "potential-noun-like-object-slot-clearing",
+            mutationKind: "delete-object-slots",
+            targetObjectPrefix: "",
+            targetBaseObjectPrefix: "",
+            targetObj2: "",
+            targetObj3: "",
+        });
+        if (potentialNounLikeValencyGate?.status === "blocked") {
+            return returnMorphologyValencyGateBlocked(potentialNounLikeValencyGate);
+        }
         objectPrefix = "";
     }
     if (isSustantivoVerbalLikeTense) {

@@ -58,6 +58,25 @@ const INTERNAL_TENSE_IDS = new Set([
     "preterito-clase",
 ]);
 
+const HIDDEN_FORMULA_COMPATIBILITY_TENSE_IDS = new Set([
+    "presente-desiderativo",
+    "condicional",
+    "perfecto",
+    "pluscuamperfecto",
+    "condicional-perfecto",
+    "potencial",
+    "potencial-habitual",
+    "adjetivo-preterito",
+    "adjetivo-perfecto",
+    "adjetivo-preterito-tik",
+    "adjetivo-perfecto-tik",
+    "adjetivo-preterito-naj",
+    "adjetivo-perfecto-naj",
+    "adjetivo-patientivo-no-activo",
+    "adjetivo-patientivo-perfectivo",
+    "pasado-remoto-adverbio-activo",
+]);
+
 const PRETERIT_CLASS_IDS = new Set(["A", "B", "C", "D"]);
 const VALID_NONACTIVE_SUFFIXES = new Set(["lu", "u", "wa", "luwa", "uwa", "walu"]);
 const STATIC_NNC_ALLOWED_STATES = new Set(["absolutive", "possessive"]);
@@ -648,7 +667,7 @@ function checkTenseReferences(jsonByName) {
         });
     });
     tenseOrder.forEach((tense) => {
-        if (!coveredTenses.has(tense)) {
+        if (!coveredTenses.has(tense) && !HIDDEN_FORMULA_COMPATIBILITY_TENSE_IDS.has(tense)) {
             addError(`static_orders.tenseOrder includes "${tense}", but no display group references it.`);
         }
     });
@@ -1242,8 +1261,8 @@ function checkAndrewsFormalClassSurfaces(jsonByName) {
     });
     const groupText = JSON.stringify(groups);
     ["CNV en función adjetival", "CNN en función adjetival", "CNV en función adverbial"].forEach((label) => {
-        if (!groupText.includes(label)) {
-            addError(`static_groups must keep "${label}" so function routes stay visibly attached to Andrews formal classes.`);
+        if (groupText.includes(label)) {
+            addError(`static_groups must not keep legacy #2 formula group "${label}"; function use belongs outside the formula tabs.`);
         }
     });
 }

@@ -2965,6 +2965,215 @@ function run(ctx) {
             routeRankingAllowed: false,
         }
     );
+    const impersonalTaPrefixSpec = {
+        matrixStem: "kwi",
+        matrixRuleBase: "kwi",
+        adjacentEmbed: "",
+        transitivity: ctx.COMPOSER_TRANSITIVITY.intransitive,
+        valenceTokens: ["ta"],
+        valenceEmbeds: [],
+        directionalPrefix: "",
+        supportiveMarker: "",
+        tiCausativeClass: "",
+        isYawi: false,
+        isWeya: false,
+    };
+    const impersonalTaPrefixParsedVerb = ctx.buildVerbMetaFromCanonicalSpec(
+        impersonalTaPrefixSpec,
+        "ta-kwi",
+        null,
+        null
+    );
+    const sparseImpersonalTaPrefixEntrada = ctx.buildEntradaGrammarObjectFromCanonicalVerbSpec(
+        impersonalTaPrefixSpec,
+        { rawInput: "ta-kwi" }
+    );
+    const fixedImpersonalTaPrefixEntrada = ctx.buildEntradaGrammarObjectFromCanonicalVerbSpec(
+        impersonalTaPrefixSpec,
+        {
+            rawInput: "ta-kwi",
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "kwi" },
+            },
+            sourceFormulaEcho: "#Ø-Ø(kwi)Ø#",
+        }
+    );
+    const impersonalTaPrefixGenerationBlocked = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                parsedVerb: impersonalTaPrefixParsedVerb,
+                entradaGrammarObject: sparseImpersonalTaPrefixEntrada,
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "ki",
+            tronco: "ta-kwi",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            obj2: "ta",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "presente",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "ta-kwi",
+        },
+    });
+    const impersonalTaPrefixGenerationFixed = ctx.executeGenerateWordRequest({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                parsedVerb: impersonalTaPrefixParsedVerb,
+                entradaGrammarObject: fixedImpersonalTaPrefixEntrada,
+                tenseMode: ctx.TENSE_MODE.verbo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+            },
+        },
+        posicionesFormula: {
+            pers1: "ni",
+            obj1: "ki",
+            tronco: "ta-kwi",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            obj2: "ta",
+            obj3: "",
+            reflexivo: "",
+            tiempo: "presente",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "ta-kwi",
+        },
+    });
+    s.eq(
+        "generation hard-gates impersonal ta-prefix object clearing when entrada valence is unresolved",
+        {
+            parsedHasImpersonalTaPrefix: impersonalTaPrefixParsedVerb.hasImpersonalTaPrefix === true,
+            sparseValenceFrameFixed: sparseImpersonalTaPrefixEntrada.valenceFrame?.frameFixed === true,
+            fixedValenceFrameFixed: fixedImpersonalTaPrefixEntrada.valenceFrame?.frameFixed === true,
+            blockedError: impersonalTaPrefixGenerationBlocked.error === true,
+            blockedDiagnosticId: impersonalTaPrefixGenerationBlocked.diagnostics?.[0]?.id || "",
+            blockedRouteStage: impersonalTaPrefixGenerationBlocked.diagnostics?.[0]?.routeStage || "",
+            blockedGateStatus: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.status || "",
+            blockedGateOperation: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.operation || "",
+            blockedMutationKind: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.mutationKind || "",
+            blockedSourceObj1: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            blockedSourceObj2: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.sourceVector?.obj2 || "",
+            blockedTargetObj1: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            blockedTargetObj2: impersonalTaPrefixGenerationBlocked.valencyObjectSlotGate?.targetVector?.obj2 || "",
+            fixedOk: impersonalTaPrefixGenerationFixed.ok,
+            fixedResult: impersonalTaPrefixGenerationFixed.result,
+        },
+        {
+            parsedHasImpersonalTaPrefix: true,
+            sparseValenceFrameFixed: false,
+            fixedValenceFrameFixed: true,
+            blockedError: true,
+            blockedDiagnosticId: "generation-valency-object-slot-frame-unfixed",
+            blockedRouteStage: "generation-valency-object-slot-gate",
+            blockedGateStatus: "blocked",
+            blockedGateOperation: "apply-impersonal-ta-prefix-slot-clearing",
+            blockedMutationKind: "delete-object-slots",
+            blockedSourceObj1: "ki",
+            blockedSourceObj2: "ta",
+            blockedTargetObj1: "",
+            blockedTargetObj2: "",
+            fixedOk: true,
+            fixedResult: "nitakwi",
+        }
+    );
+    const troncoNajWrapperEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+ta-(ish-kwi)");
+    const sparseTroncoNajWrapperEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+ta-(ish-kwi)",
+        troncoNajWrapperEntradaParsed
+    );
+    const fixedTroncoNajWrapperEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
+        "(a)+ta-(ish-kwi)",
+        troncoNajWrapperEntradaParsed,
+        null,
+        {
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "kwi" },
+                obj1: { slot: "obj1", token: "ta" },
+            },
+            sourceFormulaEcho: "#Ø-ta(kwi)Ø#",
+        }
+    );
+    const buildTroncoNajWrapperRequest = (entradaGrammarObject) => ({
+        options: {
+            silent: true,
+            skipValidation: true,
+            override: {
+                tenseMode: ctx.TENSE_MODE.adjetivo,
+                derivationMode: ctx.DERIVATION_MODE.active,
+                voiceMode: ctx.VOICE_MODE.active,
+                entradaGrammarObject,
+            },
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "adjetivo-perfecto-naj",
+        },
+        entradaTronco: {
+            tieneControlTronco: false,
+            valorTronco: "",
+        },
+    });
+    const troncoNajWrapperGenerationBlocked = ctx.executeGenerateWordRequest(
+        buildTroncoNajWrapperRequest(sparseTroncoNajWrapperEntrada)
+    );
+    const troncoNajWrapperGenerationFixed = ctx.executeGenerateWordRequest(
+        buildTroncoNajWrapperRequest(fixedTroncoNajWrapperEntrada)
+    );
+    s.eq(
+        "generation hard-gates tronco -naj active wrapper object clearing when entrada valence is unresolved",
+        {
+            sparseValenceFrameFixed: sparseTroncoNajWrapperEntrada.valenceFrame?.frameFixed === true,
+            fixedValenceFrameFixed: fixedTroncoNajWrapperEntrada.valenceFrame?.frameFixed === true,
+            blockedError: troncoNajWrapperGenerationBlocked.error === true,
+            blockedDiagnosticId: troncoNajWrapperGenerationBlocked.diagnostics?.[0]?.id || "",
+            blockedRouteStage: troncoNajWrapperGenerationBlocked.diagnostics?.[0]?.routeStage || "",
+            blockedGateStatus: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.status || "",
+            blockedGateOperation: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.operation || "",
+            blockedMutationKind: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.mutationKind || "",
+            blockedSourceObj1: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.sourceVector?.obj1 || "",
+            blockedTargetObj1: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.targetVector?.obj1 || "",
+            blockedRouteRankingAllowed: troncoNajWrapperGenerationBlocked.valencyObjectSlotGate?.routeRankingAllowed,
+            fixedDiagnosticId: troncoNajWrapperGenerationFixed.diagnostics?.[0]?.id || "",
+            fixedRouteStage: troncoNajWrapperGenerationFixed.diagnostics?.[0]?.routeStage || "",
+        },
+        {
+            sparseValenceFrameFixed: false,
+            fixedValenceFrameFixed: true,
+            blockedError: true,
+            blockedDiagnosticId: "generation-valency-object-slot-frame-unfixed",
+            blockedRouteStage: "generation-valency-object-slot-gate",
+            blockedGateStatus: "blocked",
+            blockedGateOperation: "apply-tronco-naj-active-wrapper-slot-clearing",
+            blockedMutationKind: "delete-object-slots",
+            blockedSourceObj1: "ta",
+            blockedTargetObj1: "",
+            blockedRouteRankingAllowed: false,
+            fixedDiagnosticId: "nuclear-clause-surface-active-adjective-transitive-blocked",
+            fixedRouteStage: "adjective-active-valency-gate",
+        }
+    );
 
     const passiveAdjustments = ctx.applyPassiveImpersonalSlotAdjustments({
         isPassiveImpersonalMode: true,
@@ -3791,6 +4000,32 @@ function run(ctx) {
                 visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
             };
         };
+        const objectGoverningSummary = (obj1, tronco = "miki") => {
+            const result = buildObjectFormulaProbe(obj1, tronco);
+            const objectFrame = result.nuclearClauseShell?.formulaSlots?.obj1?.lesson6DirectNawatDyad || null;
+            const reflexiveFrame = result.nuclearClauseShell?.formulaSlots?.reflexivo?.lesson6DirectNawatDyad || null;
+            const frame = objectFrame || reflexiveFrame || {};
+            const governingFrame = frame.governingFrame || {};
+            return {
+                inputObject: obj1,
+                tronco,
+                formula: result.nuclearClauseShell?.formulaEcho,
+                formulaKind: result.nuclearClauseShell?.formula,
+                visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                governingPath: frame.governingPath || governingFrame.governingPath || "",
+                governingSlotId: frame.governingSlotId || governingFrame.governingSlotId || "",
+                sourceSections: frame.sourceSections || governingFrame.sourceSections || [],
+                valencePosition: governingFrame.valencePosition || "",
+                predicatePositionStatus: governingFrame.predicatePositionStatus || "",
+                va: governingFrame.va?.morph || frame.va || "",
+                va1: governingFrame.va1?.morph || frame.va1 || "",
+                va2: governingFrame.va2?.morph || frame.va2 || "",
+                classicalMorph: governingFrame.classicalMorph || "",
+                classicalDyad: governingFrame.classicalDyad || "",
+                nawatDyad: governingFrame.nawatDyad || "",
+                stemCondition: governingFrame.stemCondition || "",
+            };
+        };
         const reflexiveStemFormulaSummary = (tronco) => {
             const result = buildObjectFormulaProbe("mu", tronco);
             return {
@@ -4051,6 +4286,121 @@ function run(ctx) {
             ]
         );
         s.eq(
+            "Lesson 6 governing frame rides with generated CNV object slots",
+            [
+                objectGoverningSummary("ta"),
+                objectGoverningSummary("metz"),
+                objectGoverningSummary("mu", "miki"),
+                objectGoverningSummary("mu", "altia"),
+            ],
+            [
+                {
+                    inputObject: "ta",
+                    tronco: "miki",
+                    formula: "#Ø-Ø+ta(miki)Ø+Ø-t#",
+                    formulaKind: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                    visibleFormulaObject: "ta",
+                    governingPath: "monadic-nonspecific-projective-nonhuman",
+                    governingSlotId: "va",
+                    sourceSections: ["Andrews §6.2"],
+                    valencePosition: "va",
+                    predicatePositionStatus: "monadic",
+                    va: "ta",
+                    va1: "",
+                    va2: "",
+                    classicalMorph: "tla",
+                    classicalDyad: "",
+                    nawatDyad: "",
+                    stemCondition: "",
+                },
+                {
+                    inputObject: "metz",
+                    tronco: "miki",
+                    formula: "#Ø-Ø+m-etz(miki)Ø+Ø-t#",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    visibleFormulaObject: "m-etz",
+                    governingPath: "dyadic-specific-projective-non-third",
+                    governingSlotId: "va1-va2",
+                    sourceSections: ["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"],
+                    valencePosition: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    va: "",
+                    va1: "m",
+                    va2: "etz",
+                    classicalMorph: "",
+                    classicalDyad: "m-itz",
+                    nawatDyad: "m-etz",
+                    stemCondition: "",
+                },
+                {
+                    inputObject: "mu",
+                    tronco: "miki",
+                    formula: "#Ø-Ø+m-u(miki)Ø+Ø-t#",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    visibleFormulaObject: "m-u",
+                    governingPath: "dyadic-mainline-reflexive-reciprocative",
+                    governingSlotId: "va1-va2",
+                    sourceSections: ["Andrews §6.6"],
+                    valencePosition: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    va: "",
+                    va1: "m",
+                    va2: "u",
+                    classicalMorph: "",
+                    classicalDyad: "m-o",
+                    nawatDyad: "m-u",
+                    stemCondition: "o-to-u-nawat-bridge",
+                },
+                {
+                    inputObject: "mu",
+                    tronco: "altia",
+                    formula: "#Ø-Ø+m-0(altia)Ø+Ø-t#",
+                    formulaKind: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                    visibleFormulaObject: "m-0",
+                    governingPath: "dyadic-mainline-reflexive-reciprocative",
+                    governingSlotId: "va1-va2",
+                    sourceSections: ["Andrews §6.6"],
+                    valencePosition: "va1-va2",
+                    predicatePositionStatus: "dyadic",
+                    va: "",
+                    va1: "m",
+                    va2: "0",
+                    classicalMorph: "",
+                    classicalDyad: "m-0",
+                    nawatDyad: "m-0",
+                    stemCondition: "vowel-initial-stem-allomorph",
+                },
+            ]
+        );
+        s.eq(
+            "CNV formula-surface path keeps stem-initial m separate from metz object",
+            (() => {
+                const result = buildObjectFormulaProbe("metz", "mana", "ni", "");
+                const bySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                return {
+                    surface: result.surface,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    visibleFormulaObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                    baseFormulaMorph: bySlot.base?.formulaMorph || "",
+                    baseSurfaceValue: bySlot.base?.surfaceValue || "",
+                    baseStatus: bySlot.base?.status || "",
+                    baseCopyRelations: bySlot.base?.surfaceCopyRelations || [],
+                };
+            })(),
+            {
+                surface: "nimetzmana",
+                formula: "#ni-Ø+m-etz(mana)Ø+Ø-Ø#",
+                visibleFormulaObject: "m-etz",
+                baseFormulaMorph: "mana",
+                baseSurfaceValue: "mana",
+                baseStatus: "matched",
+                baseCopyRelations: [],
+            }
+        );
+        s.eq(
             "CNV formula-surface path assigns 2pl object in to val1 number not val2",
             (() => {
                 const result = buildObjectFormulaProbe("metzin");
@@ -4218,6 +4568,92 @@ function run(ctx) {
                         value: "in",
                         features: { number: "in" },
                         visibleLinearMorph: "k-in",
+                    },
+                },
+            }
+        );
+        s.eq(
+            "CNV formula-surface path assigns vowel-stem kinh to val2 allomorphy",
+            (() => {
+                const result = buildObjectFormulaProbe("kin", "ita", "", "");
+                const pathBySlot = Object.fromEntries(
+                    (result.cnvFormulaSurfacePath?.paths || [])
+                        .map((entry) => [entry.formulaSlotKey, entry])
+                );
+                const bridgeBySlot = Object.fromEntries(
+                    (result.slotNameBridge?.slots || [])
+                        .map((entry) => [entry.surfaceSlot, entry])
+                );
+                return {
+                    surface: result.surface,
+                    formula: result.nuclearClauseShell?.formulaEcho,
+                    visibleObject: result.vncValencyFrame?.lesson6VisibleFormulaObjectPrefix || "",
+                    cnvPath: {
+                        va1: {
+                            morph: pathBySlot.va1?.formulaMorph || "",
+                            surface: pathBySlot.va1?.surfaceValue || "",
+                            features: pathBySlot.va1?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va1?.visibleLinearMorph || "",
+                            status: pathBySlot.va1?.status || "",
+                        },
+                        va2: {
+                            morph: pathBySlot.va2?.formulaMorph || "",
+                            surface: pathBySlot.va2?.surfaceValue || "",
+                            features: pathBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: pathBySlot.va2?.visibleLinearMorph || "",
+                            status: pathBySlot.va2?.status || "",
+                        },
+                        base: {
+                            morph: pathBySlot.base?.formulaMorph || "",
+                            surface: pathBySlot.base?.surfaceValue || "",
+                            status: pathBySlot.base?.status || "",
+                        },
+                    },
+                    uiPath: {
+                        va2: {
+                            value: bridgeBySlot.va2?.value || "",
+                            features: bridgeBySlot.va2?.formulaFeatures || null,
+                            visibleLinearMorph: bridgeBySlot.va2?.visibleLinearMorph || "",
+                        },
+                        base: {
+                            value: bridgeBySlot.base?.value || "",
+                        },
+                    },
+                };
+            })(),
+            {
+                surface: "kinhita",
+                formula: "#Ø-Ø+k-in(ita)Ø+Ø-Ø#",
+                visibleObject: "k-in",
+                cnvPath: {
+                    va1: {
+                        morph: "k-0",
+                        surface: "k-0",
+                        features: { person: "k", objective: "0" },
+                        visibleLinearMorph: "k-in",
+                        status: "matched",
+                    },
+                    va2: {
+                        morph: "in",
+                        surface: "inh",
+                        features: { number: "in" },
+                        visibleLinearMorph: "k-in",
+                        status: "matched",
+                    },
+                    base: {
+                        morph: "ita",
+                        surface: "ita",
+                        status: "matched",
+                    },
+                },
+                uiPath: {
+                    va2: {
+                        value: "inh",
+                        features: { number: "in" },
+                        visibleLinearMorph: "k-in",
+                    },
+                    base: {
+                        value: "ita",
                     },
                 },
             }

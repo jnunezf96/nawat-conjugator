@@ -787,7 +787,15 @@ function resolveGenerationValencyFrameFixed(options = {}) {
     if (options.valenceFrameFixed === false || options.sourceValenceFrameFixed === false) {
         return false;
     }
-    if (generationValencyEntradaGrammarObjectHasValenceObjectSignal(options.entradaGrammarObject)) {
+    const hasEntradaGrammarObject = Boolean(
+        options.entradaGrammarObject
+        && typeof options.entradaGrammarObject === "object"
+        && String(options.entradaGrammarObject.kind || "") === "andrews-entrada-grammar-object"
+    );
+    if (
+        generationValencyEntradaGrammarObjectHasValenceObjectSignal(options.entradaGrammarObject)
+        || (options.requireFixedValenceFrame === true && hasEntradaGrammarObject)
+    ) {
         return generationValencyEntradaGrammarObjectHasFixedFrame(options.entradaGrammarObject);
     }
     const frameCandidates = getGenerationValencyFrameCandidates(options);

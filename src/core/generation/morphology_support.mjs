@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/generation/morphology_support.js.
 
-export function createMorphologySupportGlobals(targetObject = globalThis) {
+export function createMorphologySupportModule(targetObject = globalThis) {
     // core/generation/morphology_support.js
     // Shared morphology support helpers used across parsing, derivation, generation,
     // output, and preterit context.
@@ -83,7 +83,7 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
       const hasNonspecificObject = [normalizedObj1Base, normalizedObj2, normalizedObj3].some(value => targetObject.NONSPECIFIC_VALENCE_AFFIX_SET.has(value));
       const isMainlineThirdPersonObject = isWalThirdPersonMarker(normalizedObj1Base);
       const allowMainlineThirdPersonAlWithNonspecific = isMainlineThirdPersonObject && !forceNonspecificDirectional;
-      const shouldUseAl = (forceTransitiveDirectional ? hasSubjectValent : forceNonspecificDirectional ? hasSubjectValent && !isThirdPersonSubject : !forceIntransitiveDirectional && !isIntransitiveVerb && hasSecondValent && hasSubjectValent) && (!hasNonspecificObject || allowMainlineThirdPersonAlWithNonspecific);
+      const shouldUseAl = (forceTransitiveDirectional ? hasSubjectValent : forceNonspecificDirectional ? hasSubjectValent && !isThirdPersonSubject : forceIntransitiveDirectional ? hasSubjectValent && !isThirdPersonSubject : !isIntransitiveVerb && hasSecondValent && hasSubjectValent) && (!hasNonspecificObject || allowMainlineThirdPersonAlWithNonspecific);
       return {
         handler: "wal",
         shouldUseAl,
@@ -286,6 +286,71 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
         soundSpellingFrames
       };
     }
+    function realizeRegularDirectionalChain({
+      pers1 = "",
+      obj1 = "",
+      tronco = "",
+      directionalChainMeta = null
+    }) {
+      const meta = directionalChainMeta && typeof directionalChainMeta === "object" ? directionalChainMeta : null;
+      const directionalInputPrefix = String(meta?.directionalInputPrefix || "");
+      const directionalOutputPrefix = String(meta?.directionalOutputPrefix || directionalInputPrefix || "");
+      if (!directionalInputPrefix || !directionalOutputPrefix) {
+        return {
+          pers1,
+          obj1,
+          tronco,
+          soundSpellingFrames: []
+        };
+      }
+      const basePers1 = String(meta.pers1Base || meta.baseSubjectPrefix || pers1 || "");
+      const baseObj1 = String(meta.obj1Base || meta.baseObjectPrefix || obj1 || "");
+      const baseObj2 = String(meta.obj2 || meta.indirectObjectMarker || "");
+      const baseObj3 = String(meta.obj3 || meta.thirdObjectMarker || "");
+      const soundSpellingFrames = [];
+      let realizedPers1 = String(pers1 || "");
+      let realizedTronco = String(tronco || "");
+      if (realizedTronco.startsWith(directionalInputPrefix)) {
+        realizedTronco = realizedTronco.slice(directionalInputPrefix.length);
+      }
+      if (/^[aeiu]/.test(directionalOutputPrefix)) {
+        if (basePers1 === "ni" || basePers1 === "n") {
+          if (realizedPers1 !== "n") {
+            pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
+              ruleId: "pers1-ni-before-vowel-n",
+              source: realizedPers1 || "ni",
+              target: "n",
+              slot: "pers1",
+              syllablePosition: "pers1-obj1-boundary"
+            }, realizedPers1 || "ni", "n", "pers1");
+          }
+          realizedPers1 = "n";
+        } else if (basePers1 === "ti" || basePers1 === "t") {
+          if (realizedPers1 !== "t") {
+            pushDirectionalLesson2SoundSpellingFrame(soundSpellingFrames, {
+              ruleId: "pers1-ti-before-vowel-t",
+              source: realizedPers1 || "ti",
+              target: "t",
+              slot: "pers1",
+              syllablePosition: "pers1-obj1-boundary"
+            }, realizedPers1 || "ti", "t", "pers1");
+          }
+          realizedPers1 = "t";
+        }
+      }
+      const markerChain = buildDirectionalMarkerChain({
+        obj1Base: baseObj1,
+        obj2: baseObj2,
+        obj3: baseObj3,
+        pers1: basePers1
+      });
+      return {
+        pers1: realizedPers1,
+        obj1: targetObject.normalizeValenceMarkerOrder(`${directionalOutputPrefix}${markerChain}`),
+        tronco: realizedTronco,
+        soundSpellingFrames
+      };
+    }
     function resolveDirectionalOutputChain({
       pers1 = "",
       obj1 = "",
@@ -314,12 +379,12 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
           soundSpellingFrames: Array.isArray(realized.soundSpellingFrames) ? realized.soundSpellingFrames : []
         };
       }
-      return {
+      return realizeRegularDirectionalChain({
         pers1,
         obj1,
         tronco,
-        soundSpellingFrames: []
-      };
+        directionalChainMeta: meta
+      });
     }
     function adjustPatientivoPossessiveSuffix(suffix, isPossessed, ownershipType = targetObject.DEFAULT_PATIENTIVO_OWNERSHIP, options = {}) {
       if (!isPossessed) {
@@ -399,6 +464,7 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
     api.buildDirectionalLesson2SoundSpellingFrame = buildDirectionalLesson2SoundSpellingFrame;
     api.pushDirectionalLesson2SoundSpellingFrame = pushDirectionalLesson2SoundSpellingFrame;
     api.realizeWalDirectionalChain = realizeWalDirectionalChain;
+    api.realizeRegularDirectionalChain = realizeRegularDirectionalChain;
     api.resolveDirectionalOutputChain = resolveDirectionalOutputChain;
     api.adjustPatientivoPossessiveSuffix = adjustPatientivoPossessiveSuffix;
     api.startsWithAny = startsWithAny;
@@ -407,7 +473,7 @@ export function createMorphologySupportGlobals(targetObject = globalThis) {
 }
 
 export function installMorphologySupportGlobals(targetObject = globalThis) {
-    const api = createMorphologySupportGlobals(targetObject);
+    const api = createMorphologySupportModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

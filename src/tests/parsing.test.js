@@ -250,6 +250,17 @@ function run(ctx) {
         unitKind: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.unitFrame.unitKind,
         embedBeforeMatrix: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.stemFrame.embedBeforeMatrixInviolable,
         noClassicalSurfaceImport: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.orthographyFrame.noClassicalSurfaceImport,
+        routeFrameKind: lexicalValenceAdjacentCompound.compoundAst.routeFrame.kind,
+        sourceFormula: lexicalValenceAdjacentCompound.compoundAst.routeFrame.sourceFormula,
+        generationStatus: lexicalValenceAdjacentCompound.compoundAst.routeFrame.generationStatus,
+        routeLicensesObjectSlots: lexicalValenceAdjacentCompound.compoundAst.routeFrame.routeFrameLicensesObjectSlotOwnership,
+        routeOwnsObjectSlotLicensing: lexicalValenceAdjacentCompound.compoundAst.routeFrame.objectSlotOwnership.routeFrameOwnsObjectSlotLicensing,
+        finalShapeLicensesRole: lexicalValenceAdjacentCompound.compoundAst.routeFrame.finalFormulaShapeDoesNotLicenseRole === false,
+        functionUseOwnsObjectSlots: lexicalValenceAdjacentCompound.compoundAst.routeFrame.objectSlotOwnership.functionUseOwnsObjectSlots,
+        sourceRouteFrameRequired: lexicalValenceAdjacentCompound.compoundAst.routeFrame.sourceRouteFrameRequired,
+        participantOwnershipKind: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.participantFrame.objectSlotOwnership.kind,
+        participantValenceFrameFixed: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.participantFrame.valenceFrame.frameFixed,
+        grammarSourceRouteFrameKind: lexicalValenceAdjacentCompound.compoundAst.grammarFrame.routeContract.sourceContract.sourceRouteFrame.kind,
     }, {
         grammarFrameEnumerable: false,
         routeFamily: "compound-verbstem",
@@ -258,6 +269,17 @@ function run(ctx) {
         unitKind: "compound-verbstem-boundary",
         embedBeforeMatrix: true,
         noClassicalSurfaceImport: true,
+        routeFrameKind: "andrews-compound-ast-route-frame",
+        sourceFormula: "NNC + VNC = compound VNC",
+        generationStatus: "diagnostic-only",
+        routeLicensesObjectSlots: false,
+        routeOwnsObjectSlotLicensing: false,
+        finalShapeLicensesRole: false,
+        functionUseOwnsObjectSlots: false,
+        sourceRouteFrameRequired: true,
+        participantOwnershipKind: "compound-ast-object-slot-ownership-frame",
+        participantValenceFrameFixed: false,
+        grammarSourceRouteFrameKind: "andrews-compound-ast-route-frame",
     });
     s.eq(
         "#1 entrada grammar object stages stem, valence, object, and function-use separately",
@@ -267,6 +289,19 @@ function run(ctx) {
                 kind: entrada?.kind || "",
                 rawInput: entrada?.rawInput || "",
                 layerOrder: entrada?.layerOrder || [],
+                morphBoundary: {
+                    kind: entrada?.morphBoundaryFrame?.kind || "",
+                    sourceLesson: entrada?.morphBoundaryFrame?.sourceLesson || "",
+                    evaluationOrder: entrada?.morphBoundaryFrame?.evaluationOrder || "",
+                    beforeFormulaBoundary: entrada?.morphBoundaryFrame?.beforeFormulaBoundary === true,
+                    objectMorphs: (entrada?.morphBoundaryFrame?.objectMorphs || []).map((entry) => ({
+                        slotId: entry.slotId,
+                        surfaceMorph: entry.surfaceMorph,
+                        formulaMorph: entry.formulaMorph,
+                        allomorphyKind: entry.allomorphyKind,
+                    })),
+                    functionUseEvaluationOrder: entrada?.morphBoundaryFrame?.functionUseEvaluationOrder || "",
+                },
                 formulaFixed: entrada?.formulaBoundaryFrame?.frameFixed === true,
                 candidateDoesNotLicenseFunctionUse: entrada?.formulaBoundaryFrame?.candidateSlotsDoNotLicenseFunctionUse === true,
                 stem: {
@@ -307,7 +342,20 @@ function run(ctx) {
         {
             kind: "andrews-entrada-grammar-object",
             rawInput: "(a)+ta-(ish-kwi)",
-            layerOrder: ["formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
+            layerOrder: ["morph-boundary-frame", "formula-boundary", "stem-frame", "valence-frame", "object-frame", "route-frame", "function-use-frame"],
+            morphBoundary: {
+                kind: "andrews-lesson-1-entrada-morph-boundary-frame",
+                sourceLesson: "Andrews Lesson 1",
+                evaluationOrder: "before-formula-boundary",
+                beforeFormulaBoundary: true,
+                objectMorphs: [{
+                    slotId: "obj1",
+                    surfaceMorph: "ta",
+                    formulaMorph: "ta",
+                    allomorphyKind: "lesson-1-morph-boundary-same-surface",
+                }],
+                functionUseEvaluationOrder: "last",
+            },
             formulaFixed: false,
             candidateDoesNotLicenseFunctionUse: true,
             stem: {
@@ -373,6 +421,107 @@ function run(ctx) {
             objectSlotsCovered: false,
             missingObjectSlots: [{ slotId: "obj1", token: "ta" }],
             routeRankingAllowed: false,
+        }
+    );
+
+    const earlyAllomorphicEntrada = ctx.buildEntradaGrammarObjectFromCanonicalVerbSpec(
+        {
+            matrixStem: "mati",
+            matrixRuleBase: "mati",
+            adjacentEmbed: "",
+            transitivity: "transitive",
+            valenceTokens: ["metz"],
+            valenceEmbeds: [],
+        },
+        {
+            rawInput: "metzmati",
+            sourceFormulaSlots: {
+                predicateStem: { slot: "STEM", stem: "ati", displayStem: "ati" },
+                obj1: { slot: "obj1", token: "m-etz", displayPrefix: "m-etz" },
+            },
+            sourceFormulaEcho: "#0-0+m-etz(ati)0+0-0#",
+        }
+    );
+    s.eq(
+        "#1 entrada stages Lesson 1 allomorphy before formula boundary",
+        {
+            layerOrderStart: (earlyAllomorphicEntrada?.layerOrder || []).slice(0, 2),
+            morphBoundaryKind: earlyAllomorphicEntrada?.morphBoundaryFrame?.kind || "",
+            morphBoundaryOrder: earlyAllomorphicEntrada?.morphBoundaryFrame?.evaluationOrder || "",
+            objectAllomorphs: earlyAllomorphicEntrada?.morphBoundaryFrame?.allomorphs || [],
+            governingObjectMorph: (() => {
+                const objectMorph = earlyAllomorphicEntrada?.morphBoundaryFrame?.objectMorphs?.[0] || {};
+                return {
+                    governingSlotId: objectMorph.governingSlotId || "",
+                    governingPath: objectMorph.governingPath || "",
+                    valencePosition: objectMorph.valencePosition || "",
+                    predicatePositionStatus: objectMorph.predicatePositionStatus || "",
+                    sourceSections: objectMorph.sourceSections || [],
+                    va1: objectMorph.va1?.morph || "",
+                    va2: objectMorph.va2?.morph || "",
+                    classicalDyad: objectMorph.governingFrame?.classicalDyad || "",
+                    nawatDyad: objectMorph.governingFrame?.nawatDyad || "",
+                };
+            })(),
+            candidateObj1: earlyAllomorphicEntrada?.formulaBoundaryFrame?.candidateFormulaSlots?.obj1 || null,
+            formulaFixed: earlyAllomorphicEntrada?.formulaBoundaryFrame?.frameFixed === true,
+            objectSlotsCovered: earlyAllomorphicEntrada?.formulaBoundaryFrame?.objectSlotsCovered === true,
+            valenceFrameFixed: earlyAllomorphicEntrada?.valenceFrame?.frameFixed === true,
+            objectFrameToken: earlyAllomorphicEntrada?.objectFrame?.slots?.[0]?.token || "",
+            objectFrameFormulaMorph: earlyAllomorphicEntrada?.objectFrame?.slots?.[0]?.formulaMorph || "",
+            routeRankingAllowed: earlyAllomorphicEntrada?.routeFrame?.routeRankingAllowed === true,
+            functionUseOrder: earlyAllomorphicEntrada?.functionUseFrame?.evaluationOrder || "",
+        },
+        {
+            layerOrderStart: ["morph-boundary-frame", "formula-boundary"],
+            morphBoundaryKind: "andrews-lesson-1-entrada-morph-boundary-frame",
+            morphBoundaryOrder: "before-formula-boundary",
+            objectAllomorphs: [
+                {
+                    slotId: "obj1",
+                    role: "object-marker",
+                    surfaceMorph: "metz",
+                    formulaMorph: "m-etz",
+                    morphs: ["m", "etz"],
+                    allomorphyKind: "lesson-1-morph-boundary-object-prefix",
+                    ownerLayer: "object-frame",
+                    beforeFormulaBoundary: true,
+                },
+                {
+                    slotId: "predicateStem",
+                    role: "predicate-stem",
+                    formulaMorph: "ati",
+                    surfaceMorph: "mati",
+                    allomorphyKind: "lesson-1-morph-boundary-stem-shape",
+                    ownerLayer: "stem-frame",
+                    beforeFormulaBoundary: true,
+                },
+            ],
+            governingObjectMorph: {
+                governingSlotId: "va1-va2",
+                governingPath: "dyadic-specific-projective-non-third",
+                valencePosition: "va1-va2",
+                predicatePositionStatus: "dyadic",
+                sourceSections: ["Andrews §6.3", "Andrews §6.4", "Andrews §6.5"],
+                va1: "m",
+                va2: "etz",
+                classicalDyad: "m-itz",
+                nawatDyad: "m-etz",
+            },
+            candidateObj1: {
+                slot: "obj1",
+                token: "m-etz",
+                surfaceToken: "metz",
+                allomorphicFormulaMorph: "m-etz",
+                ownerLayer: "object-frame",
+            },
+            formulaFixed: true,
+            objectSlotsCovered: true,
+            valenceFrameFixed: true,
+            objectFrameToken: "metz",
+            objectFrameFormulaMorph: "m-etz",
+            routeRankingAllowed: true,
+            functionUseOrder: "last",
         }
     );
 

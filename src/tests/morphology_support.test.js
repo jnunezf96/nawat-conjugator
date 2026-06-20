@@ -47,6 +47,45 @@ function run(ctx) {
     s.eq("resolveDirectionalOutputChain rewrites wal chain obj1", walRealization.obj1, "kal");
     s.eq("resolveDirectionalOutputChain strips wal from tronco", walRealization.tronco, "itta");
 
+    const intransitiveWalPlan = ctx.buildWalDirectionalPlan({
+        pers1Base: "ni",
+        obj1Base: "",
+        directionalOutputPrefix: "wal",
+        directionalRuleMode: "intransitive",
+        isIntransitiveVerb: true,
+    });
+    const intransitiveWalRealization = ctx.resolveDirectionalOutputChain({
+        pers1: "ni",
+        obj1: "",
+        tronco: "walchulua",
+        directionalChainMeta: {
+            directionalInputPrefix: "wal",
+            pers1Base: "ni",
+            pers2Base: "",
+            obj1Base: "",
+            directionalOutputPrefix: "wal",
+            directionalPlan: intransitiveWalPlan,
+            directionalRuleMode: "intransitive",
+            tense: "presente",
+            isIntransitiveVerb: true,
+            isYawi: false,
+        },
+    });
+    s.eq("buildWalDirectionalPlan promotes intransitive first person wal -> al", intransitiveWalPlan.directionalOutputPrefix, "al");
+    s.eq(
+        "resolveDirectionalOutputChain rewrites intransitive first person wal chain",
+        {
+            pers1: intransitiveWalRealization.pers1,
+            obj1: intransitiveWalRealization.obj1,
+            tronco: intransitiveWalRealization.tronco,
+        },
+        {
+            pers1: "n",
+            obj1: "al",
+            tronco: "chulua",
+        }
+    );
+
     s.eq(
         "adjustPatientivoPossessiveSuffix converts ti to yu in organic ownership",
         ctx.adjustPatientivoPossessiveSuffix("ti", true, "yu", {}),

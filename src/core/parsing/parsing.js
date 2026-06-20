@@ -754,8 +754,7 @@ function getMovingTargetOuterPieceDescriptors(semantic = {}) {
         });
     };
     const addValencePiece = (token = "") => {
-        const normalized = normalizeComposerSecondaryValenceSurfaceToken(token)
-            || normalizeComposerValenceToken(token);
+        const normalized = normalizeEntradaGrammarValenceSurfaceToken(token);
         if (normalized) {
             pieces.push({ type: "valence", value: normalized });
         }
@@ -839,8 +838,7 @@ function stripPrefixOnce(value = "", prefix = "") {
 function getComposerDisplayExternalValenceSegments(semantic = {}) {
     const transitivity = semantic?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
     const toSurface = (token = "") => (
-        normalizeComposerSecondaryValenceSurfaceToken(token)
-        || normalizeComposerValenceToken(token)
+        normalizeEntradaGrammarValenceSurfaceToken(token)
     );
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
         const token = toSurface(semantic?.valence?.intransitive?.token || "");
@@ -1262,7 +1260,7 @@ function buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, movingTargetPars
     // valenceTokens — composer: valence.primary.token, valence.secondary.token
     const valenceTokens = outerPieces
         .filter((piece) => piece && piece.type === "valence" && piece.value)
-        .map((piece) => normalizeComposerSecondaryValenceSurfaceToken(piece.value) || normalizeComposerValenceToken(piece.value))
+        .map((piece) => normalizeEntradaGrammarValenceSurfaceToken(piece.value))
         .filter(Boolean);
     // valenceEmbeds — composer: valence.primary.embed (lexical bound prefixes)
     const valenceEmbeds = outerPieces
@@ -1348,16 +1346,13 @@ function buildCanonicalVerbSpecFromComposerSemantic(semantic = {}) {
     // valenceTokens — primary and secondary object markers per transitivity
     const valenceTokensRaw = [];
     if (transitivity === COMPOSER_TRANSITIVITY.intransitive) {
-        const tok = normalizeComposerSecondaryValenceSurfaceToken(semantic.valence?.intransitive?.token || "")
-            || normalizeComposerValenceToken(semantic.valence?.intransitive?.token || "");
+        const tok = normalizeEntradaGrammarValenceSurfaceToken(semantic.valence?.intransitive?.token || "");
         if (tok) valenceTokensRaw.push(tok);
     } else {
-        const tok = normalizeComposerSecondaryValenceSurfaceToken(semantic.valence?.primary?.token || "")
-            || normalizeComposerValenceToken(semantic.valence?.primary?.token || "");
+        const tok = normalizeEntradaGrammarValenceSurfaceToken(semantic.valence?.primary?.token || "");
         if (tok) valenceTokensRaw.push(tok);
         if (transitivity === COMPOSER_TRANSITIVITY.bitransitive) {
-            const tok2 = normalizeComposerSecondaryValenceSurfaceToken(semantic.valence?.secondary?.token || "")
-                || normalizeComposerValenceToken(semantic.valence?.secondary?.token || "");
+            const tok2 = normalizeEntradaGrammarValenceSurfaceToken(semantic.valence?.secondary?.token || "");
             if (tok2) valenceTokensRaw.push(tok2);
         }
     }
@@ -1418,6 +1413,7 @@ function buildCanonicalVerbSpecFromComposerSemantic(semantic = {}) {
 }
 
 const ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER = Object.freeze([
+    "morph-boundary-frame",
     "formula-boundary",
     "stem-frame",
     "valence-frame",
@@ -1427,11 +1423,27 @@ const ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER = Object.freeze([
 ]);
 
 const ENTRADA_GRAMMAR_OBJECT_ANTI_CONFLATION_RULES = Object.freeze([
+    "Lesson 1 morph/allomorph evidence is staged before formula boundaries.",
     "Stem behavior is staged separately from valence behavior.",
     "Valence behavior is staged separately from object slot ownership.",
     "Object slots remain structural slots until the valence frame is fixed.",
     "Function-use is downstream and may annotate only already licensed readings.",
 ]);
+
+const ENTRADA_GRAMMAR_OBJECT_EARLY_ALLOMORPH_BY_SURFACE = Object.freeze({
+    nech: Object.freeze({ formulaMorph: "n-ech", morphs: Object.freeze(["n", "ech"]) }),
+    tech: Object.freeze({ formulaMorph: "t-ech", morphs: Object.freeze(["t", "ech"]) }),
+    metz: Object.freeze({ formulaMorph: "m-etz", morphs: Object.freeze(["m", "etz"]) }),
+    metzin: Object.freeze({ formulaMorph: "m-etz-in", morphs: Object.freeze(["m", "etz", "in"]) }),
+    ki: Object.freeze({ formulaMorph: "ki-0", morphs: Object.freeze(["ki", "0"]) }),
+    k: Object.freeze({ formulaMorph: "k-0", morphs: Object.freeze(["k", "0"]) }),
+    kin: Object.freeze({ formulaMorph: "k-in", morphs: Object.freeze(["k", "in"]) }),
+});
+
+const ENTRADA_GRAMMAR_OBJECT_SURFACE_BY_EARLY_ALLOMORPH = Object.freeze(
+    Object.fromEntries(Object.entries(ENTRADA_GRAMMAR_OBJECT_EARLY_ALLOMORPH_BY_SURFACE)
+        .map(([surfaceMorph, frame]) => [frame.formulaMorph, surfaceMorph]))
+);
 
 function cloneEntradaGrammarObjectRecord(record = null) {
     if (!record || typeof record !== "object") {
@@ -1466,6 +1478,81 @@ function getEntradaGrammarFormulaSlotObjectValue(slot = null) {
     ).trim();
 }
 
+function getEntradaGrammarFormulaSlotStemValue(slot = null) {
+    if (!slot || typeof slot !== "object") {
+        return "";
+    }
+    return String(
+        slot.stem
+        || slot.displayStem
+        || slot.token
+        || slot.surface
+        || slot.value
+        || ""
+    ).trim();
+}
+
+function normalizeEntradaGrammarMorphToken(value = "") {
+    return String(value || "").trim().toLowerCase();
+}
+
+function getEntradaGrammarEarlyAllomorphFrameForSurface(surfaceMorph = "") {
+    const normalized = normalizeEntradaGrammarMorphToken(surfaceMorph);
+    if (!normalized) {
+        return null;
+    }
+    const frame = ENTRADA_GRAMMAR_OBJECT_EARLY_ALLOMORPH_BY_SURFACE[normalized];
+    if (!frame) {
+        return null;
+    }
+    return {
+        surfaceMorph: normalized,
+        formulaMorph: frame.formulaMorph,
+        morphs: Array.from(frame.morphs),
+    };
+}
+
+function getEntradaGrammarSurfaceForEarlyAllomorph(formulaMorph = "") {
+    return ENTRADA_GRAMMAR_OBJECT_SURFACE_BY_EARLY_ALLOMORPH[normalizeEntradaGrammarMorphToken(formulaMorph)] || "";
+}
+
+function getEntradaGrammarFormulaMorphForSurface(surfaceMorph = "") {
+    const frame = getEntradaGrammarEarlyAllomorphFrameForSurface(surfaceMorph);
+    return frame?.formulaMorph || normalizeEntradaGrammarMorphToken(surfaceMorph);
+}
+
+function normalizeEntradaGrammarValenceSurfaceToken(value = "") {
+    return normalizeComposerSecondaryValenceSurfaceToken(value)
+        || normalizeComposerValenceToken(value)
+        || getEntradaGrammarEarlyAllomorphFrameForSurface(value)?.surfaceMorph
+        || "";
+}
+
+function getEntradaGrammarMorphicVariantsForSurface(surfaceMorph = "") {
+    const normalizedSurface = normalizeEntradaGrammarMorphToken(surfaceMorph);
+    const variants = new Set();
+    if (normalizedSurface) {
+        variants.add(normalizedSurface);
+    }
+    const allomorphFrame = getEntradaGrammarEarlyAllomorphFrameForSurface(normalizedSurface);
+    if (allomorphFrame?.formulaMorph) {
+        variants.add(allomorphFrame.formulaMorph);
+    }
+    const surfaceFromFormula = getEntradaGrammarSurfaceForEarlyAllomorph(normalizedSurface);
+    if (surfaceFromFormula) {
+        variants.add(surfaceFromFormula);
+    }
+    return variants;
+}
+
+function entradaGrammarFormulaObjectValueCoversToken(formulaValue = "", token = "") {
+    const normalizedFormulaValue = normalizeEntradaGrammarMorphToken(formulaValue);
+    if (!normalizedFormulaValue) {
+        return false;
+    }
+    return getEntradaGrammarMorphicVariantsForSurface(token).has(normalizedFormulaValue);
+}
+
 function buildEntradaGrammarFormulaObjectCoverage({
     objectSlots = [],
     sourceFormulaSlots = null,
@@ -1482,10 +1569,16 @@ function buildEntradaGrammarFormulaObjectCoverage({
         .filter((entry) => entry.slotId && entry.token);
     const missingObjectSlots = requiredObjectSlots.filter((entry) => {
         const formulaValue = getEntradaGrammarFormulaSlotObjectValue(slots[entry.slotId]);
-        if (formulaValue === entry.token) {
+        if (entradaGrammarFormulaObjectValueCoversToken(formulaValue, entry.token)) {
             return false;
         }
-        if (entry.token === "mu" && getEntradaGrammarFormulaSlotObjectValue(slots.reflexivo) === "mu") {
+        if (
+            entry.token === "mu"
+            && entradaGrammarFormulaObjectValueCoversToken(
+                getEntradaGrammarFormulaSlotObjectValue(slots.reflexivo),
+                "mu"
+            )
+        ) {
             return false;
         }
         return true;
@@ -1501,8 +1594,7 @@ function buildEntradaGrammarObjectValenceSlots(spec = null) {
     const transitivity = spec?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
     const tokens = Array.isArray(spec?.valenceTokens)
         ? spec.valenceTokens.map((entry) => (
-            normalizeComposerSecondaryValenceSurfaceToken(entry)
-            || normalizeComposerValenceToken(entry)
+            normalizeEntradaGrammarValenceSurfaceToken(entry)
         )).filter(Boolean)
         : [];
     const embeds = Array.isArray(spec?.valenceEmbeds)
@@ -1511,9 +1603,14 @@ function buildEntradaGrammarObjectValenceSlots(spec = null) {
     return tokens.map((token, index) => {
         const ownsObjectSlot = transitivity !== COMPOSER_TRANSITIVITY.intransitive;
         const slotId = ownsObjectSlot ? `obj${index + 1}` : `valence${index + 1}`;
+        const formulaMorph = getEntradaGrammarFormulaMorphForSurface(token);
+        const allomorphFrame = getEntradaGrammarEarlyAllomorphFrameForSurface(token);
         return {
             slotId,
             token,
+            formulaMorph,
+            allomorphicFormulaMorph: allomorphFrame ? allomorphFrame.formulaMorph : "",
+            morphs: allomorphFrame ? allomorphFrame.morphs : [token],
             embed: embeds[index] || "",
             role: ownsObjectSlot ? "object-marker" : "valence-marker",
             ownsObjectSlot,
@@ -1555,14 +1652,124 @@ function buildEntradaGrammarObjectCandidateFormulaSlots({
     ["obj1", "obj2", "obj3", "reflexivo"].forEach((slotId) => {
         const value = String(objectVector?.[slotId] || "").trim();
         if (value) {
+            const formulaMorph = getEntradaGrammarFormulaMorphForSurface(value);
             slots[slotId] = {
                 slot: slotId,
-                token: value,
+                token: formulaMorph,
+                surfaceToken: value,
+                allomorphicFormulaMorph: formulaMorph !== value ? formulaMorph : "",
                 ownerLayer: "object-frame",
             };
         }
     });
     return slots;
+}
+
+function buildEntradaGrammarObjectMorphBoundaryFrame({
+    spec = null,
+    valenceSlots = [],
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    sourceBlock = "#1 Entrada",
+} = {}) {
+    const slots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : {};
+    const objectMorphs = (Array.isArray(valenceSlots) ? valenceSlots : [])
+        .map((slot) => {
+            const surfaceMorph = normalizeEntradaGrammarMorphToken(slot.token || "");
+            if (!surfaceMorph) {
+                return null;
+            }
+            const formulaSlotMorph = getEntradaGrammarFormulaSlotObjectValue(slots[slot.slotId]);
+            const allomorphFrame = getEntradaGrammarEarlyAllomorphFrameForSurface(surfaceMorph);
+            const formulaMorph = formulaSlotMorph
+                || allomorphFrame?.formulaMorph
+                || surfaceMorph;
+            const governingFrame = typeof buildLesson6NawatValenceGoverningFrame === "function"
+                ? buildLesson6NawatValenceGoverningFrame(surfaceMorph, {
+                    stem: spec?.matrixStem || "",
+                    visibleFormulaPrefix: formulaMorph,
+                })
+                : null;
+            return {
+                slotId: String(slot.slotId || ""),
+                role: String(slot.role || ""),
+                surfaceMorph,
+                formulaMorph,
+                morphs: allomorphFrame?.morphs || [surfaceMorph],
+                allomorphyKind: allomorphFrame
+                    ? "lesson-1-morph-boundary-object-prefix"
+                    : "lesson-1-morph-boundary-same-surface",
+                governingFrame,
+                governingFrameKind: governingFrame?.kind || "",
+                governingPath: governingFrame?.governingPath || "",
+                governingSlotId: governingFrame?.valencePosition || "",
+                valencePosition: governingFrame?.valencePosition || "",
+                predicatePositionStatus: governingFrame?.predicatePositionStatus || "",
+                sourceSections: governingFrame?.sourceSections || [],
+                va: governingFrame?.va || null,
+                va1: governingFrame?.va1 || null,
+                va2: governingFrame?.va2 || null,
+                ownerLayer: String(slot.sourceLayer || ""),
+                beforeFormulaBoundary: true,
+            };
+        })
+        .filter(Boolean);
+    const predicateFormulaStem = getEntradaGrammarFormulaSlotStemValue(slots.predicateStem);
+    const predicateSurfaceStem = normalizeEntradaGrammarMorphToken(spec?.matrixStem || "");
+    const stemAllomorphs = predicateFormulaStem
+        && predicateSurfaceStem
+        && normalizeEntradaGrammarMorphToken(predicateFormulaStem) !== predicateSurfaceStem
+        ? [{
+            slotId: "predicateStem",
+            role: "predicate-stem",
+            formulaMorph: normalizeEntradaGrammarMorphToken(predicateFormulaStem),
+            surfaceMorph: predicateSurfaceStem,
+            allomorphyKind: "lesson-1-morph-boundary-stem-shape",
+            ownerLayer: "stem-frame",
+            beforeFormulaBoundary: true,
+        }]
+        : [];
+    const governedObjectMorphs = objectMorphs.filter((entry) => entry.governingFrame);
+    const objectAllomorphs = objectMorphs
+        .filter((entry) => entry.formulaMorph !== entry.surfaceMorph)
+        .map((entry) => ({
+            slotId: entry.slotId,
+            role: entry.role,
+            surfaceMorph: entry.surfaceMorph,
+            formulaMorph: entry.formulaMorph,
+            morphs: entry.morphs,
+            allomorphyKind: entry.allomorphyKind,
+            ownerLayer: entry.ownerLayer,
+            beforeFormulaBoundary: entry.beforeFormulaBoundary,
+        }));
+    const allomorphs = [
+        ...objectAllomorphs,
+        ...stemAllomorphs,
+    ];
+    return {
+        kind: "andrews-lesson-1-entrada-morph-boundary-frame",
+        version: 1,
+        sourceLesson: "Andrews Lesson 1",
+        sourceSections: ["Andrews §1.8", "Andrews §1.11", "Andrews Lesson 4"],
+        stageBlock: String(sourceBlock || "#1 Entrada"),
+        evaluationOrder: "before-formula-boundary",
+        sourceLayer: "morph-boundary-frame",
+        beforeFormulaBoundary: true,
+        formulaBoundaryConsumesMorphEvidence: true,
+        formulaSlotIsLiteralSpelling: false,
+        allomorphyIsEntradaEvidence: true,
+        functionUseEvaluationOrder: "last",
+        sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
+        valenceGoverningFrame: typeof getLesson6NawatValenceGoverningInventory === "function"
+            ? getLesson6NawatValenceGoverningInventory()
+            : null,
+        objectMorphs,
+        governedObjectMorphs,
+        stemAllomorphs,
+        allomorphs,
+    };
 }
 
 function buildEntradaGrammarObjectFromCanonicalVerbSpec(spec = null, {
@@ -1597,6 +1804,13 @@ function buildEntradaGrammarObjectFromCanonicalVerbSpec(spec = null, {
         spec,
         objectVector,
     });
+    const morphBoundaryFrame = buildEntradaGrammarObjectMorphBoundaryFrame({
+        spec,
+        valenceSlots,
+        sourceFormulaSlots: explicitFormulaSlots,
+        sourceFormulaEcho,
+        sourceBlock,
+    });
     return {
         kind: "andrews-entrada-grammar-object",
         version: 1,
@@ -1605,6 +1819,7 @@ function buildEntradaGrammarObjectFromCanonicalVerbSpec(spec = null, {
         layerOrder: Array.from(ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER),
         sourceUnit: String(sourceUnit || "CNV"),
         sourceKind: String(sourceKind || "verbal-nuclear-clause"),
+        morphBoundaryFrame,
         formulaBoundaryFrame: {
             stageBlock: String(sourceBlock || "#1 Entrada"),
             formulaType: String(sourceUnit || "CNV"),
@@ -1679,6 +1894,109 @@ function buildEntradaGrammarObjectFromMovingTargetParsed(rawValue = "", movingTa
         rawInput: rawValue,
         ...options,
     });
+}
+
+function getCompoundAstExternalObjectSlotId(index = 0) {
+    const numeric = Number(index);
+    return `obj${Number.isFinite(numeric) && numeric >= 0 ? numeric + 1 : 1}`;
+}
+
+function buildCompoundAstExternalObjectSlots(compoundAst = null) {
+    const tokens = Array.isArray(compoundAst?.valency?.tokens) ? compoundAst.valency.tokens : [];
+    return tokens
+        .map((token, index) => ({
+            slotId: getCompoundAstExternalObjectSlotId(index),
+            prefix: String(token || ""),
+            owner: "source-valence-frame",
+        }))
+        .filter((slot) => slot.prefix);
+}
+
+function buildCompoundAstRouteFrame(compoundAst = null) {
+    if (!compoundAst || typeof compoundAst !== "object") {
+        return null;
+    }
+    const embeds = Array.isArray(compoundAst.embeds) ? compoundAst.embeds : [];
+    const lexicalEmbeds = embeds.filter((entry) => entry?.kind === "lexical");
+    const sourceExternalObjectSlots = buildCompoundAstExternalObjectSlots(compoundAst);
+    const remainingExternalObjectSlots = sourceExternalObjectSlots
+        .map((slot) => ({ ...slot, owner: "unfixed-matrix-route-frame" }));
+    const matrixValence = String(compoundAst.valency?.transitivity || "");
+    const sourceFormula = lexicalEmbeds.length
+        ? "NNC + VNC = compound VNC"
+        : "VNC + VNC = compound VNC";
+    const routeFrame = {
+        kind: "andrews-compound-ast-route-frame",
+        version: 1,
+        sourceFormula,
+        andrewsSection: lexicalEmbeds.length ? "Andrews Lesson 30" : "Andrews Lesson 28",
+        generationStatus: "diagnostic-only",
+        generationAllowed: false,
+        sourcePrincipalVnc: {
+            role: "matrix",
+            stem: String(compoundAst.matrix?.stem || ""),
+            ruleBase: String(compoundAst.matrix?.ruleBase || compoundAst.matrix?.stem || ""),
+            matrixPosition: "after embed",
+            valence: matrixValence,
+            externalObjectSlots: sourceExternalObjectSlots.map((slot) => ({ ...slot })),
+        },
+        sourceAdjunctNnc: lexicalEmbeds[0]
+            ? {
+                role: String(lexicalEmbeds[0].role || ""),
+                stem: String(lexicalEmbeds[0].value || ""),
+                source: String(lexicalEmbeds[0].source || ""),
+            }
+            : null,
+        sourceAdjunctNncs: lexicalEmbeds.map((entry) => ({
+            role: String(entry.role || ""),
+            stem: String(entry.value || ""),
+            source: String(entry.source || ""),
+        })),
+        sourceEmbeds: embeds.map((entry) => ({
+            role: String(entry.role || ""),
+            kind: String(entry.kind || ""),
+            value: String(entry.value || ""),
+            source: String(entry.source || ""),
+        })),
+        matrixValence,
+        matrixValenceFrameFixed: false,
+        embedRole: embeds.length === 1 ? String(embeds[0]?.role || "") : "multiple-parser-embed-roles",
+        embedRoleStatus: "parser-role-unresolved-until-route-frame",
+        consumedObjectSlot: "",
+        consumedObjectSlotOwnedBy: "none",
+        valenceDelta: {
+            sourceExternalObjectSlotCount: sourceExternalObjectSlots.length,
+            consumedObjectSlotCount: 0,
+            remainingExternalObjectSlotCount: remainingExternalObjectSlots.length,
+            unresolvedUntilValenceFrameFixed: true,
+        },
+        sourceExternalObjectSlots,
+        remainingExternalObjectSlots,
+        routeFrameLicensesEmbedRole: false,
+        routeFrameLicensesObjectSlotOwnership: false,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+        objectSlotOwnership: {
+            kind: "compound-ast-object-slot-ownership-frame",
+            matrixValence,
+            matrixValenceFrameFixed: false,
+            matrixValenceFrameMustBeFixedBeforeObjectSlotOwnership: true,
+            routeFrameOwnsObjectSlotLicensing: false,
+            routeFrameLicensesObjectSlotOwnership: false,
+            sourceExternalObjectSlots: sourceExternalObjectSlots.map((slot) => ({ ...slot })),
+            remainingExternalObjectSlots: remainingExternalObjectSlots.map((slot) => ({ ...slot })),
+            consumedObjectSlot: "",
+            consumedObjectSlotOwnedBy: "none",
+            sourceExternalObjectSlotsOwnedBy: sourceExternalObjectSlots.length ? "source-valence-frame" : "none",
+            remainingExternalObjectSlotsOwnedBy: remainingExternalObjectSlots.length ? "unfixed-matrix-route-frame" : "none",
+            functionUseOwnsObjectSlots: false,
+            finalFormulaShapeOwnsObjectSlots: false,
+            functionUseMayAnnotateLicensedReadingsOnly: true,
+        },
+    };
+    return routeFrame;
 }
 
 function buildCompoundAstMetadata({
@@ -1808,6 +2126,10 @@ function buildCompoundAstMetadata({
             .map((value) => normalizeRuleBase(value))
             .filter(Boolean),
     };
+    const compoundRouteFrame = buildCompoundAstRouteFrame(compoundAst);
+    compoundAst.sourceRouteFrame = compoundRouteFrame;
+    compoundAst.routeFrame = compoundRouteFrame;
+    compoundAst.objectSlotOwnership = compoundRouteFrame?.objectSlotOwnership || null;
     return attachLesson28CompoundGrammarContract(compoundAst, {
         metadataKind: "compound-ast",
         routeStage: "parse-compound-ast",
@@ -1819,12 +2141,16 @@ function buildCompoundAstMetadata({
             sourceInput: compoundAst.source.rawInput,
             sourceSurface: compoundAst.source.displayVerb,
             parserKind: "current-regex",
+            sourceRouteFrame: compoundRouteFrame,
+            objectSlotOwnership: compoundRouteFrame?.objectSlotOwnership || null,
         },
         targetContract: {
             metadataKind: "compound-ast",
             generationAllowed: false,
             matrixStem: compoundAst.matrix.stem,
             embedRoles: compoundAst.embeds.map((entry) => entry.role),
+            routeFrame: compoundRouteFrame,
+            sourceRouteFrame: compoundRouteFrame,
             lesson28Coverage: "parser-metadata-only",
         },
         stemFrame: {
@@ -1833,6 +2159,19 @@ function buildCompoundAstMetadata({
             embeddedPieces: compoundAst.embeds,
             matrixPosition: "after embed",
             embedBeforeMatrixInviolable: true,
+            sourceRouteFrame: compoundRouteFrame,
+        },
+        participantFrame: {
+            valenceFrame: {
+                matrixValence: compoundRouteFrame?.matrixValence || "",
+                frameFixed: false,
+                valenceFrameFixed: false,
+                sourceLayer: "parser-compound-ast",
+            },
+            sourceRouteFrame: compoundRouteFrame,
+            routeFrame: compoundRouteFrame,
+            objectSlotOwnership: compoundRouteFrame?.objectSlotOwnership || null,
+            functionUseDoesNotLicenseObjectSlots: true,
         },
         diagnostics: ["compound-ast-parser-metadata-only"],
     });
@@ -4188,7 +4527,7 @@ function buildComposerStateFromMovingTargetParsed(parsed = null, rawValue = "") 
         .join("-");
     const outerValences = (Array.isArray(parsed.outerPieces) ? parsed.outerPieces : [])
         .filter((piece) => piece && piece.type === "valence" && piece.value)
-        .map((piece) => normalizeComposerSecondaryValenceSurfaceToken(piece.value) || normalizeComposerValenceToken(piece.value))
+        .map((piece) => normalizeEntradaGrammarValenceSurfaceToken(piece.value))
         .filter(Boolean);
     const adjacentCoreEmbed = getMovingTargetAdjacentEmbedParts(coreText);
     const normalizedCoreStem = normalizeComposerStem(coreText);

@@ -456,6 +456,97 @@ export function createNncCompoundApi(targetObject = globalThis) {
       }
       return Object.fromEntries(Object.entries(record).map(([key, value]) => [key, cloneCompoundNncLessonRecord(value)]));
     }
+    function buildLesson31CompoundNounstemObjectSlotOwnershipFrame({
+      embedRole = "",
+      matrixValence = "compound-nounstem-no-verbal-object-slots",
+      sourceExternalObjectSlots = [],
+      remainingExternalObjectSlots = []
+    } = {}) {
+      const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+      const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+      const resolvedMatrixValence = String(matrixValence || "").trim();
+      return {
+        kind: "lesson-31-compound-nounstem-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed: Boolean(resolvedMatrixValence),
+        consumedObjectSlot: "",
+        consumedObjectSlotOwnedBy: "none",
+        sourceExternalObjectSlots: sourceSlots.map(slot => ({
+          ...slot
+        })),
+        remainingExternalObjectSlots: remainingSlots.map(slot => ({
+          ...slot
+        })),
+        sourceExternalObjectSlotIds: sourceSlots.map(slot => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map(slot => String(slot?.slotId || "")).filter(Boolean),
+        sourceExternalObjectSlotsOwnedBy: sourceSlots.length ? "source-nnc-route-frame" : "none",
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length ? "matrix-route-frame" : "none",
+        embeddedRoleLicensedBy: embedRole ? "lesson-31-compound-nounstem-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: false,
+        objectSlotOwnershipAbsentByNncStateFrame: true,
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        objectSlotLicensingOrder: ["source-adjunct-nnc", "source-matrix-nnc", "compound-route-frame", "matrix-class-frame", "function-use-annotation"]
+      };
+    }
+    function buildLesson31CompoundNounstemRouteFrame({
+      embedRole = "compound-nounstem-embed",
+      structureType = "linked-or-integrated-compound",
+      finalFormulaShape = "NNC + NNC = compound NNC",
+      generationStatus = "diagnostic-only-nawat-evidence-required"
+    } = {}) {
+      const matrixValence = "compound-nounstem-no-verbal-object-slots";
+      const objectSlotOwnership = buildLesson31CompoundNounstemObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence
+      });
+      return {
+        kind: "lesson-31-compound-nounstem-route-frame",
+        version: 1,
+        sourcePrincipalNnc: {
+          formulaType: "CNN",
+          role: "matrix",
+          sourceSection: "Andrews 31.1-31.4",
+          governsCompoundClass: true
+        },
+        sourceAdjunctNnc: {
+          formulaType: "CNN",
+          role: String(embedRole || "").trim(),
+          sourceSection: "Andrews 31.1-31.2",
+          precedesMatrix: true
+        },
+        matrix: {
+          valence: matrixValence,
+          governsCompoundNounstemClass: true
+        },
+        matrixValence,
+        embedRole: String(embedRole || "").trim(),
+        structureType: String(structureType || "").trim(),
+        consumedObjectSlot: "",
+        sourceExternalObjectSlots: [],
+        remainingExternalObjectSlots: [],
+        remainingExternalObjectSlotIds: [],
+        objectSlotOwnership,
+        valenceDelta: {
+          incorporatedObjectSlots: 0,
+          complementSlots: 0,
+          adverbialFunctionSlots: 0,
+          remainingExternalObjectSlots: 0
+        },
+        andrewsSection: "Andrews 31.1-31.4",
+        generationStatus,
+        finalFormulaShape: String(finalFormulaShape || "").trim(),
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: false,
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true
+      };
+    }
     function getLesson31CompoundNounstemSubsectionInventory() {
       return LESSON31_COMPOUND_NOUNSTEM_SUBSECTION_INVENTORY.map(entry => ({
         ...entry,
@@ -486,6 +577,15 @@ export function createNncCompoundApi(targetObject = globalThis) {
       const recursiveFrame = cloneCompoundNncLessonRecord(LESSON31_COMPOUND_NOUNSTEM_RECURSIVE_FRAME);
       const specialFunctionFrame = cloneCompoundNncLessonRecord(LESSON31_COMPOUND_NOUNSTEM_SPECIAL_FUNCTION_FRAME);
       const pluralStemFrame = cloneCompoundNncLessonRecord(LESSON31_COMPOUND_NOUNSTEM_PLURAL_STEM_FRAME);
+      const compoundNounstemRouteFrame = buildLesson31CompoundNounstemRouteFrame({
+        embedRole: "compound-nounstem-embed",
+        structureType: "linked-or-integrated-compound",
+        finalFormulaShape: typeFrame.sourceFormula
+      });
+      typeFrame.routeFrame = compoundNounstemRouteFrame;
+      typeFrame.objectSlotOwnership = compoundNounstemRouteFrame.objectSlotOwnership;
+      meaningFrame.routeFrame = compoundNounstemRouteFrame;
+      matrixFrame.routeFrame = compoundNounstemRouteFrame;
       const remainingGaps = ["Current compound/affective NNC metadata is not a compound nounstem generator.", "NNC-specific AST parsing for matrix/embed orientation, linked versus integrated structure, conjunctive structure, and recursive segmentation remains partial.", "Possessor orientation, embed class behavior, unique fillers, special ca/yo matrices, sex/progeny/fellowship patterns, affinity stems, and distributive/varietal stems need explicit engine gates.", "Confirmed Nawat/Pipil compound nounstem examples and orthographic exceptions remain evidence-needed."];
       const frame = {
         kind: "lesson-31-compound-nounstem-pursuit-frame",
@@ -518,6 +618,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
         recursiveFrame,
         specialFunctionFrame,
         pluralStemFrame,
+        compoundNounstemRouteFrame,
         currentEngineBoundary: {
           compoundNncBoundaryMetadataImplemented: true,
           vncCompoundAstKeptSeparate: true,
@@ -574,6 +675,10 @@ export function createNncCompoundApi(targetObject = globalThis) {
           sourceFormula: typeFrame.sourceFormula,
           resultClauseKind: "compound NNC",
           compoundKinds: ["linked", "integrated", "conjunctive"]
+        },
+        participantFrame: {
+          compoundNounstemRouteFrame,
+          objectSlotOwnership: compoundNounstemRouteFrame.objectSlotOwnership
         },
         targetContract: {
           metadataKind: "lesson-31-compound-nounstem-pursuit-frame",
@@ -949,6 +1054,8 @@ export function createNncCompoundApi(targetObject = globalThis) {
         get() { return LESSON32_AFFECTIVE_NNC_SUBSECTION_INVENTORY; },
     });
     api.cloneCompoundNncLessonRecord = cloneCompoundNncLessonRecord;
+    api.buildLesson31CompoundNounstemObjectSlotOwnershipFrame = buildLesson31CompoundNounstemObjectSlotOwnershipFrame;
+    api.buildLesson31CompoundNounstemRouteFrame = buildLesson31CompoundNounstemRouteFrame;
     api.getLesson31CompoundNounstemSubsectionInventory = getLesson31CompoundNounstemSubsectionInventory;
     api.getLesson32AffectiveNncSubsectionInventory = getLesson32AffectiveNncSubsectionInventory;
     api.buildLesson31CompoundNounstemPursuitFrame = buildLesson31CompoundNounstemPursuitFrame;

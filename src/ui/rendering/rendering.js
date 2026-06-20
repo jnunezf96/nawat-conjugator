@@ -306,6 +306,163 @@ function normalizeVisibleCnvFormulaSurfaceZero(value = "") {
         .join("/");
 }
 
+function normalizeVisibleCnvFormulaSlotEchoForSurfaceLine(value = "") {
+    return String(value || "").replace(/Ø/g, "0");
+}
+
+function projectVisibleCnvFormulaEchoToSurface(value = "") {
+    return String(value || "")
+        .replace(/^Fórmula CNV:\s*/i, "")
+        .replace(/[>#]/g, "")
+        .replace(/[()]/g, "")
+        .replace(/[+\-]/g, "")
+        .replace(/[Ø0∅]/g, "")
+        .replace(/\s+/g, "")
+        .trim();
+}
+
+function projectVisibleCnvFormulaSegmentToSurface(value = "") {
+    return String(value || "")
+        .replace(/[()]/g, "")
+        .replace(/[+\-]/g, "")
+        .replace(/[Ø0∅]/g, "")
+        .replace(/\s+/g, "")
+        .trim();
+}
+
+function isVisibleCnvFormulaDirectionalPart(value = "") {
+    return ["wal", "al", "un"].includes(String(value || "").trim());
+}
+
+function alignVisibleCnvFormulaEchoToSurface(formulaEcho = "", surface = "", record = null) {
+    const formula = String(formulaEcho || "").trim();
+    const surfaceText = String(surface || "").replace(/\s+/g, "").trim();
+    if (!formula || !surfaceText || projectVisibleCnvFormulaEchoToSurface(formula) === surfaceText) {
+        return formula;
+    }
+    const match = formula.match(/^#([^+#()]*)(\+[^()]*)?\(([^)]*)\)([^+#]*)\+([^#]*)#$/);
+    if (!match) {
+        return formula;
+    }
+    const subjectText = match[1] || "";
+    let objectText = match[2] ? match[2].slice(1) : "";
+    const tenseText = match[4] || "0";
+    const connectorText = match[5] || "0-0";
+    const subjectSurface = projectVisibleCnvFormulaSegmentToSurface(subjectText);
+    let objectSurface = projectVisibleCnvFormulaSegmentToSurface(objectText);
+    let coreSurface = surfaceText;
+    if (subjectSurface && coreSurface.startsWith(subjectSurface)) {
+        coreSurface = coreSurface.slice(subjectSurface.length);
+    }
+    if (objectText === "k-in" && coreSurface.startsWith("kinh")) {
+        objectText = "k-inh";
+        objectSurface = "kinh";
+    }
+    if (objectSurface && coreSurface.startsWith(objectSurface)) {
+        coreSurface = coreSurface.slice(objectSurface.length);
+    }
+    const baseHint = getVisibleCnvFormulaPathRecordSurfaceValue(record, "base");
+    const tenseSurface = projectVisibleCnvFormulaSegmentToSurface(tenseText);
+    const connectorSurface = projectVisibleCnvFormulaSegmentToSurface(connectorText);
+    const suffixCandidates = [
+        { tense: tenseText, connector: connectorText },
+        ...(connectorSurface === "ki" ? [{ tense: tenseText, connector: "k-0" }] : []),
+        ...(connectorSurface ? [{ tense: tenseText, connector: "0-0" }] : []),
+    ];
+    const candidates = suffixCandidates
+        .map((candidate) => {
+            const suffixSurface = `${projectVisibleCnvFormulaSegmentToSurface(candidate.tense)}${projectVisibleCnvFormulaSegmentToSurface(candidate.connector)}`;
+            if (suffixSurface && !coreSurface.endsWith(suffixSurface)) {
+                return null;
+            }
+            const base = suffixSurface
+                ? coreSurface.slice(0, -suffixSurface.length)
+                : coreSurface;
+            if (!base) {
+                return null;
+            }
+            let score = 0;
+            if (candidate.connector === connectorText) {
+                score += 4;
+            }
+            if (projectVisibleCnvFormulaSegmentToSurface(candidate.connector)) {
+                score += 2;
+            }
+            if (baseHint) {
+                if (base === baseHint) {
+                    score += 10;
+                } else if (base.endsWith(baseHint)) {
+                    score += 7;
+                } else if (baseHint.startsWith(base)) {
+                    score += 4;
+                }
+            }
+            if (`${projectVisibleCnvFormulaSegmentToSurface(candidate.tense)}${projectVisibleCnvFormulaSegmentToSurface(candidate.connector)}` === `${tenseSurface}${connectorSurface}`) {
+                score += 1;
+            }
+            return {
+                formula: `#${subjectText}${objectText ? `+${objectText}` : ""}(${base})${candidate.tense}+${candidate.connector}#`,
+                score,
+            };
+        })
+        .filter(Boolean)
+        .sort((left, right) => right.score - left.score);
+    return candidates[0]?.formula || formula;
+}
+
+function getVisibleCnvFormulaSurfaceForms(source = null) {
+    const forms = typeof getConjugationSurfaceForms === "function"
+        ? getConjugationSurfaceForms(source)
+        : [];
+    if (forms.length) {
+        return forms;
+    }
+    const path = getVisibleCnvFormulaSurfacePath(source);
+    return (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [])
+        .map((record) => String(record?.surface || "").trim())
+        .filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+}
+
+function getVisibleCnvFormulaSurfaceDisplay(source = null) {
+    const forms = getVisibleCnvFormulaSurfaceForms(source);
+    if (forms.length) {
+        return forms.join(" / ");
+    }
+    return typeof getConjugationDisplaySurface === "function"
+        ? getConjugationDisplaySurface(source)
+        : "";
+}
+
+function normalizeGeneratedOutputVisibleCnvSlotValue(result = null, value = "") {
+    const normalized = String(value || "");
+    return getVisibleCnvFormulaSurfaceForms(result).length
+        ? normalizeVisibleCnvFormulaSlotEchoForSurfaceLine(normalized)
+        : normalized;
+}
+
+function visibleCnvFormulaEchoesCoverSurfaceForms(echoes = [], surfaceForms = []) {
+    const projectedSurfaces = (Array.isArray(echoes) ? echoes : [])
+        .map((entry) => projectVisibleCnvFormulaEchoToSurface(
+            typeof entry === "object" ? entry?.value : entry
+        ))
+        .filter(Boolean);
+    const normalizedSurfaceForms = (Array.isArray(surfaceForms) ? surfaceForms : [])
+        .map((entry) => String(entry || "").replace(/\s+/g, "").trim())
+        .filter(Boolean);
+    if (!normalizedSurfaceForms.length) {
+        return true;
+    }
+    return normalizedSurfaceForms.every((surface) => projectedSurfaces.includes(surface));
+}
+
+function dedupeVisibleCnvFormulaEchoEntries(entries = []) {
+    return (Array.isArray(entries) ? entries : [])
+        .filter((entry) => entry?.value)
+        .filter((entry, index, list) => list.findIndex((candidate) => (
+            candidate.value === entry.value && candidate.surface === entry.surface
+        )) === index);
+}
+
 function getVisibleCnvFormulaBaseRealizations(source = null) {
     const path = getVisibleCnvFormulaSurfacePath(source);
     const directRealizations = Array.isArray(path?.surfaceStemRealizations)
@@ -346,14 +503,17 @@ function getVisibleCnvFormulaConnectorRealizations(source = null) {
 }
 
 function getVisibleCnvFormulaPathRecordValue(record = null, slotKey = "") {
-    const match = (Array.isArray(record?.paths) ? record.paths : [])
-        .find((entry) => entry?.formulaSlotKey === slotKey);
+    const match = getVisibleCnvFormulaPathRecordEntry(record, slotKey);
     return String(match?.surfaceValue || "");
 }
 
-function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "") {
-    const match = (Array.isArray(record?.paths) ? record.paths : [])
+function getVisibleCnvFormulaPathRecordEntry(record = null, slotKey = "") {
+    return (Array.isArray(record?.paths) ? record.paths : [])
         .find((entry) => entry?.formulaSlotKey === slotKey);
+}
+
+function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "") {
+    const match = getVisibleCnvFormulaPathRecordEntry(record, slotKey);
     if (!match) {
         return "";
     }
@@ -371,10 +531,54 @@ function getVisibleCnvFormulaPathRecordSurfaceValue(record = null, slotKey = "")
     return formulaMorph;
 }
 
+function getVisibleCnvFormulaPathRecordVisibleObjectMorph(record = null, fallbackObjectText = "") {
+    const va = getVisibleCnvFormulaPathRecordEntry(record, "va");
+    if (va) {
+        return String(va.surfaceValue || va.formulaMorph || fallbackObjectText || "");
+    }
+    const va1 = getVisibleCnvFormulaPathRecordEntry(record, "va1");
+    const va2 = getVisibleCnvFormulaPathRecordEntry(record, "va2");
+    if (!va1 && !va2) {
+        return "";
+    }
+    const visible = String(va1?.visibleLinearMorph || va2?.visibleLinearMorph || fallbackObjectText || "");
+    const va2Formula = String(va2?.formulaMorph || "");
+    const va2Surface = String(va2?.surfaceValue || "");
+    if (
+        visible
+        && va2Formula
+        && va2Surface
+        && va2Surface !== "0"
+        && va2Surface !== "Ø"
+        && va2Surface !== va2Formula
+        && visible.endsWith(va2Formula)
+    ) {
+        return `${visible.slice(0, -va2Formula.length)}${va2Surface}`;
+    }
+    return visible;
+}
+
 function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
     let formula = String(formulaEcho || "").trim();
     if (!formula) {
         return "";
+    }
+    const prePredicateMatch = formula.match(/^#([^+#()]*)(?:\+([^()]*))?(\()/);
+    const prePredicateParts = String(prePredicateMatch?.[2] || "")
+        .split("+")
+        .map((part) => part.trim())
+        .filter(Boolean);
+    const directionalIndex = prePredicateParts.findIndex((part) => isVisibleCnvFormulaDirectionalPart(part));
+    const objectText = prePredicateParts
+        .filter((part, index) => index !== directionalIndex)
+        .join("+");
+    const objectMorph = getVisibleCnvFormulaPathRecordVisibleObjectMorph(record, objectText);
+    if (objectMorph) {
+        const directionalText = directionalIndex >= 0 ? prePredicateParts[directionalIndex] : "";
+        const nextPrePredicateParts = directionalText
+            ? (directionalIndex > 0 ? [objectMorph, directionalText] : [directionalText, objectMorph])
+            : [objectMorph];
+        formula = formula.replace(/^#([^+#()]*)(?:\+[^()]*)?(\()/, `#$1+${nextPrePredicateParts.join("+")}$2`);
     }
     const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1");
     const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2");
@@ -398,19 +602,55 @@ function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
     return formula;
 }
 
+function getVisibleCnvFormulaEchoEntries(formulaEcho = "", source = null) {
+    const formula = String(formulaEcho || "").trim();
+    if (!formula) {
+        return [];
+    }
+    const surfaceForms = getVisibleCnvFormulaSurfaceForms(source);
+    const surfaceDisplay = surfaceForms.join(" / ");
+    const slotEcho = getVisibleCnvFormulaSurfaceForms(source).length
+        ? normalizeVisibleCnvFormulaSlotEchoForSurfaceLine(formula)
+        : formula;
+    const slotEntries = [{
+        value: surfaceForms.length === 1
+            ? alignVisibleCnvFormulaEchoToSurface(slotEcho, surfaceForms[0])
+            : slotEcho,
+        surface: surfaceDisplay,
+    }];
+    if (!surfaceForms.length || visibleCnvFormulaEchoesCoverSurfaceForms(slotEntries, surfaceForms)) {
+        return dedupeVisibleCnvFormulaEchoEntries(slotEntries);
+    }
+    const path = getVisibleCnvFormulaSurfacePath(source);
+    const surfaceSet = new Set(surfaceForms);
+    const pathEntries = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [])
+        .filter((record) => surfaceSet.has(String(record?.surface || "").trim()))
+        .map((record) => ({
+            value: alignVisibleCnvFormulaEchoToSurface(
+                formatVisibleCnvFormulaEchoForPath(formula, record),
+                String(record?.surface || "").trim(),
+                record
+            ),
+            surface: String(record?.surface || "").trim(),
+        }));
+    const alignedEntries = dedupeVisibleCnvFormulaEchoEntries(pathEntries);
+    if (alignedEntries.length) {
+        return alignedEntries;
+    }
+    return dedupeVisibleCnvFormulaEchoEntries([
+        ...alignedEntries,
+        ...slotEntries,
+    ]);
+}
+
 function getVisibleCnvFormulaEchoes(formulaEcho = "", source = null) {
     const formula = String(formulaEcho || "").trim();
     if (!formula) {
         return [];
     }
-    const path = getVisibleCnvFormulaSurfacePath(source);
-    const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
-    if (pathRecords.length) {
-        return pathRecords
-            .map((record) => formatVisibleCnvFormulaEchoForPath(formula, record))
-            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
-    }
-    return [formula];
+    return getVisibleCnvFormulaEchoEntries(formula, source)
+        .map((entry) => entry.value)
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
 }
 
 function formatVisibleCnvFormulaEcho(formulaEcho = "", source = null) {
@@ -422,14 +662,6 @@ function formatVisibleCnvFormulaEcho(formulaEcho = "", source = null) {
     if (!formula) {
         return "";
     }
-    const baseRealizations = getVisibleCnvFormulaBaseRealizations(source);
-    if (baseRealizations.length) {
-        formula = formula.replace(/\(([^)]*)\)/, `(${baseRealizations.join("/")})`);
-    }
-    const connectorRealizations = getVisibleCnvFormulaConnectorRealizations(source);
-    if (connectorRealizations.length) {
-        formula = formula.replace(/\+([^+#]*)#$/, `+${connectorRealizations.join("/")}#`);
-    }
     return formula;
 }
 
@@ -438,22 +670,7 @@ function buildVisibleCnvFormulaEchoChips(formulaEcho = "", source = null) {
     if (!formula) {
         return [];
     }
-    const path = getVisibleCnvFormulaSurfacePath(source);
-    const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
-    if (!pathRecords.length) {
-        return [{
-            value: formatVisibleCnvFormulaEcho(formula, source),
-            surface: "",
-        }];
-    }
-    return pathRecords
-        .map((record) => ({
-            value: formatVisibleCnvFormulaEchoForPath(formula, record),
-            surface: String(record?.surface || "").trim(),
-        }))
-        .filter((entry, index, list) => entry.value && list.findIndex((candidate) => (
-            candidate.value === entry.value && candidate.surface === entry.surface
-        )) === index);
+    return getVisibleCnvFormulaEchoEntries(formula, source);
 }
 
 function createLesson4InspectorPanel(title = "", sourceLabel = "") {
@@ -3133,23 +3350,19 @@ function buildGeneratedOutputSlotPredicateValue(predicateSlot = null) {
 }
 
 function buildGeneratedOutputVisibleCnvPredicateValue(result = null, predicateSlot = null) {
-    const baseRealizations = getVisibleCnvFormulaBaseRealizations(result);
-    if (baseRealizations.length) {
-        return buildGeneratedOutputSlotPredicateValue({
-            displayStem: baseRealizations.join("/"),
-        });
-    }
-    return buildGeneratedOutputSlotPredicateValue(predicateSlot);
+    return normalizeGeneratedOutputVisibleCnvSlotValue(
+        result,
+        buildGeneratedOutputSlotPredicateValue(predicateSlot)
+    );
 }
 
 function buildGeneratedOutputVisibleCnvConnectorValue(result = null, connectorSlot = null) {
-    const connectorRealizations = getVisibleCnvFormulaConnectorRealizations(result);
-    if (connectorRealizations.length) {
-        return connectorRealizations.join("/");
-    }
-    return normalizeGeneratedOutputSlotChipValue(
-        connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "",
-        "Ø-Ø"
+    return normalizeGeneratedOutputVisibleCnvSlotValue(
+        result,
+        normalizeGeneratedOutputSlotChipValue(
+            connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "",
+            "Ø-Ø"
+        )
     );
 }
 
@@ -3197,25 +3410,10 @@ function buildGeneratedOutputVncSubjectValue(subjectSlot = null) {
 }
 
 function buildGeneratedOutputVisibleCnvSubjectValue(result = null, subjectSlot = null) {
-    const path = getVisibleCnvFormulaSurfacePath(result);
-    const pathRecords = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
-    const records = pathRecords.length
-        ? pathRecords
-        : (Array.isArray(path?.paths) ? [{ paths: path.paths }] : []);
-    if (!records.length) {
-        return buildGeneratedOutputVncSubjectValue(subjectSlot);
-    }
-    const values = records
-        .map((record) => {
-            const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1") || "0";
-            const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2") || "0";
-            return `${pers1}-${pers2}`;
-        })
-        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
-    if (!values.length) {
-        return buildGeneratedOutputVncSubjectValue(subjectSlot);
-    }
-    return values.join("/");
+    return normalizeGeneratedOutputVisibleCnvSlotValue(
+        result,
+        buildGeneratedOutputVncSubjectValue(subjectSlot)
+    );
 }
 
 function getGeneratedOutputFormulaSlot(slots = null, canonicalKey = "") {
@@ -3232,6 +3430,7 @@ const ANDREWS_RENDERING_TERMS = Object.freeze({
     vncFormula: "Fórmula CNV",
     nncFormula: "Fórmula CNN",
     pers1Pers2: "persona1-persona2",
+    directional: "direccional",
     obj1: "objeto 1",
     obj2: "objeto 2",
     obj3: "objeto 3",
@@ -3333,7 +3532,17 @@ function parseGeneratedOutputVncFormulaEchoSlots(formulaEcho = "") {
         const numberDisplay = rawNumberDisplay.includes("-") ? rawNumberDisplay : `Ø-${rawNumberDisplay}`;
         const plusIndex = head.indexOf("+");
         const subjectDisplay = (plusIndex >= 0 ? head.slice(0, plusIndex) : head).trim() || "Ø-Ø";
-        const objectDisplay = plusIndex >= 0 ? head.slice(plusIndex + 1).trim() : "";
+        const prePredicateParts = plusIndex >= 0
+            ? head.slice(plusIndex + 1).split("+")
+                .map((part) => part.trim())
+                .filter(Boolean)
+            : [];
+        const directionalIndex = prePredicateParts.findIndex((part) => isVisibleCnvFormulaDirectionalPart(part));
+        const directionalDisplay = directionalIndex >= 0 ? prePredicateParts[directionalIndex] : "";
+        const directionalPosition = directionalIndex > 0 ? "after-object" : "before-object";
+        const objectDisplay = prePredicateParts
+            .filter((part, index) => index !== directionalIndex)
+            .join("+");
         const subjectParts = subjectDisplay.split("-");
         const subjectPrefixDisplay = subjectParts[0] || "Ø";
         const subjectCaseDisplay = subjectParts.slice(1).join("-") || "Ø";
@@ -3352,6 +3561,12 @@ function parseGeneratedOutputVncFormulaEchoSlots(formulaEcho = "") {
                 displayPrefix: objectDisplay || "Ø",
                 prefix: !objectDisplay || objectDisplay === "Ø" ? "" : objectDisplay.split("-")[0],
                 slot: "obj1",
+            },
+            directional: {
+                displayPrefix: directionalDisplay || "Ø",
+                prefix: directionalDisplay,
+                position: directionalPosition,
+                slot: "directional",
             },
             predicateStem: {
                 displayStem: predicateDisplay,
@@ -3454,6 +3669,7 @@ function mergeGeneratedOutputFormulaSlots(primarySlots = null, fallbackSlots = n
         obj2: primarySlots.obj2 || fallbackSlots.obj2,
         obj3: primarySlots.obj3 || fallbackSlots.obj3,
         reflexivo: primarySlots.reflexivo || fallbackSlots.reflexivo,
+        directional: primarySlots.directional || fallbackSlots.directional,
         predicateStem: primarySlots.predicateStem || fallbackSlots.predicateStem,
         tensePosition: primarySlots.tensePosition || fallbackSlots.tensePosition,
         num1Num2: primarySlots.num1Num2 || fallbackSlots.num1Num2,
@@ -3679,10 +3895,21 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
         const object2Slot = getGeneratedOutputFormulaSlot(slots, "obj2") || result.vncValencyFrame?.obj2 || null;
         const object3Slot = getGeneratedOutputFormulaSlot(slots, "obj3") || result.vncValencyFrame?.obj3 || null;
         const reflexiveSlot = getGeneratedOutputFormulaSlot(slots, "reflexivo") || null;
+        const directionalSlot = getGeneratedOutputFormulaSlot(slots, "directional") || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || null;
         const tenseSlot = getGeneratedOutputFormulaSlot(slots, "tensePosition") || null;
         const connectorSlot = getGeneratedOutputFormulaSlot(slots, "num1Num2") || null;
         pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVisibleCnvSubjectValue(result, subjectSlot));
+        if (directionalSlot?.isPresent || (directionalSlot?.prefix && directionalSlot.prefix !== "Ø")) {
+            pushChip(
+                "directional",
+                ANDREWS_RENDERING_TERMS.directional,
+                normalizeGeneratedOutputSlotChipValue(
+                    directionalSlot?.displayPrefix || directionalSlot?.prefix || "",
+                    ""
+                )
+            );
+        }
         pushChip(
             "obj1",
             ANDREWS_RENDERING_TERMS.obj1,

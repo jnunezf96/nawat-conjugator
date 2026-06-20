@@ -219,6 +219,23 @@ function run(ctx) {
             specialFunctions: lesson31Frame.specialFunctionFrame.functions.map((entry) => entry.id),
             affinityTargetsBoth: lesson31Frame.pluralStemFrame.affinity.reduplicationMayTargetBoth,
             distributiveTargetsEmbed: lesson31Frame.pluralStemFrame.distributiveVarietal.reduplicationTargetsEmbed,
+            routeFrame: {
+                kind: lesson31Frame.compoundNounstemRouteFrame.kind,
+                sourcePrincipal: lesson31Frame.compoundNounstemRouteFrame.sourcePrincipalNnc.formulaType,
+                sourceAdjunct: lesson31Frame.compoundNounstemRouteFrame.sourceAdjunctNnc.formulaType,
+                embedRole: lesson31Frame.compoundNounstemRouteFrame.embedRole,
+                matrixValence: lesson31Frame.compoundNounstemRouteFrame.matrixValence,
+                consumedObjectSlot: lesson31Frame.compoundNounstemRouteFrame.consumedObjectSlot,
+                valenceDelta: lesson31Frame.compoundNounstemRouteFrame.valenceDelta,
+                finalFormulaShape: lesson31Frame.compoundNounstemRouteFrame.finalFormulaShape,
+                finalFormulaShapeDoesNotLicenseRole: lesson31Frame.compoundNounstemRouteFrame.finalFormulaShapeDoesNotLicenseRole,
+                routeFrameLicensesObjectSlotOwnership: lesson31Frame.compoundNounstemRouteFrame.routeFrameLicensesObjectSlotOwnership,
+                routeFrameOwnsObjectSlotLicensing: lesson31Frame.compoundNounstemRouteFrame.objectSlotOwnership.routeFrameOwnsObjectSlotLicensing,
+                objectSlotOwnershipAbsentByNncStateFrame: lesson31Frame.compoundNounstemRouteFrame.objectSlotOwnership.objectSlotOwnershipAbsentByNncStateFrame,
+                functionUseOwnsObjectSlots: lesson31Frame.compoundNounstemRouteFrame.objectSlotOwnership.functionUseOwnsObjectSlots,
+                sourceRouteFrameRequired: lesson31Frame.compoundNounstemRouteFrame.sourceRouteFrameRequired,
+                generationStatus: lesson31Frame.compoundNounstemRouteFrame.generationStatus,
+            },
         },
         {
             formula: "NNC + NNC = compound NNC",
@@ -250,6 +267,28 @@ function run(ctx) {
             ],
             affinityTargetsBoth: true,
             distributiveTargetsEmbed: true,
+            routeFrame: {
+                kind: "lesson-31-compound-nounstem-route-frame",
+                sourcePrincipal: "CNN",
+                sourceAdjunct: "CNN",
+                embedRole: "compound-nounstem-embed",
+                matrixValence: "compound-nounstem-no-verbal-object-slots",
+                consumedObjectSlot: "",
+                valenceDelta: {
+                    incorporatedObjectSlots: 0,
+                    complementSlots: 0,
+                    adverbialFunctionSlots: 0,
+                    remainingExternalObjectSlots: 0,
+                },
+                finalFormulaShape: "NNC + NNC = compound NNC",
+                finalFormulaShapeDoesNotLicenseRole: true,
+                routeFrameLicensesObjectSlotOwnership: false,
+                routeFrameOwnsObjectSlotLicensing: false,
+                objectSlotOwnershipAbsentByNncStateFrame: true,
+                functionUseOwnsObjectSlots: false,
+                sourceRouteFrameRequired: true,
+                generationStatus: "diagnostic-only-nawat-evidence-required",
+            },
         }
     );
     s.eq(
@@ -264,6 +303,8 @@ function run(ctx) {
             stemKind: lesson31Frame.frames.stemFrame.stemKind,
             sourceFormula: lesson31Frame.frames.stemFrame.sourceFormula,
             resultClauseKind: lesson31Frame.frames.nuclearClauseFrame.resultClauseKind,
+            participantRouteKind: lesson31Frame.frames.participantFrame.compoundNounstemRouteFrame.kind,
+            participantOwnershipKind: lesson31Frame.frames.participantFrame.objectSlotOwnership.kind,
         },
         {
             routeFamily: "compound-nnc",
@@ -275,6 +316,8 @@ function run(ctx) {
             stemKind: "compound-nounstem",
             sourceFormula: "NNC + NNC = compound NNC",
             resultClauseKind: "compound NNC",
+            participantRouteKind: "lesson-31-compound-nounstem-route-frame",
+            participantOwnershipKind: "lesson-31-compound-nounstem-object-slot-ownership-frame",
         }
     );
 

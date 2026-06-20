@@ -408,6 +408,10 @@ function buildDerivationContinuationObjectSlotOwnershipFrame({
         matrixValenceFrameFixed,
         consumedObjectSlot: String(consumedObjectSlot || "").trim(),
         consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        sourceExternalObjectSlotIds: sourceSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
         sourceExternalObjectSlotsOwnedBy: sourceSlots.length
             ? "source-principal-vnc-formula-frame"
             : "none",

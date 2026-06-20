@@ -438,6 +438,105 @@ function cloneAdjectivalNncLessonRecord(record) {
     );
 }
 
+function buildLesson41CompoundSourceObjectSlotOwnershipFrame({
+    embedRole = "",
+    matrixValence = "",
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const resolvedMatrixValence = String(matrixValence || "").trim();
+    return {
+        kind: "lesson-41-compound-source-object-slot-ownership-frame",
+        version: 1,
+        embedRole: String(embedRole || "").trim(),
+        matrixValence: resolvedMatrixValence,
+        matrixValenceFrameFixed: Boolean(resolvedMatrixValence),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        consumedObjectSlotOwnedBy: consumedObjectSlot ? "route-frame" : "none",
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        sourceExternalObjectSlotIds: sourceSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        remainingExternalObjectSlotsOwnedBy: remainingSlots.length ? "matrix-route-frame" : "none",
+        embeddedRoleLicensedBy: embedRole ? "lesson-41-compound-source-route-frame" : "none",
+        routeFrameOwnsObjectSlotLicensing: Boolean(resolvedMatrixValence),
+        functionUseOwnsObjectSlots: false,
+        finalFormulaShapeOwnsObjectSlots: false,
+        functionUseMayAnnotateLicensedReadingsOnly: true,
+        objectSlotLicensingOrder: [
+            "source-compound-vnc",
+            "source-adjunct-nnc",
+            "matrix-valence-frame",
+            "route-frame",
+            "function-use-annotation",
+        ],
+    };
+}
+
+function buildLesson41CompoundSourceRouteFrame({
+    sourceSection = "Andrews 41.2",
+    embedRole = "",
+    matrixValence = "",
+    matrixFamilies = [],
+    consumedObjectSlot = "",
+    sourceExternalObjectSlots = [],
+    remainingExternalObjectSlots = [],
+    valenceDelta = {},
+    generationStatus = "diagnostic-only-nawat-evidence-required",
+} = {}) {
+    const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
+    const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
+    const objectSlotOwnership = buildLesson41CompoundSourceObjectSlotOwnershipFrame({
+        embedRole,
+        matrixValence,
+        consumedObjectSlot,
+        sourceExternalObjectSlots: sourceSlots,
+        remainingExternalObjectSlots: remainingSlots,
+    });
+    return {
+        kind: "lesson-41-compound-source-route-frame",
+        version: 1,
+        sourcePrincipalVnc: {
+            formulaType: "CNV",
+            sourceKind: "compound-verbstem",
+            sourceSection: String(sourceSection || ""),
+            surface: "",
+            generationStatus,
+        },
+        sourceAdjunctNnc: {
+            formulaType: "CNN",
+            stemKind: "nominal-embed",
+            role: String(embedRole || "").trim(),
+            sourceSection: String(sourceSection || ""),
+        },
+        matrix: {
+            valence: String(matrixValence || "").trim(),
+            families: Array.from(matrixFamilies || []),
+            convertedToMatrixNounstem: true,
+        },
+        matrixValence,
+        embedRole: String(embedRole || "").trim(),
+        consumedObjectSlot: String(consumedObjectSlot || "").trim(),
+        sourceExternalObjectSlots: sourceSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlots: remainingSlots.map((slot) => ({ ...slot })),
+        remainingExternalObjectSlotIds: remainingSlots.map((slot) => String(slot?.slotId || "")).filter(Boolean),
+        objectSlotOwnership,
+        valenceDelta: { ...valenceDelta },
+        andrewsSection: String(sourceSection || ""),
+        generationStatus,
+        routeFrameLicensesEmbedRole: true,
+        routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true,
+        finalFormulaShape: "compound-verbstem-nominal-embed-adjectival-nnc",
+        finalFormulaShapeDoesNotLicenseRole: true,
+        finalFormulaShapeDoesNotLicenseObjectSlots: true,
+        functionUseDoesNotLicenseObjectSlots: true,
+        sourceRouteFrameRequired: true,
+    };
+}
+
 function getLesson40AdjectivalNncSubsectionInventory() {
     return LESSON40_ADJECTIVAL_NNC_SUBSECTION_INVENTORY.map((entry) => ({
         ...entry,
@@ -811,6 +910,56 @@ function buildLesson41AdjectivalNncPursuitFrame() {
     const compoundVerbstemNominalEmbedFrame = cloneAdjectivalNncLessonRecord(LESSON41_COMPOUND_VERBSTEM_NOMINAL_EMBED_FRAME);
     const denominalCompoundNounstemFrame = cloneAdjectivalNncLessonRecord(LESSON41_DENOMINAL_COMPOUND_NOUNSTEM_FRAME);
     const adjectivalEmbedCompoundNncFrame = cloneAdjectivalNncLessonRecord(LESSON41_ADJECTIVAL_EMBED_COMPOUND_NNC_FRAME);
+    const incorporatedAdverbRouteFrame = buildLesson41CompoundSourceRouteFrame({
+        sourceSection: "Andrews 41.2.1",
+        embedRole: "incorporated-adverb",
+        matrixValence: "compound-verbstem-adverbial-source-matrix-valence",
+        matrixFamilies: ["lesson30-7-12-adverb-source", "lesson30-14-supplementation-source"],
+        consumedObjectSlot: "",
+        valenceDelta: {
+            incorporatedObjectSlots: 0,
+            complementSlots: 0,
+            adverbialFunctionSlots: 1,
+            remainingExternalObjectSlots: 0,
+        },
+    });
+    const incorporatedComplementRouteFrame = buildLesson41CompoundSourceRouteFrame({
+        sourceSection: "Andrews 41.2.2",
+        embedRole: "incorporated-complement",
+        matrixValence: "compound-verbstem-complement-source-matrix-valence",
+        matrixFamilies: ["rare-incorporated-complement-source"],
+        consumedObjectSlot: "complement-slot",
+        valenceDelta: {
+            incorporatedObjectSlots: 0,
+            complementSlots: 1,
+            adverbialFunctionSlots: 0,
+            remainingExternalObjectSlots: 0,
+        },
+    });
+    const incorporatedObjectRouteFrame = buildLesson41CompoundSourceRouteFrame({
+        sourceSection: "Andrews 41.2.3",
+        embedRole: "incorporated-object",
+        matrixValence: "compound-verbstem-object-source-matrix-valence",
+        matrixFamilies: ["patientive-impersonal-source", "patientive-passive-source"],
+        consumedObjectSlot: "obj1",
+        valenceDelta: {
+            incorporatedObjectSlots: 1,
+            complementSlots: 0,
+            adverbialFunctionSlots: 0,
+            remainingExternalObjectSlots: 0,
+        },
+    });
+    compoundVerbstemNominalEmbedFrame.incorporatedAdverbFrame.routeFrame = incorporatedAdverbRouteFrame;
+    compoundVerbstemNominalEmbedFrame.incorporatedAdverbFrame.objectSlotOwnership = incorporatedAdverbRouteFrame.objectSlotOwnership;
+    compoundVerbstemNominalEmbedFrame.incorporatedComplementFrame.routeFrame = incorporatedComplementRouteFrame;
+    compoundVerbstemNominalEmbedFrame.incorporatedComplementFrame.objectSlotOwnership = incorporatedComplementRouteFrame.objectSlotOwnership;
+    compoundVerbstemNominalEmbedFrame.incorporatedObjectFrame.routeFrame = incorporatedObjectRouteFrame;
+    compoundVerbstemNominalEmbedFrame.incorporatedObjectFrame.objectSlotOwnership = incorporatedObjectRouteFrame.objectSlotOwnership;
+    compoundVerbstemNominalEmbedFrame.routeFrames = [
+        incorporatedAdverbRouteFrame,
+        incorporatedComplementRouteFrame,
+        incorporatedObjectRouteFrame,
+    ];
     const remainingGaps = [
         "Current Lesson 41 adjectival NNC support is partial and does not exhaust intensified-stem families, pah/cal/tzon/affective matrix intensification, metaphor or simile intensification, all compound-verbstem source subtypes, or adjectival nounstems embedded in compound-stemmed NNCs.",
         "The current intensified route only works from generated formula slots and does not implement every Andrews matrix, internal expansion, sound-symbolic, affective, metaphorical, or syntactic-intensifier path.",
@@ -902,6 +1051,11 @@ function buildLesson41AdjectivalNncPursuitFrame() {
             semanticRole: "intensified modifier/predicate-quality candidate",
             embeddedNounstemCannotBeSubjectOfCompound: true,
             underlyingSourceCompoundRequiredForPatientiveDisambiguation: true,
+            compoundSourceRouteFrames: [
+                incorporatedAdverbRouteFrame,
+                incorporatedComplementRouteFrame,
+                incorporatedObjectRouteFrame,
+            ],
         },
         targetContract: {
             metadataKind: "lesson-41-adjectival-nnc-pursuit-frame",
