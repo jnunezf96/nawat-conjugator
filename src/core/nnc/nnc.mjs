@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/nnc/nnc.js.
 
-export function createNncApi(targetObject = globalThis) {
+export function createNncModule(targetObject = globalThis) {
     const ORDINARY_NNC_STATE = Object.freeze({
       absolutive: "absolutive",
       possessive: "possessive"
@@ -1152,6 +1152,9 @@ export function createNncApi(targetObject = globalThis) {
           break;
         default:
           break;
+      }
+      if (targetObject.isPredicateNominalTense(kind)) {
+        refs.push("Andrews 36.6 note 2");
       }
       return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
@@ -3782,6 +3785,226 @@ export function createNncApi(targetObject = globalThis) {
     function resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix = "", subjectSuffix = "") {
       return resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
     }
+    function isInstrumentivoImperfectActiveAbsolutiveMode(mode = "") {
+      return String(mode || "") === "absolutivo-imperfecto-activo" || String(mode || "") === String(targetObject.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo || "");
+    }
+    function getPredicateNominalResult({
+      rawVerb,
+      verbMeta,
+      subjectPrefix,
+      subjectSuffix,
+      objectPrefix,
+      indirectObjectMarker = "",
+      thirdObjectMarker = "",
+      nominalKind = targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+      sourceTense = "imperfecto",
+      nominalConnector = "t",
+      combinedMode = "",
+      entradaGrammarObject = null,
+      sourceFrame = null,
+      sourceRouteFrame = null,
+      routeFrame = null,
+      valenceFrameFixed = null,
+      sourceValenceFrameFixed = null
+    }) {
+      const resolvedSourceTense = targetObject.normalizePredicateNominalSourceTense(sourceTense);
+      const resolvedNominalKind = targetObject.isPredicateNominalTense(nominalKind) ? String(nominalKind || "") : targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal;
+      const resolvedMode = combinedMode || targetObject.COMBINED_MODE.active;
+      const isNonactive = resolvedMode === targetObject.COMBINED_MODE.nonactive;
+      const context = targetObject.buildVerbDerivedNominalBuilderContext({
+        kind: resolvedNominalKind,
+        rawVerb,
+        verbMeta,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker,
+        combinedMode: resolvedMode
+      });
+      if (context.error) {
+        return buildVerbDerivedNominalBlockedResult({
+          kind: targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+          rawVerb,
+          diagnosticId: "predicado-nominal-context-blocked"
+        });
+      }
+      const {
+        nounSourceModel,
+        directionalPrefix,
+        derivedIsYawi,
+        derivedIsWeya,
+        derivationIsTransitive,
+        resolvedDirectionalRuleMode,
+        forwardStemContexts,
+        objectPrefix: resolvedObjectPrefix,
+        indirectObjectMarker: resolvedIndirectObjectMarker,
+        thirdObjectMarker: resolvedThirdObjectMarker
+      } = context;
+      const nonactivePassiveObjectPrefix = isNonactive ? targetObject.applyPassiveImpersonal({
+        pers1: subjectPrefix,
+        pers2: subjectSuffix,
+        obj1: resolvedObjectPrefix
+      }).obj1 : resolvedObjectPrefix;
+      if (isNonactive && nonactivePassiveObjectPrefix !== resolvedObjectPrefix) {
+        const predicateNominalObjectSlotGate = typeof targetObject.buildGenerationValencyObjectSlotMutationGate === "function" ? targetObject.buildGenerationValencyObjectSlotMutationGate({
+          operation: "predicate-nominal-nonactive-source-object-adjustment",
+          mutationKind: nonactivePassiveObjectPrefix ? "reclassify-object-slot" : "delete-object-slot",
+          sourceObj1: resolvedObjectPrefix,
+          sourceBaseObj1: resolvedObjectPrefix,
+          sourceObj2: resolvedIndirectObjectMarker,
+          sourceObj3: resolvedThirdObjectMarker,
+          targetObj1: nonactivePassiveObjectPrefix,
+          targetBaseObj1: nonactivePassiveObjectPrefix,
+          targetObj2: resolvedIndirectObjectMarker,
+          targetObj3: resolvedThirdObjectMarker,
+          options: {
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed,
+            requireFixedValenceFrame: true
+          }
+        }) : null;
+        if (predicateNominalObjectSlotGate?.status === "blocked") {
+          return attachVerbDerivedNominalGrammarContract({
+            error: true,
+            valencyObjectSlotGate: predicateNominalObjectSlotGate
+          }, {
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+            rawVerb,
+            diagnosticId: predicateNominalObjectSlotGate.diagnosticId,
+            routeStage: predicateNominalObjectSlotGate.routeStage
+          });
+        }
+      }
+      const connector = String(nominalConnector || "t");
+      const entries = [];
+      forwardStemContexts.forEach(stemContext => {
+        let sourceStemEntries = [{
+          stemSpec: stemContext.stemSpec || targetObject.buildLiteralMorphStemSpec(stemContext.verb),
+          stem: stemContext.verb,
+          analysisVerb: stemContext.analysisVerb,
+          isYawi: derivedIsYawi,
+          isWeya: derivedIsWeya
+        }];
+        if (isNonactive) {
+          const nonactiveSourceChain = targetObject.buildNonactiveSourceChain(verbMeta, stemContext.verb, stemContext.analysisVerb);
+          const nonactiveBaseVerb = targetObject.normalizeDerivationStemValue(nonactiveSourceChain?.baseVerb || "");
+          const nonactiveRuleBase = targetObject.getNounNonactiveRuleBase(nonactiveBaseVerb, verbMeta);
+          const selection = targetObject.resolveNonactiveStemSelection(nonactiveBaseVerb, nonactiveBaseVerb, {
+            isTransitive: derivationIsTransitive,
+            isYawi: derivedIsYawi,
+            forceAll: targetObject.shouldForceAllNonactiveOptions(),
+            ruleBase: nonactiveRuleBase,
+            rootPlusYaBase: verbMeta.rootPlusYaBase
+          });
+          const selectedStemSpecList = Array.isArray(selection.selectedStemSpecs) ? selection.selectedStemSpecs.filter(Boolean) : [];
+          const rawStemSpecs = !selection.selectedSuffix && Array.isArray(selection.allStemSpecs) && selection.allStemSpecs.length > 1 ? selection.allStemSpecs : selection.selectedSuffix && selectedStemSpecList.length > 1 ? selectedStemSpecList : [selection.selectedStemSpec || targetObject.buildLiteralMorphStemSpec(selection.selectedStem)];
+          sourceStemEntries = rawStemSpecs.map((spec, index) => {
+            const sourceStemSpec = targetObject.applyNonactiveSourceChainStemSpec(spec, Array.isArray(selection.selectedStems) ? selection.selectedStems[index] || selection.selectedStem || "" : selection.selectedStem || "", nonactiveSourceChain, {
+              sourceSuffix: selection.selectedSuffix || ""
+            });
+            const stem = targetObject.realizeMorphStemSpec(sourceStemSpec, "");
+            if (!stem) {
+              return null;
+            }
+            return {
+              stemSpec: sourceStemSpec,
+              stem,
+              analysisVerb: targetObject.stripDirectionalPrefixFromStem(stem, directionalPrefix),
+              isYawi: false,
+              isWeya: false
+            };
+          }).filter(Boolean);
+        }
+        if (!sourceStemEntries.length) {
+          return;
+        }
+        const sourceObjectPrefix = isNonactive ? nonactivePassiveObjectPrefix : stemContext.morphologyObjectPrefix === "mu" ? "ne" : stemContext.morphologyObjectPrefix;
+        sourceStemEntries.forEach(sourceStemEntry => {
+          const applied = targetObject.applyMorphologyRules({
+            subjectPrefix,
+            objectPrefix: sourceObjectPrefix,
+            subjectSuffix: "",
+            verb: sourceStemEntry.stem,
+            tense: resolvedSourceTense,
+            analysisVerb: sourceStemEntry.analysisVerb,
+            sourceRawVerb: rawVerb,
+            isYawi: sourceStemEntry.isYawi,
+            isWeya: sourceStemEntry.isWeya,
+            directionalPrefix,
+            directionalRuleMode: resolvedDirectionalRuleMode,
+            isNounContext: true,
+            ...targetObject.buildMorphologyMetaOptions(verbMeta),
+            indirectObjectMarker: resolvedIndirectObjectMarker,
+            thirdObjectMarker: resolvedThirdObjectMarker,
+            combinedMode: resolvedMode,
+            isNonactiveMode: isNonactive,
+            entradaGrammarObject,
+            sourceFrame,
+            sourceRouteFrame,
+            routeFrame,
+            valenceFrameFixed,
+            sourceValenceFrameFixed
+          });
+          if (!applied || !applied.verb) {
+            return;
+          }
+          const nominalSurface = targetObject.resolveNominalSourceOuterSurfacePlacement({
+            sourceModel: nounSourceModel,
+            runtimeObjectPrefix: sourceObjectPrefix,
+            objectPrefix: applied.objectPrefix,
+            verb: applied.verb,
+            surfaceRuleMeta: applied.surfaceRuleMeta || null
+          });
+          const placedStemSpec = targetObject.resolvePlacedNominalStemSpec(nominalSurface, applied.verb, isNonactive ? sourceStemEntry.stemSpec : stemContext.stemSpec);
+          const sourceTenseSuffix = String(applied.subjectSuffix || "");
+          const predicateStem = sourceTenseSuffix ? `${nominalSurface.verb}${sourceTenseSuffix}` : nominalSurface.verb;
+          const predicateStemSpec = sourceTenseSuffix ? targetObject.buildAppendMorphStemSpec(nominalSurface.verb, sourceTenseSuffix, {
+            sourceStemSpec: placedStemSpec
+          }) : placedStemSpec;
+          entries.push(targetObject.buildVerbDerivedNominalEntry({
+            kind: resolvedNominalKind,
+            sourceModel: nounSourceModel,
+            verb: predicateStem,
+            subjectSuffix: connector,
+            stemSpec: predicateStemSpec,
+            surfaceObjectPrefix: nominalSurface.objectPrefix,
+            runtimeObjectPrefix: sourceObjectPrefix,
+            surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
+            sourceTense: resolvedSourceTense,
+            provenance: {
+              forward: stemContext.derivationProvenance || null
+            }
+          }));
+        });
+      });
+      const result = targetObject.buildVerbDerivedNominalResult(entries, {
+        kind: resolvedNominalKind
+      });
+      if (!hasVerbDerivedNominalSurface(result)) {
+        return buildVerbDerivedNominalBlockedResult({
+          kind: targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+          rawVerb,
+          diagnosticId: "predicado-nominal-no-output"
+        });
+      }
+      return attachVerbDerivedNominalGrammarContract({
+        ...result,
+        predicateNominalSource: {
+          grammarSource: "Andrews 36.6 note 2",
+          sourceUnit: "vnc-predicate",
+          sourceTense: resolvedSourceTense,
+          connectorClass: connector || "t"
+        }
+      }, {
+        kind: resolvedNominalKind,
+        rawVerb
+      });
+    }
     function getInstrumentivoResult({
       rawVerb,
       verbMeta,
@@ -3980,6 +4203,8 @@ export function createNncApi(targetObject = globalThis) {
       const explicitPossessivePrefix = typeof possessivePrefix === "string" ? possessivePrefix : "";
       const sourceSubjectPossessivePrefix = resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
       const resolvedPossessivePrefix = explicitPossessivePrefix || (mode === targetObject.INSTRUMENTIVO_MODE.posesivo ? sourceSubjectPossessivePrefix : "");
+      const activeAbsolutiveException = isInstrumentivoImperfectActiveAbsolutiveMode(mode);
+      const activeBranchSubjectSuffix = activeAbsolutiveException ? "t" : "";
       const entries = [];
       forwardStemContexts.forEach(stemContext => {
         const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu" ? "ne" : stemContext.morphologyObjectPrefix;
@@ -4026,7 +4251,7 @@ export function createNncApi(targetObject = globalThis) {
           kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
           sourceModel: nounSourceModel,
           verb: predicateStem,
-          subjectSuffix: "",
+          subjectSuffix: activeBranchSubjectSuffix,
           stemSpec: predicateStemSpec,
           surfaceObjectPrefix: nominalSurface.objectPrefix,
           runtimeObjectPrefix: morphologyObjectPrefix,
@@ -4059,6 +4284,13 @@ export function createNncApi(targetObject = globalThis) {
           possessivePrefix: resolvedPossessivePrefix,
           explicitPossessivePrefix,
           derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix)
+        } : null,
+        instrumentivoImperfectActiveAbsolutiveException: activeAbsolutiveException ? {
+          grammarSource: "Andrews 36.6 note 2",
+          sourcePredicate: "imperfect-active",
+          targetState: "absolutive",
+          connectorClass: "t",
+          lexicalEvidenceRequiredForProductiveUse: true
         } : null
       }, {
         kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
@@ -4938,6 +5170,8 @@ export function createNncApi(targetObject = globalThis) {
     api.resolveOrdinaryNncFixture = resolveOrdinaryNncFixture;
     api.resolveNawatPossessorPrefixFromSourceSubject = resolveNawatPossessorPrefixFromSourceSubject;
     api.resolveInstrumentivoPossessorPrefixFromSourceSubject = resolveInstrumentivoPossessorPrefixFromSourceSubject;
+    api.isInstrumentivoImperfectActiveAbsolutiveMode = isInstrumentivoImperfectActiveAbsolutiveMode;
+    api.getPredicateNominalResult = getPredicateNominalResult;
     api.getInstrumentivoResult = getInstrumentivoResult;
     api.getCalificativoInstrumentivoResult = getCalificativoInstrumentivoResult;
     api.getLocativoTemporalResult = getLocativoTemporalResult;
@@ -4945,7 +5179,7 @@ export function createNncApi(targetObject = globalThis) {
 }
 
 export function installNncGlobals(targetObject = globalThis) {
-    const api = createNncApi(targetObject);
+    const api = createNncModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

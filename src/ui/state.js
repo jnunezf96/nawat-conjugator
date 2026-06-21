@@ -773,7 +773,9 @@ function getPatientivoSourceTenseLabel(patientivoSource = "", isNawat = false) {
             ? "patientivo-imperfectivo"
             : (patientivoSource === "tronco-verbal"
                 ? "patientivo-tronco"
-                : "patientivo-pasivo"));
+                : (patientivoSource === "impersonal"
+                    ? "patientivo-impersonal"
+                    : "patientivo-pasivo")));
     const sourceLabelFull = getVerbBlockLabel(sourceKey, isNawat, "");
     if (!sourceLabelFull) {
         return "";
@@ -817,6 +819,8 @@ function getNominalSourceTenseLabel(tenseValue = "", {
         sourceTense = "presente-habitual";
     } else if (tenseValue === "instrumentivo") {
         sourceTense = "presente-habitual";
+    } else if (isPredicateNominalTense(tenseValue)) {
+        sourceTense = getPredicateNominalSourceTenseForTarget(tenseValue);
     } else if (tenseValue === "locativo-temporal") {
         sourceTense = "imperfecto";
     } else if (tenseValue === "sustantivo-verbal" || tenseValue === "potencial") {
@@ -1196,6 +1200,9 @@ const NAWAT_ROUTE_NONACTIVE_CORE_PATIENTIVO_TENSES = new Set([
 
 function getCanonicalNawatPatientivoSourceTenseValue(patientivoSource = "") {
     const source = normalizeNawatPatientivoSourceFamily(patientivoSource);
+    if (source === "tronco-verbal") {
+        return "";
+    }
     if (source === "imperfectivo") {
         return "imperfecto";
     }
@@ -1229,6 +1236,16 @@ function resolveNawatPatientivoRouteSpec({
     patientivoSource = "",
 } = {}) {
     const requestedPatientivoSource = normalizeNawatPatientivoSourceFamily(patientivoSource);
+    if (requestedPatientivoSource === "tronco-verbal") {
+        return {
+            sourceTenseValue: "",
+            sourceCombinedMode: COMBINED_MODE.active,
+            patientivoSource: "tronco-verbal",
+            routeKey: "",
+            suffix: "",
+            surfaceSuffix: "",
+        };
+    }
     const requestedNonactiveSource = isNawatPatientivoNonactiveSource(requestedPatientivoSource);
     const resolvedSourceCombinedMode = String(
         sourceCombinedMode
@@ -1290,10 +1307,17 @@ function isNawatRouteNonactiveSource({
 function getNawatRoutePatientivoSurfaceSpec(profile = null, {
     sourceTenseValue = "",
     sourceCombinedMode = "",
+    patientivoSource = "",
 } = {}) {
     if (!isPatientivoSurfaceRoute(profile)) {
         return null;
     }
+    const requestedPatientivoSource = normalizeNawatPatientivoSourceFamily(
+        patientivoSource
+        || profile?.activePatientivoBranch
+        || profile?.patientivoSource
+        || "nonactive"
+    );
     if (!isNawatDynamicPatientivoSurfaceRoute(profile)) {
         const staticSuffix = String(
             profile?.patientivoNominalSuffix
@@ -1303,22 +1327,21 @@ function getNawatRoutePatientivoSurfaceSpec(profile = null, {
         return {
             sourceTenseValue: sourceTenseValue || profile?.sourceTenseValue || "",
             sourceCombinedMode: sourceCombinedMode || profile?.sourceCombinedMode || profile?.combinedMode || "",
-            patientivoSource: String(profile?.patientivoSource || "nonactive").trim(),
+            patientivoSource: requestedPatientivoSource,
             suffix: staticSuffix,
             surfaceSuffix: staticSuffix ? `-${staticSuffix}` : "",
         };
     }
-    const patientivoSource = String(profile?.patientivoSource || "nonactive").trim();
     const resolvedSourceCombinedMode = sourceCombinedMode
         || profile?.sourceCombinedMode
-        || (isNawatPatientivoNonactiveSource(patientivoSource) ? COMBINED_MODE.nonactive : COMBINED_MODE.active);
+        || (isNawatPatientivoNonactiveSource(requestedPatientivoSource) ? COMBINED_MODE.nonactive : COMBINED_MODE.active);
     const resolvedSourceTenseValue = sourceTenseValue
         || profile?.sourceTenseValue
-        || getCanonicalNawatPatientivoSourceTenseValue(patientivoSource);
+        || getCanonicalNawatPatientivoSourceTenseValue(requestedPatientivoSource);
     const routeSpec = resolveNawatPatientivoRouteSpec({
         sourceTenseValue: resolvedSourceTenseValue,
         sourceCombinedMode: resolvedSourceCombinedMode,
-        patientivoSource,
+        patientivoSource: requestedPatientivoSource,
     });
     const suffix = routeSpec.suffix
         || String(profile?.patientivoNominalSuffix || profile?.surfaceSuffix || "").replace(/^-+/, "")
@@ -1338,10 +1361,16 @@ function getNawatStaticRouteAndrewsRefs(profile = null, routeTarget = null) {
             || profile?.patientivoSource
             || ""
         ).trim();
-        if (patientivoSource === "nonactive") {
+        if (patientivoSource === "passive") {
+            return ["Andrews Lesson 37"];
+        }
+        if (patientivoSource === "impersonal" || patientivoSource === "nonactive") {
             return ["Andrews Lesson 38"];
         }
         if (patientivoSource === "perfectivo" || patientivoSource === "imperfectivo") {
+            return ["Andrews Lesson 39"];
+        }
+        if (patientivoSource === "tronco-verbal") {
             return ["Andrews Lesson 39"];
         }
         return ["Andrews Lessons 38-39"];
@@ -1698,10 +1727,19 @@ function getNawatRouteSourceSurfaceResult(profile = null, {
                 || profile.sourceCombinedMode
                 || profile.combinedMode
                 || "",
-            patientivoSource: profile.patientivoSource || "nonactive",
+            patientivoSource: routeTarget?.activePatientivoBranch
+                || routeTarget?.patientivoSource
+                || profile.patientivoSource
+                || "nonactive",
         })
         : null;
-    const patientivoSource = String(routeSpec?.patientivoSource || profile.patientivoSource || "nonactive");
+    const patientivoSource = String(
+        routeSpec?.patientivoSource
+        || routeTarget?.activePatientivoBranch
+        || routeTarget?.patientivoSource
+        || profile.patientivoSource
+        || "nonactive"
+    );
     const sourceTenseValue = routeSpec?.sourceTenseValue
         || routeTarget?.sourceTenseValue
         || profile.sourceTenseValue
@@ -1880,6 +1918,10 @@ function generateNawatRoutePatientivoSurfaceResult(profile = null, {
     if (!routeVerb) {
         return null;
     }
+    const patientivoSource = routeTarget?.activePatientivoBranch
+        || routeTarget?.patientivoSource
+        || profile?.patientivoSource
+        || "nonactive";
     return executeNuclearClauseSurfaceRequest({
         options: {
             silent: true,
@@ -1888,7 +1930,7 @@ function generateNawatRoutePatientivoSurfaceResult(profile = null, {
                 tenseMode: TENSE_MODE.sustantivo,
                 derivationMode: DERIVATION_MODE.active,
                 voiceMode: VOICE_MODE.active,
-                patientivoSource: profile?.patientivoSource || "nonactive",
+                patientivoSource,
                 patientivoNominalSuffix,
             },
         },
@@ -1919,6 +1961,7 @@ function getNawatRouteGeneratedPatientivoConnectorSuffix(profile = null, {
     const surfaceSpec = getNawatRoutePatientivoSurfaceSpec(profile, {
         sourceTenseValue: routeTarget?.sourceTenseValue || "",
         sourceCombinedMode: routeTarget?.sourceCombinedMode || "",
+        patientivoSource: routeTarget?.activePatientivoBranch || routeTarget?.patientivoSource || "",
     });
     const attempts = [
         surfaceSpec?.suffix || null,
@@ -1964,6 +2007,7 @@ function getNawatVerbNounConversionNominalSurfaceResult(profile = null, {
     const surfaceSpec = getNawatRoutePatientivoSurfaceSpec(profile, {
         sourceTenseValue: routeTarget?.sourceTenseValue || "",
         sourceCombinedMode: routeTarget?.sourceCombinedMode || "",
+        patientivoSource: routeTarget?.activePatientivoBranch || routeTarget?.patientivoSource || "",
     });
     if (!surfaceSpec?.suffix) {
         return buildNawatRouteSurfaceResultContract({
@@ -2184,6 +2228,7 @@ function getNawatRouteFiniteSurfaceResult(profile = null, {
                         ? resolveNawatRoutePatientivoNominalSuffix(profile, {
                             sourceTenseValue: routeTarget?.sourceTenseValue || "",
                             sourceCombinedMode: routeTarget?.sourceCombinedMode || "",
+                            patientivoSource: routeTarget?.activePatientivoBranch || routeTarget?.patientivoSource || "",
                         })
                         : undefined,
                 },
@@ -3796,6 +3841,7 @@ function resolveNawatRouteTarget(routeKeyOrProfile = "", {
     sourceStem = "",
     sourceTenseValue = "",
     sourceCombinedMode = "",
+    patientivoSource = "",
 } = {}) {
     const profile = routeKeyOrProfile && typeof routeKeyOrProfile === "object"
         ? cloneNawatRouteProfile(routeKeyOrProfile, routeKeyOrProfile.routeTenseValue || "")
@@ -3818,6 +3864,7 @@ function resolveNawatRouteTarget(routeKeyOrProfile = "", {
         ? getNawatRoutePatientivoSurfaceSpec(profile, {
             sourceTenseValue: sourceTenseValue || getNawatRouteDefaultSourceTenseValue(profile),
             sourceCombinedMode: sourceCombinedMode || profile.sourceCombinedMode || profile.combinedMode || "",
+            patientivoSource,
         })
         : null;
     const targetVerb = targetMode === TENSE_MODE.verbo
@@ -4642,6 +4689,1496 @@ function getNawatDenominalAndrewsContractInventory() {
             },
         };
     });
+}
+
+function buildAndrewsSourceGatedDerivationalRouteRegistry() {
+    const cnvCnnRecords = typeof getAndrewsCnvCnnBackAndForthRouteRecords === "function"
+        ? getAndrewsCnvCnnBackAndForthRouteRecords()
+        : [];
+    const cnvCnnRoutes = (Array.isArray(cnvCnnRecords) ? cnvCnnRecords : []).map((record) => {
+        const routeFrame = typeof buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame === "function"
+            ? buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(record)
+            : null;
+        const sourceFormulaType = routeFrame?.sourceFormulaType || record.sourceFormulaType || "";
+        const targetFormulaType = routeFrame?.targetFormulaType || record.targetFormulaType || "";
+        const formulaTransition = typeof getAndrewsCnvCnnFormulaTransition === "function"
+            ? getAndrewsCnvCnnFormulaTransition(sourceFormulaType, targetFormulaType)
+            : [sourceFormulaType, targetFormulaType].filter(Boolean).join("->");
+        return {
+            id: record.id || "",
+            routeFamily: "cnv-cnn-back-and-forth",
+            routeKind: record.routeKind || routeFrame?.routeKind || "",
+            sourceUnit: record.sourceUnit || routeFrame?.sourceUnit || "",
+            targetUnit: record.targetUnit || routeFrame?.targetUnit || "",
+            sourceFormulaType,
+            targetFormulaType,
+            formulaTransition,
+            operation: routeFrame?.operation || record.operation || "",
+            formulaTemplate: `${sourceFormulaType || "SOURCE"}(SOURCE) -> ${targetFormulaType || "TARGET"}(TARGET)`,
+            structuralInfo: {
+                transition: routeFrame?.transition || record.transition || "",
+                sourceFormulaPosition: routeFrame?.sourceFormulaPosition || record.sourceFormulaPosition || "",
+                targetStemRank: routeFrame?.targetStemRank || record.targetStemRank || "",
+                intermediateFormulaTypes: Array.isArray(routeFrame?.intermediateFormulaTypes)
+                    ? Array.from(routeFrame.intermediateFormulaTypes)
+                    : Array.isArray(record.intermediateFormulaTypes)
+                        ? Array.from(record.intermediateFormulaTypes)
+                        : [],
+                requiredBoundary: record.requiredBoundary || routeFrame?.requiredBoundary || "",
+            },
+            sourceGate: {
+                gated: true,
+                status: "route-record-source-gated",
+                requirementIds: [],
+                evidenceStatus: "source-evidence-required-by-route-record",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const denominalContracts = getNawatDenominalAndrewsContractInventory();
+    const denominalRoutes = denominalContracts.flatMap((contract) => (
+        Array.isArray(contract.executableRuleContracts) ? contract.executableRuleContracts : []
+    ).map((rule) => ({
+        id: rule.id || "",
+        contractId: rule.contractId || "",
+        routeTemplateId: rule.routeTemplateId || "",
+        routeFamily: "denominal-andrews-executable-rule",
+        routeKind: rule.operation?.type || "",
+        andrewsRefs: Array.isArray(rule.authority) ? Array.from(rule.authority) : [],
+        sourceUnit: rule.input?.unit || "",
+        targetUnit: rule.output?.unit || "",
+        sourceFormulaType: String(rule.input?.unit || "").toUpperCase(),
+        targetFormulaType: String(rule.output?.unit || "").toUpperCase(),
+        formulaTransition: `${String(rule.input?.unit || "").toUpperCase()}->${String(rule.output?.unit || "").toUpperCase()}`,
+        operation: rule.operation?.type || "",
+        formulaTemplate: `${String(rule.input?.unit || "SOURCE").toUpperCase()}(${rule.input?.sourceCategory || "SOURCE"}) -> ${String(rule.output?.unit || "TARGET").toUpperCase()}(${[
+            rule.operation?.droppedSourceSuffix ? `drop ${rule.operation.droppedSourceSuffix}` : "",
+            rule.operation?.suffix ? `add ${rule.operation.suffix}` : "",
+            rule.operation?.classicalSuffix ? `classical ${rule.operation.classicalSuffix}` : "",
+        ].filter(Boolean).join("; ") || rule.operation?.type || "TARGET"})`,
+        structuralInfo: {
+            range: rule.range || contract.range || "",
+            sourceCategory: rule.input?.sourceCategory || contract.sourceCategory || "",
+            sourceState: rule.input?.state || contract.sourceState || "",
+            sourceSuffix: rule.operation?.sourceSuffix || "",
+            droppedSourceSuffix: rule.operation?.droppedSourceSuffix || "",
+            suffix: rule.operation?.suffix || "",
+            classicalSuffix: rule.operation?.classicalSuffix || "",
+            outputValency: rule.operation?.outputValency || rule.output?.valency || "",
+            stemClass: Array.isArray(rule.output?.stemClass) ? Array.from(rule.output.stemClass) : [],
+        },
+        sourceGate: {
+            gated: true,
+            status: rule.input?.sourceEvidence ? "source-evidence-required" : "source-unit-required",
+            requirementIds: [rule.input?.sourceEvidence || `${rule.input?.unit || "source"}-source-required`].filter(Boolean),
+            evidenceStatus: rule.input?.sourceEvidence || "",
+        },
+        generationAllowed: false,
+    })));
+
+    const earlyFoundationRoutes = [
+        typeof getConceptRegistry === "function"
+            ? {
+                frame: getConceptRegistry({ lesson: 1 }),
+                id: "lesson-1-grammar-concept-route",
+                routeKind: "grammar-concept-route",
+                andrewsRefs: ["Andrews Lesson 1"],
+                sourceUnit: "grammar term or notation source",
+                targetUnit: "grammar concept frame",
+                sourceFormulaType: "TEXT/TERM",
+                targetFormulaType: "CONCEPT_FRAME",
+                formulaTransition: "TEXT/TERM->CONCEPT_FRAME",
+                operation: "source-term-to-andrews-grammar-concept-frame",
+                formulaTemplate: "CONCEPT_TOKEN -> GRAMMAR_CONCEPT_FRAME(CN/CNV/CNN/STEM/SLOT/AFFIX)",
+                sourceGateStatus: "concept-token-or-registry-source-required",
+                requirementIds: ["grammar-term-source", "notation-token-source", "concept-registry-source"],
+            }
+            : null,
+        typeof buildLesson2CoverageFrame === "function"
+            ? {
+                frame: buildLesson2CoverageFrame(),
+                id: "lesson-2-orthography-bridge-route",
+                routeKind: "orthography-bridge-route",
+                andrewsRefs: ["Andrews Lesson 2"],
+                sourceUnit: "Andrews grammar-rule spelling",
+                targetUnit: "Nawat/Pipil spelling profile",
+                sourceFormulaType: "CLASSICAL_LETTERS",
+                targetFormulaType: "NAWAT_LETTERS",
+                formulaTransition: "CLASSICAL_LETTERS->NAWAT_LETTERS",
+                operation: "slot-sensitive-classical-to-nawat-orthography-bridge",
+                formulaTemplate: "ANDREWS_SPELLING(SLOT/POSITION) -> NAWAT_ORTHOGRAPHY_FRAME",
+                sourceGateStatus: "source-spelling-slot-and-position-required",
+                requirementIds: ["source-spelling", "grammar-slot-source", "syllable-position-source"],
+            }
+            : null,
+        typeof buildParticleInventoryBoundaryMetadata === "function"
+            ? {
+                frame: buildParticleInventoryBoundaryMetadata(),
+                id: "lesson-3-particle-boundary-route",
+                routeKind: "particle-boundary-route",
+                andrewsRefs: ["Andrews Lesson 3"],
+                sourceUnit: "particle candidate source",
+                targetUnit: "particle boundary frame",
+                sourceFormulaType: "PARTICLE_CANDIDATE",
+                targetFormulaType: "PARTICLE_BOUNDARY",
+                formulaTransition: "PARTICLE_CANDIDATE->PARTICLE_BOUNDARY",
+                operation: "particle-candidate-to-boundary-classification",
+                formulaTemplate: "PARTICLE_CANDIDATE -> PARTICLE_BOUNDARY_FRAME(FUNCTION/PLACEMENT)",
+                sourceGateStatus: "particle-candidate-or-seed-source-required",
+                requirementIds: ["particle-candidate-source", "function-class-source", "placement-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "foundation-metadata-route",
+            routeKind: spec.routeKind,
+            andrewsRefs: spec.andrewsRefs,
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: spec.sourceFormulaType,
+            targetFormulaType: spec.targetFormulaType,
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                metadataKind: frame.kind || grammarFrame.routeContract?.metadataKind || "",
+                conceptCount: Array.isArray(frame.concepts) ? frame.concepts.length : 0,
+                coverageCounts: frame.coverageCounts || {},
+                particleSeedCount: frame.andrewsDerivedParticleCount || 0,
+                subsectionRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+                boundaries: frame.boundaries || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                routeContract: grammarFrame.routeContract || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-foundation-metadata-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const relationalRoutes = [{
+        id: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+        routeFamily: "relational-nnc",
+        routeKind: "preterit-agentive-embedded-source-locative",
+        andrewsRefs: ["Andrews 46.3.1.a"],
+        sourceUnit: "CNV source core",
+        targetUnit: "CNN relational locative",
+        sourceFormulaType: "CNV",
+        targetFormulaType: "CNN",
+        formulaTransition: "CNV->CNN",
+        operation: "preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+        formulaTemplate: "(SOURCE-0-ka-n)-0-",
+        structuralInfo: {
+            sourceLayer: "embedded source action",
+            preteritAgentiveLayer: "-0-ka",
+            relationalMatrix: "-n",
+            connectorLayer: "-0-",
+            exampleSource: "(mich-namaka)",
+            exampleTargetFormula: "(mich-namaka-0-ka-n)-0-",
+            exampleSurface: "michnamakakan",
+        },
+        sourceGate: {
+            gated: true,
+            status: "source-formula-required",
+            requirementIds: ["embedded-source-formula"],
+            evidenceStatus: "user-provided-nawat-letter-source",
+        },
+        generationAllowed: true,
+    }];
+
+    const valencyVoiceRoutes = [
+        typeof buildLesson21PassiveVoicePursuitFrame === "function"
+            ? buildLesson21PassiveVoicePursuitFrame()
+            : null,
+        typeof buildLesson22ImpersonalVoicePursuitFrame === "function"
+            ? buildLesson22ImpersonalVoicePursuitFrame()
+            : null,
+    ].filter(Boolean).map((frame) => {
+        const isPassive = frame.kind === "lesson-21-passive-voice-pursuit-frame";
+        return {
+            id: isPassive ? "lesson-21-passive-voice" : "lesson-22-impersonal-voice",
+            routeFamily: "valency-voice",
+            routeKind: isPassive ? "passive-transform" : "impersonal-transform",
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: "CNV source",
+            targetUnit: "CNV voice-derived target",
+            sourceFormulaType: "CNV",
+            targetFormulaType: "CNV",
+            formulaTransition: "CNV->CNV",
+            operation: isPassive ? "object-to-subject-passive" : "impersonal-subject-transform",
+            formulaTemplate: isPassive
+                ? "CNV(SOURCE_WITH_PROMOTABLE_OBJECT) -> CNV(PASSIVE_SOURCE_STEM)"
+                : "CNV(SOURCE_WITH_IMPERSONAL_COMPATIBLE_SUBJECT) -> CNV(IMPERSONAL_SOURCE_STEM)",
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: isPassive ? "promotable-object-source-required" : "impersonal-compatible-source-required",
+                requirementIds: isPassive
+                    ? ["specific-projective-or-reflexive-object-source"]
+                    : ["intransitive-or-nonspecific-object-source"],
+                evidenceStatus: "andrews-valency-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const vncSourceRoutes = [
+        typeof buildLesson20NonactivePursuitFrame === "function"
+            ? {
+                frame: buildLesson20NonactivePursuitFrame(),
+                id: "lesson-20-nonactive-verbstem",
+                routeKind: "nonactive-verbstem",
+                sourceUnit: "active imperfective CNV stem source",
+                targetUnit: "nonactive CNV stem",
+                formulaTransition: "CNV->CNV",
+                operation: "active-imperfective-source-to-nonactive-stem",
+                formulaTemplate: "CNV(ACTIVE_IMPERFECTIVE_STEM) -> CNV(NONACTIVE_STEM[-lu/-luwa/-u/-uwa/-wa/-walu])",
+                sourceGateStatus: "active-imperfective-source-required",
+                requirementIds: ["active-imperfective-stem-source", "nonactive-suffix-family-source"],
+                generationAllowed: true,
+            }
+            : null,
+        typeof buildLesson23VerbObjectsPursuitFrame === "function"
+            ? {
+                frame: buildLesson23VerbObjectsPursuitFrame(),
+                id: "lesson-23-verb-object-valence",
+                routeKind: "verb-object-valence",
+                sourceUnit: "CNV object-role source",
+                targetUnit: "multiple-object CNV formula",
+                formulaTransition: "CNV->CNV",
+                operation: "source-object-role-to-mainline-shuntline-formula",
+                formulaTemplate: "CNV(SOURCE_STEM+OBJECT_ROLES) -> CNV(MAINLINE/SHUNTLINE_OBJECT_FORMULA)",
+                sourceGateStatus: "object-role-source-required",
+                requirementIds: ["object-kind-source", "mainline-shuntline-source", "object-sequence-source"],
+                generationAllowed: false,
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "vnc-source-route",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: "CNV",
+            targetFormulaType: "CNV",
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                stemFrame: grammarFrame.stemFrame || {},
+                nuclearClauseFrame: grammarFrame.nuclearClauseFrame || {},
+                participantFrame: grammarFrame.participantFrame || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-vnc-source-restriction",
+            },
+            generationAllowed: spec.generationAllowed === true,
+        };
+    });
+
+    const foundationRoutes = [
+        typeof buildNuclearClauseLesson4PursuitFrame === "function"
+            ? {
+                frame: buildNuclearClauseLesson4PursuitFrame(),
+                id: "lesson-4-nuclear-clause-formula",
+                routeKind: "nuclear-clause-formula",
+                sourceUnit: "CN source slots",
+                targetUnit: "CNV/CNN formula contract",
+                sourceFormulaType: "CN",
+                targetFormulaType: "CNV/CNN",
+                formulaTransition: "CN->CNV/CNN",
+                operation: "source-slots-to-nuclear-clause-formula",
+                formulaTemplate: "SOURCE_SLOTS -> #pers1-pers2(STEM)tense-num1-num2# OR #pers1-pers2(STEM)num1-num2#",
+                sourceGateStatus: "nuclear-clause-source-slots-required",
+                requirementIds: ["predicate-source", "subject-slot-source", "formula-type-source"],
+            }
+            : null,
+        typeof buildVncLesson5PursuitFrame === "function"
+            ? {
+                frame: buildVncLesson5PursuitFrame(),
+                id: "lesson-5-intransitive-vnc",
+                routeKind: "intransitive-vnc",
+                sourceUnit: "intransitive CNV stem source",
+                targetUnit: "intransitive CNV formula",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV->CNV",
+                operation: "intransitive-source-to-vnc-formula",
+                formulaTemplate: "#pers1(STEM)tense-num1#",
+                sourceGateStatus: "intransitive-vnc-source-required",
+                requirementIds: ["intransitive-stem-source", "subject-source", "tense-morph-source"],
+            }
+            : null,
+        typeof buildVncLesson6PursuitFrame === "function"
+            ? {
+                frame: buildVncLesson6PursuitFrame(),
+                id: "lesson-6-transitive-vnc",
+                routeKind: "transitive-vnc",
+                sourceUnit: "transitive CNV stem and object source",
+                targetUnit: "transitive CNV formula",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV->CNV",
+                operation: "transitive-source-to-vnc-valence-formula",
+                formulaTemplate: "#pers1-val1-val2(STEM)tense-num1# OR #pers1-val(STEM)tense-num1#",
+                sourceGateStatus: "transitive-vnc-source-required",
+                requirementIds: ["transitive-stem-source", "object-valence-source", "subject-source"],
+            }
+            : null,
+        typeof buildVncLesson7PursuitFrame === "function"
+            ? {
+                frame: buildVncLesson7PursuitFrame(),
+                id: "lesson-7-verbstem-class",
+                routeKind: "verbstem-class",
+                sourceUnit: "verbcore source",
+                targetUnit: "classified verbstem route",
+                sourceFormulaType: "VERBCORE",
+                targetFormulaType: "CNV",
+                formulaTransition: "VERBCORE->CNV",
+                operation: "verbcore-source-to-verbstem-class-route",
+                formulaTemplate: "VERBCORE_SOURCE -> CLASSIFIED_VERBSTEM(A/B/C/D)",
+                sourceGateStatus: "verbcore-class-source-required",
+                requirementIds: ["verbcore-source", "stem-class-source", "predicate-formation-source"],
+            }
+            : null,
+        typeof buildSentenceLesson8PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson8PursuitFrame(),
+                id: "lesson-8-expanded-vnc-sentence",
+                routeKind: "expanded-vnc-sentence",
+                sourceUnit: "CNV plus sentence-layer source",
+                targetUnit: "expanded VNC sentence frame",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "SENTENCE",
+                formulaTransition: "CNV->SENTENCE",
+                operation: "vnc-source-to-expanded-sentence-layer",
+                formulaTemplate: "CNV_SOURCE+SENTENCE_LAYER -> EXPANDED_VNC_SENTENCE",
+                sourceGateStatus: "expanded-sentence-source-required",
+                requirementIds: ["vnc-source", "sentence-transform-source"],
+            }
+            : null,
+        typeof buildSentenceLesson9PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson9PursuitFrame(),
+                id: "lesson-9-optative-sentence",
+                routeKind: "optative-sentence",
+                sourceUnit: "optative CNV source",
+                targetUnit: "wish/command sentence frame",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "SENTENCE",
+                formulaTransition: "CNV->SENTENCE",
+                operation: "optative-vnc-source-to-wish-command-sentence",
+                formulaTemplate: "OPTATIVE_CNV_SOURCE -> WISH_OR_COMMAND_SENTENCE",
+                sourceGateStatus: "optative-vnc-source-required",
+                requirementIds: ["optative-vnc-source", "wish-or-command-context-source"],
+            }
+            : null,
+        typeof buildSentenceLesson10PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson10PursuitFrame(),
+                id: "lesson-10-admonitive-sentence",
+                routeKind: "admonitive-sentence",
+                sourceUnit: "admonitive CNV source",
+                targetUnit: "admonition sentence frame",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "SENTENCE",
+                formulaTransition: "CNV->SENTENCE",
+                operation: "admonitive-vnc-source-to-admonition-sentence",
+                formulaTemplate: "ADMONITIVE_CNV_SOURCE -> ADMONITION_SENTENCE",
+                sourceGateStatus: "admonitive-vnc-source-required",
+                requirementIds: ["admonitive-vnc-source", "admonition-context-source"],
+            }
+            : null,
+        typeof buildIrregularsLesson11PursuitFrame === "function"
+            ? {
+                frame: buildIrregularsLesson11PursuitFrame(),
+                id: "lesson-11-irregular-vnc",
+                routeKind: "irregular-vnc",
+                sourceUnit: "irregular CNV source",
+                targetUnit: "irregular CNV diagnostic route",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV->CNV",
+                operation: "irregular-source-to-vnc-diagnostic-route",
+                formulaTemplate: "IRREGULAR_CNV_SOURCE -> IRREGULAR_VNC_ROUTE",
+                sourceGateStatus: "irregular-vnc-source-required",
+                requirementIds: ["irregular-stem-source", "nawat-irregular-evidence"],
+            }
+            : null,
+        typeof buildNncLesson12PursuitFrame === "function"
+            ? {
+                frame: buildNncLesson12PursuitFrame(),
+                id: "lesson-12-absolutive-nnc",
+                routeKind: "absolutive-nnc",
+                sourceUnit: "absolutive CNN predicate source",
+                targetUnit: "absolutive CNN formula",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "absolutive-predicate-source-to-nnc-formula",
+                formulaTemplate: "#pers1-pers2(STEM)num1-num2#",
+                sourceGateStatus: "absolutive-nnc-source-required",
+                requirementIds: ["nounstem-source", "subject-source", "absolutive-state-source"],
+            }
+            : null,
+        typeof buildNncLesson13PursuitFrame === "function"
+            ? {
+                frame: buildNncLesson13PursuitFrame(),
+                id: "lesson-13-possessive-nnc",
+                routeKind: "possessive-nnc",
+                sourceUnit: "possessive CNN predicate source",
+                targetUnit: "possessive CNN formula",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "possessive-predicate-source-to-nnc-formula",
+                formulaTemplate: "#pers1-pers2(POSESSIVE_STEM+STATE)num1-num2#",
+                sourceGateStatus: "possessive-nnc-source-required",
+                requirementIds: ["nounstem-source", "possessor-source", "possessive-state-source"],
+            }
+            : null,
+        typeof buildNncLesson14PursuitFrame === "function"
+            ? {
+                frame: buildNncLesson14PursuitFrame(),
+                id: "lesson-14-nounstem-class",
+                routeKind: "nounstem-class",
+                sourceUnit: "nounstem source",
+                targetUnit: "classified CNN predicate stem",
+                sourceFormulaType: "NOUNSTEM",
+                targetFormulaType: "CNN",
+                formulaTransition: "NOUNSTEM->CNN",
+                operation: "nounstem-source-to-classified-nnc-stem",
+                formulaTemplate: "NOUNSTEM_SOURCE -> CNN_STEM(CLASS/NUMBER/STATE)",
+                sourceGateStatus: "nounstem-class-source-required",
+                requirementIds: ["nounstem-source", "class-source", "state-number-source"],
+            }
+            : null,
+        typeof buildNncLesson15PursuitFrame === "function"
+            ? {
+                frame: buildNncLesson15PursuitFrame(),
+                id: "lesson-15-possessive-peculiarities",
+                routeKind: "possessive-peculiarities",
+                sourceUnit: "possessive/naturally possessed CNN source",
+                targetUnit: "possessive CNN diagnostic route",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "possessive-peculiarity-source-to-nnc-route",
+                formulaTemplate: "POSSESSIVE_CNN_SOURCE -> POSSESSIVE_NNC_ROUTE",
+                sourceGateStatus: "possessive-peculiarity-source-required",
+                requirementIds: ["possessive-source", "natural-possession-source", "sentence-context-source"],
+            }
+            : null,
+        typeof buildNncLesson16PursuitFrame === "function"
+            ? {
+                frame: buildNncLesson16PursuitFrame(),
+                id: "lesson-16-pronominal-nnc",
+                routeKind: "pronominal-nnc",
+                sourceUnit: "pronominal CNN source",
+                targetUnit: "pronominal CNN",
+                sourceFormulaType: "PRONOMINAL",
+                targetFormulaType: "CNN",
+                formulaTransition: "PRONOMINAL->CNN",
+                operation: "pronominal-source-to-absolutive-nnc",
+                formulaTemplate: "PRONOMINAL_SOURCE -> CNN(PRONOMINAL_ABSOLUTIVE_NNC)",
+                sourceGateStatus: "pronominal-nnc-source-required",
+                requirementIds: ["pronominal-source", "entitive-or-quantitive-source"],
+            }
+            : null,
+        typeof buildSentenceLesson17PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson17PursuitFrame(),
+                id: "lesson-17-supplementation",
+                routeKind: "supplementation",
+                sourceUnit: "multiple-nucleus sentence source",
+                targetUnit: "supplementation relation frame",
+                sourceFormulaType: "CN+CN",
+                targetFormulaType: "SENTENCE_RELATION",
+                formulaTransition: "CN+CN->SENTENCE_RELATION",
+                operation: "multiple-nucleus-source-to-supplementation-route",
+                formulaTemplate: "HEAD(CN)+SUPPLEMENT(CN) -> SUPPLEMENTATION_FRAME",
+                sourceGateStatus: "supplementation-source-required",
+                requirementIds: ["head-source", "supplement-source", "shared-referent-source"],
+            }
+            : null,
+        typeof buildSentenceLesson18PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson18PursuitFrame(),
+                id: "lesson-18-supplementation-part-two",
+                routeKind: "supplementation-part-two",
+                sourceUnit: "integrated/marked/discontinuous supplement source",
+                targetUnit: "supplementation relation frame",
+                sourceFormulaType: "CN+CN",
+                targetFormulaType: "SENTENCE_RELATION",
+                formulaTransition: "CN+CN->SENTENCE_RELATION",
+                operation: "supplementation-part-two-source-routing",
+                formulaTemplate: "HEAD(CN)+SUPPLEMENT_VARIANT(CN) -> SUPPLEMENTATION_FRAME",
+                sourceGateStatus: "supplementation-variant-source-required",
+                requirementIds: ["integrated-or-marked-supplement-source", "sentence-order-source"],
+            }
+            : null,
+        typeof buildSentenceLesson19PursuitFrame === "function"
+            ? {
+                frame: buildSentenceLesson19PursuitFrame(),
+                id: "lesson-19-supplementation-part-three",
+                routeKind: "supplementation-part-three",
+                sourceUnit: "VNC supplement/included-referent source",
+                targetUnit: "supplementation/report relation frame",
+                sourceFormulaType: "CN+CN",
+                targetFormulaType: "SENTENCE_RELATION",
+                formulaTransition: "CN+CN->SENTENCE_RELATION",
+                operation: "vnc-supplement-or-included-referent-source-routing",
+                formulaTemplate: "PRINCIPAL(CN)+VNC_SUPPLEMENT(CNV) -> SUPPLEMENTATION_OR_REPORT_FRAME",
+                sourceGateStatus: "vnc-supplement-source-required",
+                requirementIds: ["vnc-supplement-source", "included-referent-or-report-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "foundation-route",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: spec.sourceFormulaType,
+            targetFormulaType: spec.targetFormulaType,
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || frame.outputKind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || entry.range || "").filter(Boolean)
+                    : [],
+                formulaFrame: frame.formulaFrame || frame.absolutiveFormulaFrame || frame.possessiveFormulaFrame || null,
+                stemFrame: grammarFrame.stemFrame || {},
+                nuclearClauseFrame: grammarFrame.nuclearClauseFrame || {},
+                participantFrame: grammarFrame.participantFrame || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+                closestPass: frame.closestPass === true,
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-foundation-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const forwardDerivationRoutes = [
+        typeof buildLesson24FirstTypeCausativePursuitFrame === "function"
+            ? {
+                frame: buildLesson24FirstTypeCausativePursuitFrame(),
+                id: "lesson-24-first-type-causative",
+                routeKind: "first-type-causative",
+                targetUnit: "CNV type-one causative target",
+                operation: "type-one-causative-source-to-causative-stem",
+                formulaTemplate: "CNV(SOURCE_STEM -> TYPE_ONE_CAUSATIVE_STEM[-a])",
+                sourceGateStatus: "type-one-causative-compatible-source-required",
+                requirementIds: ["type-one-causative-source-stem", "source-subject-to-causative-object-transform"],
+            }
+            : null,
+        typeof buildLesson25SecondTypeCausativePursuitFrame === "function"
+            ? {
+                frame: buildLesson25SecondTypeCausativePursuitFrame(),
+                id: "lesson-25-second-type-causative",
+                routeKind: "second-type-causative",
+                targetUnit: "CNV type-two causative target",
+                operation: "type-two-causative-source-to-causative-stem",
+                formulaTemplate: "CNV(SOURCE_STEM -> TYPE_TWO_CAUSATIVE_STEM[-tia/-lia/-wia])",
+                sourceGateStatus: "type-two-causative-compatible-source-required",
+                requirementIds: ["type-two-causative-source-stem", "source-subject-to-causative-object-transform"],
+            }
+            : null,
+        typeof buildLesson26ApplicativePursuitFrame === "function"
+            ? {
+                frame: buildLesson26ApplicativePursuitFrame(),
+                id: "lesson-26-applicative",
+                routeKind: "applicative",
+                targetUnit: "CNV applicative target",
+                operation: "applicative-source-to-applicative-stem",
+                formulaTemplate: "CNV(SOURCE_STEM -> APPLICATIVE_STEM[-ia/-lia/-wia/-tia])",
+                sourceGateStatus: "applicative-compatible-source-required",
+                requirementIds: ["applicative-compatible-source-stem", "applicative-object-mainline-transform"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        return {
+            id: spec.id,
+            routeFamily: "forward-derivation",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: "CNV source",
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: "CNV",
+            targetFormulaType: "CNV",
+            formulaTransition: "CNV->CNV",
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                suffixalUnits: frame.overviewFrame?.suffixalUnits
+                    || frame.formationFrame?.typeTwo?.suffixalUnits
+                    || [],
+                causativeMorpheme: frame.typeOneCausativeFrame?.causativeMorpheme || null,
+                classMembership: frame.classAndParallelFrame?.classMembership
+                    || frame.formationFrame?.classMembership
+                    || "",
+                transformOperations: frame.causativeTransformationFrame?.operations
+                    || frame.transformationFrame?.operations
+                    || [],
+                sourceSubjectBecomesCausativeObject: Boolean(
+                    frame.causativeVncGenerationFrame?.sourceSubjectBecomesCausativeObject
+                    || frame.causativeTransformationFrame?.causativeObjectIsObjectInFormSubjectInFunction
+                ),
+                applicativeObjectIsMainline: Boolean(frame.transformationFrame?.mainlineObject),
+                maxObjectDepth: frame.objectTransformFrame?.tripleObject || frame.objectDepthFrame?.tripleObject ? 3 : 1,
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-forward-derivation-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const nominalizationRoutes = [
+        typeof buildLesson35PreteritAgentivePursuitFrame === "function"
+            ? {
+                frame: buildLesson35PreteritAgentivePursuitFrame(),
+                id: "lesson-35-preterit-agentive-nominalization",
+                routeKind: "preterit-agentive-nominalization",
+                sourceUnit: "CNV preterit source",
+                targetUnit: "CNN preterit-agentive nounstem",
+                operation: "preterit-vnc-core-to-agentive-nounstem",
+                formulaTemplate: "CNV(PRETERIT_SOURCE_CORE) -> CNN(PRETERIT_AGENTIVE_NOUNSTEM)",
+                sourceGateStatus: "preterit-source-core-required",
+                requirementIds: ["preterit-vnc-core-source", "nominalized-agentive-role-source"],
+            }
+            : null,
+        typeof buildLesson36NominalizedVncPursuitFrame === "function"
+            ? {
+                frame: buildLesson36NominalizedVncPursuitFrame(),
+                id: "lesson-36-nominalized-vnc",
+                routeKind: "nominalized-vnc",
+                sourceUnit: "CNV source",
+                targetUnit: "CNN nominalized VNC",
+                operation: "vnc-source-to-nominalized-vnc",
+                formulaTemplate: "CNV(SOURCE_CORE) -> CNN(NOMINALIZED_VNC_STEM)",
+                sourceGateStatus: "nominalizable-vnc-source-required",
+                requirementIds: ["customary-present-or-patientive-or-instrumentive-or-action-source"],
+            }
+            : null,
+        typeof buildLesson37DeverbalNounstemPursuitFrame === "function"
+            ? {
+                frame: buildLesson37DeverbalNounstemPursuitFrame(),
+                id: "lesson-37-deverbal-nounstem",
+                routeKind: "deverbal-nounstem",
+                sourceUnit: "CNV core source",
+                targetUnit: "CNN deverbal nounstem",
+                operation: "vnc-core-to-deverbal-nounstem",
+                formulaTemplate: "CNV(SOURCE_CORE) -> CNN(DEVERBAL_NOUNSTEM[-s/-lis/PATIENTIVE])",
+                sourceGateStatus: "deverbal-source-core-required",
+                requirementIds: ["future-or-impersonal-or-passive-patientive-source-core"],
+            }
+            : null,
+        typeof buildLesson38ImpersonalPatientivePursuitFrame === "function"
+            ? {
+                frame: buildLesson38ImpersonalPatientivePursuitFrame(),
+                id: "lesson-38-impersonal-patientive",
+                routeKind: "impersonal-patientive",
+                sourceUnit: "impersonal CNV core source",
+                targetUnit: "CNN patientive nounstem",
+                operation: "impersonal-vnc-core-to-patientive-nounstem",
+                formulaTemplate: "CNV(IMPERSONAL_SOURCE_CORE) -> CNN(IMPERSONAL_PATIENTIVE_NOUNSTEM)",
+                sourceGateStatus: "impersonal-patientive-source-core-required",
+                requirementIds: ["impersonal-core-source", "patientive-object-material-source"],
+            }
+            : null,
+        typeof buildLesson39PatientiveOperationsPursuitFrame === "function"
+            ? {
+                frame: buildLesson39PatientiveOperationsPursuitFrame(),
+                id: "lesson-39-patientive-operations",
+                routeKind: "patientive-operations",
+                sourceUnit: "CNV core/root/stock source",
+                targetUnit: "CNN patientive nounstem or continuation source",
+                operation: "patientive-family-source-to-nounstem-or-continuation",
+                formulaTemplate: "CNV/ROOT/STOCK(SOURCE) -> CNN(PATIENTIVE_FAMILY_NOUNSTEM)",
+                sourceGateStatus: "patientive-family-source-required",
+                requirementIds: ["perfective-or-imperfective-or-root-stock-or-characteristic-property-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "nominalization",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: "CNV",
+            targetFormulaType: "CNN",
+            formulaTransition: "CNV->CNN",
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                stemKind: grammarFrame.stemFrame?.stemKind || "",
+                categoryTransition: grammarFrame.nuclearClauseFrame?.categoryTransition || "",
+                sourceClauseKind: grammarFrame.nuclearClauseFrame?.sourceClauseKind || "",
+                targetClauseKind: grammarFrame.nuclearClauseFrame?.targetClauseKind || "",
+                participantFrame: grammarFrame.participantFrame || {},
+                stemFrame: grammarFrame.stemFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-nominalization-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const derivationalBoundaryRoutes = [
+        typeof buildLesson27FrequentativePursuitFrame === "function"
+            ? {
+                frame: buildLesson27FrequentativePursuitFrame(),
+                id: "lesson-27-frequentative",
+                routeKind: "frequentative",
+                sourceUnit: "CNV stem source",
+                targetUnit: "CNV frequentative candidate",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV->CNV",
+                operation: "source-stem-reduplication-to-frequentative-stem",
+                formulaTemplate: "CNV(SOURCE_STEM) -> CNV(FREQUENTATIVE_STEM[REDUP])",
+                sourceGateStatus: "frequentative-source-stem-required",
+                requirementIds: ["frequentative-type-source", "nawat-frequentative-evidence"],
+            }
+            : null,
+        typeof buildLesson28VerbalEmbedPursuitFrame === "function"
+            ? {
+                frame: buildLesson28VerbalEmbedPursuitFrame(),
+                id: "lesson-28-verbal-embed-compound",
+                routeKind: "verbal-embed-compound",
+                sourceUnit: "embedded CNV/CNN source plus matrix",
+                targetUnit: "compound CNV/CNN",
+                sourceFormulaType: "CNV/CNN",
+                targetFormulaType: "CNV/CNN",
+                formulaTransition: "CNV/CNN->CNV/CNN",
+                operation: "embedded-verbal-source-before-matrix-compound",
+                formulaTemplate: "EMBED(CNV/CNN)+MATRIX -> COMPOUND(CNV/CNN)",
+                sourceGateStatus: "verbal-embed-source-and-matrix-required",
+                requirementIds: ["embedded-source-formula", "matrix-stem-source", "compound-valence-frame"],
+            }
+            : null,
+        typeof buildLesson29PurposivePursuitFrame === "function"
+            ? {
+                frame: buildLesson29PurposivePursuitFrame(),
+                id: "lesson-29-purposive-directional",
+                routeKind: "purposive-directional",
+                sourceUnit: "embedded purposive CNV source",
+                targetUnit: "purposive compound CNV",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV+CNV->CNV",
+                operation: "future-embed-plus-directional-matrix-purposive",
+                formulaTemplate: "CNV(FUTURE_EMBED)+DIRECTIONAL_MATRIX -> CNV(PURPOSIVE_STEM)",
+                sourceGateStatus: "purposive-embed-and-directional-matrix-required",
+                requirementIds: ["future-embed-source", "directional-matrix-source", "purposive-direction-source"],
+            }
+            : null,
+        typeof buildLesson30NominalEmbedPursuitFrame === "function"
+            ? {
+                frame: buildLesson30NominalEmbedPursuitFrame(),
+                id: "lesson-30-nominal-embed-compound",
+                routeKind: "nominal-embed-compound",
+                sourceUnit: "embedded CNN source plus verbal matrix",
+                targetUnit: "compound CNV",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNN+CNV->CNV",
+                operation: "nominal-source-embed-before-verbal-matrix",
+                formulaTemplate: "CNN(NOMINAL_EMBED)+CNV(MATRIX) -> CNV(COMPOUND_STEM)",
+                sourceGateStatus: "nominal-embed-source-and-matrix-required",
+                requirementIds: ["general-use-nounstem-source", "verbal-matrix-source", "incorporation-role-source"],
+            }
+            : null,
+        typeof buildLesson31CompoundNounstemPursuitFrame === "function"
+            ? {
+                frame: buildLesson31CompoundNounstemPursuitFrame(),
+                id: "lesson-31-compound-nounstem",
+                routeKind: "compound-nounstem",
+                sourceUnit: "CNN embed plus CNN matrix",
+                targetUnit: "compound CNN",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN+CNN->CNN",
+                operation: "compound-nounstem-embed-before-matrix",
+                formulaTemplate: "CNN(EMBED)+CNN(MATRIX) -> CNN(COMPOUND_NOUNSTEM)",
+                sourceGateStatus: "compound-nounstem-source-and-matrix-required",
+                requirementIds: ["nounstem-embed-source", "nounstem-matrix-source", "compound-structure-source"],
+            }
+            : null,
+        typeof buildLesson32AffectiveNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson32AffectiveNncPursuitFrame(),
+                id: "lesson-32-affective-nnc",
+                routeKind: "affective-nnc",
+                sourceUnit: "CNN source plus affective matrix",
+                targetUnit: "affective CNN",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN+MATRIX->CNN",
+                operation: "affective-matrix-nounstem-derivation",
+                formulaTemplate: "CNN(SOURCE_NOUNSTEM)+AFFECTIVE_MATRIX -> CNN(AFFECTIVE_NNC)",
+                sourceGateStatus: "affective-nounstem-source-required",
+                requirementIds: ["nounstem-source", "affective-matrix-source", "affective-class-source"],
+            }
+            : null,
+        typeof buildLesson33HonorificPejorativePursuitFrame === "function"
+            ? {
+                frame: buildLesson33HonorificPejorativePursuitFrame(),
+                id: "lesson-33-honorific-pejorative",
+                routeKind: "honorific-pejorative",
+                sourceUnit: "CNV source",
+                targetUnit: "honorific/pejorative CNV",
+                sourceFormulaType: "CNV",
+                targetFormulaType: "CNV",
+                formulaTransition: "CNV->CNV",
+                operation: "honorific-or-pejorative-source-transform",
+                formulaTemplate: "CNV(SOURCE_STEM) -> CNV(HONORIFIC_OR_PEJORATIVE_STEM)",
+                sourceGateStatus: "honorific-pejorative-source-required",
+                requirementIds: ["honored-or-pejorated-participant-source", "causative-or-applicative-or-compound-source"],
+            }
+            : null,
+        typeof buildLesson34CardinalNumeralNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson34CardinalNumeralNncPursuitFrame(),
+                id: "lesson-34-cardinal-numeral-nnc",
+                routeKind: "cardinal-numeral-nnc",
+                sourceUnit: "numeral source",
+                targetUnit: "cardinal numeral CNN",
+                sourceFormulaType: "NUMERAL",
+                targetFormulaType: "CNN",
+                formulaTransition: "NUMERAL->CNN",
+                operation: "cardinal-numeral-source-to-absolutive-nnc",
+                formulaTemplate: "NUMERAL_SOURCE -> CNN(ABSOLUTIVE_CARDINAL_NUMERAL_NNC)",
+                sourceGateStatus: "cardinal-numeral-source-required",
+                requirementIds: ["numeral-lexeme-source", "classifier-or-count-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "derivational-boundary",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: spec.sourceFormulaType,
+            targetFormulaType: spec.targetFormulaType,
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                stemFrame: grammarFrame.stemFrame || {},
+                nuclearClauseFrame: grammarFrame.nuclearClauseFrame || {},
+                participantFrame: grammarFrame.participantFrame || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-derivational-boundary-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const nncFunctionRoutes = [
+        typeof buildLesson40AdjectivalNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson40AdjectivalNncPursuitFrame(),
+                id: "lesson-40-adjectival-nnc-function",
+                routeKind: "adjectival-nnc-function",
+                sourceUnit: "CNN/CNV adjectival source",
+                targetUnit: "adjectival-function CNN",
+                sourceFormulaType: "CNN/CNV",
+                targetFormulaType: "ADJECTIVAL",
+                formulaTransition: "CNN/CNV->ADJECTIVAL",
+                operation: "nnc-or-vnc-source-to-adjectival-function",
+                formulaTemplate: "CNN/CNV(SOURCE) -> ADJECTIVAL_FUNCTION(SOURCE_STEM)",
+                sourceGateStatus: "adjectival-function-source-required",
+                requirementIds: ["adjectival-nnc-source", "source-function-boundary"],
+            }
+            : null,
+        typeof buildLesson41AdjectivalNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson41AdjectivalNncPursuitFrame(),
+                id: "lesson-41-intensified-compound-adjectival-nnc",
+                routeKind: "intensified-compound-adjectival-nnc",
+                sourceUnit: "adjectival CNN/CNV compound source",
+                targetUnit: "intensified or compound-source adjectival CNN",
+                sourceFormulaType: "CNN/CNV",
+                targetFormulaType: "ADJECTIVAL",
+                formulaTransition: "CNN/CNV->ADJECTIVAL",
+                operation: "intensified-or-compound-source-adjectival-derivation",
+                formulaTemplate: "ADJECTIVAL_SOURCE -> INTENSIFIED_OR_COMPOUND_ADJECTIVAL_NNC",
+                sourceGateStatus: "intensified-or-compound-adjectival-source-required",
+                requirementIds: ["generated-formula-slot-or-compound-source", "adjectival-source-disambiguation"],
+            }
+            : null,
+        typeof buildLesson42AdjectivalModificationPursuitFrame === "function"
+            ? {
+                frame: buildLesson42AdjectivalModificationPursuitFrame(),
+                id: "lesson-42-adjectival-modification",
+                routeKind: "adjectival-modification",
+                sourceUnit: "head plus modifier nuclear clauses",
+                targetUnit: "modifier/head relation",
+                sourceFormulaType: "CN+CN",
+                targetFormulaType: "CLAUSE_RELATION",
+                formulaTransition: "CN+CN->MODIFICATION",
+                operation: "shared-referent-modifier-head-composition",
+                formulaTemplate: "HEAD(CN)+MODIFIER(CN) -> ADJECTIVAL_MODIFICATION_AST",
+                sourceGateStatus: "head-and-modifier-source-clauses-required",
+                requirementIds: ["head-clause-source", "modifier-clause-source", "shared-referent-source"],
+            }
+            : null,
+        typeof buildLesson43AdjectivalModificationPursuitFrame === "function"
+            ? {
+                frame: buildLesson43AdjectivalModificationPursuitFrame(),
+                id: "lesson-43-adjectival-modification-topology",
+                routeKind: "adjectival-modification-topology",
+                sourceUnit: "head plus nonpreposed/discontinuous modifier clauses",
+                targetUnit: "modifier/head topology relation",
+                sourceFormulaType: "CN+CN",
+                targetFormulaType: "CLAUSE_RELATION",
+                formulaTransition: "CN+CN->MODIFICATION",
+                operation: "nonpreposed-discontinuous-modifier-head-composition",
+                formulaTemplate: "HEAD(CN)+MODIFIER_TOPOLOGY(CN) -> ADJECTIVAL_MODIFICATION_AST",
+                sourceGateStatus: "modifier-topology-source-required",
+                requirementIds: ["head-clause-source", "nonpreposed-or-discontinuous-modifier-source"],
+            }
+            : null,
+        typeof buildLesson44AdverbialNuclearPursuitFrame === "function"
+            ? {
+                frame: buildLesson44AdverbialNuclearPursuitFrame(),
+                id: "lesson-44-adverbial-nuclear-clause",
+                routeKind: "adverbial-nuclear-clause",
+                sourceUnit: "CNV/CNN adverbial source",
+                targetUnit: "adverbialized nuclear clause",
+                sourceFormulaType: "CNV/CNN",
+                targetFormulaType: "ADVERBIAL",
+                formulaTransition: "CNV/CNN->ADVERBIAL",
+                operation: "nuclear-clause-source-to-adverbial-function",
+                formulaTemplate: "CNV/CNN(SOURCE) -> ADVERBIAL_FUNCTION(SOURCE)",
+                sourceGateStatus: "adverbializable-nuclear-clause-source-required",
+                requirementIds: ["adverbializable-vnc-or-nnc-source", "adverbial-degree-source"],
+            }
+            : null,
+        typeof buildLesson45RelationalNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson45RelationalNncPursuitFrame(),
+                id: "lesson-45-relational-nnc-options",
+                routeKind: "relational-nnc-options",
+                sourceUnit: "possessive/simple/compound relational CNN source",
+                targetUnit: "relational CNN",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "relational-nounstem-usage-option-routing",
+                formulaTemplate: "CNN(RELATIONAL_SOURCE)+OPTION_FRAME -> CNN(RELATIONAL_NNC)",
+                sourceGateStatus: "relational-nnc-option-source-required",
+                requirementIds: ["relational-nounstem-source", "usage-option-source", "supplementary-possessor-source"],
+            }
+            : null,
+        typeof buildLesson46RelationalNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson46RelationalNncPursuitFrame(),
+                id: "lesson-46-relational-nnc-option-two",
+                routeKind: "relational-nnc-option-two",
+                sourceUnit: "option-two relational CNN source",
+                targetUnit: "relational CNN",
+                sourceFormulaType: "CNN/CNV",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN/CNV->CNN",
+                operation: "option-two-relational-matrix-routing",
+                formulaTemplate: "SOURCE+RELATIONAL_MATRIX -> CNN(OPTION_TWO_RELATIONAL_NNC)",
+                sourceGateStatus: "option-two-relational-source-required",
+                requirementIds: ["option-two-relational-source", "matrix-stem-source", "contextual-reference-source"],
+            }
+            : null,
+        typeof buildLesson47RelationalNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson47RelationalNncPursuitFrame(),
+                id: "lesson-47-relational-nnc-associated-pertinency",
+                routeKind: "relational-associated-pertinency",
+                sourceUnit: "option one/two/three relational CNN source",
+                targetUnit: "associated entity or pertinency CNN",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "associated-entity-or-pertinency-relational-routing",
+                formulaTemplate: "CNN(RELATIONAL_COMPOUND_SOURCE)+MATRIX(ca/yo) -> CNN(ASSOCIATED_OR_PERTINENCY_NNC)",
+                sourceGateStatus: "associated-or-pertinency-relational-source-required",
+                requirementIds: ["relational-compound-source", "associated-entity-or-pertinency-matrix-source"],
+            }
+            : null,
+        typeof buildLesson48PlaceGentilicPursuitFrame === "function"
+            ? {
+                frame: buildLesson48PlaceGentilicPursuitFrame(),
+                id: "lesson-48-place-gentilic-nnc",
+                routeKind: "place-gentilic-nnc",
+                sourceUnit: "place-name/gentilic source",
+                targetUnit: "place-name or gentilic CNN",
+                sourceFormulaType: "CNN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CNN->CNN",
+                operation: "place-name-or-gentilic-nnc-routing",
+                formulaTemplate: "PLACE_OR_GENTILIC_SOURCE -> CNN(PLACE_NAME_OR_GENTILIC_NNC)",
+                sourceGateStatus: "place-or-gentilic-source-required",
+                requirementIds: ["unique-place-reference-source", "gentilic-formation-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "nnc-function",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.sourceUnit,
+            targetUnit: spec.targetUnit,
+            sourceFormulaType: spec.sourceFormulaType,
+            targetFormulaType: spec.targetFormulaType,
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                stemFrame: grammarFrame.stemFrame || {},
+                nuclearClauseFrame: grammarFrame.nuclearClauseFrame || {},
+                participantFrame: grammarFrame.participantFrame || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-nnc-function-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const clauseRelationRoutes = [
+        typeof buildLesson49AdverbialAdjunctionPursuitFrame === "function"
+            ? {
+                frame: buildLesson49AdverbialAdjunctionPursuitFrame(),
+                id: "lesson-49-adverbial-adjunction",
+                routeKind: "adverbial-adjunction",
+                operation: "adverbial-modifier-head-clause-adjunction",
+                formulaTemplate: "HEAD(CN)+ADVERBIAL_MODIFIER(CN) -> ADVERBIAL_ADJUNCTION_AST",
+                sourceGateStatus: "adverbial-head-and-modifier-source-required",
+                requirementIds: ["head-clause-source", "adverbial-modifier-source", "scope-source"],
+            }
+            : null,
+        typeof buildLesson50AdverbialAdjunctionPursuitFrame === "function"
+            ? {
+                frame: buildLesson50AdverbialAdjunctionPursuitFrame(),
+                id: "lesson-50-nonadverbialized-adjoined-clause",
+                routeKind: "nonadverbialized-adjoined-clause",
+                operation: "nonadverbialized-adjoined-clause-relation",
+                formulaTemplate: "HEAD(CN)+ADJOINED_UNIT(CN) -> ADVERBIAL_RELATION_AST",
+                sourceGateStatus: "adjoined-clause-relation-source-required",
+                requirementIds: ["head-clause-source", "adjoined-unit-source", "relation-kind-source"],
+            }
+            : null,
+        typeof buildLesson51ComplementClausePursuitFrame === "function"
+            ? {
+                frame: buildLesson51ComplementClausePursuitFrame(),
+                id: "lesson-51-complement-clause",
+                routeKind: "complement-clause",
+                operation: "double-nucleus-complement-composition",
+                formulaTemplate: "PRINCIPAL(CN)+COMPLEMENT(CN) -> COMPLEMENT_AST",
+                sourceGateStatus: "principal-and-complement-source-required",
+                requirementIds: ["principal-clause-source", "complement-clause-source", "shared-pronoun-link-source"],
+            }
+            : null,
+        typeof buildLesson52ConjunctionClausePursuitFrame === "function"
+            ? {
+                frame: buildLesson52ConjunctionClausePursuitFrame(),
+                id: "lesson-52-conjunction-clause",
+                routeKind: "conjunction-clause",
+                operation: "balanced-clause-conjunction-composition",
+                formulaTemplate: "CONJUNCT(CN)+CONJUNCT(CN) -> CONJUNCTION_AST",
+                sourceGateStatus: "conjunct-source-clauses-required",
+                requirementIds: ["left-conjunct-source", "right-conjunct-source", "relation-marker-source"],
+            }
+            : null,
+        typeof buildLesson53ComparisonPursuitFrame === "function"
+            ? {
+                frame: buildLesson53ComparisonPursuitFrame(),
+                id: "lesson-53-comparison",
+                routeKind: "comparison",
+                operation: "similarity-comparison-clause-routing",
+                formulaTemplate: "COMPARAND(CN)+STANDARD(CN)+COMPARISON_MARKER -> COMPARISON_STRUCTURE",
+                sourceGateStatus: "comparison-source-clauses-required",
+                requirementIds: ["comparand-source", "standard-source", "comparison-marker-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        const grammarFrame = frame.grammarFrame || {};
+        return {
+            id: spec.id,
+            routeFamily: "clause-relation",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: "source clause relation",
+            targetUnit: "clause relation AST",
+            sourceFormulaType: "CN+CN",
+            targetFormulaType: "CLAUSE_RELATION",
+            formulaTransition: "CN+CN->CLAUSE_RELATION",
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || "").filter(Boolean)
+                    : [],
+                nuclearClauseFrame: grammarFrame.nuclearClauseFrame || {},
+                participantFrame: grammarFrame.participantFrame || {},
+                morphBoundaryFrame: grammarFrame.morphBoundaryFrame || {},
+                remainingGaps: Array.isArray(frame.remainingGaps) ? Array.from(frame.remainingGaps) : [],
+                currentEngineBoundary: frame.currentEngineBoundary || {},
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-clause-relation-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const diagnosticAnalysisRoutes = [
+        typeof buildLesson56PersonalNameNncPursuitFrame === "function"
+            ? {
+                frame: buildLesson56PersonalNameNncPursuitFrame(),
+                id: "lesson-56-personal-name-nnc",
+                routeKind: "personal-name-nnc",
+                sourceFormulaType: "CN",
+                targetFormulaType: "CNN",
+                formulaTransition: "CN->CNN",
+                operation: "downgraded-statement-source-to-personal-name-nnc",
+                formulaTemplate: "SOURCE_STATEMENT(CN) -> CNN(PERSONAL_NAME_NNC)",
+                sourceGateStatus: "personal-name-source-statement-required",
+                requirementIds: ["single-clause-or-adjunction-or-conjunction-name-source", "inner-outer-subject-source"],
+            }
+            : null,
+        typeof buildLesson57AnalysisPursuitFrame === "function"
+            ? {
+                frame: buildLesson57AnalysisPursuitFrame(),
+                id: "lesson-57-analysis-diagnostics",
+                routeKind: "analysis-diagnostics",
+                sourceFormulaType: "TEXT",
+                targetFormulaType: "DIAGNOSTIC",
+                formulaTransition: "TEXT->DIAGNOSTIC",
+                operation: "miscellany-part-one-source-diagnostic-routing",
+                formulaTemplate: "TEXT_SOURCE -> ANDREWS_57_DIAGNOSTIC_FRAME",
+                sourceGateStatus: "textual-analysis-source-required",
+                requirementIds: ["text-source", "sentence-context-source", "diagnostic-kind-source"],
+            }
+            : null,
+        typeof buildLesson58AnalysisPursuitFrame === "function"
+            ? {
+                frame: buildLesson58AnalysisPursuitFrame(),
+                id: "lesson-58-analysis-diagnostics",
+                routeKind: "analysis-diagnostics",
+                sourceFormulaType: "TEXT",
+                targetFormulaType: "DIAGNOSTIC",
+                formulaTransition: "TEXT->DIAGNOSTIC",
+                operation: "miscellany-part-two-source-diagnostic-routing",
+                formulaTemplate: "TEXT_SOURCE -> ANDREWS_58_DIAGNOSTIC_FRAME",
+                sourceGateStatus: "textual-analysis-source-required",
+                requirementIds: ["text-source", "sentence-context-source", "diagnostic-kind-source"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        return {
+            id: spec.id,
+            routeFamily: "diagnostic-analysis",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: spec.routeKind === "personal-name-nnc" ? "name source clause" : "textual source",
+            targetUnit: spec.routeKind === "personal-name-nnc" ? "personal-name CNN" : "diagnostic frame",
+            sourceFormulaType: spec.sourceFormulaType,
+            targetFormulaType: spec.targetFormulaType,
+            formulaTransition: spec.formulaTransition,
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.kind || frame.outputKind || "",
+                subsectionRefs: Array.isArray(frame.subsectionInventory)
+                    ? frame.subsectionInventory.map((entry) => entry.andrewsSection || entry.range || "").filter(Boolean)
+                    : [],
+                coverage: frame.coverage || {},
+                boundaries: frame.boundaries || {},
+                remainingGaps: [frame.remainingGap].filter(Boolean),
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-diagnostic-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const denominalLessonRoutes = [
+        typeof buildLesson54DenominalVerbstemPursuitFrame === "function"
+            ? {
+                frame: buildLesson54DenominalVerbstemPursuitFrame(),
+                id: "lesson-54-denominal-verbstem",
+                routeKind: "denominal-verbstem-part-one",
+                formulaTemplate: "CNN_SOURCE -> CNV(DENOMINAL_VERBSTEM[-ti/-hui/-ya/-a/-hua/-lia])",
+                operation: "nounstem-source-to-denominal-verbstem-route-family",
+                sourceGateStatus: "lesson-54-denominal-source-required",
+                requirementIds: ["nounstem-source", "source-evidence-contract", "target-stem-class-contract"],
+            }
+            : null,
+        typeof buildLesson55DenominalVerbstemPursuitFrame === "function"
+            ? {
+                frame: buildLesson55DenominalVerbstemPursuitFrame(),
+                id: "lesson-55-denominal-verbstem",
+                routeKind: "denominal-verbstem-part-two",
+                formulaTemplate: "CNN/RELATIONAL_SOURCE -> CNV(DENOMINAL_VERBSTEM[-tia/-tla/-oa/-huia/-i-a])",
+                operation: "temporal-relational-adverbial-nounstem-source-to-denominal-verbstem-route-family",
+                sourceGateStatus: "lesson-55-denominal-source-required",
+                requirementIds: ["temporal-or-relational-or-adverbial-source", "source-evidence-contract", "target-stem-class-contract"],
+            }
+            : null,
+    ].filter(Boolean).map((spec) => {
+        const frame = spec.frame || {};
+        return {
+            id: spec.id,
+            routeFamily: "denominal-lesson",
+            routeKind: spec.routeKind,
+            andrewsRefs: Array.isArray(frame.pdfRefs) ? Array.from(frame.pdfRefs) : [],
+            sourceUnit: "CNN source",
+            targetUnit: "CNV denominal verbstem",
+            sourceFormulaType: "CNN",
+            targetFormulaType: "CNV",
+            formulaTransition: "CNN->CNV",
+            operation: spec.operation,
+            formulaTemplate: spec.formulaTemplate,
+            structuralInfo: {
+                pursuitFrameKind: frame.outputKind || "",
+                subsectionRefs: Array.isArray(frame.subsectionFrames)
+                    ? frame.subsectionFrames.map((entry) => entry.range || "").filter(Boolean)
+                    : [],
+                contractCoverage: frame.contractCoverage || {},
+                boundaries: frame.boundaries || {},
+                remainingGaps: [frame.remainingGap].filter(Boolean),
+            },
+            sourceGate: {
+                gated: true,
+                status: spec.sourceGateStatus,
+                requirementIds: Array.from(spec.requirementIds),
+                evidenceStatus: "andrews-denominal-source-restriction",
+            },
+            generationAllowed: false,
+        };
+    });
+
+    const routes = [
+        ...cnvCnnRoutes,
+        ...denominalRoutes,
+        ...earlyFoundationRoutes,
+        ...relationalRoutes,
+        ...valencyVoiceRoutes,
+        ...vncSourceRoutes,
+        ...foundationRoutes,
+        ...forwardDerivationRoutes,
+        ...nominalizationRoutes,
+        ...derivationalBoundaryRoutes,
+        ...nncFunctionRoutes,
+        ...clauseRelationRoutes,
+        ...diagnosticAnalysisRoutes,
+        ...denominalLessonRoutes,
+    ];
+    const expectedLessonNumbers = Array.from({ length: 58 }, (_, index) => index + 1);
+    const coveredLessonNumbers = Array.from(new Set(routes.flatMap((route) => {
+        const lessonNumbers = [];
+        const idMatch = String(route.id || "").match(/^lesson-(\d+)/);
+        if (idMatch) {
+            lessonNumbers.push(Number(idMatch[1]));
+        }
+        (Array.isArray(route.andrewsRefs) ? route.andrewsRefs : []).forEach((ref) => {
+            const refMatch = String(ref || "").match(/Andrews Lesson\s+(\d+)/);
+            if (refMatch) {
+                lessonNumbers.push(Number(refMatch[1]));
+            }
+        });
+        return lessonNumbers.filter((lessonNumber) => Number.isInteger(lessonNumber) && lessonNumber >= 1 && lessonNumber <= 58);
+    }))).sort((left, right) => left - right);
+    const missingLessonNumbers = expectedLessonNumbers.filter((lessonNumber) => !coveredLessonNumbers.includes(lessonNumber));
+    const routeInvariantFailures = routes.filter((route) => !(
+        route.formulaTransition
+        && route.formulaTemplate
+        && route.structuralInfo
+        && typeof route.structuralInfo === "object"
+        && route.sourceGate?.gated === true
+        && route.sourceGate?.status
+    )).map((route) => route.id || route.contractId || "");
+    const lessonRegistry = typeof LESSON_REGISTRY !== "undefined" && Array.isArray(LESSON_REGISTRY)
+        ? LESSON_REGISTRY
+        : (Array.isArray(globalThis.LESSON_REGISTRY) ? globalThis.LESSON_REGISTRY : []);
+    const lessonSourceGatedRoutes = lessonRegistry
+        .map((lesson) => lesson?.trajectory?.sourceGatedRoute)
+        .filter(Boolean);
+    const sectionSourceGatedRoutes = lessonSourceGatedRoutes.flatMap((route) => (
+        Array.isArray(route.subsectionRoutes) ? route.subsectionRoutes : []
+    ));
+    const internalSourceGatedRoutes = sectionSourceGatedRoutes.flatMap((route) => (
+        Array.isArray(route.internalRoutes) ? route.internalRoutes : []
+    ));
+    const allAndrewsRouteContractFailures = [
+        ...lessonSourceGatedRoutes,
+        ...sectionSourceGatedRoutes,
+        ...internalSourceGatedRoutes,
+    ].filter((route) => !(
+        route.formulaTransition
+        && route.formulaTemplate
+        && route.structuralInfo
+        && typeof route.structuralInfo === "object"
+        && route.structuralInfo.uiHost === "tense-tabs-column"
+        && route.sourceGate?.gated === true
+        && route.sourceGate?.status
+    )).map((route) => route.id || route.contractId || "");
+    const internalEntrySpecificFallbackCount = internalSourceGatedRoutes.filter((route) => (
+        route.structuralInfo?.derivationStatus === "entry-specific-andrews-internal-route"
+    )).length;
+    const internalSourcePathFormulaMissingCount = internalSourceGatedRoutes.filter((route) => (
+        !route.structuralInfo?.sourcePathFormula
+    )).length;
+    const allAndrewsRouteContractsComplete = lessonSourceGatedRoutes.length === 58
+        && sectionSourceGatedRoutes.length === 505
+        && internalSourceGatedRoutes.length === 921
+        && allAndrewsRouteContractFailures.length === 0
+        && internalEntrySpecificFallbackCount === 0
+        && internalSourcePathFormulaMissingCount === 0;
+    const coverageAudit = {
+        kind: "andrews-source-gated-route-coverage-audit",
+        scope: allAndrewsRouteContractsComplete ? "all-andrews-route-contract-coverage" : "lesson-level-current-registry",
+        expectedLessonNumbers,
+        coveredLessonNumbers,
+        missingLessonNumbers,
+        expectedLessonCount: expectedLessonNumbers.length,
+        coveredLessonCount: coveredLessonNumbers.length,
+        missingLessonCount: missingLessonNumbers.length,
+        routeInvariantFailures,
+        lessonSourceGatedRouteCount: lessonSourceGatedRoutes.length,
+        sectionSourceGatedRouteCount: sectionSourceGatedRoutes.length,
+        internalSourceGatedRouteCount: internalSourceGatedRoutes.length,
+        allAndrewsRouteContractFailures,
+        internalEntrySpecificFallbackCount,
+        internalSourcePathFormulaMissingCount,
+        lessonLevelCoverageComplete: missingLessonNumbers.length === 0,
+        sectionLevelAndrewsRouteAuditComplete: allAndrewsRouteContractsComplete,
+        internalLevelAndrewsRouteAuditComplete: allAndrewsRouteContractsComplete,
+    };
+    return {
+        version: 1,
+        kind: "andrews-source-gated-derivational-route-registry",
+        scope: allAndrewsRouteContractsComplete ? "all-andrews-route-contract-coverage" : "partial-current-engine-coverage",
+        routes,
+        routeCount: routes.length,
+        coverageAudit,
+        routeFamilyCounts: routes.reduce((counts, route) => {
+            const key = route.routeFamily || "unknown";
+            counts[key] = (counts[key] || 0) + 1;
+            return counts;
+        }, {}),
+        boundaries: {
+            allAndrewsRoutesComplete: allAndrewsRouteContractsComplete,
+            noFixtureEvidence: true,
+            formulaAndStructureRequired: true,
+            finiteGenerationRequiresExplicitSourceGateSatisfaction: true,
+        },
+    };
 }
 
 function getNawatDenominalAndrewsContractCoverageSummary() {
@@ -12553,6 +14090,9 @@ function getNawatRouteStationModels(routeKeyOrProfile = "", {
         const patientivoSurfaceSpec = getNawatRoutePatientivoSurfaceSpec(profile, {
             sourceTenseValue,
             sourceCombinedMode,
+            patientivoSource: resolvedTarget?.activePatientivoBranch
+                || resolvedTarget?.patientivoSource
+                || "",
         });
         const patientivoSource = patientivoSurfaceSpec?.patientivoSource || profile.patientivoSource || "nonactive";
         const patientivoCombinedMode = isNawatPatientivoNonactiveSource(patientivoSource) || patientivoSurfaceSpec?.sourceCombinedMode === COMBINED_MODE.nonactive
@@ -14107,6 +15647,7 @@ function getTenseOrderForMode(mode) {
             "agentivo-futuro",
             "patientivo",
             "instrumentivo",
+            "predicado-nominal",
             "calificativo-instrumentivo",
             "locativo-temporal",
         ];
@@ -14128,6 +15669,7 @@ function getTenseOrderForMode(mode) {
         && tense !== "agentivo-futuro"
         && tense !== "patientivo"
         && tense !== "instrumentivo"
+        && !isPredicateNominalTense(tense)
         && tense !== "calificativo-instrumentivo"
         && tense !== "locativo-temporal"
         && !FORMULA_CNV_LEGACY_TAB_TENSES.has(tense)
@@ -14152,6 +15694,7 @@ function isNounTenseVisibleForCombinedMode(tenseValue, combinedMode = getCombine
         return true;
     }
     return tenseValue === "patientivo"
+        || isPredicateNominalTense(tenseValue)
         || tenseValue === "locativo-temporal";
 }
 
@@ -14620,9 +16163,6 @@ function updateTenseModeTabs() {
 
 function initTenseModeTabs() {
     const buttons = document.querySelectorAll("[data-tense-mode]");
-    if (!buttons.length) {
-        return;
-    }
     buttons.forEach((button) => {
         button.addEventListener("click", () => {
             const mode = button.getAttribute("data-tense-mode");

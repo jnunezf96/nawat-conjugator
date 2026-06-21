@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/generation/morphology_engine.js.
 
-export function createMorphologyEngineApi(targetObject = globalThis) {
+export function createMorphologyEngineModule(targetObject = globalThis) {
     // core/generation/morphology_engine.js
     // Shared morphology engine.
     // Global-scope module: all functions defined directly on the global object.
@@ -740,13 +740,14 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       sourceCompositeBase = "",
       verbSegment = "",
       isNounContext = false,
-      patientivoSource = "nonactive",
+      patientivoSource = "",
       patientivoNominalSuffix = null,
       passivePatientivoSelectedProjectiveObjectPrefix = "",
       possessivePrefix = "",
       actionNounStemUse = "",
       combinedMode = "",
       instrumentivoMode = "",
+      predicateNominalSourceTense = "",
       stemProvenanceSeed = null,
       rootPlusYaBase = "",
       rootPlusYaBasePronounceable = "",
@@ -968,7 +969,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       }
       const isIntransitiveVerb = objectPrefix === "" && !isTaFusion && !indirectObjectMarker && !thirdObjectMarker && !isUnderlyingTransitive;
       const forceTransitiveBase = isTaFusion || isUnderlyingTransitive;
-      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || isPresentAgentivoTense || isPreteritAgentivoTense || isFutureAgentivoTense || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
+      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || isPresentAgentivoTense || isPreteritAgentivoTense || isFutureAgentivoTense || tense === "patientivo" || tense === "instrumentivo" || targetObject.isPredicateNominalTense(tense) || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
       const isNounContextFinal = isNounContext || isNounTense;
       const forceTransitiveDirectional = directionalRuleMode === "transitive";
       const forceIntransitiveDirectional = directionalRuleMode === "intransitive";
@@ -1003,6 +1004,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       } = directionalPrefixResult);
       let nounContextPrimaryFormSpec = null;
       let nounContextPrimaryTrailingSuffix = "";
+      let verbDerivedNominalResultMetadata = null;
       const markerChain = [indirectObjectMarker || "", thirdObjectMarker || ""];
       const objectPrefixBeforeComposition = objectPrefix;
       objectPrefix = targetObject.composeObj1Chain({
@@ -1082,6 +1084,12 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         subjectSuffix = primaryRealized.subjectSuffix ?? primaryEntry.subjectSuffix ?? "";
         nounContextPrimaryFormSpec = primaryEntry.formSpec || targetObject.buildLiteralNominalFormSpec(verb, subjectSuffix);
         nounContextPrimaryTrailingSuffix = primaryEntry.trailingSuffix || "";
+        verbDerivedNominalResultMetadata = {
+          nominalizationProfile: nominalResult.nominalizationProfile || null,
+          instrumentivoImperfectActiveAbsolutiveException: nominalResult.instrumentivoImperfectActiveAbsolutiveException || null,
+          instrumentivoSourceSubjectPossessor: nominalResult.instrumentivoSourceSubjectPossessor || null,
+          actionNounSourceSubjectPossessor: nominalResult.actionNounSourceSubjectPossessor || null
+        };
         alternateForms.length = 0;
         alternateEntries.forEach(entry => {
           const realized = targetObject.realizeNominalFormSpec(entry.formSpec || null, entry);
@@ -1266,6 +1274,9 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
       if (tense === "patientivo") {
         const isTransitive = !isIntransitiveVerb && !hasImpersonalTaPrefix;
         const resolvedPatientivoFamily = typeof targetObject.normalizeVerbDerivedPatientiveFamily === "function" ? targetObject.normalizeVerbDerivedPatientiveFamily(patientivoSource) : String(patientivoSource || "").trim();
+        if (!resolvedPatientivoFamily) {
+          return returnMorphologyError("patientivo-source-gate", "morphology-patientivo-source-required");
+        }
         if (resolvedPatientivoFamily === "passive" && !isTransitive) {
           return returnMorphologyError("patientivo-passive-valency-gate", "morphology-patientivo-passive-intransitive-blocked");
         }
@@ -1845,6 +1856,37 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
           return returnMorphologyError("instrumentivo-direct-route", "morphology-instrumentivo-route-blocked");
         }
       }
+      if (targetObject.isPredicateNominalTense(tense)) {
+        const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta({
+          preferCurrentDerivedStem: combinedMode === "nonactive"
+        });
+        const resolvedPredicateNominalSourceTense = predicateNominalSourceTense || targetObject.getPredicateNominalSourceTenseForTarget(tense);
+        const predicateNominalResult = targetObject.getPredicateNominalResult({
+          rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
+          verbMeta: nominalVerbMeta,
+          subjectPrefix: baseSubjectPrefix,
+          subjectSuffix: baseSubjectSuffix,
+          objectPrefix: baseObjectPrefix,
+          indirectObjectMarker,
+          thirdObjectMarker,
+          nominalKind: tense,
+          sourceTense: resolvedPredicateNominalSourceTense,
+          nominalConnector: subjectSuffix || "t",
+          combinedMode,
+          entradaGrammarObject,
+          sourceFrame,
+          sourceRouteFrame,
+          routeFrame,
+          valenceFrameFixed,
+          sourceValenceFrameFixed
+        });
+        if (predicateNominalResult?.valencyObjectSlotGate?.status === "blocked") {
+          return returnMorphologyValencyGateBlocked(predicateNominalResult.valencyObjectSlotGate);
+        }
+        if (!predicateNominalResult || predicateNominalResult.error || !applyVerbDerivedNominalResultToMorphology(predicateNominalResult)) {
+          return returnMorphologyError("predicado-nominal-direct-route", "morphology-predicado-nominal-route-blocked");
+        }
+      }
       if (tense === "locativo-temporal") {
         const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
         const locativoResult = targetObject.getLocativoTemporalResult({
@@ -2420,7 +2462,8 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
         trimFinalIAUAVowel: tense === "optativo" || dropClassCNucleusTenses.has(tense),
         patientivoSourceStageFrame,
         patientivoSourceStageFrames,
-        patientivoMultipleDerivationContract
+        patientivoMultipleDerivationContract,
+        verbDerivedNominalResultMetadata
       };
       const directionalChainMeta = directionalInputPrefix ? {
         directionalInputPrefix,
@@ -2498,7 +2541,7 @@ export function createMorphologyEngineApi(targetObject = globalThis) {
 }
 
 export function installMorphologyEngineGlobals(targetObject = globalThis) {
-    const api = createMorphologyEngineApi(targetObject);
+    const api = createMorphologyEngineModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

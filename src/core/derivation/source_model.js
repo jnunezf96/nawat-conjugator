@@ -1210,12 +1210,7 @@ function resolvePatientivoImperfectiveBaseStemSpec(chain = null) {
     const baseStemSpec = sourceStemSpec || buildLiteralMorphStemSpec(baseVerb, {
         sourceBase: normalizedSourceBase,
     });
-    const baseStem = realizeMorphStemSpec(baseStemSpec, baseVerb);
-    return buildAppendMorphStemSpec(baseStem, "ya", {
-        sourceStemSpec: baseStemSpec,
-        sourceBase: normalizedSourceBase,
-        sourceSuffix: "ya",
-    });
+    return baseStemSpec;
 }
 
 function applyPatientivoImperfectiveSourceChainStemSpec(stemSpec = null, fallbackStem = "", chain = null) {
@@ -2818,15 +2813,24 @@ function buildPatientivoPrelocativeContinuationContract({
 function buildPatientivoCompoundEmbedContinuationContract({
     patientivoSurface = "",
     sourceSurface = "",
+    patientivoSource = "",
+    sourceTenseValue = "",
+    sourceCombinedMode = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
     patientivoNominalSuffix = "",
     matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
+    const normalizedPatientivoSource = String(patientivoSource || "").trim();
+    const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
+    const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
     const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
         patientivoNominalSuffix,
     });
+    if (!normalizedPatientivoSource) {
+        diagnostics.push("patientivo-compound-embed-missing-patientivo-source");
+    }
     if (!String(patientivoSurface || "").trim()) {
         diagnostics.push("patientivo-compound-embed-missing-patientivo-surface");
     }
@@ -2860,6 +2864,9 @@ function buildPatientivoCompoundEmbedContinuationContract({
         outputKind: "patientivo-compound-embed-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
+        patientivoSource: normalizedPatientivoSource,
+        sourceTenseValue: normalizedSourceTenseValue,
+        sourceCombinedMode: normalizedSourceCombinedMode,
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
             ? sourceFormulaSlots
@@ -2878,15 +2885,24 @@ function buildPatientivoCompoundEmbedContinuationContract({
 function buildPatientivoNominalCompoundContinuationContract({
     patientivoSurface = "",
     sourceSurface = "",
+    patientivoSource = "",
+    sourceTenseValue = "",
+    sourceCombinedMode = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
     patientivoNominalSuffix = "",
     matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
+    const normalizedPatientivoSource = String(patientivoSource || "").trim();
+    const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
+    const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
     const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
         patientivoNominalSuffix,
     });
+    if (!normalizedPatientivoSource) {
+        diagnostics.push("patientivo-nominal-compound-missing-patientivo-source");
+    }
     if (!String(patientivoSurface || "").trim()) {
         diagnostics.push("patientivo-nominal-compound-missing-patientivo-surface");
     }
@@ -2927,6 +2943,9 @@ function buildPatientivoNominalCompoundContinuationContract({
         outputKind: "patientivo-nominal-compound-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
+        patientivoSource: normalizedPatientivoSource,
+        sourceTenseValue: normalizedSourceTenseValue,
+        sourceCombinedMode: normalizedSourceCombinedMode,
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object"
             ? sourceFormulaSlots

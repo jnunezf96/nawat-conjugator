@@ -2268,6 +2268,9 @@ function buildPatientivoAdjectivalNncFunctionFrame({
 
 function buildPatientivoAdjectivalNncUnsupportedOutput({
     patientivoSurface = "",
+    patientivoSource = "",
+    sourceTenseValue = "",
+    sourceCombinedMode = "",
     requestedState = "absolutive",
     diagnostic = null,
     nominalizationProfile = null,
@@ -2286,6 +2289,9 @@ function buildPatientivoAdjectivalNncUnsupportedOutput({
         generationRoute: "adjectival-nnc",
         adjectivalNncFunctionFrame: buildPatientivoAdjectivalNncFunctionFrame({
             patientivoSurface,
+            patientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
@@ -2308,9 +2314,18 @@ function buildPatientivoAdjectivalNncFunctionOutput({
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
     const surface = String(patientivoSurface || "").trim();
+    const resolvedPatientivoSource = String(
+        patientivoSource
+        || nominalizationProfile?.patientiveFamilyProfile?.family
+        || nominalizationProfile?.role?.patientiveFamily
+        || ""
+    ).trim();
     if (requestedState !== "absolutive") {
         return buildPatientivoAdjectivalNncUnsupportedOutput({
             patientivoSurface: surface,
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
             requestedState,
             nominalizationProfile,
             formulaSlots,
@@ -2324,6 +2339,9 @@ function buildPatientivoAdjectivalNncFunctionOutput({
     if (!surface) {
         return buildPatientivoAdjectivalNncUnsupportedOutput({
             patientivoSurface: surface,
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
             requestedState,
             nominalizationProfile,
             formulaSlots,
@@ -2334,9 +2352,25 @@ function buildPatientivoAdjectivalNncFunctionOutput({
             ),
         });
     }
+    if (!resolvedPatientivoSource) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: surface,
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-requires-patientive-source",
+                "Patientive adjectival NNC generation requires the generated patientive source family."
+            ),
+        });
+    }
     const frame = buildPatientivoAdjectivalNncFunctionFrame({
         patientivoSurface: surface,
-        patientivoSource,
+        patientivoSource: resolvedPatientivoSource,
         sourceTenseValue,
         sourceCombinedMode,
         nominalizationProfile,

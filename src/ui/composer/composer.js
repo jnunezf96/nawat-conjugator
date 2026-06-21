@@ -78,6 +78,7 @@ function getVerbComposerElements() {
         panel: document.getElementById("verb-composer"),
         entryBoardTabsHost: document.getElementById("verb-entry-board-tabs"),
         entryBoardButtons: document.querySelectorAll("[data-composer-entry-board]"),
+        ordinaryNncModeButtons: document.querySelectorAll("[data-ordinary-nnc-mode]"),
         slots,
         slotAEmbedInput,
         slotAStemInput,
@@ -946,23 +947,7 @@ function syncComposerSlotTabsLabels(root = document) {
 }
 
 function getComposerEntryBoardTabsLabel() {
-    const baseLabel = getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");
-    if (typeof document === "undefined" || getComposerEntryBoard() !== COMPOSER_ENTRY_BOARD.nounToVerb) {
-        return baseLabel;
-    }
-    const activeSlot = getComposerActiveSlotFromState();
-    const stemInput = getVerbComposerElements().slots?.[activeSlot]?.stemInput || null;
-    const currentState = getComposerMatrixAffixCurrentState(activeSlot, stemInput);
-    const suffixLabel = String(currentState?.shortLabel || "").trim();
-    const judgement = currentState?.andrewsJudgment || null;
-    const judgementLabel = judgement?.range
-        ? `Andrews ${judgement.range}`
-        : (judgement?.status === "nawat-only" ? "Nawat" : "");
-    return [
-        baseLabel,
-        suffixLabel ? `Verbalizar ${suffixLabel}` : "Verbalizar",
-        judgementLabel,
-    ].filter(Boolean).join(" · ");
+    return getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");
 }
 
 function syncComposerEntryBoardTabsLabel(entryBoardTabs) {
@@ -5089,12 +5074,6 @@ function restoreComposerEntryBoardSlotAState(board = "") {
 }
 
 function getVerbRegexPlaceholder() {
-    if (
-        typeof isOrdinaryNncGenerationModeEnabled === "function"
-        && isOrdinaryNncGenerationModeEnabled()
-    ) {
-        return "ej. (siwa)t";
-    }
     return "_";
 }
 
@@ -7229,6 +7208,7 @@ function renderVerbComposerFromState() {
         panel,
         entryBoardTabsHost,
         entryBoardButtons,
+        ordinaryNncModeButtons,
         slots,
         transitivitySelect,
         valenceSelectIntransitive,
@@ -7291,6 +7271,17 @@ function renderVerbComposerFromState() {
         const isActive = isComposer && !ordinaryNncActive && board === activeBoard;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
+        button.tabIndex = 0;
+    });
+    Array.from(ordinaryNncModeButtons || []).forEach((button) => {
+        const isActive = isComposer && ordinaryNncActive;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        if (button.getAttribute("role") === "tab") {
+            button.setAttribute("aria-selected", String(isActive));
+        } else {
+            button.removeAttribute("aria-selected");
+        }
         button.tabIndex = 0;
     });
     COMPOSER_SLOT_KEYS.forEach((slotKey) => {

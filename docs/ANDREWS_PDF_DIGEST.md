@@ -8,9 +8,9 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 
 ## Authority Rules
 
-- Andrews governs grammar architecture: categories, slot order, dependencies, boundaries, and source/target roles.
+- Andrews PDF governs grammar architecture: categories, slot order, dependencies, boundaries, source/target roles, derivational operations, and generation gates.
 - Modern Nawat/Pipil orthography governs spelling realization. Classical spellings from Andrews are structural input, not direct Nawat surfaces.
-- Nawat/Pipil evidence and user-confirmed forms govern fixtures, lexical examples, exceptions, and output forms.
+- Nawat/Pipil evidence and user-confirmed forms may govern spelling and already-scoped preterit indicative surfaces only. They may be recorded as lexical evidence, but they do not authorize preterit-derived grammar, unsupported derivational routes, or formula architecture.
 - Lessons are curriculum and evidence indexes. The app should implement reusable engines, metadata, diagnostics, and controls rather than one module/control per lesson.
 - A route can be shown as structural or diagnostic even when generation is blocked. Do not silently generate where Andrews requires an unconfirmed source.
 

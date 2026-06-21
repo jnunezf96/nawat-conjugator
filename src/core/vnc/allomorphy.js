@@ -2737,9 +2737,58 @@ function withNominalFormEntrySuffix(entry = null, subjectSuffix = "", fallback =
 var VERB_DERIVED_NOMINAL_KIND = Object.freeze({
     sustantivoVerbal: "sustantivo-verbal",
     instrumentivo: "instrumentivo",
+    predicadoNominal: "predicado-nominal",
     calificativoInstrumentivo: "calificativo-instrumentivo",
     locativoTemporal: "locativo-temporal",
 });
+
+const VNC_PREDICATE_NOMINAL_SOURCE_TENSES = Object.freeze([
+    "presente",
+    "presente-habitual",
+    "imperfecto",
+    "preterito",
+    "pasado-remoto",
+    "perfecto",
+    "pluscuamperfecto",
+    "condicional-perfecto",
+    "futuro",
+    "condicional",
+]);
+
+const VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP = Object.freeze(Object.fromEntries(
+    VNC_PREDICATE_NOMINAL_SOURCE_TENSES.map((sourceTense) => [
+        `predicado-nominal-${sourceTense}`,
+        sourceTense,
+    ])
+));
+
+function isPredicateNominalTense(tenseValue = "") {
+    const tense = String(tenseValue || "").trim();
+    return tense === VERB_DERIVED_NOMINAL_KIND.predicadoNominal
+        || Object.prototype.hasOwnProperty.call(VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP, tense);
+}
+
+function normalizePredicateNominalSourceTense(value = "") {
+    const tense = String(value || "").trim();
+    return VNC_PREDICATE_NOMINAL_SOURCE_TENSES.includes(tense) ? tense : "imperfecto";
+}
+
+function getPredicateNominalSourceTenses() {
+    return [...VNC_PREDICATE_NOMINAL_SOURCE_TENSES];
+}
+
+function getPredicateNominalSourceTenseForTarget(tenseValue = "") {
+    const tense = String(tenseValue || "").trim();
+    return normalizePredicateNominalSourceTense(
+        VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP[tense]
+        || (tense === VERB_DERIVED_NOMINAL_KIND.predicadoNominal ? "imperfecto" : "")
+    );
+}
+
+function getPredicateNominalTargetTenseForSource(sourceTense = "") {
+    const tense = normalizePredicateNominalSourceTense(sourceTense);
+    return `predicado-nominal-${tense}`;
+}
 
 function getActiveActionNominalizerContract() {
     const longConversion = typeof convertClassicalLettersToNawat === "function"
@@ -3247,6 +3296,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "action-nominal",
             semanticRole: "action/process",
             sourceTense: "futuro",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "agentivo") {
@@ -3254,6 +3304,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "customary-present-agentive",
             semanticRole: "agent",
             sourceTense: "presente-habitual",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "agentivo-presente") {
@@ -3261,6 +3312,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "present-agentive",
             semanticRole: "agent",
             sourceTense: "presente",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "agentivo-preterito") {
@@ -3268,6 +3320,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "preterit-agentive",
             semanticRole: "agent",
             sourceTense: "preterito",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "agentivo-futuro") {
@@ -3275,6 +3328,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "future-agentive",
             semanticRole: "agent",
             sourceTense: "futuro",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "patientivo") {
@@ -3282,9 +3336,8 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "patientive",
             semanticRole: "patient/result",
             patientiveFamily: resolvedPatientivoSource,
-            sourceTense: resolvedPatientivoSource === "imperfectivo"
-                ? "imperfecto"
-                : (resolvedPatientivoSource === "perfectivo" ? "preterito" : ""),
+            sourceTense: "",
+            sourceUnit: "vnc-core-stem",
         };
     }
     if (kind === "instrumentivo") {
@@ -3292,6 +3345,15 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "instrumentive",
             semanticRole: "instrument",
             sourceTense: "presente-habitual",
+            sourceUnit: "vnc-predicate",
+        };
+    }
+    if (isPredicateNominalTense(kind)) {
+        return {
+            nominalizationKind: "predicate-nominal",
+            semanticRole: "predicate-as-noun",
+            sourceTense: getPredicateNominalSourceTenseForTarget(kind),
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "calificativo-instrumentivo") {
@@ -3299,6 +3361,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "quality-result",
             semanticRole: "quality/result",
             sourceTense: "pasado-remoto",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "potencial") {
@@ -3306,6 +3369,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "potential-patient",
             semanticRole: "potential-patient",
             sourceTense: "futuro",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "potencial-habitual") {
@@ -3314,6 +3378,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             semanticRole: "patient/customary-fitness",
             patientiveFamily: "customary-present-passive",
             sourceTense: "presente-habitual",
+            sourceUnit: "vnc-core-stem",
         };
     }
     if (kind === "locativo-temporal") {
@@ -3321,6 +3386,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             nominalizationKind: "locative-temporal",
             semanticRole: "place/time",
             sourceTense: "imperfecto",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "adjetivo-patientivo-no-activo" || kind === "patientivo-nonactive-ti") {
@@ -3329,6 +3395,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             semanticRole: "property",
             patientiveFamily: "nonactive",
             adjectivalFunction: "predicate-surface",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind === "adjetivo-patientivo-perfectivo" || kind === "patientivo-perfective-ti") {
@@ -3337,6 +3404,7 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             semanticRole: "property",
             patientiveFamily: "perfectivo",
             adjectivalFunction: "predicate-surface",
+            sourceUnit: "vnc-predicate",
         };
     }
     if (kind.startsWith("adjetivo-") || kind === "potencial" || kind === "potencial-habitual") {
@@ -3347,12 +3415,14 @@ function getVerbDerivedNominalProfileDefaults(nominalKind = "", patientivoSource
             sourceTense: kind.includes("perfecto")
                 ? "perfecto"
                 : (kind.includes("preterito") ? "preterito" : ""),
+            sourceUnit: "vnc-predicate",
         };
     }
     return {
         nominalizationKind: kind || "unknown",
         semanticRole: "",
         sourceTense: "",
+        sourceUnit: "",
     };
 }
 
@@ -3399,6 +3469,42 @@ function buildVerbDerivedNominalPossessorSourceFrame({
         });
     }
     return null;
+}
+
+function buildInstrumentiveNote2Frame(nominalKind = "") {
+    if (String(nominalKind || "") !== "instrumentivo" && !isPredicateNominalTense(nominalKind)) {
+        return null;
+    }
+    return Object.freeze({
+        version: 1,
+        grammarSource: "Andrews 36.6 note 2",
+        sourceUnit: "vnc-predicate",
+        regularStateRoutes: Object.freeze([
+            Object.freeze({
+                sourcePredicate: "customary-present-impersonal",
+                expectedState: "absolutive",
+                possessiveState: "blocked-by-default",
+            }),
+            Object.freeze({
+                sourcePredicate: "imperfect-active",
+                expectedState: "possessive",
+                absolutiveState: "blocked-by-default",
+            }),
+        ]),
+        exceptionalStateRoutes: Object.freeze([
+            Object.freeze({
+                sourcePredicate: "customary-present-impersonal",
+                exceptionalState: "possessive",
+                requires: "fully-nominalized-ti-class-1-a",
+            }),
+            Object.freeze({
+                sourcePredicate: "imperfect-active",
+                exceptionalState: "absolutive",
+                requires: "lexical-exception-evidence",
+            }),
+        ]),
+        doesNotChangeSourceUnit: true,
+    });
 }
 
 function buildVerbDerivedNominalizationProfile({
@@ -3449,6 +3555,7 @@ function buildVerbDerivedNominalizationProfile({
         || roleDefaults.sourceTense
         || ""
     );
+    const resolvedSourceUnit = String(roleDefaults.sourceUnit || "");
     const usesPatientiveFamily = kind === "patientivo" || Object.prototype.hasOwnProperty.call(defaults, "patientiveFamily");
     const patientiveFamilySource = kind === "potencial-habitual"
         ? (defaults.patientiveFamily || patientivoSource || "")
@@ -3470,6 +3577,7 @@ function buildVerbDerivedNominalizationProfile({
         isGeneralUseActionNominal,
         isGeneralUsePassiveActionNominal,
     });
+    const instrumentiveNote2Frame = buildInstrumentiveNote2Frame(kind);
     const connectorSlot = num1Num2 || null;
     const profile = {
         version: 1,
@@ -3483,6 +3591,7 @@ function buildVerbDerivedNominalizationProfile({
         source: Object.freeze({
             sourceMode: "verbo",
             sourceTense: resolvedSourceTense,
+            sourceUnit: resolvedSourceUnit,
             sourceCategory: "VNC",
             matrixBase: String(sourceModel?.matrixBase || ""),
             sourceRawVerb: String(sourceModel?.sourceRawVerb || ""),
@@ -3514,6 +3623,7 @@ function buildVerbDerivedNominalizationProfile({
             possessorPrefix: String(predicateStateSlot?.possessorPrefix || ""),
         }),
         possessorSourceFrame,
+        instrumentiveNote2Frame,
         num1Num2: connectorSlot,
         boundaries: Object.freeze({
             nominalizationScope: "structural-word-output",
@@ -4025,6 +4135,7 @@ function isNominalMorphProfileTense(tenseValue = "") {
         || tenseValue === "agentivo-futuro"
         || tenseValue === "patientivo"
         || tenseValue === "instrumentivo"
+        || isPredicateNominalTense(tenseValue)
         || tenseValue === "calificativo-instrumentivo"
         || tenseValue === "locativo-temporal";
 }

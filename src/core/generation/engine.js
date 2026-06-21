@@ -40,6 +40,12 @@ function isAdjectivalNncGenerationOptIn(override = null) {
         || (adjectivalNnc && typeof adjectivalNnc === "object" && adjectivalNnc.enabled === true);
 }
 
+function isRelationalNncGenerationOptIn(override = null) {
+    const relationalNnc = override?.relationalNnc;
+    return relationalNnc === true
+        || (relationalNnc && typeof relationalNnc === "object" && relationalNnc.enabled === true);
+}
+
 function getOrdinaryNncGenerationOptions(override = null) {
     return override?.ordinaryNnc && typeof override.ordinaryNnc === "object"
         ? override.ordinaryNnc
@@ -49,6 +55,12 @@ function getOrdinaryNncGenerationOptions(override = null) {
 function getAdjectivalNncGenerationOptions(override = null) {
     return override?.adjectivalNnc && typeof override.adjectivalNnc === "object"
         ? override.adjectivalNnc
+        : {};
+}
+
+function getRelationalNncGenerationOptions(override = null) {
+    return override?.relationalNnc && typeof override.relationalNnc === "object"
+        ? override.relationalNnc
         : {};
 }
 
@@ -3882,6 +3894,106 @@ function executeOrdinaryNncGenerationRoute({
     };
 }
 
+function executeRelationalNncGenerationRoute({
+    override = null,
+    verb = "",
+    posicionesFormula = null,
+    entradaGrammarObject = null,
+} = {}) {
+    const relationalNnc = getRelationalNncGenerationOptions(override);
+    const hasExplicitRelationalSourceSlots = relationalNnc.sourceVerb != null
+        || relationalNnc.sourceVerbstem != null
+        || relationalNnc.sourceStem != null
+        || relationalNnc.verbStem != null
+        || relationalNnc.incorporatedNounStem != null
+        || relationalNnc.incorporatedStem != null
+        || relationalNnc.embeddedNounStem != null;
+    const embeddedSource = relationalNnc.source
+        ?? relationalNnc.sourceFormula
+        ?? relationalNnc.embeddedSource
+        ?? relationalNnc.embeddedSourceStem
+        ?? (hasExplicitRelationalSourceSlots ? "" : verb);
+    const sourceVerb = relationalNnc.sourceVerb
+        ?? relationalNnc.sourceVerbstem
+        ?? relationalNnc.sourceStem
+        ?? relationalNnc.verbStem
+        ?? (embeddedSource ? "" : verb);
+    const result = typeof buildLesson46PreteritAgentiveLocativeNncFromSource === "function"
+        ? buildLesson46PreteritAgentiveLocativeNncFromSource({
+            source: embeddedSource,
+            sourceVerb,
+            incorporatedNounStem: relationalNnc.incorporatedNounStem
+                ?? relationalNnc.incorporatedStem
+                ?? relationalNnc.embeddedNounStem
+                ?? "",
+            evidenceSource: relationalNnc.evidenceSource || "",
+        })
+        : {
+            kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+            outputKind: "relational-nnc",
+            clauseKind: "nominal-nuclear-clause",
+            supported: false,
+            generationAllowed: false,
+            result: "—",
+            surfaceForms: [],
+            sourceVerb: String(sourceVerb || ""),
+            incorporatedNounStem: String(relationalNnc.incorporatedNounStem || relationalNnc.incorporatedStem || ""),
+            diagnostics: [{
+                id: "relational-nnc-route-unavailable",
+                severity: "error",
+                message: "Relational NNC generation is unavailable.",
+            }],
+        };
+    const nuclearClauseShell = typeof buildNuclearClauseShellMetadata === "function"
+        ? buildNuclearClauseShellMetadata({
+            clauseKind: "nominal-nuclear-clause",
+            formulaSlots: result.formulaSlots || null,
+            formulaEcho: result.formulaEcho || "",
+            predicate: {
+                stem: result.predicateStem || result.formulaStem || "",
+                state: result.sourceState || "absolutive",
+            },
+            predicateState: result.sourceState || "absolutive",
+        })
+        : null;
+    const resultPayload = {
+        ...result,
+        outputKind: "relational-nnc",
+        clauseKind: "nominal-nuclear-clause",
+        generationRoute: "relational-nnc",
+        isReflexive: false,
+        stem: result.predicateStem || result.formulaStem || "",
+        state: result.sourceState || "absolutive",
+        stemProvenance: null,
+        nuclearClauseShell,
+        relationalNncGenerationFrame: result,
+        entradaGrammarObject,
+        posicionesFormula,
+    };
+    const grammarFrame = buildNuclearClauseSurfaceGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode: TENSE_MODE.sustantivo,
+        tense: result.routeStage || "relational-nnc",
+        routeFamily: "relational-nnc",
+        routeStage: result.routeStage || "execute",
+        unitKind: "relational-nnc",
+        posicionesFormula,
+        verb: sourceVerb,
+        renderVerb: result.sourceVerb || sourceVerb,
+        entradaGrammarObject,
+        nuclearClauseShell,
+    });
+    const resultContract = buildNuclearClauseSurfaceResultContract(resultPayload, grammarFrame);
+    const surfaceEngineContract = grammarFrame?.routeContract?.targetContract?.surfaceEngineContract || null;
+    return {
+        ...resultPayload,
+        surfaceEngineContract,
+        grammarFrame,
+        ...resultContract,
+    };
+}
+
 function buildGeneratedNuclearClauseShellMetadata({
     resolvedTenseMode = "",
     tense = "",
@@ -5493,6 +5605,7 @@ function buildGeneratedNominalNum1Num2Metadata({
     subjectPrefix = "",
     sourceSubjectPrefix = "",
     sourceSubjectSuffix = "",
+    instrumentivoImperfectActiveAbsolutiveException = null,
 } = {}) {
     const connector = typeof buildNominalNum1Num2 === "function"
         ? buildNominalNum1Num2({
@@ -5594,6 +5707,7 @@ function buildGeneratedNominalNum1Num2Metadata({
             },
             stateSlot: predicateStateSlot,
         },
+        instrumentivoImperfectActiveAbsolutiveException,
     };
 }
 
@@ -5621,7 +5735,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         : getActiveVoiceMode();
     const preservePassiveSubject = override?.preservePassiveSubject === true;
     const allowPassiveObject = options.allowPassiveObject === true || override?.allowPassiveObject === true;
-    const posicionesFormula = typeof normalizeNuclearClauseSurfaceFormulaPositions === "function"
+    let posicionesFormula = typeof normalizeNuclearClauseSurfaceFormulaPositions === "function"
         ? normalizeNuclearClauseSurfaceFormulaPositions(
             request?.posicionesFormula || override?.posicionesFormula || null,
             {},
@@ -5636,6 +5750,43 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     let tronco = entradasInternas.tronco || "";
     let pers2 = entradasInternas.pers2 || entradasInternas.num2 || "";
     let poseedor = entradasInternas.poseedor || "";
+    let entradaSurfaceDerivationFrame = null;
+    const hasOverrideSourceFormulaEvidence = Boolean(
+        override?.sourceFormulaSlots
+        || override?.formulaSlots
+        || override?.sourceFormulaEcho
+        || override?.formulaEcho
+        || override?.adjectivalNnc?.sourceFormulaSlots
+        || override?.adjectivalNnc?.formulaSlots
+        || override?.adjectivalNnc?.sourceFormulaEcho
+        || override?.adjectivalNnc?.formulaEcho
+        || override?.adjectivalNnc?.entryRouteContract?.sourceFormulaSlots
+        || override?.adjectivalNnc?.entryRouteContract?.formulaSlots
+        || override?.adjectivalNnc?.entryRouteContract?.sourceFormulaEcho
+        || override?.adjectivalNnc?.entryRouteContract?.formulaEcho
+    );
+    const entradaSurfaceDerivation = (
+        !hasOverrideSourceFormulaEvidence
+        && typeof deriveNuclearClauseSurfaceFormulaPositionsFromEntradaCandidate === "function"
+    )
+        ? deriveNuclearClauseSurfaceFormulaPositionsFromEntradaCandidate({
+            input: tronco,
+            mode: resolvedTenseMode,
+            posicionesFormula,
+        })
+        : null;
+    if (entradaSurfaceDerivation?.applied === true) {
+        entradaSurfaceDerivationFrame = entradaSurfaceDerivation.derivationFrame || null;
+        posicionesFormula = entradaSurfaceDerivation.posicionesFormula || posicionesFormula;
+        const derivedEntradasInternas = typeof buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula === "function"
+            ? buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula(posicionesFormula)
+            : {};
+        pers1 = derivedEntradasInternas.pers1 || "";
+        obj1 = derivedEntradasInternas.obj1 || "";
+        tronco = derivedEntradasInternas.tronco || "";
+        pers2 = derivedEntradasInternas.pers2 || derivedEntradasInternas.num2 || "";
+        poseedor = derivedEntradasInternas.poseedor || "";
+    }
     let pers1Slot = pers1;
     let obj1Slot = obj1;
     let troncoSlot = tronco;
@@ -5673,9 +5824,10 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     const onAnalisisTroncoResuelto = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "onAnalisisTroncoResuelto");
     const onComplete = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "onComplete");
     const patientivoOwnership = override?.patientivoOwnership ?? DEFAULT_PATIENTIVO_OWNERSHIP;
-    const patientivoSource = override?.patientivoSource ?? "nonactive";
+    const patientivoSource = override?.patientivoSource ?? "";
     const patientivoNominalSuffix = override?.patientivoNominalSuffix ?? null;
     const actionNounStemUse = String(override?.actionNounStemUse || "");
+    const predicateNominalSourceTense = String(override?.predicateNominalSourceTense || "");
     let searchQuery = "";
     let hasSearchQuery = false;
     let hasSearchSeparator = false;
@@ -5707,6 +5859,14 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             : selectionState.tenseValue;
     }
     let tense = normalizeNuclearClauseSurfaceTenseValue(tiempo);
+    if (isRelationalNncGenerationOptIn(override)) {
+        return executeRelationalNncGenerationRoute({
+            override,
+            verb: troncoSlot,
+            posicionesFormula,
+            entradaGrammarObject,
+        });
+    }
     if (isOrdinaryNncGenerationOptIn(override)) {
         return executeOrdinaryNncGenerationRoute({
             override,
@@ -5738,7 +5898,9 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         ? INSTRUMENTIVO_MODE.posesivo
         : (override?.instrumentivoMode === INSTRUMENTIVO_MODE.absolutivo
             ? INSTRUMENTIVO_MODE.absolutivo
-            : "");
+            : (override?.instrumentivoMode === INSTRUMENTIVO_MODE.absolutivoImperfectoActivo
+                ? INSTRUMENTIVO_MODE.absolutivoImperfectoActivo
+                : ""));
     if (
         tense === "instrumentivo"
         && overrideInstrumentivoMode === INSTRUMENTIVO_MODE.posesivo
@@ -5878,6 +6040,38 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         const error = returnError(message, errorTargets);
         return error || null;
     };
+    if (tense === "patientivo" && !normalizeVerbDerivedPatientiveFamily(patientivoSource)) {
+        return buildNuclearClauseSurfaceBlockedResult({
+            result: {
+                result: "—",
+                error: true,
+                surfaceForms: [],
+                generationAllowed: false,
+                routeRankingAllowed: false,
+                patientivoSourceRequired: true,
+            },
+            message: "Patientivo requiere fuente explícita: pasivo, impersonal, perfectivo, imperfectivo o tronco verbal.",
+            diagnosticId: "nuclear-clause-surface-patientivo-source-required",
+            routeFamily: NUCLEAR_CLAUSE_SURFACE_ROUTE_FAMILY,
+            routeStage: "patientivo-source-gate",
+            resultMarker: "—",
+            override,
+            resolvedTenseMode,
+            tense,
+            pers1: pers1Slot,
+            pers2: pers2Slot,
+            obj1: baseObj1Slot,
+            poseedor: poseedorSlot,
+            posicionesFormula,
+            verb: troncoSlot,
+            renderVerb: troncoRender,
+            isReflexive,
+            resolvedDerivationMode,
+            resolvedDerivationType,
+            resolvedVoiceMode,
+            enumerableContract: false,
+        });
+    }
     const buildActiveNuclearClauseSurfaceText = ({
         pers1Slot: pers1SlotValue = "",
         obj1Slot: obj1SlotValue = "",
@@ -5899,6 +6093,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             || tense === "agentivo-futuro"
             || tense === "patientivo"
             || tense === "instrumentivo"
+            || isPredicateNominalTense(tense)
             || tense === "calificativo-instrumentivo"
             || tense === "locativo-temporal"
         );
@@ -6364,11 +6559,15 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
     const isCalificativoInstrumentivoPassiveActionProfile = tense === "calificativo-instrumentivo"
         && resolvedTenseMode === TENSE_MODE.sustantivo
         && resolvedDerivationMode === DERIVATION_MODE.nonactive;
+    const isPredicateNominalPassivePredicateProfile = isPredicateNominalTense(tense)
+        && resolvedTenseMode === TENSE_MODE.sustantivo
+        && resolvedDerivationMode === DERIVATION_MODE.nonactive;
     const isPassiveImpersonalMode =
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedVoiceMode === VOICE_MODE.passive)
         || isPotencialHabitualNominalNonactive
         || isSustantivoVerbalImpersonalActionProfile
-        || isCalificativoInstrumentivoPassiveActionProfile;
+        || isCalificativoInstrumentivoPassiveActionProfile
+        || isPredicateNominalPassivePredicateProfile;
     const targetValency = isPassiveImpersonalMode ? Math.max(0, sourceValency - 1) : sourceValency;
     let preserveSubjectForPassive = preservePassiveSubject;
     const valencySummary = getVerbValencySummary(parsedVerb);
@@ -6424,7 +6623,8 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         (resolvedTenseMode === TENSE_MODE.verbo && resolvedDerivationMode === DERIVATION_MODE.nonactive)
         || isPotencialHabitualNominalNonactive
         || isSustantivoVerbalImpersonalActionProfile
-        || isCalificativoInstrumentivoPassiveActionProfile;
+        || isCalificativoInstrumentivoPassiveActionProfile
+        || isPredicateNominalPassivePredicateProfile;
     if (isNonactive && PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = getCurrentResolvedConjugationSelectionState({ tenseMode: resolvedTenseMode }).tenseValue;
     }
@@ -6904,6 +7104,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         || isFutureAgentivoNominalProfile
         || tense === "patientivo"
         || tense === "instrumentivo"
+        || isPredicateNominalTense(tense)
         || tense === "calificativo-instrumentivo"
         || tense === "locativo-temporal";
     const invalidComboObjectPrefix = resolveComboValidationObj1({
@@ -7319,6 +7520,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         possessivePrefix: poseedorSlot,
         poseedorSlot: poseedorSlot,
         actionNounStemUse,
+        predicateNominalSourceTense,
         combinedMode: isNonactive ? COMBINED_MODE.nonactive : COMBINED_MODE.active,
         customaryPresentPatientiveNnc: isPotencialHabitualNominalProfile,
         customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputPers2 === "t",
@@ -7701,6 +7903,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             nominalKind: tense,
             possessivePrefix: poseedorSlot,
             patientivoSource,
+            sourceTense: appliedMorphology?.surfaceRuleMeta?.verbDerivedNominalResultMetadata?.nominalizationProfile?.source?.sourceTense || "",
             sourceCombinedMode: isNonactive ? COMBINED_MODE.nonactive : "",
             actionNounStemUse,
             renderVerb: troncoRender,
@@ -7710,6 +7913,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
             patientiveMultipleDerivationContract: appliedMorphology?.surfaceRuleMeta?.patientivoMultipleDerivationContract || null,
             sourceSubjectPrefix: inputPers1,
             sourceSubjectSuffix: inputPers2,
+            instrumentivoImperfectActiveAbsolutiveException: appliedMorphology?.surfaceRuleMeta?.verbDerivedNominalResultMetadata?.instrumentivoImperfectActiveAbsolutiveException || null,
         })
         : {};
     const formulaPers1BeforeInflection = resolveGeneratedVncFormulaPers1BeforeInflection({
@@ -7974,6 +8178,7 @@ function executeNuclearClauseSurfaceRequest(request = {}) {
         orthographyFrame: {
             soundSpellingFrames: generatedSoundSpellingFrames,
         },
+        entradaSurfaceDerivationFrame,
         entradaGrammarObject,
         posicionesFormula,
     };

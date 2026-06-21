@@ -15,14 +15,15 @@ Purpose: extract the smallest complete layer stack that can cover every Andrews 
 
 Role: decide what may govern a rule, spelling, fixture, or diagnostic.
 
-- Andrews PDF: grammar architecture authority for categories, slot order, dependencies, and boundaries.
-- Nawat/Pipil evidence: spelling, lexical examples, confirmed surfaces, and exceptions.
+- Andrews PDF: supreme grammar architecture authority for categories, slot order, dependencies, boundaries, source/target routes, derivational operations, and generation gates.
+- Nawat/Pipil evidence: spelling realization and already-scoped preterit indicative surfaces only; it may record lexical evidence, but it does not authorize preterit-derived grammar or unsupported derivational routes.
 - Repo/user data: current implementation evidence, explicit user-provided Nawat forms, and known pending gaps.
 - Digest files: navigation and memory indexes only; they never replace direct PDF verification.
 
 Engine contract:
 
 - Every generated or routed output needs `authority`, `sourceEvidence`, and `evidenceStatus`.
+- Any generated preterit-derived route must carry Andrews PDF authority; Nawat/Pipil evidence alone can never upgrade it from diagnostic or blocked to generated.
 - Unsupported paths are retained as diagnostics, not silently generated.
 
 UI contract:

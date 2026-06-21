@@ -717,6 +717,26 @@ function run(ctx) {
     s.eq("direct instrumentivo returns structured entries", directInstrumentivo.entries.length, 2);
     s.eq("direct instrumentivo records derivation kind", directInstrumentivo.nounDerivationKind, "instrumentivo");
     s.eq("direct instrumentivo records source tense", directInstrumentivo.entries[0].sourceTense, "presente-habitual");
+    const activeImperfectAbsolutiveInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "(nemi)",
+        verbMeta: nemiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        mode: ctx.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo,
+        possessivePrefix: "",
+    });
+    s.eq("direct instrumentivo exposes Andrews 36.6 note 2 active-imperfect absolutive exception", {
+        result: activeImperfectAbsolutiveInstrumentivo.result,
+        sourceTense: activeImperfectAbsolutiveInstrumentivo.entries?.[0]?.sourceTense || "",
+        connector: activeImperfectAbsolutiveInstrumentivo.num1Num2?.displaySurface || "",
+        exceptionSource: activeImperfectAbsolutiveInstrumentivo.instrumentivoImperfectActiveAbsolutiveException?.grammarSource || "",
+    }, {
+        result: "nemiyat",
+        sourceTense: "imperfecto",
+        connector: "t",
+        exceptionSource: "Andrews 36.6 note 2",
+    });
     s.eq("direct instrumentivo exposes the LCM verb-derived nominal contract", {
         ok: directInstrumentivo.ok,
         surface: directInstrumentivo.surface,

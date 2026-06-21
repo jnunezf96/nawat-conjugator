@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/derivation/source_model.js.
 
-export function createDerivationSourceModelApi(targetObject = globalThis) {
+export function createDerivationSourceModelModule(targetObject = globalThis) {
     function buildNonactiveSourceChain(verbMeta, verb, analysisVerb) {
       const model = buildDerivationSourceModel(verbMeta, verb, analysisVerb);
       const outerPieces = Array.isArray(model?.outerPieces) ? model.outerPieces : [];
@@ -945,12 +945,7 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
       const baseStemSpec = sourceStemSpec || targetObject.buildLiteralMorphStemSpec(baseVerb, {
         sourceBase: normalizedSourceBase
       });
-      const baseStem = targetObject.realizeMorphStemSpec(baseStemSpec, baseVerb);
-      return targetObject.buildAppendMorphStemSpec(baseStem, "ya", {
-        sourceStemSpec: baseStemSpec,
-        sourceBase: normalizedSourceBase,
-        sourceSuffix: "ya"
-      });
+      return baseStemSpec;
     }
     function applyPatientivoImperfectiveSourceChainStemSpec(stemSpec = null, fallbackStem = "", chain = null) {
       return applySourceChainStemSpecByPolicy(stemSpec, fallbackStem, chain, {
@@ -2361,15 +2356,24 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
     function buildPatientivoCompoundEmbedContinuationContract({
       patientivoSurface = "",
       sourceSurface = "",
+      patientivoSource = "",
+      sourceTenseValue = "",
+      sourceCombinedMode = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
       patientivoNominalSuffix = "",
       matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
+      const normalizedPatientivoSource = String(patientivoSource || "").trim();
+      const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
+      const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
       const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
         patientivoNominalSuffix
       });
+      if (!normalizedPatientivoSource) {
+        diagnostics.push("patientivo-compound-embed-missing-patientivo-source");
+      }
       if (!String(patientivoSurface || "").trim()) {
         diagnostics.push("patientivo-compound-embed-missing-patientivo-surface");
       }
@@ -2399,6 +2403,9 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
         outputKind: "patientivo-compound-embed-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
+        patientivoSource: normalizedPatientivoSource,
+        sourceTenseValue: normalizedSourceTenseValue,
+        sourceCombinedMode: normalizedSourceCombinedMode,
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
@@ -2414,15 +2421,24 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
     function buildPatientivoNominalCompoundContinuationContract({
       patientivoSurface = "",
       sourceSurface = "",
+      patientivoSource = "",
+      sourceTenseValue = "",
+      sourceCombinedMode = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
       patientivoNominalSuffix = "",
       matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
+      const normalizedPatientivoSource = String(patientivoSource || "").trim();
+      const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
+      const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
       const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
         patientivoNominalSuffix
       });
+      if (!normalizedPatientivoSource) {
+        diagnostics.push("patientivo-nominal-compound-missing-patientivo-source");
+      }
       if (!String(patientivoSurface || "").trim()) {
         diagnostics.push("patientivo-nominal-compound-missing-patientivo-surface");
       }
@@ -2457,6 +2473,9 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
         outputKind: "patientivo-nominal-compound-continuation-contract",
         grammarSource: "Andrews 39.6",
         supported: uniqueDiagnostics.length === 0,
+        patientivoSource: normalizedPatientivoSource,
+        sourceTenseValue: normalizedSourceTenseValue,
+        sourceCombinedMode: normalizedSourceCombinedMode,
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
@@ -3265,7 +3284,7 @@ export function createDerivationSourceModelApi(targetObject = globalThis) {
 }
 
 export function installDerivationSourceModelGlobals(targetObject = globalThis) {
-    const api = createDerivationSourceModelApi(targetObject);
+    const api = createDerivationSourceModelModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

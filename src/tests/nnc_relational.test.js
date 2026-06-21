@@ -21,10 +21,11 @@ function run(ctx) {
             typeof ctx.getLesson45RelationalNncSubsectionInventory,
             typeof ctx.buildLesson46RelationalNncPursuitFrame,
             typeof ctx.getLesson46RelationalNncSubsectionInventory,
+            typeof ctx.buildLesson46PreteritAgentiveLocativeNncFromSource,
             typeof ctx.buildLesson47RelationalNncPursuitFrame,
             typeof ctx.getLesson47RelationalNncSubsectionInventory,
         ],
-        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildRelationalNncBoundaryMetadata();
@@ -340,8 +341,11 @@ function run(ctx) {
                 "46.15",
             ],
             plannedArrowIds: ["lesson-46-relational-nnc-audit"],
-            firedArrowIds: [["lesson-46-relational-nnc-audit", "hit"]],
-            hitCount: 1,
+            firedArrowIds: [
+                ["lesson-46-relational-nnc-audit", "hit"],
+                ["lesson-46-3-1-a-preterit-agentive-locative-source-route", "hit"],
+            ],
+            hitCount: 2,
             missCount: 0,
             generationAllowed: false,
             closestPass: false,
@@ -430,11 +434,300 @@ function run(ctx) {
                 parserDetectionImplemented: false,
                 staticRelationalDataImplemented: false,
                 newWordGenerationAllowed: false,
+                scopedLesson4631aPreteritAgentiveLocativeSourceRouteImplemented: true,
+                scopedLesson4631aPreteritAgentiveLocativeGenerationAllowed: true,
                 fullLesson46GenerationImplemented: false,
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-46",
             diagnosticIds: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+        }
+    );
+
+    s.eq(
+        "Lesson 46.3.1.a derives the Nawat-letter locative from source -(namaka) plus mich",
+        (() => {
+            const generated = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                sourceVerb: "-(namaka)",
+                incorporatedNounStem: "mich",
+            });
+            return {
+                kind: generated.kind,
+                andrewsSection: generated.andrewsSection,
+                sourceInput: generated.sourceInput,
+                sourceVerb: generated.sourceVerb,
+                sourceKind: generated.sourceKind,
+                incorporatedNounStem: generated.incorporatedNounStem,
+                sourceWasFinishedSurface: generated.routeContract.sourceWasFinishedSurface,
+                formulaShape: generated.formulaShape,
+                formulaStem: generated.formulaStem,
+                formulaEcho: generated.formulaEcho,
+                surface: generated.surface,
+                result: generated.result,
+                surfaceForms: generated.surfaceForms,
+                generationAllowed: generated.generationAllowed,
+                supported: generated.supported,
+                ok: generated.ok,
+                routeStage: generated.routeStage,
+                frameRouteStage: generated.frames.routeContract.routeStage,
+                frameGenerationAllowed: generated.frames.routeContract.generationAllowed,
+                frameSourceVerb: generated.frames.routeContract.sourceContract.sourceVerb,
+                frameIncorporatedStem: generated.frames.routeContract.sourceContract.incorporatedNounStem,
+                frameFormulaStem: generated.frames.routeContract.targetContract.formulaStem,
+                diagnosticIds: generated.contractDiagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+            andrewsSection: "46.3.1.a",
+            sourceInput: "-(namaka)",
+            sourceVerb: "namaka",
+            sourceKind: "source-vnc-core",
+            incorporatedNounStem: "mich",
+            sourceWasFinishedSurface: false,
+            formulaShape: "(X-ka)+(-n)-0",
+            formulaStem: "(mich-namaka-0-ka-n)-0-",
+            formulaEcho: "#Ø-Ø(mich-namaka-0-ka-n)Ø#",
+            surface: "michnamakakan",
+            result: "michnamakakan",
+            surfaceForms: ["michnamakakan"],
+            generationAllowed: true,
+            supported: true,
+            ok: true,
+            routeStage: "generate-lesson-46-3-1-a",
+            frameRouteStage: "generate-lesson-46-3-1-a",
+            frameGenerationAllowed: true,
+            frameSourceVerb: "namaka",
+            frameIncorporatedStem: "mich",
+            frameFormulaStem: "(mich-namaka-0-ka-n)-0-",
+            diagnosticIds: [
+                "lesson-46-3-1-a-source-route-generated",
+                "lesson-46-3-1-a-user-nawat-letter-realization",
+            ],
+        }
+    );
+    s.eq(
+        "Lesson 46.3.1.a derives from a single embedded source formula",
+        (() => {
+            const generated = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                source: "(mich-namaka)",
+            });
+            return {
+                sourceInput: generated.sourceInput,
+                sourceVerb: generated.sourceVerb,
+                incorporatedNounStem: generated.incorporatedNounStem,
+                formulaStem: generated.formulaStem,
+                surface: generated.surface,
+                result: generated.result,
+                generationAllowed: generated.generationAllowed,
+                diagnosticIds: generated.contractDiagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            sourceInput: "(mich-namaka)",
+            sourceVerb: "namaka",
+            incorporatedNounStem: "mich",
+            formulaStem: "(mich-namaka-0-ka-n)-0-",
+            surface: "michnamakakan",
+            result: "michnamakakan",
+            generationAllowed: true,
+            diagnosticIds: [
+                "lesson-46-3-1-a-source-route-generated",
+                "lesson-46-3-1-a-user-nawat-letter-realization",
+            ],
+        }
+    );
+    s.eq(
+        "Lesson 46.3.1.a source route blocks incomplete slot input instead of echoing a stem",
+        (() => {
+            const blocked = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                sourceVerb: "-(namaka)",
+            });
+            return {
+                sourceVerb: blocked.sourceVerb,
+                incorporatedNounStem: blocked.incorporatedNounStem,
+                supported: blocked.supported,
+                generationAllowed: blocked.generationAllowed,
+                ok: blocked.ok,
+                result: blocked.result,
+                surfaceForms: blocked.surfaceForms,
+                frameRouteStage: blocked.frames.routeContract.routeStage,
+                diagnosticIds: blocked.contractDiagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            sourceVerb: "namaka",
+            incorporatedNounStem: "",
+            supported: false,
+            generationAllowed: false,
+            ok: false,
+            result: "—",
+            surfaceForms: [],
+            frameRouteStage: "generate-lesson-46-3-1-a-blocked",
+            diagnosticIds: ["lesson-46-3-1-a-incorporated-nounstem-required"],
+        }
+    );
+    s.eq(
+        "generateWord can execute the scoped Lesson 46.3.1.a source route",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.sustantivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        relationalNnc: {
+                            enabled: true,
+                            sourceVerb: "-(namaka)",
+                            incorporatedNounStem: "mich",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "-(namaka)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "relational-nnc",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                result: generated.result,
+                surface: generated.surface,
+                surfaceForms: generated.surfaceForms,
+                outputKind: generated.outputKind,
+                clauseKind: generated.clauseKind,
+                generationRoute: generated.generationRoute,
+                formulaStem: generated.formulaStem,
+                sourceVerb: generated.sourceVerb,
+                incorporatedNounStem: generated.incorporatedNounStem,
+                shellFormulaEcho: generated.nuclearClauseShell?.formulaEcho,
+                relationalFrameFormulaStem: generated.relationalNncGenerationFrame?.formulaStem,
+                frameUnitKind: generated.frames.unitFrame.unitKind,
+                frameRouteStage: generated.frames.routeContract.routeStage,
+                frameGenerationAllowed: generated.frames.routeContract.generationAllowed,
+            };
+        })(),
+        {
+            result: "michnamakakan",
+            surface: "michnamakakan",
+            surfaceForms: ["michnamakakan"],
+            outputKind: "relational-nnc",
+            clauseKind: "nominal-nuclear-clause",
+            generationRoute: "relational-nnc",
+            formulaStem: "(mich-namaka-0-ka-n)-0-",
+            sourceVerb: "namaka",
+            incorporatedNounStem: "mich",
+            shellFormulaEcho: "#Ø-Ø(mich-namaka-0-ka-n)Ø#",
+            relationalFrameFormulaStem: "(mich-namaka-0-ka-n)-0-",
+            frameUnitKind: "relational-nnc",
+            frameRouteStage: "generate-lesson-46-3-1-a",
+            frameGenerationAllowed: true,
+        }
+    );
+    s.eq(
+        "generateWord can execute the scoped Lesson 46.3.1.a route from a single embedded source formula",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.sustantivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        relationalNnc: {
+                            enabled: true,
+                            source: "(mich-namaka)",
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(mich-namaka)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "relational-nnc",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                result: generated.result,
+                surface: generated.surface,
+                formulaStem: generated.formulaStem,
+                sourceVerb: generated.sourceVerb,
+                incorporatedNounStem: generated.incorporatedNounStem,
+                relationalFrameFormulaStem: generated.relationalNncGenerationFrame?.formulaStem,
+                frameRouteStage: generated.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            result: "michnamakakan",
+            surface: "michnamakakan",
+            formulaStem: "(mich-namaka-0-ka-n)-0-",
+            sourceVerb: "namaka",
+            incorporatedNounStem: "mich",
+            relationalFrameFormulaStem: "(mich-namaka-0-ka-n)-0-",
+            frameRouteStage: "generate-lesson-46-3-1-a",
+        }
+    );
+    s.eq(
+        "generateWord can execute Lesson 46.3.1.a from the visible embedded stem when no split slots are supplied",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.sustantivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        relationalNnc: {
+                            enabled: true,
+                        },
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(mich-namaka)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "relational-nnc",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                result: generated.result,
+                sourceInput: generated.sourceInput,
+                sourceVerb: generated.sourceVerb,
+                incorporatedNounStem: generated.incorporatedNounStem,
+                formulaStem: generated.formulaStem,
+            };
+        })(),
+        {
+            result: "michnamakakan",
+            sourceInput: "(mich-namaka)",
+            sourceVerb: "namaka",
+            incorporatedNounStem: "mich",
+            formulaStem: "(mich-namaka-0-ka-n)-0-",
         }
     );
 

@@ -454,6 +454,7 @@ export function createClauseModule(targetObject = globalThis) {
       formulaTypeChanged: 5,
       intermediateFormulaTypeCount: 5
     });
+    let AndrewsCnvCnnRouteBoardResistanceStatisticsCache = null;
     const ANDREWS_CNV_CNN_STATISTICAL_EQUATIONS = Object.freeze([Object.freeze({
       id: "z-score",
       equation: "z = (x - mu) / sigma",
@@ -12254,6 +12255,2117 @@ export function createClauseModule(targetObject = globalThis) {
         }
       };
     }
+    const ANDREWS_CNV_CNN_ROUTE_STEM_RANK_LABELS = Object.freeze({
+      predicate: "predicado",
+      "verbal-core": "nucleo verbal",
+      nounstem: "tronco nominal",
+      verbstem: "tronco verbal",
+      "deverbal-nounstem": "tronco nominal deverbal",
+      "denominal-verbstem": "tronco verbal denominal",
+      "deverbal-verbstem": "tronco verbal deverbal",
+      "active-action-nounstem": "tronco nominal de accion activa"
+    });
+    function normalizeAndrewsCnvCnnRouteStage(stage = null) {
+      if (!stage || typeof stage !== "object") {
+        return {
+          formulaType: "",
+          formulaPosition: "",
+          stemRank: ""
+        };
+      }
+      return {
+        formulaType: String(stage.formulaType || stage.sourceFormulaType || stage.targetFormulaType || "").trim().toUpperCase(),
+        formulaPosition: String(stage.formulaPosition || stage.sourceFormulaPosition || stage.targetFormulaPosition || "").trim(),
+        stemRank: String(stage.stemRank || stage.sourceStemRank || stage.targetStemRank || "").trim()
+      };
+    }
+    function getAndrewsCnvCnnRouteStageKey(stage = null) {
+      const normalized = normalizeAndrewsCnvCnnRouteStage(stage);
+      return [normalized.formulaType || "unknown", normalized.formulaPosition || "any-position", normalized.stemRank || "any-stem-rank"].join(":");
+    }
+    function getAndrewsCnvCnnRouteStageCompactKey(stage = null) {
+      const normalized = normalizeAndrewsCnvCnnRouteStage(stage);
+      return [normalized.formulaType || "unknown", normalized.stemRank || "any-stem-rank"].join(":");
+    }
+    function getAndrewsCnvCnnRouteStageLabel(stage = null) {
+      const normalized = normalizeAndrewsCnvCnnRouteStage(stage);
+      const formulaType = normalized.formulaType || "CN";
+      const stemRankLabel = ANDREWS_CNV_CNN_ROUTE_STEM_RANK_LABELS[normalized.stemRank] || normalized.stemRank || normalized.formulaPosition || "estacion";
+      return `${formulaType} · ${stemRankLabel}`;
+    }
+    function getAndrewsCnvCnnStemStageForMode(mode = "") {
+      const normalizedMode = String(mode || "").trim().toLowerCase();
+      if (normalizedMode === "sustantivo" || normalizedMode === "cnn" || normalizedMode === "nominal") {
+        return {
+          formulaType: "CNN",
+          formulaPosition: "predicate-stem",
+          stemRank: "nounstem"
+        };
+      }
+      return {
+        formulaType: "CNV",
+        formulaPosition: "predicate-stem",
+        stemRank: "verbstem"
+      };
+    }
+    function buildAndrewsCnvCnnSurfaceInputDerivedFormulaSlots({
+      formulaType = "",
+      marker = "",
+      markerRole = "",
+      candidateRemainder = ""
+    } = {}) {
+      const resolvedFormulaType = String(formulaType || "").trim().toUpperCase();
+      const resolvedMarker = String(marker || "").trim();
+      const resolvedMarkerRole = String(markerRole || "").trim();
+      const remainder = String(candidateRemainder || "").trim();
+      if (!resolvedFormulaType || !resolvedMarker || !remainder) {
+        return null;
+      }
+      if (resolvedFormulaType === "CNN") {
+        if (resolvedMarkerRole === "possessive-state") {
+          return {
+            formulaType: "CNN",
+            poseedor: resolvedMarker,
+            tronco: remainder
+          };
+        }
+        return null;
+      }
+      if (resolvedFormulaType !== "CNV") {
+        return null;
+      }
+      if (resolvedMarkerRole === "subject-plus-reflexive") {
+        return {
+          formulaType: "CNV",
+          pers1: resolvedMarker.startsWith("ni") || resolvedMarker.startsWith("n") ? "ni" : "ti",
+          obj1: "mu",
+          tronco: remainder
+        };
+      }
+      if (resolvedMarkerRole === "subject") {
+        return {
+          formulaType: "CNV",
+          pers1: resolvedMarker,
+          tronco: remainder
+        };
+      }
+      if (resolvedMarkerRole === "specific-projective-object" || resolvedMarkerRole === "nonspecific-human-object" || resolvedMarkerRole === "nonspecific-nonhuman-object" || resolvedMarkerRole === "mainline-reflexive-object") {
+        return {
+          formulaType: "CNV",
+          obj1: resolvedMarker,
+          tronco: remainder
+        };
+      }
+      return null;
+    }
+    function getAndrewsCnvCnnSurfaceInputAutoDeriveMarkers(formulaType = "") {
+      const resolvedFormulaType = String(formulaType || "").trim().toUpperCase();
+      if (resolvedFormulaType === "CNN") {
+        return new Set(["anmu", "nu"]);
+      }
+      if (resolvedFormulaType === "CNV") {
+        return new Set(["amech", "nech", "metz", "tech", "kin", "nimu", "timu", "ni", "ti", "an"]);
+      }
+      return new Set();
+    }
+    function buildAndrewsCnvCnnSurfaceInputEchoPolicyFrame({
+      formulaType = "",
+      marker = "",
+      derivedFormulaSlots = null
+    } = {}) {
+      const resolvedFormulaType = String(formulaType || "").trim().toUpperCase();
+      const resolvedMarker = String(marker || "").trim();
+      const autoDerive = Boolean(derivedFormulaSlots && getAndrewsCnvCnnSurfaceInputAutoDeriveMarkers(resolvedFormulaType).has(resolvedMarker));
+      return {
+        kind: "andrews-cnv-cnn-surface-input-echo-policy",
+        version: 1,
+        goal: "derive-all",
+        sourceUse: "entrada-evidence",
+        outputUse: "not-output-authority",
+        mayEchoInputSurfaceAsSalida: false,
+        finishedSurfaceEchoIsCheating: true,
+        requiresFormulaDerivation: true,
+        canAutoDeriveFormulaSlots: autoDerive,
+        derivationConfidence: autoDerive ? "auto-derivable" : "candidate-only",
+        diagnosticId: "entrada-surface-candidate-finished-stem-echo"
+      };
+    }
+    function getAndrewsCnvCnnSurfaceInputCandidateFrame(input = "", defaultStage = null) {
+      const compact = String(input || "").trim().replace(/\s+/g, "");
+      if (!compact || /[#()]/.test(compact)) {
+        return null;
+      }
+      const defaultRouteStage = normalizeAndrewsCnvCnnRouteStage(defaultStage);
+      const lower = compact.toLowerCase();
+      const cnvCandidates = [{
+        marker: "amech",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "nech",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "metz",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "tech",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "kin",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "timu",
+        markerRole: "subject-plus-reflexive",
+        slot: "pers1-pers2+va"
+      }, {
+        marker: "nimu",
+        markerRole: "subject-plus-reflexive",
+        slot: "pers1-pers2+va"
+      }, {
+        marker: "ni",
+        markerRole: "subject",
+        slot: "pers1-pers2"
+      }, {
+        marker: "ti",
+        markerRole: "subject",
+        slot: "pers1-pers2"
+      }, {
+        marker: "an",
+        markerRole: "subject",
+        slot: "pers1-pers2"
+      }, {
+        marker: "wal",
+        markerRole: "directional",
+        slot: "directional"
+      }, {
+        marker: "al",
+        markerRole: "directional-allomorph",
+        slot: "directional"
+      }, {
+        marker: "un",
+        markerRole: "directional",
+        slot: "directional"
+      }, {
+        marker: "ki",
+        markerRole: "specific-projective-object",
+        slot: "va1-va2"
+      }, {
+        marker: "mu",
+        markerRole: "mainline-reflexive-object",
+        slot: "va"
+      }, {
+        marker: "te",
+        markerRole: "nonspecific-human-object",
+        slot: "va"
+      }, {
+        marker: "ta",
+        markerRole: "nonspecific-nonhuman-object",
+        slot: "va"
+      }];
+      const cnnCandidates = [{
+        marker: "anmu",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }, {
+        marker: "nu",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }, {
+        marker: "mu",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }, {
+        marker: "tu",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }, {
+        marker: "in",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }, {
+        marker: "i",
+        markerRole: "possessive-state",
+        slot: "st1-st2"
+      }];
+      const candidates = defaultRouteStage.formulaType === "CNN" ? cnnCandidates : cnvCandidates;
+      const match = candidates.find(entry => lower.startsWith(entry.marker) && lower.length > entry.marker.length + 1);
+      if (!match) {
+        return null;
+      }
+      const isNominal = defaultRouteStage.formulaType === "CNN";
+      const formulaType = isNominal ? "CNN" : "CNV";
+      const candidateRemainder = compact.slice(match.marker.length);
+      const derivedFormulaSlots = buildAndrewsCnvCnnSurfaceInputDerivedFormulaSlots({
+        formulaType,
+        marker: match.marker,
+        markerRole: match.markerRole,
+        candidateRemainder
+      });
+      const inputEchoPolicy = buildAndrewsCnvCnnSurfaceInputEchoPolicyFrame({
+        formulaType,
+        marker: match.marker,
+        derivedFormulaSlots
+      });
+      return {
+        kind: "andrews-cnv-cnn-surface-input-candidate-frame",
+        version: 1,
+        formulaType,
+        inputSurface: compact,
+        marker: match.marker,
+        markerRole: match.markerRole,
+        slot: match.slot,
+        candidateRemainder,
+        derivedFormulaSlots,
+        inputEchoPolicy,
+        routeStage: isNominal ? {
+          formulaType: "CNN",
+          formulaPosition: "predicate-stem",
+          stemRank: "nounstem"
+        } : {
+          formulaType: "CNV",
+          formulaPosition: "predicate",
+          stemRank: "predicate"
+        },
+        warnings: ["surface-input-is-candidate-not-fixture", "formula-boundary-must-still-be-received-or-resolved", "finished-surface-must-be-derived-not-echoed"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteInputBoundaryFrame(input = "", {
+      defaultStage = null
+    } = {}) {
+      const raw = String(input || "").trim();
+      const compact = raw.replace(/\s+/g, "");
+      const defaultRouteStage = normalizeAndrewsCnvCnnRouteStage(defaultStage);
+      const hasNuclearBoundary = /^#.*#$/.test(compact);
+      const formulaBody = hasNuclearBoundary ? compact.slice(1, -1) : compact;
+      const hasStemBoundary = /\([^)]*\)/.test(formulaBody);
+      const hasSlotBoundary = formulaBody.includes("+");
+      const wildcardPattern = /(?:^|[#+()\-])(?:[_*?]|stem|tronco)(?=$|[#+()\-])/i;
+      const hasWildcard = wildcardPattern.test(compact) || /^(?:[_*?]|stem|tronco)$/i.test(compact);
+      const wildcardOnly = hasWildcard && /^(?:[_*?]|stem|tronco|\([_*?]\)|\(stem\)|\(tronco\))$/i.test(compact);
+      const surfaceCandidateFrame = getAndrewsCnvCnnSurfaceInputCandidateFrame(compact, defaultRouteStage);
+      let boundaryKind = "predicate-stem";
+      let boundaryConfidence = compact ? "stem-only" : "open";
+      if (wildcardOnly) {
+        boundaryKind = "predicate-stem-wildcard";
+        boundaryConfidence = "wildcard";
+      } else if (surfaceCandidateFrame) {
+        boundaryKind = surfaceCandidateFrame.formulaType === "CNN" ? "cnn-surface-nuclear-clause-candidate" : "cnv-surface-nuclear-clause-candidate";
+        boundaryConfidence = hasWildcard ? "surface-wildcard-candidate" : "surface-candidate";
+      } else if (hasNuclearBoundary && hasStemBoundary && hasSlotBoundary) {
+        boundaryKind = "cnv-nuclear-clause";
+        boundaryConfidence = hasWildcard ? "structured-wildcard" : "structured";
+      } else if (hasNuclearBoundary && hasStemBoundary) {
+        boundaryKind = "cnn-nuclear-clause";
+        boundaryConfidence = hasWildcard ? "structured-wildcard" : "structured";
+      } else if (hasNuclearBoundary) {
+        boundaryKind = "unknown-nuclear-clause";
+        boundaryConfidence = "partial";
+      } else if (!compact) {
+        boundaryKind = "empty";
+      }
+      const unresolvedDimensions = [];
+      if (!compact) {
+        unresolvedDimensions.push("source-input");
+      }
+      if (!hasNuclearBoundary && !wildcardOnly) {
+        unresolvedDimensions.push("formula-boundary");
+      }
+      if (!hasStemBoundary && !wildcardOnly) {
+        unresolvedDimensions.push("stem-boundary");
+      }
+      if (surfaceCandidateFrame && !hasSlotBoundary) {
+        unresolvedDimensions.push("slot-boundary");
+      }
+      if (hasNuclearBoundary && defaultRouteStage.formulaType === "CNV" && !hasSlotBoundary && boundaryKind !== "cnn-nuclear-clause") {
+        unresolvedDimensions.push("slot-boundary");
+      }
+      if (hasWildcard) {
+        unresolvedDimensions.push("lexical-source");
+      }
+      return {
+        boundaryKind,
+        boundaryConfidence,
+        hasNuclearBoundary,
+        hasStemBoundary,
+        hasSlotBoundary,
+        hasWildcard,
+        wildcardOnly,
+        surfaceCandidateFrame,
+        unresolvedDimensions,
+        unresolvedDimensionCount: unresolvedDimensions.length
+      };
+    }
+    function buildAndrewsCnvCnnRouteInputTicketDimensionSlots(boundaryFrame = null, stage = null) {
+      const normalizedStage = normalizeAndrewsCnvCnnRouteStage(stage);
+      const isNominalStage = normalizedStage.formulaType === "CNN";
+      const unresolvedDimensions = new Set(Array.isArray(boundaryFrame?.unresolvedDimensions) ? boundaryFrame.unresolvedDimensions.map(entry => String(entry || "").trim()).filter(Boolean) : []);
+      const hasSourceInput = !unresolvedDimensions.has("source-input");
+      const hasFormulaBoundary = !unresolvedDimensions.has("formula-boundary");
+      const hasStemRank = hasSourceInput && Boolean(normalizedStage.stemRank);
+      const hasSlotBoundary = boundaryFrame?.hasSlotBoundary === true;
+      return [{
+        id: "formula-boundary",
+        label: "Frontera",
+        status: hasFormulaBoundary ? "positioned" : "open",
+        value: String(boundaryFrame?.boundaryKind || "")
+      }, {
+        id: "stem-rank",
+        label: "Base",
+        status: hasStemRank ? "positioned" : "open",
+        value: normalizedStage.stemRank || ""
+      }, {
+        id: "source-target-route",
+        label: "Ruta",
+        status: normalizedStage.formulaType ? "source-positioned" : "open",
+        value: getAndrewsCnvCnnRouteStageKey(normalizedStage)
+      }, {
+        id: "slot-ownership",
+        label: isNominalStage ? "Estado" : "Valencia",
+        status: hasSlotBoundary ? "given" : "deferred",
+        value: hasSlotBoundary ? isNominalStage ? "formula-state-slots-given" : "formula-slots-given" : isNominalStage ? "route-frame-will-own-state" : "route-frame-will-own-slots"
+      }, {
+        id: "function-use",
+        label: "Función",
+        status: "deferred-last",
+        value: "after-route-frame"
+      }];
+    }
+    function buildAndrewsCnvCnnRouteInputTicketFrame(input = "", boundaryFrame = null, stage = null) {
+      const rawInput = String(input || "").trim();
+      const normalizedStage = normalizeAndrewsCnvCnnRouteStage(stage);
+      const unresolvedDimensions = Array.isArray(boundaryFrame?.unresolvedDimensions) ? boundaryFrame.unresolvedDimensions.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      return {
+        kind: "andrews-cnv-cnn-route-input-ticket-frame",
+        version: 1,
+        ticketModel: "limited-entrada-one-passenger-many-routes",
+        sourceBlock: "#1 Entrada",
+        routeBoardBlock: "#2 Fórmula",
+        outputBlock: "#3 Salida",
+        inputValue: rawInput,
+        inputDisplayLabel: rawInput || "Entrada abierta",
+        inputKind: String(stage?.inputKind || "").trim(),
+        inputScope: String(stage?.inputScope || "").trim(),
+        hasWildcard: boundaryFrame?.hasWildcard === true,
+        boundaryKind: String(boundaryFrame?.boundaryKind || "").trim(),
+        boundaryConfidence: String(boundaryFrame?.boundaryConfidence || "").trim(),
+        unresolvedDimensions,
+        unresolvedDimensionCount: unresolvedDimensions.length,
+        dimensionOrder: ["formula-boundary", "stem-rank", "source-target-route", "slot-ownership", "function-use"],
+        dimensionSlots: buildAndrewsCnvCnnRouteInputTicketDimensionSlots(boundaryFrame, stage),
+        sourceStationKey: getAndrewsCnvCnnRouteStageKey(normalizedStage),
+        sourceStationLabel: getAndrewsCnvCnnRouteStageLabel(normalizedStage),
+        passengerEvents: ["receive-limited-input", "classify-entrada-boundary", "de-superpose-input-dimensions", "position-current-station"]
+      };
+    }
+    function getAndrewsCnvCnnRouteStageFromFormulaInput(input = "", {
+      mode = "",
+      defaultStage = null
+    } = {}) {
+      const raw = String(input || "").trim();
+      const defaultRouteStage = defaultStage ? normalizeAndrewsCnvCnnRouteStage(defaultStage) : getAndrewsCnvCnnStemStageForMode(mode);
+      const withoutWhitespace = raw.replace(/\s+/g, "");
+      const boundaryFrame = buildAndrewsCnvCnnRouteInputBoundaryFrame(raw, {
+        defaultStage: defaultRouteStage
+      });
+      const wildcardOnly = boundaryFrame.wildcardOnly;
+      const withBoundaryFrame = (stage = {}) => {
+        const sourceStage = {
+          ...stage,
+          inputHasWildcard: boundaryFrame.hasWildcard,
+          formulaBoundaryKind: boundaryFrame.boundaryKind,
+          formulaBoundaryConfidence: boundaryFrame.boundaryConfidence,
+          unresolvedDimensions: boundaryFrame.unresolvedDimensions.slice(),
+          unresolvedDimensionCount: boundaryFrame.unresolvedDimensionCount,
+          inputBoundaryFrame: boundaryFrame
+        };
+        return {
+          ...sourceStage,
+          inputTicketFrame: buildAndrewsCnvCnnRouteInputTicketFrame(raw, boundaryFrame, sourceStage)
+        };
+      };
+      if (!withoutWhitespace || wildcardOnly) {
+        return withBoundaryFrame({
+          ...defaultRouteStage,
+          inputKind: wildcardOnly ? "stem-wildcard" : "empty",
+          inputScope: "predicate-stem"
+        });
+      }
+      if (boundaryFrame.surfaceCandidateFrame) {
+        if (boundaryFrame.surfaceCandidateFrame.formulaType === "CNN") {
+          return withBoundaryFrame({
+            formulaType: "CNN",
+            formulaPosition: "predicate-stem",
+            stemRank: "nounstem",
+            inputKind: "whole-cnn-surface-candidate",
+            inputScope: "nuclear-clause",
+            surfaceInputFrame: boundaryFrame.surfaceCandidateFrame
+          });
+        }
+        return withBoundaryFrame({
+          formulaType: "CNV",
+          formulaPosition: "predicate",
+          stemRank: "predicate",
+          inputKind: "whole-cnv-surface-candidate",
+          inputScope: "nuclear-clause",
+          surfaceInputFrame: boundaryFrame.surfaceCandidateFrame
+        });
+      }
+      if (!/^#.*#$/.test(withoutWhitespace)) {
+        return withBoundaryFrame({
+          ...defaultRouteStage,
+          inputKind: "stem-input",
+          inputScope: "predicate-stem"
+        });
+      }
+      const formulaBody = withoutWhitespace.slice(1, -1);
+      const hasStemBoundary = /\([^)]*\)/.test(formulaBody);
+      const hasRoutePlus = formulaBody.includes("+");
+      if (hasStemBoundary && hasRoutePlus) {
+        return withBoundaryFrame({
+          formulaType: "CNV",
+          formulaPosition: "predicate",
+          stemRank: "predicate",
+          inputKind: "whole-cnv-formula",
+          inputScope: "nuclear-clause"
+        });
+      }
+      if (hasStemBoundary) {
+        return withBoundaryFrame({
+          formulaType: "CNN",
+          formulaPosition: "predicate-stem",
+          stemRank: "nounstem",
+          inputKind: "whole-cnn-formula",
+          inputScope: "nuclear-clause"
+        });
+      }
+      return withBoundaryFrame({
+        ...defaultRouteStage,
+        inputKind: "formula-unknown",
+        inputScope: "formula"
+      });
+    }
+    function getAndrewsCnvCnnRouteFrameStage(routeFrame = null, side = "source") {
+      if (!routeFrame || typeof routeFrame !== "object") {
+        return normalizeAndrewsCnvCnnRouteStage(null);
+      }
+      const prefix = side === "target" ? "target" : "source";
+      return normalizeAndrewsCnvCnnRouteStage({
+        formulaType: routeFrame[`${prefix}FormulaType`] || "",
+        formulaPosition: routeFrame[`${prefix}FormulaPosition`] || "",
+        stemRank: routeFrame[`${prefix}StemRank`] || ""
+      });
+    }
+    function getAndrewsCnvCnnRouteBoardSourceCandidateStages(sourceStage = null) {
+      const stageMetadata = sourceStage && typeof sourceStage === "object" ? sourceStage : {};
+      const currentStage = normalizeAndrewsCnvCnnRouteStage(sourceStage);
+      const candidates = [];
+      const seen = new Set();
+      const addCandidate = (stage = null, sourceRole = "") => {
+        const normalized = normalizeAndrewsCnvCnnRouteStage(stage);
+        const key = getAndrewsCnvCnnRouteStageKey(normalized);
+        if (!normalized.formulaType || seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        candidates.push({
+          ...normalized,
+          key,
+          compactKey: getAndrewsCnvCnnRouteStageCompactKey(normalized),
+          label: getAndrewsCnvCnnRouteStageLabel(normalized),
+          sourceRole: String(sourceRole || "").trim()
+        });
+      };
+      addCandidate(currentStage, "received-source");
+      const shouldExposeCnvContainedLayers = currentStage.formulaType === "CNV" && currentStage.formulaPosition === "predicate" && currentStage.stemRank === "predicate" && (String(stageMetadata.inputKind || "") === "whole-cnv-formula" || String(stageMetadata.inputScope || "") === "nuclear-clause" || String(stageMetadata.formulaBoundaryKind || "") === "cnv-nuclear-clause");
+      if (shouldExposeCnvContainedLayers) {
+        addCandidate({
+          formulaType: "CNV",
+          formulaPosition: "core",
+          stemRank: "verbal-core"
+        }, "contained-verbal-core");
+        addCandidate({
+          formulaType: "CNV",
+          formulaPosition: "predicate-stem",
+          stemRank: "verbstem"
+        }, "contained-verbstem");
+      }
+      return candidates;
+    }
+    function getAndrewsCnvCnnRouteBoardStageCandidateKeys(stages = []) {
+      return (Array.isArray(stages) ? stages : []).map(entry => entry?.key || getAndrewsCnvCnnRouteStageKey(entry)).filter(Boolean);
+    }
+    function getAndrewsCnvCnnRouteBoardStageCandidateLabels(stages = []) {
+      return (Array.isArray(stages) ? stages : []).map(entry => entry?.label || getAndrewsCnvCnnRouteStageLabel(entry)).filter(Boolean);
+    }
+    function andrewsCnvCnnRouteStageMatchesAnySourceStage(sourceStages = [], routeStage = null, options = {}) {
+      const candidates = Array.isArray(sourceStages) && sourceStages.length ? sourceStages : [null];
+      return candidates.some(stage => andrewsCnvCnnRouteStageMatches(stage, routeStage, options));
+    }
+    function getUniqueAndrewsCnvCnnRouteBoardRouteEntries(routeEntries = []) {
+      const seen = new Set();
+      return (Array.isArray(routeEntries) ? routeEntries : []).filter(entry => {
+        const routeKey = getAndrewsCnvCnnRouteBoardEntryRouteIds(entry).join("|") || entry?.routeId || entry?.routeTicket?.routeIds?.join("|") || "";
+        if (!routeKey || seen.has(routeKey)) {
+          return false;
+        }
+        seen.add(routeKey);
+        return true;
+      });
+    }
+    function andrewCnvCnnStemRankMatchesRouteStage(requestedStemRank = "", routeStemRank = "", {
+      broadDestination = false
+    } = {}) {
+      const requested = String(requestedStemRank || "").trim();
+      const routeRank = String(routeStemRank || "").trim();
+      if (!requested || !routeRank) {
+        return true;
+      }
+      if (requested === routeRank) {
+        return true;
+      }
+      if (routeRank === "verbstem" && /verbstem$/.test(requested)) {
+        return true;
+      }
+      if (broadDestination && requested === "verbstem" && /verbstem$/.test(routeRank)) {
+        return true;
+      }
+      if (broadDestination && requested === "nounstem" && /nounstem$/.test(routeRank)) {
+        return true;
+      }
+      return false;
+    }
+    function andrewsCnvCnnRouteStageMatches(requestedStage = null, routeStage = null, options = {}) {
+      const requested = normalizeAndrewsCnvCnnRouteStage(requestedStage);
+      const route = normalizeAndrewsCnvCnnRouteStage(routeStage);
+      if (requested.formulaType && route.formulaType && requested.formulaType !== route.formulaType) {
+        return false;
+      }
+      if (requested.formulaPosition && route.formulaPosition && requested.formulaPosition !== route.formulaPosition) {
+        return false;
+      }
+      if (!andrewCnvCnnStemRankMatchesRouteStage(requested.stemRank, route.stemRank, options)) {
+        return false;
+      }
+      return true;
+    }
+    function getAndrewsCnvCnnRouteTicketDetails(routeFrame = null) {
+      if (!routeFrame || typeof routeFrame !== "object") {
+        return [];
+      }
+      const details = [];
+      if (routeFrame.sourceFormulaType === "CNV" || routeFrame.targetFormulaType === "CNV") {
+        details.push("valencia");
+      }
+      if (routeFrame.sourceFormulaPosition === "predicate") {
+        details.push("marco predicativo");
+      }
+      if (routeFrame.sourceFormulaPosition === "core") {
+        details.push("nucleo verbal");
+      }
+      if (routeFrame.targetFormulaType === "CNN") {
+        details.push("estado nominal");
+      }
+      if (/denominal|deverbal|nominalization|nounstem/i.test(String(routeFrame.operation || ""))) {
+        details.push("operacion de ruta");
+      }
+      if (Number(routeFrame.pathDepth || 1) > 1) {
+        details.push("trasbordo");
+      }
+      return Array.from(new Set(details));
+    }
+    function buildAndrewsCnvCnnRouteBoardIfThenFrame(routeFrame = null) {
+      if (!routeFrame || typeof routeFrame !== "object") {
+        return null;
+      }
+      const sourceStage = getAndrewsCnvCnnRouteFrameStage(routeFrame, "source");
+      const targetStage = getAndrewsCnvCnnRouteFrameStage(routeFrame, "target");
+      const sourceKey = getAndrewsCnvCnnRouteStageKey(sourceStage);
+      const targetKey = getAndrewsCnvCnnRouteStageKey(targetStage);
+      const sourceLabel = getAndrewsCnvCnnRouteStageLabel(sourceStage);
+      const targetLabel = getAndrewsCnvCnnRouteStageLabel(targetStage);
+      const transition = getAndrewsCnvCnnFormulaTransition(sourceStage.formulaType, targetStage.formulaType);
+      const routeHasVerbalValenceFrame = sourceStage.formulaType === "CNV" || targetStage.formulaType === "CNV";
+      const conditions = [{
+        id: "if-formula-boundary",
+        block: "#1 Entrada",
+        dimension: "formula-boundary",
+        operator: "equals",
+        expected: [sourceStage.formulaType, sourceStage.formulaPosition].filter(Boolean).join(":"),
+        status: "source-required",
+        label: `Si ${sourceLabel}`
+      }, {
+        id: "if-stem-rank",
+        block: "#1 Entrada",
+        dimension: "stem-rank",
+        operator: "equals",
+        expected: sourceStage.stemRank || "",
+        status: "source-required",
+        label: sourceStage.stemRank ? `Base ${sourceStage.stemRank}` : "Base abierta"
+      }, {
+        id: "then-source-target-route",
+        block: "#2 Fórmula",
+        dimension: "source-target-route",
+        operator: "transforms",
+        expected: transition,
+        status: "route-positioned",
+        label: `Entonces ${targetLabel}`
+      }, {
+        id: "then-slot-ownership",
+        block: "#2 Fórmula",
+        dimension: "slot-ownership",
+        operator: "owned-by",
+        expected: routeHasVerbalValenceFrame ? "route-valence-frame-before-function-use" : "nominal-state-frame",
+        status: "route-owned",
+        label: routeHasVerbalValenceFrame ? "Valencia en ruta" : "Estado nominal"
+      }, {
+        id: "then-function-use-last",
+        block: "#2 Fórmula",
+        dimension: "function-use",
+        operator: "defer",
+        expected: "after-route-frame",
+        status: "deferred-last",
+        label: "Función final"
+      }];
+      return {
+        kind: "andrews-cnv-cnn-route-board-if-then-frame",
+        version: 1,
+        conditionModel: "entrada-if-formula-then-salida",
+        routeId: routeFrame.routeId || "",
+        sourceKey,
+        sourceLabel,
+        targetKey,
+        targetLabel,
+        ifStage: {
+          ...sourceStage,
+          key: sourceKey,
+          label: sourceLabel
+        },
+        thenStage: {
+          ...targetStage,
+          key: targetKey,
+          label: targetLabel
+        },
+        operation: routeFrame.operation || "",
+        transition,
+        pathDepth: Number(routeFrame.pathDepth || 1),
+        conditions,
+        conditionDimensions: conditions.map(entry => entry.dimension),
+        formula: [`IF ${sourceKey}`, `THEN ${targetKey}`, routeFrame.operation ? `BY ${routeFrame.operation}` : ""].filter(Boolean).join(" "),
+        passengerCue: `${sourceLabel} > ${targetLabel}`
+      };
+    }
+    function getAndrewsCnvCnnRouteBoardResistanceStatistics() {
+      if (!AndrewsCnvCnnRouteBoardResistanceStatisticsCache) {
+        AndrewsCnvCnnRouteBoardResistanceStatisticsCache = buildAndrewsCnvCnnBackAndForthResistanceStatistics();
+      }
+      return AndrewsCnvCnnRouteBoardResistanceStatisticsCache;
+    }
+    function getAndrewsCnvCnnRouteBoardResistanceFrame(routeId = "", resistanceStatistics = null) {
+      const normalizedRouteId = String(routeId || "").trim();
+      if (!normalizedRouteId) {
+        return null;
+      }
+      const stats = resistanceStatistics || getAndrewsCnvCnnRouteBoardResistanceStatistics();
+      const routeStatistics = Array.isArray(stats?.routeStatistics) ? stats.routeStatistics : [];
+      const routeRecord = routeStatistics.find(entry => entry.routeId === normalizedRouteId);
+      if (!routeRecord) {
+        return null;
+      }
+      const leastRanking = Array.isArray(stats?.leastResistanceRanking) ? stats.leastResistanceRanking : [];
+      const mostRanking = Array.isArray(stats?.mostResistanceRanking) ? stats.mostResistanceRanking : [];
+      const zFrame = (stats?.equationPatternAnalysis?.routeZScoreFrames || []).find(entry => entry.routeId === normalizedRouteId) || null;
+      return {
+        routeId: normalizedRouteId,
+        resistanceScore: Number(routeRecord.resistanceScore || 0),
+        obstacleCount: Number(routeRecord.obstacleCount || 0),
+        resistanceRank: Math.max(1, leastRanking.findIndex(entry => entry.routeId === normalizedRouteId) + 1),
+        mostResistanceRank: Math.max(1, mostRanking.findIndex(entry => entry.routeId === normalizedRouteId) + 1),
+        zScore: Number(zFrame?.zScore || 0),
+        standardScoreLabel: zFrame?.standardScoreLabel || "",
+        gateDomainCounts: Array.isArray(routeRecord.gateDomainCounts) ? routeRecord.gateDomainCounts : [],
+        resistanceLabel: `R${Number(routeRecord.resistanceScore || 0)}`
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardPathResistanceFrame(path = [], resistanceStatistics = null) {
+      const routeFrames = (Array.isArray(path) ? path : []).map(entry => getAndrewsCnvCnnRouteBoardResistanceFrame(entry?.routeId || "", resistanceStatistics)).filter(Boolean);
+      if (!routeFrames.length) {
+        return {
+          resistanceScore: 0,
+          obstacleCount: 0,
+          routeResistanceFrames: [],
+          resistanceLabel: "",
+          standardScoreLabel: ""
+        };
+      }
+      const resistanceScore = routeFrames.reduce((sum, entry) => sum + Number(entry.resistanceScore || 0), 0);
+      const obstacleCount = routeFrames.reduce((sum, entry) => sum + Number(entry.obstacleCount || 0), 0);
+      const maxZFrame = routeFrames.slice().sort((left, right) => Number(right.zScore || 0) - Number(left.zScore || 0))[0] || null;
+      return {
+        resistanceScore,
+        obstacleCount,
+        routeResistanceFrames: routeFrames,
+        resistanceRank: routeFrames.length === 1 ? routeFrames[0].resistanceRank : 0,
+        mostResistanceRank: routeFrames.length === 1 ? routeFrames[0].mostResistanceRank : 0,
+        zScore: Number(maxZFrame?.zScore || 0),
+        standardScoreLabel: maxZFrame?.standardScoreLabel || "",
+        resistanceLabel: `R${resistanceScore}`
+      };
+    }
+    function getAndrewsCnvCnnRouteBoardHypothesisDefinition(testId = "") {
+      const normalizedTestId = String(testId || "").trim();
+      if (!normalizedTestId) {
+        return null;
+      }
+      const definition = ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS.find(entry => entry.id === normalizedTestId);
+      return definition ? {
+        ...definition
+      } : null;
+    }
+    function buildAndrewsCnvCnnRouteBoardHypothesisTestFrame(source = null, {
+      kind = "",
+      key = "",
+      label = "",
+      domains = [],
+      hypothesisTestId = "",
+      equation = "",
+      direction = "",
+      action = "",
+      alpha = ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA
+    } = {}) {
+      if (!source || typeof source !== "object") {
+        return null;
+      }
+      const resolvedHypothesisTestId = String(hypothesisTestId || source.hypothesisTestId || source.testId || "").trim();
+      const definition = getAndrewsCnvCnnRouteBoardHypothesisDefinition(resolvedHypothesisTestId);
+      const pValue = Number(source.pValue);
+      const qValue = source.qValue === null || source.qValue === undefined ? null : Number(source.qValue);
+      const resolvedAlpha = Number(source.alpha || alpha || ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA);
+      const rejectsNullHypothesis = source.rejectsNullHypothesis === true || source.nullHypothesisRejected === true || Number.isFinite(pValue) && pValue < resolvedAlpha;
+      const resolvedDomains = Array.isArray(domains) && domains.length ? domains : Array.isArray(source.domains) ? source.domains : [source.domain || ""].filter(Boolean);
+      return {
+        kind: String(kind || "hypothesis-test").trim(),
+        key: String(key || source.candidateObstacleId || source.pairId || source.feature || source.domain || "").trim(),
+        label: String(label || source.label || source.feature || source.domain || source.pairId || "").trim(),
+        domains: resolvedDomains.map(entry => String(entry || "").trim()).filter(Boolean),
+        equation: String(equation || source.equation || definition?.test || "").trim(),
+        hypothesisTestId: resolvedHypothesisTestId,
+        nullHypothesis: String(source.nullHypothesis || definition?.nullHypothesis || "").trim(),
+        test: String(source.test || definition?.test || "").trim(),
+        alpha: resolvedAlpha,
+        pValue: Number.isFinite(pValue) ? pValue : null,
+        qValue: Number.isFinite(qValue) ? qValue : null,
+        lowPValue: Number.isFinite(pValue) ? pValue < resolvedAlpha : false,
+        rejectsNullHypothesis,
+        rejectsFalseDiscoveryRate: source.rejectsFalseDiscoveryRate === true || Number.isFinite(qValue) && qValue < resolvedAlpha,
+        direction: String(direction || source.direction || "").trim(),
+        action: String(action || source.decreaseResistanceAction || source.action || "").trim(),
+        status: rejectsNullHypothesis ? "reject-null-hypothesis" : "retain-null-hypothesis"
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardResistanceHypothesisFrame(resistanceStatistics = null) {
+      const stats = resistanceStatistics || getAndrewsCnvCnnRouteBoardResistanceStatistics();
+      const analysis = stats?.equationPatternAnalysis && typeof stats.equationPatternAnalysis === "object" ? stats.equationPatternAnalysis : {};
+      const relationshipDiscoveryAnalysis = stats?.relationshipDiscoveryAnalysis || analysis.relationshipDiscoveryAnalysis || {};
+      const alpha = Number(analysis.alpha || relationshipDiscoveryAnalysis.alpha || ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA);
+      const candidateObstacleFrames = Array.isArray(analysis.candidateObstacleFrames) ? analysis.candidateObstacleFrames : Array.isArray(relationshipDiscoveryAnalysis.candidateObstacleFrames) ? relationshipDiscoveryAnalysis.candidateObstacleFrames : [];
+      const primaryCandidateSource = candidateObstacleFrames.find(entry => Array.isArray(entry?.domains) && entry.domains.includes("formula-boundary") && entry.domains.includes("function-use")) || candidateObstacleFrames[0] || null;
+      const primaryCandidateObstacle = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame(primaryCandidateSource, {
+        kind: "candidate-compound-obstacle",
+        key: primaryCandidateSource?.candidateObstacleId || "",
+        label: Array.isArray(primaryCandidateSource?.domains) ? primaryCandidateSource.domains.join(" + ") : "",
+        domains: primaryCandidateSource?.domains || [],
+        hypothesisTestId: "gate-domain-pair-fisher-exact-test",
+        equation: "information-gain + fisher-exact-test",
+        direction: "pair-presence-associated-with-higher-resistance",
+        alpha
+      });
+      const routeFeatureTest = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame((analysis.significantRouteFeatureTests || [])[0], {
+        kind: "route-feature-test",
+        alpha
+      });
+      const highResistanceGateTest = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame((analysis.highResistanceAssociatedDomains || [])[0], {
+        kind: "high-resistance-gate-domain-test",
+        alpha
+      });
+      const lowResistanceGateTest = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame((analysis.lowResistanceAssociatedDomains || [])[0], {
+        kind: "low-resistance-gate-domain-test",
+        alpha
+      });
+      const newRelationshipCandidate = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame((relationshipDiscoveryAnalysis.newRelationshipCandidates || [])[0], {
+        kind: "new-relationship-candidate",
+        alpha
+      });
+      const primaryTest = primaryCandidateObstacle || highResistanceGateTest || routeFeatureTest || lowResistanceGateTest || newRelationshipCandidate;
+      const recommendedAction = primaryCandidateObstacle?.action || highResistanceGateTest?.action || routeFeatureTest?.action || "";
+      const cloneRoute = (route = null) => route && typeof route === "object" ? {
+        routeId: route.routeId || "",
+        resistanceScore: Number(route.resistanceScore || 0),
+        obstacleCount: Number(route.obstacleCount || 0)
+      } : null;
+      return {
+        kind: "andrews-cnv-cnn-route-board-resistance-hypothesis-frame",
+        version: 1,
+        alpha,
+        nullHypothesisDecision: primaryTest?.rejectsNullHypothesis ? "reject-null-hypothesis" : "retain-null-hypothesis",
+        primaryTest,
+        primaryCandidateObstacle,
+        routeFeatureTest,
+        highResistanceGateTest,
+        lowResistanceGateTest,
+        newRelationshipCandidate,
+        hypothesisTestIds: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS.map(entry => entry.id),
+        equationIds: Array.isArray(stats?.equations) ? stats.equations.map(entry => entry.id) : [],
+        recommendedAction,
+        dimensionalOrder: ["formula-boundary", "stem-rank", "source-target-route", "slot-ownership", "function-use"],
+        leastResistanceRoute: cloneRoute(stats?.leastResistanceRoute),
+        mostResistanceRoute: cloneRoute(stats?.mostResistanceRoute),
+        resistanceConversionPlan: stats?.resistanceConversionPlan || null,
+        relationshipWarning: relationshipDiscoveryAnalysis.relationshipWarning || ""
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardPathStops(path = []) {
+      const routes = Array.isArray(path) ? path.filter(Boolean) : [];
+      if (!routes.length) {
+        return [];
+      }
+      const stops = [];
+      const appendStop = (label = "", key = "") => {
+        const normalizedLabel = String(label || "").trim();
+        const normalizedKey = String(key || "").trim();
+        if (!normalizedLabel && !normalizedKey) {
+          return;
+        }
+        const previous = stops[stops.length - 1] || null;
+        if (previous && previous.label === normalizedLabel && previous.key === normalizedKey) {
+          return;
+        }
+        stops.push({
+          label: normalizedLabel,
+          key: normalizedKey
+        });
+      };
+      const firstRoute = routes[0];
+      appendStop(firstRoute.sourceLabel, firstRoute.sourceStageKey);
+      routes.forEach(route => {
+        appendStop(route.targetLabel, route.targetStageKey);
+      });
+      return stops;
+    }
+    function aggregateAndrewsCnvCnnRouteBoardGateDomainCounts(routeResistanceFrames = []) {
+      const counts = new Map();
+      (Array.isArray(routeResistanceFrames) ? routeResistanceFrames : []).forEach(frame => {
+        (Array.isArray(frame?.gateDomainCounts) ? frame.gateDomainCounts : []).forEach(entry => {
+          const value = String(entry?.value || "").trim();
+          const count = Number(entry?.count || 0);
+          if (!value || !Number.isFinite(count) || count <= 0) {
+            return;
+          }
+          counts.set(value, (counts.get(value) || 0) + count);
+        });
+      });
+      return Array.from(counts.entries()).sort((left, right) => {
+        if (right[1] !== left[1]) {
+          return right[1] - left[1];
+        }
+        return left[0].localeCompare(right[0]);
+      }).map(([value, count]) => ({
+        value,
+        count
+      }));
+    }
+    function compareAndrewsCnvCnnRouteBoardResistance(left = null, right = null) {
+      const leftScore = Number(left?.resistanceScore || left?.routeTicket?.resistanceScore || 0);
+      const rightScore = Number(right?.resistanceScore || right?.routeTicket?.resistanceScore || 0);
+      if (leftScore !== rightScore) {
+        return leftScore - rightScore;
+      }
+      const leftSegments = Number(left?.segmentCount || left?.routeTicket?.segmentCount || 1);
+      const rightSegments = Number(right?.segmentCount || right?.routeTicket?.segmentCount || 1);
+      if (leftSegments !== rightSegments) {
+        return leftSegments - rightSegments;
+      }
+      const leftPathDepth = Number(left?.pathDepth || left?.routeTicket?.pathDepth || 1);
+      const rightPathDepth = Number(right?.pathDepth || right?.routeTicket?.pathDepth || 1);
+      if (leftPathDepth !== rightPathDepth) {
+        return leftPathDepth - rightPathDepth;
+      }
+      const leftHidden = Number(left?.hiddenCoordinateCount || left?.routeTicket?.hiddenCoordinateCount || 0);
+      const rightHidden = Number(right?.hiddenCoordinateCount || right?.routeTicket?.hiddenCoordinateCount || 0);
+      if (leftHidden !== rightHidden) {
+        return leftHidden - rightHidden;
+      }
+      return String(left?.routeId || left?.routeIds?.[0] || "").localeCompare(String(right?.routeId || right?.routeIds?.[0] || ""));
+    }
+    function buildAndrewsCnvCnnRouteTicket({
+      targetLabel = "",
+      routeLabel = "",
+      routeIds = [],
+      segmentCount = 1,
+      pathDepth = 1,
+      hiddenCoordinateCount = 0,
+      targetAction = null,
+      resistanceFrame = null,
+      routeStops = [],
+      nextSourceStage = null,
+      nextSourceLabel = ""
+    } = {}) {
+      const normalizedSegmentCount = Math.max(1, Number(segmentCount || 1));
+      const transferCount = Math.max(0, normalizedSegmentCount - 1);
+      const tripKind = transferCount > 0 ? "transfer" : "direct";
+      const segmentLabel = normalizedSegmentCount === 1 ? "1 tramo" : `${normalizedSegmentCount} tramos`;
+      const targetActionLabel = String(targetAction?.label || "").trim();
+      const resistanceScore = Number(resistanceFrame?.resistanceScore || 0);
+      const obstacleCount = Number(resistanceFrame?.obstacleCount || hiddenCoordinateCount || 0);
+      const gateDomainCounts = aggregateAndrewsCnvCnnRouteBoardGateDomainCounts(resistanceFrame?.routeResistanceFrames || []);
+      const normalizedNextSourceStage = nextSourceStage && typeof nextSourceStage === "object" ? normalizeAndrewsCnvCnnRouteStage(nextSourceStage) : null;
+      const normalizedRouteStops = Array.isArray(routeStops) ? routeStops.map(stop => ({
+        label: String(stop?.label || "").trim(),
+        key: String(stop?.key || "").trim()
+      })).filter(stop => stop.label || stop.key) : [];
+      const routePathLabel = normalizedRouteStops.map(stop => stop.label || stop.key).filter(Boolean).join(" > ");
+      const sourceLabel = normalizedRouteStops[0]?.label || normalizedRouteStops[0]?.key || "";
+      const destinationLabel = normalizedRouteStops[normalizedRouteStops.length - 1]?.label || normalizedRouteStops[normalizedRouteStops.length - 1]?.key || String(targetLabel || "").trim();
+      return {
+        tripKind,
+        segmentCount: normalizedSegmentCount,
+        transferCount,
+        pathDepth: Number(pathDepth || normalizedSegmentCount),
+        hiddenCoordinateCount: Number(hiddenCoordinateCount || 0),
+        resistanceScore,
+        obstacleCount,
+        resistanceRank: Number(resistanceFrame?.resistanceRank || 0),
+        mostResistanceRank: Number(resistanceFrame?.mostResistanceRank || 0),
+        zScore: Number(resistanceFrame?.zScore || 0),
+        standardScoreLabel: String(resistanceFrame?.standardScoreLabel || ""),
+        resistanceLabel: resistanceFrame?.resistanceLabel || (resistanceScore ? `R${resistanceScore}` : ""),
+        routeResistanceFrames: Array.isArray(resistanceFrame?.routeResistanceFrames) ? resistanceFrame.routeResistanceFrames : [],
+        gateDomainCounts,
+        routeIds: Array.isArray(routeIds) ? routeIds.filter(Boolean) : [],
+        routeStops: normalizedRouteStops,
+        routePathLabel,
+        sourceLabel,
+        destinationLabel,
+        nextSourceStage: normalizedNextSourceStage,
+        nextSourceStageKey: normalizedNextSourceStage ? getAndrewsCnvCnnRouteStageKey(normalizedNextSourceStage) : "",
+        nextSourceLabel: String(nextSourceLabel || targetLabel || "").trim(),
+        targetActionLabel,
+        label: [routePathLabel || String(targetLabel || "").trim(), segmentLabel, targetActionLabel].filter(Boolean).join(" · "),
+        routeLabel: String(routeLabel || "").trim()
+      };
+    }
+    function getAndrewsCnvCnnRouteBoardTargetAction({
+      sourceStage = null,
+      targetStage = null
+    } = {}) {
+      const source = normalizeAndrewsCnvCnnRouteStage(sourceStage);
+      const target = normalizeAndrewsCnvCnnRouteStage(targetStage);
+      const targetFormulaType = String(target.formulaType || "").trim().toUpperCase();
+      const sourceFormulaType = String(source.formulaType || "").trim().toUpperCase();
+      if (targetFormulaType === "CNN") {
+        return {
+          unitMode: "sustantivo",
+          entryBoard: "ordinary-nnc",
+          label: "Nominal",
+          targetStageKey: getAndrewsCnvCnnRouteStageKey(target)
+        };
+      }
+      if (targetFormulaType === "CNV" && sourceFormulaType === "CNN") {
+        return {
+          unitMode: "verbo",
+          entryBoard: "noun-to-verb",
+          label: "Verbalizar",
+          targetStageKey: getAndrewsCnvCnnRouteStageKey(target)
+        };
+      }
+      if (targetFormulaType === "CNV") {
+        return {
+          unitMode: "verbo",
+          entryBoard: "general",
+          label: "Verbal",
+          targetStageKey: getAndrewsCnvCnnRouteStageKey(target)
+        };
+      }
+      return {
+        unitMode: "",
+        entryBoard: "general",
+        label: "Ruta",
+        targetStageKey: getAndrewsCnvCnnRouteStageKey(target)
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardRouteEntry(routeFrame = null, obstacleCount = 0, {
+      resistanceStatistics = null
+    } = {}) {
+      if (!routeFrame || typeof routeFrame !== "object") {
+        return null;
+      }
+      const sourceStage = getAndrewsCnvCnnRouteFrameStage(routeFrame, "source");
+      const targetStage = getAndrewsCnvCnnRouteFrameStage(routeFrame, "target");
+      const targetAction = getAndrewsCnvCnnRouteBoardTargetAction({
+        sourceStage,
+        targetStage
+      });
+      const routeIds = [routeFrame.routeId || ""].filter(Boolean);
+      const pathDepth = Number(routeFrame.pathDepth || 1);
+      const hiddenCoordinateCount = Number(obstacleCount || 0);
+      const routeIfThenFrame = buildAndrewsCnvCnnRouteBoardIfThenFrame(routeFrame);
+      const routeLabel = routeFrame.transition || [getAndrewsCnvCnnRouteStageLabel(sourceStage), getAndrewsCnvCnnRouteStageLabel(targetStage)].join(" -> ");
+      const targetLabel = getAndrewsCnvCnnRouteStageLabel(targetStage);
+      const resistanceFrame = buildAndrewsCnvCnnRouteBoardPathResistanceFrame([{
+        routeId: routeFrame.routeId || ""
+      }], resistanceStatistics);
+      const routeStops = buildAndrewsCnvCnnRouteBoardPathStops([{
+        sourceLabel: getAndrewsCnvCnnRouteStageLabel(sourceStage),
+        sourceStageKey: getAndrewsCnvCnnRouteStageKey(sourceStage),
+        targetLabel,
+        targetStageKey: getAndrewsCnvCnnRouteStageKey(targetStage)
+      }]);
+      const routeTicket = buildAndrewsCnvCnnRouteTicket({
+        targetLabel,
+        routeLabel,
+        routeIds,
+        segmentCount: 1,
+        pathDepth,
+        hiddenCoordinateCount,
+        targetAction,
+        resistanceFrame,
+        routeStops,
+        nextSourceStage: targetStage,
+        nextSourceLabel: targetLabel
+      });
+      return {
+        routeId: routeFrame.routeId || "",
+        routeKind: routeFrame.routeKind || "",
+        transition: routeFrame.transition || "",
+        operation: routeFrame.operation || "",
+        sourceStage,
+        targetStage,
+        nextSourceStage: targetStage,
+        sourceStageKey: getAndrewsCnvCnnRouteStageKey(sourceStage),
+        targetStageKey: getAndrewsCnvCnnRouteStageKey(targetStage),
+        nextSourceStageKey: getAndrewsCnvCnnRouteStageKey(targetStage),
+        sourceStageCompactKey: getAndrewsCnvCnnRouteStageCompactKey(sourceStage),
+        targetStageCompactKey: getAndrewsCnvCnnRouteStageCompactKey(targetStage),
+        sourceLabel: getAndrewsCnvCnnRouteStageLabel(sourceStage),
+        targetLabel,
+        nextSourceLabel: targetLabel,
+        routeLabel,
+        routeIfThenFrame,
+        routeIfThenLabel: routeIfThenFrame?.passengerCue || "",
+        targetAction,
+        routeTicket,
+        routeTicketLabel: routeTicket.label,
+        segmentCount: routeTicket.segmentCount,
+        transferCount: routeTicket.transferCount,
+        tripKind: routeTicket.tripKind,
+        resistanceScore: routeTicket.resistanceScore,
+        obstacleCount: routeTicket.obstacleCount,
+        resistanceRank: routeTicket.resistanceRank,
+        mostResistanceRank: routeTicket.mostResistanceRank,
+        zScore: routeTicket.zScore,
+        standardScoreLabel: routeTicket.standardScoreLabel,
+        resistanceLabel: routeTicket.resistanceLabel,
+        routeResistanceFrames: routeTicket.routeResistanceFrames,
+        gateDomainCounts: routeTicket.gateDomainCounts,
+        routeStops: routeTicket.routeStops,
+        routeConditionFrame: routeIfThenFrame,
+        routeConditionLabel: routeIfThenFrame?.passengerCue || "",
+        ticketDetails: getAndrewsCnvCnnRouteTicketDetails(routeFrame),
+        pathDepth,
+        intermediateFormulaTypes: Array.from(routeFrame.intermediateFormulaTypes || []),
+        hiddenCoordinateCount,
+        stageFrames: routeFrame.stageFrames || {}
+      };
+    }
+    function getAndrewsCnvCnnRouteBoardStageOptions(routeEntries = [], side = "target") {
+      const seen = new Set();
+      return (Array.isArray(routeEntries) ? routeEntries : []).map(entry => {
+        const stage = side === "source" ? entry.sourceStage : entry.targetStage;
+        const key = getAndrewsCnvCnnRouteStageKey(stage);
+        if (seen.has(key)) {
+          return null;
+        }
+        seen.add(key);
+        return {
+          key,
+          compactKey: getAndrewsCnvCnnRouteStageCompactKey(stage),
+          stage,
+          nextSourceStage: stage,
+          nextSourceStageKey: key,
+          nextSourceLabel: getAndrewsCnvCnnRouteStageLabel(stage),
+          label: getAndrewsCnvCnnRouteStageLabel(stage)
+        };
+      }).filter(Boolean);
+    }
+    function findAndrewsCnvCnnRouteBoardItineraries(routeEntries = [], {
+      sourceStage = null,
+      sourceStages = null,
+      destinationStage = null,
+      maxSegments = 2,
+      resistanceStatistics = null
+    } = {}) {
+      const routes = Array.isArray(routeEntries) ? routeEntries : [];
+      const starts = (Array.isArray(sourceStages) && sourceStages.length ? sourceStages : [sourceStage]).map(entry => normalizeAndrewsCnvCnnRouteStage(entry));
+      const destination = normalizeAndrewsCnvCnnRouteStage(destinationStage);
+      if (!destination.formulaType && !destination.stemRank && !destination.formulaPosition) {
+        return [];
+      }
+      const startRoutes = getUniqueAndrewsCnvCnnRouteBoardRouteEntries(routes.filter(entry => andrewsCnvCnnRouteStageMatchesAnySourceStage(starts, entry.sourceStage)));
+      const results = [];
+      const seen = new Set();
+      const addResult = path => {
+        const key = path.map(entry => entry.routeId).join(">");
+        if (!key || seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        const routeIds = path.map(entry => entry.routeId);
+        const segmentCount = path.length;
+        const pathDepth = path.reduce((total, entry) => total + Number(entry.pathDepth || 1), 0);
+        const hiddenCoordinateCount = path.reduce((total, entry) => total + Number(entry.hiddenCoordinateCount || 0), 0);
+        const lastRoute = path[path.length - 1] || null;
+        const targetStage = lastRoute?.targetStage || null;
+        const targetStageKey = lastRoute?.targetStageKey || getAndrewsCnvCnnRouteStageKey(targetStage);
+        const targetLabel = lastRoute?.targetLabel || "";
+        const targetAction = lastRoute?.targetAction || null;
+        const routeLabel = path.map(entry => entry.routeLabel).join(" | ");
+        const routeConditionFrames = path.map(entry => entry.routeConditionFrame || entry.routeIfThenFrame).filter(Boolean);
+        const resistanceFrame = buildAndrewsCnvCnnRouteBoardPathResistanceFrame(path, resistanceStatistics);
+        const routeStops = buildAndrewsCnvCnnRouteBoardPathStops(path);
+        const routeTicket = buildAndrewsCnvCnnRouteTicket({
+          targetLabel,
+          routeLabel,
+          routeIds,
+          segmentCount,
+          pathDepth,
+          hiddenCoordinateCount,
+          targetAction,
+          resistanceFrame,
+          routeStops,
+          nextSourceStage: targetStage,
+          nextSourceLabel: targetLabel
+        });
+        results.push({
+          routeIds,
+          routes: path,
+          segmentCount,
+          transferCount: routeTicket.transferCount,
+          tripKind: routeTicket.tripKind,
+          pathDepth,
+          hiddenCoordinateCount,
+          sourceStage: path[0]?.sourceStage || null,
+          sourceStageKey: path[0]?.sourceStageKey || "",
+          sourceLabel: path[0]?.sourceLabel || "",
+          targetStage,
+          targetStageKey,
+          targetLabel,
+          nextSourceStage: targetStage,
+          nextSourceStageKey: targetStageKey,
+          nextSourceLabel: targetLabel,
+          targetAction,
+          routeLabel,
+          routeConditionFrames,
+          routeConditionLabel: routeConditionFrames.map(entry => entry.passengerCue).filter(Boolean).join(" | "),
+          routeTicket,
+          routeTicketLabel: routeTicket.label,
+          resistanceScore: routeTicket.resistanceScore,
+          obstacleCount: routeTicket.obstacleCount,
+          resistanceRank: routeTicket.resistanceRank,
+          mostResistanceRank: routeTicket.mostResistanceRank,
+          zScore: routeTicket.zScore,
+          standardScoreLabel: routeTicket.standardScoreLabel,
+          resistanceLabel: routeTicket.resistanceLabel,
+          routeResistanceFrames: routeTicket.routeResistanceFrames,
+          gateDomainCounts: routeTicket.gateDomainCounts,
+          routeStops: routeTicket.routeStops,
+          ticketDetails: Array.from(new Set(path.flatMap(entry => entry.ticketDetails || [])))
+        });
+      };
+      const walk = (path, currentStage, remainingSegments) => {
+        if (andrewsCnvCnnRouteStageMatches(destination, currentStage, {
+          broadDestination: true
+        })) {
+          addResult(path);
+          return;
+        }
+        if (remainingSegments <= 0) {
+          return;
+        }
+        routes.forEach(entry => {
+          if (!andrewsCnvCnnRouteStageMatches(currentStage, entry.sourceStage, {
+            broadDestination: true
+          })) {
+            return;
+          }
+          if (path.some(existing => existing.routeId === entry.routeId)) {
+            return;
+          }
+          walk([...path, entry], entry.targetStage, remainingSegments - 1);
+        });
+      };
+      startRoutes.forEach(entry => {
+        walk([entry], entry.targetStage, Math.max(0, Number(maxSegments || 2) - 1));
+      });
+      return results.sort((left, right) => {
+        return compareAndrewsCnvCnnRouteBoardResistance(left, right);
+      });
+    }
+    function getAndrewsCnvCnnRouteBoardReachableDestinationOptions(routeEntries = [], {
+      sourceStage = null,
+      sourceStages = null,
+      maxSegments = 2,
+      resistanceStatistics = null
+    } = {}) {
+      const routes = Array.isArray(routeEntries) ? routeEntries : [];
+      const starts = (Array.isArray(sourceStages) && sourceStages.length ? sourceStages : [sourceStage]).map(entry => normalizeAndrewsCnvCnnRouteStage(entry));
+      const startRoutes = getUniqueAndrewsCnvCnnRouteBoardRouteEntries(routes.filter(entry => andrewsCnvCnnRouteStageMatchesAnySourceStage(starts, entry.sourceStage)));
+      const seen = new Map();
+      const remember = path => {
+        const lastRoute = path[path.length - 1];
+        if (!lastRoute) {
+          return;
+        }
+        const key = lastRoute.targetStageKey || getAndrewsCnvCnnRouteStageKey(lastRoute.targetStage);
+        const existing = seen.get(key);
+        const segmentCount = path.length;
+        const pathDepth = path.reduce((total, entry) => total + Number(entry.pathDepth || 1), 0);
+        const hiddenCoordinateCount = path.reduce((total, entry) => total + Number(entry.hiddenCoordinateCount || 0), 0);
+        const routeIds = path.map(entry => entry.routeId);
+        const targetAction = lastRoute.targetAction || null;
+        const routeConditionFrames = path.map(entry => entry.routeConditionFrame || entry.routeIfThenFrame).filter(Boolean);
+        const resistanceFrame = buildAndrewsCnvCnnRouteBoardPathResistanceFrame(path, resistanceStatistics);
+        const routeStops = buildAndrewsCnvCnnRouteBoardPathStops(path);
+        const routeTicket = buildAndrewsCnvCnnRouteTicket({
+          targetLabel: lastRoute.targetLabel,
+          routeLabel: path.map(entry => entry.routeLabel).join(" | "),
+          routeIds,
+          segmentCount,
+          pathDepth,
+          hiddenCoordinateCount,
+          targetAction,
+          resistanceFrame,
+          routeStops,
+          nextSourceStage: lastRoute.targetStage,
+          nextSourceLabel: lastRoute.targetLabel
+        });
+        if (existing && compareAndrewsCnvCnnRouteBoardResistance(existing, {
+          segmentCount,
+          pathDepth,
+          hiddenCoordinateCount,
+          resistanceScore: routeTicket.resistanceScore,
+          routeTicket,
+          routeIds
+        }) <= 0) {
+          return;
+        }
+        seen.set(key, {
+          key,
+          compactKey: lastRoute.targetStageCompactKey || getAndrewsCnvCnnRouteStageCompactKey(lastRoute.targetStage),
+          stage: lastRoute.targetStage,
+          nextSourceStage: lastRoute.targetStage,
+          nextSourceStageKey: key,
+          nextSourceLabel: lastRoute.targetLabel,
+          label: lastRoute.targetLabel,
+          segmentCount,
+          transferCount: routeTicket.transferCount,
+          tripKind: routeTicket.tripKind,
+          pathDepth,
+          hiddenCoordinateCount,
+          routeIds,
+          routeConditionFrames,
+          routeConditionLabel: routeConditionFrames.map(entry => entry.passengerCue).filter(Boolean).join(" | "),
+          targetAction,
+          routeTicket,
+          routeTicketLabel: routeTicket.label,
+          resistanceScore: routeTicket.resistanceScore,
+          obstacleCount: routeTicket.obstacleCount,
+          resistanceRank: routeTicket.resistanceRank,
+          mostResistanceRank: routeTicket.mostResistanceRank,
+          zScore: routeTicket.zScore,
+          standardScoreLabel: routeTicket.standardScoreLabel,
+          resistanceLabel: routeTicket.resistanceLabel,
+          routeResistanceFrames: routeTicket.routeResistanceFrames,
+          gateDomainCounts: routeTicket.gateDomainCounts,
+          routeStops: routeTicket.routeStops
+        });
+      };
+      const walk = (path, currentStage, remainingSegments) => {
+        remember(path);
+        if (remainingSegments <= 0) {
+          return;
+        }
+        routes.forEach(entry => {
+          if (!andrewsCnvCnnRouteStageMatches(currentStage, entry.sourceStage, {
+            broadDestination: true
+          })) {
+            return;
+          }
+          if (path.some(existing => existing.routeId === entry.routeId)) {
+            return;
+          }
+          walk([...path, entry], entry.targetStage, remainingSegments - 1);
+        });
+      };
+      startRoutes.forEach(entry => {
+        walk([entry], entry.targetStage, Math.max(0, Number(maxSegments || 2) - 1));
+      });
+      return Array.from(seen.values()).sort((left, right) => {
+        return compareAndrewsCnvCnnRouteBoardResistance(left, right);
+      });
+    }
+    function getAndrewsCnvCnnRouteBoardEntryRouteIds(entry = null) {
+      if (Array.isArray(entry?.routeIds)) {
+        return entry.routeIds.filter(Boolean);
+      }
+      if (entry?.routeId) {
+        return [entry.routeId];
+      }
+      return [];
+    }
+    function buildAndrewsCnvCnnRouteBoardActionFrame(entry = null, {
+      hasDestination = false,
+      recommendedRouteIds = [],
+      recommendedDestinationKey = "",
+      recommendationRole = "",
+      actionLabel = ""
+    } = {}) {
+      const routeIds = getAndrewsCnvCnnRouteBoardEntryRouteIds(entry);
+      const routeKey = routeIds.join("|");
+      const recommendedRouteKey = Array.isArray(recommendedRouteIds) ? recommendedRouteIds.filter(Boolean).join("|") : String(recommendedRouteIds || "").trim();
+      const entryDestinationKey = String(entry?.key || entry?.nextSourceStageKey || entry?.routeTicket?.nextSourceStageKey || entry?.targetAction?.targetStageKey || entry?.targetStageKey || "").trim();
+      const recommendedDestination = String(recommendedDestinationKey || "").trim();
+      const matchesRecommendedRoute = Boolean(routeKey && recommendedRouteKey && routeKey === recommendedRouteKey);
+      const matchesRecommendedDestination = Boolean(!recommendedRouteKey && entryDestinationKey && recommendedDestination && entryDestinationKey === recommendedDestination);
+      const inferredRecommendationRole = recommendationRole || (matchesRecommendedRoute || matchesRecommendedDestination ? hasDestination ? "arrival" : "next" : "alternate");
+      const inferredActionLabel = actionLabel || (inferredRecommendationRole === "alternate" ? "Explorar" : inferredRecommendationRole === "arrival" ? "Llegar" : "Siguiente");
+      const routeTicket = entry?.routeTicket || null;
+      const routeStops = Array.isArray(entry?.routeStops) && entry.routeStops.length ? entry.routeStops : Array.isArray(routeTicket?.routeStops) ? routeTicket.routeStops : [];
+      const firstRouteStop = routeStops[0] || null;
+      const sourceStage = entry?.sourceStage || null;
+      const sourceStageKey = entry?.sourceStageKey || firstRouteStop?.key || (sourceStage ? getAndrewsCnvCnnRouteStageKey(sourceStage) : "") || "";
+      const sourceLabel = entry?.sourceLabel || firstRouteStop?.label || (sourceStage ? getAndrewsCnvCnnRouteStageLabel(sourceStage) : "") || "";
+      const nextSourceLabel = entry?.nextSourceLabel || routeTicket?.nextSourceLabel || entry?.label || entry?.targetLabel || "";
+      const routePathLabel = entry?.routePathLabel || routeTicket?.routePathLabel || routeStops.map(stop => stop?.label || stop?.key || "").filter(Boolean).join(" > ") || [sourceLabel, nextSourceLabel].filter(Boolean).join(" > ");
+      return {
+        kind: "andrews-cnv-cnn-route-board-action-frame",
+        version: 1,
+        intentionModel: "explore-and-destination-share-one-route-board",
+        recommendationRole: inferredRecommendationRole,
+        actionLabel: inferredActionLabel,
+        routeIds,
+        routeKey,
+        sourceStageKey,
+        sourceKey: sourceStageKey,
+        sourceLabel,
+        destinationKey: entryDestinationKey,
+        nextSourceStageKey: entry?.nextSourceStageKey || routeTicket?.nextSourceStageKey || entryDestinationKey,
+        nextSourceLabel,
+        routePathLabel,
+        resistanceScore: Number(entry?.resistanceScore || routeTicket?.resistanceScore || 0),
+        obstacleCount: Number(entry?.obstacleCount || routeTicket?.obstacleCount || 0),
+        segmentCount: Number(entry?.segmentCount || routeTicket?.segmentCount || 1),
+        tripKind: entry?.tripKind || routeTicket?.tripKind || ""
+      };
+    }
+    function countAndrewsCnvCnnRouteBoardActionRole(frames = [], role = "") {
+      const targetRole = String(role || "").trim();
+      return (Array.isArray(frames) ? frames : []).filter(entry => entry?.recommendationRole === targetRole).length;
+    }
+    function buildAndrewsCnvCnnRouteBoardIntentionFrame({
+      currentIntention = "",
+      currentActionFrames = [],
+      destinationActionFrames = [],
+      visibleRoutes = [],
+      destinationOptions = [],
+      primaryActionFrame = null,
+      recommendedRoute = null
+    } = {}) {
+      const normalizedCurrentIntention = String(currentIntention || "").trim() || "explore";
+      const currentFrames = Array.isArray(currentActionFrames) ? currentActionFrames : [];
+      const destinationFrames = Array.isArray(destinationActionFrames) ? destinationActionFrames : [];
+      const allActionFrames = currentFrames.length ? currentFrames : destinationFrames;
+      const visibleRouteCount = (Array.isArray(visibleRoutes) ? visibleRoutes : []).length;
+      const destinationOptionCount = (Array.isArray(destinationOptions) ? destinationOptions : []).length;
+      const exploreRouteCount = currentFrames.length || visibleRouteCount;
+      const destinationRouteCount = normalizedCurrentIntention === "destination" ? visibleRouteCount || destinationFrames.length : destinationFrames.length || destinationOptionCount;
+      const primaryActionLabel = primaryActionFrame?.actionLabel || recommendedRoute?.actionLabel || "";
+      return {
+        kind: "andrews-cnv-cnn-route-board-intention-frame",
+        version: 1,
+        intentionModel: "single-passenger-same-board-explore-or-destination",
+        routeProvisionMode: "station-provides-options-passenger-rides",
+        currentIntention: normalizedCurrentIntention,
+        sharedRouteBoard: true,
+        intentionSwitchRequired: false,
+        primaryActionLabel,
+        exploreRouteCount,
+        destinationRouteCount,
+        destinationOptionCount,
+        nextOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "next"),
+        arrivalOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "arrival"),
+        alternateOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "alternate"),
+        intentions: [{
+          id: "explore",
+          label: "Explorar",
+          selected: normalizedCurrentIntention === "explore",
+          routeCount: exploreRouteCount,
+          optionCount: exploreRouteCount,
+          actionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "alternate") + countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "next")
+        }, {
+          id: "destination",
+          label: "Destino",
+          selected: normalizedCurrentIntention === "destination",
+          routeCount: destinationRouteCount,
+          optionCount: destinationOptionCount,
+          actionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "arrival") + countAndrewsCnvCnnRouteBoardActionRole(destinationFrames, "next")
+        }],
+        passengerEvents: ["provide-explore-and-destination", "keep-one-route-board", "avoid-passenger-track-switching"]
+      };
+    }
+    function attachAndrewsCnvCnnRouteBoardActionFrame(entry = null, options = {}) {
+      if (!entry || typeof entry !== "object") {
+        return entry;
+      }
+      const routeActionFrame = buildAndrewsCnvCnnRouteBoardActionFrame(entry, options);
+      return {
+        ...entry,
+        routeActionFrame,
+        routeRecommendation: routeActionFrame.recommendationRole,
+        routeActionLabel: routeActionFrame.actionLabel
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardStationLineFrame({
+      currentStation = null,
+      destinationStation = null,
+      inputTicketFrame = null,
+      boardState = "",
+      recommendedRoute = null
+    } = {}) {
+      const normalizedCurrentStation = normalizeAndrewsCnvCnnRouteStage(currentStation);
+      const normalizedDestinationStation = normalizeAndrewsCnvCnnRouteStage(destinationStation);
+      const hasDestination = Boolean(normalizedDestinationStation.formulaType || normalizedDestinationStation.formulaPosition || normalizedDestinationStation.stemRank);
+      const sourceKey = getAndrewsCnvCnnRouteStageKey(normalizedCurrentStation);
+      const sourceLabel = getAndrewsCnvCnnRouteStageLabel(normalizedCurrentStation);
+      const sourceTicketFrame = inputTicketFrame && typeof inputTicketFrame === "object" ? inputTicketFrame : null;
+      const sourceIsOpen = Array.isArray(sourceTicketFrame?.unresolvedDimensions) && sourceTicketFrame.unresolvedDimensions.includes("source-input");
+      const recommendedDestinationKey = String(recommendedRoute?.nextSourceStageKey || "").trim();
+      const recommendedDestinationLabel = String(recommendedRoute?.nextSourceLabel || recommendedRoute?.targetLabel || "").trim();
+      const recommendedStops = Array.isArray(recommendedRoute?.routeStops) ? recommendedRoute.routeStops : [];
+      const formulaSourceKey = recommendedStops[0]?.key || sourceKey;
+      const formulaSourceLabel = recommendedStops[0]?.label || sourceLabel;
+      const destinationKey = hasDestination ? getAndrewsCnvCnnRouteStageKey(normalizedDestinationStation) : recommendedDestinationKey;
+      const destinationLabel = hasDestination ? getAndrewsCnvCnnRouteStageLabel(normalizedDestinationStation) : recommendedDestinationLabel || "Salidas";
+      const intentMode = hasDestination || boardState === "destination" ? "destination" : "explore";
+      const activeStopId = intentMode === "destination" ? "salida" : "formula";
+      const stops = [{
+        id: "entrada",
+        block: "#1 Entrada",
+        label: "Entrada",
+        role: "source-input",
+        status: sourceTicketFrame ? sourceIsOpen ? "open" : "received" : "positioned",
+        stationKey: sourceKey,
+        displayLabel: sourceTicketFrame?.inputDisplayLabel || sourceLabel
+      }, {
+        id: "formula",
+        block: "#2 Fórmula",
+        label: "Formula",
+        role: "route-board",
+        status: formulaSourceKey ? "positioned" : "open",
+        stationKey: formulaSourceKey,
+        displayLabel: formulaSourceLabel
+      }, {
+        id: "salida",
+        block: "#3 Salida",
+        label: "Salida",
+        role: "output",
+        status: hasDestination ? "destination-set" : destinationKey ? "offered" : "open",
+        stationKey: destinationKey,
+        displayLabel: destinationLabel
+      }];
+      return {
+        kind: "andrews-cnv-cnn-route-board-station-line-frame",
+        version: 1,
+        lineModel: "entrada-formula-salida-one-route",
+        intentMode,
+        activeStopId,
+        sourceKey: formulaSourceKey,
+        sourceLabel: formulaSourceLabel,
+        inputSourceKey: sourceKey,
+        inputSourceLabel: sourceLabel,
+        destinationKey,
+        destinationLabel,
+        routeKey: [formulaSourceKey, destinationKey].filter(Boolean).join(">"),
+        primaryActionLabel: recommendedRoute?.actionLabel || "",
+        primaryRouteIds: Array.isArray(recommendedRoute?.routeIds) ? recommendedRoute.routeIds.slice() : [],
+        stops,
+        passengerEvents: ["receive-entrada-ticket", "position-formula-station", hasDestination ? "set-output-destination" : "offer-output-stop"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardPassengerFrame({
+      currentStation = null,
+      destinationStation = null,
+      inputTicketFrame = null,
+      boardState = "",
+      routeCount = 0,
+      hiddenCoordinateCount = 0,
+      averageRouteStageClicks = 0,
+      maxRouteStageClicks = 0,
+      recommendedRoute = null,
+      visibleRoutes = [],
+      destinationOptions = [],
+      stationLineFrame = null
+    } = {}) {
+      const normalizedCurrentStation = normalizeAndrewsCnvCnnRouteStage(currentStation);
+      const normalizedDestinationStation = normalizeAndrewsCnvCnnRouteStage(destinationStation);
+      const hasDestination = Boolean(normalizedDestinationStation.formulaType || normalizedDestinationStation.formulaPosition || normalizedDestinationStation.stemRank);
+      const currentActionFrames = (Array.isArray(visibleRoutes) ? visibleRoutes : []).map(entry => entry?.routeActionFrame).filter(entry => entry && typeof entry === "object");
+      const destinationActionFrames = (Array.isArray(destinationOptions) ? destinationOptions : []).map(entry => entry?.destinationActionFrame || entry?.routeActionFrame).filter(entry => entry && typeof entry === "object");
+      const allActionFrames = currentActionFrames.length ? currentActionFrames : destinationActionFrames;
+      const primaryActionFrame = allActionFrames.find(entry => entry.recommendationRole === "arrival" || entry.recommendationRole === "next") || allActionFrames[0] || null;
+      const currentSourceKey = getAndrewsCnvCnnRouteStageKey(normalizedCurrentStation);
+      const currentSourceLabel = getAndrewsCnvCnnRouteStageLabel(normalizedCurrentStation);
+      const recommendedStops = Array.isArray(recommendedRoute?.routeStops) ? recommendedRoute.routeStops : [];
+      const currentIntention = hasDestination || boardState === "destination" ? "destination" : "explore";
+      const intentionFrame = buildAndrewsCnvCnnRouteBoardIntentionFrame({
+        currentIntention,
+        currentActionFrames,
+        destinationActionFrames,
+        visibleRoutes,
+        destinationOptions,
+        primaryActionFrame,
+        recommendedRoute
+      });
+      const sourceTicketFrame = inputTicketFrame && typeof inputTicketFrame === "object" ? {
+        ...inputTicketFrame,
+        unresolvedDimensions: Array.isArray(inputTicketFrame.unresolvedDimensions) ? inputTicketFrame.unresolvedDimensions.slice() : [],
+        dimensionOrder: Array.isArray(inputTicketFrame.dimensionOrder) ? inputTicketFrame.dimensionOrder.slice() : [],
+        dimensionSlots: Array.isArray(inputTicketFrame.dimensionSlots) ? inputTicketFrame.dimensionSlots.map(entry => ({
+          ...entry
+        })) : [],
+        passengerEvents: Array.isArray(inputTicketFrame.passengerEvents) ? inputTicketFrame.passengerEvents.slice() : []
+      } : null;
+      const clonedStationLineFrame = stationLineFrame && typeof stationLineFrame === "object" ? {
+        ...stationLineFrame,
+        primaryRouteIds: Array.isArray(stationLineFrame.primaryRouteIds) ? stationLineFrame.primaryRouteIds.slice() : [],
+        passengerEvents: Array.isArray(stationLineFrame.passengerEvents) ? stationLineFrame.passengerEvents.slice() : [],
+        stops: Array.isArray(stationLineFrame.stops) ? stationLineFrame.stops.map(entry => ({
+          ...entry
+        })) : []
+      } : null;
+      const primarySourceStageKey = primaryActionFrame?.sourceStageKey || primaryActionFrame?.sourceKey || recommendedStops[0]?.key || clonedStationLineFrame?.sourceKey || currentSourceKey;
+      const primarySourceLabel = primaryActionFrame?.sourceLabel || recommendedStops[0]?.label || clonedStationLineFrame?.sourceLabel || currentSourceLabel;
+      const primaryRoutePathLabel = primaryActionFrame?.routePathLabel || recommendedRoute?.routePathLabel || recommendedStops.map(stop => stop?.label || stop?.key || "").filter(Boolean).join(" > ") || [primarySourceLabel, primaryActionFrame?.nextSourceLabel || recommendedRoute?.nextSourceLabel || ""].filter(Boolean).join(" > ");
+      return {
+        kind: "andrews-cnv-cnn-route-board-passenger-frame",
+        version: 1,
+        routeBoardModel: "one-passenger-intention-many-routes",
+        sourceTicketFrame,
+        stationLineFrame: clonedStationLineFrame,
+        intentionFrame,
+        currentIntention,
+        sourceKey: currentSourceKey,
+        sourceLabel: currentSourceLabel,
+        destinationKey: hasDestination ? getAndrewsCnvCnnRouteStageKey(normalizedDestinationStation) : "",
+        destinationLabel: hasDestination ? getAndrewsCnvCnnRouteStageLabel(normalizedDestinationStation) : "",
+        boardState: String(boardState || ""),
+        primarySourceStageKey,
+        primarySourceKey: primarySourceStageKey,
+        primarySourceLabel,
+        primaryRoutePathLabel,
+        primaryActionLabel: primaryActionFrame?.actionLabel || recommendedRoute?.actionLabel || "",
+        primaryRecommendationRole: primaryActionFrame?.recommendationRole || "",
+        primaryRouteIds: Array.isArray(primaryActionFrame?.routeIds) ? primaryActionFrame.routeIds.slice() : Array.isArray(recommendedRoute?.routeIds) ? recommendedRoute.routeIds.slice() : [],
+        primaryNextSourceStageKey: primaryActionFrame?.nextSourceStageKey || recommendedRoute?.nextSourceStageKey || "",
+        primaryNextSourceLabel: primaryActionFrame?.nextSourceLabel || recommendedRoute?.nextSourceLabel || "",
+        visibleRouteCount: (Array.isArray(visibleRoutes) ? visibleRoutes : []).length,
+        destinationOptionCount: (Array.isArray(destinationOptions) ? destinationOptions : []).length,
+        exploreOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "alternate"),
+        nextOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "next"),
+        arrivalOptionCount: countAndrewsCnvCnnRouteBoardActionRole(allActionFrames, "arrival"),
+        routeCount: Number(routeCount || 0),
+        hiddenCoordinateCount: Number(hiddenCoordinateCount || 0),
+        averageRouteStageClicks: Number(averageRouteStageClicks || 0),
+        maxRouteStageClicks: Number(maxRouteStageClicks || 0),
+        passengerEvents: ["receive-limited-input", ...(sourceTicketFrame ? ["carry-entrada-ticket"] : []), "position-current-station", "publish-primary-source-layer", "offer-next-and-explore", "provide-explore-and-destination", "preserve-next-source"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardConcourseFrame({
+      currentStation = null,
+      destinationStation = null,
+      boardState = "",
+      recommendedRoute = null,
+      passengerFrame = null,
+      visibleRoutes = [],
+      destinationOptions = []
+    } = {}) {
+      const normalizedCurrentStation = normalizeAndrewsCnvCnnRouteStage(currentStation);
+      const normalizedDestinationStation = normalizeAndrewsCnvCnnRouteStage(destinationStation);
+      const hasDestination = Boolean(normalizedDestinationStation.formulaType || normalizedDestinationStation.formulaPosition || normalizedDestinationStation.stemRank);
+      const sourceKey = getAndrewsCnvCnnRouteStageKey(normalizedCurrentStation);
+      const sourceLabel = getAndrewsCnvCnnRouteStageLabel(normalizedCurrentStation);
+      const recommendedStops = Array.isArray(recommendedRoute?.routeStops) ? recommendedRoute.routeStops : [];
+      const formulaSourceKey = recommendedStops[0]?.key || sourceKey;
+      const formulaSourceLabel = recommendedStops[0]?.label || sourceLabel;
+      const nextStationKey = recommendedRoute?.nextSourceStageKey || recommendedStops[1]?.key || (hasDestination ? getAndrewsCnvCnnRouteStageKey(normalizedDestinationStation) : "");
+      const nextStationLabel = recommendedRoute?.nextSourceLabel || recommendedStops[1]?.label || (hasDestination ? getAndrewsCnvCnnRouteStageLabel(normalizedDestinationStation) : "");
+      const destinationKey = hasDestination ? getAndrewsCnvCnnRouteStageKey(normalizedDestinationStation) : nextStationKey || recommendedStops[recommendedStops.length - 1]?.key || "";
+      const destinationLabel = hasDestination ? getAndrewsCnvCnnRouteStageLabel(normalizedDestinationStation) : nextStationLabel || recommendedStops[recommendedStops.length - 1]?.label || "";
+      const currentIntention = passengerFrame?.currentIntention || (hasDestination || boardState === "destination" ? "destination" : "explore");
+      const stopMap = new Map();
+      const addStop = (id, label, key, displayLabel, status) => {
+        const normalizedKey = String(key || "").trim();
+        const normalizedDisplay = String(displayLabel || "").trim();
+        const uniqueKey = normalizedKey || `${id}:${normalizedDisplay}`;
+        if (!normalizedKey && !normalizedDisplay) {
+          return;
+        }
+        if (stopMap.has(uniqueKey)) {
+          const existing = stopMap.get(uniqueKey);
+          if (status === "arrival" || existing.status !== "arrival") {
+            stopMap.set(uniqueKey, {
+              ...existing,
+              id,
+              label,
+              status
+            });
+          }
+          return;
+        }
+        stopMap.set(uniqueKey, {
+          id,
+          label,
+          stationKey: normalizedKey,
+          displayLabel: normalizedDisplay,
+          status
+        });
+      };
+      addStop("current", "Ahora", formulaSourceKey, formulaSourceLabel, "current");
+      recommendedStops.slice(1).forEach((stop, index) => {
+        const stopKey = String(stop?.key || "").trim();
+        const stopLabel = String(stop?.label || "").trim();
+        const isLast = index === recommendedStops.slice(1).length - 1;
+        const terminalLabel = hasDestination ? "Llegada" : "Salida";
+        const terminalStatus = hasDestination ? "arrival" : "offered";
+        addStop(isLast ? "arrival" : `transfer-${index + 1}`, isLast ? terminalLabel : "Trasbordo", stopKey, stopLabel, isLast ? terminalStatus : "transfer");
+      });
+      if (nextStationKey || nextStationLabel) {
+        addStop("next", hasDestination && nextStationKey === destinationKey ? "Llegada" : "Siguiente", nextStationKey, nextStationLabel, "next");
+      }
+      if (destinationKey || destinationLabel) {
+        addStop("arrival", hasDestination ? "Llegada" : "Salida", destinationKey, destinationLabel, hasDestination ? "arrival" : "offered");
+      }
+      const stops = Array.from(stopMap.values());
+      return {
+        kind: "andrews-cnv-cnn-route-board-concourse-frame",
+        version: 1,
+        concourseModel: "one-station-map-for-explore-and-destination",
+        lineModel: "you-are-here-next-arrival",
+        currentIntention,
+        boardState: String(boardState || ""),
+        sourceKey: formulaSourceKey,
+        sourceLabel: formulaSourceLabel,
+        inputSourceKey: sourceKey,
+        inputSourceLabel: sourceLabel,
+        nextStationKey,
+        nextStationLabel,
+        destinationKey,
+        destinationLabel,
+        actionLabel: passengerFrame?.primaryActionLabel || recommendedRoute?.actionLabel || "",
+        routeIds: Array.isArray(recommendedRoute?.routeIds) ? recommendedRoute.routeIds.slice() : [],
+        routeKey: [formulaSourceKey, destinationKey || nextStationKey].filter(Boolean).join(">"),
+        visibleRouteCount: (Array.isArray(visibleRoutes) ? visibleRoutes : []).length,
+        destinationOptionCount: (Array.isArray(destinationOptions) ? destinationOptions : []).length,
+        stops,
+        passengerEvents: ["mark-current-station", "show-next-train", "show-arrival-without-track-switch"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardPlatformFrame({
+      currentStation = null,
+      boardState = "",
+      visibleRoutes = [],
+      destinationOptions = [],
+      recommendedRoute = null,
+      passengerFrame = null
+    } = {}) {
+      const normalizedCurrentStation = normalizeAndrewsCnvCnnRouteStage(currentStation);
+      const sourceKey = getAndrewsCnvCnnRouteStageKey(normalizedCurrentStation);
+      const sourceLabel = getAndrewsCnvCnnRouteStageLabel(normalizedCurrentStation);
+      const recommendedRouteKey = Array.isArray(recommendedRoute?.routeIds) ? recommendedRoute.routeIds.filter(Boolean).join("|") : "";
+      const currentIntention = passengerFrame?.currentIntention || (boardState === "destination" ? "destination" : "explore");
+      const routeEntries = (Array.isArray(visibleRoutes) ? visibleRoutes : []).length ? visibleRoutes : Array.isArray(destinationOptions) ? destinationOptions : [];
+      const tracks = routeEntries.slice(0, 4).map((entry, index) => {
+        const routeIds = Array.isArray(entry?.routeIds) ? entry.routeIds.filter(Boolean) : [entry?.routeId || ""].filter(Boolean);
+        const routeKey = routeIds.join("|");
+        const routeTicket = entry?.routeTicket || null;
+        const actionFrame = entry?.routeActionFrame || entry?.destinationActionFrame || null;
+        const routeStops = Array.isArray(entry?.routeStops) && entry.routeStops.length ? entry.routeStops : Array.isArray(routeTicket?.routeStops) ? routeTicket.routeStops : [];
+        const entrySourceStage = entry?.sourceStage || routeTicket?.routeStops?.[0] || null;
+        const entrySourceKey = entry?.sourceStageKey || routeTicket?.routeStops?.[0]?.key || (entrySourceStage ? getAndrewsCnvCnnRouteStageKey(entrySourceStage) : "") || sourceKey;
+        const entrySourceLabel = entry?.sourceLabel || routeTicket?.routeStops?.[0]?.label || (entrySourceStage ? getAndrewsCnvCnnRouteStageLabel(entrySourceStage) : "") || sourceLabel;
+        const targetStage = entry?.targetStage || entry?.stage || routeTicket?.nextSourceStage || null;
+        const targetStageKey = entry?.targetStageKey || entry?.key || entry?.nextSourceStageKey || routeTicket?.nextSourceStageKey || (targetStage ? getAndrewsCnvCnnRouteStageKey(targetStage) : "");
+        const destinationLabel = entry?.targetLabel || entry?.label || entry?.nextSourceLabel || routeTicket?.nextSourceLabel || (targetStage ? getAndrewsCnvCnnRouteStageLabel(targetStage) : "");
+        const routePathLabel = entry?.routePathLabel || routeTicket?.routePathLabel || routeStops.map(stop => stop?.label || stop?.key || "").filter(Boolean).join(" > ") || [entrySourceLabel, destinationLabel].filter(Boolean).join(" > ");
+        const recommendationRole = actionFrame?.recommendationRole || (routeKey && routeKey === recommendedRouteKey ? boardState === "destination" ? "arrival" : "next" : "alternate");
+        const actionLabel = actionFrame?.actionLabel || (recommendationRole === "arrival" ? "Llegar" : recommendationRole === "next" ? "Siguiente" : "Explorar");
+        return {
+          id: `platform-${index + 1}`,
+          label: `Anden ${index + 1}`,
+          sourceKey: entrySourceKey,
+          sourceLabel: entrySourceLabel,
+          destinationKey: targetStageKey,
+          destinationLabel,
+          routePathLabel,
+          routeIds,
+          routeKey,
+          recommendationRole,
+          actionLabel,
+          segmentCount: Number(entry?.segmentCount || routeTicket?.segmentCount || 1),
+          transferCount: Number(entry?.transferCount || routeTicket?.transferCount || 0),
+          tripKind: entry?.tripKind || routeTicket?.tripKind || "",
+          resistanceScore: Number(entry?.resistanceScore || routeTicket?.resistanceScore || 0),
+          obstacleCount: Number(entry?.obstacleCount || routeTicket?.obstacleCount || 0),
+          hiddenCoordinateCount: Number(entry?.hiddenCoordinateCount || routeTicket?.hiddenCoordinateCount || 0)
+        };
+      });
+      return {
+        kind: "andrews-cnv-cnn-route-board-platform-frame",
+        version: 1,
+        platformModel: "station-platforms-from-route-options",
+        currentIntention,
+        boardState: String(boardState || ""),
+        sourceKey,
+        sourceLabel,
+        recommendedRouteIds: Array.isArray(recommendedRoute?.routeIds) ? recommendedRoute.routeIds.slice() : [],
+        visibleTrackCount: tracks.length,
+        destinationOptionCount: (Array.isArray(destinationOptions) ? destinationOptions : []).length,
+        tracks,
+        passengerEvents: ["publish-route-options", "rank-platforms-by-resistance", "keep-passenger-off-switches"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoardRideFrame({
+      boardState = "",
+      stationLineFrame = null,
+      passengerFrame = null,
+      concourseFrame = null,
+      platformFrame = null,
+      recommendedRoute = null,
+      visibleRoutes = [],
+      destinationOptions = []
+    } = {}) {
+      const stops = Array.isArray(stationLineFrame?.stops) ? stationLineFrame.stops.map((entry, index) => ({
+        id: entry?.id || "",
+        block: entry?.block || "",
+        label: entry?.label || entry?.block || entry?.id || "",
+        role: entry?.role || "",
+        status: entry?.status || "",
+        stationKey: entry?.stationKey || "",
+        displayLabel: entry?.displayLabel || "",
+        active: Boolean(entry?.id && entry.id === stationLineFrame.activeStopId),
+        index: index + 1
+      })) : [];
+      const activeStopIndex = stops.find(entry => entry.active)?.index || 0;
+      const routePathLabel = passengerFrame?.primaryRoutePathLabel || recommendedRoute?.routePathLabel || "";
+      const visibleRouteCount = (Array.isArray(visibleRoutes) ? visibleRoutes : []).length;
+      const destinationOptionCount = (Array.isArray(destinationOptions) ? destinationOptions : []).length;
+      const visibleTrackCount = Number(platformFrame?.visibleTrackCount || 0);
+      return {
+        kind: "andrews-cnv-cnn-route-board-ride-frame",
+        version: 1,
+        experienceModel: "passenger-rides-station-provides",
+        outputJourneyModel: "formula-and-surface-share-one-ride-frame",
+        operatingPrinciple: "station-signs-do-switching-passenger-rides",
+        choiceModel: "explore-or-destination-one-board",
+        boardState: String(boardState || ""),
+        currentIntention: passengerFrame?.currentIntention || concourseFrame?.currentIntention || "",
+        sourceKey: passengerFrame?.primarySourceStageKey || passengerFrame?.primarySourceKey || concourseFrame?.sourceKey || "",
+        sourceLabel: passengerFrame?.primarySourceLabel || concourseFrame?.sourceLabel || "",
+        currentSignLabel: concourseFrame?.sourceLabel || passengerFrame?.primarySourceLabel || "",
+        nextSignLabel: concourseFrame?.nextStationLabel || passengerFrame?.primaryNextSourceLabel || "",
+        destinationSignLabel: passengerFrame?.destinationLabel || concourseFrame?.destinationLabel || passengerFrame?.primaryNextSourceLabel || "",
+        primaryActionLabel: passengerFrame?.primaryActionLabel || concourseFrame?.actionLabel || recommendedRoute?.actionLabel || "",
+        primaryRoutePathLabel: routePathLabel,
+        activeStopId: stationLineFrame?.activeStopId || "",
+        activeStopIndex,
+        progressStopCount: stops.length,
+        progressStops: stops,
+        routeOptionCount: visibleRouteCount,
+        destinationOptionCount,
+        visibleTrackCount,
+        decisionLoad: {
+          routeChoices: visibleRouteCount,
+          destinationChoices: destinationOptionCount,
+          platformChoices: visibleTrackCount,
+          primaryClickCount: routePathLabel ? 1 : 0,
+          switchingRequired: false
+        },
+        passengerEvents: ["show-current-position", "show-next-arrival", "rank-platforms-before-choice", "hide-switching-from-passenger", "carry-one-route-to-output"]
+      };
+    }
+    function buildAndrewsCnvCnnRouteBoard({
+      sourceStage = null,
+      destinationStage = null
+    } = {}) {
+      const routeRecords = getAndrewsCnvCnnBackAndForthRouteRecords();
+      const obstacleCatalog = getAndrewsCnvCnnBackAndForthObstacleCatalog();
+      const resistanceStatistics = getAndrewsCnvCnnRouteBoardResistanceStatistics();
+      const resistanceHypothesisFrame = buildAndrewsCnvCnnRouteBoardResistanceHypothesisFrame(resistanceStatistics);
+      const routeEntries = routeRecords.map(record => {
+        const routeFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(record);
+        const obstacleCount = obstacleCatalog.filter(entry => entry.routeId === record.id).length;
+        return buildAndrewsCnvCnnRouteBoardRouteEntry(routeFrame, obstacleCount, {
+          resistanceStatistics
+        });
+      }).filter(Boolean).sort(compareAndrewsCnvCnnRouteBoardResistance);
+      const sourceStageMetadata = sourceStage && typeof sourceStage === "object" ? sourceStage : {};
+      const currentStation = normalizeAndrewsCnvCnnRouteStage(sourceStage);
+      const sourceCandidateStages = getAndrewsCnvCnnRouteBoardSourceCandidateStages(sourceStage);
+      const sourceCandidateStageKeys = getAndrewsCnvCnnRouteBoardStageCandidateKeys(sourceCandidateStages);
+      const sourceCandidateStageLabels = getAndrewsCnvCnnRouteBoardStageCandidateLabels(sourceCandidateStages);
+      const destinationStation = normalizeAndrewsCnvCnnRouteStage(destinationStage);
+      const departures = getUniqueAndrewsCnvCnnRouteBoardRouteEntries(routeEntries.filter(entry => andrewsCnvCnnRouteStageMatchesAnySourceStage(sourceCandidateStages, entry.sourceStage)));
+      const reachableDestinationOptions = getAndrewsCnvCnnRouteBoardReachableDestinationOptions(routeEntries, {
+        sourceStage: currentStation,
+        sourceStages: sourceCandidateStages,
+        maxSegments: 2,
+        resistanceStatistics
+      });
+      const destinationOptions = reachableDestinationOptions.length ? reachableDestinationOptions : getAndrewsCnvCnnRouteBoardStageOptions(departures.length ? departures : routeEntries, "target");
+      const itineraries = findAndrewsCnvCnnRouteBoardItineraries(routeEntries, {
+        sourceStage: currentStation,
+        sourceStages: sourceCandidateStages,
+        destinationStage: destinationStation,
+        maxSegments: 2,
+        resistanceStatistics
+      });
+      const totalObstacleCount = obstacleCatalog.length;
+      const weightedPathDepth = totalObstacleCount ? routeEntries.reduce((total, entry) => total + entry.hiddenCoordinateCount * entry.pathDepth, 0) / totalObstacleCount : 0;
+      const hasDestination = Boolean(destinationStation.formulaType || destinationStation.stemRank || destinationStation.formulaPosition);
+      const visibleRoutes = hasDestination ? itineraries : departures;
+      const leastVisibleRoute = visibleRoutes[0] || null;
+      const mostVisibleRoute = visibleRoutes.slice().sort((left, right) => compareAndrewsCnvCnnRouteBoardResistance(right, left))[0] || null;
+      const recommendedRoute = leastVisibleRoute ? {
+        routeIds: Array.isArray(leastVisibleRoute.routeIds) ? leastVisibleRoute.routeIds : [leastVisibleRoute.routeId || ""].filter(Boolean),
+        actionLabel: hasDestination ? "Llegar" : "Siguiente",
+        resistanceScore: Number(leastVisibleRoute.resistanceScore || 0),
+        obstacleCount: Number(leastVisibleRoute.obstacleCount || leastVisibleRoute.hiddenCoordinateCount || 0),
+        segmentCount: Number(leastVisibleRoute.segmentCount || leastVisibleRoute.routeTicket?.segmentCount || 1),
+        tripKind: leastVisibleRoute.tripKind || leastVisibleRoute.routeTicket?.tripKind || "",
+        targetLabel: leastVisibleRoute.targetLabel || "",
+        routeStops: Array.isArray(leastVisibleRoute.routeStops) ? leastVisibleRoute.routeStops.map(stop => ({
+          ...stop
+        })) : Array.isArray(leastVisibleRoute.routeTicket?.routeStops) ? leastVisibleRoute.routeTicket.routeStops.map(stop => ({
+          ...stop
+        })) : [],
+        routePathLabel: leastVisibleRoute.routePathLabel || leastVisibleRoute.routeTicket?.routePathLabel || "",
+        nextSourceStageKey: leastVisibleRoute.nextSourceStageKey || leastVisibleRoute.routeTicket?.nextSourceStageKey || "",
+        nextSourceLabel: leastVisibleRoute.nextSourceLabel || leastVisibleRoute.routeTicket?.nextSourceLabel || leastVisibleRoute.targetLabel || ""
+      } : null;
+      const departureRecommendedRouteIds = departures[0] ? getAndrewsCnvCnnRouteBoardEntryRouteIds(departures[0]) : [];
+      const departureRecommendedDestinationKey = departures[0]?.nextSourceStageKey || departures[0]?.routeTicket?.nextSourceStageKey || "";
+      const departuresWithActionFrames = departures.map(entry => attachAndrewsCnvCnnRouteBoardActionFrame(entry, {
+        hasDestination: false,
+        recommendedRouteIds: departureRecommendedRouteIds,
+        recommendedDestinationKey: departureRecommendedDestinationKey
+      }));
+      const destinationRecommendedKey = destinationOptions[0]?.key || destinationOptions[0]?.nextSourceStageKey || destinationOptions[0]?.routeTicket?.nextSourceStageKey || "";
+      const destinationOptionsWithActionFrames = destinationOptions.map(entry => {
+        const destinationActionFrame = buildAndrewsCnvCnnRouteBoardActionFrame(entry, {
+          hasDestination: false,
+          recommendedRouteIds: destinationOptions[0]?.routeIds || [],
+          recommendedDestinationKey: destinationRecommendedKey
+        });
+        return {
+          ...entry,
+          destinationActionFrame,
+          routeActionFrame: destinationActionFrame,
+          routeRecommendation: destinationActionFrame.recommendationRole,
+          routeActionLabel: destinationActionFrame.actionLabel
+        };
+      });
+      const visibleRoutesWithActionFrames = visibleRoutes.map(entry => attachAndrewsCnvCnnRouteBoardActionFrame(entry, {
+        hasDestination,
+        recommendedRouteIds: recommendedRoute?.routeIds || [],
+        recommendedDestinationKey: recommendedRoute?.nextSourceStageKey || ""
+      }));
+      const leastResistanceRouteId = resistanceStatistics?.leastResistanceRoute?.routeId || "";
+      const mostResistanceRouteId = resistanceStatistics?.mostResistanceRoute?.routeId || "";
+      const routeTerrain = routeEntries.map(entry => {
+        const routeIds = getAndrewsCnvCnnRouteBoardEntryRouteIds(entry);
+        const routeId = routeIds[0] || entry.routeId || "";
+        return {
+          routeId,
+          routeIds,
+          routeKey: routeIds.join("|"),
+          routeLabel: entry.routeLabel || "",
+          routePathLabel: entry.routeTicket?.routePathLabel || (entry.routeStops || []).map(stop => stop.label || stop.key).filter(Boolean).join(" > "),
+          sourceStageKey: entry.sourceStageKey || "",
+          sourceLabel: entry.sourceLabel || "",
+          targetStageKey: entry.targetStageKey || "",
+          targetLabel: entry.targetLabel || "",
+          nextSourceStageKey: entry.nextSourceStageKey || "",
+          nextSourceLabel: entry.nextSourceLabel || "",
+          segmentCount: Number(entry.segmentCount || entry.routeTicket?.segmentCount || 1),
+          transferCount: Number(entry.transferCount || entry.routeTicket?.transferCount || 0),
+          tripKind: entry.tripKind || entry.routeTicket?.tripKind || "",
+          pathDepth: Number(entry.pathDepth || 1),
+          hiddenCoordinateCount: Number(entry.hiddenCoordinateCount || entry.routeTicket?.hiddenCoordinateCount || 0),
+          obstacleCount: Number(entry.obstacleCount || entry.routeTicket?.obstacleCount || 0),
+          resistanceScore: Number(entry.resistanceScore || entry.routeTicket?.resistanceScore || 0),
+          resistanceRank: Number(entry.resistanceRank || entry.routeTicket?.resistanceRank || 0),
+          mostResistanceRank: Number(entry.mostResistanceRank || entry.routeTicket?.mostResistanceRank || 0),
+          standardScoreLabel: entry.standardScoreLabel || entry.routeTicket?.standardScoreLabel || "",
+          resistanceRole: routeId && routeId === leastResistanceRouteId ? "least" : routeId && routeId === mostResistanceRouteId ? "most" : "",
+          gateDomainCounts: Array.isArray(entry.gateDomainCounts) ? entry.gateDomainCounts.map(item => ({
+            ...item
+          })) : [],
+          routeStops: Array.isArray(entry.routeStops) ? entry.routeStops.map(stop => ({
+            ...stop
+          })) : []
+        };
+      });
+      const stationLineFrame = buildAndrewsCnvCnnRouteBoardStationLineFrame({
+        currentStation,
+        destinationStation,
+        inputTicketFrame: sourceStageMetadata.inputTicketFrame,
+        boardState: hasDestination ? "destination" : "departures",
+        recommendedRoute
+      });
+      const passengerFrame = buildAndrewsCnvCnnRouteBoardPassengerFrame({
+        currentStation,
+        destinationStation,
+        inputTicketFrame: sourceStageMetadata.inputTicketFrame,
+        boardState: hasDestination ? "destination" : "departures",
+        routeCount: routeEntries.length,
+        hiddenCoordinateCount: totalObstacleCount,
+        averageRouteStageClicks: Number(weightedPathDepth.toFixed(2)),
+        maxRouteStageClicks: routeEntries.reduce((max, entry) => Math.max(max, entry.pathDepth), 0),
+        recommendedRoute,
+        visibleRoutes: visibleRoutesWithActionFrames,
+        destinationOptions: destinationOptionsWithActionFrames,
+        stationLineFrame
+      });
+      const concourseFrame = buildAndrewsCnvCnnRouteBoardConcourseFrame({
+        currentStation,
+        destinationStation,
+        boardState: hasDestination ? "destination" : "departures",
+        recommendedRoute,
+        passengerFrame,
+        visibleRoutes: visibleRoutesWithActionFrames,
+        destinationOptions: destinationOptionsWithActionFrames
+      });
+      const platformFrame = buildAndrewsCnvCnnRouteBoardPlatformFrame({
+        currentStation,
+        boardState: hasDestination ? "destination" : "departures",
+        visibleRoutes: visibleRoutesWithActionFrames,
+        destinationOptions: destinationOptionsWithActionFrames,
+        recommendedRoute,
+        passengerFrame
+      });
+      const rideFrame = buildAndrewsCnvCnnRouteBoardRideFrame({
+        boardState: hasDestination ? "destination" : "departures",
+        stationLineFrame,
+        passengerFrame,
+        concourseFrame,
+        platformFrame,
+        recommendedRoute,
+        visibleRoutes: visibleRoutesWithActionFrames,
+        destinationOptions: destinationOptionsWithActionFrames
+      });
+      return {
+        kind: "andrews-cnv-cnn-route-board",
+        version: 1,
+        currentStation: {
+          ...currentStation,
+          inputKind: String(sourceStageMetadata.inputKind || "").trim(),
+          inputScope: String(sourceStageMetadata.inputScope || "").trim(),
+          inputHasWildcard: sourceStageMetadata.inputHasWildcard === true,
+          formulaBoundaryKind: String(sourceStageMetadata.formulaBoundaryKind || "").trim(),
+          formulaBoundaryConfidence: String(sourceStageMetadata.formulaBoundaryConfidence || "").trim(),
+          unresolvedDimensions: Array.isArray(sourceStageMetadata.unresolvedDimensions) ? sourceStageMetadata.unresolvedDimensions.map(entry => String(entry || "").trim()).filter(Boolean) : [],
+          unresolvedDimensionCount: Number(sourceStageMetadata.unresolvedDimensionCount || 0),
+          inputBoundaryFrame: sourceStageMetadata.inputBoundaryFrame && typeof sourceStageMetadata.inputBoundaryFrame === "object" ? {
+            ...sourceStageMetadata.inputBoundaryFrame,
+            unresolvedDimensions: Array.isArray(sourceStageMetadata.inputBoundaryFrame.unresolvedDimensions) ? sourceStageMetadata.inputBoundaryFrame.unresolvedDimensions.slice() : []
+          } : null,
+          inputTicketFrame: sourceStageMetadata.inputTicketFrame && typeof sourceStageMetadata.inputTicketFrame === "object" ? {
+            ...sourceStageMetadata.inputTicketFrame,
+            unresolvedDimensions: Array.isArray(sourceStageMetadata.inputTicketFrame.unresolvedDimensions) ? sourceStageMetadata.inputTicketFrame.unresolvedDimensions.slice() : [],
+            dimensionOrder: Array.isArray(sourceStageMetadata.inputTicketFrame.dimensionOrder) ? sourceStageMetadata.inputTicketFrame.dimensionOrder.slice() : [],
+            dimensionSlots: Array.isArray(sourceStageMetadata.inputTicketFrame.dimensionSlots) ? sourceStageMetadata.inputTicketFrame.dimensionSlots.map(entry => ({
+              ...entry
+            })) : [],
+            passengerEvents: Array.isArray(sourceStageMetadata.inputTicketFrame.passengerEvents) ? sourceStageMetadata.inputTicketFrame.passengerEvents.slice() : []
+          } : null,
+          sourceCandidateStages: sourceCandidateStages.map(entry => ({
+            ...entry
+          })),
+          sourceCandidateStageKeys: sourceCandidateStageKeys.slice(),
+          sourceCandidateStageLabels: sourceCandidateStageLabels.slice(),
+          sourceCandidateStageCount: sourceCandidateStages.length,
+          key: getAndrewsCnvCnnRouteStageKey(currentStation),
+          compactKey: getAndrewsCnvCnnRouteStageCompactKey(currentStation),
+          label: getAndrewsCnvCnnRouteStageLabel(currentStation)
+        },
+        sourceCandidateStages: sourceCandidateStages.map(entry => ({
+          ...entry
+        })),
+        sourceCandidateStageKeys,
+        sourceCandidateStageLabels,
+        sourceCandidateStageCount: sourceCandidateStages.length,
+        destinationStation: destinationStation.formulaType || destinationStation.stemRank || destinationStation.formulaPosition ? {
+          ...destinationStation,
+          key: getAndrewsCnvCnnRouteStageKey(destinationStation),
+          compactKey: getAndrewsCnvCnnRouteStageCompactKey(destinationStation),
+          label: getAndrewsCnvCnnRouteStageLabel(destinationStation)
+        } : null,
+        routeCount: routeEntries.length,
+        hiddenCoordinateCount: totalObstacleCount,
+        averageRouteStageClicks: Number(weightedPathDepth.toFixed(2)),
+        maxRouteStageClicks: routeEntries.reduce((max, entry) => Math.max(max, entry.pathDepth), 0),
+        resistanceAlpha: Number(resistanceStatistics?.alpha || ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA),
+        resistanceEquationIds: (resistanceStatistics?.equations || []).map(entry => entry.id),
+        resistanceHypothesisFrame,
+        leastResistanceRoute: resistanceStatistics?.leastResistanceRoute ? {
+          routeId: resistanceStatistics.leastResistanceRoute.routeId,
+          resistanceScore: resistanceStatistics.leastResistanceRoute.resistanceScore,
+          obstacleCount: resistanceStatistics.leastResistanceRoute.obstacleCount
+        } : null,
+        mostResistanceRoute: resistanceStatistics?.mostResistanceRoute ? {
+          routeId: resistanceStatistics.mostResistanceRoute.routeId,
+          resistanceScore: resistanceStatistics.mostResistanceRoute.resistanceScore,
+          obstacleCount: resistanceStatistics.mostResistanceRoute.obstacleCount
+        } : null,
+        resistanceConversionPlan: resistanceStatistics?.resistanceConversionPlan || null,
+        recommendedRoute,
+        leastVisibleRoute: leastVisibleRoute ? {
+          routeIds: Array.isArray(leastVisibleRoute.routeIds) ? leastVisibleRoute.routeIds : [leastVisibleRoute.routeId || ""].filter(Boolean),
+          resistanceScore: Number(leastVisibleRoute.resistanceScore || 0),
+          obstacleCount: Number(leastVisibleRoute.obstacleCount || leastVisibleRoute.hiddenCoordinateCount || 0),
+          targetLabel: leastVisibleRoute.targetLabel || ""
+        } : null,
+        mostVisibleRoute: mostVisibleRoute ? {
+          routeIds: Array.isArray(mostVisibleRoute.routeIds) ? mostVisibleRoute.routeIds : [mostVisibleRoute.routeId || ""].filter(Boolean),
+          resistanceScore: Number(mostVisibleRoute.resistanceScore || 0),
+          obstacleCount: Number(mostVisibleRoute.obstacleCount || mostVisibleRoute.hiddenCoordinateCount || 0),
+          targetLabel: mostVisibleRoute.targetLabel || ""
+        } : null,
+        departures: departuresWithActionFrames,
+        destinationOptions: destinationOptionsWithActionFrames,
+        itineraries: hasDestination ? visibleRoutesWithActionFrames : [],
+        routeTerrain,
+        boardState: hasDestination ? "destination" : "departures",
+        visibleRoutes: visibleRoutesWithActionFrames,
+        stationLineFrame,
+        passengerFrame,
+        concourseFrame,
+        platformFrame,
+        rideFrame
+      };
+    }
     function getAndrewsCnvCnnBackAndForthObstacleGateDomains(entry = null) {
       const text = [entry?.id, entry?.obstacleEs, entry?.requiredProbe, ...(entry?.sourceRefs || [])].map(value => String(value || "").toLowerCase()).join(" ");
       const domains = [];
@@ -13457,6 +15569,7 @@ export function createClauseModule(targetObject = globalThis) {
       if (!mostResistanceRoute || !leastResistanceRoute) {
         return null;
       }
+      const routeLabelById = new Map(getAndrewsCnvCnnBackAndForthRouteRecords().map(record => [record.id, record.transition || record.operation || record.id]));
       const targetGateDomainCounts = new Map((leastResistanceRoute.gateDomainCounts || []).map(entry => [entry.value, entry.count]));
       const highResistanceDimensions = (mostResistanceRoute.gateDomainCounts || []).map(entry => getAndrewsCnvCnnResistanceConversionAction(entry.value, entry.count, targetGateDomainCounts.get(entry.value) || 0)).sort((left, right) => {
         if (right.delta !== left.delta) {
@@ -13469,6 +15582,8 @@ export function createClauseModule(targetObject = globalThis) {
         version: 1,
         fromRouteId: mostResistanceRoute.routeId,
         toRouteId: leastResistanceRoute.routeId,
+        fromRouteLabel: routeLabelById.get(mostResistanceRoute.routeId) || mostResistanceRoute.formulaTransition || mostResistanceRoute.operation || mostResistanceRoute.routeId,
+        toRouteLabel: routeLabelById.get(leastResistanceRoute.routeId) || leastResistanceRoute.formulaTransition || leastResistanceRoute.operation || leastResistanceRoute.routeId,
         fromResistanceScore: mostResistanceRoute.resistanceScore,
         targetResistanceScore: leastResistanceRoute.resistanceScore,
         scoreReductionNeeded: Math.max(0, mostResistanceRoute.resistanceScore - leastResistanceRoute.resistanceScore),
@@ -13525,6 +15640,10 @@ export function createClauseModule(targetObject = globalThis) {
       const index = {
         kind: "andrews-cnv-cnn-resistance-statistics",
         version: 1,
+        alpha: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_ALPHA,
+        hypothesisTests: ANDREWS_CNV_CNN_HYPOTHESIS_TEST_DEFINITIONS.map(entry => ({
+          ...entry
+        })),
         featureWeights: {
           ...ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS
         },
@@ -15947,6 +18066,7 @@ export function createClauseModule(targetObject = globalThis) {
         terminology,
         formula: lesson4.activeFormula.formula,
         expandedFormula: NOMINAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA,
+        formulaSlots: lesson4Slots,
         formulaEcho: echo,
         lesson4,
         predicatePositionStatus,
@@ -16244,6 +18364,12 @@ export function createClauseModule(targetObject = globalThis) {
         enumerable: true,
         get() { return ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS; },
     });
+    Object.defineProperty(api, "AndrewsCnvCnnRouteBoardResistanceStatisticsCache", {
+        configurable: true,
+        enumerable: true,
+        get() { return AndrewsCnvCnnRouteBoardResistanceStatisticsCache; },
+        set(value) { AndrewsCnvCnnRouteBoardResistanceStatisticsCache = value; },
+    });
     Object.defineProperty(api, "ANDREWS_CNV_CNN_STATISTICAL_EQUATIONS", {
         configurable: true,
         enumerable: true,
@@ -16327,6 +18453,60 @@ export function createClauseModule(targetObject = globalThis) {
     api.getAndrewsCnvCnnBackAndForthDimensionSystem = getAndrewsCnvCnnBackAndForthDimensionSystem;
     api.cloneAndrewsCnvCnnBackAndForthRouteCoordinateProfile = cloneAndrewsCnvCnnBackAndForthRouteCoordinateProfile;
     api.buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame = buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame;
+    Object.defineProperty(api, "ANDREWS_CNV_CNN_ROUTE_STEM_RANK_LABELS", {
+        configurable: true,
+        enumerable: true,
+        get() { return ANDREWS_CNV_CNN_ROUTE_STEM_RANK_LABELS; },
+    });
+    api.normalizeAndrewsCnvCnnRouteStage = normalizeAndrewsCnvCnnRouteStage;
+    api.getAndrewsCnvCnnRouteStageKey = getAndrewsCnvCnnRouteStageKey;
+    api.getAndrewsCnvCnnRouteStageCompactKey = getAndrewsCnvCnnRouteStageCompactKey;
+    api.getAndrewsCnvCnnRouteStageLabel = getAndrewsCnvCnnRouteStageLabel;
+    api.getAndrewsCnvCnnStemStageForMode = getAndrewsCnvCnnStemStageForMode;
+    api.buildAndrewsCnvCnnSurfaceInputDerivedFormulaSlots = buildAndrewsCnvCnnSurfaceInputDerivedFormulaSlots;
+    api.getAndrewsCnvCnnSurfaceInputAutoDeriveMarkers = getAndrewsCnvCnnSurfaceInputAutoDeriveMarkers;
+    api.buildAndrewsCnvCnnSurfaceInputEchoPolicyFrame = buildAndrewsCnvCnnSurfaceInputEchoPolicyFrame;
+    api.getAndrewsCnvCnnSurfaceInputCandidateFrame = getAndrewsCnvCnnSurfaceInputCandidateFrame;
+    api.buildAndrewsCnvCnnRouteInputBoundaryFrame = buildAndrewsCnvCnnRouteInputBoundaryFrame;
+    api.buildAndrewsCnvCnnRouteInputTicketDimensionSlots = buildAndrewsCnvCnnRouteInputTicketDimensionSlots;
+    api.buildAndrewsCnvCnnRouteInputTicketFrame = buildAndrewsCnvCnnRouteInputTicketFrame;
+    api.getAndrewsCnvCnnRouteStageFromFormulaInput = getAndrewsCnvCnnRouteStageFromFormulaInput;
+    api.getAndrewsCnvCnnRouteFrameStage = getAndrewsCnvCnnRouteFrameStage;
+    api.getAndrewsCnvCnnRouteBoardSourceCandidateStages = getAndrewsCnvCnnRouteBoardSourceCandidateStages;
+    api.getAndrewsCnvCnnRouteBoardStageCandidateKeys = getAndrewsCnvCnnRouteBoardStageCandidateKeys;
+    api.getAndrewsCnvCnnRouteBoardStageCandidateLabels = getAndrewsCnvCnnRouteBoardStageCandidateLabels;
+    api.andrewsCnvCnnRouteStageMatchesAnySourceStage = andrewsCnvCnnRouteStageMatchesAnySourceStage;
+    api.getUniqueAndrewsCnvCnnRouteBoardRouteEntries = getUniqueAndrewsCnvCnnRouteBoardRouteEntries;
+    api.andrewCnvCnnStemRankMatchesRouteStage = andrewCnvCnnStemRankMatchesRouteStage;
+    api.andrewsCnvCnnRouteStageMatches = andrewsCnvCnnRouteStageMatches;
+    api.getAndrewsCnvCnnRouteTicketDetails = getAndrewsCnvCnnRouteTicketDetails;
+    api.buildAndrewsCnvCnnRouteBoardIfThenFrame = buildAndrewsCnvCnnRouteBoardIfThenFrame;
+    api.getAndrewsCnvCnnRouteBoardResistanceStatistics = getAndrewsCnvCnnRouteBoardResistanceStatistics;
+    api.getAndrewsCnvCnnRouteBoardResistanceFrame = getAndrewsCnvCnnRouteBoardResistanceFrame;
+    api.buildAndrewsCnvCnnRouteBoardPathResistanceFrame = buildAndrewsCnvCnnRouteBoardPathResistanceFrame;
+    api.getAndrewsCnvCnnRouteBoardHypothesisDefinition = getAndrewsCnvCnnRouteBoardHypothesisDefinition;
+    api.buildAndrewsCnvCnnRouteBoardHypothesisTestFrame = buildAndrewsCnvCnnRouteBoardHypothesisTestFrame;
+    api.buildAndrewsCnvCnnRouteBoardResistanceHypothesisFrame = buildAndrewsCnvCnnRouteBoardResistanceHypothesisFrame;
+    api.buildAndrewsCnvCnnRouteBoardPathStops = buildAndrewsCnvCnnRouteBoardPathStops;
+    api.aggregateAndrewsCnvCnnRouteBoardGateDomainCounts = aggregateAndrewsCnvCnnRouteBoardGateDomainCounts;
+    api.compareAndrewsCnvCnnRouteBoardResistance = compareAndrewsCnvCnnRouteBoardResistance;
+    api.buildAndrewsCnvCnnRouteTicket = buildAndrewsCnvCnnRouteTicket;
+    api.getAndrewsCnvCnnRouteBoardTargetAction = getAndrewsCnvCnnRouteBoardTargetAction;
+    api.buildAndrewsCnvCnnRouteBoardRouteEntry = buildAndrewsCnvCnnRouteBoardRouteEntry;
+    api.getAndrewsCnvCnnRouteBoardStageOptions = getAndrewsCnvCnnRouteBoardStageOptions;
+    api.findAndrewsCnvCnnRouteBoardItineraries = findAndrewsCnvCnnRouteBoardItineraries;
+    api.getAndrewsCnvCnnRouteBoardReachableDestinationOptions = getAndrewsCnvCnnRouteBoardReachableDestinationOptions;
+    api.getAndrewsCnvCnnRouteBoardEntryRouteIds = getAndrewsCnvCnnRouteBoardEntryRouteIds;
+    api.buildAndrewsCnvCnnRouteBoardActionFrame = buildAndrewsCnvCnnRouteBoardActionFrame;
+    api.countAndrewsCnvCnnRouteBoardActionRole = countAndrewsCnvCnnRouteBoardActionRole;
+    api.buildAndrewsCnvCnnRouteBoardIntentionFrame = buildAndrewsCnvCnnRouteBoardIntentionFrame;
+    api.attachAndrewsCnvCnnRouteBoardActionFrame = attachAndrewsCnvCnnRouteBoardActionFrame;
+    api.buildAndrewsCnvCnnRouteBoardStationLineFrame = buildAndrewsCnvCnnRouteBoardStationLineFrame;
+    api.buildAndrewsCnvCnnRouteBoardPassengerFrame = buildAndrewsCnvCnnRouteBoardPassengerFrame;
+    api.buildAndrewsCnvCnnRouteBoardConcourseFrame = buildAndrewsCnvCnnRouteBoardConcourseFrame;
+    api.buildAndrewsCnvCnnRouteBoardPlatformFrame = buildAndrewsCnvCnnRouteBoardPlatformFrame;
+    api.buildAndrewsCnvCnnRouteBoardRideFrame = buildAndrewsCnvCnnRouteBoardRideFrame;
+    api.buildAndrewsCnvCnnRouteBoard = buildAndrewsCnvCnnRouteBoard;
     api.getAndrewsCnvCnnBackAndForthObstacleGateDomains = getAndrewsCnvCnnBackAndForthObstacleGateDomains;
     api.getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus = getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus;
     api.buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame = buildAndrewsCnvCnnBackAndForthObstacleCoordinateFrame;

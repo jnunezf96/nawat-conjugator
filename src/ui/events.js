@@ -291,6 +291,12 @@ async function initializeUiRuntime() {
                     syncComposerStateFromVerbInput(verbEl.value);
                     renderVerbComposerFromState();
                 }
+                if (!VerbComposerState.isApplying && typeof clearAndrewsRouteBoardPinnedJourney === "function") {
+                    clearAndrewsRouteBoardPinnedJourney();
+                }
+                if (typeof renderAndrewsRouteBoard === "function") {
+                    renderAndrewsRouteBoard();
+                }
                 scheduleVerbInputRefresh(verbEl.value);
             });
             verbEl.addEventListener("focus", () => {

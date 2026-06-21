@@ -1944,12 +1944,16 @@ function run(ctx) {
         {
             forms: absolutiveInstrumentiveReflexive.surfaceForms,
             sourceTense: absolutiveInstrumentiveReflexive.nominalizationProfile?.source?.sourceTense || "",
+            sourceUnit: absolutiveInstrumentiveReflexive.nominalizationProfile?.source?.sourceUnit || "",
+            note2SourceUnit: absolutiveInstrumentiveReflexive.nominalizationProfile?.instrumentiveNote2Frame?.sourceUnit || "",
             connector: absolutiveInstrumentiveReflexive.num1Num2?.displaySurface || "",
             formulaEcho: absolutiveInstrumentiveReflexive.nuclearClauseShell?.formulaEcho || "",
         },
         {
             forms: ["nemachuni", "nematuni", "nematiluni"],
             sourceTense: "presente-habitual",
+            sourceUnit: "vnc-predicate",
+            note2SourceUnit: "vnc-predicate",
             connector: "Ø",
             formulaEcho: "#Ø-Ø(nemachuni)Ø#",
         }
@@ -1976,6 +1980,8 @@ function run(ctx) {
         {
             forms: possessedInstrumentiveReflexive.surfaceForms,
             sourceTense: possessedInstrumentiveReflexive.nominalizationProfile?.source?.sourceTense || "",
+            sourceUnit: possessedInstrumentiveReflexive.nominalizationProfile?.source?.sourceUnit || "",
+            note2ExceptionCount: possessedInstrumentiveReflexive.nominalizationProfile?.instrumentiveNote2Frame?.exceptionalStateRoutes?.length || 0,
             predicateState: possessedInstrumentiveReflexive.nominalizationProfile?.predicateState?.value || "",
             possessorPrefix: possessedInstrumentiveReflexive.nominalizationProfile?.predicateState?.possessorPrefix || "",
             connector: possessedInstrumentiveReflexive.num1Num2?.displaySurface || "",
@@ -1984,10 +1990,182 @@ function run(ctx) {
         {
             forms: ["nunematiya"],
             sourceTense: "imperfecto",
+            sourceUnit: "vnc-predicate",
+            note2ExceptionCount: 2,
             predicateState: "possessive",
             possessorPrefix: "nu",
             connector: "Ø",
             formulaEcho: "#Ø-Ø(nematiya)Ø#",
+        }
+    );
+    const activeImperfectAbsolutiveInstrumentive = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            instrumentivoMode: ctx.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo,
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "instrumentivo",
+        },
+    });
+    s.eq(
+        "Andrews 36.6 note 2 can explicitly show active-imperfect predicate as absolutive instrumentive",
+        {
+            forms: activeImperfectAbsolutiveInstrumentive.surfaceForms,
+            connector: activeImperfectAbsolutiveInstrumentive.num1Num2?.displaySurface || "",
+            formulaEcho: activeImperfectAbsolutiveInstrumentive.nuclearClauseShell?.formulaEcho || "",
+            sourceTense: activeImperfectAbsolutiveInstrumentive.nominalizationProfile?.source?.sourceTense || "",
+            sourceUnit: activeImperfectAbsolutiveInstrumentive.nominalizationProfile?.source?.sourceUnit || "",
+            exceptionSource: activeImperfectAbsolutiveInstrumentive.instrumentivoImperfectActiveAbsolutiveException?.grammarSource || "",
+        },
+        {
+            forms: ["tamatiyat"],
+            connector: "t",
+            formulaEcho: "#Ø-Ø(tamatiya)t#",
+            sourceTense: "imperfecto",
+            sourceUnit: "vnc-predicate",
+            exceptionSource: "Andrews 36.6 note 2",
+        }
+    );
+    const activeImperfectPredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            predicateNominalSourceTense: "imperfecto",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    s.eq(
+        "predicado-nominal is its own VNC predicate to NNC target beside instrumentivo with source tense option",
+        {
+            forms: activeImperfectPredicateNominal.surfaceForms,
+            connector: activeImperfectPredicateNominal.num1Num2?.displaySurface || "",
+            formulaEcho: activeImperfectPredicateNominal.nuclearClauseShell?.formulaEcho || "",
+            nominalKind: activeImperfectPredicateNominal.nominalizationProfile?.nominalKind || "",
+            role: activeImperfectPredicateNominal.nominalizationProfile?.role?.nominalizationKind || "",
+            sourceTense: activeImperfectPredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            sourceUnit: activeImperfectPredicateNominal.nominalizationProfile?.source?.sourceUnit || "",
+        },
+        {
+            forms: ["tamatiyat"],
+            connector: "t",
+            formulaEcho: "#Ø-Ø(tamatiya)t#",
+            nominalKind: "predicado-nominal",
+            role: "predicate-nominal",
+            sourceTense: "imperfecto",
+            sourceUnit: "vnc-predicate",
+        }
+    );
+    const activePresentPredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            predicateNominalSourceTense: "presente",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    const activeFuturePredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            predicateNominalSourceTense: "futuro",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    s.eq(
+        "predicado-nominal source-tense option changes the source predicate instead of reusing imperfect",
+        {
+            present: {
+                forms: activePresentPredicateNominal.surfaceForms,
+                formulaEcho: activePresentPredicateNominal.nuclearClauseShell?.formulaEcho || "",
+                sourceTense: activePresentPredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            },
+            future: {
+                forms: activeFuturePredicateNominal.surfaceForms,
+                formulaEcho: activeFuturePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+                sourceTense: activeFuturePredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            },
+        },
+        {
+            present: {
+                forms: ["tamatit"],
+                formulaEcho: "#Ø-Ø(tamati)t#",
+                sourceTense: "presente",
+            },
+            future: {
+                forms: ["tamatist"],
+                formulaEcho: "#Ø-Ø(tamatis)t#",
+                sourceTense: "futuro",
+            },
+        }
+    );
+    const passiveFuturePredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            predicateNominalSourceTense: "futuro",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    s.eq(
+        "predicado-nominal supports a passive source block with the same source-tense option",
+        {
+            forms: passiveFuturePredicateNominal.surfaceForms,
+            formulaEcho: passiveFuturePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+            sourceTense: passiveFuturePredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            sourceCombinedMode: passiveFuturePredicateNominal.nominalizationProfile?.source?.sourceCombinedMode || "",
+            sourceUnit: passiveFuturePredicateNominal.nominalizationProfile?.source?.sourceUnit || "",
+        },
+        {
+            forms: ["machulust", "matilust", "matulust", "matust", "matilulust"],
+            formulaEcho: "#Ø-Ø(matilulus)t#",
+            sourceTense: "futuro",
+            sourceCombinedMode: "nonactive",
+            sourceUnit: "vnc-predicate",
         }
     );
     const generatedInstrumentiveSourceSubjectPossessive = ctx.generateWord({
@@ -2020,6 +2198,64 @@ function run(ctx) {
             predicateState: "possessive",
             possessorPrefix: "tu",
             formulaEcho: "#Ø-Ø(tamatiya)Ø#",
+        }
+    );
+
+    const ungatedMatiPatientivo = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            derivationMode: ctx.DERIVATION_MODE.active,
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "patientivo",
+        },
+    });
+    s.eq(
+        "plain patientivo noun generation requires an explicit Andrews source gate",
+        {
+            ok: ungatedMatiPatientivo.ok,
+            diagnostic: ungatedMatiPatientivo.diagnostics?.[0]?.id || "",
+            forms: ungatedMatiPatientivo.surfaceForms,
+        },
+        {
+            ok: false,
+            diagnostic: "nuclear-clause-surface-patientivo-source-required",
+            forms: [],
+        }
+    );
+    const ungatedMatiPatientivoMorphology = ctx.applyMorphologyRules({
+        subjectPrefix: "",
+        objectPrefix: "ta",
+        subjectSuffix: "",
+        verb: "mati",
+        tense: "patientivo",
+        analysisVerb: "mati",
+        rawAnalysisVerb: "mati",
+        analysisExactVerb: "mati",
+        isYawi: false,
+        isWeya: false,
+        directionalPrefix: "",
+    });
+    s.eq(
+        "patientivo morphology layer also requires an explicit Andrews source gate",
+        {
+            error: ungatedMatiPatientivoMorphology.error,
+            diagnostic: ungatedMatiPatientivoMorphology.diagnostics?.[0]?.id
+                || ungatedMatiPatientivoMorphology.grammarFrame?.diagnosticFrame?.diagnostics?.[0]?.id
+                || "",
+            verb: ungatedMatiPatientivoMorphology.verb || "",
+        },
+        {
+            error: true,
+            diagnostic: "morphology-patientivo-source-required",
+            verb: "",
         }
     );
 
@@ -2065,6 +2301,11 @@ function run(ctx) {
         isAdjectivalModification: false,
         doesNotImplementLessons42_43: true,
     });
+    s.eq(
+        "patientivo nominalization profile marks the source as VNC core/stem, not VNC predicate",
+        matiPatientivo.nominalizationProfile?.source?.sourceUnit || "",
+        "vnc-core-stem"
+    );
     s.eq(
         "patientivo profile derives Lessons 37.9-39 family metadata separately from generation",
         {
@@ -2273,18 +2514,18 @@ function run(ctx) {
             sourcePattern: "perfective-active-stem",
             sourceFamilyIds: ["perfective-active-core"],
             sourceFamilyLabel: "perfectivo activo",
-            sourceTense: "preterito",
+            sourceTense: "",
         },
         {
             label: "imperfective",
             verb: "-(mati)",
             objectPrefix: "ta",
             source: "imperfectivo",
-            surfaceForms: ["tamatiyat"],
+            surfaceForms: ["tamatit"],
             sourcePattern: "imperfective-active-stem",
             sourceFamilyIds: ["imperfective-active-core"],
             sourceFamilyLabel: "imperfectivo activo",
-            sourceTense: "imperfecto",
+            sourceTense: "",
         },
         {
             label: "root/stock",
@@ -2333,6 +2574,104 @@ function run(ctx) {
             completeTaxonomy: false,
         });
     });
+    const patientivoSourcePathFormulaCases = [
+        {
+            source: "passive",
+            verb: "-(mati)",
+            objectPrefix: "ta",
+            primarySurface: "machti",
+            formulaEcho: "#Ø-Ø(mach)ti#",
+            sourceType: "nonactive",
+            contractKind: "patientive-nonactive-source-suffix-contract",
+        },
+        {
+            source: "impersonal",
+            verb: "-(mati)",
+            objectPrefix: "ta",
+            primarySurface: "tamachti",
+            formulaEcho: "#Ø-Ø(tamach)ti#",
+            sourceType: "nonactive",
+            contractKind: "patientive-nonactive-source-suffix-contract",
+        },
+        {
+            source: "perfectivo",
+            verb: "-(ketza)",
+            objectPrefix: "ta",
+            primarySurface: "taketzti",
+            formulaEcho: "#Ø-Ø(taketz)ti#",
+            sourceType: "perfectivo",
+            contractKind: "patientive-perfective-source-ending-contract",
+        },
+        {
+            source: "imperfectivo",
+            verb: "-(mati)",
+            objectPrefix: "ta",
+            primarySurface: "tamatit",
+            formulaEcho: "#Ø-Ø(tamati)t#",
+            sourceType: "imperfectivo",
+            contractKind: "patientive-imperfective-source-stem-contract",
+        },
+        {
+            source: "tronco-verbal",
+            verb: "(pusuni)",
+            objectPrefix: "",
+            primarySurface: "pusukti",
+            formulaEcho: "#Ø-Ø(pusuk)ti#",
+            sourceType: "tronco-verbal",
+            contractKind: "patientive-root-stock-source-contract",
+        },
+    ];
+    s.eq(
+        "all patientivo source paths keep explicit source gates and Andrews NNC formula shape",
+        patientivoSourcePathFormulaCases.map((example) => {
+            const generated = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    patientivoSource: example.source,
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: example.objectPrefix,
+                    tronco: example.verb,
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "patientivo",
+                },
+            });
+            const sourceStageFrame = generated.nominalizationProfile?.patientiveSourceStageFrame || null;
+            return {
+                source: example.source,
+                primarySurface: generated.surfaceForms?.[0] || "",
+                formulaType: generated.nuclearClauseShell?.formulaType || "",
+                formula: generated.nuclearClauseShell?.formula || "",
+                formulaEcho: generated.nuclearClauseShell?.formulaEcho || "",
+                hasTenseSlot: Boolean(generated.nuclearClauseShell?.formulaSlots?.tensePosition),
+                family: generated.nominalizationProfile?.patientiveFamilyProfile?.family || "",
+                sourceStage: sourceStageFrame?.slot || "",
+                sourceType: sourceStageFrame?.sourceType || "",
+                contractKind: sourceStageFrame?.sourceSuffixContract?.kind
+                    || sourceStageFrame?.sourceEndingContract?.kind
+                    || sourceStageFrame?.sourceStemContract?.kind
+                    || sourceStageFrame?.sourceStockContract?.kind
+                    || "",
+            };
+        }),
+        patientivoSourcePathFormulaCases.map((example) => ({
+            source: example.source,
+            primarySurface: example.primarySurface,
+            formulaType: "NNC",
+            formula: "#pers1-pers2(STEM)num1-num2#",
+            formulaEcho: example.formulaEcho,
+            hasTenseSlot: false,
+            family: example.source,
+            sourceStage: "#3 salida",
+            sourceType: example.sourceType,
+            contractKind: example.contractKind,
+        }))
+    );
     const generatedRootStockDefault = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -2567,8 +2906,8 @@ function run(ctx) {
         {
             source: "imperfectivo",
             verb: "-(mati)",
-            taForms: ["tamatiyat"],
-            reflexiveForms: ["nematiyat"],
+            taForms: ["tamatit"],
+            reflexiveForms: ["nematit"],
         },
     ].forEach((example) => {
         const generated = ctx.generateWord({
@@ -2696,8 +3035,8 @@ function run(ctx) {
     const nonactiveSuffixFrameContract = ctx.getPatientivoNonactiveSourceSuffixContract("luwa");
     const perfectiveFrameContract = ctx.getPatientivoPerfectiveSourceStemContract("taketz");
     const imperfectiveFrameContract = ctx.getPatientivoImperfectiveSourceStemContract({
-        sourceStem: "matiya",
-        outputStem: "tamatiya",
+        sourceStem: "mati",
+        outputStem: "tamati",
     });
     const rootStockFrameContract = ctx.getPatientivoRootStockSourceContract({
         sourceStem: "mat",
@@ -2754,7 +3093,7 @@ function run(ctx) {
             },
             imperfective: {
                 routeStage: "classify-imperfective-source-stem",
-                output: "tamatiyat",
+                output: "tamatit",
             },
             rootStock: {
                 routeStage: "classify-root-stock-source",
@@ -2768,8 +3107,8 @@ function run(ctx) {
     );
     const sourceStageFrameContract = ctx.buildPatientivoSourceStageFrame({
         sourceType: "imperfectivo",
-        sourceStem: "matiya",
-        outputStem: "tamatiya",
+        sourceStem: "mati",
+        outputStem: "tamati",
         outputConnector: "t",
     });
     const framedAllomorphyContract = ctx.attachVncAllomorphyGrammarContract({
@@ -2873,9 +3212,9 @@ function run(ctx) {
         {
             nonactive: ["luwa"],
             perfective: ["tz"],
-            imperfective: ["tamatiyat"],
+            imperfective: ["tamatit"],
             rootStock: ["matti"],
-            sourceStage: ["tamatiyat"],
+            sourceStage: ["tamatit"],
             framed: ["frame-allomorph-a", "frame-allomorph-b"],
             framedSurface: "frame-allomorph-a",
             framedOrthography: ["frame-allomorph-a", "frame-allomorph-b"],
@@ -3006,8 +3345,8 @@ function run(ctx) {
         }
     );
     const directImperfectiveVowelStemContract = ctx.getPatientivoImperfectiveSourceStemContract({
-        sourceStem: "matiya",
-        outputStem: "tamatiya",
+        sourceStem: "mati",
+        outputStem: "tamati",
     });
     const directImperfectiveConsonantStemContract = ctx.getPatientivoImperfectiveSourceStemContract({
         sourceStem: "mach",
@@ -3065,11 +3404,11 @@ function run(ctx) {
                 family: "t/ti",
             },
             generated: {
-                forms: ["tamatiyat"],
+                forms: ["tamatit"],
                 sourceCore: "imperfective-active-core",
                 connector: "t",
-                contractSurface: "matiyat",
-                selectedOutputSurface: "tamatiyat",
+                contractSurface: "matit",
+                selectedOutputSurface: "tamatit",
             },
         }
     );
@@ -3531,7 +3870,7 @@ function run(ctx) {
     s.eq(
         "Andrews 39.2 imperfective patientivo preserves te+tla under impersonal analogy when shuntline ta already marks the patient",
         imperfectiveTeWithShuntlineTa.surfaceForms,
-        ["tetamatiyat"]
+        ["tetamatit"]
     );
     s.eq("patientivo impersonal exposes Andrews source core separately", {
         family: impersonalTransitiveProfile.family,

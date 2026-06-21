@@ -2,26 +2,34 @@
 
 This ledger establishes Andrews as the active directing and redirecting layer for the engine, visible UI, diagnostics, and curriculum status. It does not create one engine, route, or UI control per lesson. Lessons remain evidence and curriculum indexes over reusable grammar categories.
 
+## Supreme Goal
+
+Follow the trajectory of the Andrews PDF by making Nawat Conjugator a grammar GIS whose authority is the PDF. Lessons are evidence/status waypoints. Andrews governs categories, slots, boundaries, dependencies, source/target routes, generation gates, and whether a route is generated, diagnostic, blocked, or pending evidence. Nawat/Pipil may realize spelling and preterit indicative surfaces only; it must not become authority for preterit-derived grammar or unsupported derivational routes.
+
+## Patch Judgment Gate
+
+Every future patch must answer three checks before it can be treated as aligned: which Andrews waypoint it advances, which LCM boundary it preserves, and whether Nawat/Pipil authority stays limited to spelling plus preterit indicative. Preterit indicative remains separate from preterit-derived routes such as agentive, adjectival, and embedded preterit behavior.
+
 ## Directing Rule
 
-Before a grammar target is implemented, read the relevant Andrews PDF section and let it define the architecture: order, roles, slots, boundaries, categories, dependencies, derivational operations, and whether generation is licensed. Nawat/Pipil evidence then decides spelling realization, lexical examples, exceptions, and confirmed output surfaces.
+Before a grammar target is implemented, read the relevant Andrews PDF section and let it define the architecture: order, roles, slots, boundaries, categories, dependencies, derivational operations, source/target route, and whether generation is licensed. Nawat/Pipil evidence then decides spelling realization and already-scoped preterit indicative surfaces only. Lexical examples and exceptions may be recorded as evidence, but they do not authorize grammar architecture, preterit-derived behavior, or unsupported derivational routes.
 
 ## Redirecting Rule
 
-When current behavior diverges from Andrews, redirect it explicitly. The allowed redirect actions are `keep`, `rename-visible-ui`, `reframe-metadata`, `diagnostic-only`, `block-generation`, `refactor-engine`, and `needs-nawat-evidence`. If a route lacks Andrews license or Nawat evidence, prefer diagnostic metadata or blocked generation over silent output.
+When current behavior diverges from Andrews, redirect it explicitly. The allowed redirect actions are `keep`, `rename-visible-ui`, `reframe-metadata`, `diagnostic-only`, `block-generation`, `refactor-engine`, and `needs-nawat-evidence`. If a route lacks Andrews license or required Nawat spelling/preterit-indicative evidence, prefer diagnostic metadata or blocked generation over silent output.
 
 ## Plan/Pursue Rule
 
 Plan Mode aims; Pursue Goal shoots. The main target is the fully Andrews-directed Nawat Conjugador. Each lesson is one step toward that target, and each scoped correction is one arrow inside the current lesson-step.
 
-- Main target: an app whose grammar architecture is directed by Andrews and whose Nawat/Pipil surfaces are directed by Nawat/Pipil evidence.
+- Main target: an app whose grammar architecture and route permission are directed by Andrews PDF, with Nawat/Pipil limited to spelling realization and already-scoped preterit indicative surfaces.
 - Step: one Andrews lesson, ordered from 1 through 58.
 - Arrow: one scoped correction to UI, engine, metadata, diagnostics, tests, validation, or docs.
 - Hit: the arrow moves the app closer to Andrews and has PDF evidence plus feedback.
 - Miss: the arrow lacks Andrews grounding, adds drift, hides uncertainty, or passes irrelevant feedback.
 - Closest-pass: the lesson has no known unmarked mismatch; any remaining gap is explicitly blocked, diagnostic-only, or evidence-needed.
 
-Plan Mode must define the step, arrows, hit criteria, miss criteria, and validation before code changes. Pursue Goal must implement only planned arrows, measure each arrow against Andrews plus Nawat/Pipil evidence, and stop only at closest-pass or an explicit evidence blocker.
+Plan Mode must define the step, arrows, hit criteria, miss criteria, and validation before code changes. Pursue Goal must implement only planned arrows, measure each arrow against Andrews plus Nawat/Pipil spelling or preterit-indicative evidence, and stop only at closest-pass or an explicit evidence blocker.
 
 ### Correctness Before Existence Rule
 
@@ -31,7 +39,7 @@ Every kept or hit shot must name its miss probe: the wrong output, wrong UI, wro
 
 ### Andrews Formula Authority Rule
 
-Andrews formulas are engine contracts, not optional explanatory metadata. If Andrews defines a formula category, slot order, slot owner, boundary, or morphic filler, the Conjugador must keep that formula architecture even when Nawat/Pipil surface generation remains diagnostic, blocked, or evidence-needed. Nawat/Pipil evidence confirms spelling realization and lexical surfaces; it does not weaken Andrews formula structure.
+Andrews formulas are engine contracts, not optional explanatory metadata. If Andrews defines a formula category, slot order, slot owner, boundary, or morphic filler, the Conjugador must keep that formula architecture even when Nawat/Pipil surface generation remains diagnostic, blocked, or evidence-needed. Nawat/Pipil evidence confirms spelling realization and already-scoped preterit indicative surfaces; it does not weaken Andrews formula structure and does not license preterit-derived routes.
 
 For CNV Lesson 5, the optative formula is therefore stronger than compatibility behavior: the finite category is `optativo`, the tense/morph slot is Andrews' nonpast optative `Ø`, and every plural optative formula must keep the Nawat-adapted Andrews connector `k-an` in `num1-num2`. A formula that leaves plural optative number as `Ø-t`, `k-et`, a folded subject suffix, or any non-optative connector is a miss even if a surface row renders.
 
@@ -47,7 +55,7 @@ Every formula keep or hit must include a paired probe: one case where the releva
 
 ### Minimal Andrews-Strong Formula Run Rule
 
-Every lesson run uses the same minimal loop: read the relevant Andrews PDF subsection, split it into each visible subsection and sub-subsection, convert each claim into a behavior requirement, inspect only the entrada-to-output path, and change only a concrete mismatch. Andrews decides formula architecture; Nawat/Pipil evidence decides spelling realization and confirmed surfaces.
+Every lesson run uses the same minimal loop: read the relevant Andrews PDF subsection, split it into each visible subsection and sub-subsection, convert each claim into a behavior requirement, inspect only the entrada-to-output path, and change only a concrete mismatch. Andrews decides formula architecture, route permission, and derivational authority; Nawat/Pipil evidence decides spelling realization and already-scoped preterit indicative surfaces.
 
 The completion report for each run must list every inspected subsection and sub-subsection with its Andrews reference, requirement, shot status, miss probe, changed files if any, and validation result. Successful runs allow only `hit-no-edit` or `hit-edit` as final shot statuses. `keep` is a redirect action, not a final shot status; `miss`, `blocked`, or `evidence-needed` mean the lesson has not reached the all-hit target.
 
@@ -166,4 +174,4 @@ Clause, denominal, name, and miscellany layer. Andrews directs complementation, 
 
 ## Done Standard
 
-A lesson or feature may not be treated as implemented unless it has direct Andrews PDF references, an explicit redirect action, a stated Nawat orthography/evidence status, and at least one focused validation reference. A lesson may not be marked `closestPass` unless its remaining gap is `none` and its fired arrows are validated hits. The validation script enforces this trajectory contract.
+A lesson or feature may not be treated as implemented unless it has direct Andrews PDF references, an explicit redirect action, a stated Nawat orthography or preterit-indicative evidence status, and at least one focused validation reference. A lesson may not be marked `closestPass` unless its remaining gap is `none` and its fired arrows are validated hits. The validation script enforces this trajectory contract and rejects any broad Nawat/Pipil authority claim that would license preterit-derived grammar outside the Andrews PDF.

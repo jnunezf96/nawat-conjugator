@@ -12,8 +12,8 @@
 
 ## Standing Interpretation
 
-- Andrews supplies the grammar-rule authority for engine structure: order, roles, slots, boundaries, categories, dependencies, and supported derivational operations. Nawat/Pipil evidence and user-provided forms still decide Nawat orthography and surfaces.
-- Nawat/Pipil repo evidence and user-provided forms decide forms.
+- Andrews PDF supplies the supreme grammar-rule authority for engine structure: order, roles, slots, boundaries, categories, dependencies, supported derivational operations, source/target routes, and generation gates.
+- Nawat/Pipil evidence and user-provided forms may decide spelling realization and preterit-indicative surfaces. They do not authorize preterit-derived grammar, unsupported derivational routes, or formula architecture.
 - Classical spellings from Andrews grammar rules should pass through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` before they become Nawat/Pipil engine surfaces. Andrews-supported derivations remain structurally valid after letter conversion; e.g. Classical `tl` maps to Nawat `t`, `tla-` maps to `ta-`, `tla-(pa-tla)` corresponds structurally to Nawat `ta-(pa-ta)`, Classical `(pa-ti)-tl` corresponds to Nawat `(pa-ti)-t`, and Classical person `-h` maps to Nawat `-t`. This converts letters only; it is not lexical fixture evidence.
 - Keep current UI/engine contracts as the starting point.
 - Andrews is lesson-per-lesson; the UI/engine is not. Use lessons as curriculum/status and evidence indexes, then implement reusable grammar categories, slot metadata, diagnostics, and controls.

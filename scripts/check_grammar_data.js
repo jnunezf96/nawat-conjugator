@@ -1216,6 +1216,14 @@ function checkAndrewsTrajectoryDoc() {
         "Redirecting Rule",
         "Plan/Pursue Rule",
         "Correctness Before Existence Rule",
+        "Supreme Goal",
+        "grammar GIS",
+        "Nawat/Pipil may realize spelling and preterit indicative surfaces only",
+        "does not license preterit-derived routes",
+        "Patch Judgment Gate",
+        "which Andrews waypoint it advances",
+        "which LCM boundary it preserves",
+        "Preterit indicative remains separate from preterit-derived routes",
     ].forEach((marker) => {
         if (!text.includes(marker)) {
             addError(`docs/ANDREWS_TRAJECTORY.md must include "${marker}".`);
@@ -1229,6 +1237,52 @@ function checkAndrewsTrajectoryDoc() {
     if (!/Done Standard/.test(text)) {
         addError("docs/ANDREWS_TRAJECTORY.md must include the Done Standard gate.");
     }
+    [
+        {
+            relPath: "AGENTS.md",
+            markers: [
+                "current Nawat finite surface authority is limited to preterit indicative",
+                "do not authorize preterit-derived grammar",
+            ],
+        },
+        {
+            relPath: "docs/CODEX_BOARD.md",
+            markers: [
+                "Andrews PDF supplies the supreme grammar-rule authority",
+                "may decide spelling realization and preterit-indicative surfaces",
+            ],
+        },
+        {
+            relPath: "docs/ANDREWS_LAYER_LCM.md",
+            markers: [
+                "supreme grammar architecture authority",
+                "already-scoped preterit indicative surfaces only",
+                "Nawat/Pipil evidence alone can never upgrade it from diagnostic or blocked to generated",
+            ],
+        },
+        {
+            relPath: "docs/ANDREWS_PDF_DIGEST.md",
+            markers: [
+                "Andrews PDF governs grammar architecture",
+                "already-scoped preterit indicative surfaces only",
+                "do not authorize preterit-derived grammar",
+            ],
+        },
+    ].forEach(({ relPath, markers }) => {
+        const sourcePath = path.join(ROOT, relPath);
+        let sourceText = "";
+        try {
+            sourceText = fs.readFileSync(sourcePath, "utf8");
+        } catch (error) {
+            addError(`${relPath} could not be read: ${error.message}`);
+            return;
+        }
+        markers.forEach((marker) => {
+            if (!sourceText.includes(marker)) {
+                addError(`${relPath} must include "${marker}".`);
+            }
+        });
+    });
 }
 
 function checkAndrewsFormalClassSurfaces(jsonByName) {
@@ -1630,6 +1684,7 @@ function checkAndrewsTrajectoryRegistry() {
         "missCount",
         "remainingGap",
         "closestPass",
+        "sourceGatedRoute",
     ]);
 
     function checkArrowRefs(arrow, where, feedbackKey) {
@@ -1654,6 +1709,128 @@ function checkAndrewsTrajectoryRegistry() {
             && /comportamiento/.test(text)
             && /existencia/.test(text)
             && /sonda de fallo/.test(text);
+    }
+
+    function checkPuzzleStackTemplate(route, where) {
+        const template = asObject(route.puzzleStackTemplate, `${where}.puzzleStackTemplate`);
+        if (template.kind !== "andrews-route-puzzle-stack-template") {
+            addError(`${where}.puzzleStackTemplate.kind must identify a PuzzleStack template.`);
+        }
+        if (template.model !== "entrada-formula-salida") {
+            addError(`${where}.puzzleStackTemplate.model must be entrada-formula-salida.`);
+        }
+        if (template.userBuildable !== true) {
+            addError(`${where}.puzzleStackTemplate.userBuildable must be true.`);
+        }
+        if (template.routeKind !== route.routeKind) {
+            addError(`${where}.puzzleStackTemplate.routeKind must match the route kind.`);
+        }
+        if (typeof template.profileKind !== "string" || template.profileKind.trim() === "") {
+            addError(`${where}.puzzleStackTemplate.profileKind must identify the PuzzleStack profile.`);
+        }
+        if (template.profileKind === "source-gated-scaffold") {
+            addError(`${where}.puzzleStackTemplate.profileKind must use a route-family profile, not the fallback scaffold.`);
+        }
+        [
+            "exact-clause-relation-route",
+            "exact-denominal-route",
+            "exact-derivational-boundary-route",
+            "exact-diagnostic-analysis-route",
+            "exact-foundation-formula-route",
+            "exact-foundation-metadata-route",
+            "exact-nnc-function-route",
+            "exact-nominalization-route",
+            "exact-vnc-source-route",
+        ].forEach((broadProfileKind) => {
+            if (template.profileKind === broadProfileKind) {
+                addError(`${where}.puzzleStackTemplate.profileKind must not use broad catch-all profile ${broadProfileKind}.`);
+            }
+        });
+        const steps = asArray(template.steps, `${where}.puzzleStackTemplate.steps`);
+        if (steps.length < 3) {
+            addError(`${where}.puzzleStackTemplate.steps must include at least entrada, formula, and salida steps.`);
+        }
+        const stages = new Set();
+        steps.forEach((step, stepIndex) => {
+            const stepWhere = `${where}.puzzleStackTemplate.steps[${stepIndex}]`;
+            const stepObject = asObject(step, stepWhere);
+            ["stage", "piece", "label", "formula", "note"].forEach((key) => {
+                if (typeof stepObject[key] !== "string" || stepObject[key].trim() === "") {
+                    addError(`${stepWhere}.${key} must be a non-empty string.`);
+                }
+            });
+            if (typeof stepObject.stage === "string") {
+                stages.add(stepObject.stage);
+            }
+        });
+        ["#1 entrada", "#2 formula", "#3 salida"].forEach((stage) => {
+            if (!stages.has(stage)) {
+                addError(`${where}.puzzleStackTemplate.steps must include ${stage}.`);
+            }
+        });
+        if (steps[0]?.stage !== "#1 entrada") {
+            addError(`${where}.puzzleStackTemplate first step must start at #1 entrada.`);
+        }
+        if (steps[steps.length - 1]?.stage !== "#3 salida") {
+            addError(`${where}.puzzleStackTemplate final step must end at #3 salida.`);
+        }
+        if (template.actionModel !== undefined || template.actions !== undefined) {
+            if (template.actionModel !== "ordered-selectable-piece-transform") {
+                addError(`${where}.puzzleStackTemplate.actionModel must be ordered-selectable-piece-transform when actions are present.`);
+            }
+            const actions = asArray(template.actions, `${where}.puzzleStackTemplate.actions`);
+            if (!actions.length) {
+                addError(`${where}.puzzleStackTemplate.actions must not be empty when actionModel is present.`);
+            }
+            let previousOutput = steps[0]?.formula;
+            actions.forEach((action, actionIndex) => {
+                const actionWhere = `${where}.puzzleStackTemplate.actions[${actionIndex}]`;
+                const actionObject = asObject(action, actionWhere);
+                ["stage", "inputFormula", "selectablePiece", "operation", "outputFormula", "note"].forEach((key) => {
+                    if (typeof actionObject[key] !== "string" || actionObject[key].trim() === "") {
+                        addError(`${actionWhere}.${key} must be a non-empty string.`);
+                    }
+                });
+                if (actionObject.inputFormula !== previousOutput) {
+                    addError(`${actionWhere}.inputFormula must equal the previous PuzzleStack output formula.`);
+                }
+                previousOutput = actionObject.outputFormula;
+            });
+            if (previousOutput !== steps[steps.length - 1]?.formula) {
+                addError(`${where}.puzzleStackTemplate.actions final outputFormula must equal the final PuzzleStack salida formula.`);
+            }
+        }
+        if (template.buildModel !== undefined || template.conjugatorEntradas !== undefined) {
+            if (template.buildModel !== "single-entrada-conjugator-orchestration") {
+                addError(`${where}.puzzleStackTemplate.buildModel must be single-entrada-conjugator-orchestration when conjugatorEntradas are present.`);
+            }
+            const conjugatorEntradas = asObject(template.conjugatorEntradas, `${where}.puzzleStackTemplate.conjugatorEntradas`);
+            if (conjugatorEntradas.activeSlotPolicy !== "one-source-at-a-time") {
+                addError(`${where}.puzzleStackTemplate.conjugatorEntradas.activeSlotPolicy must be one-source-at-a-time.`);
+            }
+            const runs = asArray(conjugatorEntradas.runs, `${where}.puzzleStackTemplate.conjugatorEntradas.runs`);
+            if (!runs.length) {
+                addError(`${where}.puzzleStackTemplate.conjugatorEntradas.runs must not be empty.`);
+            }
+            runs.forEach((run, runIndex) => {
+                const runWhere = `${where}.puzzleStackTemplate.conjugatorEntradas.runs[${runIndex}]`;
+                const runObject = asObject(run, runWhere);
+                ["id", "stage", "activeEntrada", "process", "contributes", "output", "note"].forEach((key) => {
+                    if (typeof runObject[key] !== "string" || runObject[key].trim() === "") {
+                        addError(`${runWhere}.${key} must be a non-empty string.`);
+                    }
+                });
+                const internalPath = asArray(runObject.internalPath, `${runWhere}.internalPath`);
+                if (!internalPath.length) {
+                    addError(`${runWhere}.internalPath must record the Conjugator processing path.`);
+                }
+                internalPath.forEach((entry, entryIndex) => {
+                    if (typeof entry !== "string" || entry.trim() === "") {
+                        addError(`${runWhere}.internalPath[${entryIndex}] must be a non-empty string.`);
+                    }
+                });
+            });
+        }
     }
 
     lessonRegistry.forEach((lesson, index) => {
@@ -1699,6 +1876,157 @@ function checkAndrewsTrajectoryRegistry() {
         if (typeof trajectory.remainingGap !== "string" || trajectory.remainingGap.trim() === "") {
             addError(`${where}.remainingGap must be a non-empty string.`);
         }
+        const sourceGatedRoute = asObject(trajectory.sourceGatedRoute, `${where}.sourceGatedRoute`);
+        if (sourceGatedRoute.kind !== "andrews-lesson-source-gated-route-contract") {
+            addError(`${where}.sourceGatedRoute.kind must identify the Andrews source-gated route contract.`);
+        }
+        if (sourceGatedRoute.id !== `lesson-${lesson.id}-source-gated-route`) {
+            addError(`${where}.sourceGatedRoute.id must be lesson-scoped.`);
+        }
+        [
+            "routeFamily",
+            "routeKind",
+            "sourceUnit",
+            "targetUnit",
+            "sourceFormulaType",
+            "targetFormulaType",
+            "formulaTransition",
+            "formulaTemplate",
+            "operation",
+        ].forEach((key) => {
+            if (typeof sourceGatedRoute[key] !== "string" || sourceGatedRoute[key].trim() === "") {
+                addError(`${where}.sourceGatedRoute.${key} must be a non-empty string.`);
+            }
+        });
+        checkStringArray(sourceGatedRoute.andrewsRefs, `${where}.sourceGatedRoute.andrewsRefs`);
+        const routeStructuralInfo = asObject(sourceGatedRoute.structuralInfo, `${where}.sourceGatedRoute.structuralInfo`);
+        if (routeStructuralInfo.lesson !== lesson.id) {
+            addError(`${where}.sourceGatedRoute.structuralInfo.lesson must match the lesson id.`);
+        }
+        if (routeStructuralInfo.logicPathType !== "source-gated derivational route") {
+            addError(`${where}.sourceGatedRoute.structuralInfo.logicPathType must identify a source-gated derivational route.`);
+        }
+        const routeSourceGate = asObject(sourceGatedRoute.sourceGate, `${where}.sourceGatedRoute.sourceGate`);
+        if (routeSourceGate.gated !== true) {
+            addError(`${where}.sourceGatedRoute.sourceGate.gated must be true.`);
+        }
+        if (typeof routeSourceGate.status !== "string" || routeSourceGate.status.trim() === "") {
+            addError(`${where}.sourceGatedRoute.sourceGate.status must be a non-empty string.`);
+        }
+        if (!checkStringArray(routeSourceGate.requirementIds, `${where}.sourceGatedRoute.sourceGate.requirementIds`).length) {
+            addError(`${where}.sourceGatedRoute.sourceGate.requirementIds must not be empty.`);
+        }
+        checkPuzzleStackTemplate(sourceGatedRoute, `${where}.sourceGatedRoute`);
+        const subsectionRoutes = asArray(sourceGatedRoute.subsectionRoutes, `${where}.sourceGatedRoute.subsectionRoutes`);
+        if (sourceGatedRoute.subsectionRouteCount !== subsectionRoutes.length || subsectionRoutes.length === 0) {
+            addError(`${where}.sourceGatedRoute.subsectionRouteCount must match a non-empty subsection route list.`);
+        }
+        const expectedInternalRouteCount = subsectionRoutes.reduce((count, subsectionRoute) => (
+            count + (Array.isArray(subsectionRoute?.internalRoutes) ? subsectionRoute.internalRoutes.length : 0)
+        ), 0);
+        if (sourceGatedRoute.internalRouteCount !== expectedInternalRouteCount) {
+            addError(`${where}.sourceGatedRoute.internalRouteCount must match nested internal routes.`);
+        }
+        subsectionRoutes.forEach((subsectionRoute, routeIndex) => {
+            const routeWhere = `${where}.sourceGatedRoute.subsectionRoutes[${routeIndex}]`;
+            const route = asObject(subsectionRoute, routeWhere);
+            if (route.kind !== "andrews-subsection-source-gated-route-contract") {
+                addError(`${routeWhere}.kind must identify a subsection source-gated route contract.`);
+            }
+            if (route.parentRouteId !== sourceGatedRoute.id) {
+                addError(`${routeWhere}.parentRouteId must point at the lesson source-gated route.`);
+            }
+            [
+                "routeFamily",
+                "routeKind",
+                "sourceUnit",
+                "targetUnit",
+                "sourceFormulaType",
+                "targetFormulaType",
+                "formulaTransition",
+                "formulaTemplate",
+                "operation",
+            ].forEach((key) => {
+                if (typeof route[key] !== "string" || route[key].trim() === "") {
+                    addError(`${routeWhere}.${key} must be a non-empty string.`);
+                }
+            });
+            checkStringArray(route.andrewsRefs, `${routeWhere}.andrewsRefs`);
+            const subsectionStructuralInfo = asObject(route.structuralInfo, `${routeWhere}.structuralInfo`);
+            if (subsectionStructuralInfo.lesson !== lesson.id || subsectionStructuralInfo.routeScope !== "andrews-section") {
+                addError(`${routeWhere}.structuralInfo must identify the Andrews lesson section route.`);
+            }
+            if (subsectionStructuralInfo.logicPathType !== "source-gated derivational route") {
+                addError(`${routeWhere}.structuralInfo.logicPathType must identify a source-gated derivational route.`);
+            }
+            const subsectionSourceGate = asObject(route.sourceGate, `${routeWhere}.sourceGate`);
+            if (subsectionSourceGate.gated !== true || typeof subsectionSourceGate.status !== "string") {
+                addError(`${routeWhere}.sourceGate must be gated with a status.`);
+            }
+            if (!checkStringArray(subsectionSourceGate.requirementIds, `${routeWhere}.sourceGate.requirementIds`).includes("andrews-section-source")) {
+                addError(`${routeWhere}.sourceGate.requirementIds must include andrews-section-source.`);
+            }
+            checkPuzzleStackTemplate(route, routeWhere);
+            const internalRoutes = asArray(route.internalRoutes, `${routeWhere}.internalRoutes`);
+            if (route.internalRouteCount !== internalRoutes.length) {
+                addError(`${routeWhere}.internalRouteCount must match internalRoutes length.`);
+            }
+            internalRoutes.forEach((internalRoute, internalIndex) => {
+                const internalWhere = `${routeWhere}.internalRoutes[${internalIndex}]`;
+                const internal = asObject(internalRoute, internalWhere);
+                if (internal.kind !== "andrews-internal-subsection-source-gated-route-contract") {
+                    addError(`${internalWhere}.kind must identify an internal subsection route contract.`);
+                }
+                if (internal.parentRouteId !== route.id) {
+                    addError(`${internalWhere}.parentRouteId must point at the subsection route.`);
+                }
+                [
+                    "routeFamily",
+                    "routeKind",
+                    "sourceUnit",
+                    "targetUnit",
+                    "sourceFormulaType",
+                    "targetFormulaType",
+                    "formulaTransition",
+                    "formulaTemplate",
+                    "operation",
+                ].forEach((key) => {
+                    if (typeof internal[key] !== "string" || internal[key].trim() === "") {
+                        addError(`${internalWhere}.${key} must be a non-empty string.`);
+                    }
+                });
+                checkStringArray(internal.andrewsRefs, `${internalWhere}.andrewsRefs`);
+                const internalStructuralInfo = asObject(internal.structuralInfo, `${internalWhere}.structuralInfo`);
+                if (
+                    internalStructuralInfo.lesson !== lesson.id
+                    || internalStructuralInfo.routeScope !== "andrews-internal-subsection"
+                    || typeof internalStructuralInfo.internalSubsection !== "string"
+                    || internalStructuralInfo.internalSubsection.trim() === ""
+                ) {
+                    addError(`${internalWhere}.structuralInfo must identify the Andrews internal subsection route.`);
+                }
+                if (internalStructuralInfo.logicPathType !== "source-gated derivational route") {
+                    addError(`${internalWhere}.structuralInfo.logicPathType must identify a source-gated derivational route.`);
+                }
+                if (internalStructuralInfo.derivationStatus === "generic-andrews-internal-route") {
+                    addError(`${internalWhere}.structuralInfo.derivationStatus must not leave the internal route generic.`);
+                }
+                if (internalStructuralInfo.derivationStatus === "entry-specific-andrews-internal-route") {
+                    addError(`${internalWhere}.structuralInfo.derivationStatus must use a semantic route overlay, not an entry-specific fallback.`);
+                }
+                if (typeof internalStructuralInfo.sourcePathFormula !== "string" || internalStructuralInfo.sourcePathFormula.trim() === "") {
+                    addError(`${internalWhere}.structuralInfo.sourcePathFormula must be a non-empty string.`);
+                }
+                const internalSourceGate = asObject(internal.sourceGate, `${internalWhere}.sourceGate`);
+                if (internalSourceGate.gated !== true || typeof internalSourceGate.status !== "string") {
+                    addError(`${internalWhere}.sourceGate must be gated with a status.`);
+                }
+                if (!checkStringArray(internalSourceGate.requirementIds, `${internalWhere}.sourceGate.requirementIds`).includes("andrews-internal-subsection-source")) {
+                    addError(`${internalWhere}.sourceGate.requirementIds must include andrews-internal-subsection-source.`);
+                }
+                checkPuzzleStackTemplate(internal, internalWhere);
+            });
+        });
         if (lesson.id >= 1 && lesson.id <= 58) {
             const visibleTrajectoryText = [
                 lesson.title,

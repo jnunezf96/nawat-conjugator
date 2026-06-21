@@ -1232,6 +1232,9 @@ function getVerbDerivedNominalAndrewsRefs(kind = "", result = null) {
         default:
             break;
     }
+    if (isPredicateNominalTense(kind)) {
+        refs.push("Andrews 36.6 note 2");
+    }
     return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
 }
 
@@ -4184,6 +4187,258 @@ function resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix = ""
     return resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
 }
 
+function isInstrumentivoImperfectActiveAbsolutiveMode(mode = "") {
+    return String(mode || "") === "absolutivo-imperfecto-activo"
+        || String(mode || "") === String(INSTRUMENTIVO_MODE.absolutivoImperfectoActivo || "");
+}
+
+function getPredicateNominalResult({
+    rawVerb,
+    verbMeta,
+    subjectPrefix,
+    subjectSuffix,
+    objectPrefix,
+    indirectObjectMarker = "",
+    thirdObjectMarker = "",
+    nominalKind = VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+    sourceTense = "imperfecto",
+    nominalConnector = "t",
+    combinedMode = "",
+    entradaGrammarObject = null,
+    sourceFrame = null,
+    sourceRouteFrame = null,
+    routeFrame = null,
+    valenceFrameFixed = null,
+    sourceValenceFrameFixed = null,
+}) {
+    const resolvedSourceTense = normalizePredicateNominalSourceTense(sourceTense);
+    const resolvedNominalKind = isPredicateNominalTense(nominalKind)
+        ? String(nominalKind || "")
+        : VERB_DERIVED_NOMINAL_KIND.predicadoNominal;
+    const resolvedMode = combinedMode || COMBINED_MODE.active;
+    const isNonactive = resolvedMode === COMBINED_MODE.nonactive;
+    const context = buildVerbDerivedNominalBuilderContext({
+        kind: resolvedNominalKind,
+        rawVerb,
+        verbMeta,
+        subjectPrefix,
+        subjectSuffix,
+        objectPrefix,
+        indirectObjectMarker,
+        thirdObjectMarker,
+        combinedMode: resolvedMode,
+    });
+    if (context.error) {
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+            rawVerb,
+            diagnosticId: "predicado-nominal-context-blocked",
+        });
+    }
+    const {
+        nounSourceModel,
+        directionalPrefix,
+        derivedIsYawi,
+        derivedIsWeya,
+        derivationIsTransitive,
+        resolvedDirectionalRuleMode,
+        forwardStemContexts,
+        objectPrefix: resolvedObjectPrefix,
+        indirectObjectMarker: resolvedIndirectObjectMarker,
+        thirdObjectMarker: resolvedThirdObjectMarker,
+    } = context;
+    const nonactivePassiveObjectPrefix = isNonactive
+        ? applyPassiveImpersonal({
+            pers1: subjectPrefix,
+            pers2: subjectSuffix,
+            obj1: resolvedObjectPrefix,
+        }).obj1
+        : resolvedObjectPrefix;
+    if (isNonactive && nonactivePassiveObjectPrefix !== resolvedObjectPrefix) {
+        const predicateNominalObjectSlotGate = typeof buildGenerationValencyObjectSlotMutationGate === "function"
+            ? buildGenerationValencyObjectSlotMutationGate({
+                operation: "predicate-nominal-nonactive-source-object-adjustment",
+                mutationKind: nonactivePassiveObjectPrefix ? "reclassify-object-slot" : "delete-object-slot",
+                sourceObj1: resolvedObjectPrefix,
+                sourceBaseObj1: resolvedObjectPrefix,
+                sourceObj2: resolvedIndirectObjectMarker,
+                sourceObj3: resolvedThirdObjectMarker,
+                targetObj1: nonactivePassiveObjectPrefix,
+                targetBaseObj1: nonactivePassiveObjectPrefix,
+                targetObj2: resolvedIndirectObjectMarker,
+                targetObj3: resolvedThirdObjectMarker,
+                options: {
+                    entradaGrammarObject,
+                    sourceFrame,
+                    sourceRouteFrame,
+                    routeFrame,
+                    valenceFrameFixed,
+                    sourceValenceFrameFixed,
+                    requireFixedValenceFrame: true,
+                },
+            })
+            : null;
+        if (predicateNominalObjectSlotGate?.status === "blocked") {
+            return attachVerbDerivedNominalGrammarContract({
+                error: true,
+                valencyObjectSlotGate: predicateNominalObjectSlotGate,
+            }, {
+                kind: VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+                rawVerb,
+                diagnosticId: predicateNominalObjectSlotGate.diagnosticId,
+                routeStage: predicateNominalObjectSlotGate.routeStage,
+            });
+        }
+    }
+    const connector = String(nominalConnector || "t");
+    const entries = [];
+    forwardStemContexts.forEach((stemContext) => {
+        let sourceStemEntries = [{
+            stemSpec: stemContext.stemSpec || buildLiteralMorphStemSpec(stemContext.verb),
+            stem: stemContext.verb,
+            analysisVerb: stemContext.analysisVerb,
+            isYawi: derivedIsYawi,
+            isWeya: derivedIsWeya,
+        }];
+        if (isNonactive) {
+            const nonactiveSourceChain = buildNonactiveSourceChain(
+                verbMeta,
+                stemContext.verb,
+                stemContext.analysisVerb,
+            );
+            const nonactiveBaseVerb = normalizeDerivationStemValue(nonactiveSourceChain?.baseVerb || "");
+            const nonactiveRuleBase = getNounNonactiveRuleBase(nonactiveBaseVerb, verbMeta);
+            const selection = resolveNonactiveStemSelection(nonactiveBaseVerb, nonactiveBaseVerb, {
+                isTransitive: derivationIsTransitive,
+                isYawi: derivedIsYawi,
+                forceAll: shouldForceAllNonactiveOptions(),
+                ruleBase: nonactiveRuleBase,
+                rootPlusYaBase: verbMeta.rootPlusYaBase,
+            });
+            const selectedStemSpecList = Array.isArray(selection.selectedStemSpecs)
+                ? selection.selectedStemSpecs.filter(Boolean)
+                : [];
+            const rawStemSpecs = (!selection.selectedSuffix && Array.isArray(selection.allStemSpecs) && selection.allStemSpecs.length > 1)
+                ? selection.allStemSpecs
+                : ((selection.selectedSuffix && selectedStemSpecList.length > 1)
+                    ? selectedStemSpecList
+                    : [selection.selectedStemSpec || buildLiteralMorphStemSpec(selection.selectedStem)]);
+            sourceStemEntries = rawStemSpecs
+                .map((spec, index) => {
+                    const sourceStemSpec = applyNonactiveSourceChainStemSpec(
+                        spec,
+                        Array.isArray(selection.selectedStems) ? selection.selectedStems[index] || selection.selectedStem || "" : selection.selectedStem || "",
+                        nonactiveSourceChain,
+                        { sourceSuffix: selection.selectedSuffix || "" },
+                    );
+                    const stem = realizeMorphStemSpec(sourceStemSpec, "");
+                    if (!stem) {
+                        return null;
+                    }
+                    return {
+                        stemSpec: sourceStemSpec,
+                        stem,
+                        analysisVerb: stripDirectionalPrefixFromStem(stem, directionalPrefix),
+                        isYawi: false,
+                        isWeya: false,
+                    };
+                })
+                .filter(Boolean);
+        }
+        if (!sourceStemEntries.length) {
+            return;
+        }
+        const sourceObjectPrefix = isNonactive
+            ? nonactivePassiveObjectPrefix
+            : (stemContext.morphologyObjectPrefix === "mu" ? "ne" : stemContext.morphologyObjectPrefix);
+        sourceStemEntries.forEach((sourceStemEntry) => {
+            const applied = applyMorphologyRules({
+                subjectPrefix,
+                objectPrefix: sourceObjectPrefix,
+                subjectSuffix: "",
+                verb: sourceStemEntry.stem,
+                tense: resolvedSourceTense,
+                analysisVerb: sourceStemEntry.analysisVerb,
+                sourceRawVerb: rawVerb,
+                isYawi: sourceStemEntry.isYawi,
+                isWeya: sourceStemEntry.isWeya,
+                directionalPrefix,
+                directionalRuleMode: resolvedDirectionalRuleMode,
+                isNounContext: true,
+                ...buildMorphologyMetaOptions(verbMeta),
+                indirectObjectMarker: resolvedIndirectObjectMarker,
+                thirdObjectMarker: resolvedThirdObjectMarker,
+                combinedMode: resolvedMode,
+                isNonactiveMode: isNonactive,
+                entradaGrammarObject,
+                sourceFrame,
+                sourceRouteFrame,
+                routeFrame,
+                valenceFrameFixed,
+                sourceValenceFrameFixed,
+            });
+            if (!applied || !applied.verb) {
+                return;
+            }
+            const nominalSurface = resolveNominalSourceOuterSurfacePlacement({
+                sourceModel: nounSourceModel,
+                runtimeObjectPrefix: sourceObjectPrefix,
+                objectPrefix: applied.objectPrefix,
+                verb: applied.verb,
+                surfaceRuleMeta: applied.surfaceRuleMeta || null,
+            });
+            const placedStemSpec = resolvePlacedNominalStemSpec(
+                nominalSurface,
+                applied.verb,
+                isNonactive ? sourceStemEntry.stemSpec : stemContext.stemSpec
+            );
+            const sourceTenseSuffix = String(applied.subjectSuffix || "");
+            const predicateStem = sourceTenseSuffix
+                ? `${nominalSurface.verb}${sourceTenseSuffix}`
+                : nominalSurface.verb;
+            const predicateStemSpec = sourceTenseSuffix
+                ? buildAppendMorphStemSpec(nominalSurface.verb, sourceTenseSuffix, { sourceStemSpec: placedStemSpec })
+                : placedStemSpec;
+            entries.push(buildVerbDerivedNominalEntry({
+                kind: resolvedNominalKind,
+                sourceModel: nounSourceModel,
+                verb: predicateStem,
+                subjectSuffix: connector,
+                stemSpec: predicateStemSpec,
+                surfaceObjectPrefix: nominalSurface.objectPrefix,
+                runtimeObjectPrefix: sourceObjectPrefix,
+                surfaceRuleMeta: nominalSurface.surfaceRuleMeta || null,
+                sourceTense: resolvedSourceTense,
+                provenance: {
+                    forward: stemContext.derivationProvenance || null,
+                },
+            }));
+        });
+    });
+    const result = buildVerbDerivedNominalResult(entries, {
+        kind: resolvedNominalKind,
+    });
+    if (!hasVerbDerivedNominalSurface(result)) {
+        return buildVerbDerivedNominalBlockedResult({
+            kind: VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+            rawVerb,
+            diagnosticId: "predicado-nominal-no-output",
+        });
+    }
+    return attachVerbDerivedNominalGrammarContract({
+        ...result,
+        predicateNominalSource: {
+            grammarSource: "Andrews 36.6 note 2",
+            sourceUnit: "vnc-predicate",
+            sourceTense: resolvedSourceTense,
+            connectorClass: connector || "t",
+        },
+    }, {
+        kind: resolvedNominalKind,
+        rawVerb,
+    });
+}
+
 function getInstrumentivoResult({
     rawVerb,
     verbMeta,
@@ -4407,6 +4662,8 @@ function getInstrumentivoResult({
     );
     const resolvedPossessivePrefix = explicitPossessivePrefix
         || (mode === INSTRUMENTIVO_MODE.posesivo ? sourceSubjectPossessivePrefix : "");
+    const activeAbsolutiveException = isInstrumentivoImperfectActiveAbsolutiveMode(mode);
+    const activeBranchSubjectSuffix = activeAbsolutiveException ? "t" : "";
     const entries = [];
     forwardStemContexts.forEach((stemContext) => {
         const morphologyObjectPrefix = stemContext.morphologyObjectPrefix === "mu"
@@ -4457,7 +4714,7 @@ function getInstrumentivoResult({
             kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,
             sourceModel: nounSourceModel,
             verb: predicateStem,
-            subjectSuffix: "",
+            subjectSuffix: activeBranchSubjectSuffix,
             stemSpec: predicateStemSpec,
             surfaceObjectPrefix: nominalSurface.objectPrefix,
             runtimeObjectPrefix: morphologyObjectPrefix,
@@ -4490,6 +4747,13 @@ function getInstrumentivoResult({
             possessivePrefix: resolvedPossessivePrefix,
             explicitPossessivePrefix,
             derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
+        } : null,
+        instrumentivoImperfectActiveAbsolutiveException: activeAbsolutiveException ? {
+            grammarSource: "Andrews 36.6 note 2",
+            sourcePredicate: "imperfect-active",
+            targetState: "absolutive",
+            connectorClass: "t",
+            lexicalEvidenceRequiredForProductiveUse: true,
         } : null,
     }, {
         kind: VERB_DERIVED_NOMINAL_KIND.instrumentivo,

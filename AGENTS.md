@@ -4,7 +4,7 @@
 
 Treat Andrews as the grammar-rule authority for engine architecture: order, roles, slots, boundaries, categories, dependencies, and supported derivational operations. Do not import Classical Nahuatl surfaces directly into Nawat/Pipil orthography.
 
-Modern Nawat/Pipil orthography decides spelling realization. Andrews-supported operations remain valid when their Classical letters are converted into Nawat/Pipil letters, for example Classical `tl` as Nawat `t`, `tla-` as `ta-`, `(pa-tla)` as `(pa-ta)`, `(pa-ti)-tl` as `(pa-ti)-t`, and Classical person `-h` as Nawat `-t`. Repo evidence and user-provided Nawat forms decide Nawat-specific exceptions, lexical examples, and places where the orthographic realization needs confirmation.
+Modern Nawat/Pipil orthography decides spelling realization, and the current Nawat finite surface authority is limited to preterit indicative. Andrews-supported operations remain valid when their Classical letters are converted into Nawat/Pipil letters, for example Classical `tl` as Nawat `t`, `tla-` as `ta-`, `(pa-tla)` as `(pa-ta)`, `(pa-ti)-tl` as `(pa-ti)-t`, and Classical person `-h` as Nawat `-t`. Repo evidence and user-provided Nawat forms may confirm spelling and preterit-indicative surfaces; they do not authorize preterit-derived grammar, unsupported derivational routes, or formula architecture.
 
 Andrews is lesson-per-lesson; the UI and engine are not. Treat lessons as curriculum/status and evidence indexes, then implement reusable grammar categories, metadata, controls, and diagnostics that can serve multiple lessons without becoming one control or module per lesson.
 

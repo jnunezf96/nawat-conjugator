@@ -154,6 +154,7 @@ const PRETERIT_PATHS = [
   "src/core/preterit/engine.js",
   "src/core/preterit/api.js",
   "src/ui/state.js",
+  "src/lessons/registry.js",
   "src/ui/composer/composer.js",
 ];
 

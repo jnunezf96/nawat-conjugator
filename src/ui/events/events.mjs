@@ -266,6 +266,12 @@ export function createUiEventsApi(targetObject = globalThis) {
               targetObject.syncComposerStateFromVerbInput(verbEl.value);
               targetObject.renderVerbComposerFromState();
             }
+            if (!targetObject.VerbComposerState.isApplying && typeof targetObject.clearAndrewsRouteBoardPinnedJourney === "function") {
+              targetObject.clearAndrewsRouteBoardPinnedJourney();
+            }
+            if (typeof targetObject.renderAndrewsRouteBoard === "function") {
+              targetObject.renderAndrewsRouteBoard();
+            }
             targetObject.scheduleVerbInputRefresh(verbEl.value);
           });
           verbEl.addEventListener("focus", () => {

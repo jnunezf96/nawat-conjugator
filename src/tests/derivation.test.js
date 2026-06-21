@@ -49,14 +49,14 @@ function run(ctx) {
     );
     const imperfectiveBaseSpec = ctx.resolvePatientivoImperfectiveBaseStemSpec(imperfectiveChain);
     s.eq(
-        "patientivo imperfective base spec preserves imperfective -ya from -ia stem",
+        "patientivo imperfective base spec stays on the VNC core and does not append finite -ya",
         ctx.realizeMorphStemSpec(imperfectiveBaseSpec, ""),
-        "nemiya"
+        "nemi"
     );
 
     const absolutivePrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
         selection: {
             subjectPrefix: "ni",
             subjectSuffix: "",
@@ -80,8 +80,8 @@ function run(ctx) {
         {
             supported: true,
             sourceState: "absolutive",
-            incorporatedRoot: "tamatiya",
-            prelocativeVerbInput: "-(tamatiya/tajtani)",
+            incorporatedRoot: "tamati",
+            prelocativeVerbInput: "-(tamati/tajtani)",
             sourceRole: "subject",
             sourcePrefix: "ni",
             objectPrefix: "nech",
@@ -112,8 +112,8 @@ function run(ctx) {
             routeStage: "preview-continuation",
             generationAllowed: true,
             unitKind: "derivation-continuation-contract",
-            sourceInput: "tamatiya",
-            targetInput: "-(tamatiya/tajtani)",
+            sourceInput: "tamati",
+            targetInput: "-(tamati/tajtani)",
         }
     );
     s.eq(
@@ -228,8 +228,8 @@ function run(ctx) {
             isMarkedTransitive: parsedPrelocativeContractInput.isMarkedTransitive,
         },
         {
-            sourceRawVerb: "-(tamatiya/tajtani)",
-            verb: "tamatiyatajtani",
+            sourceRawVerb: "-(tamati/tajtani)",
+            verb: "tamatitajtani",
             sourceBase: "tajtani",
             hasLeadingDash: true,
             isMarkedTransitive: true,
@@ -261,7 +261,7 @@ function run(ctx) {
     s.eq(
         "patientive prelocative contract reaches actual finite V output",
         generatedPrelocativeContractSurface.result,
-        "nechtamatiyatajtani"
+        "nechtamatitajtani"
     );
     const compoundEmbedInventory = ctx.getPatientivoCompoundEmbedMatrixInventory();
     s.eq(
@@ -284,8 +284,9 @@ function run(ctx) {
         ]
     );
     const compoundEmbedContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
         patientivoNominalSuffix: "t",
         matrixRoot: "miki",
     });
@@ -325,16 +326,17 @@ function run(ctx) {
         },
         {
             supported: true,
-            incorporatedRoot: "tamatiya",
-            compoundVerbInput: "(tamatiya/miki)",
-            parsedVerb: "tamatiyamiki",
+            incorporatedRoot: "tamati",
+            compoundVerbInput: "(tamati/miki)",
+            parsedVerb: "tamatimiki",
             isMarkedTransitive: false,
-            result: "tamatiyamiki",
+            result: "tamatimiki",
         }
     );
     const unsupportedCompoundEmbedContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
         patientivoNominalSuffix: "t",
         matrixRoot: "ni",
     });
@@ -352,6 +354,27 @@ function run(ctx) {
                 "patientivo-compound-embed-unsupported-matrix",
                 "patientivo-compound-embed-missing-verb-input",
             ],
+        }
+    );
+    s.eq(
+        "Andrews 39.6 patientive compound continuations require source provenance",
+        {
+            verbal: ctx.buildPatientivoCompoundEmbedContinuationContract({
+                patientivoSurface: "tamatit",
+                sourceSurface: "tamati",
+                patientivoNominalSuffix: "t",
+                matrixRoot: "miki",
+            }).diagnostics,
+            nominal: ctx.buildPatientivoNominalCompoundContinuationContract({
+                patientivoSurface: "tamatit",
+                sourceSurface: "tamati",
+                patientivoNominalSuffix: "t",
+                matrixRoot: "kal",
+            }).diagnostics,
+        },
+        {
+            verbal: ["patientivo-compound-embed-missing-patientivo-source"],
+            nominal: ["patientivo-nominal-compound-missing-patientivo-source"],
         }
     );
     s.eq(
@@ -410,8 +433,9 @@ function run(ctx) {
         ]
     );
     const nominalCompoundContract = ctx.buildPatientivoNominalCompoundContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
         patientivoNominalSuffix: "t",
         matrixRoot: "kal",
     });
@@ -429,10 +453,10 @@ function run(ctx) {
         },
         {
             supported: true,
-            incorporatedRoot: "tamatiya",
-            compoundStem: "tamatiyakal",
-            ordinaryNncInput: "(tamatiyakal)",
-            result: "tamatiyakal",
+            incorporatedRoot: "tamati",
+            compoundStem: "tamatikal",
+            ordinaryNncInput: "(tamatikal)",
+            result: "tamatikal",
             sourceKind: "open-stem",
             nounClass: "zero",
         }
@@ -469,22 +493,22 @@ function run(ctx) {
                 grammarSource: "Andrews 39.6",
                 compoundStemType: "verbal",
                 embedRole: "compound-embed",
-                embedRoot: "tamatiya",
+                embedRoot: "tamati",
                 matrixType: "verbal",
                 matrixRoot: "miki",
                 outputKind: "compound-vnc-input",
-                verbInput: "(tamatiya/miki)",
+                verbInput: "(tamati/miki)",
                 createsFixture: false,
             },
             nominal: {
                 grammarSource: "Andrews 39.6",
                 compoundStemType: "nominal",
                 embedRole: "compound-embed",
-                embedRoot: "tamatiya",
+                embedRoot: "tamati",
                 matrixType: "nominal",
                 matrixRoot: "kal",
                 outputKind: "ordinary-nnc-compound-input",
-                ordinaryNncInput: "(tamatiyakal)",
+                ordinaryNncInput: "(tamatikal)",
                 sourceKind: "open-stem",
                 createsFixture: false,
             },
@@ -1980,8 +2004,8 @@ function run(ctx) {
     );
 
     const possessivePrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "mutamatiyat",
+        patientivoSurface: "tamatit",
+        sourceSurface: "mutamatit",
         possessorPrefix: "mu",
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
@@ -2006,7 +2030,7 @@ function run(ctx) {
             objectCase: "objective",
             objectLine: "mainline",
             objectPrefix: "metz",
-            prelocativeVerbInput: "-(tamatiya/tajtani)",
+            prelocativeVerbInput: "-(tamati/tajtani)",
         }
     );
     const matrixInventory = ctx.getPatientivoPrelocativeMatrixInventory();
@@ -2072,8 +2096,8 @@ function run(ctx) {
         ]
     );
     const unsupportedNiMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
         selection: {
             subjectPrefix: "ni",
             subjectSuffix: "",
@@ -2106,8 +2130,8 @@ function run(ctx) {
         "Andrews 39.7 absolutive source can generate repo-backed incorporated-complement matrices",
         ["ita", "mati", "neki", "tuka"].map((matrixRoot) => {
             const contract = ctx.buildPatientivoPrelocativeContinuationContract({
-                patientivoSurface: "tamatiyat",
-                sourceSurface: "tamatiya",
+                patientivoSurface: "tamatit",
+                sourceSurface: "tamati",
                 selection: {
                     subjectPrefix: "ni",
                     subjectSuffix: "",
@@ -2152,26 +2176,26 @@ function run(ctx) {
             {
                 matrixRoot: "ita",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/ita)",
-                result: "nechtamatiyaita",
+                prelocativeVerbInput: "-(tamati/ita)",
+                result: "nechtamatiita",
             },
             {
                 matrixRoot: "mati",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/mati)",
-                result: "nechtamatiyamati",
+                prelocativeVerbInput: "-(tamati/mati)",
+                result: "nechtamatimati",
             },
             {
                 matrixRoot: "neki",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/neki)",
-                result: "nechtamatiyaneki",
+                prelocativeVerbInput: "-(tamati/neki)",
+                result: "nechtamatineki",
             },
             {
                 matrixRoot: "tuka",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/tuka)",
-                result: "nechtamatiyatuka",
+                prelocativeVerbInput: "-(tamati/tuka)",
+                result: "nechtamatituka",
             },
         ]
     );
@@ -2284,8 +2308,8 @@ function run(ctx) {
         }
     );
     const possessiveMatiContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "mutamatiyat",
+        patientivoSurface: "tamatit",
+        sourceSurface: "mutamatit",
         possessorPrefix: "mu",
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
@@ -2310,8 +2334,8 @@ function run(ctx) {
         "Andrews 39.7-39.8 possessive source generates source-compatible continuation matrices",
         ["tuka", "tajtani", "tatajtania", "temua"].map((matrixRoot) => {
             const contract = ctx.buildPatientivoPrelocativeContinuationContract({
-                patientivoSurface: "tamatiyat",
-                sourceSurface: "mutamatiyat",
+                patientivoSurface: "tamatit",
+                sourceSurface: "mutamatit",
                 possessorPrefix: "mu",
                 patientivoSource: "imperfectivo",
                 sourceTenseValue: "pasado-remoto",
@@ -2353,32 +2377,32 @@ function run(ctx) {
             {
                 matrixRoot: "tuka",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/tuka)",
-                result: "metztamatiyatuka",
+                prelocativeVerbInput: "-(tamati/tuka)",
+                result: "metztamatituka",
             },
             {
                 matrixRoot: "tajtani",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/tajtani)",
-                result: "metztamatiyatajtani",
+                prelocativeVerbInput: "-(tamati/tajtani)",
+                result: "metztamatitajtani",
             },
             {
                 matrixRoot: "tatajtania",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/tatajtania)",
-                result: "metztamatiyatatajtania",
+                prelocativeVerbInput: "-(tamati/tatajtania)",
+                result: "metztamatitatajtania",
             },
             {
                 matrixRoot: "temua",
                 supported: true,
-                prelocativeVerbInput: "-(tamatiya/temua)",
-                result: "metztamatiyatemua",
+                prelocativeVerbInput: "-(tamati/temua)",
+                result: "metztamatitemua",
             },
         ]
     );
     const absolutiveTlaniContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
         selection: {
             subjectPrefix: "ni",
             subjectSuffix: "",
@@ -2390,8 +2414,8 @@ function run(ctx) {
         matrixRoot: "tajtani",
     });
     const absolutiveSeekMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "tamatiya",
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
         selection: {
             subjectPrefix: "ni",
             subjectSuffix: "",
@@ -2414,7 +2438,7 @@ function run(ctx) {
         },
         {
             tlaniSupported: true,
-            tlaniInput: "-(tamatiya/tajtani)",
+            tlaniInput: "-(tamati/tajtani)",
             seekSupported: false,
             seekCompatible: false,
             seekInput: "",
@@ -2422,8 +2446,8 @@ function run(ctx) {
         }
     );
     const seekMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
-        sourceSurface: "mutamatiyat",
+        patientivoSurface: "tamatit",
+        sourceSurface: "mutamatit",
         possessorPrefix: "mu",
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
@@ -2465,8 +2489,8 @@ function run(ctx) {
         {
             supported: true,
             matrixId: "tla-tem-o-a",
-            prelocativeVerbInput: "-(tamatiya/temua)",
-            result: "metztamatiyatemua",
+            prelocativeVerbInput: "-(tamati/temua)",
+            result: "metztamatitemua",
         }
     );
     s.eq(
@@ -2513,7 +2537,7 @@ function run(ctx) {
         }
     );
     const unsupportedPrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
-        patientivoSurface: "tamatiyat",
+        patientivoSurface: "tamatit",
         possessorPrefix: "bad",
         patientivoSource: "perfectivo",
         sourceTenseValue: "perfecto",

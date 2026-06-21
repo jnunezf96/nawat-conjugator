@@ -730,11 +730,15 @@ function run(ctx) {
             ctx.buildPatientivoAdjectivalNncFunctionOutput({}).diagnostics.map((item) => item.id),
             ctx.buildPatientivoAdjectivalNncFunctionOutput({
                 patientivoSurface: "tamachti",
+            }).diagnostics.map((item) => item.id),
+            ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSurface: "tamachti",
                 state: "possessive",
             }).diagnostics.map((item) => item.id),
         ],
         [
             ["adjectival-nnc-requires-patientive-surface"],
+            ["adjectival-nnc-requires-patientive-source"],
             ["adjectival-nnc-requires-absolutive-state"],
         ]
     );

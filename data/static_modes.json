@@ -458,7 +458,8 @@
   },
   "instrumentivoMode": {
     "absolutivo": { "value": "absolutivo", "labelNa": "takawal" },
-    "posesivo": { "value": "posesivo", "labelNa": "tapiyal" }
+    "posesivo": { "value": "posesivo", "labelNa": "tapiyal" },
+    "absolutivoImperfectoActivo": { "value": "absolutivo-imperfecto-activo", "labelNa": "takawal tajtaya" }
   },
   "conjugationGroups": {
     "tense": { "value": "tense", "labelNa": "kawit" },

@@ -1696,6 +1696,9 @@ export function createAgreementApi(targetObject = globalThis) {
           refs.push("Andrews Lessons 35-37");
           break;
       }
+      if (targetObject.isPredicateNominalTense(kind)) {
+        refs.push("Andrews 36.6 note 2");
+      }
       return refs.filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     function normalizeVerbDerivedNominalBuilderContextDiagnostics(diagnostics = [], fallbackDiagnostic = null) {

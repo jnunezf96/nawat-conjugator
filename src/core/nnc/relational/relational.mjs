@@ -981,6 +981,237 @@ export function createRelationalNncApi(targetObject = globalThis) {
         validationRefs: Array.from(LESSON46_RELATIONAL_NNC_VALIDATION_REFS)
       }));
     }
+    function normalizeLesson46RouteStemToken(value = "") {
+      return String(value == null ? "" : value).trim().replace(/^#+|#+$/g, "").replace(/[()]/g, "").replace(/\+/g, "-").replace(/\s+/g, "").replace(/^-+|-+$/g, "").split("-").filter(part => part && part !== "0" && part !== "Ø" && part !== "□").join("-");
+    }
+    function splitLesson46EmbeddedSourceStem(value = "") {
+      const normalized = normalizeLesson46RouteStemToken(value);
+      if (!normalized) {
+        return {
+          incorporatedNounStem: "",
+          sourceVerb: ""
+        };
+      }
+      const parts = normalized.split("-").filter(Boolean);
+      if (parts.length < 2) {
+        return {
+          incorporatedNounStem: "",
+          sourceVerb: normalized
+        };
+      }
+      return {
+        incorporatedNounStem: parts.slice(0, -1).join("-"),
+        sourceVerb: parts[parts.length - 1]
+      };
+    }
+    function flattenLesson46FormulaStemToSurface(formulaStem = "") {
+      return String(formulaStem || "").replace(/[()#]/g, "").split("-").filter(part => part && part !== "0" && part !== "Ø" && part !== "□").join("");
+    }
+    function buildLesson46PreteritAgentiveLocativeNncFromSource({
+      source = "",
+      sourceFormula = "",
+      embeddedSource = "",
+      embeddedSourceStem = "",
+      sourceVerb = "",
+      sourceVerbstem = "",
+      sourceStem = "",
+      verbStem = "",
+      incorporatedNounStem = "",
+      incorporatedStem = "",
+      embeddedNounStem = "",
+      evidenceSource = ""
+    } = {}) {
+      const rawEmbeddedSourceInput = String(source || sourceFormula || embeddedSource || embeddedSourceStem || "");
+      const splitEmbeddedSource = splitLesson46EmbeddedSourceStem(rawEmbeddedSourceInput);
+      const rawSourceInput = String(sourceVerb || sourceVerbstem || (rawEmbeddedSourceInput ? splitEmbeddedSource.sourceVerb : "") || sourceStem || verbStem || "");
+      const rawIncorporatedInput = String(incorporatedNounStem || incorporatedStem || embeddedNounStem || "");
+      const rawResolvedIncorporatedInput = rawIncorporatedInput || (rawEmbeddedSourceInput ? splitEmbeddedSource.incorporatedNounStem : "");
+      const sourceVerbStem = normalizeLesson46RouteStemToken(rawSourceInput);
+      const incorporatedStemValue = normalizeLesson46RouteStemToken(rawResolvedIncorporatedInput);
+      const diagnostics = [];
+      if (!sourceVerbStem) {
+        diagnostics.push("lesson-46-3-1-a-source-verbstem-required");
+      }
+      if (!incorporatedStemValue) {
+        diagnostics.push("lesson-46-3-1-a-incorporated-nounstem-required");
+      }
+      const sourceInput = rawEmbeddedSourceInput || rawSourceInput || rawIncorporatedInput;
+      const baseRecord = {
+        kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+        version: RELATIONAL_NNC_BOUNDARY_VERSION,
+        andrewsSection: "46.3.1.a",
+        structuralSource: "Andrews Lesson 46.3.1.a",
+        targetAuthority: "Andrews route plus user-provided Nawat-letter realization",
+        sourceInput,
+        sourceVerb: sourceVerbStem,
+        sourceKind: "source-vnc-core",
+        incorporatedNounStem: incorporatedStemValue,
+        relationalStem: "n",
+        relationalKind: RELATIONAL_NNC_KIND.locative,
+        relationalOption: RELATIONAL_NNC_OPTION.optionTwo,
+        optionGroup: RELATIONAL_NNC_OPTION_GROUP.optionTwoOnly,
+        sourceState: RELATIONAL_NNC_SOURCE_STATE.absolutive,
+        sourceVoice: RELATIONAL_NNC_SOURCE_VOICE.active,
+        sourceFormation: "general-use preterit-agentive nounstem",
+        formulaShape: "(X-ka)+(-n)-0",
+        evidenceSource: String(evidenceSource || "user-provided Nawat-letter target").trim()
+      };
+      if (diagnostics.length) {
+        return attachRelationalNncGrammarContract({
+          ...baseRecord,
+          supported: false,
+          generationAllowed: false,
+          result: "—",
+          surfaceForms: [],
+          diagnostics
+        }, {
+          metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+          unitKind: "relational-nnc",
+          routeStage: "generate-lesson-46-3-1-a-blocked",
+          structuralSource: "Andrews Lesson 46.3.1.a",
+          andrewsRefs: ["Andrews Lesson 46.3.1.a"],
+          generationAllowed: false,
+          supported: false,
+          sourceInput,
+          orthographyFrame: {
+            spellingAuthority: "user-provided Nawat/Pipil letters",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: "blocked-missing-source-slot"
+          },
+          morphBoundaryFrame: {
+            caNEmbedFrame: cloneRelationalNncLessonRecord(LESSON46_CA_N_EMBED_FRAME),
+            sourcePattern: "preterit-agentive-embed"
+          },
+          stemFrame: {
+            stemKind: "relational-nnc-derived-stem",
+            sourceStem: sourceVerbStem,
+            embeddedStem: incorporatedStemValue,
+            matrixStem: "n",
+            sourceFormation: "general-use preterit-agentive nounstem"
+          },
+          nuclearClauseFrame: {
+            clauseKind: "nominal-nuclear-clause",
+            sourceClauseKind: "VNC source core feeding relational NNC",
+            state: "absolutive",
+            tenseSlotPresent: false
+          },
+          targetContract: {
+            metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+            generationAllowed: false,
+            missingSourceSlots: diagnostics
+          },
+          diagnostics
+        });
+      }
+      const embeddedStem = `${incorporatedStemValue}-${sourceVerbStem}`;
+      const predicateStem = `${embeddedStem}-0-ka-n`;
+      const formulaStem = `(${predicateStem})-0-`;
+      const surface = flattenLesson46FormulaStemToSurface(formulaStem);
+      const formulaEcho = `#Ø-Ø(${predicateStem})Ø#`;
+      const formulaSlots = {
+        pers1Pers2: {
+          slot: "pers1-pers2",
+          connector: "Ø",
+          surface: ""
+        },
+        predicateStem: {
+          slot: "STEM",
+          formula: `(${predicateStem})`,
+          sourceFormula: formulaStem,
+          surface
+        },
+        num1Num2: {
+          slot: "num1-num2",
+          connector: "Ø",
+          sourceFormula: "-0-",
+          surface: ""
+        }
+      };
+      const record = {
+        ...baseRecord,
+        embeddedStem,
+        predicateStem,
+        formulaStem,
+        formulaSlots,
+        formulaEcho,
+        surface,
+        result: surface,
+        surfaceForms: [surface],
+        supported: true,
+        generationAllowed: true,
+        routeStage: "generate-lesson-46-3-1-a",
+        routeContract: {
+          sourceUnitKind: "vnc-verbstem-source",
+          targetUnitKind: "relational-nnc",
+          sourceWasFinishedSurface: false,
+          derivesFromSourceVerb: true,
+          newWordGenerationAllowed: true
+        },
+        diagnostics: ["lesson-46-3-1-a-source-route-generated", "lesson-46-3-1-a-user-nawat-letter-realization"]
+      };
+      return attachRelationalNncGrammarContract(record, {
+        metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+        unitKind: "relational-nnc",
+        routeStage: "generate-lesson-46-3-1-a",
+        structuralSource: "Andrews Lesson 46.3.1.a",
+        andrewsRefs: ["Andrews Lesson 46.3.1.a"],
+        generationAllowed: true,
+        supported: true,
+        sourceInput,
+        surface,
+        surfaceForms: [surface],
+        orthographyFrame: {
+          spellingAuthority: "user-provided Nawat/Pipil letters",
+          noClassicalSurfaceImport: true,
+          surface,
+          surfaceForms: [surface],
+          orthographyStatus: "user-provided-nawat-letter-realization"
+        },
+        morphBoundaryFrame: {
+          caNEmbedFrame: cloneRelationalNncLessonRecord(LESSON46_CA_N_EMBED_FRAME),
+          sourcePattern: "preterit-agentive-embed",
+          formulaStem,
+          formulaSlots,
+          formulaEcho,
+          formulaShape: "(X-ka)+(-n)-0"
+        },
+        stemFrame: {
+          stemKind: "relational-nnc-derived-stem",
+          sourceStem: sourceVerbStem,
+          embeddedStem,
+          predicateStem,
+          matrixStem: "n",
+          sourceFormation: "general-use preterit-agentive nounstem"
+        },
+        nuclearClauseFrame: {
+          clauseKind: "nominal-nuclear-clause",
+          sourceClauseKind: "VNC source core feeding relational NNC",
+          state: "absolutive",
+          tenseSlotPresent: false,
+          formula: "#pers1-pers2(STEM)num1-num2#",
+          formulaEcho,
+          formulaSlots
+        },
+        participantFrame: {
+          incorporatedObjectStem: incorporatedStemValue,
+          sourceVerb: sourceVerbStem,
+          relationalMeaning: "place of a person or thing that has done the source action"
+        },
+        sourceContract: {
+          sourceInput,
+          sourceVerb: sourceVerbStem,
+          incorporatedNounStem: incorporatedStemValue,
+          sourceWasFinishedSurface: false
+        },
+        targetContract: {
+          metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+          generationAllowed: true,
+          formulaStem,
+          surface
+        },
+        diagnostics: record.diagnostics
+      });
+    }
     function buildLesson46RelationalNncPursuitFrame() {
       const subsectionInventory = getLesson46RelationalNncSubsectionInventory();
       const optionTwoOnlyFrame = cloneRelationalNncLessonRecord(LESSON46_OPTION_TWO_ONLY_FRAME);
@@ -989,7 +1220,7 @@ export function createRelationalNncApi(targetObject = globalThis) {
       const imperfectEmbedFrame = cloneRelationalNncLessonRecord(LESSON46_IMPERFECT_EMBED_FRAME);
       const matrixStemsFrame = cloneRelationalNncLessonRecord(LESSON46_MATRIX_STEMS_FRAME);
       const exampleSentenceFrame = cloneRelationalNncLessonRecord(LESSON46_EXAMPLE_SENTENCE_FRAME);
-      const remainingGaps = ["Current Lesson 46 support records Andrews' option-two-only relational NNC architecture as diagnostics; it does not implement matrix-only relational fixture data or relational NNC generation.", "All Classical examples and stem spellings remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before output.", "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 46 support records Andrews' option-two-only relational NNC architecture as diagnostics; only the scoped 46.3.1.a preterit-agentive locative source route is currently generative.", "All Classical examples and stem spellings remain structural references only; this scoped route uses user-provided Nawat/Pipil letter realization and does not license the full relational inventory.", "Parser/search detection, supplementary possessor/object resolution, can/canin interrogative behavior, co/c body-part lexicalization, pa homonym disambiguation, incorporated adverb routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-46-relational-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -1007,8 +1238,14 @@ export function createRelationalNncApi(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-46-relational-nnc-audit",
           result: "hit",
-          correction: "Lesson 46 now records Andrews relational NNC part-two architecture across the eleven option-two-only matrix stems, locative n formations, ca+n embeds, imperfect/perfective source-state rules, co/c body-part warnings, directional/frequency pa split, and sentence-context inference while keeping generation blocked.",
+          correction: "Lesson 46 now records Andrews relational NNC part-two architecture across the eleven option-two-only matrix stems, locative n formations, ca+n embeds, imperfect/perfective source-state rules, co/c body-part warnings, directional/frequency pa split, and sentence-context inference while keeping general relational generation blocked.",
           andrewsRefs: Array.from(LESSON46_RELATIONAL_NNC_PDF_REFS),
+          feedbackRefs: Array.from(LESSON46_RELATIONAL_NNC_VALIDATION_REFS)
+        }, {
+          id: "lesson-46-3-1-a-preterit-agentive-locative-source-route",
+          result: "hit",
+          correction: "A scoped Andrews 46.3.1.a route can now derive the user-provided Nawat-letter target from source -(namaka) plus incorporated mich as (mich-namaka-0-ka-n)-0- -> michnamakakan.",
+          andrewsRefs: ["Andrews Lesson 46.3.1.a"],
           feedbackRefs: Array.from(LESSON46_RELATIONAL_NNC_VALIDATION_REFS)
         }],
         subsectionInventory,
@@ -1032,9 +1269,11 @@ export function createRelationalNncApi(targetObject = globalThis) {
           parserDetectionImplemented: false,
           staticRelationalDataImplemented: false,
           newWordGenerationAllowed: false,
+          scopedLesson4631aPreteritAgentiveLocativeSourceRouteImplemented: true,
+          scopedLesson4631aPreteritAgentiveLocativeGenerationAllowed: true,
           fullLesson46GenerationImplemented: false
         },
-        hitCount: 1,
+        hitCount: 2,
         missCount: 0,
         remainingGaps,
         closestPass: false,
@@ -1796,6 +2035,10 @@ export function createRelationalNncApi(targetObject = globalThis) {
         get() { return LESSON46_RELATIONAL_NNC_SUBSECTION_INVENTORY; },
     });
     api.getLesson46RelationalNncSubsectionInventory = getLesson46RelationalNncSubsectionInventory;
+    api.normalizeLesson46RouteStemToken = normalizeLesson46RouteStemToken;
+    api.splitLesson46EmbeddedSourceStem = splitLesson46EmbeddedSourceStem;
+    api.flattenLesson46FormulaStemToSurface = flattenLesson46FormulaStemToSurface;
+    api.buildLesson46PreteritAgentiveLocativeNncFromSource = buildLesson46PreteritAgentiveLocativeNncFromSource;
     api.buildLesson46RelationalNncPursuitFrame = buildLesson46RelationalNncPursuitFrame;
     Object.defineProperty(api, "LESSON47_RELATIONAL_NNC_VALIDATION_REFS", {
         configurable: true,

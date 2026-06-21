@@ -161,6 +161,1034 @@ function applyOutputPanelShellForTenseMode(tenseMode = "") {
     }
 }
 
+function getActiveAndrewsOutputJourneyReceipt() {
+    if (typeof getAndrewsRouteBoardActiveJourneyReceipt !== "function") {
+        return null;
+    }
+    const journey = getAndrewsRouteBoardActiveJourneyReceipt();
+    if (journey && Array.isArray(journey.routeIds) && journey.routeIds.length) {
+        return {
+            ...journey,
+            outputJourneyState: journey.outputJourneyState || "active-arrival",
+        };
+    }
+    if (typeof getAndrewsRouteBoardContinuedJourneyReceipt === "function") {
+        const continuedJourney = getAndrewsRouteBoardContinuedJourneyReceipt();
+        if (continuedJourney && Array.isArray(continuedJourney.routeIds) && continuedJourney.routeIds.length) {
+            return {
+                ...continuedJourney,
+                outputJourneyState: continuedJourney.outputJourneyState || "continued-as-next-source",
+            };
+        }
+    }
+    return null;
+}
+
+function appendOutputJourneyStopRail(parent, stops = []) {
+    const routeStops = Array.isArray(stops) ? stops : [];
+    if (!routeStops.length) {
+        return null;
+    }
+    const stopRail = document.createElement("span");
+    stopRail.className = "output-journey-strip__stops";
+    routeStops.forEach((stop, index) => {
+        if (index > 0) {
+            const arrow = document.createElement("span");
+            arrow.className = "output-journey-strip__stop-arrow";
+            arrow.textContent = ">";
+            stopRail.appendChild(arrow);
+        }
+        const chip = document.createElement("span");
+        chip.className = "output-journey-strip__stop";
+        chip.textContent = stop?.label || stop?.key || "";
+        if (stop?.key) {
+            chip.dataset.routeStopKey = stop.key;
+        }
+        stopRail.appendChild(chip);
+    });
+    parent.appendChild(stopRail);
+    return stopRail;
+}
+
+function getOutputJourneyGateDomainLabel(domain = "") {
+    if (typeof getAndrewsRouteBoardGateDomainLabel === "function") {
+        return getAndrewsRouteBoardGateDomainLabel(domain);
+    }
+    const normalized = String(domain || "").trim();
+    const labels = {
+        "formula-boundary": "Frontera",
+        "valence-object": "Valencia",
+        "stem-rank-class": "Tronco",
+        "operation-suffix": "Operacion",
+        "function-use": "Funcion",
+        "source-evidence": "Evidencia",
+        "orthography-surface": "Superficie",
+        "state-possessor-number": "Estado",
+        "route-gate": "Ruta",
+    };
+    return labels[normalized] || normalized;
+}
+
+function serializeOutputJourneyGateDomains(gateDomainCounts = []) {
+    return (Array.isArray(gateDomainCounts) ? gateDomainCounts : [])
+        .map((item) => `${item.value}:${Number(item.count || 0)}`)
+        .join("|");
+}
+
+function getOutputJourneyRouteConditionFrames(journey = null) {
+    const frames = Array.isArray(journey?.routeConditionFrames) && journey.routeConditionFrames.length
+        ? journey.routeConditionFrames
+        : (journey?.routeConditionFrame && typeof journey.routeConditionFrame === "object"
+            ? [journey.routeConditionFrame]
+            : []);
+    return frames
+        .filter((frame) => frame && typeof frame === "object")
+        .map((frame) => ({
+            ...frame,
+            ifStage: frame.ifStage && typeof frame.ifStage === "object" ? { ...frame.ifStage } : null,
+            thenStage: frame.thenStage && typeof frame.thenStage === "object" ? { ...frame.thenStage } : null,
+            conditions: Array.isArray(frame.conditions)
+                ? frame.conditions.map((condition) => ({ ...condition }))
+                : [],
+        }));
+}
+
+function serializeOutputJourneyRouteConditionFrames(frames = []) {
+    return (Array.isArray(frames) ? frames : [])
+        .map((frame) => [
+            frame.sourceKey || frame.ifStage?.key || "",
+            frame.targetKey || frame.thenStage?.key || "",
+            frame.operation || "",
+        ].join(">"))
+        .join("|");
+}
+
+function serializeOutputJourneyStationLineStops(stops = []) {
+    return (Array.isArray(stops) ? stops : [])
+        .map((entry) => [
+            entry.id || "",
+            entry.status || "",
+            entry.stationKey || "",
+        ].map((part) => String(part || "").replace(/[|:]/g, "")).join(":"))
+        .join("|");
+}
+
+function serializeOutputJourneyHistoryLegs(history = []) {
+    return (Array.isArray(history) ? history : [])
+        .map((entry, index) => [
+            entry.journeySequence || index + 1,
+            Array.isArray(entry.routeIds) ? entry.routeIds.join("+") : "",
+            entry.sourceKey || "",
+            entry.destinationKey || "",
+            getOutputJourneyRoutePathLabel(entry),
+        ].map((part) => String(part || "").replace(/[|:]/g, "")).join(":"))
+        .join("|");
+}
+
+function getOutputJourneyRoutePathLabel(journey = null) {
+    const explicitPath = String(journey?.routePathLabel || journey?.routeTicket?.routePathLabel || "").trim();
+    if (explicitPath) {
+        return explicitPath;
+    }
+    const stops = Array.isArray(journey?.routeStops) ? journey.routeStops : [];
+    const stopLabels = stops
+        .map((stop) => String(stop?.label || stop?.key || "").trim())
+        .filter(Boolean);
+    if (stopLabels.length >= 2) {
+        return stopLabels.join(" > ");
+    }
+    return [journey?.sourceLabel || "", journey?.destinationLabel || ""].filter(Boolean).join(" > ");
+}
+
+function serializeOutputJourneyConcourseStops(stops = []) {
+    return (Array.isArray(stops) ? stops : [])
+        .map((entry) => [
+            entry.id || "",
+            entry.status || "",
+            entry.stationKey || "",
+        ].map((part) => String(part || "").replace(/[|:]/g, "")).join(":"))
+        .join("|");
+}
+
+function serializeOutputJourneyPlatformTracks(tracks = []) {
+    return (Array.isArray(tracks) ? tracks : [])
+        .map((entry) => [
+            entry.id || "",
+            entry.recommendationRole || "",
+            entry.sourceKey || "",
+            entry.destinationKey || "",
+            Array.isArray(entry.routeIds) ? entry.routeIds.join("+") : "",
+        ].map((part) => String(part || "").replace(/[|:]/g, "")).join(":"))
+        .join("|");
+}
+
+function getOutputJourneySourceLayerRoleLabel(role = "") {
+    if (typeof getAndrewsRouteBoardSourceLayerRoleLabel === "function") {
+        return getAndrewsRouteBoardSourceLayerRoleLabel(role);
+    }
+    const normalized = String(role || "").trim();
+    const labels = {
+        "received-source": "recibida",
+        "contained-verbal-core": "nucleo",
+        "contained-verbstem": "tronco",
+        "route-source": "ruta",
+    };
+    return labels[normalized] || normalized;
+}
+
+function serializeOutputJourneySourceLayers(layers = []) {
+    return (Array.isArray(layers) ? layers : [])
+        .map((entry) => [
+            entry.key || "",
+            entry.sourceRole || "",
+            entry.formulaType || "",
+            entry.formulaPosition || "",
+            entry.stemRank || "",
+            entry.active === true ? "active" : "",
+        ].map((part) => String(part || "").replace(/[|:]/g, "")).join(":"))
+        .join("|");
+}
+
+function getActiveAndrewsStationLineFrameForRendering() {
+    if (typeof document === "undefined") {
+        return null;
+    }
+    const outputStrip = document.getElementById("output-journey-strip");
+    const routeBoard = document.getElementById("andrews-route-board");
+    const source = outputStrip && outputStrip.hidden !== true && outputStrip.dataset.stationLineModel
+        ? outputStrip
+        : routeBoard;
+    if (!source?.dataset?.stationLineModel) {
+        return null;
+    }
+    return {
+        lineModel: source.dataset.stationLineModel || "",
+        intentMode: source.dataset.stationLineIntentMode || "",
+        activeStopId: source.dataset.stationLineActiveStop || "",
+        routeKey: source.dataset.stationLineRouteKey || "",
+        routePathLabel: source.dataset.routePathLabel
+            || source.dataset.passengerPrimaryRoutePathLabel
+            || source.dataset.activeJourneyRoutePathLabel
+            || "",
+        stops: source.dataset.stationLineStops || "",
+    };
+}
+
+function getActiveAndrewsRouteConditionFrameForRendering() {
+    if (typeof document === "undefined") {
+        return null;
+    }
+    const outputStrip = document.getElementById("output-journey-strip");
+    const routeBoard = document.getElementById("andrews-route-board");
+    const source = outputStrip && outputStrip.hidden !== true && outputStrip.dataset.routeConditionFrames
+        ? outputStrip
+        : routeBoard;
+    const conditionFrames = source?.dataset?.routeConditionFrames || source?.dataset?.activeJourneyConditionFrames || "";
+    if (!conditionFrames) {
+        return null;
+    }
+    return {
+        conditionFrames,
+        ifStage: source.dataset.routeIfStage || source.dataset.activeJourneyIfStage || "",
+        thenStage: source.dataset.routeThenStage || source.dataset.activeJourneyThenStage || "",
+    };
+}
+
+function getActiveAndrewsSourceLayerFrameForRendering() {
+    if (typeof document === "undefined") {
+        return null;
+    }
+    const outputStrip = document.getElementById("output-journey-strip");
+    const routeBoard = document.getElementById("andrews-route-board");
+    const source = outputStrip && outputStrip.hidden !== true && outputStrip.dataset.sourceLayerModel
+        ? outputStrip
+        : routeBoard;
+    const sourceLayers = source?.dataset?.sourceLayers || source?.dataset?.sourceCandidateStages || "";
+    if (!sourceLayers) {
+        return null;
+    }
+    return {
+        layerModel: source.dataset.sourceLayerModel || "formula-source-layers-route-board",
+        sourceLayerCount: source.dataset.sourceLayerCount || source.dataset.sourceCandidateStageCount || "",
+        sourceLayers,
+        activeSourceStation: source.dataset.sourceLayerActiveStation || source.dataset.currentStation || source.dataset.sourceStation || "",
+        activeSourceRole: source.dataset.sourceLayerActiveRole || "",
+    };
+}
+
+function getActiveAndrewsRideFrameForRendering() {
+    if (typeof document === "undefined") {
+        return null;
+    }
+    const outputStrip = document.getElementById("output-journey-strip");
+    const routeBoard = document.getElementById("andrews-route-board");
+    const source = outputStrip && outputStrip.hidden !== true && outputStrip.dataset.rideExperienceModel
+        ? outputStrip
+        : routeBoard;
+    if (!source?.dataset?.rideExperienceModel) {
+        return null;
+    }
+    return {
+        experienceModel: source.dataset.rideExperienceModel || "",
+        outputJourneyModel: source.dataset.rideOutputJourneyModel || "",
+        operatingPrinciple: source.dataset.rideOperatingPrinciple || "",
+        choiceModel: source.dataset.rideChoiceModel || "",
+        currentSignLabel: source.dataset.rideCurrentSignLabel || "",
+        nextSignLabel: source.dataset.rideNextSignLabel || "",
+        destinationSignLabel: source.dataset.rideDestinationSignLabel || "",
+        primaryActionLabel: source.dataset.ridePrimaryActionLabel
+            || source.dataset.passengerPrimaryActionLabel
+            || "",
+        primaryRoutePathLabel: source.dataset.ridePrimaryRoutePathLabel
+            || source.dataset.passengerPrimaryRoutePathLabel
+            || source.dataset.routePathLabel
+            || source.dataset.activeJourneyRoutePathLabel
+            || "",
+        primaryClickCount: source.dataset.ridePrimaryClickCount || "",
+        switchingRequired: source.dataset.rideSwitchingRequired || "",
+        events: source.dataset.rideEvents || "",
+    };
+}
+
+function applyAndrewsStationLineDatasetToSurfaceElement(element = null, stationLineFrame = null) {
+    if (!element?.dataset || !stationLineFrame?.lineModel) {
+        return null;
+    }
+    element.dataset.stationLineModel = stationLineFrame.lineModel || "";
+    element.dataset.stationLineIntentMode = stationLineFrame.intentMode || "";
+    element.dataset.stationLineActiveStop = stationLineFrame.activeStopId || "";
+    element.dataset.stationLineRouteKey = stationLineFrame.routeKey || "";
+    element.dataset.routePathLabel = stationLineFrame.routePathLabel || "";
+    element.dataset.stationLineStops = stationLineFrame.stops || "";
+    return element;
+}
+
+function applyAndrewsRouteConditionDatasetToSurfaceElement(element = null, routeConditionFrame = null) {
+    if (!element?.dataset || !routeConditionFrame?.conditionFrames) {
+        return null;
+    }
+    element.dataset.routeConditionFrames = routeConditionFrame.conditionFrames || "";
+    element.dataset.routeIfStage = routeConditionFrame.ifStage || "";
+    element.dataset.routeThenStage = routeConditionFrame.thenStage || "";
+    return element;
+}
+
+function applyAndrewsSourceLayerDatasetToSurfaceElement(element = null, sourceLayerFrame = null) {
+    if (!element?.dataset || !sourceLayerFrame?.sourceLayers) {
+        return null;
+    }
+    element.dataset.sourceLayerModel = sourceLayerFrame.layerModel || "";
+    element.dataset.sourceLayerCount = sourceLayerFrame.sourceLayerCount || "";
+    element.dataset.sourceLayers = sourceLayerFrame.sourceLayers || "";
+    element.dataset.sourceLayerActiveStation = sourceLayerFrame.activeSourceStation || "";
+    element.dataset.sourceLayerActiveRole = sourceLayerFrame.activeSourceRole || "";
+    return element;
+}
+
+function applyAndrewsRideDatasetToSurfaceElement(element = null, rideFrame = null) {
+    if (!element?.dataset || !rideFrame?.experienceModel) {
+        return null;
+    }
+    element.dataset.rideExperienceModel = rideFrame.experienceModel || "";
+    element.dataset.rideOutputJourneyModel = rideFrame.outputJourneyModel || "";
+    element.dataset.rideOperatingPrinciple = rideFrame.operatingPrinciple || "";
+    element.dataset.rideChoiceModel = rideFrame.choiceModel || "";
+    element.dataset.rideCurrentSignLabel = rideFrame.currentSignLabel || "";
+    element.dataset.rideNextSignLabel = rideFrame.nextSignLabel || "";
+    element.dataset.rideDestinationSignLabel = rideFrame.destinationSignLabel || "";
+    element.dataset.ridePrimaryActionLabel = rideFrame.primaryActionLabel || "";
+    element.dataset.ridePrimaryRoutePathLabel = rideFrame.primaryRoutePathLabel || "";
+    element.dataset.ridePrimaryClickCount = rideFrame.primaryClickCount || "";
+    element.dataset.rideSwitchingRequired = rideFrame.switchingRequired || "";
+    element.dataset.rideEvents = rideFrame.events || "";
+    return element;
+}
+
+function appendOutputJourneyStationLine(parent, journey = null) {
+    const frame = journey?.stationLineFrame && typeof journey.stationLineFrame === "object"
+        ? journey.stationLineFrame
+        : (journey?.passengerFrame?.stationLineFrame && typeof journey.passengerFrame.stationLineFrame === "object"
+            ? journey.passengerFrame.stationLineFrame
+            : null);
+    const stops = Array.isArray(frame?.stops) ? frame.stops : [];
+    if (!frame || !stops.length) {
+        return null;
+    }
+    const line = document.createElement("span");
+    line.className = "output-journey-strip__station-line";
+    line.dataset.lineModel = frame.lineModel || "";
+    line.dataset.intentMode = frame.intentMode || "";
+    line.dataset.activeStop = frame.activeStopId || "";
+    line.dataset.sourceStation = frame.sourceKey || "";
+    line.dataset.destinationStation = frame.destinationKey || "";
+    line.dataset.routeKey = frame.routeKey || "";
+    line.dataset.stationStops = serializeOutputJourneyStationLineStops(stops);
+    stops.forEach((entry) => {
+        const stop = document.createElement("span");
+        stop.className = "output-journey-strip__station-stop";
+        stop.dataset.stopId = entry.id || "";
+        stop.dataset.stopStatus = entry.status || "";
+        stop.dataset.stationKey = entry.stationKey || "";
+        if (entry.id && entry.id === frame.activeStopId) {
+            stop.dataset.stopActive = "true";
+        }
+        const label = document.createElement("span");
+        label.className = "output-journey-strip__station-label";
+        label.textContent = entry.label || entry.block || entry.id || "";
+        const value = document.createElement("span");
+        value.className = "output-journey-strip__station-value";
+        value.textContent = entry.displayLabel || "";
+        stop.append(label, value);
+        line.appendChild(stop);
+    });
+    parent.appendChild(line);
+    return line;
+}
+
+function appendOutputJourneyConcourse(parent, journey = null) {
+    const frame = journey?.concourseFrame && typeof journey.concourseFrame === "object"
+        ? journey.concourseFrame
+        : null;
+    const stops = Array.isArray(frame?.stops) ? frame.stops : [];
+    if (!frame || !stops.length) {
+        return null;
+    }
+    const concourse = document.createElement("span");
+    concourse.className = "output-journey-strip__concourse";
+    concourse.dataset.concourseModel = frame.concourseModel || "";
+    concourse.dataset.lineModel = frame.lineModel || "";
+    concourse.dataset.currentIntention = frame.currentIntention || "";
+    concourse.dataset.sourceStation = frame.sourceKey || "";
+    concourse.dataset.nextStation = frame.nextStationKey || "";
+    concourse.dataset.destinationStation = frame.destinationKey || "";
+    concourse.dataset.routeKey = frame.routeKey || "";
+    concourse.dataset.routeIds = Array.isArray(frame.routeIds) ? frame.routeIds.join("|") : "";
+    concourse.dataset.stops = serializeOutputJourneyConcourseStops(stops);
+    concourse.dataset.passengerEvents = Array.isArray(frame.passengerEvents)
+        ? frame.passengerEvents.join("|")
+        : "";
+    const labels = [];
+    stops.forEach((entry, index) => {
+        if (index > 0) {
+            const arrow = document.createElement("span");
+            arrow.className = "output-journey-strip__concourse-arrow";
+            arrow.textContent = ">";
+            concourse.appendChild(arrow);
+        }
+        const stop = document.createElement("span");
+        stop.className = "output-journey-strip__concourse-stop";
+        stop.dataset.stopId = entry.id || "";
+        stop.dataset.stopStatus = entry.status || "";
+        stop.dataset.stationKey = entry.stationKey || "";
+        const label = document.createElement("span");
+        label.className = "output-journey-strip__concourse-label";
+        label.textContent = entry.label || entry.id || "";
+        const value = document.createElement("span");
+        value.className = "output-journey-strip__concourse-value";
+        value.textContent = entry.displayLabel || "";
+        const stopLabel = [label.textContent, value.textContent].filter(Boolean).join(" · ");
+        if (stopLabel) {
+            stop.setAttribute("aria-label", stopLabel);
+            labels.push(stopLabel);
+        }
+        stop.append(label, value);
+        concourse.appendChild(stop);
+    });
+    if (frame.actionLabel) {
+        const action = document.createElement("span");
+        action.className = "output-journey-strip__concourse-action";
+        action.textContent = frame.actionLabel;
+        concourse.appendChild(action);
+        labels.push(frame.actionLabel);
+    }
+    if (labels.length) {
+        concourse.setAttribute("aria-label", labels.join(" · "));
+    }
+    parent.appendChild(concourse);
+    return concourse;
+}
+
+function appendOutputJourneyItinerary(parent, journey = null) {
+    const history = Array.isArray(journey?.journeyHistory)
+        ? journey.journeyHistory
+        : [];
+    if (!history.length) {
+        return null;
+    }
+    const itinerary = document.createElement("span");
+    itinerary.className = "output-journey-strip__itinerary";
+    itinerary.dataset.journeyHistoryLegCount = String(history.length);
+    itinerary.dataset.journeyHistoryLegs = serializeOutputJourneyHistoryLegs(history);
+    itinerary.dataset.journeyHistoryRouteIds = history
+        .map((entry) => (Array.isArray(entry.routeIds) ? entry.routeIds.join("|") : ""))
+        .filter(Boolean)
+        .join("||");
+    itinerary.dataset.journeyHistoryStations = history
+        .map((entry) => [entry.sourceKey || "", entry.destinationKey || ""].filter(Boolean).join(">"))
+        .filter(Boolean)
+        .join("|");
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__itinerary-label";
+    label.textContent = "Ruta";
+    itinerary.appendChild(label);
+    history.forEach((entry, index) => {
+        const leg = document.createElement("span");
+        leg.className = "output-journey-strip__itinerary-leg";
+        leg.dataset.legIndex = String(entry.journeySequence || index + 1);
+        leg.dataset.routeIds = Array.isArray(entry.routeIds) ? entry.routeIds.join("|") : "";
+        leg.dataset.sourceStation = entry.sourceKey || "";
+        leg.dataset.destinationStation = entry.destinationKey || "";
+        leg.dataset.routePathLabel = getOutputJourneyRoutePathLabel(entry);
+        leg.dataset.resistanceScore = String(entry.resistanceScore || 0);
+        const main = document.createElement("span");
+        main.className = "output-journey-strip__itinerary-main";
+        main.textContent = `${entry.journeySequence || index + 1}. ${leg.dataset.routePathLabel}`;
+        const meta = document.createElement("span");
+        meta.className = "output-journey-strip__itinerary-meta";
+        meta.textContent = [
+            entry.routeActionFrame?.actionLabel || entry.targetActionLabel || "",
+            entry.resistanceScore ? `R${entry.resistanceScore}` : "",
+        ].filter(Boolean).join(" · ");
+        leg.append(main, meta);
+        itinerary.appendChild(leg);
+    });
+    parent.appendChild(itinerary);
+    return itinerary;
+}
+
+function appendOutputJourneySourceLayers(parent, journey = null) {
+    const frame = journey?.sourceLayerFrame && typeof journey.sourceLayerFrame === "object"
+        ? journey.sourceLayerFrame
+        : null;
+    const layers = Array.isArray(frame?.layers) ? frame.layers : [];
+    if (!frame || layers.length < 2) {
+        return null;
+    }
+    const rail = document.createElement("span");
+    rail.className = "output-journey-strip__source-layers";
+    rail.dataset.sourceLayerModel = frame.layerModel || "";
+    rail.dataset.sourceLayerCount = String(frame.sourceLayerCount || layers.length);
+    rail.dataset.sourceLayers = serializeOutputJourneySourceLayers(layers);
+    rail.dataset.sourceLayerActiveStation = frame.activeSourceKey || "";
+    rail.dataset.sourceLayerActiveRole = frame.activeSourceRole || "";
+    rail.dataset.activeSourceStation = frame.activeSourceKey || "";
+    rail.dataset.activeSourceRole = frame.activeSourceRole || "";
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__source-layer-label";
+    label.textContent = "Origen";
+    rail.appendChild(label);
+    const ariaLabels = [];
+    layers.forEach((entry) => {
+        const chip = document.createElement("span");
+        chip.className = "output-journey-strip__source-layer";
+        chip.dataset.sourceLayerStation = entry.key || "";
+        chip.dataset.sourceStation = entry.key || "";
+        chip.dataset.sourceStageKey = entry.key || "";
+        chip.dataset.sourceLayerRole = entry.sourceRole || "";
+        chip.dataset.sourceRole = entry.sourceRole || "";
+        chip.dataset.sourceStageRole = entry.sourceRole || "";
+        chip.dataset.sourceLayerActive = String(entry.active === true);
+        chip.dataset.formulaType = entry.formulaType || "";
+        chip.dataset.formulaPosition = entry.formulaPosition || "";
+        chip.dataset.stemRank = entry.stemRank || "";
+        const name = document.createElement("span");
+        name.className = "output-journey-strip__source-layer-name";
+        name.textContent = entry.label || entry.key || "";
+        const role = document.createElement("span");
+        role.className = "output-journey-strip__source-layer-role";
+        role.textContent = getOutputJourneySourceLayerRoleLabel(entry.sourceRole || "");
+        chip.append(name, role);
+        const ariaLabel = [name.textContent, role.textContent].filter(Boolean).join(" · ");
+        if (ariaLabel) {
+            chip.setAttribute("aria-label", ariaLabel);
+            ariaLabels.push(ariaLabel);
+        }
+        rail.appendChild(chip);
+    });
+    if (ariaLabels.length) {
+        rail.setAttribute("aria-label", ariaLabels.join(" · "));
+    }
+    parent.appendChild(rail);
+    return rail;
+}
+
+function appendOutputJourneyRouteConditions(parent, frames = []) {
+    const conditionFrames = (Array.isArray(frames) ? frames : [])
+        .filter((frame) => frame && typeof frame === "object");
+    if (!conditionFrames.length) {
+        return null;
+    }
+    const first = conditionFrames[0];
+    const last = conditionFrames[conditionFrames.length - 1];
+    const rail = document.createElement("span");
+    rail.className = "output-journey-strip__conditions";
+    rail.dataset.conditionModel = first.conditionModel || "";
+    rail.dataset.conditionSegments = String(conditionFrames.length);
+    rail.dataset.conditionFrames = serializeOutputJourneyRouteConditionFrames(conditionFrames);
+    const appendChip = (role = "", text = "", title = "") => {
+        if (!text) {
+            return;
+        }
+        const chip = document.createElement("span");
+        chip.className = "output-journey-strip__condition";
+        chip.dataset.conditionRole = role;
+        chip.textContent = text;
+        if (title) {
+            chip.title = title;
+        }
+        rail.appendChild(chip);
+    };
+    appendChip("if", `Si ${first.ifStage?.label || first.sourceLabel || ""}`, first.formula || "");
+    appendChip("then", `Entonces ${last.thenStage?.label || last.targetLabel || ""}`, last.formula || "");
+    if (conditionFrames.length > 1) {
+        appendChip("transfer", `${conditionFrames.length} tramos`, conditionFrames.map((frame) => frame.passengerCue).join(" | "));
+    }
+    const functionUseCondition = conditionFrames
+        .flatMap((frame) => Array.isArray(frame.conditions) ? frame.conditions : [])
+        .find((entry) => entry.dimension === "function-use");
+    appendChip("function-use", functionUseCondition?.label || "Función final", functionUseCondition?.expected || "");
+    parent.appendChild(rail);
+    return rail;
+}
+
+function appendOutputJourneyDimensions(parent, gateDomainCounts = []) {
+    const dimensions = (Array.isArray(gateDomainCounts) ? gateDomainCounts : []).slice(0, 4);
+    if (!dimensions.length) {
+        return null;
+    }
+    const rail = document.createElement("span");
+    rail.className = "output-journey-strip__dimensions";
+    dimensions.forEach((item) => {
+        const chip = document.createElement("span");
+        chip.className = "output-journey-strip__dimension";
+        chip.dataset.gateDomain = item.value || "";
+        chip.dataset.gateDomainCount = String(item.count || 0);
+        chip.textContent = `${getOutputJourneyGateDomainLabel(item.value)} ${item.count}`;
+        rail.appendChild(chip);
+    });
+    parent.appendChild(rail);
+    return rail;
+}
+
+function appendOutputJourneyPassengerFrame(parent, journey = null) {
+    const frame = journey?.passengerFrame && typeof journey.passengerFrame === "object"
+        ? journey.passengerFrame
+        : null;
+    if (!frame) {
+        return null;
+    }
+    const pass = document.createElement("span");
+    pass.className = "output-journey-strip__pass";
+    pass.dataset.routeBoardModel = frame.routeBoardModel || "";
+    pass.dataset.journeyModel = frame.journeyModel || "";
+    pass.dataset.currentIntention = frame.currentIntention || "";
+    pass.dataset.primaryActionLabel = frame.primaryActionLabel || "";
+    pass.dataset.primaryRecommendationRole = frame.primaryRecommendationRole || "";
+    pass.dataset.primaryRouteIds = Array.isArray(frame.primaryRouteIds) ? frame.primaryRouteIds.join("|") : "";
+    pass.dataset.primaryNextSource = frame.primaryNextSourceStageKey || "";
+    pass.dataset.primaryRoutePathLabel = frame.primaryRoutePathLabel || frame.routePathLabel || getOutputJourneyRoutePathLabel(journey);
+    pass.dataset.handoffEntryBoard = frame.handoffEntryBoard || "";
+    pass.dataset.handoffUnitMode = frame.handoffUnitMode || "";
+    pass.dataset.passengerEvents = Array.isArray(frame.passengerEvents) ? frame.passengerEvents.join("|") : "";
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__pass-label";
+    label.textContent = "Pase";
+    const main = document.createElement("span");
+    main.className = "output-journey-strip__pass-main";
+    main.textContent = frame.primaryActionLabel || journey?.routeActionFrame?.actionLabel || "Siguiente";
+    const meta = document.createElement("span");
+    meta.className = "output-journey-strip__pass-meta";
+    meta.textContent = [
+        frame.handoffActionLabel || journey?.targetActionLabel || "",
+        pass.dataset.primaryRoutePathLabel || frame.destinationLabel || journey?.destinationLabel || "",
+    ].filter(Boolean).join(" · ");
+    pass.append(label, main, meta);
+    parent.appendChild(pass);
+    return pass;
+}
+
+function appendOutputJourneyPlatform(parent, journey = null) {
+    const frame = journey?.platformFrame && typeof journey.platformFrame === "object"
+        ? journey.platformFrame
+        : null;
+    const tracks = Array.isArray(frame?.tracks) ? frame.tracks : [];
+    if (!frame || !tracks.length) {
+        return null;
+    }
+    const selected = tracks.find((entry) => entry.recommendationRole === "arrival" || entry.recommendationRole === "next")
+        || tracks[0];
+    const routePathLabel = selected.routePathLabel || [
+        selected.sourceLabel || "",
+        selected.destinationLabel || "",
+    ].filter(Boolean).join(" > ");
+    const platform = document.createElement("span");
+    platform.className = "output-journey-strip__platform";
+    platform.dataset.platformModel = frame.platformModel || "";
+    platform.dataset.platformTracks = serializeOutputJourneyPlatformTracks(tracks);
+    platform.dataset.platformId = selected.id || "";
+    platform.dataset.routeRecommendation = selected.recommendationRole || "";
+    platform.dataset.sourceStation = selected.sourceKey || "";
+    platform.dataset.sourceLabel = selected.sourceLabel || "";
+    platform.dataset.destinationStation = selected.destinationKey || "";
+    platform.dataset.destinationLabel = selected.destinationLabel || "";
+    platform.dataset.routePathLabel = routePathLabel;
+    platform.dataset.routeIds = Array.isArray(selected.routeIds) ? selected.routeIds.join("|") : "";
+    platform.dataset.segmentCount = String(selected.segmentCount || 1);
+    platform.dataset.transferCount = String(selected.transferCount || 0);
+    platform.dataset.tripKind = selected.tripKind || "";
+    platform.dataset.resistanceScore = String(selected.resistanceScore || 0);
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__platform-label";
+    label.textContent = selected.label || "Anden";
+    const main = document.createElement("span");
+    main.className = "output-journey-strip__platform-main";
+    main.textContent = routePathLabel || selected.destinationLabel || "";
+    const meta = document.createElement("span");
+    meta.className = "output-journey-strip__platform-meta";
+    meta.textContent = [
+        selected.actionLabel || "",
+        selected.resistanceScore ? `R${selected.resistanceScore}` : "",
+    ].filter(Boolean).join(" · ");
+    platform.append(label, main, meta);
+    platform.setAttribute("aria-label", [
+        label.textContent,
+        main.textContent,
+        meta.textContent,
+    ].filter(Boolean).join(" · "));
+    parent.appendChild(platform);
+    return platform;
+}
+
+function appendOutputJourneyRideFrame(parent, journey = null) {
+    const frame = journey?.rideFrame && typeof journey.rideFrame === "object"
+        ? journey.rideFrame
+        : null;
+    if (!frame) {
+        return null;
+    }
+    const ride = document.createElement("span");
+    ride.className = "output-journey-strip__ride";
+    ride.dataset.experienceModel = frame.experienceModel || "";
+    ride.dataset.outputJourneyModel = frame.outputJourneyModel || "";
+    ride.dataset.operatingPrinciple = frame.operatingPrinciple || "";
+    ride.dataset.choiceModel = frame.choiceModel || "";
+    ride.dataset.currentIntention = frame.currentIntention || "";
+    ride.dataset.sourceStation = frame.sourceKey || "";
+    ride.dataset.sourceLabel = frame.sourceLabel || "";
+    ride.dataset.destinationStation = frame.destinationKey || "";
+    ride.dataset.destinationLabel = frame.destinationLabel || frame.destinationSignLabel || "";
+    ride.dataset.currentSignLabel = frame.currentSignLabel || "";
+    ride.dataset.nextSignLabel = frame.nextSignLabel || "";
+    ride.dataset.destinationSignLabel = frame.destinationSignLabel || "";
+    ride.dataset.primaryActionLabel = frame.primaryActionLabel || "";
+    ride.dataset.primaryRoutePathLabel = frame.primaryRoutePathLabel || getOutputJourneyRoutePathLabel(journey);
+    ride.dataset.activeStop = frame.activeStopId || "";
+    ride.dataset.activeStopIndex = String(frame.activeStopIndex || 0);
+    ride.dataset.progressStopCount = String(frame.progressStopCount || 0);
+    ride.dataset.progressStops = serializeOutputJourneyStationLineStops(frame.progressStops || []);
+    ride.dataset.routeOptionCount = String(frame.routeOptionCount || 0);
+    ride.dataset.destinationOptionCount = String(frame.destinationOptionCount || 0);
+    ride.dataset.visibleTrackCount = String(frame.visibleTrackCount || 0);
+    ride.dataset.primaryClickCount = String(frame.decisionLoad?.primaryClickCount || 0);
+    ride.dataset.switchingRequired = String(frame.decisionLoad?.switchingRequired === true);
+    ride.dataset.passengerEvents = Array.isArray(frame.passengerEvents) ? frame.passengerEvents.join("|") : "";
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__ride-label";
+    label.textContent = "Viaje";
+    const main = document.createElement("span");
+    main.className = "output-journey-strip__ride-main";
+    main.textContent = ride.dataset.primaryRoutePathLabel
+        || [frame.currentSignLabel, frame.destinationSignLabel || frame.nextSignLabel].filter(Boolean).join(" > ");
+    const meta = document.createElement("span");
+    meta.className = "output-journey-strip__ride-meta";
+    meta.textContent = [
+        frame.primaryActionLabel || "",
+        frame.visibleTrackCount ? `${frame.visibleTrackCount} andenes` : "",
+        frame.destinationOptionCount ? `${frame.destinationOptionCount} destinos` : "",
+        frame.activeStopIndex && frame.progressStopCount ? `${frame.activeStopIndex}/${frame.progressStopCount}` : "",
+    ].filter(Boolean).join(" · ");
+    ride.append(label, main, meta);
+    ride.setAttribute("aria-label", [
+        label.textContent,
+        main.textContent,
+        meta.textContent,
+    ].filter(Boolean).join(" · "));
+    parent.appendChild(ride);
+    return ride;
+}
+
+function appendOutputJourneyNextSource(parent, journey = null) {
+    if (journey?.outputJourneyState === "continued-as-next-source" || journey?.continuationState) {
+        return null;
+    }
+    const targetAction = journey?.targetAction && typeof journey.targetAction === "object"
+        ? journey.targetAction
+        : {};
+    const passengerFrame = journey?.passengerFrame && typeof journey.passengerFrame === "object"
+        ? journey.passengerFrame
+        : {};
+    const nextSourceKey = journey?.nextSourceKey || journey?.destinationKey || "";
+    const nextSourceLabel = journey?.nextSourceLabel || journey?.destinationLabel || "";
+    const actionLabel = journey?.targetActionLabel || targetAction.label || "";
+    if (!nextSourceKey && !nextSourceLabel && !actionLabel) {
+        return null;
+    }
+    const chip = typeof continueAndrewsRouteBoardFromActiveJourney === "function"
+        ? document.createElement("button")
+        : document.createElement("span");
+    chip.className = "output-journey-strip__next-source";
+    if (chip.tagName === "BUTTON") {
+        chip.type = "button";
+        chip.addEventListener("click", () => {
+            continueAndrewsRouteBoardFromActiveJourney();
+        });
+    }
+    chip.dataset.nextSourceStation = nextSourceKey;
+    chip.dataset.nextSourceLabel = nextSourceLabel;
+    chip.dataset.nextSourceEntryBoard = journey?.nextSourceEntryBoard || targetAction.entryBoard || "";
+    chip.dataset.nextSourceUnitMode = journey?.nextSourceUnitMode || targetAction.unitMode || "";
+    chip.dataset.targetActionLabel = actionLabel;
+    chip.dataset.passengerPrimaryActionLabel = passengerFrame.primaryActionLabel || "";
+    chip.dataset.passengerPrimaryRouteIds = Array.isArray(passengerFrame.primaryRouteIds)
+        ? passengerFrame.primaryRouteIds.join("|")
+        : "";
+    chip.dataset.passengerPrimaryNextSource = passengerFrame.primaryNextSourceStageKey || "";
+    chip.dataset.passengerPrimaryRoutePathLabel = passengerFrame.primaryRoutePathLabel
+        || getOutputJourneyRoutePathLabel(journey)
+        || "";
+    chip.dataset.routePathLabel = chip.dataset.passengerPrimaryRoutePathLabel;
+    chip.textContent = [
+        "Siguiente",
+        actionLabel,
+        chip.dataset.routePathLabel || nextSourceLabel,
+    ].filter(Boolean).join(" · ");
+    chip.setAttribute("aria-label", chip.textContent);
+    parent.appendChild(chip);
+    return chip;
+}
+
+function renderOutputJourneyStrip() {
+    const container = document.getElementById("output-journey-strip");
+    if (!container) {
+        return null;
+    }
+    const journey = getActiveAndrewsOutputJourneyReceipt();
+    container.replaceChildren();
+    if (!journey) {
+        container.hidden = true;
+        delete container.dataset.routeIds;
+        delete container.dataset.routeStops;
+        delete container.dataset.routePathLabel;
+        delete container.dataset.sourceStation;
+        delete container.dataset.destinationStation;
+        delete container.dataset.resistanceScore;
+        delete container.dataset.resistanceRole;
+        delete container.dataset.nextSourceStation;
+        delete container.dataset.nextSourceLabel;
+        delete container.dataset.nextSourceEntryBoard;
+        delete container.dataset.nextSourceUnitMode;
+        delete container.dataset.targetActionLabel;
+        delete container.dataset.routeActionLabel;
+        delete container.dataset.routeRecommendation;
+        delete container.dataset.outputJourneyState;
+        delete container.dataset.routeBoardModel;
+        delete container.dataset.journeyModel;
+        delete container.dataset.passengerIntention;
+        delete container.dataset.passengerPrimaryActionLabel;
+        delete container.dataset.passengerPrimaryRouteIds;
+        delete container.dataset.passengerPrimaryNextSource;
+        delete container.dataset.passengerPrimaryRoutePathLabel;
+        delete container.dataset.passengerEvents;
+        delete container.dataset.stationLineModel;
+        delete container.dataset.stationLineIntentMode;
+        delete container.dataset.stationLineActiveStop;
+        delete container.dataset.stationLineRouteKey;
+        delete container.dataset.stationLineStops;
+        delete container.dataset.platformModel;
+        delete container.dataset.platformTracks;
+        delete container.dataset.platformVisibleTrackCount;
+        delete container.dataset.platformRecommendedRouteIds;
+        delete container.dataset.rideExperienceModel;
+        delete container.dataset.rideOutputJourneyModel;
+        delete container.dataset.rideOperatingPrinciple;
+        delete container.dataset.rideChoiceModel;
+        delete container.dataset.rideCurrentSignLabel;
+        delete container.dataset.rideNextSignLabel;
+        delete container.dataset.rideDestinationSignLabel;
+        delete container.dataset.ridePrimaryActionLabel;
+        delete container.dataset.ridePrimaryRoutePathLabel;
+        delete container.dataset.ridePrimaryClickCount;
+        delete container.dataset.rideSwitchingRequired;
+        delete container.dataset.rideEvents;
+        delete container.dataset.concourseModel;
+        delete container.dataset.concourseLineModel;
+        delete container.dataset.concourseStops;
+        delete container.dataset.concourseNextStation;
+        delete container.dataset.concourseDestinationStation;
+        delete container.dataset.concourseRouteKey;
+        delete container.dataset.sourceLayerModel;
+        delete container.dataset.sourceLayerCount;
+        delete container.dataset.sourceLayers;
+        delete container.dataset.sourceLayerActiveStation;
+        delete container.dataset.sourceLayerActiveRole;
+        delete container.dataset.journeyHistoryLegCount;
+        delete container.dataset.journeyHistoryLegs;
+        delete container.dataset.journeyHistoryRouteIds;
+        delete container.dataset.journeyHistoryStations;
+        delete container.dataset.journeyHistoryRoutePaths;
+        delete container.dataset.routeConditionFrames;
+        delete container.dataset.routeIfStage;
+        delete container.dataset.routeThenStage;
+        return null;
+    }
+    const targetAction = journey.targetAction && typeof journey.targetAction === "object"
+        ? journey.targetAction
+        : {};
+    const routeActionFrame = journey.routeActionFrame && typeof journey.routeActionFrame === "object"
+        ? journey.routeActionFrame
+        : {};
+    const passengerFrame = journey.passengerFrame && typeof journey.passengerFrame === "object"
+        ? journey.passengerFrame
+        : {};
+    const routeConditionFrames = getOutputJourneyRouteConditionFrames(journey);
+    container.hidden = false;
+    container.dataset.routeIds = journey.routeIds.join("|");
+    container.dataset.routeStops = (journey.routeStops || []).map((stop) => stop.key || stop.label || "").filter(Boolean).join("|");
+    container.dataset.routePathLabel = getOutputJourneyRoutePathLabel(journey);
+    container.dataset.sourceStation = journey.sourceKey || "";
+    container.dataset.destinationStation = journey.destinationKey || "";
+    container.dataset.resistanceScore = String(journey.resistanceScore || 0);
+    container.dataset.resistanceRole = journey.resistanceRole || "";
+    container.dataset.gateDomains = serializeOutputJourneyGateDomains(journey.gateDomainCounts || []);
+    container.dataset.routeConditionFrames = serializeOutputJourneyRouteConditionFrames(routeConditionFrames);
+    container.dataset.routeIfStage = routeConditionFrames[0]?.sourceKey || routeConditionFrames[0]?.ifStage?.key || "";
+    container.dataset.routeThenStage = routeConditionFrames[routeConditionFrames.length - 1]?.targetKey
+        || routeConditionFrames[routeConditionFrames.length - 1]?.thenStage?.key
+        || "";
+    container.dataset.obstacleCount = String(journey.obstacleCount || 0);
+    container.dataset.segmentCount = String(journey.segmentCount || 1);
+    container.dataset.transferCount = String(journey.transferCount || 0);
+    container.dataset.tripKind = journey.tripKind || "";
+    container.dataset.nextSourceStation = journey.nextSourceKey || journey.destinationKey || "";
+    container.dataset.nextSourceLabel = journey.nextSourceLabel || journey.destinationLabel || "";
+    container.dataset.nextSourceEntryBoard = journey.nextSourceEntryBoard || targetAction.entryBoard || "";
+    container.dataset.nextSourceUnitMode = journey.nextSourceUnitMode || targetAction.unitMode || "";
+    container.dataset.targetActionLabel = journey.targetActionLabel || targetAction.label || "";
+    container.dataset.routeActionLabel = routeActionFrame.actionLabel || "";
+    container.dataset.routeRecommendation = routeActionFrame.recommendationRole || "";
+    container.dataset.outputJourneyState = journey.outputJourneyState || "";
+    container.dataset.routeBoardModel = passengerFrame.routeBoardModel || "";
+    container.dataset.journeyModel = passengerFrame.journeyModel || "";
+    container.dataset.passengerIntention = passengerFrame.currentIntention || "";
+    container.dataset.passengerPrimaryActionLabel = passengerFrame.primaryActionLabel || "";
+    container.dataset.passengerPrimaryRouteIds = Array.isArray(passengerFrame.primaryRouteIds)
+        ? passengerFrame.primaryRouteIds.join("|")
+        : "";
+    container.dataset.passengerPrimaryNextSource = passengerFrame.primaryNextSourceStageKey || "";
+    container.dataset.passengerPrimaryRoutePathLabel = passengerFrame.primaryRoutePathLabel
+        || container.dataset.routePathLabel
+        || "";
+    container.dataset.passengerEvents = Array.isArray(passengerFrame.passengerEvents)
+        ? passengerFrame.passengerEvents.join("|")
+        : "";
+    const stationLineFrame = journey.stationLineFrame && typeof journey.stationLineFrame === "object"
+        ? journey.stationLineFrame
+        : (passengerFrame.stationLineFrame && typeof passengerFrame.stationLineFrame === "object"
+            ? passengerFrame.stationLineFrame
+            : null);
+    container.dataset.stationLineModel = stationLineFrame?.lineModel || "";
+    container.dataset.stationLineIntentMode = stationLineFrame?.intentMode || "";
+    container.dataset.stationLineActiveStop = stationLineFrame?.activeStopId || "";
+    container.dataset.stationLineRouteKey = stationLineFrame?.routeKey || "";
+    container.dataset.stationLineStops = serializeOutputJourneyStationLineStops(stationLineFrame?.stops || []);
+    const platformFrame = journey.platformFrame && typeof journey.platformFrame === "object"
+        ? journey.platformFrame
+        : null;
+    container.dataset.platformModel = platformFrame?.platformModel || "";
+    container.dataset.platformTracks = serializeOutputJourneyPlatformTracks(platformFrame?.tracks || []);
+    container.dataset.platformVisibleTrackCount = String(platformFrame?.visibleTrackCount || 0);
+    container.dataset.platformRecommendedRouteIds = Array.isArray(platformFrame?.recommendedRouteIds)
+        ? platformFrame.recommendedRouteIds.join("|")
+        : "";
+    const rideFrame = journey.rideFrame && typeof journey.rideFrame === "object"
+        ? journey.rideFrame
+        : null;
+    container.dataset.rideExperienceModel = rideFrame?.experienceModel || "";
+    container.dataset.rideOutputJourneyModel = rideFrame?.outputJourneyModel || "";
+    container.dataset.rideOperatingPrinciple = rideFrame?.operatingPrinciple || "";
+    container.dataset.rideChoiceModel = rideFrame?.choiceModel || "";
+    container.dataset.rideCurrentSignLabel = rideFrame?.currentSignLabel || "";
+    container.dataset.rideNextSignLabel = rideFrame?.nextSignLabel || "";
+    container.dataset.rideDestinationSignLabel = rideFrame?.destinationSignLabel || "";
+    container.dataset.ridePrimaryActionLabel = rideFrame?.primaryActionLabel || "";
+    container.dataset.ridePrimaryRoutePathLabel = rideFrame?.primaryRoutePathLabel || container.dataset.routePathLabel || "";
+    container.dataset.ridePrimaryClickCount = String(rideFrame?.decisionLoad?.primaryClickCount || 0);
+    container.dataset.rideSwitchingRequired = String(rideFrame?.decisionLoad?.switchingRequired === true);
+    container.dataset.rideEvents = Array.isArray(rideFrame?.passengerEvents)
+        ? rideFrame.passengerEvents.join("|")
+        : "";
+    const concourseFrame = journey.concourseFrame && typeof journey.concourseFrame === "object"
+        ? journey.concourseFrame
+        : null;
+    container.dataset.concourseModel = concourseFrame?.concourseModel || "";
+    container.dataset.concourseLineModel = concourseFrame?.lineModel || "";
+    container.dataset.concourseStops = serializeOutputJourneyConcourseStops(concourseFrame?.stops || []);
+    container.dataset.concourseNextStation = concourseFrame?.nextStationKey || "";
+    container.dataset.concourseDestinationStation = concourseFrame?.destinationKey || "";
+    container.dataset.concourseRouteKey = concourseFrame?.routeKey || "";
+    const sourceLayerFrame = journey.sourceLayerFrame && typeof journey.sourceLayerFrame === "object"
+        ? journey.sourceLayerFrame
+        : null;
+    container.dataset.sourceLayerModel = sourceLayerFrame?.layerModel || "";
+    container.dataset.sourceLayerCount = String(sourceLayerFrame?.sourceLayerCount || 0);
+    container.dataset.sourceLayers = serializeOutputJourneySourceLayers(sourceLayerFrame?.layers || []);
+    container.dataset.sourceLayerActiveStation = sourceLayerFrame?.activeSourceKey || "";
+    container.dataset.sourceLayerActiveRole = sourceLayerFrame?.activeSourceRole || "";
+    const journeyHistory = Array.isArray(journey.journeyHistory) ? journey.journeyHistory : [];
+    container.dataset.journeyHistoryLegCount = String(journeyHistory.length);
+    container.dataset.journeyHistoryLegs = serializeOutputJourneyHistoryLegs(journeyHistory);
+    container.dataset.journeyHistoryRouteIds = journeyHistory
+        .map((entry) => (Array.isArray(entry.routeIds) ? entry.routeIds.join("|") : ""))
+        .filter(Boolean)
+        .join("||");
+    container.dataset.journeyHistoryStations = journeyHistory
+        .map((entry) => [entry.sourceKey || "", entry.destinationKey || ""].filter(Boolean).join(">"))
+        .filter(Boolean)
+        .join("|");
+    container.dataset.journeyHistoryRoutePaths = journeyHistory
+        .map((entry) => getOutputJourneyRoutePathLabel(entry))
+        .filter(Boolean)
+        .join("|");
+    const label = document.createElement("span");
+    label.className = "output-journey-strip__label";
+    label.textContent = journey.outputJourneyState === "continued-as-next-source" ? "Trasbordo" : "Trayecto";
+    const main = document.createElement("span");
+    main.className = "output-journey-strip__main";
+    main.textContent = container.dataset.routePathLabel;
+    const meta = document.createElement("span");
+    meta.className = "output-journey-strip__meta";
+    meta.textContent = [
+        journey.resistanceRoleLabel || "",
+        journey.resistanceScore ? `R${journey.resistanceScore}` : "",
+        journey.segmentCount === 1 ? "1 tramo" : `${journey.segmentCount} tramos`,
+        journey.hiddenCoordinateCount ? `${journey.hiddenCoordinateCount} coords` : "",
+        journey.tripKind === "transfer" ? "trasbordo" : "",
+    ].filter(Boolean).join(" · ");
+    container.append(label, main, meta);
+    appendOutputJourneyConcourse(container, journey);
+    appendOutputJourneyItinerary(container, journey);
+    appendOutputJourneyStationLine(container, journey);
+    appendOutputJourneySourceLayers(container, journey);
+    appendOutputJourneyRouteConditions(container, routeConditionFrames);
+    appendOutputJourneyRideFrame(container, journey);
+    appendOutputJourneyPassengerFrame(container, journey);
+    appendOutputJourneyPlatform(container, journey);
+    appendOutputJourneyStopRail(container, journey.routeStops);
+    appendOutputJourneyDimensions(container, journey.gateDomainCounts);
+    appendOutputJourneyNextSource(container, journey);
+    return container;
+}
+
 function createLesson4InspectorChip(text = "", className = "") {
     const chip = document.createElement("span");
     chip.className = ["lesson4-inspector__chip", className].filter(Boolean).join(" ");
@@ -431,6 +1459,40 @@ function getVisibleCnvFormulaSurfaceDisplay(source = null) {
     return typeof getConjugationDisplaySurface === "function"
         ? getConjugationDisplaySurface(source)
         : "";
+}
+
+function buildVisibleCnvFormulaSurfaceFrame(source = null, entry = null) {
+    const path = getVisibleCnvFormulaSurfacePath(source);
+    const stationLineFrame = getActiveAndrewsStationLineFrameForRendering();
+    const routeConditionFrame = getActiveAndrewsRouteConditionFrameForRendering();
+    const sourceLayerFrame = getActiveAndrewsSourceLayerFrameForRendering();
+    const rideFrame = getActiveAndrewsRideFrameForRendering();
+    const entrySurface = String(entry?.surface || "").trim();
+    const surfaceForms = entrySurface
+        ? entrySurface.split(/\s*\/\s*/).map((item) => item.trim()).filter(Boolean)
+        : getVisibleCnvFormulaSurfaceForms(source);
+    if (!surfaceForms.length && !path) {
+        return null;
+    }
+    const obstacleGateIds = Array.isArray(path?.andrewsRouteObstacleGateIds)
+        ? path.andrewsRouteObstacleGateIds.map((item) => String(item || "").trim()).filter(Boolean)
+        : [];
+    return {
+        kind: "visible-cnv-formula-surface-frame",
+        version: 1,
+        pathModel: "surface-line-priority-formula-chip-receives",
+        sourcePriority: "surface-line",
+        formulaValue: String(entry?.value || "").trim(),
+        surfaceForms,
+        routeRecordId: String(path?.andrewsRouteRecordId || "").trim(),
+        routePathLabel: stationLineFrame?.routePathLabel || "",
+        routeObstacleGateIds: obstacleGateIds,
+        routeObstacleGateCount: obstacleGateIds.length,
+        stationLineFrame,
+        routeConditionFrame,
+        sourceLayerFrame,
+        rideFrame,
+    };
 }
 
 function normalizeGeneratedOutputVisibleCnvSlotValue(result = null, value = "") {
@@ -1279,7 +2341,8 @@ function getLetterSliceText(surface = "", startIndex = 0) {
 }
 
 const NAWAT_PATIENTIVO_BRANCH_OPTIONS = [
-    { id: "nonactive", label: "pasivo/impersonal", sourceScope: "nonactive" },
+    { id: "passive", label: "pasivo", sourceScope: "nonactive" },
+    { id: "impersonal", label: "impersonal", sourceScope: "nonactive" },
     { id: "perfectivo", label: "perfectivo", sourceScope: "active" },
     { id: "imperfectivo", label: "imperfectivo", sourceScope: "active" },
     { id: "tronco-verbal", label: "tronco verbal", sourceScope: "active" },
@@ -1446,6 +2509,29 @@ function getNawatPatientivoTenseOptionLabel(tenseValue = "", isNawat = false) {
         : normalizedTenseValue;
 }
 
+const NOMINALIZATION_SOURCE_UNITS = Object.freeze({
+    vncCoreStem: "vnc-core-stem",
+    vncPredicate: "vnc-predicate",
+});
+
+function getNominalizationSourceUnitLabel(sourceUnit = "") {
+    const normalized = String(sourceUnit || "").trim();
+    if (normalized === NOMINALIZATION_SOURCE_UNITS.vncCoreStem) {
+        return "VNC core/stem";
+    }
+    if (normalized === NOMINALIZATION_SOURCE_UNITS.vncPredicate) {
+        return "VNC predicate";
+    }
+    return normalized;
+}
+
+function appendNominalizationSourceUnitSubLabel(baseLabel = "", sourceUnit = "") {
+    return [
+        baseLabel,
+        getNominalizationSourceUnitLabel(sourceUnit),
+    ].filter(Boolean).join(" · ");
+}
+
 function getVerbDerivedNominalizationProfileLabel(map = {}, value = "", fallback = "") {
     const normalized = String(value || "").trim();
     if (!normalized) {
@@ -1514,6 +2600,13 @@ function buildVerbDerivedNominalizationProfileSubLabels(profile = null, { isNawa
     const sourceTense = String(source.sourceTense || "").trim();
     if (sourceTense) {
         labels.push(`${ANDREWS_RENDERING_TERMS.sourceVnc}: ${getNawatPatientivoTenseOptionLabel(sourceTense, isNawat)}`);
+    }
+    const sourceUnitLabel = getNominalizationSourceUnitLabel(source.sourceUnit || "");
+    if (sourceUnitLabel) {
+        labels.push(`${ANDREWS_RENDERING_TERMS.sourceVnc}: ${sourceUnitLabel}`);
+    }
+    if (profile.instrumentiveNote2Frame?.grammarSource === "Andrews 36.6 note 2") {
+        labels.push("36.6 n.2: excepciones de estado");
     }
     const patientiveFamilyLabel = getVerbDerivedNominalizationProfileLabel(
         patientiveFamilyLabels,
@@ -1876,6 +2969,69 @@ function getConjugationConversionActionsForValue(value = null) {
         || null;
 }
 
+function syncConjugationConversionSurfaceRouteFrame(surfaceText = null, actions = null) {
+    if (!surfaceText?.dataset) {
+        return null;
+    }
+    const stationLineFrame = getActiveAndrewsStationLineFrameForRendering();
+    const routeConditionFrame = getActiveAndrewsRouteConditionFrameForRendering();
+    const sourceLayerFrame = getActiveAndrewsSourceLayerFrameForRendering();
+    const rideFrame = getActiveAndrewsRideFrameForRendering();
+    const routeSource = actions?.querySelector?.("[data-andrews-route-record-id], [data-andrews-route-record-group-id]");
+    if (!routeSource?.dataset && !stationLineFrame && !routeConditionFrame && !sourceLayerFrame && !rideFrame) {
+        return null;
+    }
+    const routeRecordId = String(
+        routeSource?.dataset?.andrewsRouteRecordId
+        || routeSource?.dataset?.andrewsRouteRecordGroupId
+        || ""
+    ).trim();
+    if (routeRecordId) {
+        surfaceText.dataset.andrewsRouteRecordId = routeRecordId;
+        surfaceText.dataset.andrewsRouteRecordTransition = routeSource.dataset.andrewsRouteRecordTransition || "";
+        surfaceText.dataset.andrewsRouteObstacleGates = routeSource.dataset.andrewsRouteObstacleGates || "";
+        surfaceText.dataset.andrewsRouteObstacleGateCount = routeSource.dataset.andrewsRouteObstacleGateCount || "0";
+    }
+    surfaceText.dataset.andrewsRouteSurfacePriority = "surface-line";
+    surfaceText.dataset.andrewsRouteSurfacePathModel = routeRecordId
+        ? "surface-line-receives-route-frame"
+        : "surface-line-receives-active-route-frame";
+    applyAndrewsStationLineDatasetToSurfaceElement(surfaceText, stationLineFrame);
+    applyAndrewsRouteConditionDatasetToSurfaceElement(surfaceText, routeConditionFrame);
+    applyAndrewsSourceLayerDatasetToSurfaceElement(surfaceText, sourceLayerFrame);
+    applyAndrewsRideDatasetToSurfaceElement(surfaceText, rideFrame);
+    Array.from(surfaceText.querySelectorAll?.(".conjugation-conversion-surface-line") || []).forEach((line) => {
+        if (!line?.dataset) {
+            return;
+        }
+        if (routeRecordId) {
+            line.dataset.andrewsRouteRecordId = routeRecordId;
+        }
+        line.dataset.andrewsRouteSurfacePriority = "surface-line";
+        line.dataset.andrewsRouteSurfacePathModel = routeRecordId
+            ? "surface-line-receives-route-frame"
+            : "surface-line-receives-active-route-frame";
+        applyAndrewsStationLineDatasetToSurfaceElement(line, stationLineFrame);
+        applyAndrewsRouteConditionDatasetToSurfaceElement(line, routeConditionFrame);
+        applyAndrewsSourceLayerDatasetToSurfaceElement(line, sourceLayerFrame);
+        applyAndrewsRideDatasetToSurfaceElement(line, rideFrame);
+    });
+    return routeRecordId || stationLineFrame?.routePathLabel || rideFrame?.primaryRoutePathLabel || "";
+}
+
+function syncConjugationConversionSurfaceRouteFrameFromActions(actions = null) {
+    if (!actions) {
+        return null;
+    }
+    const column = actions.closest?.(".conjugation-conversion-target-column");
+    const value = actions.closest?.(".conjugation-value--conversion-picker");
+    const surfaceText = column?.querySelector?.(".conjugation-conversion-surface")
+        || value?.querySelector?.(".conjugation-conversion-surface")
+        || actions.parentElement?.querySelector?.(".conjugation-conversion-surface")
+        || null;
+    return syncConjugationConversionSurfaceRouteFrame(surfaceText, actions);
+}
+
 function applyConjugationConversionColumnLayout(value = null, surfaceText = null, actions = null) {
     if (!value || !surfaceText || !actions) {
         return;
@@ -1914,6 +3070,7 @@ function applyConjugationConversionColumnLayout(value = null, surfaceText = null
     if (actions.parentElement !== continuationColumn) {
         continuationColumn.appendChild(actions);
     }
+    syncConjugationConversionSurfaceRouteFrame(surfaceText, actions);
 }
 
 function resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta(routeRecordId = "") {
@@ -2198,9 +3355,11 @@ function appendContinuationAction(actions = null, action = null) {
     const group = getOrCreateContinuationActionGroup(actions, meta);
     if (!group) {
         actions.appendChild(action);
+        syncConjugationConversionSurfaceRouteFrameFromActions(actions);
         return action;
     }
     group.appendChild(action);
+    syncConjugationConversionSurfaceRouteFrameFromActions(actions);
     return action;
 }
 
@@ -2915,39 +4074,56 @@ function renderDenominalAndrewsContractRouteContinuationForValue({
 
 function getVerbToNominalContinuationSpecsForTense(tenseValue = "") {
     const sourceTense = String(tenseValue || "").trim();
+    const predicateSourceUnit = NOMINALIZATION_SOURCE_UNITS.vncPredicate;
+    const predicateNominalSpec = {
+        targetTense: "predicado-nominal",
+        subLabel: "S predicado nominal",
+        sourceUnit: predicateSourceUnit,
+        predicateNominalSourceTense: sourceTense,
+    };
     const specsBySourceTense = {
         presente: [
-            { targetTense: "agentivo-presente", subLabel: "S agentivo presente" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-presente", subLabel: "S agentivo presente", sourceUnit: predicateSourceUnit },
         ],
         "presente-habitual": [
-            { targetTense: "agentivo", subLabel: "S agentivo habitual" },
-            { targetTense: "instrumentivo", subLabel: "S instrumentivo" },
+            predicateNominalSpec,
+            { targetTense: "agentivo", subLabel: "S agentivo habitual", sourceUnit: predicateSourceUnit },
+            { targetTense: "instrumentivo", subLabel: "S instrumentivo", sourceUnit: predicateSourceUnit },
         ],
         preterito: [
-            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito", sourceUnit: predicateSourceUnit },
         ],
         perfecto: [
-            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito", sourceUnit: predicateSourceUnit },
         ],
         pluscuamperfecto: [
-            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito", sourceUnit: predicateSourceUnit },
         ],
         "condicional-perfecto": [
-            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-preterito", subLabel: "S agentivo pretérito", sourceUnit: predicateSourceUnit },
         ],
         futuro: [
-            { targetTense: "agentivo-futuro", subLabel: "S agentivo futuro" },
-            { targetTense: "sustantivo-verbal", subLabel: "S acción" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-futuro", subLabel: "S agentivo futuro", sourceUnit: predicateSourceUnit },
+            { targetTense: "sustantivo-verbal", subLabel: "S acción", sourceUnit: predicateSourceUnit },
         ],
         condicional: [
-            { targetTense: "agentivo-futuro", subLabel: "S agentivo futuro" },
-            { targetTense: "sustantivo-verbal", subLabel: "S acción" },
+            predicateNominalSpec,
+            { targetTense: "agentivo-futuro", subLabel: "S agentivo futuro", sourceUnit: predicateSourceUnit },
+            { targetTense: "sustantivo-verbal", subLabel: "S acción", sourceUnit: predicateSourceUnit },
         ],
         imperfecto: [
-            { targetTense: "locativo-temporal", subLabel: "S locativo/temporal" },
+            predicateNominalSpec,
+            { targetTense: "locativo-temporal", subLabel: "S locativo/temporal", sourceUnit: predicateSourceUnit },
         ],
         "pasado-remoto": [
-            { targetTense: "calificativo-instrumentivo", subLabel: "S calificativo" },
+            predicateNominalSpec,
+            { targetTense: "calificativo-instrumentivo", subLabel: "S calificativo", sourceUnit: predicateSourceUnit },
         ],
     };
     return specsBySourceTense[sourceTense] || [];
@@ -3851,6 +5027,7 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
             value: normalizedValue,
             title: normalizeGeneratedOutputSlotChipValue(options.title || "", ""),
             detail: normalizeGeneratedOutputSlotChipValue(options.detail || options.title || "", ""),
+            surfaceFrame: options.surfaceFrame && typeof options.surfaceFrame === "object" ? options.surfaceFrame : null,
         });
     };
     const shell = result.nuclearClauseShell && typeof result.nuclearClauseShell === "object"
@@ -3871,14 +5048,20 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
     );
     if (includeFormula && formulaEcho && formulaType === "VNC") {
         buildVisibleCnvFormulaEchoChips(formulaEcho, result).forEach((entry) => {
+            const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, entry);
+            const routePathLabel = String(surfaceFrame?.routePathLabel || "").trim();
+            const title = [
+                `${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value}`,
+                entry.surface ? `salida: ${entry.surface}` : "",
+                routePathLabel ? `ruta: ${routePathLabel}` : "",
+            ].filter(Boolean).join(" · ");
             pushChip(
                 "formula",
                 ANDREWS_RENDERING_TERMS.vncFormula,
                 entry.value,
                 {
-                    title: entry.surface
-                        ? `${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value} · salida: ${entry.surface}`
-                        : `${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value}`,
+                    title,
+                    surfaceFrame,
                 }
             );
         });
@@ -3937,10 +5120,16 @@ function buildGeneratedOutputSlotChips(result = null, { includeFormula = true } 
             buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot)
         );
         const surfaceForms = getGeneratedOutputVisibleSurfaceForms(result);
+        const surfaceDisplay = surfaceForms.join(" / ");
+        const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, {
+            surface: surfaceDisplay,
+            value: visibleFormulaEcho,
+        });
         pushChip(
             "surface",
             ANDREWS_RENDERING_TERMS.surfaceOutput,
-            surfaceForms.join(" / ")
+            surfaceDisplay,
+            { surfaceFrame }
         );
     } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
@@ -4186,6 +5375,27 @@ function renderGeneratedOutputSlotChips(container = null, result = null, options
     chips.forEach((chip) => {
         const chipEl = document.createElement("span");
         chipEl.className = `person-sub__slot-chip person-sub__slot-chip--${chip.kind}`;
+        const surfaceFrame = chip.surfaceFrame && typeof chip.surfaceFrame === "object"
+            ? chip.surfaceFrame
+            : null;
+        if (surfaceFrame) {
+            chipEl.dataset.surfaceFrameKind = surfaceFrame.kind || "";
+            chipEl.dataset.surfacePathModel = surfaceFrame.pathModel || "";
+            chipEl.dataset.surfacePriority = surfaceFrame.sourcePriority || "";
+            chipEl.dataset.surfaceForms = Array.isArray(surfaceFrame.surfaceForms)
+                ? surfaceFrame.surfaceForms.join("|")
+                : "";
+            chipEl.dataset.andrewsRouteRecordId = surfaceFrame.routeRecordId || "";
+            chipEl.dataset.andrewsRouteObstacleGates = Array.isArray(surfaceFrame.routeObstacleGateIds)
+                ? surfaceFrame.routeObstacleGateIds.join("|")
+                : "";
+            chipEl.dataset.andrewsRouteObstacleGateCount = String(surfaceFrame.routeObstacleGateCount || 0);
+            chipEl.dataset.surfaceRoutePathLabel = surfaceFrame.routePathLabel || "";
+            applyAndrewsStationLineDatasetToSurfaceElement(chipEl, surfaceFrame.stationLineFrame);
+            applyAndrewsRouteConditionDatasetToSurfaceElement(chipEl, surfaceFrame.routeConditionFrame);
+            applyAndrewsSourceLayerDatasetToSurfaceElement(chipEl, surfaceFrame.sourceLayerFrame);
+            applyAndrewsRideDatasetToSurfaceElement(chipEl, surfaceFrame.rideFrame);
+        }
         if (chip.title) {
             chipEl.title = chip.title;
             chipEl.setAttribute("aria-label", chip.title);
@@ -4374,10 +5584,16 @@ function attachUiRouteControlGrammarContract(record = null, {
 
 function getPatientivoRouteControlAndrewsRefs(patientivoSource = "") {
     const source = String(patientivoSource || "").trim();
-    if (source === "nonactive") {
+    if (source === "passive") {
+        return ["Andrews Lesson 37"];
+    }
+    if (source === "impersonal" || source === "nonactive") {
         return ["Andrews Lesson 38"];
     }
     if (source === "perfectivo" || source === "imperfectivo") {
+        return ["Andrews Lesson 39"];
+    }
+    if (source === "tronco-verbal") {
         return ["Andrews Lesson 39"];
     }
     return ["Andrews Lessons 38-39"];
@@ -7070,12 +8286,19 @@ function renderOrdinaryNncConjugations({
     list.appendChild(row);
 }
 
-function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense = null }) {
+function renderActiveConjugations({
+    verb,
+    objectPrefix,
+    onlyTense = null,
+    tense = null,
+    predicateNominalSourceTense = "",
+}) {
     let renderVerb = resolveRenderableVerbValue(verb);
     let renderObjectPrefix = objectPrefix;
     const tenseOverride = onlyTense || tense || "";
     const selectionState = getCurrentResolvedConjugationSelectionState();
     const activeTenseMode = getActiveTenseMode();
+    renderOutputJourneyStrip();
     const selectedFunctionTense = selectionState.tenseValue || tenseOverride || "";
     const activeFormalTenseMode = typeof getActiveNawatTenseModeForCurrentSelection === "function"
         ? getActiveNawatTenseModeForCurrentSelection()
@@ -7177,7 +8400,12 @@ function renderActiveConjugations({ verb, objectPrefix, onlyTense = null, tense 
         if (isFormalCnnAdjectivalTense) {
             renderAdjectiveConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
         } else {
-            renderNounConjugations({ verb: renderVerb, containerId: "all-tense-conjugations", tenseValue: tenseOverride || null });
+            renderNounConjugations({
+                verb: renderVerb,
+                containerId: "all-tense-conjugations",
+                tenseValue: tenseOverride || null,
+                predicateNominalSourceTense,
+            });
         }
         updateCalcSummaryAndStatus();
         return;
@@ -8199,6 +9427,7 @@ function buildVerbTenseBlock({
         ].join(" ");
         continueButton.dataset.verbPatientivoContinuation = "true";
         continueButton.dataset.nawatRouteKey = routeKey;
+        continueButton.dataset.nominalizationSourceUnit = NOMINALIZATION_SOURCE_UNITS.vncCoreStem;
         const routeControlContract = attachUiRouteControlGrammarContract({
             outputKind: "verb-to-patientivo-row-continuation-control",
             supported: true,
@@ -8225,6 +9454,7 @@ function buildVerbTenseBlock({
             targetSurface: patientivoSurface,
             sourceContract: {
                 unitKind: "vnc",
+                sourceUnit: NOMINALIZATION_SOURCE_UNITS.vncCoreStem,
                 sourceMode: TENSE_MODE.verbo,
                 sourceTenseValue: tenseValue,
                 sourceCombinedMode: COMBINED_MODE.active,
@@ -8259,7 +9489,10 @@ function buildVerbTenseBlock({
         continueButton.appendChild(continueLabel);
         const continueSubLabel = document.createElement("span");
         continueSubLabel.className = "calc-guidance__chip-sublabel";
-        continueSubLabel.textContent = "S patientivo";
+        continueSubLabel.textContent = appendNominalizationSourceUnitSubLabel(
+            "S patientivo",
+            NOMINALIZATION_SOURCE_UNITS.vncCoreStem
+        );
         continueButton.appendChild(continueSubLabel);
         continueButton.addEventListener("click", () => {
             activateNawatRouteStation(routeKey, "target-mode", {
@@ -8311,19 +9544,22 @@ function buildVerbTenseBlock({
             const nominalDerivationMode = typeof getNominalDerivationModeForTense === "function"
                 ? getNominalDerivationModeForTense(targetTense)
                 : DERIVATION_MODE.active;
+            const isPredicateNominalTarget = isPredicateNominalTense(targetTense);
+            const predicateNominalSourceTense = String(spec.predicateNominalSourceTense || "").trim();
             const preview = getCachedSilentGenerateWord({
                 silent: true,
                 skipValidation: true,
                 override: {
                     tenseMode: TENSE_MODE.sustantivo,
                     derivationMode: nominalDerivationMode,
+                    ...(predicateNominalSourceTense ? { predicateNominalSourceTense } : {}),
                 },
                 posicionesFormula: {
                     pers1: "",
                     obj1: sourceObjectPrefix,
                     tronco: verb,
-                    pers2: "",
-                    num2: "",
+                    pers2: isPredicateNominalTarget ? "t" : "",
+                    num2: isPredicateNominalTarget ? "t" : "",
                     poseedor: "",
                     tiempo: targetTense,
                 },
@@ -8338,6 +9574,7 @@ function buildVerbTenseBlock({
                 return;
             }
             seenSurfaces.add(`${targetTense}|${previewSurface}`);
+            const sourceUnit = String(spec.sourceUnit || NOMINALIZATION_SOURCE_UNITS.vncPredicate);
             const continueButton = document.createElement("button");
             continueButton.type = "button";
             continueButton.className = [
@@ -8350,6 +9587,8 @@ function buildVerbTenseBlock({
             continueButton.dataset.targetMode = "sustantivo";
             continueButton.dataset.targetTense = targetTense;
             continueButton.dataset.targetSurface = previewSurface;
+            continueButton.dataset.nominalizationSourceUnit = sourceUnit;
+            continueButton.dataset.predicateNominalSourceTense = predicateNominalSourceTense;
             applyGrammarFrameRouteDataset(continueButton, preview);
             const continueLabel = document.createElement("span");
             continueLabel.className = "calc-guidance__chip-label";
@@ -8357,10 +9596,14 @@ function buildVerbTenseBlock({
             continueButton.appendChild(continueLabel);
             const continueSubLabel = document.createElement("span");
             continueSubLabel.className = "calc-guidance__chip-sublabel";
-            continueSubLabel.textContent = spec.subLabel || "S nominal";
+            continueSubLabel.textContent = appendNominalizationSourceUnitSubLabel(
+                spec.subLabel || "S nominal",
+                sourceUnit
+            );
             continueButton.appendChild(continueSubLabel);
             continueButton.title = [
                 `V ${tenseValue}: ${sourceDisplay}`,
+                `nominalización: ${getNominalizationSourceUnitLabel(sourceUnit)}`,
                 `S ${targetTense}: ${previewSurface}`,
             ].filter(Boolean).join("; ");
             continueButton.addEventListener("click", () => {
@@ -8370,6 +9613,7 @@ function buildVerbTenseBlock({
                     verb,
                     objectPrefix: sourceObjectPrefix,
                     tense: targetTense,
+                    predicateNominalSourceTense,
                 });
             });
             appendContinuationAction(actions, continueButton);
@@ -10520,6 +11764,7 @@ function buildNounTabRenderContext({
     verb,
     containerId = "all-tense-conjugations",
     tenseValue = "",
+    predicateNominalSourceTense = "",
     modeKey = "noun",
 }) {
     const container = document.getElementById(containerId);
@@ -10683,6 +11928,7 @@ function buildNounTabRenderContext({
         combinedMode,
         modeFilter,
         resolvedTense,
+        predicateNominalSourceTense,
         isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
@@ -10723,9 +11969,16 @@ function renderNounConjugations({
     verb,
     containerId = "all-tense-conjugations",
     tenseValue = "",
+    predicateNominalSourceTense = "",
     modeKey = "noun",
 }) {
-    const context = buildNounTabRenderContext({ verb, containerId, tenseValue, modeKey });
+    const context = buildNounTabRenderContext({
+        verb,
+        containerId,
+        tenseValue,
+        predicateNominalSourceTense,
+        modeKey,
+    });
     if (!context) {
         return;
     }
@@ -10743,6 +11996,7 @@ function renderNounConjugations({
         combinedMode,
         modeFilter,
         resolvedTense,
+        predicateNominalSourceTense: contextPredicateNominalSourceTense,
         isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
@@ -10785,6 +12039,28 @@ function renderNounConjugations({
         resolvedTense,
         modeFilter || combinedMode,
     );
+    const isPredicateNominalTenseSelected = isPredicateNominalTense(resolvedTense);
+    const predicateNominalSourceTenseKey = `${modeKey}|${resolvedTense}|predicate-source-tense`;
+    const storedPredicateNominalSourceTense = isPredicateNominalTenseSelected
+        ? getToggleStateValue(ObjectToggleState, predicateNominalSourceTenseKey)
+        : "";
+    let activePredicateNominalSourceTense = isPredicateNominalTenseSelected
+        ? normalizePredicateNominalSourceTense(
+            storedPredicateNominalSourceTense
+            || contextPredicateNominalSourceTense
+            || getPredicateNominalSourceTenseForTarget(resolvedTense)
+        )
+        : "";
+    if (isPredicateNominalTenseSelected) {
+        setToggleStateValue(ObjectToggleState, predicateNominalSourceTenseKey, activePredicateNominalSourceTense, {
+            syncLock: false,
+        });
+    }
+    const getPredicateNominalSourceTenseLabel = (sourceTense = activePredicateNominalSourceTense) => {
+        const normalizedSourceTense = normalizePredicateNominalSourceTense(sourceTense);
+        return getLocalizedLabel(TENSE_LABELS[normalizedSourceTense], isNawat, normalizedSourceTense);
+    };
+    const resolvedPredicateNominalSourceTense = String(activePredicateNominalSourceTense || "").trim();
 
     const { objSection, grid } = createObjectSectionGrid(container);
     const sourceColumns = modeFilter == null ? createSourceModeColumns(grid, isNawat) : null;
@@ -10799,6 +12075,7 @@ function renderNounConjugations({
     const ownershipToggleLabel = getToggleLabel("ownership", isNawat, "posesion");
     const objectToggleLabel = getToggleLabel("object", isNawat, "objeto");
     const suffixToggleLabel = getToggleLabel("suffix", isNawat, "Sufijo");
+    const sourceTenseToggleLabel = getToggleLabel("source-tense", isNawat, "tiempo fuente");
     const buildNominalNum1Num2SubLabel = ({
         evaluation = null,
         selection = null,
@@ -10829,7 +12106,8 @@ function renderNounConjugations({
         || showPossessorToggle
         || showOwnershipToggle
         || showPatientivoNominalSuffixToggle
-        || showObjectToggle;
+        || showObjectToggle
+        || isPredicateNominalTenseSelected;
     const useSharedPatientivoControls = isPatientivoTense && hasNounControls;
     const defaultNominalSourceMode = getNominalSourceModeForTense(resolvedTense);
     const getPossessorSelectionsForId = (possessorId = activePossessor) => {
@@ -10864,14 +12142,45 @@ function renderNounConjugations({
         isNawat,
         "pretérito perfecto simple"
     );
+    const predicateNominalBlockConfigs = isPredicateNominalTenseSelected
+        ? [
+            {
+                id: `${resolvedTense}-active-source`,
+                label: getVerbBlockLabel("predicado-nominal-activo", isNawat, "predicado nominal · activo"),
+                sourceMode: COMBINED_MODE.active,
+                sourceTenseLabel: getPredicateNominalSourceTenseLabel(),
+                mode: COMBINED_MODE.active,
+                predicateNominalSourceMode: COMBINED_MODE.active,
+                showControls: true,
+            },
+            {
+                id: `${resolvedTense}-passive-source`,
+                label: getVerbBlockLabel("predicado-nominal-pasivo", isNawat, "predicado nominal · pasivo"),
+                sourceMode: COMBINED_MODE.nonactive,
+                sourceTenseLabel: getPredicateNominalSourceTenseLabel(),
+                mode: COMBINED_MODE.nonactive,
+                predicateNominalSourceMode: COMBINED_MODE.nonactive,
+                showControls: true,
+            },
+        ]
+        : null;
     const blockConfigs = isPatientivoTense
         ? [
             {
                 id: "patientivo-pasivo",
-                label: getVerbBlockLabel("patientivo-pasivo", isNawat, "patientivo · pasivo/impersonal"),
-                patientivoSource: "nonactive",
+                label: getVerbBlockLabel("patientivo-pasivo", isNawat, "patientivo · pasivo"),
+                patientivoSource: "passive",
                 sourceMode: COMBINED_MODE.nonactive,
-                sourceTenseLabel: patientivoDefaultSourceTenseLabel,
+                sourceTenseLabel: patientivoPerfectiveSourceTenseLabel,
+                mode: COMBINED_MODE.nonactive,
+                showControls: false,
+            },
+            {
+                id: "patientivo-impersonal",
+                label: getVerbBlockLabel("patientivo-impersonal", isNawat, "patientivo · impersonal"),
+                patientivoSource: "impersonal",
+                sourceMode: COMBINED_MODE.nonactive,
+                sourceTenseLabel: patientivoPerfectiveSourceTenseLabel,
                 mode: COMBINED_MODE.nonactive,
                 showControls: false,
             },
@@ -10906,17 +12215,18 @@ function renderNounConjugations({
                 showControls: false,
             },
         ]
-        : [
+        : (predicateNominalBlockConfigs || [
             {
                 id: resolvedTense,
                 label: tenseLabel,
-                patientivoSource: "nonactive",
                 sourceMode: resolveInstrumentivoSourcePlacement(),
-                sourceTenseLabel: getNominalSourceTenseLabel(resolvedTense, { isNawat }),
+                sourceTenseLabel: isPredicateNominalTenseSelected
+                    ? getPredicateNominalSourceTenseLabel()
+                    : getNominalSourceTenseLabel(resolvedTense, { isNawat }),
                 mode: resolvedNounBlockMode,
                 showControls: true,
             },
-        ];
+        ]);
     const visibleBlockConfigs = blockConfigs.filter((entry) =>
         modeFilter == null || !entry.mode || entry.mode === modeFilter
     );
@@ -10924,6 +12234,7 @@ function renderNounConjugations({
     let possessorButtons = new Map();
     let ownershipButtons = new Map();
     let patientivoNominalSuffixButtons = new Map();
+    let predicateNominalSourceTenseButtons = new Map();
     let subjectButtons = new Map();
     const blocks = [];
     const resolveNounBlockPaletteSignature = () => {
@@ -10948,7 +12259,11 @@ function renderNounConjugations({
         patientivoSource === "perfectivo" ? "preterito" : "presente"
     );
     const getPatientivoSourceCombinedModeForBranch = (patientivoSource = "") => (
-        patientivoSource === "nonactive" ? COMBINED_MODE.nonactive : COMBINED_MODE.active
+        typeof isNawatPatientivoNonactiveSource === "function"
+            ? (isNawatPatientivoNonactiveSource(patientivoSource) ? COMBINED_MODE.nonactive : COMBINED_MODE.active)
+            : (patientivoSource === "nonactive" || patientivoSource === "passive" || patientivoSource === "impersonal"
+                ? COMBINED_MODE.nonactive
+                : COMBINED_MODE.active)
     );
     const getPatientivoBlockActiveRoute = (patientivoSource = "") => {
         const activeRoute = typeof getActiveNawatRouteProfile === "function"
@@ -11048,7 +12363,9 @@ function renderNounConjugations({
         return sourceSurface && sourceSurface !== "—" ? sourceSurface : "";
     };
     const resolvePatientivoOriginSourceObjectPrefix = (patientivoSource = "") => {
-        const isActiveSource = patientivoSource !== "nonactive";
+        const isActiveSource = typeof isNawatPatientivoNonactiveSource === "function"
+            ? !isNawatPatientivoNonactiveSource(patientivoSource)
+            : !(patientivoSource === "nonactive" || patientivoSource === "passive" || patientivoSource === "impersonal");
         const isTransitiveSource = Number(getBaseObjectSlots(verbMeta)) > 0;
         const selectedObjectPrefix = activeObjectPrefix === OBJECT_TOGGLE_ALL
             ? ""
@@ -11066,9 +12383,6 @@ function renderNounConjugations({
         const sourceObjectPrefix = resolvePatientivoOriginSourceObjectPrefix(patientivoSource);
         const sourceTenseValue = getPatientivoBlockSourceTenseValue(patientivoSource);
         const sourceCombinedMode = getPatientivoBlockSourceCombinedMode(patientivoSource);
-        const sourceTenseLabel = sourceTenseValue && typeof getLocalizedLabel === "function"
-            ? getLocalizedLabel(TENSE_LABELS[sourceTenseValue], isNawat, sourceTenseValue)
-            : sourceTenseValue;
         const sourceSurface = getDirectPatientivoSourceSurface({
             patientivoSource,
             objectPrefix: sourceObjectPrefix,
@@ -11079,7 +12393,11 @@ function renderNounConjugations({
             return "";
         }
         const sourceClassLabel = getNawatPatientivoBranchClassLabel(patientivoSource);
-        const sourceLabel = ["V", sourceClassLabel, sourceTenseLabel].filter(Boolean).join(" · ");
+        const sourceLabel = [
+            "V",
+            sourceClassLabel,
+            getNominalizationSourceUnitLabel(NOMINALIZATION_SOURCE_UNITS.vncCoreStem),
+        ].filter(Boolean).join(" · ");
         return `origen: ${sourceLabel}: ${sourceSurface}`;
     };
     const getPatientivoBlockSourceTenseOptions = (patientivoSource = "") => {
@@ -12910,6 +14228,9 @@ function renderNounConjugations({
         const contracts = matrixInventory.map((matrixSpec) => buildPatientivoNominalCompoundContinuationContract({
             patientivoSurface,
             sourceSurface: "",
+            patientivoSource,
+            sourceTenseValue: getPatientivoBlockSourceTenseValue(patientivoSource),
+            sourceCombinedMode: getPatientivoBlockSourceCombinedMode(patientivoSource),
             sourceFormulaSlots,
             sourceFormulaEcho,
             patientivoNominalSuffix: activePatientivoNominalSuffix,
@@ -13499,6 +14820,9 @@ function renderNounConjugations({
         const contracts = matrixInventory.map((matrixSpec) => buildPatientivoCompoundEmbedContinuationContract({
             patientivoSurface,
             sourceSurface: "",
+            patientivoSource,
+            sourceTenseValue: getPatientivoBlockSourceTenseValue(patientivoSource),
+            sourceCombinedMode: getPatientivoBlockSourceCombinedMode(patientivoSource),
             sourceFormulaSlots,
             sourceFormulaEcho,
             patientivoNominalSuffix: activePatientivoNominalSuffix,
@@ -14148,9 +15472,9 @@ function renderNounConjugations({
             return [null];
         }
         const sources = visibleBlockConfigs
-            .map((entry) => entry.patientivoSource || "nonactive")
+            .map((entry) => entry.patientivoSource || "")
             .filter(Boolean);
-        return Array.from(new Set(sources.length ? sources : ["nonactive"]));
+        return Array.from(new Set(sources));
     })();
     const nounCombinationEvaluationCache = new Map();
     let nounToggleAvailabilityMemo = new Map();
@@ -14316,12 +15640,14 @@ function renderNounConjugations({
         patientivoNominalSuffix = activePatientivoNominalSuffix,
         instrumentivoMode = "",
         actionNounStemUse = "",
+        predicateNominalSourceMode = "",
         useReduplicatedSingularSurface = false,
     }) => {
         const isAgentivo = resolvedTense === "agentivo";
         const isPatientivo = resolvedTense === "patientivo";
+        const isPredicateNominal = isPredicateNominalTense(resolvedTense);
         const resolvedPatientivoSource = isPatientivo
-            ? (patientivoSource || "nonactive")
+            ? (patientivoSource || getActiveNawatPatientivoBranch())
             : null;
         const resolvedPatientivoSourceTenseValue = isPatientivo
             ? getPatientivoBlockSourceTenseValue(resolvedPatientivoSource)
@@ -14364,6 +15690,8 @@ function renderNounConjugations({
             resolvedNominalControlCombinedMode || "",
             instrumentivoMode || "",
             actionNounStemUse || "",
+            resolvedPredicateNominalSourceTense || "",
+            predicateNominalSourceMode || "",
             useReduplicatedSingularSurface ? "redup" : "plain",
         ].join("|");
         const cached = nounCombinationEvaluationCache.get(cacheKey);
@@ -14375,6 +15703,9 @@ function renderNounConjugations({
         const isAdjectiveMode = getActiveTenseMode() === TENSE_MODE.adjetivo;
         if (isAdjectiveMode) {
             subjectSuffixOverride = selection?.subjectSuffix || "";
+        }
+        if (isPredicateNominal) {
+            subjectSuffixOverride = "t";
         }
         if ((isAgentivo || isPatientivo) && number === "plural") {
             subjectSuffixOverride = isPossessed ? "p" : "t";
@@ -14412,14 +15743,23 @@ function renderNounConjugations({
                 }) || {};
             } else {
                 const nominalDerivationMode = getNominalDerivationModeForTense(tenseValue);
+                const predicateNominalDerivationMode = (
+                    isPredicateNominal
+                    && predicateNominalSourceMode === COMBINED_MODE.nonactive
+                )
+                    ? DERIVATION_MODE.nonactive
+                    : nominalDerivationMode;
                 result = getCachedSilentGenerateWord({
                     silent: true,
                     skipValidation: true,
                     override: {
-                        derivationMode: nominalDerivationMode,
+                        derivationMode: predicateNominalDerivationMode,
                         patientivoOwnership: resolvedPatientivoOwnership,
                         patientivoSource: resolvedPatientivoSource,
                         patientivoNominalSuffix: resolvedPatientivoNominalSuffix,
+                        ...(resolvedPredicateNominalSourceTense
+                            ? { predicateNominalSourceTense: resolvedPredicateNominalSourceTense }
+                            : {}),
                     },
                     posicionesFormula: {
                         pers1: selection.subjectPrefix,
@@ -14627,29 +15967,43 @@ function renderNounConjugations({
         ) {
             return;
         }
+        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
+        const actionsToRender = [];
         const possessivePrefix = resolveInstrumentivoPossessorPrefixFromSourceSubject(
             selection?.subjectPrefix || "",
             selection?.subjectSuffix || ""
         );
-        if (!possessivePrefix) {
-            return;
+        if (possessivePrefix) {
+            const possessiveEvaluation = evaluateNounCombinationState({
+                selection,
+                number,
+                possessorPrefix: "",
+                objectPrefix,
+                indirectObjectMarker,
+                thirdObjectMarker,
+                instrumentivoMode: INSTRUMENTIVO_MODE.posesivo,
+            });
+            const possessiveTargetSurface = getPrimaryConjugationSurface(possessiveEvaluation?.result);
+            if (
+                !possessiveEvaluation?.shouldMaskRow
+                && possessiveTargetSurface
+                && possessiveTargetSurface !== currentSurface
+            ) {
+                actionsToRender.push({
+                    datasetFlag: "instrumentivoSourceSubjectPossessor",
+                    datasetValue: possessivePrefix,
+                    targetSurface: possessiveTargetSurface,
+                    evaluation: possessiveEvaluation,
+                    title: [
+                        "Andrews 36.6: sujeto fuente → poseedor",
+                        `poseedor: ${possessivePrefix}`,
+                        `salida posesiva: ${possessiveTargetSurface}`,
+                    ].join("; "),
+                    subLabel: "sujeto fuente → poseedor",
+                });
+            }
         }
-        const possessiveEvaluation = evaluateNounCombinationState({
-            selection,
-            number,
-            possessorPrefix: "",
-            objectPrefix,
-            indirectObjectMarker,
-            thirdObjectMarker,
-            instrumentivoMode: INSTRUMENTIVO_MODE.posesivo,
-        });
-        const possessiveTargetSurface = getPrimaryConjugationSurface(possessiveEvaluation?.result);
-        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
-        if (
-            possessiveEvaluation?.shouldMaskRow
-            || !possessiveTargetSurface
-            || possessiveTargetSurface === currentSurface
-        ) {
+        if (!actionsToRender.length) {
             return;
         }
         const forms = getConjugationSurfaceForms(evaluation?.result);
@@ -14672,27 +16026,29 @@ function renderNounConjugations({
                 surfaceText.appendChild(lineElement);
             });
         const actions = createConjugationConversionActionsContainer();
-        const action = document.createElement("button");
-        action.type = "button";
-        action.className = [
-            "calc-guidance__chip",
-            "calc-guidance__chip--button",
-            "calc-guidance__chip--linked-promote",
-            "calc-guidance__chip--mode-sustantivo",
-        ].join(" ");
-        action.dataset.instrumentivoSourceSubjectPossessor = possessivePrefix;
-        action.dataset.targetSurface = possessiveTargetSurface;
-        applyGrammarFrameRouteDataset(action, possessiveEvaluation.result);
-        const label = document.createElement("span");
-        label.className = "calc-guidance__chip-label";
-        label.textContent = `→ ${possessiveTargetSurface}`;
-        action.appendChild(label);
-        action.title = [
-            "Andrews 36.6: sujeto fuente → poseedor",
-            `poseedor: ${possessivePrefix}`,
-            `salida posesiva: ${possessiveTargetSurface}`,
-        ].join("; ");
-        appendContinuationAction(actions, action);
+        actionsToRender.forEach((entry) => {
+            const action = document.createElement("button");
+            action.type = "button";
+            action.className = [
+                "calc-guidance__chip",
+                "calc-guidance__chip--button",
+                "calc-guidance__chip--linked-promote",
+                "calc-guidance__chip--mode-sustantivo",
+            ].join(" ");
+            action.dataset[entry.datasetFlag] = entry.datasetValue;
+            action.dataset.targetSurface = entry.targetSurface;
+            applyGrammarFrameRouteDataset(action, entry.evaluation.result);
+            const label = document.createElement("span");
+            label.className = "calc-guidance__chip-label";
+            label.textContent = `→ ${entry.targetSurface}`;
+            action.appendChild(label);
+            const subLabel = document.createElement("span");
+            subLabel.className = "calc-guidance__chip-sublabel";
+            subLabel.textContent = entry.subLabel;
+            action.appendChild(subLabel);
+            action.title = entry.title;
+            appendContinuationAction(actions, action);
+        });
         value.append(surfaceText, actions);
         applyConjugationConversionColumnLayout(value, surfaceText, actions);
     };
@@ -14858,6 +16214,7 @@ function renderNounConjugations({
         possessorButtons = new Map();
         ownershipButtons = new Map();
         patientivoNominalSuffixButtons = new Map();
+        predicateNominalSourceTenseButtons = new Map();
         subjectButtons = new Map();
         nounObjectToggleButtonsById.clear();
         if (showSubjectToggle) {
@@ -14963,6 +16320,30 @@ function renderNounConjugations({
             patientivoNominalSuffixButtons = buttons;
             titleControls.appendChild(patientivoNominalSuffixToggle);
         }
+        if (isPredicateNominalTenseSelected) {
+            const sourceTenseOptions = getPredicateNominalSourceTenses().map((tenseValue) => ({
+                id: tenseValue,
+                label: getLocalizedLabel(TENSE_LABELS[tenseValue], isNawat, tenseValue),
+                title: `VNC predicate source: ${tenseValue}`,
+            }));
+            const { toggle: predicateSourceTenseToggle, buttons } = buildToggleControl({
+                options: sourceTenseOptions,
+                activeId: activePredicateNominalSourceTense,
+                ariaLabel: sourceTenseToggleLabel,
+                visibleLabel: sourceTenseToggleLabel,
+                onSelect: (id) => {
+                    setActivePredicateNominalSourceTense(id);
+                },
+                getTitle: (entry) => entry.title,
+                getActiveId: () => activePredicateNominalSourceTense,
+                stacked: false,
+                toggleClassName: "object-toggle--predicate-source-tense",
+            });
+            predicateSourceTenseToggle.dataset.toggleType = "meta";
+            predicateSourceTenseToggle.dataset.toggleSlot = "predicate-source-tense";
+            predicateNominalSourceTenseButtons = buttons;
+            titleControls.appendChild(predicateSourceTenseToggle);
+        }
         if (showObjectToggle) {
             mutableNounObjectSlots.forEach((slotState, index) => {
                 if (!slotState.showToggle) {
@@ -15027,6 +16408,7 @@ function renderNounConjugations({
         patientivoSource,
         sourceMode = defaultNominalSourceMode,
         sourceTenseLabel = "",
+        predicateNominalSourceMode = "",
         showControls,
     }) => {
         const tenseBlock = document.createElement("div");
@@ -15097,6 +16479,7 @@ function renderNounConjugations({
             sourceMode,
             sourceTenseLabel,
             patientivoSource,
+            predicateNominalSourceMode,
             blockKey: id,
             titleLabel,
             originSlot,
@@ -15157,6 +16540,7 @@ function renderNounConjugations({
                         patientivoSource,
                         patientivoOwnership: activePatientivoOwnership,
                         patientivoNominalSuffix: activePatientivoNominalSuffix,
+                        predicateNominalSourceMode: entry.predicateNominalSourceMode || "",
                         useReduplicatedSingularSurface,
                     });
                     const normalizedSelection = evaluation.normalizedSelection || {};
@@ -15489,6 +16873,20 @@ function renderNounConjugations({
         });
         setToggleActiveState(patientivoNominalSuffixButtons, activePatientivoNominalSuffix);
         renderRows();
+    };
+    const setActivePredicateNominalSourceTense = (sourceTense) => {
+        const normalizedSourceTense = normalizePredicateNominalSourceTense(sourceTense);
+        activePredicateNominalSourceTense = normalizedSourceTense;
+        setToggleStateValue(ObjectToggleState, predicateNominalSourceTenseKey, normalizedSourceTense, {
+            syncLock: true,
+        });
+        setToggleActiveState(predicateNominalSourceTenseButtons, normalizedSourceTense);
+        renderNounConjugations({
+            verb,
+            containerId,
+            tenseValue: resolvedTense,
+            modeKey,
+        });
     };
     const setActiveSubject = (subjectId) => {
         activeSubject = subjectId;

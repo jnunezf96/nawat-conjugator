@@ -67,6 +67,7 @@ export function createUiComposerModule(targetObject = globalThis) {
         panel: targetObject.document.getElementById("verb-composer"),
         entryBoardTabsHost: targetObject.document.getElementById("verb-entry-board-tabs"),
         entryBoardButtons: targetObject.document.querySelectorAll("[data-composer-entry-board]"),
+        ordinaryNncModeButtons: targetObject.document.querySelectorAll("[data-ordinary-nnc-mode]"),
         slots,
         slotAEmbedInput,
         slotAStemInput,
@@ -887,17 +888,7 @@ export function createUiComposerModule(targetObject = globalThis) {
       Array.from(root.querySelectorAll(".verb-composer__slot-tabs")).forEach(syncComposerSlotTabsLabel);
     }
     function getComposerEntryBoardTabsLabel() {
-      const baseLabel = getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");
-      if (typeof targetObject.document === "undefined" || getComposerEntryBoard() !== COMPOSER_ENTRY_BOARD.nounToVerb) {
-        return baseLabel;
-      }
-      const activeSlot = getComposerActiveSlotFromState();
-      const stemInput = getVerbComposerElements().slots?.[activeSlot]?.stemInput || null;
-      const currentState = getComposerMatrixAffixCurrentState(activeSlot, stemInput);
-      const suffixLabel = String(currentState?.shortLabel || "").trim();
-      const judgement = currentState?.andrewsJudgment || null;
-      const judgementLabel = judgement?.range ? `Andrews ${judgement.range}` : judgement?.status === "nawat-only" ? "Nawat" : "";
-      return [baseLabel, suffixLabel ? `Verbalizar ${suffixLabel}` : "Verbalizar", judgementLabel].filter(Boolean).join(" · ");
+      return getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");
     }
     function syncComposerEntryBoardTabsLabel(entryBoardTabs) {
       if (!entryBoardTabs) {
@@ -4483,9 +4474,6 @@ export function createUiComposerModule(targetObject = globalThis) {
       });
     }
     function getVerbRegexPlaceholder() {
-      if (typeof targetObject.isOrdinaryNncGenerationModeEnabled === "function" && targetObject.isOrdinaryNncGenerationModeEnabled()) {
-        return "ej. (siwa)t";
-      }
       return "_";
     }
     function updateVerbInputPlaceholder() {
@@ -6343,6 +6331,7 @@ export function createUiComposerModule(targetObject = globalThis) {
         panel,
         entryBoardTabsHost,
         entryBoardButtons,
+        ordinaryNncModeButtons,
         slots,
         transitivitySelect,
         valenceSelectIntransitive,
@@ -6404,6 +6393,17 @@ export function createUiComposerModule(targetObject = globalThis) {
         const isActive = isComposer && !ordinaryNncActive && board === activeBoard;
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
+        button.tabIndex = 0;
+      });
+      Array.from(ordinaryNncModeButtons || []).forEach(button => {
+        const isActive = isComposer && ordinaryNncActive;
+        button.classList.toggle("is-active", isActive);
+        button.setAttribute("aria-pressed", String(isActive));
+        if (button.getAttribute("role") === "tab") {
+          button.setAttribute("aria-selected", String(isActive));
+        } else {
+          button.removeAttribute("aria-selected");
+        }
         button.tabIndex = 0;
       });
       COMPOSER_SLOT_KEYS.forEach(slotKey => {

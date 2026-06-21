@@ -871,7 +871,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
           })
         };
       }
-      if (tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "agentivo-presente" || tense === "agentivo-preterito" || tense === "agentivo-futuro" || tense === "patientivo") {
+      if (tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "agentivo-presente" || tense === "agentivo-preterito" || tense === "agentivo-futuro" || tense === "patientivo" || targetObject.isPredicateNominalTense(tense)) {
         if (!Object.prototype.hasOwnProperty.call(override || {}, "pers1")) {
           pers1 = "";
         }

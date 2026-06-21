@@ -53,6 +53,11 @@ function run(ctx = {}) {
     const nawatModeHtml = nawatModeStart >= 0 && nawatModeEnd > nawatModeStart
         ? html.slice(nawatModeStart, nawatModeEnd)
         : "";
+    const formulaPanelStart = html.indexOf('id="panel-stack-pane-tense"');
+    const formulaPanelEnd = html.indexOf("\n          </section>\n        </div>", formulaPanelStart);
+    const formulaPanelHtml = formulaPanelStart >= 0 && formulaPanelEnd > formulaPanelStart
+        ? html.slice(formulaPanelStart, formulaPanelEnd)
+        : "";
     const entradaComposerCssStart = css.indexOf("/* #1 Entrada operation order: grouped by grammar band. */");
     const entradaComposerCssEnd = css.indexOf("/* Functional button scale", entradaComposerCssStart);
     const entradaComposerCss = entradaComposerCssStart >= 0 && entradaComposerCssEnd > entradaComposerCssStart
@@ -63,6 +68,9 @@ function run(ctx = {}) {
         "ordinary NNC S control lives in the composer entry board tabs",
         tabsHtml.includes('id="verb-entry-board-ordinary-nnc"')
             && tabsHtml.includes('data-ordinary-nnc-mode="true"')
+            && composer.includes("ordinaryNncModeButtons: document.querySelectorAll(\"[data-ordinary-nnc-mode]\")")
+            && composer.includes("Array.from(ordinaryNncModeButtons || []).forEach")
+            && composer.includes("const isActive = isComposer && ordinaryNncActive;")
             && />\s*Nominal\s*<\/button>/.test(tabsHtml)
     );
     s.ok(
@@ -84,6 +92,11 @@ function run(ctx = {}) {
     s.ok(
         "#1 Entrada composer is organized by operation-slot order per board",
         composer.includes("function syncComposerOperationSlotOrderMetadata")
+            && composer.includes('return getUiCopyLabel("composer-entry-board-label", "Tipo de cláusula");')
+            && !composer.includes('suffixLabel ? `Verbalizar ${suffixLabel}` : "Verbalizar"')
+            && composer.includes('function getVerbRegexPlaceholder()')
+            && composer.includes('return "_";')
+            && !composer.includes('return "ej. (siwa)t";')
             && composer.includes('stagePanel.dataset.operationBoard = board')
             && composer.includes('stagePanel.dataset.operationOrder = getComposerOperationOrderLabel(board)')
             && composer.includes('"Cláusula verbal: tablero -> valencia verbal -> direccional -> incorporado -> objeto 1/objeto 2 -> predicado base"')
@@ -107,6 +120,931 @@ function run(ctx = {}) {
             && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="noun-to-verb"] > .verb-composer__top-row')
             && entradaComposerCss.includes('#container-inputs #composer-slot-stage[data-operation-board="ordinary-nnc"] > .verb-composer__top-row')
             && !entradaComposerCss.includes("display: contents")
+    );
+    s.ok(
+        "dynamic route board code is not mounted inside #2 Formula",
+        !html.includes('id="andrews-route-board"')
+            && !html.includes('data-andrews-formula-role="route-board"')
+            && html.includes('id="output-journey-strip"')
+            && html.includes('data-andrews-output-role="route-journey"')
+            && html.includes("style.css?v=20260620-map-track-bed-001")
+            && html.includes("src/ui/panels/panels.js?v=20260620-map-track-bed-001")
+            && panels.includes("var AndrewsRouteBoardDestinationKey")
+            && panels.includes("var AndrewsRouteBoardPinnedSourceStage")
+            && panels.includes("var AndrewsRouteBoardActiveJourney")
+            && panels.includes("var AndrewsRouteBoardSourceOverrideStage")
+            && panels.includes("var AndrewsRouteBoardContinuedJourney")
+            && panels.includes("var AndrewsRouteBoardJourneyHistory")
+            && panels.includes("function clearAndrewsRouteBoardPinnedJourney")
+            && panels.includes('typeof renderOutputJourneyStrip === "function"')
+            && panels.includes("function normalizeAndrewsRouteBoardInputValue")
+            && panels.includes("function getAndrewsRouteBoardRawInput")
+            && panels.includes("function getAndrewsRouteBoardUiSourceStage")
+            && panels.includes("function restoreAndrewsRouteBoardInputIfBlank")
+            && panels.includes("ANDREWS_ROUTE_BOARD_MAP_STATIONS")
+            && panels.includes("ANDREWS_ROUTE_BOARD_MAP_ROUTES")
+            && panels.includes("ANDREWS_ROUTE_BOARD_MAP_DIMENSIONS")
+            && panels.includes("ANDREWS_ROUTE_BOARD_MAP_DIMENSION_LANDMARKS")
+            && panels.includes("ANDREWS_ROUTE_BOARD_MAP_LAYER_STACK")
+            && panels.includes("function appendAndrewsRouteBoardGeographyMap")
+            && panels.includes("function activateAndrewsRouteBoardMapRoute")
+            && panels.includes("function activateAndrewsRouteBoardMapStation")
+            && panels.includes("function attachAndrewsRouteBoardMapRouteControl")
+            && panels.includes("function attachAndrewsRouteBoardMapStationControl")
+            && panels.includes("function getAndrewsRouteBoardMapStationCoordinateFrame")
+            && panels.includes("function applyAndrewsRouteBoardMapStationCoordinateDataset")
+            && panels.includes("function getAndrewsRouteBoardMapGisLayerValue")
+            && panels.includes("function getAndrewsRouteBoardMapGisLayerEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapDimensionScale")
+            && panels.includes("function getAndrewsRouteBoardMapPrimaryRouteSign")
+            && panels.includes("function getAndrewsRouteBoardMapItineraryFrame")
+            && panels.includes("function getAndrewsRouteBoardMapTripPreviewFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapTripPreview")
+            && panels.includes("function getAndrewsRouteBoardMapAnnouncementFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapAnnouncements")
+            && panels.includes("function getAndrewsRouteBoardMapTransferGuidanceFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapTransferGuidance")
+            && panels.includes("function getAndrewsRouteBoardMapHeadsignFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapHeadsign")
+            && panels.includes("function getAndrewsRouteBoardMapContinuityFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapContinuity")
+            && panels.includes("function appendAndrewsRouteBoardMapItinerary")
+            && panels.includes("function getAndrewsRouteBoardMapStationDirectoryEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapStationDirectory")
+            && panels.includes("function appendAndrewsRouteBoardMapWayfinding")
+            && panels.includes("function getAndrewsRouteBoardMapOptionEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapOptions")
+            && panels.includes("function getAndrewsRouteBoardMapDepartureEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapDepartures")
+            && panels.includes("function getAndrewsRouteBoardMapDestinationEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapDestinations")
+            && panels.includes("function getAndrewsRouteBoardMapRouteMetrics")
+            && panels.includes("function applyAndrewsRouteBoardMapRouteMetricDataset")
+            && panels.includes("function appendAndrewsRouteBoardMapTerrainScale")
+            && panels.includes("function appendAndrewsRouteBoardMapServiceSummary")
+            && panels.includes("function getAndrewsRouteBoardMapServiceAdvisoryFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapServiceAdvisory")
+            && panels.includes("function getAndrewsRouteBoardMapApprovalFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapApprovalGate")
+            && panels.includes("function appendAndrewsRouteBoardMapGeographyLayer")
+            && panels.includes("function appendAndrewsRouteBoardMapCompass")
+            && panels.includes("function getAndrewsRouteBoardMapRouteState")
+            && panels.includes("function getAndrewsRouteBoardMapStationLabelPlacement")
+            && panels.includes("function getAndrewsRouteBoardMapLineStationCount")
+            && panels.includes("function appendAndrewsRouteBoardMapTrackBeds")
+            && panels.includes("function appendAndrewsRouteBoardMapRouteDirections")
+            && panels.includes("function appendAndrewsRouteBoardMapLineStations")
+            && panels.includes("function getAndrewsRouteBoardMapStationServiceRoutes")
+            && panels.includes("function applyAndrewsRouteBoardMapStationServiceDataset")
+            && panels.includes("function getAndrewsRouteBoardMapTransferEntries")
+            && panels.includes("function getAndrewsRouteBoardMapRouteTerminalEntries")
+            && panels.includes("function getAndrewsRouteBoardMapRouteTerminalEndpointEntries")
+            && panels.includes("function getAndrewsRouteBoardMapDestinationCalloutEntries")
+            && panels.includes("function getAndrewsRouteBoardMapCorridorEntries")
+            && panels.includes("function appendAndrewsRouteBoardMapStationServiceBadges")
+            && panels.includes("function appendAndrewsRouteBoardMapTransferHubs")
+            && panels.includes("function appendAndrewsRouteBoardMapRouteTerminals")
+            && panels.includes("function appendAndrewsRouteBoardMapDestinationCallouts")
+            && panels.includes("function getAndrewsRouteBoardMapProgressFrame")
+            && panels.includes("function appendAndrewsRouteBoardMapProgressMarker")
+            && panels.includes("function appendAndrewsRouteBoardMapTransfers")
+            && panels.includes("function appendAndrewsRouteBoardMapTerminalBoard")
+            && panels.includes("function appendAndrewsRouteBoardMapSymbolKey")
+            && panels.includes("function appendAndrewsRouteBoardMapLayerStack")
+            && panels.includes("function appendAndrewsRouteBoardMapCorridors")
+            && panels.includes('map.dataset.mapModel = "andrews-geography-route-lines"')
+            && panels.includes('map.dataset.mapEngineModel = "layered-grammar-gis"')
+            && panels.includes('map.dataset.mapInterfaceModel = "transit-map-surface"')
+            && panels.includes('map.dataset.mapRoutePlannerModel = "passenger-route-planner"')
+            && panels.includes('map.dataset.mapGeographyModel = "low-saturation-grammar-geography"')
+            && panels.includes("map.dataset.mapGeographyRegionCount")
+            && panels.includes('map.dataset.mapTrackBedModel = "low-saturation-route-track-bed"')
+            && panels.includes("map.dataset.mapTrackBedPathCount")
+            && panels.includes('map.dataset.mapDimensionLandmarkModel = "grammar-dimension-landmarks"')
+            && panels.includes("map.dataset.mapDimensionLandmarkCount")
+            && panels.includes('map.dataset.mapCompassModel = "grammar-map-orientation-compass"')
+            && panels.includes('map.dataset.mapCompassNorthDimension = "formula-boundary"')
+            && panels.includes('map.dataset.mapLineStationModel = "station-points-on-colored-route-lines"')
+            && panels.includes("map.dataset.mapLineStationCount")
+            && panels.includes('map.dataset.mapRouteDirectionModel = "route-direction-arrows-passenger-heading"')
+            && panels.includes("map.dataset.mapRouteDirectionCount")
+            && panels.includes('map.dataset.mapStationLabelPlacementModel = "cartographic-station-label-placement"')
+            && panels.includes("map.dataset.mapStationLabelPlacementCount")
+            && panels.includes('map.dataset.mapTransferHubModel = "shared-station-route-interchange"')
+            && panels.includes("map.dataset.mapTransferHubCount")
+            && panels.includes('map.dataset.mapTerminalBoardModel = "route-terminal-service-board"')
+            && panels.includes("map.dataset.mapTerminalRouteCount")
+            && panels.includes('map.dataset.mapRouteTerminalModel = "route-endpoints-on-map"')
+            && panels.includes("map.dataset.mapRouteTerminalCount")
+            && panels.includes('map.dataset.mapDestinationCalloutModel = "route-destination-headsign-callouts"')
+            && panels.includes("map.dataset.mapDestinationCalloutCount")
+            && panels.includes('map.dataset.mapSymbolKeyModel = "station-symbol-map-key"')
+            && panels.includes("map.dataset.mapSymbolKeyCount")
+            && panels.includes('map.dataset.mapLayerStackModel = "grammar-gis-visible-layer-stack"')
+            && panels.includes("map.dataset.mapLayerCount")
+            && panels.includes('map.dataset.mapCorridorModel = "route-family-corridors"')
+            && panels.includes("map.dataset.mapCorridorCount")
+            && panels.includes('map.dataset.mapTripPreviewModel = "passenger-route-preview-board"')
+            && panels.includes('map.dataset.mapProgressModel = "passenger-onboard-route-progress"')
+            && panels.includes('map.dataset.mapAnnouncementModel = "passenger-next-stop-announcements"')
+            && panels.includes('map.dataset.mapTransferGuidanceModel = "passenger-transfer-guidance-board"')
+            && panels.includes('map.dataset.mapHeadsignModel = "passenger-headsign-boarding-direction"')
+            && panels.includes('map.dataset.mapContinuityModel = "formula-surface-through-service"')
+            && panels.includes('map.dataset.mapOptionBoardModel = "single-passenger-unified-option-board"')
+            && panels.includes("map.dataset.mapOptionCount")
+            && panels.includes('map.dataset.mapServiceAdvisoryModel = "obstacle-blocked-condition-uncertainty-advisory"')
+            && panels.includes('map.dataset.mapApprovalGateModel = approvalFrame.approvalModel')
+            && panels.includes('? "andrews-approved"')
+            && panels.includes('? "runtime-visual-proof-covered"')
+            && panels.includes('authorityModel: "andrews-pdf-supreme-nawat-spelling-preterit-indicative"')
+            && panels.includes('main: "PDF > salida"')
+            && panels.includes('meta: "Nawat: ortografia + preterito indicativo"')
+            && panels.includes("map.dataset.mapApprovalEngineAuditState = approvalFrame.engineAuditState")
+            && panels.includes("map.dataset.mapApprovalCoordinateFloor = String(approvalFrame.coordinateFloor || 0)")
+            && panels.includes('map.dataset.mapDimensionModel = "inter-dimensional-positioning-system"')
+            && panels.includes("map.dataset.mapDimensionOrder")
+            && panels.includes('dimensions.dataset.mapGisLayerModel = "layered-grammar-gis"')
+            && panels.includes('dimensions.dataset.mapTransitSurfaceModel = "transit-map-surface"')
+            && panels.includes('dimensions.dataset.mapRoutePlannerModel = "passenger-route-planner"')
+            && panels.includes("dimensions.dataset.mapGisLayerCount")
+            && panels.includes("dimensions.dataset.mapOpenLayerCount")
+            && panels.includes('layerList.dataset.mapGisLayerModel = "layered-grammar-gis"')
+            && panels.includes("item.dataset.mapPlannerRole = entry.plannerRole")
+            && panels.includes('value.textContent = [entry.sourceValue || "abierto", entry.destinationValue || "abierto"].join(" > ")')
+            && panels.includes('label.textContent = "Capas GIS"')
+            && panels.includes("map.dataset.mapResistanceHypothesisDomains")
+            && panels.includes('geography.dataset.mapGeographyModel = "low-saturation-grammar-geography"')
+            && panels.includes('geography.dataset.mapDimensionLandmarkModel = "grammar-dimension-landmarks"')
+            && panels.includes('landmarks.dataset.mapDimensionLandmarkModel = "grammar-dimension-landmarks"')
+            && panels.includes('class: "andrews-route-board__map-dimension-landmark"')
+            && panels.includes("path.dataset.mapGeographyZone")
+            && panels.includes('beds.dataset.mapTrackBedModel = "low-saturation-route-track-bed"')
+            && panels.includes("bed.dataset.trackBedLayer = trackBedLayer")
+            && panels.includes("appendAndrewsRouteBoardMapTrackBeds(svg")
+            && panels.includes('compass.dataset.mapCompassModel = "grammar-map-orientation-compass"')
+            && panels.includes('class: "andrews-route-board__map-compass"')
+            && panels.includes('directions.dataset.mapRouteDirectionModel = "route-direction-arrows-passenger-heading"')
+            && panels.includes('class: "andrews-route-board__map-route-direction"')
+            && panels.includes('class: "andrews-route-board__map-route-direction-arrow"')
+            && panels.includes('placementModel: "cartographic-station-label-placement"')
+            && panels.includes("group.dataset.stationLabelPlacementModel = stationLabelPlacement.placementModel")
+            && panels.includes("stationLabel.dataset.stationLabelPlacementModel = stationLabelPlacement.placementModel")
+            && panels.includes('markers.dataset.mapLineStationModel = "station-points-on-colored-route-lines"')
+            && panels.includes("marker.dataset.stationKey = stationKey")
+            && panels.includes('hubs.dataset.mapTransferHubModel = "shared-station-route-interchange"')
+            && panels.includes("hub.dataset.transferKind")
+            && panels.includes('terminals.dataset.mapRouteTerminalModel = "route-endpoints-on-map"')
+            && panels.includes("terminal.dataset.terminalEndpointRole")
+            && panels.includes("terminal.dataset.terminalStationKey")
+            && panels.includes('callouts.dataset.mapDestinationCalloutModel = "route-destination-headsign-callouts"')
+            && panels.includes("callout.dataset.destinationStationKey")
+            && panels.includes('class: "andrews-route-board__map-destination-callout-text"')
+            && panels.includes('progress.dataset.mapProgressModel = frame.progressModel')
+            && panels.includes("progress.dataset.nextStation")
+            && panels.includes('class: "andrews-route-board__map-progress-marker"')
+            && panels.includes('transfers.dataset.mapTransferModel = "shared-station-transfer-options"')
+            && panels.includes("transfers.dataset.transferStationCount")
+            && panels.includes('terminals.dataset.mapTerminalBoardModel = "route-terminal-service-board"')
+            && panels.includes("terminals.dataset.terminalRouteCount")
+            && panels.includes("item.dataset.routeSourceStation")
+            && panels.includes("item.dataset.routeDestinationStation")
+            && panels.includes('key.dataset.mapSymbolKeyModel = "station-symbol-map-key"')
+            && panels.includes("item.dataset.mapSymbolKind")
+            && panels.includes('symbolKind: "dimension-landmark"')
+            && panels.includes('id: "track-bed"')
+            && panels.includes('model: "low-saturation-route-track-bed"')
+            && panels.includes('id: "dimension-landmarks"')
+            && panels.includes('model: "grammar-dimension-landmarks"')
+            && panels.includes('stack.dataset.mapLayerStackModel = "grammar-gis-visible-layer-stack"')
+            && panels.includes("map.dataset.mapLayerIds = ANDREWS_ROUTE_BOARD_MAP_LAYER_STACK.map")
+            && panels.includes("item.dataset.mapLayerModel = entry.model")
+            && panels.includes('item.dataset.mapLayerState = "visible"')
+            && panels.includes('corridors.dataset.mapCorridorModel = "route-family-corridors"')
+            && panels.includes("item.dataset.routeFamilyRouteCodes")
+            && panels.includes('element.dataset.stationServiceModel = "route-codes-at-station"')
+            && panels.includes("element.dataset.stationServiceRouteCodes")
+            && panels.includes('service.dataset.mapServiceModel = "station-handles-routing-passenger-rides"')
+            && panels.includes("service.dataset.averageRouteStageClicks")
+            && panels.includes("service.dataset.switchingRequired")
+            && panels.includes('advisory.dataset.mapServiceAdvisoryModel = frame.advisoryModel')
+            && panels.includes("advisory.dataset.serviceAdvisoryLevel = frame.advisoryLevel")
+            && panels.includes("advisory.dataset.blockedRouteCount")
+            && panels.includes("advisory.dataset.hypothesisPValue")
+            && panels.includes('item.dataset.serviceAdvisoryRole = entry.role')
+            && panels.includes('approval.dataset.mapApprovalGateModel = resolvedFrame.approvalModel')
+            && panels.includes("approval.dataset.engineAuditState = resolvedFrame.engineAuditState")
+            && panels.includes("approval.dataset.visualProofState = resolvedFrame.visualProofState")
+            && panels.includes("approval.dataset.coordinateFloor = String(resolvedFrame.coordinateFloor || 0)")
+            && panels.includes('item.dataset.approvalRole = entry.role')
+            && panels.includes('wayfinding.dataset.mapWayfindingModel = "passenger-station-signs"')
+            && panels.includes("wayfinding.dataset.currentCoordinate")
+            && panels.includes("wayfinding.dataset.routePathLabel")
+            && panels.includes('options.dataset.mapOptionsModel = "single-passenger-unified-option-board"')
+            && panels.includes('optionProvisionMode: "station-provides-options"')
+            && panels.includes("item.dataset.optionProvisionMode = entry.optionProvisionMode")
+            && panels.includes("item.dataset.optionState = entry.optionState")
+            && panels.includes("activateAndrewsRouteBoardTarget(entry.sourceEntry, board)")
+            && panels.includes("map.append(label, viewport, legend)")
+            && panels.includes('preview.dataset.mapTripPreviewModel = frame.previewModel')
+            && panels.includes("preview.dataset.currentStation")
+            && panels.includes("preview.dataset.destinationStation")
+            && panels.includes("preview.dataset.routeStopCount")
+            && panels.includes('announcements.dataset.mapAnnouncementModel = frame.announcementModel')
+            && panels.includes("announcements.dataset.nextStation")
+            && panels.includes('item.dataset.announcementRole = entry.role')
+            && panels.includes('guidance.dataset.mapTransferGuidanceModel = frame.guidanceModel')
+            && panels.includes("guidance.dataset.directRide = String(frame.directRide === true)")
+            && panels.includes("guidance.dataset.transferStations = frame.transferStationKeys.join(\"|\")")
+            && panels.includes('item.dataset.transferGuidanceRole = entry.role')
+            && panels.includes('headsign.dataset.mapHeadsignModel = frame.headsignModel')
+            && panels.includes("headsign.dataset.platformId = frame.platformId")
+            && panels.includes('item.dataset.headsignRole = entry.role')
+            && panels.includes('continuity.dataset.mapContinuityModel = frame.continuityModel')
+            && panels.includes("continuity.dataset.formulaSurfaceShared = String(frame.formulaSurfaceShared === true)")
+            && panels.includes("continuity.dataset.throughService = String(frame.throughService === true)")
+            && panels.includes('item.dataset.continuityRole = entry.role')
+            && panels.includes('itinerary.dataset.mapItineraryModel = frame.itineraryModel')
+            && panels.includes("item.dataset.routeStopRole")
+            && panels.includes("itinerary.dataset.routeStops")
+            && panels.includes('directory.dataset.mapStationDirectoryModel = "station-index-geography-coordinates"')
+            && panels.includes("stationItem.dataset.stationStatus")
+            && panels.includes("stationItem.dataset.stationCoordinate")
+            && panels.includes('service.className = "andrews-route-board__map-station-directory-service"')
+            && panels.includes('chip.className = "andrews-route-board__map-station-directory-service-chip"')
+            && panels.includes('departures.dataset.mapDeparturesModel = "station-provides-route-options"')
+            && panels.includes("item.dataset.routeActionLabel")
+            && panels.includes('destinations.dataset.mapDestinationsModel = "passenger-chooses-destination-station"')
+            && panels.includes("item.dataset.destinationStation")
+            && panels.includes("line.dataset.routeMapState = routeState")
+            && panels.includes("element.dataset.routeResistanceScore")
+            && panels.includes("element.dataset.routeResistanceRole")
+            && panels.includes("element.dataset.routeHypothesisHit")
+            && panels.includes("element.dataset.routeMapSelectable")
+            && panels.includes("element.dataset.stationSelectable")
+            && panels.includes("element.dataset.stationFormulaType")
+            && panels.includes("element.dataset.stationFunctionUse")
+            && panels.includes('class: "andrews-route-board__map-route-badges"')
+            && panels.includes('class: "andrews-route-board__map-route-badge"')
+            && panels.includes('class: "andrews-route-board__map-station-flag"')
+            && panels.includes("group.dataset.stationStatus = stationStatus")
+            && panels.includes("function getAndrewsRouteBoardBoundaryKindLabel")
+            && panels.includes("function getAndrewsRouteBoardBoundaryConfidenceLabel")
+            && panels.includes('"cnv-surface-nuclear-clause-candidate": "CNV superficie"')
+            && panels.includes('"cnn-surface-nuclear-clause-candidate": "CNN superficie"')
+            && panels.includes('"surface-candidate": "superficie probable"')
+            && panels.includes("function getAndrewsRouteBoardGateDomainLabel")
+            && panels.includes("function getAndrewsRouteBoardGateDomainCounts")
+            && panels.includes("function serializeAndrewsRouteBoardGateDomains")
+            && panels.includes("function getAndrewsRouteBoardRouteConditionFrames")
+            && panels.includes("function serializeAndrewsRouteBoardRouteConditionFrames")
+            && panels.includes("function getAndrewsRouteBoardResistanceRoleLabel")
+            && panels.includes("Menor R")
+            && panels.includes("Mayor R")
+            && panels.includes("function buildAndrewsRouteBoardDestinationOptionLabel")
+            && panels.includes("function getAndrewsRouteBoardEntryRoutePathLabel")
+            && panels.includes("function getAndrewsRouteBoardJourneyRoutePathLabel")
+            && panels.includes("recommendedDestinationKey")
+            && panels.includes("option.dataset.routeOptionLabel")
+            && panels.includes("option.dataset.routePathLabel")
+            && panels.includes("option.dataset.routeSource")
+            && panels.includes("option.dataset.routeDestinationLabel")
+            && panels.includes("button.dataset.routePathLabel")
+            && panels.includes("button.dataset.routeSource")
+            && panels.includes("button.dataset.routeDestinationLabel")
+            && panels.includes("main.textContent = routePathLabel")
+            && clause.includes("primaryRoutePathLabel")
+            && panels.includes("container.dataset.routePathLabel = boardPrimaryRoutePathLabel")
+            && panels.includes("container.dataset.passengerPrimaryRoutePathLabel")
+            && panels.includes("option.dataset.routeRecommendation")
+            && panels.includes("option.dataset.routeActionLabel")
+            && panels.includes("option.dataset.routeNextSource")
+            && panels.includes("function buildAndrewsRouteBoardNetworkLabel")
+            && panels.includes('appendAndrewsRouteBoardPill(stationRail, "Red", networkLabel)')
+            && panels.includes("function buildAndrewsRouteBoardJourneyReceipt")
+            && panels.includes("function buildAndrewsRouteBoardJourneyStationLineFrame")
+            && panels.includes("formula-and-surface-share-one-passenger-frame")
+            && panels.includes("carry-route-frame-to-output")
+            && panels.includes("surface-receives-next-source")
+            && panels.includes("carry-station-line-to-output")
+            && panels.includes("passengerFrame: journeyPassengerFrame")
+            && panels.includes("function pinAndrewsRouteBoardJourneySource")
+            && panels.includes("function setAndrewsRouteBoardActiveJourney")
+            && panels.includes("function getAndrewsRouteBoardActiveJourneyForBoard")
+            && panels.includes("function getAndrewsRouteBoardActiveJourneyReceipt")
+            && panels.includes("function cloneAndrewsRouteBoardJourneyForHistory")
+            && panels.includes("function getAndrewsRouteBoardJourneyHistoryForBoard")
+            && panels.includes("function getAndrewsRouteBoardContinuedJourneyForBoard")
+            && panels.includes("function getAndrewsRouteBoardContinuedJourneyReceipt")
+            && panels.includes("keep-arrival-visible-after-transfer")
+            && panels.includes("suppress-repeat-next-source-action")
+            && panels.includes("routeActionFrame: journey.routeActionFrame")
+            && panels.includes("passengerFrame: journey.passengerFrame")
+            && panels.includes("nextSourceEntryBoard: targetAction?.entryBoard")
+            && panels.includes("nextSourceUnitMode: targetAction?.unitMode")
+            && panels.includes("function continueAndrewsRouteBoardFromActiveJourney")
+            && panels.includes('continuationState: "continued-as-next-source"')
+            && panels.includes("AndrewsRouteBoardSourceOverrideStage = { ...journey.nextSourceStage }")
+            && panels.includes("entry.nextSourceStage")
+            && clause.includes("nextSourceStage: targetStage")
+            && clause.includes("nextSourceStageKey")
+            && panels.includes("container.dataset.sourceOverrideActive")
+            && panels.includes("container.dataset.nextSourceStation")
+            && panels.includes("getAndrewsCnvCnnRouteStageFromFormulaInput(input")
+            && clause.includes("function getAndrewsCnvCnnRouteBoardReachableDestinationOptions")
+            && clause.includes("reachableDestinationOptions.length")
+            && panels.includes("function activateAndrewsRouteBoardTarget")
+            && panels.includes("function buildAndrewsRouteBoardRouteMeta")
+            && panels.includes("function getAndrewsRouteBoardRouteDestinationKey")
+            && panels.includes("function getAndrewsRouteBoardLoopStateLabel")
+            && panels.includes("function getAndrewsRouteBoardRouteLoopCount")
+            && panels.includes("function getAndrewsRouteBoardRouteLoopState")
+            && panels.includes("function getAndrewsRouteBoardRouteStops")
+            && panels.includes("function appendAndrewsRouteBoardRouteStops")
+            && panels.includes("function appendAndrewsRouteBoardRouteConditions")
+            && panels.includes("function appendAndrewsRouteBoardDimensions")
+            && panels.includes("function appendAndrewsRouteBoardResistancePlan")
+            && panels.includes("function appendAndrewsRouteBoardResistanceHypothesis")
+            && panels.includes("hypothesis.dataset.resistanceHypothesisTestId")
+            && panels.includes("function getAndrewsRouteBoardHypothesisActionLabel")
+            && panels.includes("chip.dataset.hypothesisDomain = \"candidate-obstacle\"")
+            && panels.includes("button.dataset.routeHypothesisHit")
+            && panels.includes("function getAndrewsRouteBoardConversionActionLabel")
+            && panels.includes("#1 Entrada · fijar origen")
+            && panels.includes("#2 Fórmula · resolver ruta")
+            && panels.includes("#3 Salida · entregar trayecto")
+            && panels.includes("function renderAndrewsRouteBoardJourneyReceipt")
+            && panels.includes("function appendAndrewsRouteBoardJourneySourceLayers")
+            && panels.includes("function renderAndrewsRouteBoardJourneyHistory")
+            && panels.includes("function renderAndrewsRouteBoardContinuedJourneyReceipt")
+            && panels.includes('setOrdinaryNncGenerationModeEnabled(true)')
+            && panels.includes("setComposerEntryBoard(targetBoard, { force: true })")
+            && panels.includes("function renderAndrewsRouteBoard")
+            && panels.includes('board.boardState === "destination" ? "Trayecto" : "Salidas"')
+            && panels.includes("buildAndrewsCnvCnnRouteBoard({ sourceStage })")
+            && panels.includes("destinationStage: destinationOption?.stage || null")
+            && panels.includes("AndrewsRouteBoardPinnedSourceInput = rawInput")
+            && panels.includes("const selectedBoard = buildAndrewsCnvCnnRouteBoard")
+            && panels.includes("activateAndrewsRouteBoardTarget(selectedRoute, selectedBoard)")
+            && panels.includes("restoreAndrewsRouteBoardInputIfBlank(AndrewsRouteBoardPinnedSourceInput || inputBeforeActivation)")
+            && panels.includes("pinAndrewsRouteBoardJourneySource(board, inputBeforeActivation)")
+            && panels.includes("setAndrewsRouteBoardActiveJourney(entry, board)")
+            && panels.includes("renderAndrewsRouteBoardJourneyReceipt(body, board)")
+            && panels.includes("button.dataset.routeDestination")
+            && panels.includes("button.dataset.routeStops")
+            && panels.includes("button.dataset.routeConditionFrames")
+            && panels.includes("button.dataset.routeIfStage")
+            && panels.includes("button.dataset.routeThenStage")
+            && panels.includes("button.dataset.routeGateDomains")
+            && panels.includes("button.dataset.routeEntryBoard")
+            && panels.includes("button.dataset.routeSegmentCount")
+            && panels.includes("button.dataset.routeResistanceScore")
+            && panels.includes("button.dataset.routeResistanceRole")
+            && panels.includes("button.dataset.routeLoopState")
+            && panels.includes("button.dataset.routeLoopLabel")
+            && panels.includes("button.dataset.routeLoopCount")
+            && panels.includes("button.dataset.routeRecommendation")
+            && panels.includes("button.dataset.routeActionLabel")
+            && panels.includes("routeActionFrame?.recommendationRole")
+            && panels.includes("destinationActionFrame?.actionLabel")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardActionFrame")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardPassengerFrame")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardIntentionFrame")
+            && clause.includes("primarySourceStageKey")
+            && clause.includes("publish-primary-source-layer")
+            && clause.includes("single-passenger-same-board-explore-or-destination")
+            && clause.includes("one-passenger-intention-many-routes")
+            && clause.includes("explore-and-destination-share-one-route-board")
+            && clause.includes("destinationActionFrame")
+            && panels.includes("function serializeAndrewsRouteBoardIntentions")
+            && panels.includes("function cloneAndrewsRouteBoardIntentionFrame")
+            && panels.includes("function appendAndrewsRouteBoardPassengerIntentions")
+            && panels.includes("function appendAndrewsRouteBoardPassengerFrame")
+            && panels.includes("appendAndrewsRouteBoardPassengerFrame(container, board)")
+            && panels.includes("const visibleRoutes = Array.isArray(board?.visibleRoutes)")
+            && panels.includes("const primaryRoute = (recommendedRouteKey")
+            && panels.includes('action.className = "andrews-route-board__pass-action"')
+            && panels.includes('action.dataset.actionMode = canContinueJourney ? "continue-next-source" : "activate-route"')
+            && panels.includes("pass.dataset.primarySource")
+            && panels.includes("pass.dataset.primarySourceLabel")
+            && panels.includes("pass.dataset.primaryNextSourceLabel")
+            && panels.includes("pass.dataset.primaryRoutePathLabel")
+            && panels.includes("receipt.dataset.passengerPrimaryRoutePathLabel")
+            && panels.includes("frame.primarySourceLabel || frame.sourceLabel || \"\"")
+            && panels.includes("frame.primaryNextSourceLabel || \"\"")
+            && panels.includes("frame.primaryRoutePathLabel || frame.primaryNextSourceLabel")
+            && panels.includes("action.dataset.routeConditionFrames")
+            && panels.includes("action.dataset.routeLoopState")
+            && panels.includes("action.dataset.routeLoopLabel")
+            && panels.includes("action.dataset.routeLoopCount")
+            && panels.includes("action.dataset.routeSourceLabel")
+            && panels.includes("action.dataset.routeNextSourceLabel")
+            && panels.includes("action.dataset.routePathLabel")
+            && panels.includes("action.dataset.routeActionDisplayLabel")
+            && panels.includes("action.dataset.routeNextSourceLabel,")
+            && panels.includes("continueAndrewsRouteBoardFromActiveJourney();")
+            && panels.includes("activateAndrewsRouteBoardTarget(primaryRoute, board)")
+            && panels.includes("recommendedActionLabel")
+            && panels.includes("option.dataset.routeIds")
+            && panels.includes("option.dataset.routeStops")
+            && panels.includes("option.dataset.routeConditionFrames")
+            && panels.includes("option.dataset.routeLoopState")
+            && panels.includes("option.dataset.routeLoopLabel")
+            && panels.includes("option.dataset.routeLoopCount")
+            && panels.includes("destinationLoopLabel")
+            && panels.includes("option.dataset.routeGateDomains")
+            && panels.includes("option.dataset.routeResistanceScore")
+            && panels.includes("container.dataset.sourceInputKind")
+            && panels.includes("container.dataset.sourceInputHasWildcard")
+            && panels.includes("container.dataset.sourceCandidateStageCount")
+            && panels.includes("container.dataset.sourceCandidateStageKeys")
+            && panels.includes("container.dataset.sourceCandidateStageLabels")
+            && panels.includes("container.dataset.sourceCandidateStages")
+            && panels.includes("container.dataset.sourceFormulaBoundaryKind")
+            && panels.includes("container.dataset.sourceFormulaBoundaryConfidence")
+            && panels.includes("container.dataset.sourceUnresolvedDimensionCount")
+            && panels.includes("container.dataset.sourceInputTicketModel")
+            && panels.includes("container.dataset.sourceInputTicketValue")
+            && panels.includes("container.dataset.sourceInputTicketEvents")
+            && panels.includes("container.dataset.sourceInputTicketDimensions")
+            && panels.includes('appendAndrewsRouteBoardPill(stationRail, "Entrada", board.currentStation.inputTicketFrame.inputDisplayLabel)')
+            && panels.includes('appendAndrewsRouteBoardPill(stationRail, "Capas", board.sourceCandidateStageLabels.join(" / "))')
+            && panels.includes("function appendAndrewsRouteBoardSourceLayers")
+            && panels.includes("function serializeAndrewsRouteBoardSourceLayers")
+            && panels.includes("function getAndrewsRouteBoardActiveSourceLayer")
+            && panels.includes("function buildAndrewsRouteBoardJourneySourceLayerFrame")
+            && panels.includes("sourceLayerFrame: journeySourceLayerFrame")
+            && panels.includes("appendAndrewsRouteBoardSourceLayers(container, board)")
+            && panels.includes("appendAndrewsRouteBoardGeographyMap(container, board,")
+            && panels.includes("appendAndrewsRouteBoardJourneySourceLayers(receipt, journey)")
+            && panels.includes("receipt.dataset.sourceLayerActiveStation")
+            && panels.includes("layerWrap.dataset.sourceLayerActiveStation")
+            && panels.includes("container.dataset.sourceLayerActiveStation")
+            && panels.includes("chip.dataset.sourceLayerStation")
+            && panels.includes("chip.dataset.sourceLayerRole")
+            && panels.includes("chip.dataset.sourceStageKey")
+            && panels.includes("chip.dataset.sourceStageRole")
+            && panels.includes("pass.dataset.sourceTicketModel")
+            && panels.includes("pass.dataset.sourceTicketDimensions")
+            && panels.includes("pass.dataset.intentionModel")
+            && panels.includes("pass.dataset.intentions")
+            && panels.includes("function appendAndrewsRouteBoardInputTicketDimensions")
+            && panels.includes("function serializeAndrewsRouteBoardTicketDimensions")
+            && panels.includes("function appendAndrewsRouteBoardStationLine")
+            && panels.includes("function serializeAndrewsRouteBoardStationLineStops")
+            && panels.includes("function appendAndrewsRouteBoardConcourse")
+            && panels.includes("function serializeAndrewsRouteBoardConcourseStops")
+            && panels.includes("appendAndrewsRouteBoardConcourse(container, board)")
+            && panels.includes("function appendAndrewsRouteBoardPlatforms")
+            && panels.includes("function serializeAndrewsRouteBoardPlatformTracks")
+            && panels.includes("track.dataset.sourceStation")
+            && panels.includes("track.dataset.routePathLabel")
+            && panels.includes("destination.textContent = routePathLabel")
+            && panels.includes("function cloneAndrewsRouteBoardPlatformFrame")
+            && panels.includes("platformFrame: cloneAndrewsRouteBoardPlatformFrame")
+            && panels.includes("appendAndrewsRouteBoardPlatforms(container, board)")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardRideFrame")
+            && clause.includes("passenger-rides-station-provides")
+            && clause.includes("station-signs-do-switching-passenger-rides")
+            && clause.includes("explore-or-destination-one-board")
+            && clause.includes("rideFrame")
+            && panels.includes("function cloneAndrewsRouteBoardRideFrame")
+            && panels.includes("function buildAndrewsRouteBoardJourneyRideFrame")
+            && panels.includes("formula-and-surface-share-one-ride-frame")
+            && panels.includes("carry-ride-frame-to-output")
+            && panels.includes("function appendAndrewsRouteBoardRideFrame")
+            && panels.includes("appendAndrewsRouteBoardRideFrame(container, board)")
+            && panels.includes("ride.dataset.outputJourneyModel")
+            && panels.includes("ride.dataset.primaryRoutePathLabel")
+            && panels.includes("ride.dataset.switchingRequired")
+            && panels.includes("container.dataset.rideExperienceModel")
+            && panels.includes("container.dataset.rideOutputJourneyModel")
+            && panels.includes("container.dataset.ridePrimaryRoutePathLabel")
+            && panels.includes("container.dataset.rideSwitchingRequired")
+            && panels.includes("container.dataset.stationLineModel")
+            && panels.includes("container.dataset.stationLineStops")
+            && panels.includes("container.dataset.routeMapModel")
+            && panels.includes("container.dataset.routeMapAvailableRouteIds")
+            && panels.includes("container.dataset.concourseModel")
+            && panels.includes("container.dataset.concourseStops")
+            && panels.includes("container.dataset.concourseNextStation")
+            && panels.includes("container.dataset.platformModel")
+            && panels.includes("container.dataset.platformTracks")
+            && panels.includes("container.dataset.platformVisibleTrackCount")
+            && clause.includes("function buildAndrewsCnvCnnRouteInputTicketFrame")
+            && clause.includes("function buildAndrewsCnvCnnRouteInputTicketDimensionSlots")
+            && clause.includes("function getAndrewsCnvCnnRouteBoardSourceCandidateStages")
+            && clause.includes("contained-verbal-core")
+            && clause.includes("contained-verbstem")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardStationLineFrame")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardConcourseFrame")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardPlatformFrame")
+            && clause.includes("one-station-map-for-explore-and-destination")
+            && clause.includes("station-platforms-from-route-options")
+            && clause.includes("entrada-formula-salida-one-route")
+            && clause.includes("source-target-route")
+            && clause.includes("de-superpose-input-dimensions")
+            && clause.includes("limited-entrada-one-passenger-many-routes")
+            && clause.includes("carry-entrada-ticket")
+            && panels.includes("container.dataset.networkLabel")
+            && panels.includes("container.dataset.passengerIntention")
+            && panels.includes("container.dataset.passengerIntentionModel")
+            && panels.includes("container.dataset.passengerRouteProvisionMode")
+            && panels.includes("container.dataset.passengerSharedRouteBoard")
+            && panels.includes("container.dataset.passengerIntentions")
+            && panels.includes("container.dataset.passengerPrimaryActionLabel")
+            && panels.includes("container.dataset.passengerExploreOptionCount")
+            && panels.includes("container.dataset.passengerEvents")
+            && panels.includes("container.dataset.recommendedRouteIds")
+            && panels.includes("container.dataset.recommendedRouteActionLabel")
+            && panels.includes("container.dataset.recommendedRouteNextSource")
+            && panels.includes("container.dataset.leastVisibleResistanceScore")
+            && panels.includes("container.dataset.activeJourneyRouteIds")
+            && panels.includes("container.dataset.activeJourneyStops")
+            && panels.includes("container.dataset.activeJourneyGateDomains")
+            && panels.includes("container.dataset.activeJourneyConditionFrames")
+            && panels.includes("container.dataset.activeJourneyIfStage")
+            && panels.includes("container.dataset.activeJourneyThenStage")
+            && panels.includes("container.dataset.activeJourneyRoutePathLabel")
+            && panels.includes("container.dataset.activeJourneyResistanceScore")
+            && panels.includes("container.dataset.activeJourneyResistanceRole")
+            && panels.includes("container.dataset.continuedJourneyRouteIds")
+            && panels.includes("container.dataset.continuedJourneyRoutePathLabel")
+            && panels.includes("container.dataset.journeyHistoryLegCount")
+            && panels.includes("container.dataset.journeyHistoryRouteIds")
+            && panels.includes("container.dataset.journeyHistoryStations")
+            && panels.includes("container.dataset.journeyHistoryRoutePaths")
+            && panels.includes("container.dataset.continuedJourneyConditionFrames")
+            && panels.includes("container.dataset.continuedJourneyIfStage")
+            && panels.includes("container.dataset.continuedJourneyThenStage")
+            && panels.includes("routeConditionFrames")
+            && panels.includes("receipt.dataset.routePathLabel")
+            && panels.includes("receipt.dataset.routeConditionFrames")
+            && panels.includes("receipt.dataset.routeIfStage")
+            && panels.includes("receipt.dataset.routeThenStage")
+            && panels.includes("receipt.dataset.routeBoardModel")
+            && panels.includes("receipt.dataset.journeyModel")
+            && panels.includes("receipt.dataset.passengerIntentionModel")
+            && panels.includes("receipt.dataset.passengerIntentions")
+            && panels.includes("receipt.dataset.passengerPrimaryActionLabel")
+            && panels.includes("receipt.dataset.passengerEvents")
+            && panels.includes("container.dataset.resistanceConversionFromRoute")
+            && panels.includes("container.dataset.resistanceConversionToRoute")
+            && panels.includes("container.dataset.resistanceHypothesisTestId")
+            && panels.includes("container.dataset.resistanceHypothesisPValue")
+            && panels.includes("container.dataset.resistanceHypothesisActionLabel")
+            && panels.includes("appendAndrewsRouteBoardResistanceHypothesis(container, board)")
+            && clause.includes("function buildAndrewsCnvCnnRouteBoardResistanceHypothesisFrame")
+            && clause.includes("resistanceHypothesisFrame")
+            && css.includes(".andrews-route-board__hypothesis")
+            && css.includes('.andrews-route-board__ticket-dimension[data-hypothesis-domain="candidate-obstacle"]')
+            && panels.includes("container.dataset.resistanceConversionFromRouteLabel")
+            && panels.includes("container.dataset.resistanceConversionToRouteLabel")
+            && panels.includes("container.dataset.resistanceConversionScoreReduction")
+            && panels.includes("container.dataset.resistanceConversionObstacleReduction")
+            && panels.includes("container.dataset.resistanceConversionActionEvents")
+            && panels.includes("strip.dataset.fromRouteLabel")
+            && panels.includes("strip.dataset.toRouteLabel")
+            && panels.includes("strip.dataset.actionEvents")
+            && panels.includes("chip.dataset.action = item.action")
+            && panels.includes("chip.title = item.action")
+            && panels.includes("chip.dataset.actionLabel")
+            && panels.includes("andrews-route-board__conversion-action")
+            && rendering.includes("container.dataset.resistanceRole")
+            && rendering.includes("journey.resistanceRoleLabel")
+            && rendering.includes("function getActiveAndrewsOutputJourneyReceipt")
+            && rendering.includes("function appendOutputJourneyStopRail")
+            && rendering.includes("function appendOutputJourneyStationLine")
+            && rendering.includes("function serializeOutputJourneyStationLineStops")
+            && rendering.includes("function getOutputJourneyRouteConditionFrames")
+            && rendering.includes("function serializeOutputJourneyRouteConditionFrames")
+            && rendering.includes("function appendOutputJourneyRouteConditions")
+            && rendering.includes("function appendOutputJourneyDimensions")
+            && rendering.includes("function appendOutputJourneyPassengerFrame")
+            && rendering.includes("function appendOutputJourneyConcourse")
+            && rendering.includes("function serializeOutputJourneyConcourseStops")
+            && rendering.includes("function appendOutputJourneyRideFrame")
+            && rendering.includes("ride.dataset.outputJourneyModel")
+            && rendering.includes("ride.dataset.primaryRoutePathLabel")
+            && rendering.includes("function appendOutputJourneyItinerary")
+            && rendering.includes("function serializeOutputJourneyHistoryLegs")
+            && rendering.includes("function getOutputJourneyRoutePathLabel")
+            && rendering.includes("function appendOutputJourneySourceLayers")
+            && rendering.includes("function serializeOutputJourneySourceLayers")
+            && rendering.includes("function appendOutputJourneyPlatform")
+            && rendering.includes("function serializeOutputJourneyPlatformTracks")
+            && rendering.includes("platform.dataset.sourceStation")
+            && rendering.includes("platform.dataset.routePathLabel")
+            && rendering.includes("selected.routePathLabel ||")
+            && rendering.includes("leg.dataset.routePathLabel")
+            && rendering.includes("main.textContent = routePathLabel")
+            && rendering.includes("function appendOutputJourneyNextSource")
+            && rendering.includes("function renderOutputJourneyStrip")
+            && rendering.includes("getAndrewsRouteBoardContinuedJourneyReceipt")
+            && rendering.includes('outputJourneyState: continuedJourney.outputJourneyState || "continued-as-next-source"')
+            && rendering.includes('journey.outputJourneyState === "continued-as-next-source"')
+            && rendering.includes("renderOutputJourneyStrip();")
+            && rendering.includes('document.createElement("button")')
+            && rendering.includes("continueAndrewsRouteBoardFromActiveJourney();")
+            && rendering.includes("container.dataset.nextSourceStation")
+            && rendering.includes("container.dataset.nextSourceEntryBoard")
+            && rendering.includes("container.dataset.targetActionLabel")
+            && rendering.includes("container.dataset.routeBoardModel")
+            && rendering.includes("container.dataset.outputJourneyState")
+            && rendering.includes("container.dataset.routePathLabel")
+            && rendering.includes("pass.dataset.primaryRoutePathLabel")
+            && rendering.includes("source.dataset.routePathLabel")
+            && rendering.includes("element.dataset.routePathLabel = stationLineFrame.routePathLabel")
+            && rendering.includes("routePathLabel: stationLineFrame?.routePathLabel")
+            && rendering.includes("ruta: ${routePathLabel}")
+            && rendering.includes("chipEl.dataset.surfaceRoutePathLabel")
+            && rendering.includes("chip.dataset.passengerPrimaryRoutePathLabel")
+            && rendering.includes("chip.dataset.routePathLabel = chip.dataset.passengerPrimaryRoutePathLabel")
+            && rendering.includes("chip.dataset.routePathLabel || nextSourceLabel")
+            && rendering.includes("container.dataset.passengerPrimaryRoutePathLabel")
+            && rendering.includes("container.dataset.journeyModel")
+            && rendering.includes("container.dataset.passengerPrimaryActionLabel")
+            && rendering.includes("container.dataset.stationLineModel")
+            && rendering.includes("container.dataset.stationLineStops")
+            && rendering.includes("container.dataset.concourseModel")
+            && rendering.includes("container.dataset.sourceLayerModel")
+            && rendering.includes("container.dataset.sourceLayers")
+            && rendering.includes("container.dataset.sourceLayerActiveStation")
+            && rendering.includes("rail.dataset.sourceLayerActiveStation")
+            && rendering.includes("chip.dataset.sourceLayerStation")
+            && rendering.includes("chip.dataset.sourceLayerRole")
+            && rendering.includes("appendOutputJourneySourceLayers(container, journey)")
+            && rendering.includes("container.dataset.concourseStops")
+            && rendering.includes("container.dataset.journeyHistoryLegCount")
+            && rendering.includes("container.dataset.journeyHistoryLegs")
+            && rendering.includes("container.dataset.journeyHistoryRouteIds")
+            && rendering.includes("container.dataset.journeyHistoryRoutePaths")
+            && rendering.includes("container.dataset.platformModel")
+            && rendering.includes("container.dataset.platformTracks")
+            && rendering.includes("container.dataset.rideOutputJourneyModel")
+            && rendering.includes("container.dataset.ridePrimaryRoutePathLabel")
+            && rendering.includes("container.dataset.rideSwitchingRequired")
+            && rendering.includes("container.dataset.routeConditionFrames")
+            && rendering.includes("container.dataset.routeIfStage")
+            && rendering.includes("container.dataset.routeThenStage")
+            && rendering.includes("appendOutputJourneyRideFrame(container, journey)")
+            && rendering.includes("chip.dataset.passengerPrimaryActionLabel")
+            && rendering.includes("function getActiveAndrewsStationLineFrameForRendering")
+            && rendering.includes("function applyAndrewsStationLineDatasetToSurfaceElement")
+            && rendering.includes("element.dataset.stationLineModel")
+            && rendering.includes("function getActiveAndrewsRouteConditionFrameForRendering")
+            && rendering.includes("function applyAndrewsRouteConditionDatasetToSurfaceElement")
+            && rendering.includes("element.dataset.routeConditionFrames")
+            && rendering.includes("function getActiveAndrewsSourceLayerFrameForRendering")
+            && rendering.includes("function applyAndrewsSourceLayerDatasetToSurfaceElement")
+            && rendering.includes("element.dataset.sourceLayerModel")
+            && rendering.includes("surfaceFrame.sourceLayerFrame")
+            && rendering.includes("function getActiveAndrewsRideFrameForRendering")
+            && rendering.includes("function applyAndrewsRideDatasetToSurfaceElement")
+            && rendering.includes("element.dataset.rideExperienceModel")
+            && rendering.includes("surfaceFrame.rideFrame")
+            && rendering.includes("applyAndrewsRideDatasetToSurfaceElement(chipEl, surfaceFrame.rideFrame)")
+            && rendering.includes("applyAndrewsRideDatasetToSurfaceElement(surfaceText, rideFrame)")
+            && rendering.includes("rideFrame?.primaryRoutePathLabel")
+            && rendering.includes("function syncConjugationConversionSurfaceRouteFrame")
+            && rendering.includes('surfaceText.dataset.andrewsRouteSurfacePriority = "surface-line"')
+            && rendering.includes("function buildVisibleCnvFormulaSurfaceFrame")
+            && rendering.includes('pathModel: "surface-line-priority-formula-chip-receives"')
+            && rendering.includes("surface-line-receives-active-route-frame")
+            && rendering.includes("routeRecordId || stationLineFrame?.routePathLabel")
+            && rendering.includes("chipEl.dataset.surfacePriority")
+            && events.includes("clearAndrewsRouteBoardPinnedJourney();")
+            && events.includes("renderAndrewsRouteBoard();")
+            && panels.includes("renderAndrewsRouteBoard(verbMeta)")
+            && css.includes(".andrews-route-board")
+            && css.includes(".andrews-route-board__map")
+            && css.includes(".andrews-route-board__map-terrain")
+            && css.includes(".andrews-route-board__map-terrain-chip")
+            && css.includes(".andrews-route-board__map-service")
+            && css.includes(".andrews-route-board__map-service-chip")
+            && css.includes(".andrews-route-board__map-advisory")
+            && css.includes('.andrews-route-board__map-advisory[data-service-advisory-level="clear"]')
+            && css.includes(".andrews-route-board__map-advisory-item")
+            && css.includes(".andrews-route-board__map-advisory-main")
+            && css.includes(".andrews-route-board__map-advisory-meta")
+            && css.includes(".andrews-route-board__map-dimensions")
+            && css.includes(".andrews-route-board__map-dimension-chip")
+            && css.includes('.andrews-route-board__map-dimension-chip[data-map-gis-layer-status="routed"]')
+            && css.includes(".andrews-route-board__map-gis-layer-list")
+            && css.includes(".andrews-route-board__map-gis-layer")
+            && css.includes(".andrews-route-board__map-gis-layer-name")
+            && css.includes(".andrews-route-board__map-gis-layer-value")
+            && css.includes(".andrews-route-board__map-wayfinding")
+            && css.includes(".andrews-route-board__map-wayfinding-sign")
+            && css.includes(".andrews-route-board__map-trip-preview")
+            && css.includes(".andrews-route-board__map-headsign")
+            && css.includes(".andrews-route-board__map-headsign-item")
+            && css.includes(".andrews-route-board__map-headsign-meta")
+            && css.includes(".andrews-route-board__map-continuity")
+            && css.includes(".andrews-route-board__map-continuity-item")
+            && css.includes(".andrews-route-board__map-continuity-meta")
+            && css.includes(".andrews-route-board__map-announcements")
+            && css.includes(".andrews-route-board__map-announcement")
+            && css.includes(".andrews-route-board__map-transfer-guidance")
+            && css.includes(".andrews-route-board__map-transfer-guidance-item")
+            && css.includes(".andrews-route-board__map-transfer-guidance-meta")
+            && css.includes(".andrews-route-board__map-itinerary")
+            && css.includes(".andrews-route-board__map-itinerary-stop")
+            && css.includes(".andrews-route-board__map-station-directory")
+            && css.includes(".andrews-route-board__map-station-directory-item")
+            && css.includes(".andrews-route-board__map-options")
+            && css.includes(".andrews-route-board__map-option")
+            && css.includes('.andrews-route-board__map-option[data-option-state="recommended"]')
+            && css.includes(".andrews-route-board__map-departures")
+            && css.includes(".andrews-route-board__map-departure")
+            && css.includes(".andrews-route-board__map-destinations")
+            && css.includes(".andrews-route-board__map-destination")
+            && css.includes(".andrews-route-board__map-geography")
+            && css.includes(".andrews-route-board__map-geography-region")
+            && css.includes(".andrews-route-board__map-geography-grid-line")
+            && css.includes(".andrews-route-board__map-geography-label")
+            && css.includes(".andrews-route-board__map-dimension-landmarks")
+            && css.includes(".andrews-route-board__map-dimension-landmark")
+            && css.includes(".andrews-route-board__map-compass")
+            && css.includes(".andrews-route-board__map-compass-ring")
+            && css.includes(".andrews-route-board__map-compass-needle")
+            && css.includes(".andrews-route-board__map-track-beds")
+            && css.includes(".andrews-route-board__map-track-bed")
+            && css.includes(".andrews-route-board__map-track-bed--outer")
+            && css.includes('.andrews-route-board__map-track-bed[data-route-map-state="active"]')
+            && css.includes(".andrews-route-board__map-line")
+            && css.includes('.andrews-route-board__map-line[data-route-map-state="active"]')
+            && css.includes('.andrews-route-board__map-line[data-route-resistance-role="least"]')
+            && css.includes('.andrews-route-board__map-line[data-route-resistance-role="most"]')
+            && css.includes('.andrews-route-board__map-line[data-route-hypothesis-hit="true"]')
+            && css.includes('.andrews-route-board__map-line[data-route-map-selectable="true"]')
+            && css.includes(".andrews-route-board__map-route-directions")
+            && css.includes(".andrews-route-board__map-route-direction")
+            && css.includes(".andrews-route-board__map-route-direction-arrow")
+            && css.includes(".andrews-route-board__map-line-stations")
+            && css.includes(".andrews-route-board__map-line-station")
+            && css.includes('.andrews-route-board__map-line-station[data-route-map-state="active"]')
+            && css.includes(".andrews-route-board__map-transfer-hubs")
+            && css.includes(".andrews-route-board__map-transfer-hub-ring")
+            && css.includes(".andrews-route-board__map-transfers")
+            && css.includes(".andrews-route-board__map-transfer-service-chip")
+            && css.includes(".andrews-route-board__map-terminals")
+            && css.includes(".andrews-route-board__map-terminal")
+            && css.includes(".andrews-route-board__map-terminal-code")
+            && css.includes(".andrews-route-board__map-terminal-main")
+            && css.includes(".andrews-route-board__map-symbol-key")
+            && css.includes(".andrews-route-board__map-symbol-key-item")
+            && css.includes(".andrews-route-board__map-symbol-key-icon")
+            && css.includes('.andrews-route-board__map-symbol-key-icon[data-map-symbol-kind="transfer"]')
+            && css.includes('.andrews-route-board__map-symbol-key-icon[data-map-symbol-kind="dimension-landmark"]')
+            && css.includes(".andrews-route-board__map-layer-stack")
+            && css.includes(".andrews-route-board__map-layer-stack-list")
+            && css.includes(".andrews-route-board__map-layer")
+            && css.includes(".andrews-route-board__map-layer-name")
+            && css.includes(".andrews-route-board__map-layer-role")
+            && css.includes(".andrews-route-board__map-approval")
+            && css.includes('.andrews-route-board__map-approval[data-engine-audit-state="incomplete"]')
+            && css.includes(".andrews-route-board__map-approval-list")
+            && css.includes(".andrews-route-board__map-approval-item")
+            && css.includes(".andrews-route-board__map-approval-role")
+            && css.includes(".andrews-route-board__map-corridors")
+            && css.includes(".andrews-route-board__map-corridor")
+            && css.includes(".andrews-route-board__map-corridor-service-chip")
+            && css.includes(".andrews-route-board__map-corridor-name")
+            && css.includes(".andrews-route-board__map-route-badge")
+            && css.includes('.andrews-route-board__map-route-badge[data-route-resistance-role="least"]')
+            && css.includes('.andrews-route-board__map-route-badge[data-route-resistance-role="most"]')
+            && css.includes(".andrews-route-board__map-route-badge-text")
+            && css.includes(".andrews-route-board__map-route-terminals")
+            && css.includes(".andrews-route-board__map-route-terminal")
+            && css.includes(".andrews-route-board__map-route-terminal-dot")
+            && css.includes(".andrews-route-board__map-route-terminal-code")
+            && css.includes(".andrews-route-board__map-destination-callouts")
+            && css.includes(".andrews-route-board__map-destination-callout")
+            && css.includes(".andrews-route-board__map-destination-callout-text")
+            && css.includes(".andrews-route-board__map-station")
+            && css.includes(".andrews-route-board__map-station-hit")
+            && css.includes(".andrews-route-board__map-station-label")
+            && css.includes("pointer-events: none")
+            && css.includes(".andrews-route-board__map-station-service")
+            && css.includes(".andrews-route-board__map-station-service-chip")
+            && css.includes(".andrews-route-board__map-station-directory-service")
+            && css.includes(".andrews-route-board__map-station-directory-service-chip")
+            && css.includes(".andrews-route-board__map-station-flag")
+            && css.includes('.andrews-route-board__map-station[data-station-selectable="true"]')
+            && css.includes(".andrews-route-board__map-legend")
+            && css.includes('.andrews-route-board__map-legend-item[data-route-map-selectable="true"]')
+            && css.includes(".andrews-route-board__destination-select")
+            && css.includes(".andrews-route-board__route")
+            && css.includes(".andrews-route-board__route-topline")
+            && css.includes(".andrews-route-board__route-badge")
+            && css.includes(".andrews-route-board__conditions")
+            && css.includes(".andrews-route-board__condition")
+            && css.includes('data-route-recommendation="next"')
+            && css.includes('data-route-recommendation="alternate"')
+            && css.includes(".andrews-route-board__route-meta")
+            && css.includes(".andrews-route-board__pass")
+            && css.includes(".andrews-route-board__pass-main")
+            && css.includes(".andrews-route-board__pass-meta")
+            && css.includes(".andrews-route-board__intentions")
+            && css.includes(".andrews-route-board__intention")
+            && css.includes('[data-intention-selected="true"]')
+            && css.includes(".andrews-route-board__concourse")
+            && css.includes(".andrews-route-board__concourse-stop")
+            && css.includes(".andrews-route-board__concourse-action")
+            && css.includes(".andrews-route-board__platform-board")
+            && css.includes(".andrews-route-board__platform")
+            && css.includes(".andrews-route-board__platform-destination")
+            && css.includes(".andrews-route-board__ride")
+            && css.includes(".andrews-route-board__ride-main")
+            && css.includes(".andrews-route-board__ride-meta")
+            && css.includes(".andrews-route-board__pass-action")
+            && css.includes(".andrews-route-board__pass-action:hover")
+            && css.includes(".andrews-route-board__pass-action[data-route-loop-state]")
+            && css.includes(".andrews-route-board__station-line")
+            && css.includes(".andrews-route-board__station-line-stop")
+            && css.includes(".andrews-route-board__source-layers")
+            && css.includes(".andrews-route-board__source-layer")
+            && css.includes(".andrews-route-board__source-layer-rail")
+            && css.includes(".andrews-route-board__ticket-dimensions")
+            && css.includes(".andrews-route-board__ticket-dimension")
+            && css.includes(".andrews-route-board__journey")
+            && css.includes(".andrews-route-board__journey-main")
+            && css.includes(".andrews-route-board__journey-meta")
+            && css.includes(".andrews-route-board__journey--continued")
+            && css.includes(".andrews-route-board__itinerary")
+            && css.includes(".andrews-route-board__itinerary-leg")
+            && css.includes(".andrews-route-board__route-stops")
+            && css.includes(".andrews-route-board__route-stop")
+            && css.includes(".andrews-route-board__dimensions")
+            && css.includes(".andrews-route-board__dimension")
+            && css.includes(".andrews-route-board__conversion")
+            && css.includes(".andrews-route-board__conversion-route")
+            && css.includes(".andrews-route-board__conversion-actions")
+            && css.includes(".andrews-route-board__conversion-action")
+            && css.includes(".andrews-route-board__conversion-dimensions")
+            && css.includes(".andrews-route-board__conversion-dimension")
+            && css.includes(".output-journey-strip")
+            && css.includes(".output-journey-strip__main")
+            && css.includes(".output-journey-strip__pass")
+            && css.includes(".output-journey-strip__pass-main")
+            && css.includes(".output-journey-strip__pass-meta")
+            && css.includes(".output-journey-strip__platform")
+            && css.includes(".output-journey-strip__platform-main")
+            && css.includes(".output-journey-strip__platform-meta")
+            && css.includes(".output-journey-strip__ride")
+            && css.includes(".output-journey-strip__ride-main")
+            && css.includes(".output-journey-strip__ride-meta")
+            && css.includes(".output-journey-strip__concourse")
+            && css.includes(".output-journey-strip__concourse-stop")
+            && css.includes(".output-journey-strip__concourse-action")
+            && css.includes(".output-journey-strip__itinerary")
+            && css.includes(".output-journey-strip__itinerary-leg")
+            && css.includes(".output-journey-strip__itinerary-main")
+            && css.includes(".output-journey-strip__station-line")
+            && css.includes(".output-journey-strip__station-stop")
+            && css.includes(".output-journey-strip__source-layers")
+            && css.includes(".output-journey-strip__source-layer")
+            && css.includes(".output-journey-strip__stops")
+            && css.includes(".output-journey-strip__stop")
+            && css.includes(".output-journey-strip__conditions")
+            && css.includes(".output-journey-strip__condition")
+            && css.includes(".output-journey-strip__dimensions")
+            && css.includes(".output-journey-strip__dimension")
+            && css.includes(".output-journey-strip__next-source")
+            && css.includes(".output-journey-strip__next-source:hover")
+            && css.includes('data-route-resistance-role="least"')
+            && css.includes('data-route-resistance-role="most"')
+    );
+    s.ok(
+        "#2 formula panel exposes tense, unit, and derivation controls",
+        html.includes('id="tense-tabs"')
+            && html.includes('class="tense-tabs formula-slot-controls"')
+            && html.includes('class="calc-operators formula-controls-grid"')
+            && formulaPanelHtml.indexOf('class="calc-operators formula-controls-grid"') >= 0
+            && formulaPanelHtml.indexOf('id="tense-tabs"') > formulaPanelHtml.indexOf('class="calc-operators formula-controls-grid"')
+            && html.includes('data-andrews-formula-role="formula-mode-derivation-controls"')
+            && html.includes('data-tense-mode="verbo"')
+            && html.includes('data-tense-mode="sustantivo"')
+            && html.includes('data-mode-system="unit"')
+            && />\s*Verbal\s*<\/button>/.test(html)
+            && />\s*Nominal\s*<\/button>/.test(html)
+            && html.includes('data-derivation-type="direct"')
+            && html.includes('data-derivation-type="causative"')
+            && html.includes('data-derivation-type="applicative"')
+            && />\s*Causativo\s*<\/button>/.test(html)
+            && />\s*Aplicativo\s*<\/button>/.test(html)
+            && !html.includes('id="derivation-antiderivative"')
+            && !html.includes('id="andrews-route-board"')
+            && !html.includes('id="derivation-type"')
+            && !panels.includes("showAndrewsRouteDirectoryInTenseTabs")
+            && !panels.includes("mainWrap.appendChild(routeDirectoryColumn)")
+            && state.includes('document.querySelectorAll("[data-ordinary-nnc-mode]").forEach')
+            && state.includes('const buttons = document.querySelectorAll("[data-tense-mode]")')
+            && state.includes('const buttons = Array.from(document.querySelectorAll("[data-derivation-type]"))')
+            && !/function initTenseModeTabs\(\) \{\n\s+const buttons = document\.querySelectorAll\("\[data-tense-mode\]"\);\n\s+if \(!buttons\.length\)/.test(state)
+            && css.includes("#panel-stack-pane-tense .calc-operators")
+            && !css.includes("#panel-stack-pane-tense > #derivation-antiderivative")
+            && !css.includes("#panel-stack-pane-tense > #andrews-route-board")
     );
     s.ok(
         "S->V composer verbalization chips carry Andrews/Nawat judgement without changing generation",
@@ -158,10 +1096,8 @@ function run(ctx = {}) {
     s.ok(
         "desktop workspace places #1 Entrada over #2 Formula left of #3 Salida",
         css.includes('grid-template-columns: minmax(330px, 0.46fr) minmax(0, 1fr);')
-            && css.includes('"inputs output"')
-            && css.includes('"derivation output"')
-            && css.includes('#panel-stack-pane-inputs {\n  grid-area: inputs;')
-            && css.includes('#panel-stack-pane-tense {\n  grid-area: derivation;')
+            && css.includes('"main output"')
+            && css.includes('.panel-main-column {\n  grid-area: main;')
             && css.includes('.panel-output-column {\n  grid-area: output;')
     );
     s.ok(
@@ -302,13 +1238,16 @@ function run(ctx = {}) {
             && html.includes('data-andrews-nnc-predicate="state+stem"')
             && html.includes('data-andrews-vnc-layers="verbstem > verbcore > predicate > CNV"')
             && html.includes('data-andrews-nnc-layers="nounstem > nouncore/predicate > CNN"')
-            && html.includes('class="calc-operators formula-controls-grid"')
-            && html.includes('formula-controls-section--unit"')
-            && html.includes('data-andrews-formula-role="clause-kind"')
-            && html.includes('formula-controls-section--predicate-route"')
             && html.includes('class="tense-tabs formula-slot-controls"')
             && html.includes('data-andrews-vnc-slot="tns"')
             && html.includes('data-andrews-nnc-slot="st"')
+            && html.includes('class="calc-operators formula-controls-grid"')
+            && html.includes('data-andrews-formula-role="formula-mode-derivation-controls"')
+            && html.includes('data-tense-mode="verbo"')
+            && html.includes('data-tense-mode="sustantivo"')
+            && html.includes('data-derivation-type="causative"')
+            && html.includes('data-derivation-type="applicative"')
+            && !html.includes('formula-controls-section--predicate-route"')
             && html.includes('class="panel container-tense-grid nuclear-clause-output-panel panel-stack-pane"')
             && html.includes('data-andrews-renders="subject-predicate-formula"')
             && state.includes('var PANEL_STACK_ORDER = ["inputs", "formula", "output"]')
@@ -365,47 +1304,59 @@ function run(ctx = {}) {
             && curriculum.includes("concept-glossary__item")
     );
     s.ok(
-        "#2 mode controls expose only Andrews formal classes: CNV, CNN, and Partícula",
-        html.includes('aria-label="Clase formal"')
-            && html.includes(">Clase formal<")
-            && !html.includes("Unidad y función")
-            && html.includes('id="calc-mode-operator-label"')
-            && html.includes('data-ui-label-key="calc-mode-operator-label"')
-            && !html.includes('id="calc-mode-system-function"')
-            && !html.includes('data-mode-system="function"')
-            && !html.includes('data-mode-role="function"')
-            && !html.includes('data-function-role=')
-            && !html.includes("Clase sintáctica")
-            && !html.includes('data-mode-system="unit-route"')
-            && !html.includes('data-formal-route=')
-            && !html.includes('data-formal-owner=')
-            && !html.includes('data-function-role="adjectival"')
-            && !html.includes('data-function-role="adverbial"')
-            && !html.includes("CNV/CNN adjetival")
-            && !html.includes("CNV/CNN adverbial")
-            && !html.includes('aria-label="Función verbal"')
-            && !html.includes('title="Función verbal"')
-            && !html.includes('data-ui-label-key="tense-tabs-function-adjectival"')
-            && !html.includes('data-ui-label-key="tense-tabs-function-adverbial"')
-            && html.includes('id="calc-mode-system-unit"')
-            && html.includes('data-ui-label-key="mode-system-unit"')
-            && html.includes('data-mode-system="unit"')
-            && html.includes('data-mode-role="unit"')
-            && />\s*Clase formal\s*<\/div>/.test(html)
-            && html.includes('data-unit-kind="cnv"')
-            && html.includes('data-unit-kind="cnn"')
-            && html.includes('data-unit-kind="particula"')
-            && html.includes('data-ui-label-key="tense-tabs-unit-cnv"')
-            && html.includes('data-ui-label-key="tense-tabs-unit-cnn"')
-            && html.includes('data-ui-label-key="tense-tabs-unit-particle"')
-            && />\s*CNV · cláusula verbal\s*<\/button>/.test(html)
-            && />\s*CNN · cláusula nominal\s*<\/button>/.test(html)
-            && />\s*Partícula\s*<\/button>/.test(html)
-            && !html.includes("Convención europea")
-            && !html.includes('data-mode-system="european"')
-            && !html.includes('data-mode-system="nawat"')
-            && !html.includes('data-ui-label-key="mode-system-european"')
-            && !html.includes('id="calc-mode-system-nawat"')
+        "#2 formula controls expose only the compact unit and derivation axes",
+        formulaPanelHtml.includes('class="calc-operators formula-controls-grid"')
+            && formulaPanelHtml.includes('aria-label="Tipo de cláusula nuclear"')
+            && formulaPanelHtml.includes('data-tense-mode="verbo"')
+            && formulaPanelHtml.includes('data-tense-mode="sustantivo"')
+            && formulaPanelHtml.includes('data-mode-system="unit"')
+            && formulaPanelHtml.includes('aria-label="Derivación verbal"')
+            && formulaPanelHtml.includes('data-derivation-type="direct"')
+            && formulaPanelHtml.includes('data-derivation-type="causative"')
+            && formulaPanelHtml.includes('data-derivation-type="applicative"')
+            && />\s*Verbal\s*<\/button>/.test(formulaPanelHtml)
+            && />\s*Nominal\s*<\/button>/.test(formulaPanelHtml)
+            && />\s*Causativo\s*<\/button>/.test(formulaPanelHtml)
+            && />\s*Aplicativo\s*<\/button>/.test(formulaPanelHtml)
+            && !formulaPanelHtml.includes('aria-label="Clase formal"')
+            && !formulaPanelHtml.includes(">Clase formal<")
+            && !formulaPanelHtml.includes("Unidad y función")
+            && !formulaPanelHtml.includes('id="calc-mode-operator-label"')
+            && !formulaPanelHtml.includes('data-ui-label-key="calc-mode-operator-label"')
+            && !formulaPanelHtml.includes('id="calc-mode-system-function"')
+            && !formulaPanelHtml.includes('data-mode-system="function"')
+            && !formulaPanelHtml.includes('data-mode-role="function"')
+            && !formulaPanelHtml.includes('data-function-role=')
+            && !formulaPanelHtml.includes("Clase sintáctica")
+            && !formulaPanelHtml.includes('data-mode-system="unit-route"')
+            && !formulaPanelHtml.includes('data-formal-route=')
+            && !formulaPanelHtml.includes('data-formal-owner=')
+            && !formulaPanelHtml.includes('data-function-role="adjectival"')
+            && !formulaPanelHtml.includes('data-function-role="adverbial"')
+            && !formulaPanelHtml.includes("CNV/CNN adjetival")
+            && !formulaPanelHtml.includes("CNV/CNN adverbial")
+            && !formulaPanelHtml.includes('aria-label="Función verbal"')
+            && !formulaPanelHtml.includes('title="Función verbal"')
+            && !formulaPanelHtml.includes('data-ui-label-key="tense-tabs-function-adjectival"')
+            && !formulaPanelHtml.includes('data-ui-label-key="tense-tabs-function-adverbial"')
+            && !formulaPanelHtml.includes('id="calc-mode-system-unit"')
+            && !formulaPanelHtml.includes('data-ui-label-key="mode-system-unit"')
+            && !formulaPanelHtml.includes('data-mode-role="unit"')
+            && !/>\s*Clase formal\s*<\/div>/.test(formulaPanelHtml)
+            && !formulaPanelHtml.includes('data-unit-kind="cnv"')
+            && !formulaPanelHtml.includes('data-unit-kind="cnn"')
+            && !formulaPanelHtml.includes('data-unit-kind="particula"')
+            && !formulaPanelHtml.includes('data-ui-label-key="tense-tabs-unit-cnv"')
+            && !formulaPanelHtml.includes('data-ui-label-key="tense-tabs-unit-cnn"')
+            && !formulaPanelHtml.includes('data-ui-label-key="tense-tabs-unit-particle"')
+            && !/>\s*CNV · cláusula verbal\s*<\/button>/.test(formulaPanelHtml)
+            && !/>\s*CNN · cláusula nominal\s*<\/button>/.test(formulaPanelHtml)
+            && !/>\s*Partícula\s*<\/button>/.test(formulaPanelHtml)
+            && !formulaPanelHtml.includes("Convención europea")
+            && !formulaPanelHtml.includes('data-mode-system="european"')
+            && !formulaPanelHtml.includes('data-mode-system="nawat"')
+            && !formulaPanelHtml.includes('data-ui-label-key="mode-system-european"')
+            && !formulaPanelHtml.includes('id="calc-mode-system-nawat"')
             && staticLabels.includes('"mode-system-function"')
             && staticLabels.includes('"tense-tabs-function-adjectival"')
             && staticLabels.includes('"labelEs": "Uso adjetival"')
@@ -456,13 +1407,13 @@ function run(ctx = {}) {
             && !composer.includes('selector: "[data-tense-mode=\\"adverbio\\"]"')
     );
     s.ok(
-        "Lesson 3 particle metadata reaches browser runtime as enabled diagnostic Partícula mode",
+        "Lesson 3 particle metadata reaches browser runtime without a #2 Partícula mode chip",
         html.includes("src/core/particles/particles.js")
-            && html.includes('id="calc-nawat-mode-particle"')
-            && html.includes('data-tense-mode="particula"')
-            && html.includes('data-mode-system="unit"')
-            && !html.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"')
-            && !html.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"\n                            disabled')
+            && !formulaPanelHtml.includes('id="calc-nawat-mode-particle"')
+            && !formulaPanelHtml.includes('data-tense-mode="particula"')
+            && !/>\s*Partícula\s*<\/button>/.test(formulaPanelHtml)
+            && !formulaPanelHtml.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"')
+            && !formulaPanelHtml.includes('id="calc-nawat-mode-particle"\n                            role="tab"\n                            aria-selected="false"\n                            aria-disabled="true"\n                            disabled')
             && particles.includes("particle-inventory-boundary")
             && particles.includes("particle-mode-display-model")
             && particles.includes("particle-seed-inventory-entry")
@@ -885,6 +1836,7 @@ function run(ctx = {}) {
         "ordinary NNC output uses a nominal-clause block with shared controls",
         rendering.includes("tense-block tense-block--noun-shared-controls tense-block--ordinary-nnc-controls")
             && rendering.includes("tense-block tense-block--ordinary-nnc")
+            && rendering.includes('controls.className = "tense-block__controls tense-block__controls--stacked"')
             && rendering.includes('label.textContent = "CNN ordinaria"')
             && !rendering.includes('label.textContent = "Sustantivo ordinario"')
             && !rendering.includes('visibleLabel: "Clase"')
@@ -893,12 +1845,11 @@ function run(ctx = {}) {
             && rendering.includes('ariaLabel: "conector num1-num2 de la cláusula nuclear nominal"')
             && rendering.includes('visibleLabel: "Animacidad"')
             && rendering.includes('ariaLabel: "animacidad de la cláusula nuclear nominal"')
-            && css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked.object-toggle--with-label .object-toggle__label")
-            && css.includes("grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));")
-            && css.includes("flex-basis: 100%;")
-            && css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked .object-toggle-button")
-            && css.includes('.tense-block--ordinary-nnc-controls .object-toggle[data-toggle-slot="possessor"]')
-            && css.includes("grid-column: span 2;")
+            && css.includes(".tense-block__controls--stacked")
+            && !css.includes(".tense-block--ordinary-nnc-controls .tense-block__controls--stacked")
+            && !css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked.object-toggle--with-label")
+            && !css.includes(".tense-block--ordinary-nnc-controls .object-toggle--stacked .object-toggle-button")
+            && !css.includes('.tense-block--ordinary-nnc-controls .object-toggle[data-toggle-slot="possessor"]')
             && rendering.includes('visibleLabel: ANDREWS_RENDERING_TERMS.pers1Pers2')
             && rendering.includes('visibleLabel: "Estado/poseedor"')
             && rendering.includes('ariaLabel: "Estado/poseedor"')
@@ -1076,8 +2027,13 @@ function run(ctx = {}) {
         rendering.includes("buildVerbDerivedNominalizationProfileSubLabels")
             && rendering.includes('profile.outputKind !== "verb-derived-nominal"')
             && rendering.includes("appendVerbDerivedNominalizationProfileSubLabels")
+            && rendering.includes("getNominalizationSourceUnitLabel")
+            && rendering.includes('NOMINALIZATION_SOURCE_UNITS.vncCoreStem')
+            && rendering.includes('NOMINALIZATION_SOURCE_UNITS.vncPredicate')
             && rendering.includes("evaluation.result?.nominalizationProfile")
             && rendering.includes("ambito: salida estructural")
+            && rendering.includes("profile.instrumentiveNote2Frame?.grammarSource")
+            && rendering.includes("36.6 n.2: excepciones de estado")
             && rendering.includes("ANDREWS_RENDERING_TERMS.nominalization")
             && rendering.includes("rol nominal:")
             && rendering.includes("ANDREWS_RENDERING_TERMS.sourceVnc")
@@ -2045,9 +3001,6 @@ function run(ctx = {}) {
             && rendering.includes("const currentSurface = getPrimaryConjugationSurface(evaluation?.result)")
             && rendering.includes("action.dataset.targetSurface = generalUseTargetSurface")
             && rendering.includes("`uso general: ${generalUseTargetSurface}`")
-            && rendering.includes("const possessiveTargetSurface = getPrimaryConjugationSurface(possessiveEvaluation?.result)")
-            && rendering.includes("action.dataset.targetSurface = possessiveTargetSurface")
-            && rendering.includes("`salida posesiva: ${possessiveTargetSurface}`")
             && !rendering.includes('action.dataset.targetSurface = generalUseEvaluation.result.result || ""')
             && rendering.includes("Andrews 36.10-36.11: sujeto fuente")
             && rendering.includes("renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation({")
@@ -2104,6 +3057,38 @@ function run(ctx = {}) {
             && !patientivoOriginBody.includes("createPatientivoBlockOriginPicker(entry")
             && !patientivoOriginBody.includes("appendChild(originPicker)")
     );
+    const patientivoBlockConfigStart = rendering.indexOf('const blockConfigs = isPatientivoTense');
+    const patientivoBlockConfigEnd = rendering.indexOf('const visibleBlockConfigs = blockConfigs.filter', patientivoBlockConfigStart);
+    const patientivoBlockConfigBody = patientivoBlockConfigStart >= 0 && patientivoBlockConfigEnd > patientivoBlockConfigStart
+        ? rendering.slice(patientivoBlockConfigStart, patientivoBlockConfigEnd)
+        : "";
+    const patientivoAvailabilityStart = rendering.indexOf("const nounAvailabilityPatientivoSources = (() => {");
+    const patientivoAvailabilityEnd = rendering.indexOf("const nounCombinationEvaluationCache", patientivoAvailabilityStart);
+    const patientivoAvailabilityBody = patientivoAvailabilityStart >= 0 && patientivoAvailabilityEnd > patientivoAvailabilityStart
+        ? rendering.slice(patientivoAvailabilityStart, patientivoAvailabilityEnd)
+        : "";
+    const sharedPatientivoControlsStart = rendering.indexOf('controlsBlock.className = "tense-block tense-block--noun-shared-controls"');
+    const sharedPatientivoControlsEnd = rendering.indexOf("const createTenseBlock = (", sharedPatientivoControlsStart);
+    const sharedPatientivoControlsBody = sharedPatientivoControlsStart >= 0 && sharedPatientivoControlsEnd > sharedPatientivoControlsStart
+        ? rendering.slice(sharedPatientivoControlsStart, sharedPatientivoControlsEnd)
+        : "";
+    s.ok(
+        "patientivo noun shared controls are source-neutral while availability probes use explicit Andrews source gates",
+        patientivoBlockConfigBody.includes('patientivoSource: "passive"')
+            && patientivoBlockConfigBody.includes('patientivoSource: "impersonal"')
+            && patientivoBlockConfigBody.includes('patientivoSource: "perfectivo"')
+            && patientivoBlockConfigBody.includes('patientivoSource: "imperfectivo"')
+            && patientivoBlockConfigBody.includes('patientivoSource: "tronco-verbal"')
+            && !patientivoBlockConfigBody.includes('patientivoSource: "nonactive"')
+            && patientivoAvailabilityBody.includes('.map((entry) => entry.patientivoSource || "")')
+            && patientivoAvailabilityBody.includes("return Array.from(new Set(sources));")
+            && !patientivoAvailabilityBody.includes('entry.patientivoSource || "nonactive"')
+            && !patientivoAvailabilityBody.includes('["nonactive"]')
+            && sharedPatientivoControlsBody.includes("objSection.insertBefore(controlsBlock, grid)")
+            && !sharedPatientivoControlsBody.includes("dataset.nawatPatientivoSource")
+            && rendering.includes('isNawatPatientivoNonactiveSource(patientivoSource) ? COMBINED_MODE.nonactive : COMBINED_MODE.active')
+            && rendering.includes('!isNawatPatientivoNonactiveSource(patientivoSource)')
+    );
     const verbDestinationStart = rendering.indexOf("const updateVerbTenseBlockDestination = () => {");
     const verbDestinationEnd = rendering.indexOf("tenseTitle.appendChild(titleControls)", verbDestinationStart);
     const verbDestinationBody = verbDestinationStart >= 0 && verbDestinationEnd > verbDestinationStart
@@ -2113,7 +3098,9 @@ function run(ctx = {}) {
         "verbo to patientivo continuation is a generated-row action, not a tense-block destino picker",
         rendering.includes("const appendVerbToPatientivoRowContinuation = ({")
             && rendering.includes('continueButton.dataset.verbPatientivoContinuation = "true"')
-            && rendering.includes('continueSubLabel.textContent = "S patientivo"')
+            && rendering.includes('continueButton.dataset.nominalizationSourceUnit = NOMINALIZATION_SOURCE_UNITS.vncCoreStem')
+            && rendering.includes('appendNominalizationSourceUnitSubLabel(')
+            && rendering.includes('"S patientivo"')
             && rendering.includes("appendVerbToPatientivoRowContinuation({")
             && verbDestinationBody.includes("destinationSlot.replaceChildren()")
             && verbDestinationBody.includes("destinationSlot.hidden = true")
@@ -2130,10 +3117,25 @@ function run(ctx = {}) {
             && rendering.includes('targetTense: "agentivo-futuro"')
             && rendering.includes('targetTense: "sustantivo-verbal"')
             && rendering.includes('targetTense: "instrumentivo"')
+            && rendering.includes('targetTense: "predicado-nominal"')
             && rendering.includes('targetTense: "locativo-temporal"')
+            && rendering.includes("predicateNominalSourceTense")
+            && rendering.includes("storedPredicateNominalSourceTense")
+            && rendering.includes("getPredicateNominalSourceTenses().map")
+            && rendering.includes("object-toggle--predicate-source-tense")
+            && rendering.includes("setActivePredicateNominalSourceTense")
+            && rendering.includes("predicateNominalBlockConfigs")
+            && rendering.includes('label: getVerbBlockLabel("predicado-nominal-pasivo"')
+            && rendering.includes("predicateNominalSourceMode: COMBINED_MODE.nonactive")
+            && rendering.includes("predicateNominalSourceMode = \"\"")
+            && rendering.includes("predicateNominalSourceMode,")
+            && rendering.includes("predicateNominalDerivationMode")
             && rendering.includes("const appendVerbToNominalRowContinuations = ({")
             && rendering.includes('continueButton.dataset.verbNominalContinuation = "true"')
             && rendering.includes('continueButton.dataset.targetMode = "sustantivo"')
+            && rendering.includes("const predicateSourceUnit = NOMINALIZATION_SOURCE_UNITS.vncPredicate")
+            && rendering.includes("sourceUnit: predicateSourceUnit")
+            && rendering.includes("continueButton.dataset.nominalizationSourceUnit = sourceUnit")
             && rendering.includes("function activateCnnOutputModeForContinuation")
             && rendering.includes("setActiveNawatTenseMode(TENSE_MODE.sustantivo, { syncOutput: true })")
             && rendering.includes("modeSystem: typeof TENSE_MODE_SYSTEM !== \"undefined\"")
@@ -2354,11 +3356,12 @@ function run(ctx = {}) {
             && rendering.includes("renderPatientivoCharacteristicPropertyEmbedContinuation({")
     );
     s.ok(
-        "instrumentive source-subject possessive output lives in #3 salida rows",
+        "instrumentive source-subject possessive output lives in #3 salida rows without predicate-nominal note-2 duplicate",
         rendering.includes("renderInstrumentivoSourceSubjectPossessiveContinuation")
             && rendering.includes("instrumentivoSourceSubjectPossessor")
             && rendering.includes("INSTRUMENTIVO_MODE.posesivo")
             && rendering.includes("Andrews 36.6: sujeto fuente")
+            && !rendering.includes("instrumentivoImperfectActiveAbsolutive")
     );
     s.ok(
         "shared adverbio renderer exposes Lesson 44 diagnostic metadata",
@@ -3837,6 +4840,9 @@ function run(ctx = {}) {
                             label: chip.label,
                             value: chip.value,
                             title: chip.title,
+                            surfacePriority: chip.surfaceFrame?.sourcePriority || "",
+                            pathModel: chip.surfaceFrame?.pathModel || "",
+                            surfaceForms: chip.surfaceFrame?.surfaceForms || [],
                         })),
                     slotChips: ctx.buildGeneratedOutputSlotChips(result)
                         .filter((chip) => ["pers1-pers2", "STEM", "num1-num2"].includes(chip.kind))
@@ -3859,11 +4865,17 @@ function run(ctx = {}) {
                         label: "Fórmula CNV",
                         value: "#0-0+ki-0(pish)0+ki-0#",
                         title: "Fórmula CNV: #0-0+ki-0(pish)0+ki-0# · salida: pishki",
+                        surfacePriority: "surface-line",
+                        pathModel: "surface-line-priority-formula-chip-receives",
+                        surfaceForms: ["pishki"],
                     },
                     {
                         label: "Fórmula CNV",
                         value: "#0-0+ki-0(piya)0+k-0#",
                         title: "Fórmula CNV: #0-0+ki-0(piya)0+k-0# · salida: piyak",
+                        surfacePriority: "surface-line",
+                        pathModel: "surface-line-priority-formula-chip-receives",
+                        surfaceForms: ["piyak"],
                     },
                 ],
                 slotChips: [
@@ -3914,6 +4926,301 @@ function run(ctx = {}) {
                 ["formula", "#ni-0+m-etz(mana)0+0-0#", "Fórmula CNV: #ni-0+m-etz(mana)0+0-0# · salida: nimetzmana"],
                 ["surface", "nimetzmana", ""],
             ]
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible CNV formula surface frame receives active station line and route conditions",
+        typeof ctx.buildGeneratedOutputSlotChips === "function"
+            && typeof ctx.getActiveAndrewsStationLineFrameForRendering === "function"
+            && typeof ctx.applyAndrewsStationLineDatasetToSurfaceElement === "function"
+            && typeof ctx.getActiveAndrewsRouteConditionFrameForRendering === "function"
+            && typeof ctx.applyAndrewsRouteConditionDatasetToSurfaceElement === "function"
+            && typeof ctx.getActiveAndrewsSourceLayerFrameForRendering === "function"
+            && typeof ctx.applyAndrewsSourceLayerDatasetToSurfaceElement === "function"
+            && typeof ctx.getActiveAndrewsRideFrameForRendering === "function"
+            && typeof ctx.applyAndrewsRideDatasetToSurfaceElement === "function"
+            && ctx.document
+            ? (() => {
+                const originalGetElementById = ctx.document.getElementById;
+                const routeBoard = {
+                    hidden: false,
+                    dataset: {
+                        stationLineModel: "entrada-formula-salida-one-route",
+                        stationLineIntentMode: "explore",
+                        stationLineActiveStop: "formula",
+                        stationLineRouteKey: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem",
+                        stationLineStops: "entrada:received:CNVpredicate-stemverbstem|formula:positioned:CNVpredicate-stemverbstem|salida:offered:CNVpredicate-stemdeverbal-verbstem",
+                        routePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                        passengerPrimaryRoutePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                        activeJourneyConditionFrames: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem>deverbal-verbstem",
+                        activeJourneyIfStage: "CNV:predicate-stem:verbstem",
+                        activeJourneyThenStage: "CNV:predicate-stem:deverbal-verbstem",
+                        sourceCandidateStageCount: "3",
+                        sourceCandidateStages: "CNVpredicatepredicate:received-source:CNV:predicate:predicate|CNVcoreverbal-core:contained-verbal-core:CNV:core:verbal-core|CNVpredicate-stemverbstem:contained-verbstem:CNV:predicate-stem:verbstem",
+                        currentStation: "CNV:predicate-stem:verbstem",
+                        rideExperienceModel: "passenger-rides-station-provides",
+                        rideOutputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                        rideOperatingPrinciple: "station-signs-do-switching-passenger-rides",
+                        rideChoiceModel: "explore-or-destination-one-board",
+                        ridePrimaryActionLabel: "Siguiente",
+                        ridePrimaryRoutePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                        ridePrimaryClickCount: "1",
+                        rideSwitchingRequired: "false",
+                        rideEvents: "show-current-position|carry-one-route-to-output",
+                    },
+                };
+                const outputStrip = {
+                    hidden: true,
+                    dataset: {},
+                };
+                ctx.document.getElementById = (id) => (id === "output-journey-strip" ? outputStrip : routeBoard);
+                try {
+                    const result = {
+                        nuclearClauseShell: {
+                            kind: "nuclear-clause-shell",
+                            formulaType: "VNC",
+                            formulaEcho: "#ni-0(mana)0+0-0#",
+                        },
+                        cnvFormulaSurfacePath: {
+                            pathsBySurface: [
+                                {
+                                    surface: "nimana",
+                                    paths: [
+                                        { formulaSlotKey: "pers1", formulaMorph: "ni", surfaceValue: "ni" },
+                                        { formulaSlotKey: "base", formulaMorph: "mana", surfaceValue: "mana" },
+                                    ],
+                                },
+                            ],
+                        },
+                    };
+                    const formulaChip = ctx.buildGeneratedOutputSlotChips(result)
+                        .find((chip) => chip.kind === "formula");
+                    const surfaceChip = ctx.buildGeneratedOutputSlotChips(result)
+                        .find((chip) => chip.kind === "surface");
+                    const element = { dataset: {} };
+                    ctx.applyAndrewsStationLineDatasetToSurfaceElement(
+                        element,
+                        formulaChip?.surfaceFrame?.stationLineFrame
+                    );
+                    ctx.applyAndrewsRouteConditionDatasetToSurfaceElement(
+                        element,
+                        formulaChip?.surfaceFrame?.routeConditionFrame
+                    );
+                    ctx.applyAndrewsSourceLayerDatasetToSurfaceElement(
+                        element,
+                        formulaChip?.surfaceFrame?.sourceLayerFrame
+                    );
+                    ctx.applyAndrewsRideDatasetToSurfaceElement(
+                        element,
+                        formulaChip?.surfaceFrame?.rideFrame
+                    );
+                    return {
+                        chipStationLine: formulaChip?.surfaceFrame?.stationLineFrame || null,
+                        chipRouteCondition: formulaChip?.surfaceFrame?.routeConditionFrame || null,
+                        chipSourceLayer: formulaChip?.surfaceFrame?.sourceLayerFrame || null,
+                        chipRideFrame: formulaChip?.surfaceFrame?.rideFrame || null,
+                        surfaceChipRideFrame: surfaceChip?.surfaceFrame?.rideFrame || null,
+                        elementDataset: element.dataset,
+                    };
+                } finally {
+                    ctx.document.getElementById = originalGetElementById;
+                }
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                chipStationLine: {
+                    lineModel: "entrada-formula-salida-one-route",
+                    intentMode: "explore",
+                    activeStopId: "formula",
+                    routeKey: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem",
+                    routePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                    stops: "entrada:received:CNVpredicate-stemverbstem|formula:positioned:CNVpredicate-stemverbstem|salida:offered:CNVpredicate-stemdeverbal-verbstem",
+                },
+                chipRouteCondition: {
+                    conditionFrames: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem>deverbal-verbstem",
+                    ifStage: "CNV:predicate-stem:verbstem",
+                    thenStage: "CNV:predicate-stem:deverbal-verbstem",
+                },
+                chipSourceLayer: {
+                    layerModel: "formula-source-layers-route-board",
+                    sourceLayerCount: "3",
+                    sourceLayers: "CNVpredicatepredicate:received-source:CNV:predicate:predicate|CNVcoreverbal-core:contained-verbal-core:CNV:core:verbal-core|CNVpredicate-stemverbstem:contained-verbstem:CNV:predicate-stem:verbstem",
+                    activeSourceStation: "CNV:predicate-stem:verbstem",
+                    activeSourceRole: "",
+                },
+                chipRideFrame: {
+                    experienceModel: "passenger-rides-station-provides",
+                    outputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                    operatingPrinciple: "station-signs-do-switching-passenger-rides",
+                    choiceModel: "explore-or-destination-one-board",
+                    currentSignLabel: "",
+                    nextSignLabel: "",
+                    destinationSignLabel: "",
+                    primaryActionLabel: "Siguiente",
+                    primaryRoutePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                    primaryClickCount: "1",
+                    switchingRequired: "false",
+                    events: "show-current-position|carry-one-route-to-output",
+                },
+                surfaceChipRideFrame: {
+                    experienceModel: "passenger-rides-station-provides",
+                    outputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                    operatingPrinciple: "station-signs-do-switching-passenger-rides",
+                    choiceModel: "explore-or-destination-one-board",
+                    currentSignLabel: "",
+                    nextSignLabel: "",
+                    destinationSignLabel: "",
+                    primaryActionLabel: "Siguiente",
+                    primaryRoutePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                    primaryClickCount: "1",
+                    switchingRequired: "false",
+                    events: "show-current-position|carry-one-route-to-output",
+                },
+                elementDataset: {
+                    stationLineModel: "entrada-formula-salida-one-route",
+                    stationLineIntentMode: "explore",
+                    stationLineActiveStop: "formula",
+                    stationLineRouteKey: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem",
+                    routePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                    stationLineStops: "entrada:received:CNVpredicate-stemverbstem|formula:positioned:CNVpredicate-stemverbstem|salida:offered:CNVpredicate-stemdeverbal-verbstem",
+                    routeConditionFrames: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem>deverbal-verbstem",
+                    routeIfStage: "CNV:predicate-stem:verbstem",
+                    routeThenStage: "CNV:predicate-stem:deverbal-verbstem",
+                    sourceLayerModel: "formula-source-layers-route-board",
+                    sourceLayerCount: "3",
+                    sourceLayers: "CNVpredicatepredicate:received-source:CNV:predicate:predicate|CNVcoreverbal-core:contained-verbal-core:CNV:core:verbal-core|CNVpredicate-stemverbstem:contained-verbstem:CNV:predicate-stem:verbstem",
+                    sourceLayerActiveStation: "CNV:predicate-stem:verbstem",
+                    sourceLayerActiveRole: "",
+                    rideExperienceModel: "passenger-rides-station-provides",
+                    rideOutputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                    rideOperatingPrinciple: "station-signs-do-switching-passenger-rides",
+                    rideChoiceModel: "explore-or-destination-one-board",
+                    rideCurrentSignLabel: "",
+                    rideNextSignLabel: "",
+                    rideDestinationSignLabel: "",
+                    ridePrimaryActionLabel: "Siguiente",
+                    ridePrimaryRoutePathLabel: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                    ridePrimaryClickCount: "1",
+                    rideSwitchingRequired: "false",
+                    rideEvents: "show-current-position|carry-one-route-to-output",
+                },
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "visible conversion surface receives active route path without a continuation action",
+        typeof ctx.syncConjugationConversionSurfaceRouteFrame === "function"
+            && typeof ctx.applyAndrewsRideDatasetToSurfaceElement === "function"
+            && ctx.document
+            ? (() => {
+                const originalGetElementById = ctx.document.getElementById;
+                const routeBoard = {
+                    hidden: false,
+                    dataset: {
+                        stationLineModel: "entrada-formula-salida-one-route",
+                        stationLineIntentMode: "destination",
+                        stationLineActiveStop: "salida",
+                        stationLineRouteKey: "CNV:predicate:predicate>CNN:predicate-stem:nounstem>CNV:predicate-stem:denominal-verbstem",
+                        stationLineStops: "entrada:received:CNVpredicatepredicate|formula:positioned:CNNpredicate-stemnounstem|salida:offered:CNVpredicate-stemdenominal-verbstem",
+                        routePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                        routeConditionFrames: "CNV:predicate:predicate>CNN:predicate-stem:nounstem>nominalization|CNN:predicate-stem:nounstem>CNV:predicate-stem:denominal-verbstem>denominal-verbstem",
+                        routeIfStage: "CNV:predicate:predicate",
+                        routeThenStage: "CNV:predicate-stem:denominal-verbstem",
+                        sourceLayerModel: "formula-source-layers-route-board",
+                        sourceLayerCount: "3",
+                        sourceLayers: "CNVpredicatepredicate:received-source:CNV:predicate:predicate|CNNpredicate-stemnounstem:route-source:CNN:predicate-stem:nounstem|CNVpredicate-stemdenominal-verbstem:route-target:CNV:predicate-stem:denominal-verbstem",
+                        sourceLayerActiveStation: "CNV:predicate-stem:denominal-verbstem",
+                        rideExperienceModel: "passenger-rides-station-provides",
+                        rideOutputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                        rideOperatingPrinciple: "station-signs-do-switching-passenger-rides",
+                        rideChoiceModel: "explore-or-destination-one-board",
+                        ridePrimaryActionLabel: "Usar salida",
+                        ridePrimaryRoutePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                        ridePrimaryClickCount: "1",
+                        rideSwitchingRequired: "false",
+                        rideEvents: "show-current-position|carry-one-route-to-output",
+                    },
+                };
+                const outputStrip = {
+                    hidden: true,
+                    dataset: {},
+                };
+                const surfaceLine = { dataset: {} };
+                const surfaceText = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        return selector === ".conjugation-conversion-surface-line" ? [surfaceLine] : [];
+                    },
+                };
+                const actions = {
+                    querySelector() {
+                        return null;
+                    },
+                };
+                ctx.document.getElementById = (id) => (id === "output-journey-strip" ? outputStrip : routeBoard);
+                try {
+                    const result = ctx.syncConjugationConversionSurfaceRouteFrame(surfaceText, actions);
+                    return {
+                        result,
+                        surface: {
+                            routePathLabel: surfaceText.dataset.routePathLabel || "",
+                            surfacePriority: surfaceText.dataset.andrewsRouteSurfacePriority || "",
+                            pathModel: surfaceText.dataset.andrewsRouteSurfacePathModel || "",
+                            stationLineRouteKey: surfaceText.dataset.stationLineRouteKey || "",
+                            routeThenStage: surfaceText.dataset.routeThenStage || "",
+                            sourceLayerActiveStation: surfaceText.dataset.sourceLayerActiveStation || "",
+                            rideExperienceModel: surfaceText.dataset.rideExperienceModel || "",
+                            rideOutputJourneyModel: surfaceText.dataset.rideOutputJourneyModel || "",
+                            ridePrimaryRoutePathLabel: surfaceText.dataset.ridePrimaryRoutePathLabel || "",
+                            rideSwitchingRequired: surfaceText.dataset.rideSwitchingRequired || "",
+                        },
+                        line: {
+                            routePathLabel: surfaceLine.dataset.routePathLabel || "",
+                            surfacePriority: surfaceLine.dataset.andrewsRouteSurfacePriority || "",
+                            pathModel: surfaceLine.dataset.andrewsRouteSurfacePathModel || "",
+                            stationLineRouteKey: surfaceLine.dataset.stationLineRouteKey || "",
+                            routeThenStage: surfaceLine.dataset.routeThenStage || "",
+                            sourceLayerActiveStation: surfaceLine.dataset.sourceLayerActiveStation || "",
+                            rideExperienceModel: surfaceLine.dataset.rideExperienceModel || "",
+                            rideOutputJourneyModel: surfaceLine.dataset.rideOutputJourneyModel || "",
+                            ridePrimaryRoutePathLabel: surfaceLine.dataset.ridePrimaryRoutePathLabel || "",
+                            rideSwitchingRequired: surfaceLine.dataset.rideSwitchingRequired || "",
+                        },
+                    };
+                } finally {
+                    ctx.document.getElementById = originalGetElementById;
+                }
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                result: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                surface: {
+                    routePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                    surfacePriority: "surface-line",
+                    pathModel: "surface-line-receives-active-route-frame",
+                    stationLineRouteKey: "CNV:predicate:predicate>CNN:predicate-stem:nounstem>CNV:predicate-stem:denominal-verbstem",
+                    routeThenStage: "CNV:predicate-stem:denominal-verbstem",
+                    sourceLayerActiveStation: "CNV:predicate-stem:denominal-verbstem",
+                    rideExperienceModel: "passenger-rides-station-provides",
+                    rideOutputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                    ridePrimaryRoutePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                    rideSwitchingRequired: "false",
+                },
+                line: {
+                    routePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                    surfacePriority: "surface-line",
+                    pathModel: "surface-line-receives-active-route-frame",
+                    stationLineRouteKey: "CNV:predicate:predicate>CNN:predicate-stem:nounstem>CNV:predicate-stem:denominal-verbstem",
+                    routeThenStage: "CNV:predicate-stem:denominal-verbstem",
+                    sourceLayerActiveStation: "CNV:predicate-stem:denominal-verbstem",
+                    rideExperienceModel: "passenger-rides-station-provides",
+                    rideOutputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                    ridePrimaryRoutePathLabel: "CNV · predicado > CNN · tronco nominal > CNV · tronco verbal denominal",
+                    rideSwitchingRequired: "false",
+                },
+            }
             : "rendering-runtime-not-loaded"
     );
     s.eq(

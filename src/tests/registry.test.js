@@ -105,10 +105,18 @@ function run() {
     s.ok(
         "Andrews trajectory ledger documents direction and redirection",
         /Directing Rule/.test(trajectoryDoc)
+            && /Supreme Goal/.test(trajectoryDoc)
+            && /grammar GIS/.test(trajectoryDoc)
+            && /Patch Judgment Gate/.test(trajectoryDoc)
+            && /which Andrews waypoint it advances/.test(trajectoryDoc)
+            && /which LCM boundary it preserves/.test(trajectoryDoc)
+            && /Nawat\/Pipil may realize spelling and preterit indicative surfaces only/.test(trajectoryDoc)
             && /Redirecting Rule/.test(trajectoryDoc)
             && /Plan\/Pursue Rule/.test(trajectoryDoc)
             && /Correctness Before Existence Rule/.test(trajectoryDoc)
             && /Andrews Formula Authority Rule/.test(trajectoryDoc)
+            && /does not license preterit-derived routes/.test(trajectoryDoc)
+            && /Preterit indicative remains separate from preterit-derived routes/.test(trajectoryDoc)
             && /plural optative formula/.test(trajectoryDoc)
             && /Lessons 1-4/.test(trajectoryDoc)
             && /Lessons 51-58/.test(trajectoryDoc)
@@ -181,6 +189,7 @@ function run() {
         "plannedArrows",
         "redirectAction",
         "remainingGap",
+        "sourceGatedRoute",
         "stepNumber",
         "validationRefs",
     ];
@@ -211,6 +220,428 @@ function run() {
             })
             .map((lesson) => lesson.id),
         []
+    );
+    s.eq(
+        "every lesson trajectory exposes a source-gated route with formula and structure",
+        lessonRegistry
+            .filter((lesson) => {
+                const route = lesson.trajectory?.sourceGatedRoute || {};
+                return route.kind !== "andrews-lesson-source-gated-route-contract"
+                    || route.id !== `lesson-${lesson.id}-source-gated-route`
+                    || !route.routeFamily
+                    || !route.routeKind
+                    || !Array.isArray(route.andrewsRefs)
+                    || !route.andrewsRefs.length
+                    || !route.formulaTransition
+                    || !route.formulaTemplate
+                    || !route.structuralInfo
+                    || typeof route.structuralInfo !== "object"
+                    || route.structuralInfo.lesson !== lesson.id
+                    || route.structuralInfo.logicPathType !== "source-gated derivational route"
+                    || route.structuralInfo.uiHost !== "tense-tabs-column"
+                    || route.sourceGate?.gated !== true
+                    || !route.sourceGate?.status
+                    || !Array.isArray(route.sourceGate?.requirementIds)
+                    || !route.sourceGate.requirementIds.length
+                    || route.puzzleStackTemplate?.model !== "entrada-formula-salida"
+                    || !Array.isArray(route.puzzleStackTemplate?.steps)
+                    || route.puzzleStackTemplate.steps[0]?.stage !== "#1 entrada"
+                    || route.puzzleStackTemplate.steps.at(-1)?.stage !== "#3 salida"
+                    || !Array.isArray(route.subsectionRoutes)
+                    || route.subsectionRouteCount !== route.subsectionRoutes.length
+                    || route.internalRouteCount !== route.subsectionRoutes.reduce((count, sectionRoute) => count + sectionRoute.internalRouteCount, 0)
+                    || !route.subsectionRoutes.length
+                    || route.subsectionRoutes.some((sectionRoute) => (
+                        sectionRoute.kind !== "andrews-subsection-source-gated-route-contract"
+                        || sectionRoute.parentRouteId !== route.id
+                        || !sectionRoute.formulaTransition
+                        || !sectionRoute.formulaTemplate
+                        || sectionRoute.structuralInfo?.routeScope !== "andrews-section"
+                        || sectionRoute.structuralInfo?.logicPathType !== "source-gated derivational route"
+                        || sectionRoute.structuralInfo?.uiHost !== "tense-tabs-column"
+                        || sectionRoute.sourceGate?.gated !== true
+                        || sectionRoute.puzzleStackTemplate?.model !== "entrada-formula-salida"
+                        || !Array.isArray(sectionRoute.puzzleStackTemplate?.steps)
+                        || sectionRoute.puzzleStackTemplate.steps[0]?.stage !== "#1 entrada"
+                        || sectionRoute.puzzleStackTemplate.steps.at(-1)?.stage !== "#3 salida"
+                        || !Array.isArray(sectionRoute.internalRoutes)
+                        || sectionRoute.internalRouteCount !== sectionRoute.internalRoutes.length
+                        || sectionRoute.internalRoutes.some((internalRoute) => (
+                            internalRoute.kind !== "andrews-internal-subsection-source-gated-route-contract"
+                            || internalRoute.parentRouteId !== sectionRoute.id
+                            || !internalRoute.formulaTransition
+                            || !internalRoute.formulaTemplate
+                            || internalRoute.structuralInfo?.routeScope !== "andrews-internal-subsection"
+                            || internalRoute.structuralInfo?.logicPathType !== "source-gated derivational route"
+                            || internalRoute.structuralInfo?.derivationStatus === "generic-andrews-internal-route"
+                            || !internalRoute.structuralInfo?.sourcePathFormula
+                            || internalRoute.structuralInfo?.uiHost !== "tense-tabs-column"
+                            || internalRoute.sourceGate?.gated !== true
+                            || internalRoute.puzzleStackTemplate?.model !== "entrada-formula-salida"
+                            || !Array.isArray(internalRoute.puzzleStackTemplate?.steps)
+                            || internalRoute.puzzleStackTemplate.steps[0]?.stage !== "#1 entrada"
+                            || internalRoute.puzzleStackTemplate.steps.at(-1)?.stage !== "#3 salida"
+                        ))
+                    ));
+            })
+            .map((lesson) => lesson.id),
+        []
+    );
+    s.eq(
+        "source-gated trajectory routes preserve key Andrews formula transitions",
+        {
+            lesson2: lessons[2].trajectory.sourceGatedRoute.formulaTransition,
+            lesson4: lessons[4].trajectory.sourceGatedRoute.formulaTemplate,
+            lesson12: lessons[12].trajectory.sourceGatedRoute.formulaTemplate,
+            lesson46: lessons[46].trajectory.sourceGatedRoute.formulaTemplate,
+            lesson46SectionCount: lessons[46].trajectory.sourceGatedRoute.subsectionRouteCount,
+            lesson46SectionRefs: lessons[46].trajectory.sourceGatedRoute.subsectionRoutes.slice(0, 3).map((route) => route.andrewsRefs[0]),
+            lesson46LogicPathType: lessons[46].trajectory.sourceGatedRoute.structuralInfo.logicPathType,
+            lesson46InternalRefs: lessons[46].trajectory.sourceGatedRoute.subsectionRoutes
+                .find((route) => route.structuralInfo.section === "46.3")
+                .internalRoutes
+                .map((route) => route.andrewsRefs[0]),
+            lesson4631a: (() => {
+                const route = lessons[46].trajectory.sourceGatedRoute.subsectionRoutes
+                    .find((sectionRoute) => sectionRoute.structuralInfo.section === "46.3")
+                    .internalRoutes
+                    .find((internalRoute) => internalRoute.structuralInfo.internalSubsection === "46.3.1.a");
+                return {
+                    routeFamily: route.routeFamily,
+                    routeKind: route.routeKind,
+                    formulaTransition: route.formulaTransition,
+                    formulaTemplate: route.formulaTemplate,
+                    operation: route.operation,
+                    logicPathType: route.structuralInfo.logicPathType,
+                    sourceLayer: route.structuralInfo.sourceLayer,
+                    preteritAgentiveLayer: route.structuralInfo.preteritAgentiveLayer,
+                    relationalMatrix: route.structuralInfo.relationalMatrix,
+                    connectorLayer: route.structuralInfo.connectorLayer,
+                    exampleSource: route.structuralInfo.exampleSource,
+                    exampleTargetFormula: route.structuralInfo.exampleTargetFormula,
+                    exampleSurface: route.structuralInfo.exampleSurface,
+                    requirementIds: route.sourceGate.requirementIds,
+                    puzzleStackProfileKind: route.puzzleStackTemplate.profileKind,
+                    puzzleStackSteps: route.puzzleStackTemplate.steps.map((step) => [
+                        step.stage,
+                        step.piece,
+                        step.label,
+                        step.formula,
+                    ]),
+                    puzzleStackBuildModel: route.puzzleStackTemplate.buildModel,
+                    puzzleStackEntradaPolicy: route.puzzleStackTemplate.conjugatorEntradas.activeSlotPolicy,
+                    puzzleStackConjugatorRuns: route.puzzleStackTemplate.conjugatorEntradas.runs.map((run) => [
+                        run.id,
+                        run.activeEntrada,
+                        run.internalPath,
+                        run.contributes,
+                        run.attachTo,
+                        run.output,
+                    ]),
+                };
+            })(),
+            lesson54: lessons[54].trajectory.sourceGatedRoute.formulaTransition,
+            lesson1PuzzleStackProfile: lessons[1].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson2PuzzleStackProfile: lessons[2].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson3PuzzleStackProfile: lessons[3].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson4PuzzleStackProfile: lessons[4].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson5PuzzleStackProfile: lessons[5].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson6PuzzleStackProfile: lessons[6].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson7PuzzleStackProfile: lessons[7].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson8PuzzleStackProfile: lessons[8].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson9PuzzleStackProfile: lessons[9].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson10PuzzleStackProfile: lessons[10].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson11PuzzleStackProfile: lessons[11].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson12PuzzleStackProfile: lessons[12].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson13PuzzleStackProfile: lessons[13].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson14PuzzleStackProfile: lessons[14].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson15PuzzleStackProfile: lessons[15].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson16PuzzleStackProfile: lessons[16].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson17PuzzleStackProfile: lessons[17].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson18PuzzleStackProfile: lessons[18].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson19PuzzleStackProfile: lessons[19].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson20PuzzleStackProfile: lessons[20].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson21PuzzleStackProfile: lessons[21].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson22PuzzleStackProfile: lessons[22].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson24PuzzleStackProfile: lessons[24].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson26PuzzleStackProfile: lessons[26].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson27PuzzleStackProfile: lessons[27].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson35PuzzleStackProfile: lessons[35].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson36PuzzleStackProfile: lessons[36].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson37PuzzleStackProfile: lessons[37].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson39PuzzleStackProfile: lessons[39].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson46PuzzleStackProfile: lessons[46].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson51PuzzleStackProfile: lessons[51].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson54PuzzleStackProfile: lessons[54].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            lesson55PuzzleStackProfile: lessons[55].trajectory.sourceGatedRoute.puzzleStackTemplate.profileKind,
+            routeCount: lessonRegistry.filter((lesson) => lesson.trajectory.sourceGatedRoute?.sourceGate?.gated === true).length,
+            subsectionRouteCount: lessonRegistry.reduce((count, lesson) => count + lesson.trajectory.sourceGatedRoute.subsectionRouteCount, 0),
+            internalRouteCount: lessonRegistry.reduce((count, lesson) => count + lesson.trajectory.sourceGatedRoute.internalRouteCount, 0),
+            genericInternalRouteCount: lessonRegistry.reduce((count, lesson) => count + lesson.trajectory.sourceGatedRoute.subsectionRoutes.reduce((sectionCount, sectionRoute) => (
+                sectionCount + sectionRoute.internalRoutes.filter((route) => route.structuralInfo.derivationStatus === "generic-andrews-internal-route").length
+            ), 0), 0),
+            entrySpecificInternalRouteCount: lessonRegistry.reduce((count, lesson) => count + lesson.trajectory.sourceGatedRoute.subsectionRoutes.reduce((sectionCount, sectionRoute) => (
+                sectionCount + sectionRoute.internalRoutes.filter((route) => route.structuralInfo.derivationStatus === "entry-specific-andrews-internal-route").length
+            ), 0), 0),
+            sourcePathFormulaMissingCount: lessonRegistry.reduce((count, lesson) => count + lesson.trajectory.sourceGatedRoute.subsectionRoutes.reduce((sectionCount, sectionRoute) => (
+                sectionCount + sectionRoute.internalRoutes.filter((route) => !route.structuralInfo.sourcePathFormula).length
+            ), 0), 0),
+            puzzleStackMissingCount: lessonRegistry.reduce((count, lesson) => {
+                const route = lesson.trajectory.sourceGatedRoute;
+                return count
+                    + (route.puzzleStackTemplate?.model === "entrada-formula-salida" ? 0 : 1)
+                    + route.subsectionRoutes.filter((sectionRoute) => sectionRoute.puzzleStackTemplate?.model !== "entrada-formula-salida").length
+                    + route.subsectionRoutes.reduce((sectionCount, sectionRoute) => (
+                        sectionCount + sectionRoute.internalRoutes.filter((internalRoute) => internalRoute.puzzleStackTemplate?.model !== "entrada-formula-salida").length
+                    ), 0);
+            }, 0),
+            puzzleStackFallbackCount: lessonRegistry.reduce((count, lesson) => {
+                const route = lesson.trajectory.sourceGatedRoute;
+                return count
+                    + (route.puzzleStackTemplate?.profileKind === "source-gated-scaffold" ? 1 : 0)
+                    + route.subsectionRoutes.filter((sectionRoute) => sectionRoute.puzzleStackTemplate?.profileKind === "source-gated-scaffold").length
+                    + route.subsectionRoutes.reduce((sectionCount, sectionRoute) => (
+                        sectionCount + sectionRoute.internalRoutes.filter((internalRoute) => internalRoute.puzzleStackTemplate?.profileKind === "source-gated-scaffold").length
+                    ), 0);
+            }, 0),
+            puzzleStackProfileCounts: (() => {
+                const counts = lessonRegistry.reduce((acc, lesson) => {
+                    const route = lesson.trajectory.sourceGatedRoute;
+                    [
+                        route,
+                        ...route.subsectionRoutes,
+                        ...route.subsectionRoutes.flatMap((sectionRoute) => sectionRoute.internalRoutes),
+                    ].forEach((candidateRoute) => {
+                        const profileKind = candidateRoute.puzzleStackTemplate?.profileKind || "missing";
+                        acc[profileKind] = (acc[profileKind] || 0) + 1;
+                    });
+                    return acc;
+                }, {});
+                return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
+            })(),
+        },
+        {
+            lesson2: "CLASSICAL_LETTERS->NAWAT_LETTERS",
+            lesson4: "SOURCE_SLOTS -> #pers1-pers2(STEM)tense-num1-num2# OR #pers1-pers2(STEM)num1-num2#",
+            lesson12: "#pers1-pers2(STEM)num1-num2#",
+            lesson46: "SOURCE+RELATIONAL_MATRIX -> CNN(OPTION_TWO_RELATIONAL_NNC)",
+            lesson46SectionCount: 15,
+            lesson46SectionRefs: ["Andrews Lesson 46.1", "Andrews Lesson 46.2", "Andrews Lesson 46.3"],
+            lesson46LogicPathType: "source-gated derivational route",
+            lesson46InternalRefs: [
+                "Andrews Lesson 46.3.1",
+                "Andrews Lesson 46.3.1.a",
+                "Andrews Lesson 46.3.1.b",
+                "Andrews Lesson 46.3.2",
+                "Andrews Lesson 46.3.2.a",
+                "Andrews Lesson 46.3.2.b",
+            ],
+            lesson4631a: {
+                routeFamily: "relational-nnc",
+                routeKind: "preterit-agentive-embedded-source-locative",
+                formulaTransition: "CNV->CNN",
+                formulaTemplate: "(SOURCE-0-ka-n)-0-",
+                operation: "preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+                logicPathType: "source-gated derivational route",
+                sourceLayer: "embedded source action",
+                preteritAgentiveLayer: "-0-ka",
+                relationalMatrix: "(-n)-tli-",
+                connectorLayer: "-0-",
+                exampleSource: "(mich-namaka)",
+                exampleTargetFormula: "(mich-namaka-0-ka-n)-0-",
+                exampleSurface: "michnamakakan",
+                requirementIds: [
+                    "embedded-source-formula",
+                    "preterit-agentive-source",
+                    "locative-matrix-source",
+                    "andrews-section-source",
+                    "andrews-internal-subsection-source",
+                ],
+                puzzleStackProfileKind: "exact-46-3-1-a-preterit-agentive-locative",
+                puzzleStackSteps: [
+                    ["#1 entrada", "source", "embedded source", "(mich-namaka)"],
+                    ["#2 formula", "-0", "VNC preterit", "(mich-namaka-0)"],
+                    ["#2 formula", "-ka < (ka)-t", "VNC-NNC conversion", "(mich-namaka-0-ka)"],
+                    ["#2 formula", "-n < (n)-ti ~ (ni)-t", "relational NNC", "(mich-namaka-0-ka-n)"],
+                    ["#2 formula", "-0-", "NNC connector", "(mich-namaka-0-ka-n)-0-"],
+                    ["#3 salida", "surface", "realization", "michnamakakan"],
+                ],
+                puzzleStackBuildModel: "single-entrada-conjugator-orchestration",
+                puzzleStackEntradaPolicy: "one-source-at-a-time",
+                puzzleStackConjugatorRuns: [
+                    [
+                        "predicate-preterit-core",
+                        "(mich-namaka)",
+                        [
+                            "#pers1-pers2(mich-namaka)tense+num1-num2#",
+                            "(mich-namaka-0)",
+                        ],
+                        "main-stack",
+                        "",
+                        "(mich-namaka-0)",
+                    ],
+                    [
+                        "processed-layer-ka",
+                        "(ka)",
+                        ["(ka)", "(ka)-t", "-ka"],
+                        "processed-layer",
+                        "(mich-namaka-0)",
+                        "(mich-namaka-0-ka)",
+                    ],
+                    [
+                        "processed-layer-n",
+                        "(ni)",
+                        ["(ni)", "(n)-ti", "-n"],
+                        "processed-layer",
+                        "(mich-namaka-0-ka)",
+                        "(mich-namaka-0-ka-n)",
+                    ],
+                    [
+                        "zero-connector",
+                        "Ø",
+                        ["Ø", "-0-"],
+                        "connector-layer",
+                        "(mich-namaka-0-ka-n)",
+                        "(mich-namaka-0-ka-n)-0-",
+                    ],
+                    [
+                        "final-relational-nnc-generation",
+                        "(mich-namaka)",
+                        [
+                            "sourceVerb: namaka",
+                            "incorporatedNounStem: mich",
+                            "(mich-namaka-0-ka-n)-0-",
+                            "michnamakakan",
+                        ],
+                        "salida",
+                        "(mich-namaka-0-ka-n)-0-",
+                        "michnamakakan",
+                    ],
+                ],
+            },
+            lesson54: "CNN->CNV",
+            lesson1PuzzleStackProfile: "exact-grammar-concept-route",
+            lesson2PuzzleStackProfile: "exact-orthography-bridge-route",
+            lesson3PuzzleStackProfile: "exact-particle-boundary-route",
+            lesson4PuzzleStackProfile: "exact-nuclear-clause-shell",
+            lesson5PuzzleStackProfile: "exact-intransitive-cnv-shell",
+            lesson6PuzzleStackProfile: "exact-transitive-cnv-shell",
+            lesson7PuzzleStackProfile: "exact-verbstem-class-route",
+            lesson8PuzzleStackProfile: "exact-expanded-cnv-sentence-route",
+            lesson9PuzzleStackProfile: "exact-optative-sentence-route",
+            lesson10PuzzleStackProfile: "exact-admonitive-sentence-route",
+            lesson11PuzzleStackProfile: "exact-irregular-cnv-route",
+            lesson12PuzzleStackProfile: "exact-absolutive-cnn-shell",
+            lesson13PuzzleStackProfile: "exact-possessive-cnn-shell",
+            lesson14PuzzleStackProfile: "exact-nounstem-class-route",
+            lesson15PuzzleStackProfile: "exact-possessive-source-route",
+            lesson16PuzzleStackProfile: "exact-pronominal-cnn-route",
+            lesson17PuzzleStackProfile: "exact-supplementation-relation-route",
+            lesson18PuzzleStackProfile: "exact-supplementation-relation-route",
+            lesson19PuzzleStackProfile: "exact-supplementation-relation-route",
+            lesson20PuzzleStackProfile: "exact-nonactive-verbstem-route",
+            lesson21PuzzleStackProfile: "exact-passive-voice-route",
+            lesson22PuzzleStackProfile: "exact-impersonal-voice-route",
+            lesson24PuzzleStackProfile: "exact-causative-route",
+            lesson26PuzzleStackProfile: "exact-applicative-route",
+            lesson27PuzzleStackProfile: "exact-frequentative-route",
+            lesson35PuzzleStackProfile: "exact-preterit-agentive-nominalization",
+            lesson36PuzzleStackProfile: "exact-nominalized-vnc-route",
+            lesson37PuzzleStackProfile: "exact-deverbal-nounstem-route",
+            lesson39PuzzleStackProfile: "exact-patientive-nominalization",
+            lesson46PuzzleStackProfile: "exact-relational-function-route",
+            lesson51PuzzleStackProfile: "exact-complement-clause-route",
+            lesson54PuzzleStackProfile: "exact-denominal-part-one-route",
+            lesson55PuzzleStackProfile: "exact-denominal-part-two-route",
+            routeCount: 58,
+            subsectionRouteCount: 505,
+            internalRouteCount: 921,
+            genericInternalRouteCount: 0,
+            entrySpecificInternalRouteCount: 0,
+            sourcePathFormulaMissingCount: 0,
+            puzzleStackMissingCount: 0,
+            puzzleStackFallbackCount: 0,
+            puzzleStackProfileCounts: {
+                "exact-46-3-1-a-preterit-agentive-locative": 1,
+                "exact-absolutive-cnn-shell": 17,
+                "exact-active-action-nominalization": 8,
+                "exact-active-voice-route": 14,
+                "exact-adjectival-function-route": 55,
+                "exact-adjunction-clause-route": 29,
+                "exact-admonitive-sentence-route": 6,
+                "exact-adverbial-function-route": 22,
+                "exact-affective-nnc-route": 12,
+                "exact-applicative-route": 27,
+                "exact-causative-route": 56,
+                "exact-cnv-tense-source-route": 24,
+                "exact-comparison-route": 10,
+                "exact-complement-clause-route": 20,
+                "exact-conjunction-clause-route": 18,
+                "exact-denominal-part-one-route": 7,
+                "exact-denominal-part-two-route": 8,
+                "exact-destockal-denominal-route": 16,
+                "exact-deverbal-nounstem-route": 15,
+                "exact-diagnostic-adjectival-frame-route": 8,
+                "exact-diagnostic-adverbial-frame-route": 1,
+                "exact-diagnostic-classified-route": 32,
+                "exact-diagnostic-clause-relation-route": 18,
+                "exact-diagnostic-cnn-route": 63,
+                "exact-diagnostic-cnv-cnn-route": 16,
+                "exact-diagnostic-cnv-route": 42,
+                "exact-diagnostic-concept-frame-route": 6,
+                "exact-diagnostic-derived-route": 4,
+                "exact-diagnostic-formula-slot-route": 3,
+                "exact-diagnostic-grammar-frame-route": 39,
+                "exact-diagnostic-modification-route": 4,
+                "exact-diagnostic-orthography-route": 3,
+                "exact-diagnostic-particle-boundary-route": 2,
+                "exact-diagnostic-phonology-route": 15,
+                "exact-diagnostic-sentence-route": 6,
+                "exact-diagnostic-stem-route": 5,
+                "exact-diagnostic-target-route": 12,
+                "exact-diagnostic-text-route": 110,
+                "exact-expanded-cnv-sentence-route": 7,
+                "exact-formation-procedure-route": 7,
+                "exact-formula-subposition-route": 23,
+                "exact-frequentative-route": 9,
+                "exact-grammar-concept-route": 13,
+                "exact-honorific-pejorative-route": 11,
+                "exact-impersonal-voice-route": 19,
+                "exact-intransitive-cnv-shell": 27,
+                "exact-irregular-cnv-route": 7,
+                "exact-matrix-source-route": 17,
+                "exact-nominal-compound-route": 33,
+                "exact-nominal-state-slot-route": 5,
+                "exact-nominalized-vnc-route": 13,
+                "exact-nonactive-verbstem-route": 15,
+                "exact-nounstem-class-route": 9,
+                "exact-nuclear-clause-shell": 7,
+                "exact-numeral-nnc-route": 21,
+                "exact-optative-sentence-route": 21,
+                "exact-orthography-bridge-route": 17,
+                "exact-particle-boundary-route": 7,
+                "exact-passive-voice-route": 18,
+                "exact-patientive-nominalization": 25,
+                "exact-place-gentilic-route": 24,
+                "exact-possessive-cnn-shell": 20,
+                "exact-possessive-source-route": 6,
+                "exact-prefix-slot-route": 9,
+                "exact-preterit-agentive-nominalization": 23,
+                "exact-pronominal-cnn-route": 35,
+                "exact-purposive-directional-route": 8,
+                "exact-relational-function-route": 41,
+                "exact-relational-nnc-route": 9,
+                "exact-root-to-stem-route": 7,
+                "exact-stem-classification-route": 26,
+                "exact-subject-slot-route": 11,
+                "exact-suffix-slot-route": 4,
+                "exact-supplementation-relation-route": 36,
+                "exact-tense-slot-route": 14,
+                "exact-transitive-cnv-shell": 44,
+                "exact-verbal-embed-compound-route": 71,
+                "exact-verbstem-class-route": 11,
+            },
+        }
     );
     s.eq(
         "lesson trajectory keeps every Andrews lesson as one ordered step",

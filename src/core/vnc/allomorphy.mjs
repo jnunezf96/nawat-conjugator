@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/vnc/allomorphy.js.
 
-export function createAllomorphyGlobals(targetObject = globalThis) {
+export function createVncAllomorphyModule(targetObject = globalThis) {
     function normalizeVncAllomorphyContractSurfaceValue(value = "") {
       if (typeof targetObject.normalizeGrammarSurfaceValue === "function") {
         return targetObject.normalizeGrammarSurfaceValue(value);
@@ -2558,9 +2558,31 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     var VERB_DERIVED_NOMINAL_KIND = Object.freeze({
       sustantivoVerbal: "sustantivo-verbal",
       instrumentivo: "instrumentivo",
+      predicadoNominal: "predicado-nominal",
       calificativoInstrumentivo: "calificativo-instrumentivo",
       locativoTemporal: "locativo-temporal"
     });
+    const VNC_PREDICATE_NOMINAL_SOURCE_TENSES = Object.freeze(["presente", "presente-habitual", "imperfecto", "preterito", "pasado-remoto", "perfecto", "pluscuamperfecto", "condicional-perfecto", "futuro", "condicional"]);
+    const VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP = Object.freeze(Object.fromEntries(VNC_PREDICATE_NOMINAL_SOURCE_TENSES.map(sourceTense => [`predicado-nominal-${sourceTense}`, sourceTense])));
+    function isPredicateNominalTense(tenseValue = "") {
+      const tense = String(tenseValue || "").trim();
+      return tense === VERB_DERIVED_NOMINAL_KIND.predicadoNominal || Object.prototype.hasOwnProperty.call(VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP, tense);
+    }
+    function normalizePredicateNominalSourceTense(value = "") {
+      const tense = String(value || "").trim();
+      return VNC_PREDICATE_NOMINAL_SOURCE_TENSES.includes(tense) ? tense : "imperfecto";
+    }
+    function getPredicateNominalSourceTenses() {
+      return [...VNC_PREDICATE_NOMINAL_SOURCE_TENSES];
+    }
+    function getPredicateNominalSourceTenseForTarget(tenseValue = "") {
+      const tense = String(tenseValue || "").trim();
+      return normalizePredicateNominalSourceTense(VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP[tense] || (tense === VERB_DERIVED_NOMINAL_KIND.predicadoNominal ? "imperfecto" : ""));
+    }
+    function getPredicateNominalTargetTenseForSource(sourceTense = "") {
+      const tense = normalizePredicateNominalSourceTense(sourceTense);
+      return `predicado-nominal-${tense}`;
+    }
     function getActiveActionNominalizerContract() {
       const longConversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat("liz", {
         contract: "active-action-nominalizer"
@@ -2996,35 +3018,40 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         return {
           nominalizationKind: "action-nominal",
           semanticRole: "action/process",
-          sourceTense: "futuro"
+          sourceTense: "futuro",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "agentivo") {
         return {
           nominalizationKind: "customary-present-agentive",
           semanticRole: "agent",
-          sourceTense: "presente-habitual"
+          sourceTense: "presente-habitual",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "agentivo-presente") {
         return {
           nominalizationKind: "present-agentive",
           semanticRole: "agent",
-          sourceTense: "presente"
+          sourceTense: "presente",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "agentivo-preterito") {
         return {
           nominalizationKind: "preterit-agentive",
           semanticRole: "agent",
-          sourceTense: "preterito"
+          sourceTense: "preterito",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "agentivo-futuro") {
         return {
           nominalizationKind: "future-agentive",
           semanticRole: "agent",
-          sourceTense: "futuro"
+          sourceTense: "futuro",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "patientivo") {
@@ -3032,28 +3059,40 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           nominalizationKind: "patientive",
           semanticRole: "patient/result",
           patientiveFamily: resolvedPatientivoSource,
-          sourceTense: resolvedPatientivoSource === "imperfectivo" ? "imperfecto" : resolvedPatientivoSource === "perfectivo" ? "preterito" : ""
+          sourceTense: "",
+          sourceUnit: "vnc-core-stem"
         };
       }
       if (kind === "instrumentivo") {
         return {
           nominalizationKind: "instrumentive",
           semanticRole: "instrument",
-          sourceTense: "presente-habitual"
+          sourceTense: "presente-habitual",
+          sourceUnit: "vnc-predicate"
+        };
+      }
+      if (isPredicateNominalTense(kind)) {
+        return {
+          nominalizationKind: "predicate-nominal",
+          semanticRole: "predicate-as-noun",
+          sourceTense: getPredicateNominalSourceTenseForTarget(kind),
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "calificativo-instrumentivo") {
         return {
           nominalizationKind: "quality-result",
           semanticRole: "quality/result",
-          sourceTense: "pasado-remoto"
+          sourceTense: "pasado-remoto",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "potencial") {
         return {
           nominalizationKind: "potential-patient",
           semanticRole: "potential-patient",
-          sourceTense: "futuro"
+          sourceTense: "futuro",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "potencial-habitual") {
@@ -3061,14 +3100,16 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           nominalizationKind: "customary-present-patientive",
           semanticRole: "patient/customary-fitness",
           patientiveFamily: "customary-present-passive",
-          sourceTense: "presente-habitual"
+          sourceTense: "presente-habitual",
+          sourceUnit: "vnc-core-stem"
         };
       }
       if (kind === "locativo-temporal") {
         return {
           nominalizationKind: "locative-temporal",
           semanticRole: "place/time",
-          sourceTense: "imperfecto"
+          sourceTense: "imperfecto",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "adjetivo-patientivo-no-activo" || kind === "patientivo-nonactive-ti") {
@@ -3076,7 +3117,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           nominalizationKind: "patientive-adjectival",
           semanticRole: "property",
           patientiveFamily: "nonactive",
-          adjectivalFunction: "predicate-surface"
+          adjectivalFunction: "predicate-surface",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind === "adjetivo-patientivo-perfectivo" || kind === "patientivo-perfective-ti") {
@@ -3084,7 +3126,8 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           nominalizationKind: "patientive-adjectival",
           semanticRole: "property",
           patientiveFamily: "perfectivo",
-          adjectivalFunction: "predicate-surface"
+          adjectivalFunction: "predicate-surface",
+          sourceUnit: "vnc-predicate"
         };
       }
       if (kind.startsWith("adjetivo-") || kind === "potencial" || kind === "potencial-habitual") {
@@ -3092,13 +3135,15 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           nominalizationKind: "adjectival-surface",
           semanticRole: "property",
           adjectivalFunction: "predicate-surface",
-          sourceTense: kind.includes("perfecto") ? "perfecto" : kind.includes("preterito") ? "preterito" : ""
+          sourceTense: kind.includes("perfecto") ? "perfecto" : kind.includes("preterito") ? "preterito" : "",
+          sourceUnit: "vnc-predicate"
         };
       }
       return {
         nominalizationKind: kind || "unknown",
         semanticRole: "",
-        sourceTense: ""
+        sourceTense: "",
+        sourceUnit: ""
       };
     }
     function buildVerbDerivedNominalPossessorSourceFrame({
@@ -3143,6 +3188,35 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       }
       return null;
     }
+    function buildInstrumentiveNote2Frame(nominalKind = "") {
+      if (String(nominalKind || "") !== "instrumentivo" && !isPredicateNominalTense(nominalKind)) {
+        return null;
+      }
+      return Object.freeze({
+        version: 1,
+        grammarSource: "Andrews 36.6 note 2",
+        sourceUnit: "vnc-predicate",
+        regularStateRoutes: Object.freeze([Object.freeze({
+          sourcePredicate: "customary-present-impersonal",
+          expectedState: "absolutive",
+          possessiveState: "blocked-by-default"
+        }), Object.freeze({
+          sourcePredicate: "imperfect-active",
+          expectedState: "possessive",
+          absolutiveState: "blocked-by-default"
+        })]),
+        exceptionalStateRoutes: Object.freeze([Object.freeze({
+          sourcePredicate: "customary-present-impersonal",
+          exceptionalState: "possessive",
+          requires: "fully-nominalized-ti-class-1-a"
+        }), Object.freeze({
+          sourcePredicate: "imperfect-active",
+          exceptionalState: "absolutive",
+          requires: "lexical-exception-evidence"
+        })]),
+        doesNotChangeSourceUnit: true
+      });
+    }
     function buildVerbDerivedNominalizationProfile({
       nominalKind = "",
       sourceModel = null,
@@ -3178,6 +3252,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       } : defaults;
       const hasPossessor = predicateStateSlot?.hasPossessor === true;
       const resolvedSourceTense = String(sourceTense || (kind === "instrumentivo" && hasPossessor ? "imperfecto" : "") || roleDefaults.sourceTense || "");
+      const resolvedSourceUnit = String(roleDefaults.sourceUnit || "");
       const usesPatientiveFamily = kind === "patientivo" || Object.prototype.hasOwnProperty.call(defaults, "patientiveFamily");
       const patientiveFamilySource = kind === "potencial-habitual" ? defaults.patientiveFamily || patientivoSource || "" : patientivoSource || defaults.patientiveFamily || "";
       const resolvedPatientiveFamily = usesPatientiveFamily ? normalizeVerbDerivedPatientiveFamily(patientiveFamilySource) : "";
@@ -3193,6 +3268,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         isGeneralUseActionNominal,
         isGeneralUsePassiveActionNominal
       });
+      const instrumentiveNote2Frame = buildInstrumentiveNote2Frame(kind);
       const connectorSlot = num1Num2 || null;
       const profile = {
         version: 1,
@@ -3206,6 +3282,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         source: Object.freeze({
           sourceMode: "verbo",
           sourceTense: resolvedSourceTense,
+          sourceUnit: resolvedSourceUnit,
           sourceCategory: "VNC",
           matrixBase: String(sourceModel?.matrixBase || ""),
           sourceRawVerb: String(sourceModel?.sourceRawVerb || ""),
@@ -3233,6 +3310,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
           possessorPrefix: String(predicateStateSlot?.possessorPrefix || "")
         }),
         possessorSourceFrame,
+        instrumentiveNote2Frame,
         num1Num2: connectorSlot,
         boundaries: Object.freeze({
           nominalizationScope: "structural-word-output",
@@ -3651,7 +3729,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
       return output;
     }
     function isNominalMorphProfileTense(tenseValue = "") {
-      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "agentivo-presente" || tenseValue === "agentivo-preterito" || tenseValue === "agentivo-futuro" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
+      return targetObject.isNonanimateNounTense(tenseValue) || targetObject.isPotencialProfileTense(tenseValue) || targetObject.isPatientivoAdjectiveTense(tenseValue) || tenseValue === "agentivo" || tenseValue === "agentivo-presente" || tenseValue === "agentivo-preterito" || tenseValue === "agentivo-futuro" || tenseValue === "patientivo" || tenseValue === "instrumentivo" || isPredicateNominalTense(tenseValue) || tenseValue === "calificativo-instrumentivo" || tenseValue === "locativo-temporal";
     }
     function buildSurfaceRouteText(sourceBase = "", sourceSuffix = "", outputStem = "") {
       const normalizedSourceSuffix = normalizeDerivationStemValue(sourceSuffix);
@@ -11297,6 +11375,21 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
         get() { return VERB_DERIVED_NOMINAL_KIND; },
         set(value) { VERB_DERIVED_NOMINAL_KIND = value; },
     });
+    Object.defineProperty(api, "VNC_PREDICATE_NOMINAL_SOURCE_TENSES", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_PREDICATE_NOMINAL_SOURCE_TENSES; },
+    });
+    Object.defineProperty(api, "VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP; },
+    });
+    api.isPredicateNominalTense = isPredicateNominalTense;
+    api.normalizePredicateNominalSourceTense = normalizePredicateNominalSourceTense;
+    api.getPredicateNominalSourceTenses = getPredicateNominalSourceTenses;
+    api.getPredicateNominalSourceTenseForTarget = getPredicateNominalSourceTenseForTarget;
+    api.getPredicateNominalTargetTenseForSource = getPredicateNominalTargetTenseForSource;
     api.getActiveActionNominalizerContract = getActiveActionNominalizerContract;
     api.getActiveActionNominalizerSuffixes = getActiveActionNominalizerSuffixes;
     Object.defineProperty(api, "VERB_DERIVED_PATIENTIVE_FAMILY", {
@@ -11317,6 +11410,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
     api.buildVerbDerivedPatientiveFamilyProfile = buildVerbDerivedPatientiveFamilyProfile;
     api.getVerbDerivedNominalProfileDefaults = getVerbDerivedNominalProfileDefaults;
     api.buildVerbDerivedNominalPossessorSourceFrame = buildVerbDerivedNominalPossessorSourceFrame;
+    api.buildInstrumentiveNote2Frame = buildInstrumentiveNote2Frame;
     api.buildVerbDerivedNominalizationProfile = buildVerbDerivedNominalizationProfile;
     api.buildVerbDerivedNominalSourceModel = buildVerbDerivedNominalSourceModel;
     api.buildVerbDerivedNominalSourceModelFromRawVerb = buildVerbDerivedNominalSourceModelFromRawVerb;
@@ -11620,7 +11714,7 @@ export function createAllomorphyGlobals(targetObject = globalThis) {
 }
 
 export function installAllomorphyGlobals(targetObject = globalThis) {
-    const api = createAllomorphyGlobals(targetObject);
+    const api = createVncAllomorphyModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

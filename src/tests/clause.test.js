@@ -1058,6 +1058,1221 @@ function run(ctx) {
     );
 
     s.eq(
+        "Andrews route board gives one passenger surface for departures and optional destination",
+        (() => {
+            const cnvFormulaStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "#0-0+m-etz(ati)0+0-0#",
+                { mode: "verbo" }
+            );
+            const cnnFormulaStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "#0-0(yekti)0-0#",
+                { mode: "verbo" }
+            );
+            const wildcardStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "*",
+                { mode: "verbo" }
+            );
+            const rawStemStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "mana",
+                { mode: "verbo" }
+            );
+            const surfaceCnvStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "nimana",
+                { mode: "verbo" }
+            );
+            const surfaceObjectCnvStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "metzmati",
+                { mode: "verbo" }
+            );
+            const surfaceCnnStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "nukal",
+                { mode: "sustantivo" }
+            );
+            const rawCnnStemStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "kal",
+                { mode: "sustantivo" }
+            );
+            const wildcardFormulaStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "#0-0+?(*)0+0-0#",
+                { mode: "verbo" }
+            );
+            const cnvFormulaBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: cnvFormulaStage,
+            });
+            const wildcardFormulaBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: wildcardFormulaStage,
+            });
+            const surfaceCnvBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: surfaceCnvStage,
+            });
+            const surfaceCnnBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: surfaceCnnStage,
+            });
+            const cnvPredicateDestinationBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: cnvFormulaStage,
+                destinationStage: {
+                    formulaType: "CNV",
+                    formulaPosition: "predicate-stem",
+                    stemRank: "denominal-verbstem",
+                },
+            });
+            const departuresBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: {
+                    formulaType: "CNN",
+                    formulaPosition: "predicate-stem",
+                    stemRank: "nounstem",
+                },
+            });
+            const destinationBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: {
+                    formulaType: "CNN",
+                    formulaPosition: "predicate-stem",
+                    stemRank: "nounstem",
+                },
+                destinationStage: {
+                    formulaType: "CNV",
+                    formulaPosition: "predicate-stem",
+                    stemRank: "deverbal-verbstem",
+                },
+            });
+            return {
+                cnvFormulaStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(cnvFormulaStage),
+                    inputKind: cnvFormulaStage.inputKind,
+                    boundaryKind: cnvFormulaStage.formulaBoundaryKind,
+                    boundaryConfidence: cnvFormulaStage.formulaBoundaryConfidence,
+                    inputHasWildcard: cnvFormulaStage.inputHasWildcard,
+                    ticketModel: cnvFormulaStage.inputTicketFrame?.ticketModel || "",
+                    ticketDisplay: cnvFormulaStage.inputTicketFrame?.inputDisplayLabel || "",
+                    ticketDimensions: (cnvFormulaStage.inputTicketFrame?.dimensionSlots || [])
+                        .map((entry) => [entry.id, entry.status]),
+                },
+                cnvFormulaBoardInput: {
+                    currentStation: cnvFormulaBoard.currentStation.label,
+                    inputKind: cnvFormulaBoard.currentStation.inputKind,
+                    inputScope: cnvFormulaBoard.currentStation.inputScope,
+                    boundaryKind: cnvFormulaBoard.currentStation.formulaBoundaryKind,
+                    boundaryConfidence: cnvFormulaBoard.currentStation.formulaBoundaryConfidence,
+                    inputHasWildcard: cnvFormulaBoard.currentStation.inputHasWildcard,
+                    ticketModel: cnvFormulaBoard.currentStation.inputTicketFrame?.ticketModel || "",
+                    ticketEvents: cnvFormulaBoard.currentStation.inputTicketFrame?.passengerEvents || [],
+                    sourceCandidateCount: cnvFormulaBoard.sourceCandidateStageCount,
+                    sourceCandidateKeys: cnvFormulaBoard.sourceCandidateStageKeys,
+                    sourceCandidateLabels: cnvFormulaBoard.sourceCandidateStageLabels,
+                },
+                cnvFormulaStationLine: {
+                    model: cnvFormulaBoard.stationLineFrame?.lineModel || "",
+                    intent: cnvFormulaBoard.stationLineFrame?.intentMode || "",
+                    active: cnvFormulaBoard.stationLineFrame?.activeStopId || "",
+                    routeKey: cnvFormulaBoard.stationLineFrame?.routeKey || "",
+                    stops: (cnvFormulaBoard.stationLineFrame?.stops || []).map((entry) => [
+                        entry.id,
+                        entry.status,
+                        entry.displayLabel,
+                    ]),
+                },
+                cnvFormulaPassenger: {
+                    source: cnvFormulaBoard.passengerFrame?.sourceLabel || "",
+                    primarySource: cnvFormulaBoard.passengerFrame?.primarySourceLabel || "",
+                    primarySourceKey: cnvFormulaBoard.passengerFrame?.primarySourceStageKey || "",
+                    primaryNextSource: cnvFormulaBoard.passengerFrame?.primaryNextSourceLabel || "",
+                    primaryNextSourceKey: cnvFormulaBoard.passengerFrame?.primaryNextSourceStageKey || "",
+                    primaryRoutePath: cnvFormulaBoard.passengerFrame?.primaryRoutePathLabel || "",
+                    events: cnvFormulaBoard.passengerFrame?.passengerEvents || [],
+                },
+                cnvFormulaDestinationOptions: cnvFormulaBoard.destinationOptions.map((entry) => [
+                    entry.label,
+                    entry.segmentCount,
+                    entry.routeIds,
+                ]),
+                cnvFormulaDestinationResistance: cnvFormulaBoard.destinationOptions.map((entry) => [
+                    entry.label,
+                    entry.resistanceScore,
+                    entry.obstacleCount,
+                    entry.routeTicket?.resistanceLabel || "",
+                ]),
+                cnvFormulaDestinationStops: cnvFormulaBoard.destinationOptions.map((entry) => [
+                    entry.label,
+                    (entry.routeStops || []).map((stop) => stop.label),
+                ]),
+                cnvFormulaDestinationDimensions: cnvFormulaBoard.destinationOptions.map((entry) => [
+                    entry.label,
+                    (entry.gateDomainCounts || []).slice(0, 2).map((item) => [item.value, item.count]),
+                ]),
+                cnvFormulaIndirectItineraryIds: cnvPredicateDestinationBoard.itineraries.map((entry) => entry.routeIds),
+                cnvFormulaIndirectAction: [
+                    cnvPredicateDestinationBoard.itineraries[0]?.targetAction?.entryBoard || "",
+                    cnvPredicateDestinationBoard.itineraries[0]?.targetAction?.unitMode || "",
+                ],
+                cnnFormulaStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(cnnFormulaStage),
+                    inputKind: cnnFormulaStage.inputKind,
+                },
+                wildcardStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(wildcardStage),
+                    inputKind: wildcardStage.inputKind,
+                    boundaryKind: wildcardStage.formulaBoundaryKind,
+                    boundaryConfidence: wildcardStage.formulaBoundaryConfidence,
+                    inputHasWildcard: wildcardStage.inputHasWildcard,
+                    unresolvedDimensions: wildcardStage.unresolvedDimensions,
+                },
+                rawStemStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(rawStemStage),
+                    inputKind: rawStemStage.inputKind,
+                    boundaryKind: rawStemStage.formulaBoundaryKind,
+                    boundaryConfidence: rawStemStage.formulaBoundaryConfidence,
+                    inputHasWildcard: rawStemStage.inputHasWildcard,
+                    ticketDimensions: (rawStemStage.inputTicketFrame?.dimensionSlots || [])
+                        .map((entry) => [entry.id, entry.status]),
+                },
+                rawCnnStemStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(rawCnnStemStage),
+                    inputKind: rawCnnStemStage.inputKind,
+                    boundaryKind: rawCnnStemStage.formulaBoundaryKind,
+                    boundaryConfidence: rawCnnStemStage.formulaBoundaryConfidence,
+                },
+                surfaceCnvStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(surfaceCnvStage),
+                    inputKind: surfaceCnvStage.inputKind,
+                    inputScope: surfaceCnvStage.inputScope,
+                    boundaryKind: surfaceCnvStage.formulaBoundaryKind,
+                    boundaryConfidence: surfaceCnvStage.formulaBoundaryConfidence,
+                    marker: surfaceCnvStage.surfaceInputFrame?.marker || "",
+                    markerRole: surfaceCnvStage.surfaceInputFrame?.markerRole || "",
+                    inputHasWildcard: surfaceCnvStage.inputHasWildcard,
+                    unresolvedDimensions: surfaceCnvStage.unresolvedDimensions,
+                    ticketDimensions: (surfaceCnvStage.inputTicketFrame?.dimensionSlots || [])
+                        .map((entry) => [entry.id, entry.status]),
+                },
+                surfaceObjectCnvStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(surfaceObjectCnvStage),
+                    inputKind: surfaceObjectCnvStage.inputKind,
+                    boundaryKind: surfaceObjectCnvStage.formulaBoundaryKind,
+                    marker: surfaceObjectCnvStage.surfaceInputFrame?.marker || "",
+                    markerRole: surfaceObjectCnvStage.surfaceInputFrame?.markerRole || "",
+                    slot: surfaceObjectCnvStage.surfaceInputFrame?.slot || "",
+                },
+                surfaceCnvBoardInput: {
+                    currentStation: surfaceCnvBoard.currentStation.label,
+                    inputKind: surfaceCnvBoard.currentStation.inputKind,
+                    inputScope: surfaceCnvBoard.currentStation.inputScope,
+                    boundaryKind: surfaceCnvBoard.currentStation.formulaBoundaryKind,
+                    boundaryConfidence: surfaceCnvBoard.currentStation.formulaBoundaryConfidence,
+                    sourceCandidateCount: surfaceCnvBoard.sourceCandidateStageCount,
+                    sourceCandidateKeys: surfaceCnvBoard.sourceCandidateStageKeys,
+                    sourceCandidateLabels: surfaceCnvBoard.sourceCandidateStageLabels,
+                },
+                surfaceCnnStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(surfaceCnnStage),
+                    inputKind: surfaceCnnStage.inputKind,
+                    inputScope: surfaceCnnStage.inputScope,
+                    boundaryKind: surfaceCnnStage.formulaBoundaryKind,
+                    boundaryConfidence: surfaceCnnStage.formulaBoundaryConfidence,
+                    marker: surfaceCnnStage.surfaceInputFrame?.marker || "",
+                    markerRole: surfaceCnnStage.surfaceInputFrame?.markerRole || "",
+                    slot: surfaceCnnStage.surfaceInputFrame?.slot || "",
+                    inputHasWildcard: surfaceCnnStage.inputHasWildcard,
+                    unresolvedDimensions: surfaceCnnStage.unresolvedDimensions,
+                    ticketDimensions: (surfaceCnnStage.inputTicketFrame?.dimensionSlots || [])
+                        .map((entry) => [entry.id, entry.label, entry.status, entry.value]),
+                },
+                surfaceCnnBoardInput: {
+                    currentStation: surfaceCnnBoard.currentStation.label,
+                    inputKind: surfaceCnnBoard.currentStation.inputKind,
+                    inputScope: surfaceCnnBoard.currentStation.inputScope,
+                    boundaryKind: surfaceCnnBoard.currentStation.formulaBoundaryKind,
+                    boundaryConfidence: surfaceCnnBoard.currentStation.formulaBoundaryConfidence,
+                    sourceCandidateCount: surfaceCnnBoard.sourceCandidateStageCount,
+                    sourceCandidateKeys: surfaceCnnBoard.sourceCandidateStageKeys,
+                    sourceCandidateLabels: surfaceCnnBoard.sourceCandidateStageLabels,
+                },
+                wildcardFormulaStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(wildcardFormulaStage),
+                    inputKind: wildcardFormulaStage.inputKind,
+                    boundaryKind: wildcardFormulaStage.formulaBoundaryKind,
+                    boundaryConfidence: wildcardFormulaStage.formulaBoundaryConfidence,
+                    inputHasWildcard: wildcardFormulaStage.inputHasWildcard,
+                    unresolvedDimensions: wildcardFormulaStage.unresolvedDimensions,
+                },
+                wildcardFormulaBoardInput: {
+                    currentStation: wildcardFormulaBoard.currentStation.label,
+                    inputKind: wildcardFormulaBoard.currentStation.inputKind,
+                    inputScope: wildcardFormulaBoard.currentStation.inputScope,
+                    boundaryKind: wildcardFormulaBoard.currentStation.formulaBoundaryKind,
+                    boundaryConfidence: wildcardFormulaBoard.currentStation.formulaBoundaryConfidence,
+                    inputHasWildcard: wildcardFormulaBoard.currentStation.inputHasWildcard,
+                    unresolvedDimensionCount: wildcardFormulaBoard.currentStation.unresolvedDimensionCount,
+                    ticketModel: wildcardFormulaBoard.currentStation.inputTicketFrame?.ticketModel || "",
+                    ticketDisplay: wildcardFormulaBoard.currentStation.inputTicketFrame?.inputDisplayLabel || "",
+                    ticketDimensions: (wildcardFormulaBoard.currentStation.inputTicketFrame?.dimensionSlots || [])
+                        .map((entry) => [entry.id, entry.status]),
+                    sourceCandidateCount: wildcardFormulaBoard.sourceCandidateStageCount,
+                    sourceCandidateKeys: wildcardFormulaBoard.sourceCandidateStageKeys,
+                    sourceCandidateLabels: wildcardFormulaBoard.sourceCandidateStageLabels,
+                },
+                departuresState: departuresBoard.boardState,
+                currentStation: departuresBoard.currentStation.label,
+                routeCount: departuresBoard.routeCount,
+                hiddenCoordinateCount: departuresBoard.hiddenCoordinateCount,
+                routeTerrain: {
+                    count: departuresBoard.routeTerrain.length,
+                    first: [
+                        departuresBoard.routeTerrain[0]?.routeId || "",
+                        departuresBoard.routeTerrain[0]?.resistanceScore || 0,
+                        departuresBoard.routeTerrain[0]?.resistanceRole || "",
+                    ],
+                    last: [
+                        departuresBoard.routeTerrain[departuresBoard.routeTerrain.length - 1]?.routeId || "",
+                        departuresBoard.routeTerrain[departuresBoard.routeTerrain.length - 1]?.resistanceScore || 0,
+                        departuresBoard.routeTerrain[departuresBoard.routeTerrain.length - 1]?.resistanceRole || "",
+                    ],
+                },
+                averageRouteStageClicks: departuresBoard.averageRouteStageClicks,
+                maxRouteStageClicks: departuresBoard.maxRouteStageClicks,
+                departureIds: departuresBoard.departures.map((entry) => entry.routeId),
+                departureActions: departuresBoard.departures.map((entry) => [
+                    entry.targetAction.entryBoard,
+                    entry.targetAction.unitMode,
+                ]),
+                departureTickets: departuresBoard.departures.map((entry) => [
+                    entry.tripKind,
+                    entry.segmentCount,
+                    entry.transferCount,
+                    entry.routeTicketLabel,
+                ]),
+                departureResistance: departuresBoard.departures.map((entry) => [
+                    entry.routeId,
+                    entry.resistanceScore,
+                    entry.obstacleCount,
+                    entry.resistanceRank,
+                ]),
+                departureStops: departuresBoard.departures.map((entry) => [
+                    entry.routeId,
+                    (entry.routeStops || []).map((stop) => stop.label),
+                ]),
+                departureNextSources: departuresBoard.departures.map((entry) => [
+                    entry.routeId,
+                    entry.nextSourceStageKey,
+                    entry.nextSourceLabel,
+                    entry.routeTicket?.nextSourceStageKey || "",
+                ]),
+                departureActionFrames: departuresBoard.departures.map((entry) => [
+                    entry.routeId,
+                    entry.routeActionLabel,
+                    entry.routeRecommendation,
+                    entry.routeActionFrame?.intentionModel || "",
+                ]),
+                departureIfThen: departuresBoard.departures.map((entry) => [
+                    entry.routeId,
+                    entry.routeConditionFrame?.conditionModel || "",
+                    entry.routeConditionFrame?.ifStage?.label || "",
+                    entry.routeConditionFrame?.thenStage?.label || "",
+                    entry.routeConditionFrame?.conditions?.map((condition) => [condition.dimension, condition.status]) || [],
+                ]),
+                destinationOptions: departuresBoard.destinationOptions.map((entry) => entry.label),
+                destinationOptionActions: departuresBoard.destinationOptions.map((entry) => [
+                    entry.label,
+                    entry.routeActionLabel,
+                    entry.routeRecommendation,
+                ]),
+                boardResistance: {
+                    recommended: [
+                        departuresBoard.recommendedRoute?.routeIds || [],
+                        departuresBoard.recommendedRoute?.actionLabel || "",
+                        departuresBoard.recommendedRoute?.nextSourceStageKey || "",
+                        departuresBoard.recommendedRoute?.resistanceScore || 0,
+                    ],
+                    leastVisible: [
+                        departuresBoard.leastVisibleRoute?.routeIds || [],
+                        departuresBoard.leastVisibleRoute?.resistanceScore || 0,
+                    ],
+                    mostVisible: [
+                        departuresBoard.mostVisibleRoute?.routeIds || [],
+                        departuresBoard.mostVisibleRoute?.resistanceScore || 0,
+                    ],
+                    leastRoute: [
+                        departuresBoard.leastResistanceRoute?.routeId || "",
+                        departuresBoard.leastResistanceRoute?.resistanceScore || 0,
+                    ],
+                    mostRoute: [
+                        departuresBoard.mostResistanceRoute?.routeId || "",
+                        departuresBoard.mostResistanceRoute?.resistanceScore || 0,
+                    ],
+                    equations: departuresBoard.resistanceEquationIds,
+                    alpha: departuresBoard.resistanceAlpha,
+                    hypothesis: {
+                        decision: departuresBoard.resistanceHypothesisFrame?.nullHypothesisDecision || "",
+                        candidate: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.key || "",
+                        testId: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.hypothesisTestId || "",
+                        domains: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.domains || [],
+                        pValue: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.pValue || null,
+                        qValue: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.qValue || null,
+                        rejectsNull: departuresBoard.resistanceHypothesisFrame?.primaryCandidateObstacle?.rejectsNullHypothesis || false,
+                        highGate: [
+                            departuresBoard.resistanceHypothesisFrame?.highResistanceGateTest?.key || "",
+                            departuresBoard.resistanceHypothesisFrame?.highResistanceGateTest?.pValue || null,
+                            departuresBoard.resistanceHypothesisFrame?.highResistanceGateTest?.direction || "",
+                        ],
+                        lowGate: [
+                            departuresBoard.resistanceHypothesisFrame?.lowResistanceGateTest?.key || "",
+                            departuresBoard.resistanceHypothesisFrame?.lowResistanceGateTest?.pValue || null,
+                            departuresBoard.resistanceHypothesisFrame?.lowResistanceGateTest?.direction || "",
+                        ],
+                        relationship: [
+                            departuresBoard.resistanceHypothesisFrame?.newRelationshipCandidate?.key || "",
+                            departuresBoard.resistanceHypothesisFrame?.newRelationshipCandidate?.pValue || null,
+                            departuresBoard.resistanceHypothesisFrame?.newRelationshipCandidate?.direction || "",
+                        ],
+                        order: departuresBoard.resistanceHypothesisFrame?.dimensionalOrder || [],
+                        action: departuresBoard.resistanceHypothesisFrame?.recommendedAction || "",
+                    },
+                },
+                departuresPassenger: {
+                    model: departuresBoard.passengerFrame?.routeBoardModel || "",
+                    intention: departuresBoard.passengerFrame?.currentIntention || "",
+                    source: departuresBoard.passengerFrame?.sourceLabel || "",
+                    destination: departuresBoard.passengerFrame?.destinationLabel || "",
+                    primary: departuresBoard.passengerFrame?.primaryActionLabel || "",
+                    primaryRoutePath: departuresBoard.passengerFrame?.primaryRoutePathLabel || "",
+                    visibleRoutes: departuresBoard.passengerFrame?.visibleRouteCount || 0,
+                    destinations: departuresBoard.passengerFrame?.destinationOptionCount || 0,
+                    explore: departuresBoard.passengerFrame?.exploreOptionCount || 0,
+                    next: departuresBoard.passengerFrame?.nextOptionCount || 0,
+                    arrival: departuresBoard.passengerFrame?.arrivalOptionCount || 0,
+                    events: departuresBoard.passengerFrame?.passengerEvents || [],
+                },
+                destinationState: destinationBoard.boardState,
+                destinationStation: destinationBoard.destinationStation.label,
+                destinationRecommended: [
+                    destinationBoard.recommendedRoute?.routeIds || [],
+                    destinationBoard.recommendedRoute?.actionLabel || "",
+                    destinationBoard.recommendedRoute?.nextSourceStageKey || "",
+                    destinationBoard.recommendedRoute?.resistanceScore || 0,
+                ],
+                destinationPassenger: {
+                    model: destinationBoard.passengerFrame?.routeBoardModel || "",
+                    intention: destinationBoard.passengerFrame?.currentIntention || "",
+                    source: destinationBoard.passengerFrame?.sourceLabel || "",
+                    destination: destinationBoard.passengerFrame?.destinationLabel || "",
+                    primary: destinationBoard.passengerFrame?.primaryActionLabel || "",
+                    primaryRoutePath: destinationBoard.passengerFrame?.primaryRoutePathLabel || "",
+                    visibleRoutes: destinationBoard.passengerFrame?.visibleRouteCount || 0,
+                    destinations: destinationBoard.passengerFrame?.destinationOptionCount || 0,
+                    explore: destinationBoard.passengerFrame?.exploreOptionCount || 0,
+                    next: destinationBoard.passengerFrame?.nextOptionCount || 0,
+                    arrival: destinationBoard.passengerFrame?.arrivalOptionCount || 0,
+                    events: destinationBoard.passengerFrame?.passengerEvents || [],
+                },
+                destinationStationLine: {
+                    model: destinationBoard.stationLineFrame?.lineModel || "",
+                    intent: destinationBoard.stationLineFrame?.intentMode || "",
+                    active: destinationBoard.stationLineFrame?.activeStopId || "",
+                    routeKey: destinationBoard.stationLineFrame?.routeKey || "",
+                    passengerLineModel: destinationBoard.passengerFrame?.stationLineFrame?.lineModel || "",
+                    stops: (destinationBoard.stationLineFrame?.stops || []).map((entry) => [
+                        entry.id,
+                        entry.status,
+                        entry.displayLabel,
+                    ]),
+                },
+                itineraryRouteIds: destinationBoard.itineraries.map((entry) => entry.routeIds),
+                itineraryActions: destinationBoard.itineraries.map((entry) => [
+                    entry.targetAction.entryBoard,
+                    entry.targetAction.unitMode,
+                ]),
+                itineraryTickets: destinationBoard.itineraries.map((entry) => [
+                    entry.tripKind,
+                    entry.segmentCount,
+                    entry.transferCount,
+                    entry.routeTicketLabel,
+                ]),
+                itineraryResistance: destinationBoard.itineraries.map((entry) => [
+                    entry.routeIds,
+                    entry.resistanceScore,
+                    entry.obstacleCount,
+                    entry.routeTicket?.resistanceLabel || "",
+                ]),
+                itineraryStops: destinationBoard.itineraries.map((entry) => [
+                    entry.routeIds,
+                    (entry.routeStops || []).map((stop) => stop.label),
+                ]),
+                itineraryNextSources: destinationBoard.itineraries.map((entry) => [
+                    entry.routeIds,
+                    entry.nextSourceStageKey,
+                    entry.nextSourceLabel,
+                    entry.routeTicket?.nextSourceStageKey || "",
+                ]),
+                itineraryActionFrames: destinationBoard.itineraries.map((entry) => [
+                    entry.routeIds,
+                    entry.routeActionLabel,
+                    entry.routeRecommendation,
+                    entry.routeActionFrame?.intentionModel || "",
+                ]),
+                itineraryDimensions: destinationBoard.itineraries.map((entry) => [
+                    entry.routeIds,
+                    (entry.gateDomainCounts || []).slice(0, 2).map((item) => [item.value, item.count]),
+                ]),
+                firstItineraryDetails: destinationBoard.itineraries[0]?.ticketDetails || [],
+            };
+        })(),
+        {
+            cnvFormulaStage: {
+                label: "CNV · predicado",
+                inputKind: "whole-cnv-formula",
+                boundaryKind: "cnv-nuclear-clause",
+                boundaryConfidence: "structured",
+                inputHasWildcard: false,
+                ticketModel: "limited-entrada-one-passenger-many-routes",
+                ticketDisplay: "#0-0+m-etz(ati)0+0-0#",
+                ticketDimensions: [
+                    ["formula-boundary", "positioned"],
+                    ["stem-rank", "positioned"],
+                    ["source-target-route", "source-positioned"],
+                    ["slot-ownership", "given"],
+                    ["function-use", "deferred-last"],
+                ],
+            },
+            cnvFormulaBoardInput: {
+                currentStation: "CNV · predicado",
+                inputKind: "whole-cnv-formula",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnv-nuclear-clause",
+                boundaryConfidence: "structured",
+                inputHasWildcard: false,
+                ticketModel: "limited-entrada-one-passenger-many-routes",
+                ticketEvents: [
+                    "receive-limited-input",
+                    "classify-entrada-boundary",
+                    "de-superpose-input-dimensions",
+                    "position-current-station",
+                ],
+                sourceCandidateCount: 3,
+                sourceCandidateKeys: [
+                    "CNV:predicate:predicate",
+                    "CNV:core:verbal-core",
+                    "CNV:predicate-stem:verbstem",
+                ],
+                sourceCandidateLabels: [
+                    "CNV · predicado",
+                    "CNV · nucleo verbal",
+                    "CNV · tronco verbal",
+                ],
+            },
+            cnvFormulaStationLine: {
+                model: "entrada-formula-salida-one-route",
+                intent: "explore",
+                active: "formula",
+                routeKey: "CNV:predicate-stem:verbstem>CNV:predicate-stem:deverbal-verbstem",
+                stops: [
+                    ["entrada", "received", "#0-0+m-etz(ati)0+0-0#"],
+                    ["formula", "positioned", "CNV · tronco verbal"],
+                    ["salida", "offered", "CNV · tronco verbal deverbal"],
+                ],
+            },
+            cnvFormulaPassenger: {
+                source: "CNV · predicado",
+                primarySource: "CNV · tronco verbal",
+                primarySourceKey: "CNV:predicate-stem:verbstem",
+                primaryNextSource: "CNV · tronco verbal deverbal",
+                primaryNextSourceKey: "CNV:predicate-stem:deverbal-verbstem",
+                primaryRoutePath: "CNV · tronco verbal > CNV · tronco verbal deverbal",
+                events: [
+                    "receive-limited-input",
+                    "carry-entrada-ticket",
+                    "position-current-station",
+                    "publish-primary-source-layer",
+                    "offer-next-and-explore",
+                    "provide-explore-and-destination",
+                    "preserve-next-source",
+                ],
+            },
+            cnvFormulaDestinationOptions: [
+                ["CNV · tronco verbal deverbal", 1, ["cnv-verbstem-to-cnv-verbstem-deverbal"]],
+                ["CNN · tronco nominal deverbal", 1, ["cnv-core-to-cnn-nounstem-deverbal"]],
+                ["CNN · tronco nominal", 1, ["cnv-predicate-to-cnn-nounstem-nominalization"]],
+                ["CNN · tronco nominal de accion activa", 2, ["cnv-predicate-to-cnn-nounstem-nominalization", "cnn-to-cnv-to-cnn-active-action-loop"]],
+                ["CNV · tronco verbal denominal", 2, ["cnv-predicate-to-cnn-nounstem-nominalization", "cnn-nounstem-to-cnv-verbstem-denominal"]],
+            ],
+            cnvFormulaDestinationResistance: [
+                ["CNV · tronco verbal deverbal", 464, 184, "R464"],
+                ["CNN · tronco nominal deverbal", 482, 193, "R482"],
+                ["CNN · tronco nominal", 587, 239, "R587"],
+                ["CNN · tronco nominal de accion activa", 701, 246, "R701"],
+                ["CNV · tronco verbal denominal", 1092, 437, "R1092"],
+            ],
+            cnvFormulaDestinationStops: [
+                ["CNV · tronco verbal deverbal", ["CNV · tronco verbal", "CNV · tronco verbal deverbal"]],
+                ["CNN · tronco nominal deverbal", ["CNV · nucleo verbal", "CNN · tronco nominal deverbal"]],
+                ["CNN · tronco nominal", ["CNV · predicado", "CNN · tronco nominal"]],
+                ["CNN · tronco nominal de accion activa", ["CNV · predicado", "CNN · tronco nominal", "CNN · tronco nominal de accion activa"]],
+                ["CNV · tronco verbal denominal", ["CNV · predicado", "CNN · tronco nominal", "CNV · tronco verbal denominal"]],
+            ],
+            cnvFormulaDestinationDimensions: [
+                ["CNV · tronco verbal deverbal", [["formula-boundary", 176], ["valence-object", 148]]],
+                ["CNN · tronco nominal deverbal", [["valence-object", 177], ["operation-suffix", 169]]],
+                ["CNN · tronco nominal", [["formula-boundary", 217], ["valence-object", 217]]],
+                ["CNN · tronco nominal de accion activa", [["valence-object", 224], ["formula-boundary", 223]]],
+                ["CNV · tronco verbal denominal", [["valence-object", 400], ["formula-boundary", 393]]],
+            ],
+            cnvFormulaIndirectItineraryIds: [
+                ["cnv-predicate-to-cnn-nounstem-nominalization", "cnn-nounstem-to-cnv-verbstem-denominal"],
+                ["cnv-to-cnn-to-cnv-loop"],
+            ],
+            cnvFormulaIndirectAction: ["noun-to-verb", "verbo"],
+            cnnFormulaStage: {
+                label: "CNN · tronco nominal",
+                inputKind: "whole-cnn-formula",
+            },
+            wildcardStage: {
+                label: "CNV · tronco verbal",
+                inputKind: "stem-wildcard",
+                boundaryKind: "predicate-stem-wildcard",
+                boundaryConfidence: "wildcard",
+                inputHasWildcard: true,
+                unresolvedDimensions: ["lexical-source"],
+            },
+            rawStemStage: {
+                label: "CNV · tronco verbal",
+                inputKind: "stem-input",
+                boundaryKind: "predicate-stem",
+                boundaryConfidence: "stem-only",
+                inputHasWildcard: false,
+                ticketDimensions: [
+                    ["formula-boundary", "open"],
+                    ["stem-rank", "positioned"],
+                    ["source-target-route", "source-positioned"],
+                    ["slot-ownership", "deferred"],
+                    ["function-use", "deferred-last"],
+                ],
+            },
+            rawCnnStemStage: {
+                label: "CNN · tronco nominal",
+                inputKind: "stem-input",
+                boundaryKind: "predicate-stem",
+                boundaryConfidence: "stem-only",
+            },
+            surfaceCnvStage: {
+                label: "CNV · predicado",
+                inputKind: "whole-cnv-surface-candidate",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnv-surface-nuclear-clause-candidate",
+                boundaryConfidence: "surface-candidate",
+                marker: "ni",
+                markerRole: "subject",
+                inputHasWildcard: false,
+                unresolvedDimensions: ["formula-boundary", "stem-boundary", "slot-boundary"],
+                ticketDimensions: [
+                    ["formula-boundary", "open"],
+                    ["stem-rank", "positioned"],
+                    ["source-target-route", "source-positioned"],
+                    ["slot-ownership", "deferred"],
+                    ["function-use", "deferred-last"],
+                ],
+            },
+            surfaceObjectCnvStage: {
+                label: "CNV · predicado",
+                inputKind: "whole-cnv-surface-candidate",
+                boundaryKind: "cnv-surface-nuclear-clause-candidate",
+                marker: "metz",
+                markerRole: "specific-projective-object",
+                slot: "va1-va2",
+            },
+            surfaceCnvBoardInput: {
+                currentStation: "CNV · predicado",
+                inputKind: "whole-cnv-surface-candidate",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnv-surface-nuclear-clause-candidate",
+                boundaryConfidence: "surface-candidate",
+                sourceCandidateCount: 3,
+                sourceCandidateKeys: [
+                    "CNV:predicate:predicate",
+                    "CNV:core:verbal-core",
+                    "CNV:predicate-stem:verbstem",
+                ],
+                sourceCandidateLabels: [
+                    "CNV · predicado",
+                    "CNV · nucleo verbal",
+                    "CNV · tronco verbal",
+                ],
+            },
+            surfaceCnnStage: {
+                label: "CNN · tronco nominal",
+                inputKind: "whole-cnn-surface-candidate",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnn-surface-nuclear-clause-candidate",
+                boundaryConfidence: "surface-candidate",
+                marker: "nu",
+                markerRole: "possessive-state",
+                slot: "st1-st2",
+                inputHasWildcard: false,
+                unresolvedDimensions: ["formula-boundary", "stem-boundary", "slot-boundary"],
+                ticketDimensions: [
+                    ["formula-boundary", "Frontera", "open", "cnn-surface-nuclear-clause-candidate"],
+                    ["stem-rank", "Base", "positioned", "nounstem"],
+                    ["source-target-route", "Ruta", "source-positioned", "CNN:predicate-stem:nounstem"],
+                    ["slot-ownership", "Estado", "deferred", "route-frame-will-own-state"],
+                    ["function-use", "Función", "deferred-last", "after-route-frame"],
+                ],
+            },
+            surfaceCnnBoardInput: {
+                currentStation: "CNN · tronco nominal",
+                inputKind: "whole-cnn-surface-candidate",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnn-surface-nuclear-clause-candidate",
+                boundaryConfidence: "surface-candidate",
+                sourceCandidateCount: 1,
+                sourceCandidateKeys: ["CNN:predicate-stem:nounstem"],
+                sourceCandidateLabels: ["CNN · tronco nominal"],
+            },
+            wildcardFormulaStage: {
+                label: "CNV · predicado",
+                inputKind: "whole-cnv-formula",
+                boundaryKind: "cnv-nuclear-clause",
+                boundaryConfidence: "structured-wildcard",
+                inputHasWildcard: true,
+                unresolvedDimensions: ["lexical-source"],
+            },
+            wildcardFormulaBoardInput: {
+                currentStation: "CNV · predicado",
+                inputKind: "whole-cnv-formula",
+                inputScope: "nuclear-clause",
+                boundaryKind: "cnv-nuclear-clause",
+                boundaryConfidence: "structured-wildcard",
+                inputHasWildcard: true,
+                unresolvedDimensionCount: 1,
+                ticketModel: "limited-entrada-one-passenger-many-routes",
+                ticketDisplay: "#0-0+?(*)0+0-0#",
+                ticketDimensions: [
+                    ["formula-boundary", "positioned"],
+                    ["stem-rank", "positioned"],
+                    ["source-target-route", "source-positioned"],
+                    ["slot-ownership", "given"],
+                    ["function-use", "deferred-last"],
+                ],
+                sourceCandidateCount: 3,
+                sourceCandidateKeys: [
+                    "CNV:predicate:predicate",
+                    "CNV:core:verbal-core",
+                    "CNV:predicate-stem:verbstem",
+                ],
+                sourceCandidateLabels: [
+                    "CNV · predicado",
+                    "CNV · nucleo verbal",
+                    "CNV · tronco verbal",
+                ],
+            },
+            departuresState: "departures",
+            currentStation: "CNN · tronco nominal",
+            routeCount: 7,
+            hiddenCoordinateCount: 1576,
+            routeTerrain: {
+                count: 7,
+                first: ["cnn-to-cnv-to-cnn-active-action-loop", 114, "least"],
+                last: ["cnv-to-cnn-to-cnv-loop", 1637, "most"],
+            },
+            averageRouteStageClicks: 1.48,
+            maxRouteStageClicks: 2,
+            departureIds: [
+                "cnn-to-cnv-to-cnn-active-action-loop",
+                "cnn-to-cnv-to-cnv-deverbal-chain",
+                "cnn-nounstem-to-cnv-verbstem-denominal",
+            ],
+            departureActions: [
+                ["ordinary-nnc", "sustantivo"],
+                ["noun-to-verb", "verbo"],
+                ["noun-to-verb", "verbo"],
+            ],
+            departureTickets: [
+                ["direct", 1, 0, "CNN · tronco nominal > CNN · tronco nominal de accion activa · 1 tramo · Nominal"],
+                ["direct", 1, 0, "CNN · tronco nominal > CNV · tronco verbal deverbal · 1 tramo · Verbalizar"],
+                ["direct", 1, 0, "CNN · tronco nominal > CNV · tronco verbal denominal · 1 tramo · Verbalizar"],
+            ],
+            departureResistance: [
+                ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7, 1],
+                ["cnn-to-cnv-to-cnv-deverbal-chain", 153, 24, 2],
+                ["cnn-nounstem-to-cnv-verbstem-denominal", 505, 198, 5],
+            ],
+            departureStops: [
+                ["cnn-to-cnv-to-cnn-active-action-loop", ["CNN · tronco nominal", "CNN · tronco nominal de accion activa"]],
+                ["cnn-to-cnv-to-cnv-deverbal-chain", ["CNN · tronco nominal", "CNV · tronco verbal deverbal"]],
+                ["cnn-nounstem-to-cnv-verbstem-denominal", ["CNN · tronco nominal", "CNV · tronco verbal denominal"]],
+            ],
+            departureNextSources: [
+                ["cnn-to-cnv-to-cnn-active-action-loop", "CNN:predicate-stem:active-action-nounstem", "CNN · tronco nominal de accion activa", "CNN:predicate-stem:active-action-nounstem"],
+                ["cnn-to-cnv-to-cnv-deverbal-chain", "CNV:predicate-stem:deverbal-verbstem", "CNV · tronco verbal deverbal", "CNV:predicate-stem:deverbal-verbstem"],
+                ["cnn-nounstem-to-cnv-verbstem-denominal", "CNV:predicate-stem:denominal-verbstem", "CNV · tronco verbal denominal", "CNV:predicate-stem:denominal-verbstem"],
+            ],
+            departureActionFrames: [
+                ["cnn-to-cnv-to-cnn-active-action-loop", "Siguiente", "next", "explore-and-destination-share-one-route-board"],
+                ["cnn-to-cnv-to-cnv-deverbal-chain", "Explorar", "alternate", "explore-and-destination-share-one-route-board"],
+                ["cnn-nounstem-to-cnv-verbstem-denominal", "Explorar", "alternate", "explore-and-destination-share-one-route-board"],
+            ],
+            departureIfThen: [
+                [
+                    "cnn-to-cnv-to-cnn-active-action-loop",
+                    "entrada-if-formula-then-salida",
+                    "CNN · tronco nominal",
+                    "CNN · tronco nominal de accion activa",
+                    [
+                        ["formula-boundary", "source-required"],
+                        ["stem-rank", "source-required"],
+                        ["source-target-route", "route-positioned"],
+                        ["slot-ownership", "route-owned"],
+                        ["function-use", "deferred-last"],
+                    ],
+                ],
+                [
+                    "cnn-to-cnv-to-cnv-deverbal-chain",
+                    "entrada-if-formula-then-salida",
+                    "CNN · tronco nominal",
+                    "CNV · tronco verbal deverbal",
+                    [
+                        ["formula-boundary", "source-required"],
+                        ["stem-rank", "source-required"],
+                        ["source-target-route", "route-positioned"],
+                        ["slot-ownership", "route-owned"],
+                        ["function-use", "deferred-last"],
+                    ],
+                ],
+                [
+                    "cnn-nounstem-to-cnv-verbstem-denominal",
+                    "entrada-if-formula-then-salida",
+                    "CNN · tronco nominal",
+                    "CNV · tronco verbal denominal",
+                    [
+                        ["formula-boundary", "source-required"],
+                        ["stem-rank", "source-required"],
+                        ["source-target-route", "route-positioned"],
+                        ["slot-ownership", "route-owned"],
+                        ["function-use", "deferred-last"],
+                    ],
+                ],
+            ],
+            destinationOptions: [
+                "CNN · tronco nominal de accion activa",
+                "CNV · tronco verbal deverbal",
+                "CNV · tronco verbal denominal",
+            ],
+            destinationOptionActions: [
+                ["CNN · tronco nominal de accion activa", "Siguiente", "next"],
+                ["CNV · tronco verbal deverbal", "Explorar", "alternate"],
+                ["CNV · tronco verbal denominal", "Explorar", "alternate"],
+            ],
+            boardResistance: {
+                recommended: [
+                    ["cnn-to-cnv-to-cnn-active-action-loop"],
+                    "Siguiente",
+                    "CNN:predicate-stem:active-action-nounstem",
+                    114,
+                ],
+                leastVisible: [["cnn-to-cnv-to-cnn-active-action-loop"], 114],
+                mostVisible: [["cnn-nounstem-to-cnv-verbstem-denominal"], 505],
+                leastRoute: ["cnn-to-cnv-to-cnn-active-action-loop", 114],
+                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1637],
+                equations: [
+                    "z-score",
+                    "pearson-correlation",
+                    "risk-difference",
+                    "haldane-anscombe-odds-ratio",
+                    "information-gain",
+                ],
+                alpha: 0.05,
+                hypothesis: {
+                    decision: "reject-null-hypothesis",
+                    candidate: "candidate-obstacle:formula-boundary+function-use",
+                    testId: "gate-domain-pair-fisher-exact-test",
+                    domains: ["formula-boundary", "function-use"],
+                    pValue: 2e-12,
+                    qValue: 2.2e-11,
+                    rejectsNull: true,
+                    highGate: ["function-use", 2e-12, "presence-associated-with-higher-resistance"],
+                    lowGate: ["operation-suffix", 2e-12, "presence-associated-with-lower-resistance"],
+                    relationship: ["source-evidence+operation-suffix", 2e-12, "cooccurs-more-than-null"],
+                    order: [
+                        "formula-boundary",
+                        "stem-rank",
+                        "source-target-route",
+                        "slot-ownership",
+                        "function-use",
+                    ],
+                    action: "Treat formula-boundary + function-use as a candidate compound obstacle and split it before route expansion.",
+                },
+            },
+            departuresPassenger: {
+                model: "one-passenger-intention-many-routes",
+                intention: "explore",
+                source: "CNN · tronco nominal",
+                destination: "",
+                primary: "Siguiente",
+                primaryRoutePath: "CNN · tronco nominal > CNN · tronco nominal de accion activa",
+                visibleRoutes: 3,
+                destinations: 3,
+                explore: 2,
+                next: 1,
+                arrival: 0,
+                events: [
+                    "receive-limited-input",
+                    "position-current-station",
+                    "publish-primary-source-layer",
+                    "offer-next-and-explore",
+                    "provide-explore-and-destination",
+                    "preserve-next-source",
+                ],
+            },
+            destinationState: "destination",
+            destinationStation: "CNV · tronco verbal deverbal",
+            destinationRecommended: [
+                ["cnn-to-cnv-to-cnv-deverbal-chain"],
+                "Llegar",
+                "CNV:predicate-stem:deverbal-verbstem",
+                153,
+            ],
+            destinationPassenger: {
+                model: "one-passenger-intention-many-routes",
+                intention: "destination",
+                source: "CNN · tronco nominal",
+                destination: "CNV · tronco verbal deverbal",
+                primary: "Llegar",
+                primaryRoutePath: "CNN · tronco nominal > CNV · tronco verbal deverbal",
+                visibleRoutes: 2,
+                destinations: 3,
+                explore: 1,
+                next: 0,
+                arrival: 1,
+                events: [
+                    "receive-limited-input",
+                    "position-current-station",
+                    "publish-primary-source-layer",
+                    "offer-next-and-explore",
+                    "provide-explore-and-destination",
+                    "preserve-next-source",
+                ],
+            },
+            destinationStationLine: {
+                model: "entrada-formula-salida-one-route",
+                intent: "destination",
+                active: "salida",
+                routeKey: "CNN:predicate-stem:nounstem>CNV:predicate-stem:deverbal-verbstem",
+                passengerLineModel: "entrada-formula-salida-one-route",
+                stops: [
+                    ["entrada", "positioned", "CNN · tronco nominal"],
+                    ["formula", "positioned", "CNN · tronco nominal"],
+                    ["salida", "destination-set", "CNV · tronco verbal deverbal"],
+                ],
+            },
+            itineraryRouteIds: [
+                ["cnn-to-cnv-to-cnv-deverbal-chain"],
+                ["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"],
+            ],
+            itineraryActions: [
+                ["noun-to-verb", "verbo"],
+                ["general", "verbo"],
+            ],
+            itineraryTickets: [
+                ["direct", 1, 0, "CNN · tronco nominal > CNV · tronco verbal deverbal · 1 tramo · Verbalizar"],
+                ["transfer", 2, 1, "CNN · tronco nominal > CNV · tronco verbal denominal > CNV · tronco verbal deverbal · 2 tramos · Verbal"],
+            ],
+            itineraryResistance: [
+                [["cnn-to-cnv-to-cnv-deverbal-chain"], 153, 24, "R153"],
+                [["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], 969, 382, "R969"],
+            ],
+            itineraryStops: [
+                [["cnn-to-cnv-to-cnv-deverbal-chain"], ["CNN · tronco nominal", "CNV · tronco verbal deverbal"]],
+                [["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], ["CNN · tronco nominal", "CNV · tronco verbal denominal", "CNV · tronco verbal deverbal"]],
+            ],
+            itineraryNextSources: [
+                [["cnn-to-cnv-to-cnv-deverbal-chain"], "CNV:predicate-stem:deverbal-verbstem", "CNV · tronco verbal deverbal", "CNV:predicate-stem:deverbal-verbstem"],
+                [["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], "CNV:predicate-stem:deverbal-verbstem", "CNV · tronco verbal deverbal", "CNV:predicate-stem:deverbal-verbstem"],
+            ],
+            itineraryActionFrames: [
+                [["cnn-to-cnv-to-cnv-deverbal-chain"], "Llegar", "arrival", "explore-and-destination-share-one-route-board"],
+                [["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], "Explorar", "alternate", "explore-and-destination-share-one-route-board"],
+            ],
+            itineraryDimensions: [
+                [["cnn-to-cnv-to-cnv-deverbal-chain"], [["formula-boundary", 23], ["operation-suffix", 23]]],
+                [["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], [["formula-boundary", 352], ["valence-object", 331]]],
+            ],
+            firstItineraryDetails: ["valencia", "operacion de ruta", "trasbordo"],
+        }
+    );
+
+    s.eq(
+        "Andrews route board exposes passenger intention as one shared route system",
+        (() => {
+            const sourceStage = {
+                formulaType: "CNN",
+                formulaPosition: "predicate-stem",
+                stemRank: "nounstem",
+            };
+            const destinationStage = {
+                formulaType: "CNV",
+                formulaPosition: "predicate-stem",
+                stemRank: "deverbal-verbstem",
+            };
+            const departuresBoard = ctx.buildAndrewsCnvCnnRouteBoard({ sourceStage });
+            const destinationBoard = ctx.buildAndrewsCnvCnnRouteBoard({ sourceStage, destinationStage });
+            const simplify = (frame) => ({
+                kind: frame?.kind || "",
+                model: frame?.intentionModel || "",
+                routeProvisionMode: frame?.routeProvisionMode || "",
+                current: frame?.currentIntention || "",
+                sharedRouteBoard: frame?.sharedRouteBoard === true,
+                intentionSwitchRequired: frame?.intentionSwitchRequired === true,
+                primaryActionLabel: frame?.primaryActionLabel || "",
+                intentions: (frame?.intentions || []).map((entry) => [
+                    entry.id,
+                    entry.selected,
+                    entry.optionCount,
+                    entry.routeCount,
+                ]),
+                events: frame?.passengerEvents || [],
+            });
+            const simplifyConcourse = (frame) => ({
+                kind: frame?.kind || "",
+                model: frame?.concourseModel || "",
+                line: frame?.lineModel || "",
+                current: frame?.sourceLabel || "",
+                next: frame?.nextStationLabel || "",
+                destination: frame?.destinationLabel || "",
+                intention: frame?.currentIntention || "",
+                action: frame?.actionLabel || "",
+                routeIds: frame?.routeIds || [],
+                stops: (frame?.stops || []).map((entry) => [
+                    entry.id,
+                    entry.status,
+                    entry.label,
+                    entry.displayLabel,
+                ]),
+                events: frame?.passengerEvents || [],
+            });
+            const simplifyPlatforms = (frame) => ({
+                kind: frame?.kind || "",
+                model: frame?.platformModel || "",
+                intention: frame?.currentIntention || "",
+                source: frame?.sourceLabel || "",
+                visibleTrackCount: frame?.visibleTrackCount || 0,
+                destinationOptionCount: frame?.destinationOptionCount || 0,
+                tracks: (frame?.tracks || []).map((entry) => [
+                    entry.label,
+                    entry.destinationLabel,
+                    entry.routePathLabel,
+                    entry.recommendationRole,
+                    entry.actionLabel,
+                    entry.routeIds,
+                    entry.segmentCount,
+                    entry.resistanceScore,
+                ]),
+                events: frame?.passengerEvents || [],
+            });
+            const simplifyRide = (frame) => ({
+                kind: frame?.kind || "",
+                model: frame?.experienceModel || "",
+                outputJourneyModel: frame?.outputJourneyModel || "",
+                operatingPrinciple: frame?.operatingPrinciple || "",
+                choiceModel: frame?.choiceModel || "",
+                intention: frame?.currentIntention || "",
+                current: frame?.currentSignLabel || "",
+                next: frame?.nextSignLabel || "",
+                destination: frame?.destinationSignLabel || "",
+                action: frame?.primaryActionLabel || "",
+                routePath: frame?.primaryRoutePathLabel || "",
+                activeStop: [frame?.activeStopId || "", frame?.activeStopIndex || 0, frame?.progressStopCount || 0],
+                options: [
+                    frame?.routeOptionCount || 0,
+                    frame?.destinationOptionCount || 0,
+                    frame?.visibleTrackCount || 0,
+                    frame?.decisionLoad?.primaryClickCount || 0,
+                    frame?.decisionLoad?.switchingRequired === true,
+                ],
+                stops: (frame?.progressStops || []).map((entry) => [
+                    entry.id,
+                    entry.status,
+                    entry.displayLabel,
+                    entry.active,
+                ]),
+                events: frame?.passengerEvents || [],
+            });
+            return {
+                departures: simplify(departuresBoard.passengerFrame?.intentionFrame),
+                destination: simplify(destinationBoard.passengerFrame?.intentionFrame),
+                departuresConcourse: simplifyConcourse(departuresBoard.concourseFrame),
+                destinationConcourse: simplifyConcourse(destinationBoard.concourseFrame),
+                departuresPlatforms: simplifyPlatforms(departuresBoard.platformFrame),
+                destinationPlatforms: simplifyPlatforms(destinationBoard.platformFrame),
+                departuresRide: simplifyRide(departuresBoard.rideFrame),
+                destinationRide: simplifyRide(destinationBoard.rideFrame),
+            };
+        })(),
+        {
+            departures: {
+                kind: "andrews-cnv-cnn-route-board-intention-frame",
+                model: "single-passenger-same-board-explore-or-destination",
+                routeProvisionMode: "station-provides-options-passenger-rides",
+                current: "explore",
+                sharedRouteBoard: true,
+                intentionSwitchRequired: false,
+                primaryActionLabel: "Siguiente",
+                intentions: [
+                    ["explore", true, 3, 3],
+                    ["destination", false, 3, 3],
+                ],
+                events: [
+                    "provide-explore-and-destination",
+                    "keep-one-route-board",
+                    "avoid-passenger-track-switching",
+                ],
+            },
+            destination: {
+                kind: "andrews-cnv-cnn-route-board-intention-frame",
+                model: "single-passenger-same-board-explore-or-destination",
+                routeProvisionMode: "station-provides-options-passenger-rides",
+                current: "destination",
+                sharedRouteBoard: true,
+                intentionSwitchRequired: false,
+                primaryActionLabel: "Llegar",
+                intentions: [
+                    ["explore", false, 2, 2],
+                    ["destination", true, 3, 2],
+                ],
+                events: [
+                    "provide-explore-and-destination",
+                    "keep-one-route-board",
+                    "avoid-passenger-track-switching",
+                ],
+            },
+            departuresConcourse: {
+                kind: "andrews-cnv-cnn-route-board-concourse-frame",
+                model: "one-station-map-for-explore-and-destination",
+                line: "you-are-here-next-arrival",
+                current: "CNN · tronco nominal",
+                next: "CNN · tronco nominal de accion activa",
+                destination: "CNN · tronco nominal de accion activa",
+                intention: "explore",
+                action: "Siguiente",
+                routeIds: ["cnn-to-cnv-to-cnn-active-action-loop"],
+                stops: [
+                    ["current", "current", "Ahora", "CNN · tronco nominal"],
+                    ["arrival", "offered", "Salida", "CNN · tronco nominal de accion activa"],
+                ],
+                events: [
+                    "mark-current-station",
+                    "show-next-train",
+                    "show-arrival-without-track-switch",
+                ],
+            },
+            destinationConcourse: {
+                kind: "andrews-cnv-cnn-route-board-concourse-frame",
+                model: "one-station-map-for-explore-and-destination",
+                line: "you-are-here-next-arrival",
+                current: "CNN · tronco nominal",
+                next: "CNV · tronco verbal deverbal",
+                destination: "CNV · tronco verbal deverbal",
+                intention: "destination",
+                action: "Llegar",
+                routeIds: ["cnn-to-cnv-to-cnv-deverbal-chain"],
+                stops: [
+                    ["current", "current", "Ahora", "CNN · tronco nominal"],
+                    ["arrival", "arrival", "Llegada", "CNV · tronco verbal deverbal"],
+                ],
+                events: [
+                    "mark-current-station",
+                    "show-next-train",
+                    "show-arrival-without-track-switch",
+                ],
+            },
+            departuresPlatforms: {
+                kind: "andrews-cnv-cnn-route-board-platform-frame",
+                model: "station-platforms-from-route-options",
+                intention: "explore",
+                source: "CNN · tronco nominal",
+                visibleTrackCount: 3,
+                destinationOptionCount: 3,
+                tracks: [
+                    ["Anden 1", "CNN · tronco nominal de accion activa", "CNN · tronco nominal > CNN · tronco nominal de accion activa", "next", "Siguiente", ["cnn-to-cnv-to-cnn-active-action-loop"], 1, 114],
+                    ["Anden 2", "CNV · tronco verbal deverbal", "CNN · tronco nominal > CNV · tronco verbal deverbal", "alternate", "Explorar", ["cnn-to-cnv-to-cnv-deverbal-chain"], 1, 153],
+                    ["Anden 3", "CNV · tronco verbal denominal", "CNN · tronco nominal > CNV · tronco verbal denominal", "alternate", "Explorar", ["cnn-nounstem-to-cnv-verbstem-denominal"], 1, 505],
+                ],
+                events: [
+                    "publish-route-options",
+                    "rank-platforms-by-resistance",
+                    "keep-passenger-off-switches",
+                ],
+            },
+            destinationPlatforms: {
+                kind: "andrews-cnv-cnn-route-board-platform-frame",
+                model: "station-platforms-from-route-options",
+                intention: "destination",
+                source: "CNN · tronco nominal",
+                visibleTrackCount: 2,
+                destinationOptionCount: 3,
+                tracks: [
+                    ["Anden 1", "CNV · tronco verbal deverbal", "CNN · tronco nominal > CNV · tronco verbal deverbal", "arrival", "Llegar", ["cnn-to-cnv-to-cnv-deverbal-chain"], 1, 153],
+                    ["Anden 2", "CNV · tronco verbal deverbal", "CNN · tronco nominal > CNV · tronco verbal denominal > CNV · tronco verbal deverbal", "alternate", "Explorar", ["cnn-nounstem-to-cnv-verbstem-denominal", "cnv-verbstem-to-cnv-verbstem-deverbal"], 2, 969],
+                ],
+                events: [
+                    "publish-route-options",
+                    "rank-platforms-by-resistance",
+                    "keep-passenger-off-switches",
+                ],
+            },
+            departuresRide: {
+                kind: "andrews-cnv-cnn-route-board-ride-frame",
+                model: "passenger-rides-station-provides",
+                outputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                operatingPrinciple: "station-signs-do-switching-passenger-rides",
+                choiceModel: "explore-or-destination-one-board",
+                intention: "explore",
+                current: "CNN · tronco nominal",
+                next: "CNN · tronco nominal de accion activa",
+                destination: "CNN · tronco nominal de accion activa",
+                action: "Siguiente",
+                routePath: "CNN · tronco nominal > CNN · tronco nominal de accion activa",
+                activeStop: ["formula", 2, 3],
+                options: [3, 3, 3, 1, false],
+                stops: [
+                    ["entrada", "positioned", "CNN · tronco nominal", false],
+                    ["formula", "positioned", "CNN · tronco nominal", true],
+                    ["salida", "offered", "CNN · tronco nominal de accion activa", false],
+                ],
+                events: [
+                    "show-current-position",
+                    "show-next-arrival",
+                    "rank-platforms-before-choice",
+                    "hide-switching-from-passenger",
+                    "carry-one-route-to-output",
+                ],
+            },
+            destinationRide: {
+                kind: "andrews-cnv-cnn-route-board-ride-frame",
+                model: "passenger-rides-station-provides",
+                outputJourneyModel: "formula-and-surface-share-one-ride-frame",
+                operatingPrinciple: "station-signs-do-switching-passenger-rides",
+                choiceModel: "explore-or-destination-one-board",
+                intention: "destination",
+                current: "CNN · tronco nominal",
+                next: "CNV · tronco verbal deverbal",
+                destination: "CNV · tronco verbal deverbal",
+                action: "Llegar",
+                routePath: "CNN · tronco nominal > CNV · tronco verbal deverbal",
+                activeStop: ["salida", 3, 3],
+                options: [2, 3, 2, 1, false],
+                stops: [
+                    ["entrada", "positioned", "CNN · tronco nominal", false],
+                    ["formula", "positioned", "CNN · tronco nominal", false],
+                    ["salida", "destination-set", "CNV · tronco verbal deverbal", true],
+                ],
+                events: [
+                    "show-current-position",
+                    "show-next-arrival",
+                    "rank-platforms-before-choice",
+                    "hide-switching-from-passenger",
+                    "carry-one-route-to-output",
+                ],
+            },
+        }
+    );
+
+    s.eq(
         "Andrews formula and route features rank most resistance and convert it toward least resistance",
         (() => {
             const vncFeature = ctx.buildNuclearClauseFormulaFeatureFrame(
@@ -1162,6 +2377,8 @@ function run(ctx) {
                 conversionPlan: {
                     fromRouteId: stats.resistanceConversionPlan.fromRouteId,
                     toRouteId: stats.resistanceConversionPlan.toRouteId,
+                    fromRouteLabel: stats.resistanceConversionPlan.fromRouteLabel,
+                    toRouteLabel: stats.resistanceConversionPlan.toRouteLabel,
                     scoreReductionNeeded: stats.resistanceConversionPlan.scoreReductionNeeded,
                     obstacleReductionNeeded: stats.resistanceConversionPlan.obstacleReductionNeeded,
                     highResistanceDimensions: stats.resistanceConversionPlan.highResistanceDimensions
@@ -1285,6 +2502,8 @@ function run(ctx) {
             conversionPlan: {
                 fromRouteId: "cnv-to-cnn-to-cnv-loop",
                 toRouteId: "cnn-to-cnv-to-cnn-active-action-loop",
+                fromRouteLabel: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
+                toRouteLabel: "CNN nounstem -> CNV denominal/deverbal verbstem -> CNN active-action nounstem",
                 scoreReductionNeeded: 1523,
                 obstacleReductionNeeded: 724,
                 highResistanceDimensions: [
@@ -1647,6 +2866,145 @@ function run(ctx) {
             morphRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
             formulaPathRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
             formulaPathGateCount: 8,
+        }
+    );
+
+    s.eq(
+        "finished surface entrada derives through slots instead of echoing the typed stem",
+        typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: "verbo",
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "metzmati",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "presente",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                }) || {};
+                const derivationFrame = result.entradaSurfaceDerivationFrame || {};
+                return {
+                    result: result.result || "",
+                    surfaceForms: result.surfaceForms || [],
+                    formulaEcho: result.nuclearClauseShell?.formulaEcho || "",
+                    sourceInput: result.grammarFrame?.resultFrame?.sourceInput || "",
+                    derived: derivationFrame.applied === true,
+                    sourceInputSurface: derivationFrame.sourceInput || "",
+                    marker: derivationFrame.marker || "",
+                    typedSurfaceEchoAllowed: derivationFrame.inputEchoPolicy?.mayEchoInputSurfaceAsSalida === true,
+                };
+            })()
+            : { result: "executeGenerateWordRequest unavailable" },
+        {
+            result: "metzmati",
+            surfaceForms: ["metzmati"],
+            formulaEcho: "#Ø-Ø+m-etz(mati)Ø+Ø-Ø#",
+            sourceInput: "mati",
+            derived: true,
+            sourceInputSurface: "metzmati",
+            marker: "metz",
+            typedSurfaceEchoAllowed: false,
+        }
+    );
+
+    s.eq(
+        "subject surface entrada derives the subject slot before salida",
+        typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: "verbo",
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "nimana",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "presente",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                }) || {};
+                return {
+                    result: result.result || "",
+                    formulaEcho: result.nuclearClauseShell?.formulaEcho || "",
+                    sourceInput: result.grammarFrame?.resultFrame?.sourceInput || "",
+                    derivedSlots: result.entradaSurfaceDerivationFrame?.derivedFormulaSlots || {},
+                };
+            })()
+            : { result: "executeGenerateWordRequest unavailable" },
+        {
+            result: "nimana",
+            formulaEcho: "#ni-Ø(mana)Ø+Ø-Ø#",
+            sourceInput: "mana",
+            derivedSlots: {
+                formulaType: "CNV",
+                pers1: "ni",
+                tronco: "mana",
+            },
+        }
+    );
+
+    s.eq(
+        "plain stems that only look like short object markers are not de-superposed",
+        typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: "verbo",
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "kisa",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "presente",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                }) || {};
+                return {
+                    result: result.result || "",
+                    formulaEcho: result.nuclearClauseShell?.formulaEcho || "",
+                    sourceInput: result.grammarFrame?.resultFrame?.sourceInput || "",
+                    derived: result.entradaSurfaceDerivationFrame?.applied === true,
+                };
+            })()
+            : { result: "executeGenerateWordRequest unavailable" },
+        {
+            result: "kisa",
+            formulaEcho: "#Ø-Ø(kisa)Ø+Ø-Ø#",
+            sourceInput: "kisa",
+            derived: false,
         }
     );
 
@@ -5831,7 +7189,34 @@ function run(ctx) {
             },
             formula: "#pers1-pers2(STEM)num1-num2#",
             expandedFormula: "#pers1-pers2(STEM)num1-num2#",
-            formulaSlots: undefined,
+            formulaSlots: {
+                pers1Pers2: {
+                    slot: "pers1-pers2",
+                    role: "subject",
+                    prefix: "",
+                    suffix: "",
+                    displayPrefix: "Ø",
+                    displaySuffix: "Ø",
+                    label: "3sg",
+                },
+                predicateStem: {
+                    slot: "STEM",
+                    role: "nominal-predicate",
+                    stem: "shuchi",
+                    displayStem: "shuchi",
+                    state: "absolutive",
+                    stateSlot: null,
+                },
+                num1Num2: {
+                    slot: "num1-num2",
+                    role: "subject-number-connector",
+                    connector: "t",
+                    displayConnector: "t",
+                    nounClass: "t",
+                    notLexicalSuffix: true,
+                    notTense: true,
+                },
+            },
             formulaEcho: "#Ø-Ø(shuchi)t#",
             lesson4ActiveFormula: {
                 stage: 3,

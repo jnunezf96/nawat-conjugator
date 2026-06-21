@@ -27,11 +27,18 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       const adjectivalNnc = override?.adjectivalNnc;
       return adjectivalNnc === true || adjectivalNnc && typeof adjectivalNnc === "object" && adjectivalNnc.enabled === true;
     }
+    function isRelationalNncGenerationOptIn(override = null) {
+      const relationalNnc = override?.relationalNnc;
+      return relationalNnc === true || relationalNnc && typeof relationalNnc === "object" && relationalNnc.enabled === true;
+    }
     function getOrdinaryNncGenerationOptions(override = null) {
       return override?.ordinaryNnc && typeof override.ordinaryNnc === "object" ? override.ordinaryNnc : {};
     }
     function getAdjectivalNncGenerationOptions(override = null) {
       return override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : {};
+    }
+    function getRelationalNncGenerationOptions(override = null) {
+      return override?.relationalNnc && typeof override.relationalNnc === "object" ? override.relationalNnc : {};
     }
     function normalizeFunctionUseValenceObjectSlot(value = "") {
       const normalized = normalizeNuclearClauseSurfaceContractSurface(value);
@@ -3083,6 +3090,84 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         ...resultContract
       };
     }
+    function executeRelationalNncGenerationRoute({
+      override = null,
+      verb = "",
+      posicionesFormula = null,
+      entradaGrammarObject = null
+    } = {}) {
+      const relationalNnc = getRelationalNncGenerationOptions(override);
+      const hasExplicitRelationalSourceSlots = relationalNnc.sourceVerb != null || relationalNnc.sourceVerbstem != null || relationalNnc.sourceStem != null || relationalNnc.verbStem != null || relationalNnc.incorporatedNounStem != null || relationalNnc.incorporatedStem != null || relationalNnc.embeddedNounStem != null;
+      const embeddedSource = relationalNnc.source ?? relationalNnc.sourceFormula ?? relationalNnc.embeddedSource ?? relationalNnc.embeddedSourceStem ?? (hasExplicitRelationalSourceSlots ? "" : verb);
+      const sourceVerb = relationalNnc.sourceVerb ?? relationalNnc.sourceVerbstem ?? relationalNnc.sourceStem ?? relationalNnc.verbStem ?? (embeddedSource ? "" : verb);
+      const result = typeof targetObject.buildLesson46PreteritAgentiveLocativeNncFromSource === "function" ? targetObject.buildLesson46PreteritAgentiveLocativeNncFromSource({
+        source: embeddedSource,
+        sourceVerb,
+        incorporatedNounStem: relationalNnc.incorporatedNounStem ?? relationalNnc.incorporatedStem ?? relationalNnc.embeddedNounStem ?? "",
+        evidenceSource: relationalNnc.evidenceSource || ""
+      }) : {
+        kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
+        outputKind: "relational-nnc",
+        clauseKind: "nominal-nuclear-clause",
+        supported: false,
+        generationAllowed: false,
+        result: "—",
+        surfaceForms: [],
+        sourceVerb: String(sourceVerb || ""),
+        incorporatedNounStem: String(relationalNnc.incorporatedNounStem || relationalNnc.incorporatedStem || ""),
+        diagnostics: [{
+          id: "relational-nnc-route-unavailable",
+          severity: "error",
+          message: "Relational NNC generation is unavailable."
+        }]
+      };
+      const nuclearClauseShell = typeof targetObject.buildNuclearClauseShellMetadata === "function" ? targetObject.buildNuclearClauseShellMetadata({
+        clauseKind: "nominal-nuclear-clause",
+        formulaSlots: result.formulaSlots || null,
+        formulaEcho: result.formulaEcho || "",
+        predicate: {
+          stem: result.predicateStem || result.formulaStem || "",
+          state: result.sourceState || "absolutive"
+        },
+        predicateState: result.sourceState || "absolutive"
+      }) : null;
+      const resultPayload = {
+        ...result,
+        outputKind: "relational-nnc",
+        clauseKind: "nominal-nuclear-clause",
+        generationRoute: "relational-nnc",
+        isReflexive: false,
+        stem: result.predicateStem || result.formulaStem || "",
+        state: result.sourceState || "absolutive",
+        stemProvenance: null,
+        nuclearClauseShell,
+        relationalNncGenerationFrame: result,
+        entradaGrammarObject,
+        posicionesFormula
+      };
+      const grammarFrame = buildNuclearClauseSurfaceGrammarFrame({
+        result: resultPayload,
+        override,
+        resolvedTenseMode: targetObject.TENSE_MODE.sustantivo,
+        tense: result.routeStage || "relational-nnc",
+        routeFamily: "relational-nnc",
+        routeStage: result.routeStage || "execute",
+        unitKind: "relational-nnc",
+        posicionesFormula,
+        verb: sourceVerb,
+        renderVerb: result.sourceVerb || sourceVerb,
+        entradaGrammarObject,
+        nuclearClauseShell
+      });
+      const resultContract = buildNuclearClauseSurfaceResultContract(resultPayload, grammarFrame);
+      const surfaceEngineContract = grammarFrame?.routeContract?.targetContract?.surfaceEngineContract || null;
+      return {
+        ...resultPayload,
+        surfaceEngineContract,
+        grammarFrame,
+        ...resultContract
+      };
+    }
     function buildGeneratedNuclearClauseShellMetadata({
       resolvedTenseMode = "",
       tense = "",
@@ -4464,7 +4549,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       analysisVerb = "",
       subjectPrefix = "",
       sourceSubjectPrefix = "",
-      sourceSubjectSuffix = ""
+      sourceSubjectSuffix = "",
+      instrumentivoImperfectActiveAbsolutiveException = null
     } = {}) {
       const connector = typeof targetObject.buildNominalNum1Num2 === "function" ? targetObject.buildNominalNum1Num2({
         subjectSuffix,
@@ -4561,7 +4647,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
             stateSlot: predicateStateSlot
           },
           stateSlot: predicateStateSlot
-        }
+        },
+        instrumentivoImperfectActiveAbsolutiveException
       };
     }
     function executeNuclearClauseSurfaceRequest(request = {}) {
@@ -4580,7 +4667,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       const resolvedVoiceMode = Object.values(targetObject.VOICE_MODE).includes(override?.voiceMode) ? override.voiceMode : targetObject.getActiveVoiceMode();
       const preservePassiveSubject = override?.preservePassiveSubject === true;
       const allowPassiveObject = options.allowPassiveObject === true || override?.allowPassiveObject === true;
-      const posicionesFormula = typeof targetObject.normalizeNuclearClauseSurfaceFormulaPositions === "function" ? targetObject.normalizeNuclearClauseSurfaceFormulaPositions(request?.posicionesFormula || override?.posicionesFormula || null, {}, {
+      let posicionesFormula = typeof targetObject.normalizeNuclearClauseSurfaceFormulaPositions === "function" ? targetObject.normalizeNuclearClauseSurfaceFormulaPositions(request?.posicionesFormula || override?.posicionesFormula || null, {}, {
         override
       }) : null;
       const entradasInternas = typeof targetObject.buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula === "function" ? targetObject.buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula(posicionesFormula) : {};
@@ -4589,6 +4676,23 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       let tronco = entradasInternas.tronco || "";
       let pers2 = entradasInternas.pers2 || entradasInternas.num2 || "";
       let poseedor = entradasInternas.poseedor || "";
+      let entradaSurfaceDerivationFrame = null;
+      const hasOverrideSourceFormulaEvidence = Boolean(override?.sourceFormulaSlots || override?.formulaSlots || override?.sourceFormulaEcho || override?.formulaEcho || override?.adjectivalNnc?.sourceFormulaSlots || override?.adjectivalNnc?.formulaSlots || override?.adjectivalNnc?.sourceFormulaEcho || override?.adjectivalNnc?.formulaEcho || override?.adjectivalNnc?.entryRouteContract?.sourceFormulaSlots || override?.adjectivalNnc?.entryRouteContract?.formulaSlots || override?.adjectivalNnc?.entryRouteContract?.sourceFormulaEcho || override?.adjectivalNnc?.entryRouteContract?.formulaEcho);
+      const entradaSurfaceDerivation = !hasOverrideSourceFormulaEvidence && typeof targetObject.deriveNuclearClauseSurfaceFormulaPositionsFromEntradaCandidate === "function" ? targetObject.deriveNuclearClauseSurfaceFormulaPositionsFromEntradaCandidate({
+        input: tronco,
+        mode: resolvedTenseMode,
+        posicionesFormula
+      }) : null;
+      if (entradaSurfaceDerivation?.applied === true) {
+        entradaSurfaceDerivationFrame = entradaSurfaceDerivation.derivationFrame || null;
+        posicionesFormula = entradaSurfaceDerivation.posicionesFormula || posicionesFormula;
+        const derivedEntradasInternas = typeof targetObject.buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula === "function" ? targetObject.buildNuclearClauseSurfaceEntradasInternasFromPosicionesFormula(posicionesFormula) : {};
+        pers1 = derivedEntradasInternas.pers1 || "";
+        obj1 = derivedEntradasInternas.obj1 || "";
+        tronco = derivedEntradasInternas.tronco || "";
+        pers2 = derivedEntradasInternas.pers2 || derivedEntradasInternas.num2 || "";
+        poseedor = derivedEntradasInternas.poseedor || "";
+      }
       let pers1Slot = pers1;
       let obj1Slot = obj1;
       let troncoSlot = tronco;
@@ -4616,9 +4720,10 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       const onAnalisisTroncoResuelto = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "onAnalisisTroncoResuelto");
       const onComplete = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "onComplete");
       const patientivoOwnership = override?.patientivoOwnership ?? targetObject.DEFAULT_PATIENTIVO_OWNERSHIP;
-      const patientivoSource = override?.patientivoSource ?? "nonactive";
+      const patientivoSource = override?.patientivoSource ?? "";
       const patientivoNominalSuffix = override?.patientivoNominalSuffix ?? null;
       const actionNounStemUse = String(override?.actionNounStemUse || "");
+      const predicateNominalSourceTense = String(override?.predicateNominalSourceTense || "");
       let searchQuery = "";
       let hasSearchQuery = false;
       let hasSearchSeparator = false;
@@ -4648,6 +4753,14 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         tiempo = selectionState.group === targetObject.CONJUGATION_GROUPS.universal ? selectionState.universalTenseValue : selectionState.tenseValue;
       }
       let tense = normalizeNuclearClauseSurfaceTenseValue(tiempo);
+      if (isRelationalNncGenerationOptIn(override)) {
+        return executeRelationalNncGenerationRoute({
+          override,
+          verb: troncoSlot,
+          posicionesFormula,
+          entradaGrammarObject
+        });
+      }
       if (isOrdinaryNncGenerationOptIn(override)) {
         return executeOrdinaryNncGenerationRoute({
           override,
@@ -4675,7 +4788,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       if (targetObject.isPotencialProfileTense(tense) && tense !== "potencial") {
         poseedorSlot = "";
       }
-      const overrideInstrumentivoMode = override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo ? targetObject.INSTRUMENTIVO_MODE.posesivo : override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.absolutivo ? targetObject.INSTRUMENTIVO_MODE.absolutivo : "";
+      const overrideInstrumentivoMode = override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo ? targetObject.INSTRUMENTIVO_MODE.posesivo : override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.absolutivo ? targetObject.INSTRUMENTIVO_MODE.absolutivo : override?.instrumentivoMode === targetObject.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo ? targetObject.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo : "";
       if (tense === "instrumentivo" && overrideInstrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo && !poseedorSlot && typeof targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject === "function") {
         poseedorSlot = targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject(pers1Slot, pers2Slot);
       }
@@ -4801,6 +4914,38 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         const error = returnError(message, errorTargets);
         return error || null;
       };
+      if (tense === "patientivo" && !targetObject.normalizeVerbDerivedPatientiveFamily(patientivoSource)) {
+        return buildNuclearClauseSurfaceBlockedResult({
+          result: {
+            result: "—",
+            error: true,
+            surfaceForms: [],
+            generationAllowed: false,
+            routeRankingAllowed: false,
+            patientivoSourceRequired: true
+          },
+          message: "Patientivo requiere fuente explícita: pasivo, impersonal, perfectivo, imperfectivo o tronco verbal.",
+          diagnosticId: "nuclear-clause-surface-patientivo-source-required",
+          routeFamily: NUCLEAR_CLAUSE_SURFACE_ROUTE_FAMILY,
+          routeStage: "patientivo-source-gate",
+          resultMarker: "—",
+          override,
+          resolvedTenseMode,
+          tense,
+          pers1: pers1Slot,
+          pers2: pers2Slot,
+          obj1: baseObj1Slot,
+          poseedor: poseedorSlot,
+          posicionesFormula,
+          verb: troncoSlot,
+          renderVerb: troncoRender,
+          isReflexive,
+          resolvedDerivationMode,
+          resolvedDerivationType,
+          resolvedVoiceMode,
+          enumerableContract: false
+        });
+      }
       const buildActiveNuclearClauseSurfaceText = ({
         pers1Slot: pers1SlotValue = "",
         obj1Slot: obj1SlotValue = "",
@@ -4813,7 +4958,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         isYawiOptative = false
       } = {}) => {
         const resolvedTroncoSlot = troncoSlotValue || compatibilityVerbValue;
-        const usePossessivePrefix = tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "agentivo-presente" || tense === "agentivo-preterito" || tense === "agentivo-futuro" || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
+        const usePossessivePrefix = tense === "sustantivo-verbal" || targetObject.isPotencialProfileTense(tense) || tense === "agentivo" || tense === "agentivo-presente" || tense === "agentivo-preterito" || tense === "agentivo-futuro" || tense === "patientivo" || tense === "instrumentivo" || targetObject.isPredicateNominalTense(tense) || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
         const preposedParticle = tense === "optativo" ? isYawiOptative ? "ma " : targetObject.getPers1Pers2Info(pers1SlotValue, pers2SlotValue)?.person === 2 ? "" : "ma " : "";
         const outputTextOptions = {
           particulaPrepuesta: preposedParticle,
@@ -5196,7 +5341,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       const isPotencialHabitualNominalNonactive = isPotencialHabitualNominalProfile;
       const isSustantivoVerbalImpersonalActionProfile = tense === "sustantivo-verbal" && resolvedTenseMode === targetObject.TENSE_MODE.sustantivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
       const isCalificativoInstrumentivoPassiveActionProfile = tense === "calificativo-instrumentivo" && resolvedTenseMode === targetObject.TENSE_MODE.sustantivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
-      const isPassiveImpersonalMode = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedVoiceMode === targetObject.VOICE_MODE.passive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile;
+      const isPredicateNominalPassivePredicateProfile = targetObject.isPredicateNominalTense(tense) && resolvedTenseMode === targetObject.TENSE_MODE.sustantivo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive;
+      const isPassiveImpersonalMode = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedVoiceMode === targetObject.VOICE_MODE.passive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile || isPredicateNominalPassivePredicateProfile;
       const targetValency = isPassiveImpersonalMode ? Math.max(0, sourceValency - 1) : sourceValency;
       let preserveSubjectForPassive = preservePassiveSubject;
       const valencySummary = targetObject.getVerbValencySummary(parsedVerb);
@@ -5239,7 +5385,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
           siguienteValorTronco
         });
       }
-      const isNonactive = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile;
+      const isNonactive = resolvedTenseMode === targetObject.TENSE_MODE.verbo && resolvedDerivationMode === targetObject.DERIVATION_MODE.nonactive || isPotencialHabitualNominalNonactive || isSustantivoVerbalImpersonalActionProfile || isCalificativoInstrumentivoPassiveActionProfile || isPredicateNominalPassivePredicateProfile;
       if (isNonactive && targetObject.PRETERITO_UNIVERSAL_ORDER.includes(tense)) {
         tense = targetObject.getCurrentResolvedConjugationSelectionState({
           tenseMode: resolvedTenseMode
@@ -5696,7 +5842,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
       obj1Slot = reflexiveUpdate.obj1 ?? reflexiveUpdate.obj1Slot;
       isReflexive = reflexiveUpdate.isReflexive;
       const isCalificativoInstrumentivo = tense === "calificativo-instrumentivo";
-      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || isPresentAgentivoNominalProfile || isPreteritAgentivoNominalProfile || isFutureAgentivoNominalProfile || tense === "patientivo" || tense === "instrumentivo" || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
+      const isNounTense = targetObject.isNonanimateNounTense(tense) || targetObject.isPotencialProfileTense(tense) || isPatientivoAdjectiveProfile || tense === "agentivo" || isPresentAgentivoNominalProfile || isPreteritAgentivoNominalProfile || isFutureAgentivoNominalProfile || tense === "patientivo" || tense === "instrumentivo" || targetObject.isPredicateNominalTense(tense) || tense === "calificativo-instrumentivo" || tense === "locativo-temporal";
       const invalidComboObjectPrefix = targetObject.resolveComboValidationObj1({
         obj1: obj1Slot,
         obj2: indirectObjectMarker,
@@ -6035,6 +6181,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         possessivePrefix: poseedorSlot,
         poseedorSlot: poseedorSlot,
         actionNounStemUse,
+        predicateNominalSourceTense,
         combinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : targetObject.COMBINED_MODE.active,
         customaryPresentPatientiveNnc: isPotencialHabitualNominalProfile,
         customaryPresentPatientivePlural: isPotencialHabitualNominalProfile && inputPers2 === "t",
@@ -6344,6 +6491,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         nominalKind: tense,
         possessivePrefix: poseedorSlot,
         patientivoSource,
+        sourceTense: appliedMorphology?.surfaceRuleMeta?.verbDerivedNominalResultMetadata?.nominalizationProfile?.source?.sourceTense || "",
         sourceCombinedMode: isNonactive ? targetObject.COMBINED_MODE.nonactive : "",
         actionNounStemUse,
         renderVerb: troncoRender,
@@ -6352,7 +6500,8 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         patientiveSourceStageFrame: appliedMorphology?.surfaceRuleMeta?.patientivoSourceStageFrame || null,
         patientiveMultipleDerivationContract: appliedMorphology?.surfaceRuleMeta?.patientivoMultipleDerivationContract || null,
         sourceSubjectPrefix: inputPers1,
-        sourceSubjectSuffix: inputPers2
+        sourceSubjectSuffix: inputPers2,
+        instrumentivoImperfectActiveAbsolutiveException: appliedMorphology?.surfaceRuleMeta?.verbDerivedNominalResultMetadata?.instrumentivoImperfectActiveAbsolutiveException || null
       }) : {};
       const formulaPers1BeforeInflection = resolveGeneratedVncFormulaPers1BeforeInflection({
         tense,
@@ -6594,6 +6743,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
         orthographyFrame: {
           soundSpellingFrames: generatedSoundSpellingFrames
         },
+        entradaSurfaceDerivationFrame,
         entradaGrammarObject,
         posicionesFormula
       };
@@ -6664,8 +6814,10 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     api.resolveNuclearClauseSurfaceUiHook = resolveNuclearClauseSurfaceUiHook;
     api.isOrdinaryNncGenerationOptIn = isOrdinaryNncGenerationOptIn;
     api.isAdjectivalNncGenerationOptIn = isAdjectivalNncGenerationOptIn;
+    api.isRelationalNncGenerationOptIn = isRelationalNncGenerationOptIn;
     api.getOrdinaryNncGenerationOptions = getOrdinaryNncGenerationOptions;
     api.getAdjectivalNncGenerationOptions = getAdjectivalNncGenerationOptions;
+    api.getRelationalNncGenerationOptions = getRelationalNncGenerationOptions;
     api.normalizeFunctionUseValenceObjectSlot = normalizeFunctionUseValenceObjectSlot;
     api.getFunctionUseValenceObjectSlotValue = getFunctionUseValenceObjectSlotValue;
     api.normalizeFunctionUseValenceObjectVector = normalizeFunctionUseValenceObjectVector;
@@ -6830,6 +6982,7 @@ export function createGenerationEngineModule(targetObject = globalThis) {
     api.buildGenerateWordBlockedResult = buildGenerateWordBlockedResult;
     api.executeAdjectivalNncGenerationRoute = executeAdjectivalNncGenerationRoute;
     api.executeOrdinaryNncGenerationRoute = executeOrdinaryNncGenerationRoute;
+    api.executeRelationalNncGenerationRoute = executeRelationalNncGenerationRoute;
     api.buildGeneratedNuclearClauseShellMetadata = buildGeneratedNuclearClauseShellMetadata;
     api.buildGeneratedVncValencyFrameMetadata = buildGeneratedVncValencyFrameMetadata;
     api.buildGeneratedDerivedVoiceFrameMetadata = buildGeneratedDerivedVoiceFrameMetadata;

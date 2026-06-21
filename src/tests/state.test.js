@@ -1481,6 +1481,319 @@ function run(ctx) {
     );
     const andrewsDenominalContracts = ctx.getNawatDenominalAndrewsContractInventory();
     s.eq(
+        "Andrews source-gated derivational route registry normalizes current route families with formula and structure",
+        (() => {
+            const registry = ctx.buildAndrewsSourceGatedDerivationalRouteRegistry();
+            const relational = registry.routes.find((route) => route.id === "lesson-46-3-1-a-preterit-agentive-locative-nnc") || {};
+            const denominal = registry.routes.find((route) => route.contractId === "54.2.3-ti-ya-deverbal") || {};
+            const cnvCnn = registry.routes.find((route) => route.id === "cnn-nounstem-to-cnv-verbstem-denominal") || {};
+            const lesson1 = registry.routes.find((route) => route.id === "lesson-1-grammar-concept-route") || {};
+            const lesson2 = registry.routes.find((route) => route.id === "lesson-2-orthography-bridge-route") || {};
+            const lesson3 = registry.routes.find((route) => route.id === "lesson-3-particle-boundary-route") || {};
+            const passive = registry.routes.find((route) => route.id === "lesson-21-passive-voice") || {};
+            const impersonal = registry.routes.find((route) => route.id === "lesson-22-impersonal-voice") || {};
+            const lesson5 = registry.routes.find((route) => route.id === "lesson-5-intransitive-vnc") || {};
+            const lesson12 = registry.routes.find((route) => route.id === "lesson-12-absolutive-nnc") || {};
+            const lesson17 = registry.routes.find((route) => route.id === "lesson-17-supplementation") || {};
+            const nonactive = registry.routes.find((route) => route.id === "lesson-20-nonactive-verbstem") || {};
+            const verbObjects = registry.routes.find((route) => route.id === "lesson-23-verb-object-valence") || {};
+            const firstTypeCausative = registry.routes.find((route) => route.id === "lesson-24-first-type-causative") || {};
+            const secondTypeCausative = registry.routes.find((route) => route.id === "lesson-25-second-type-causative") || {};
+            const applicative = registry.routes.find((route) => route.id === "lesson-26-applicative") || {};
+            const preteritAgentive = registry.routes.find((route) => route.id === "lesson-35-preterit-agentive-nominalization") || {};
+            const deverbalNounstem = registry.routes.find((route) => route.id === "lesson-37-deverbal-nounstem") || {};
+            const impersonalPatientive = registry.routes.find((route) => route.id === "lesson-38-impersonal-patientive") || {};
+            const patientiveOperations = registry.routes.find((route) => route.id === "lesson-39-patientive-operations") || {};
+            const frequentative = registry.routes.find((route) => route.id === "lesson-27-frequentative") || {};
+            const verbalEmbed = registry.routes.find((route) => route.id === "lesson-28-verbal-embed-compound") || {};
+            const purposive = registry.routes.find((route) => route.id === "lesson-29-purposive-directional") || {};
+            const nominalEmbed = registry.routes.find((route) => route.id === "lesson-30-nominal-embed-compound") || {};
+            const compoundNounstem = registry.routes.find((route) => route.id === "lesson-31-compound-nounstem") || {};
+            const affectiveNnc = registry.routes.find((route) => route.id === "lesson-32-affective-nnc") || {};
+            const honorificPejorative = registry.routes.find((route) => route.id === "lesson-33-honorific-pejorative") || {};
+            const cardinalNumeral = registry.routes.find((route) => route.id === "lesson-34-cardinal-numeral-nnc") || {};
+            const adjectivalNnc = registry.routes.find((route) => route.id === "lesson-40-adjectival-nnc-function") || {};
+            const intensifiedAdjectival = registry.routes.find((route) => route.id === "lesson-41-intensified-compound-adjectival-nnc") || {};
+            const modification = registry.routes.find((route) => route.id === "lesson-42-adjectival-modification") || {};
+            const adverbialNuclear = registry.routes.find((route) => route.id === "lesson-44-adverbial-nuclear-clause") || {};
+            const relationalOptions = registry.routes.find((route) => route.id === "lesson-45-relational-nnc-options") || {};
+            const relationalOptionTwo = registry.routes.find((route) => route.id === "lesson-46-relational-nnc-option-two") || {};
+            const placeGentilic = registry.routes.find((route) => route.id === "lesson-48-place-gentilic-nnc") || {};
+            const adverbialAdjunction = registry.routes.find((route) => route.id === "lesson-49-adverbial-adjunction") || {};
+            const complementClause = registry.routes.find((route) => route.id === "lesson-51-complement-clause") || {};
+            const conjunctionClause = registry.routes.find((route) => route.id === "lesson-52-conjunction-clause") || {};
+            const comparison = registry.routes.find((route) => route.id === "lesson-53-comparison") || {};
+            const personalName = registry.routes.find((route) => route.id === "lesson-56-personal-name-nnc") || {};
+            const analysis57 = registry.routes.find((route) => route.id === "lesson-57-analysis-diagnostics") || {};
+            const denominal54 = registry.routes.find((route) => route.id === "lesson-54-denominal-verbstem") || {};
+            const denominal55 = registry.routes.find((route) => route.id === "lesson-55-denominal-verbstem") || {};
+            const routeInvariantFailures = registry.routes.filter((route) => !(
+                route.formulaTransition
+                && route.formulaTemplate
+                && route.structuralInfo
+                && typeof route.structuralInfo === "object"
+                && route.sourceGate?.gated === true
+                && route.sourceGate?.status
+            )).map((route) => route.id || route.contractId || "");
+            return {
+                kind: registry.kind,
+                scope: registry.scope,
+                routeCountMatches: registry.routeCount === registry.routes.length,
+                routeInvariantFailures,
+                hasCnvCnnFamily: registry.routeFamilyCounts["cnv-cnn-back-and-forth"] > 0,
+                hasDenominalFamily: registry.routeFamilyCounts["denominal-andrews-executable-rule"] > 0,
+                hasRelationalFamily: registry.routeFamilyCounts["relational-nnc"] === 1,
+                foundationMetadataRouteCount: registry.routeFamilyCounts["foundation-metadata-route"],
+                valencyVoiceCount: registry.routeFamilyCounts["valency-voice"],
+                foundationRouteCount: registry.routeFamilyCounts["foundation-route"],
+                vncSourceRouteCount: registry.routeFamilyCounts["vnc-source-route"],
+                forwardDerivationCount: registry.routeFamilyCounts["forward-derivation"],
+                nominalizationCount: registry.routeFamilyCounts.nominalization,
+                derivationalBoundaryCount: registry.routeFamilyCounts["derivational-boundary"],
+                nncFunctionCount: registry.routeFamilyCounts["nnc-function"],
+                clauseRelationCount: registry.routeFamilyCounts["clause-relation"],
+                diagnosticAnalysisCount: registry.routeFamilyCounts["diagnostic-analysis"],
+                denominalLessonCount: registry.routeFamilyCounts["denominal-lesson"],
+                relationalFormula: relational.formulaTemplate || "",
+                relationalExample: relational.structuralInfo?.exampleTargetFormula || "",
+                relationalGate: relational.sourceGate?.status || "",
+                denominalFormulaTransition: denominal.formulaTransition || "",
+                denominalGateIds: denominal.sourceGate?.requirementIds || [],
+                cnvCnnFormulaTransition: cnvCnn.formulaTransition || "",
+                cnvCnnRequiredBoundary: cnvCnn.structuralInfo?.requiredBoundary || "",
+                lesson1Formula: lesson1.formulaTemplate || "",
+                lesson1ConceptCount: lesson1.structuralInfo?.conceptCount || 0,
+                lesson1Gate: lesson1.sourceGate?.status || "",
+                lesson2Transition: lesson2.formulaTransition || "",
+                lesson2Gate: lesson2.sourceGate?.status || "",
+                lesson3Formula: lesson3.formulaTemplate || "",
+                lesson3Gate: lesson3.sourceGate?.status || "",
+                passiveGate: passive.sourceGate?.status || "",
+                passiveFormulaTransition: passive.formulaTransition || "",
+                impersonalGate: impersonal.sourceGate?.status || "",
+                impersonalRefs: impersonal.structuralInfo?.subsectionRefs || [],
+                lesson5Formula: lesson5.formulaTemplate || "",
+                lesson5Gate: lesson5.sourceGate?.status || "",
+                lesson12Formula: lesson12.formulaTemplate || "",
+                lesson12Gate: lesson12.sourceGate?.status || "",
+                lesson17Formula: lesson17.formulaTemplate || "",
+                lesson17Gate: lesson17.sourceGate?.status || "",
+                nonactiveFormula: nonactive.formulaTemplate || "",
+                nonactiveGate: nonactive.sourceGate?.status || "",
+                verbObjectsFormula: verbObjects.formulaTemplate || "",
+                verbObjectsGate: verbObjects.sourceGate?.status || "",
+                firstTypeFormula: firstTypeCausative.formulaTemplate || "",
+                firstTypeGate: firstTypeCausative.sourceGate?.status || "",
+                firstTypeMorpheme: firstTypeCausative.structuralInfo?.causativeMorpheme || null,
+                secondTypeFormula: secondTypeCausative.formulaTemplate || "",
+                secondTypeGate: secondTypeCausative.sourceGate?.status || "",
+                secondTypeClass: secondTypeCausative.structuralInfo?.classMembership || "",
+                applicativeFormula: applicative.formulaTemplate || "",
+                applicativeGate: applicative.sourceGate?.status || "",
+                applicativeMainline: applicative.structuralInfo?.applicativeObjectIsMainline,
+                preteritAgentiveFormula: preteritAgentive.formulaTemplate || "",
+                preteritAgentiveGate: preteritAgentive.sourceGate?.status || "",
+                preteritAgentiveStemKind: preteritAgentive.structuralInfo?.stemKind || "",
+                deverbalFormula: deverbalNounstem.formulaTemplate || "",
+                deverbalGate: deverbalNounstem.sourceGate?.status || "",
+                deverbalSuffixes: deverbalNounstem.structuralInfo?.stemFrame?.activeActionNawatSuffixes || [],
+                impersonalPatientiveGate: impersonalPatientive.sourceGate?.status || "",
+                impersonalPatientiveTransition: impersonalPatientive.structuralInfo?.categoryTransition || "",
+                patientiveOperationsGate: patientiveOperations.sourceGate?.status || "",
+                patientiveOperationsStemKind: patientiveOperations.structuralInfo?.stemKind || "",
+                frequentativeFormula: frequentative.formulaTemplate || "",
+                frequentativeGate: frequentative.sourceGate?.status || "",
+                verbalEmbedFormula: verbalEmbed.formulaTemplate || "",
+                verbalEmbedGate: verbalEmbed.sourceGate?.status || "",
+                purposiveTransition: purposive.formulaTransition || "",
+                purposiveGate: purposive.sourceGate?.status || "",
+                nominalEmbedTransition: nominalEmbed.formulaTransition || "",
+                nominalEmbedGate: nominalEmbed.sourceGate?.status || "",
+                compoundNounstemFormula: compoundNounstem.formulaTemplate || "",
+                compoundNounstemGate: compoundNounstem.sourceGate?.status || "",
+                affectiveGate: affectiveNnc.sourceGate?.status || "",
+                honorificFormula: honorificPejorative.formulaTemplate || "",
+                honorificGate: honorificPejorative.sourceGate?.status || "",
+                cardinalFormula: cardinalNumeral.formulaTemplate || "",
+                cardinalGate: cardinalNumeral.sourceGate?.status || "",
+                adjectivalFormula: adjectivalNnc.formulaTemplate || "",
+                adjectivalGate: adjectivalNnc.sourceGate?.status || "",
+                intensifiedGate: intensifiedAdjectival.sourceGate?.status || "",
+                modificationTransition: modification.formulaTransition || "",
+                modificationGate: modification.sourceGate?.status || "",
+                adverbialFormula: adverbialNuclear.formulaTemplate || "",
+                adverbialGate: adverbialNuclear.sourceGate?.status || "",
+                relationalOptionsGate: relationalOptions.sourceGate?.status || "",
+                relationalOptionTwoFormula: relationalOptionTwo.formulaTemplate || "",
+                relationalOptionTwoGate: relationalOptionTwo.sourceGate?.status || "",
+                placeGentilicGate: placeGentilic.sourceGate?.status || "",
+                adverbialAdjunctionFormula: adverbialAdjunction.formulaTemplate || "",
+                adverbialAdjunctionGate: adverbialAdjunction.sourceGate?.status || "",
+                complementFormula: complementClause.formulaTemplate || "",
+                complementGate: complementClause.sourceGate?.status || "",
+                conjunctionFormula: conjunctionClause.formulaTemplate || "",
+                conjunctionGate: conjunctionClause.sourceGate?.status || "",
+                comparisonFormula: comparison.formulaTemplate || "",
+                comparisonGate: comparison.sourceGate?.status || "",
+                personalNameFormula: personalName.formulaTemplate || "",
+                personalNameGate: personalName.sourceGate?.status || "",
+                analysis57Formula: analysis57.formulaTemplate || "",
+                analysis57Gate: analysis57.sourceGate?.status || "",
+                denominal54Formula: denominal54.formulaTemplate || "",
+                denominal54Gate: denominal54.sourceGate?.status || "",
+                denominal55Formula: denominal55.formulaTemplate || "",
+                denominal55Gate: denominal55.sourceGate?.status || "",
+                coverageAudit: {
+                    scope: registry.coverageAudit?.scope,
+                    expectedLessonCount: registry.coverageAudit?.expectedLessonCount,
+                    coveredLessonCount: registry.coverageAudit?.coveredLessonCount,
+                    missingLessonNumbers: registry.coverageAudit?.missingLessonNumbers || [],
+                    routeInvariantFailures: registry.coverageAudit?.routeInvariantFailures || [],
+                    lessonSourceGatedRouteCount: registry.coverageAudit?.lessonSourceGatedRouteCount,
+                    sectionSourceGatedRouteCount: registry.coverageAudit?.sectionSourceGatedRouteCount,
+                    internalSourceGatedRouteCount: registry.coverageAudit?.internalSourceGatedRouteCount,
+                    allAndrewsRouteContractFailures: registry.coverageAudit?.allAndrewsRouteContractFailures || [],
+                    internalEntrySpecificFallbackCount: registry.coverageAudit?.internalEntrySpecificFallbackCount,
+                    internalSourcePathFormulaMissingCount: registry.coverageAudit?.internalSourcePathFormulaMissingCount,
+                    lessonLevelCoverageComplete: registry.coverageAudit?.lessonLevelCoverageComplete,
+                    sectionLevelAndrewsRouteAuditComplete: registry.coverageAudit?.sectionLevelAndrewsRouteAuditComplete,
+                    internalLevelAndrewsRouteAuditComplete: registry.coverageAudit?.internalLevelAndrewsRouteAuditComplete,
+                },
+                complete: registry.boundaries.allAndrewsRoutesComplete,
+                noFixtureEvidence: registry.boundaries.noFixtureEvidence,
+                formulaAndStructureRequired: registry.boundaries.formulaAndStructureRequired,
+            };
+        })(),
+        {
+            kind: "andrews-source-gated-derivational-route-registry",
+            scope: "all-andrews-route-contract-coverage",
+            routeCountMatches: true,
+            routeInvariantFailures: [],
+            hasCnvCnnFamily: true,
+            hasDenominalFamily: true,
+            hasRelationalFamily: true,
+            foundationMetadataRouteCount: 3,
+            valencyVoiceCount: 2,
+            foundationRouteCount: 16,
+            vncSourceRouteCount: 2,
+            forwardDerivationCount: 3,
+            nominalizationCount: 5,
+            derivationalBoundaryCount: 8,
+            nncFunctionCount: 9,
+            clauseRelationCount: 5,
+            diagnosticAnalysisCount: 3,
+            denominalLessonCount: 2,
+            relationalFormula: "(SOURCE-0-ka-n)-0-",
+            relationalExample: "(mich-namaka-0-ka-n)-0-",
+            relationalGate: "source-formula-required",
+            denominalFormulaTransition: "VNC->VNC",
+            denominalGateIds: ["generated-ti-verbstem-required"],
+            cnvCnnFormulaTransition: "CNN->CNV",
+            cnvCnnRequiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente, objeto, tiempo o evidencia Nawat/Pipil.",
+            lesson1Formula: "CONCEPT_TOKEN -> GRAMMAR_CONCEPT_FRAME(CN/CNV/CNN/STEM/SLOT/AFFIX)",
+            lesson1ConceptCount: 26,
+            lesson1Gate: "concept-token-or-registry-source-required",
+            lesson2Transition: "CLASSICAL_LETTERS->NAWAT_LETTERS",
+            lesson2Gate: "source-spelling-slot-and-position-required",
+            lesson3Formula: "PARTICLE_CANDIDATE -> PARTICLE_BOUNDARY_FRAME(FUNCTION/PLACEMENT)",
+            lesson3Gate: "particle-candidate-or-seed-source-required",
+            passiveGate: "promotable-object-source-required",
+            passiveFormulaTransition: "CNV->CNV",
+            impersonalGate: "impersonal-compatible-source-required",
+            impersonalRefs: ["22.1", "22.2", "22.3", "22.4", "22.5", "22.6"],
+            lesson5Formula: "#pers1(STEM)tense-num1#",
+            lesson5Gate: "intransitive-vnc-source-required",
+            lesson12Formula: "#pers1-pers2(STEM)num1-num2#",
+            lesson12Gate: "absolutive-nnc-source-required",
+            lesson17Formula: "HEAD(CN)+SUPPLEMENT(CN) -> SUPPLEMENTATION_FRAME",
+            lesson17Gate: "supplementation-source-required",
+            nonactiveFormula: "CNV(ACTIVE_IMPERFECTIVE_STEM) -> CNV(NONACTIVE_STEM[-lu/-luwa/-u/-uwa/-wa/-walu])",
+            nonactiveGate: "active-imperfective-source-required",
+            verbObjectsFormula: "CNV(SOURCE_STEM+OBJECT_ROLES) -> CNV(MAINLINE/SHUNTLINE_OBJECT_FORMULA)",
+            verbObjectsGate: "object-role-source-required",
+            firstTypeFormula: "CNV(SOURCE_STEM -> TYPE_ONE_CAUSATIVE_STEM[-a])",
+            firstTypeGate: "type-one-causative-compatible-source-required",
+            firstTypeMorpheme: { andrews: "a", nawat: "a" },
+            secondTypeFormula: "CNV(SOURCE_STEM -> TYPE_TWO_CAUSATIVE_STEM[-tia/-lia/-wia])",
+            secondTypeGate: "type-two-causative-compatible-source-required",
+            secondTypeClass: "Class C",
+            applicativeFormula: "CNV(SOURCE_STEM -> APPLICATIVE_STEM[-ia/-lia/-wia/-tia])",
+            applicativeGate: "applicative-compatible-source-required",
+            applicativeMainline: true,
+            preteritAgentiveFormula: "CNV(PRETERIT_SOURCE_CORE) -> CNN(PRETERIT_AGENTIVE_NOUNSTEM)",
+            preteritAgentiveGate: "preterit-source-core-required",
+            preteritAgentiveStemKind: "preterit-agentive-nnc",
+            deverbalFormula: "CNV(SOURCE_CORE) -> CNN(DEVERBAL_NOUNSTEM[-s/-lis/PATIENTIVE])",
+            deverbalGate: "deverbal-source-core-required",
+            deverbalSuffixes: ["s", "lis"],
+            impersonalPatientiveGate: "impersonal-patientive-source-core-required",
+            impersonalPatientiveTransition: "impersonal VNC core -> patientive NNC nounstem",
+            patientiveOperationsGate: "patientive-family-source-required",
+            patientiveOperationsStemKind: "patientive-family",
+            frequentativeFormula: "CNV(SOURCE_STEM) -> CNV(FREQUENTATIVE_STEM[REDUP])",
+            frequentativeGate: "frequentative-source-stem-required",
+            verbalEmbedFormula: "EMBED(CNV/CNN)+MATRIX -> COMPOUND(CNV/CNN)",
+            verbalEmbedGate: "verbal-embed-source-and-matrix-required",
+            purposiveTransition: "CNV+CNV->CNV",
+            purposiveGate: "purposive-embed-and-directional-matrix-required",
+            nominalEmbedTransition: "CNN+CNV->CNV",
+            nominalEmbedGate: "nominal-embed-source-and-matrix-required",
+            compoundNounstemFormula: "CNN(EMBED)+CNN(MATRIX) -> CNN(COMPOUND_NOUNSTEM)",
+            compoundNounstemGate: "compound-nounstem-source-and-matrix-required",
+            affectiveGate: "affective-nounstem-source-required",
+            honorificFormula: "CNV(SOURCE_STEM) -> CNV(HONORIFIC_OR_PEJORATIVE_STEM)",
+            honorificGate: "honorific-pejorative-source-required",
+            cardinalFormula: "NUMERAL_SOURCE -> CNN(ABSOLUTIVE_CARDINAL_NUMERAL_NNC)",
+            cardinalGate: "cardinal-numeral-source-required",
+            adjectivalFormula: "CNN/CNV(SOURCE) -> ADJECTIVAL_FUNCTION(SOURCE_STEM)",
+            adjectivalGate: "adjectival-function-source-required",
+            intensifiedGate: "intensified-or-compound-adjectival-source-required",
+            modificationTransition: "CN+CN->MODIFICATION",
+            modificationGate: "head-and-modifier-source-clauses-required",
+            adverbialFormula: "CNV/CNN(SOURCE) -> ADVERBIAL_FUNCTION(SOURCE)",
+            adverbialGate: "adverbializable-nuclear-clause-source-required",
+            relationalOptionsGate: "relational-nnc-option-source-required",
+            relationalOptionTwoFormula: "SOURCE+RELATIONAL_MATRIX -> CNN(OPTION_TWO_RELATIONAL_NNC)",
+            relationalOptionTwoGate: "option-two-relational-source-required",
+            placeGentilicGate: "place-or-gentilic-source-required",
+            adverbialAdjunctionFormula: "HEAD(CN)+ADVERBIAL_MODIFIER(CN) -> ADVERBIAL_ADJUNCTION_AST",
+            adverbialAdjunctionGate: "adverbial-head-and-modifier-source-required",
+            complementFormula: "PRINCIPAL(CN)+COMPLEMENT(CN) -> COMPLEMENT_AST",
+            complementGate: "principal-and-complement-source-required",
+            conjunctionFormula: "CONJUNCT(CN)+CONJUNCT(CN) -> CONJUNCTION_AST",
+            conjunctionGate: "conjunct-source-clauses-required",
+            comparisonFormula: "COMPARAND(CN)+STANDARD(CN)+COMPARISON_MARKER -> COMPARISON_STRUCTURE",
+            comparisonGate: "comparison-source-clauses-required",
+            personalNameFormula: "SOURCE_STATEMENT(CN) -> CNN(PERSONAL_NAME_NNC)",
+            personalNameGate: "personal-name-source-statement-required",
+            analysis57Formula: "TEXT_SOURCE -> ANDREWS_57_DIAGNOSTIC_FRAME",
+            analysis57Gate: "textual-analysis-source-required",
+            denominal54Formula: "CNN_SOURCE -> CNV(DENOMINAL_VERBSTEM[-ti/-hui/-ya/-a/-hua/-lia])",
+            denominal54Gate: "lesson-54-denominal-source-required",
+            denominal55Formula: "CNN/RELATIONAL_SOURCE -> CNV(DENOMINAL_VERBSTEM[-tia/-tla/-oa/-huia/-i-a])",
+            denominal55Gate: "lesson-55-denominal-source-required",
+            coverageAudit: {
+                scope: "all-andrews-route-contract-coverage",
+                expectedLessonCount: 58,
+                coveredLessonCount: 58,
+                missingLessonNumbers: [],
+                routeInvariantFailures: [],
+                lessonSourceGatedRouteCount: 58,
+                sectionSourceGatedRouteCount: 505,
+                internalSourceGatedRouteCount: 921,
+                allAndrewsRouteContractFailures: [],
+                internalEntrySpecificFallbackCount: 0,
+                internalSourcePathFormulaMissingCount: 0,
+                lessonLevelCoverageComplete: true,
+                sectionLevelAndrewsRouteAuditComplete: true,
+                internalLevelAndrewsRouteAuditComplete: true,
+            },
+            complete: true,
+            noFixtureEvidence: true,
+            formulaAndStructureRequired: true,
+        }
+    );
+    s.eq(
         "Lessons 54-55 Andrews contract inventory keeps NNC source and VNC valency boundaries",
         summarizeDenominalAndrewsContracts(andrewsDenominalContracts).filter((entry) => [
             "54.2.2-inceptive-stative-hui",
@@ -11504,9 +11817,15 @@ function run(ctx) {
             "agentivo-futuro",
             "patientivo",
             "instrumentivo",
+            "predicado-nominal",
             "calificativo-instrumentivo",
             "locativo-temporal",
         ]
+    );
+    s.ok(
+        "predicado-nominal remains selectable when the nominal source scope is nonactive",
+        ctx.getNounTenseOrderForCombinedMode(ctx.COMBINED_MODE.nonactive, ctx.TENSE_MODE.sustantivo)
+            .includes("predicado-nominal")
     );
     const directPreteritRoute = ctx.getNawatRouteProfile("direct-active-preterit");
     s.eq("direct active preterit route resolves route tense", directPreteritRoute.routeTenseValue, "adjetivo-preterito");
@@ -11630,7 +11949,7 @@ function run(ctx) {
             routeTarget: patientivoNonactiveTarget,
             stationModels: patientivoNonactiveStations,
         }),
-        "(pusuni) → pusuniwa → patientivo · pasivo/impersonal → -ti → pusuniti"
+        "(pusuni) → pusuniwa → patientivo · pasivo → -ti → pusuniti"
     );
     const patientivoPerfectiveRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti");
     const patientivoPerfectiveTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveRoute, {
@@ -11650,11 +11969,11 @@ function run(ctx) {
     );
     const patientivoImperfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-imperfective-t");
     s.eq(
-        "patientivo noun route defaults to present source input but uses #3 salida imperfective output",
+        "patientivo noun route defaults to present source input but derives output from the source VNC core",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
             sourceVerb: "(kuchi)",
         }),
-        "(kuchi) → kuchi → patientivo · imperfectivo → -t → kuchiyat"
+        "(kuchi) → kuchi → patientivo · imperfectivo → -t → kuchit"
     );
     const patientivoImperfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoImperfectiveNounRoute, {
         sourceVerb: "(kuchi)",
@@ -11662,14 +11981,14 @@ function run(ctx) {
         sourceCombinedMode: ctx.COMBINED_MODE.active,
     });
     s.eq(
-        "patientivo imperfective noun route rides through the explicit imperfective verb surface",
+        "patientivo imperfective noun route displays the finite source row but derives from the VNC core",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
             sourceVerb: "(kuchi)",
             sourceTenseValue: "imperfecto",
             sourceCombinedMode: ctx.COMBINED_MODE.active,
             routeTarget: patientivoImperfectiveNounTarget,
         }),
-        "(kuchi) → kuchiya → patientivo · imperfectivo → -t → kuchiyat"
+        "(kuchi) → kuchiya → patientivo · imperfectivo → -t → kuchit"
     );
     const patientivoPerfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti-noun");
     const patientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
@@ -11751,21 +12070,21 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
             routeTarget: patientivoNonactiveNounTarget,
         }),
-        "(kuchi) → kuchiwak → patientivo · pasivo/impersonal → -t → kuchit"
+        "(kuchi) → kuchiwak → patientivo · pasivo → -t → kuchit"
     );
     const kuchiVerbNounRouteExpectations = [
-        ["active", "presente", "kuchiyat"],
-        ["active", "presente-habitual", "kuchiyat"],
-        ["active", "presente-desiderativo", "kuchiyat"],
-        ["active", "imperfecto", "kuchiyat"],
+        ["active", "presente", "kuchit"],
+        ["active", "presente-habitual", "kuchit"],
+        ["active", "presente-desiderativo", "kuchit"],
+        ["active", "imperfecto", "kuchit"],
         ["active", "preterito", ""],
-        ["active", "pasado-remoto", "kuchiyat"],
+        ["active", "pasado-remoto", "kuchit"],
         ["active", "perfecto", ""],
         ["active", "pluscuamperfecto", ""],
         ["active", "condicional-perfecto", ""],
-        ["active", "futuro", "kuchiyat"],
-        ["active", "condicional", "kuchiyat"],
-        ["active", "optativo", "kuchiyat"],
+        ["active", "futuro", "kuchit"],
+        ["active", "condicional", "kuchit"],
+        ["active", "optativo", "kuchit"],
         ["nonactive", "presente", "kuchit"],
         ["nonactive", "presente-habitual", "kuchit"],
         ["nonactive", "presente-desiderativo", "kuchit"],
@@ -11844,6 +12163,95 @@ function run(ctx) {
             ctx.isNawatRouteNonactiveSource({ patientivoSource })
         );
     });
+    s.eq(
+        "patientivo tronco-verbal source gate is root/stock and does not collapse to imperfective route",
+        {
+            routeSpec: ctx.resolveNawatPatientivoRouteSpec({ patientivoSource: "tronco-verbal" }),
+            defaultSourceTense: ctx.getCanonicalNawatPatientivoSourceTenseValue("tronco-verbal"),
+            sourceMode: ctx.getNominalSourceModeForTense("patientivo", { patientivoSource: "tronco-verbal" }),
+        },
+        {
+            routeSpec: {
+                sourceTenseValue: "",
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+                patientivoSource: "tronco-verbal",
+                routeKey: "",
+                suffix: "",
+                surfaceSuffix: "",
+            },
+            defaultSourceTense: "",
+            sourceMode: ctx.COMBINED_MODE.active,
+        }
+    );
+    s.eq(
+        "patientivo nonactive-core path preserves passive/impersonal source gates and Andrews authority",
+        (() => {
+            const route = ctx.getNawatRouteProfile("patientivo-nonactive-t");
+            const summarize = (patientivoSource) => {
+                const routeTarget = ctx.resolveNawatRouteTarget(route, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    sourceTenseValue: "preterito",
+                    sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+                    patientivoSource,
+                });
+                const stations = ctx.getNawatRouteStationModels(route, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    routeTarget,
+                });
+                const sourceSurface = ctx.getNawatRouteSourceSurfaceResult(route, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    routeTarget,
+                });
+                const nominalSurface = ctx.getNawatVerbNounConversionNominalSurfaceResult(route, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    routeTarget,
+                });
+                return {
+                    targetBranch: routeTarget.activePatientivoBranch,
+                    stationBranch: stations.find((station) => station.key === "patientivo-branch")?.patientivoSource || "",
+                    stationSurface: stations.find((station) => station.key === "patientivo-branch")?.surface || "",
+                    sourceFormula: sourceSurface.sourceResult?.nuclearClauseShell?.formulaEcho || "",
+                    nominalFormula: nominalSurface.sourceResult?.nuclearClauseShell?.formulaEcho || "",
+                    nominalSurface: nominalSurface.surface || "",
+                    family: nominalSurface.sourceResult?.nominalizationProfile?.patientiveFamilyProfile?.family || "",
+                    sourceStage: nominalSurface.sourceResult?.nominalizationProfile?.patientiveSourceStageFrame?.slot || "",
+                    authorityRef: nominalSurface.grammarFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+                };
+            };
+            return {
+                passive: summarize("passive"),
+                impersonal: summarize("impersonal"),
+            };
+        })(),
+        {
+            passive: {
+                targetBranch: "passive",
+                stationBranch: "passive",
+                stationSurface: "patientivo · pasivo",
+                sourceFormula: "#Ø-Ø(machu)Ø+k-0#",
+                nominalFormula: "#Ø-Ø(machi)t#",
+                nominalSurface: "machit",
+                family: "passive",
+                sourceStage: "#3 salida",
+                authorityRef: "Andrews Lesson 37",
+            },
+            impersonal: {
+                targetBranch: "impersonal",
+                stationBranch: "impersonal",
+                stationSurface: "patientivo · impersonal",
+                sourceFormula: "#Ø-Ø(machu)Ø+k-0#",
+                nominalFormula: "#Ø-Ø(tamachi)t#",
+                nominalSurface: "tamachit",
+                family: "impersonal",
+                sourceStage: "#3 salida",
+                authorityRef: "Andrews Lesson 38",
+            },
+        }
+    );
     const activeRemotePatientivoRoute = ctx.getNawatRouteProfile(activeRemotePatientivoSpec.routeKey);
     const activeRemotePatientivoTarget = ctx.resolveNawatRouteTarget(activeRemotePatientivoRoute, {
         sourceVerb: "(kuchi)",
@@ -11858,7 +12266,7 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.active,
             routeTarget: activeRemotePatientivoTarget,
         }),
-        "(kuchi) → kuchka → patientivo · imperfectivo → -t → kuchiyat"
+        "(kuchi) → kuchka → patientivo · imperfectivo → -t → kuchit"
     );
     const activeRemotePatientivoStations = ctx.getNawatRouteStationModels(activeRemotePatientivoRoute, {
         sourceVerb: "(kuchi)",
@@ -11870,8 +12278,8 @@ function run(ctx) {
         "imperfectivo"
     );
     const puluaVerbNounRouteExpectations = [
-        ["", "puluyat"],
-        ["ta", "tapuluyat"],
+        ["", "pulut"],
+        ["ta", "tapulut"],
     ];
     puluaVerbNounRouteExpectations.forEach(([sourceObjectPrefix, expectedSurface]) => {
         const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
@@ -11902,16 +12310,16 @@ function run(ctx) {
         sourceCombinedMode: ctx.COMBINED_MODE.active,
     });
     s.eq(
-        "active imperfective V→S route asks #3 salida so te maps to ta in patientivo output",
+        "active imperfect-tense V→S route asks #3 salida so te maps to ta in imperfective patientivo output",
         ctx.getNawatRouteFiniteSurfaceForm(patientivoImperfectiveNounRoute, {
             sourceVerb: "-(mati)",
             sourceObjectPrefix: "te",
             routeTarget: matiTeImperfectivePatientivoTarget,
         }),
-        "tamatiyat"
+        "tamatit"
     );
     s.eq(
-        "active imperfective V→S trail shows generated #3 salida rather than static te reconstruction",
+        "active imperfect-tense V→S trail shows generated #3 salida rather than static te reconstruction",
         ctx.formatNawatRouteSurfaceTrailLabel(patientivoImperfectiveNounRoute, {
             sourceVerb: "-(mati)",
             sourceObjectPrefix: "te",
@@ -11919,7 +12327,157 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.active,
             routeTarget: matiTeImperfectivePatientivoTarget,
         }),
-        "-(mati) → tematiya → patientivo · imperfectivo → -t → tamatiyat"
+        "-(mati) → tematiya → patientivo · imperfectivo → -t → tamatit"
+    );
+    const matiTeImperfectiveSourceSurface = ctx.getNawatRouteSourceSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "te",
+        routeTarget: matiTeImperfectivePatientivoTarget,
+    });
+    const matiTeImperfectiveNominalSurface = ctx.getNawatVerbNounConversionNominalSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "te",
+        routeTarget: matiTeImperfectivePatientivoTarget,
+    });
+    s.eq(
+        "active imperfect-tense V→S path keeps Andrews imperfective-source formula and CNN patientivo formula",
+        {
+            sourceSurface: matiTeImperfectiveSourceSurface.surface,
+            sourceTenseValue: matiTeImperfectivePatientivoTarget.sourceTenseValue || "",
+            sourceFormulaType: matiTeImperfectiveSourceSurface.sourceResult?.nuclearClauseShell?.formulaType || "",
+            sourceFormula: matiTeImperfectiveSourceSurface.sourceResult?.nuclearClauseShell?.formula || "",
+            sourceFormulaEcho: matiTeImperfectiveSourceSurface.sourceResult?.nuclearClauseShell?.formulaEcho || "",
+            sourceHasTenseSlot: Boolean(matiTeImperfectiveSourceSurface.sourceResult?.nuclearClauseShell?.formulaSlots?.tensePosition),
+            nominalSurface: matiTeImperfectiveNominalSurface.surface,
+            nominalFormulaType: matiTeImperfectiveNominalSurface.sourceResult?.nuclearClauseShell?.formulaType || "",
+            nominalFormula: matiTeImperfectiveNominalSurface.sourceResult?.nuclearClauseShell?.formula || "",
+            nominalFormulaEcho: matiTeImperfectiveNominalSurface.sourceResult?.nuclearClauseShell?.formulaEcho || "",
+            nominalHasTenseSlot: Boolean(matiTeImperfectiveNominalSurface.sourceResult?.nuclearClauseShell?.formulaSlots?.tensePosition),
+            patientivoSource: matiTeImperfectiveNominalSurface.sourceResult?.nominalizationProfile?.patientiveFamilyProfile?.family || "",
+            sourceStage: matiTeImperfectiveNominalSurface.sourceResult?.nominalizationProfile?.patientiveSourceStageFrame?.slot || "",
+            authorityRef: matiTeImperfectiveNominalSurface.grammarFrame?.authorityFrame?.andrewsRefs?.[0] || "",
+        },
+        {
+            sourceSurface: "tematiya",
+            sourceTenseValue: "imperfecto",
+            sourceFormulaType: "VNC",
+            sourceFormula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+            sourceFormulaEcho: "#Ø-Ø+te(mati)ya+Ø-Ø#",
+            sourceHasTenseSlot: true,
+            nominalSurface: "tamatit",
+            nominalFormulaType: "NNC",
+            nominalFormula: "#pers1-pers2(STEM)num1-num2#",
+            nominalFormulaEcho: "#Ø-Ø(tamati)t#",
+            nominalHasTenseSlot: false,
+            patientivoSource: "imperfectivo",
+            sourceStage: "#3 salida",
+            authorityRef: "Andrews Lesson 39",
+        }
+    );
+    const summarizePatientivoRouteShellLayers = (shell = null) => ({
+        formulaType: shell?.formulaType || "",
+        formula: shell?.formula || "",
+        formulaEcho: shell?.formulaEcho || "",
+        layerKeys: shell?.organizationalLayers?.map((entry) => entry.key) || [],
+        slotKeys: Object.keys(shell?.formulaSlots || {}),
+        predicateStem: shell?.formulaSlots?.predicateStem?.stem || "",
+        obj1: shell?.formulaSlots?.obj1?.displayPrefix || shell?.formulaSlots?.obj1?.prefix || "",
+        tenseMorph: shell?.formulaSlots?.tensePosition?.displayMorph || shell?.formulaSlots?.tensePosition?.morph || "",
+        connector: shell?.formulaSlots?.num1Num2?.displayConnector || shell?.formulaSlots?.num1Num2?.connector || "",
+        predicateChildren: shell?.diagramTree?.root?.children
+            ?.find((entry) => entry.key === "predicate")
+            ?.children
+            ?.map((entry) => entry.key) || [],
+    });
+    s.eq(
+        "active imperfect-tense/imperfective-source patientivo V→S path separates VNC core, VNC predicate, and CNN output layers",
+        {
+            sourceTenseValue: matiTeImperfectivePatientivoTarget.sourceTenseValue || "",
+            patientivoSource: matiTeImperfectivePatientivoTarget.activePatientivoBranch || "",
+            source: summarizePatientivoRouteShellLayers(matiTeImperfectiveSourceSurface.sourceResult?.nuclearClauseShell),
+            patientivo: summarizePatientivoRouteShellLayers(matiTeImperfectiveNominalSurface.sourceResult?.nuclearClauseShell),
+        },
+        {
+            sourceTenseValue: "imperfecto",
+            patientivoSource: "imperfectivo",
+            source: {
+                formulaType: "VNC",
+                formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                formulaEcho: "#Ø-Ø+te(mati)ya+Ø-Ø#",
+                layerKeys: ["verbstem", "verbcore", "predicate", "vnc"],
+                slotKeys: [
+                    "pers1Pers2",
+                    "obj1",
+                    "obj2",
+                    "obj3",
+                    "reflexivo",
+                    "predicateStem",
+                    "tensePosition",
+                    "num1Num2",
+                ],
+                predicateStem: "mati",
+                obj1: "te",
+                tenseMorph: "ya",
+                connector: "Ø-Ø",
+                predicateChildren: ["verbcore", "tense"],
+            },
+            patientivo: {
+                formulaType: "NNC",
+                formula: "#pers1-pers2(STEM)num1-num2#",
+                formulaEcho: "#Ø-Ø(tamati)t#",
+                layerKeys: ["nounstem", "nouncore", "nnc"],
+                slotKeys: ["pers1Pers2", "predicateStem", "num1Num2"],
+                predicateStem: "tamati",
+                obj1: "",
+                tenseMorph: "",
+                connector: "t",
+                predicateChildren: ["state", "stem"],
+            },
+        }
+    );
+    s.eq(
+        "active patientivo source rows do not leak finite tense material into the derived CNN predicate",
+        ["presente", "imperfecto", "pasado-remoto", "futuro", "condicional", "optativo"].map((sourceTenseValue) => {
+            const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
+                sourceTenseValue,
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+            });
+            const routeProfile = ctx.getNawatRouteProfile(routeKey);
+            const routeTarget = ctx.resolveNawatRouteTarget(routeProfile, {
+                sourceVerb: "-(mati)",
+                sourceObjectPrefix: "te",
+                sourceTenseValue,
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+            });
+            const sourceSurface = ctx.getNawatRouteSourceSurfaceResult(routeProfile, {
+                sourceVerb: "-(mati)",
+                sourceObjectPrefix: "te",
+                routeTarget,
+            });
+            const nominalSurface = ctx.getNawatVerbNounConversionNominalSurfaceResult(routeProfile, {
+                sourceVerb: "-(mati)",
+                sourceObjectPrefix: "te",
+                routeTarget,
+            });
+            return {
+                sourceTenseValue,
+                routeKey,
+                finiteSourceFormula: sourceSurface.sourceResult?.nuclearClauseShell?.formula || "",
+                finiteSourceHasTenseSlot: Boolean(sourceSurface.sourceResult?.nuclearClauseShell?.formulaSlots?.tensePosition),
+                nominalSurface: nominalSurface.surface || "",
+                nominalFormulaEcho: nominalSurface.sourceResult?.nuclearClauseShell?.formulaEcho || "",
+                nominalHasTenseSlot: Boolean(nominalSurface.sourceResult?.nuclearClauseShell?.formulaSlots?.tensePosition),
+            };
+        }),
+        ["presente", "imperfecto", "pasado-remoto", "futuro", "condicional", "optativo"].map((sourceTenseValue) => ({
+            sourceTenseValue,
+            routeKey: "patientivo-imperfective-t",
+            finiteSourceFormula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+            finiteSourceHasTenseSlot: true,
+            nominalSurface: "tamatit",
+            nominalFormulaEcho: "#Ø-Ø(tamati)t#",
+            nominalHasTenseSlot: false,
+        }))
     );
     const puluaNonactivePatientivoRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
     const puluaNonactivePatientivoTarget = ctx.resolveNawatRouteTarget(puluaNonactivePatientivoRoute, {
@@ -11941,7 +12499,7 @@ function run(ctx) {
             sourceVerb: "(pulua)",
             routeTarget: puluaNonactivePatientivoTarget,
         }),
-        "(pulua) → pululu → patientivo · pasivo/impersonal → -ti → pululti"
+        "(pulua) → pululu → patientivo · pasivo → -ti → pululti"
     );
     const nonactiveHabitualRoute = ctx.getNawatRouteProfile("nonactive-habitual-potential");
     const nonactiveHabitualTarget = ctx.resolveNawatRouteTarget(nonactiveHabitualRoute, { sourceVerb: "(pusuni)" });
