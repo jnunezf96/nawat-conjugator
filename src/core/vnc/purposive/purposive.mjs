@@ -1,11 +1,34 @@
 // Native wrapper generated from src/core/vnc/purposive/purposive.js.
 
-export function createPurposiveGlobals(targetObject = globalThis) {
+export function createPurposiveApi(targetObject = globalThis) {
     const PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION = 1;
     const PURPOSIVE_DIRECTIONAL_RELATION = Object.freeze({
       directional: "directional",
       purpose: "purpose",
       purposiveDirectional: "purposive-directional",
+      unknown: "unknown"
+    });
+    const PURPOSIVE_DIRECTION = Object.freeze({
+      outbound: "outbound",
+      inbound: "inbound",
+      unknown: "unknown"
+    });
+    const PURPOSIVE_MOOD = Object.freeze({
+      indicative: "indicative",
+      optative: "optative",
+      unknown: "unknown"
+    });
+    const PURPOSIVE_TENSE = Object.freeze({
+      nonpast: "nonpast",
+      past: "past",
+      future: "future",
+      nonfuture: "nonfuture",
+      unknown: "unknown"
+    });
+    const PURPOSIVE_NUMBER = Object.freeze({
+      singular: "singular",
+      common: "common",
+      plural: "plural",
       unknown: "unknown"
     });
     const PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE = Object.freeze({
@@ -17,7 +40,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const PURPOSIVE_DIRECTIONAL_ANTI_CONFLATION_RULES = Object.freeze(["directional prefix mechanics are not purposive VNC generation", "bracketed directional parser syntax is not purposive evidence", "composer directional controls are not confirmed purposive forms", "purpose translations are not Nawat/Pipil fixture evidence", "compound parsing is not purposive VNC generation", "Andrews purposive categories are architecture, not Nawat/Pipil form authority"]);
+    const PURPOSIVE_DIRECTIONAL_ANTI_CONFLATION_RULES = Object.freeze(["directional prefix mechanics are not purposive VNC generation", "bracketed directional parser syntax is not purposive evidence", "composer directional controls are not confirmed purposive forms", "purpose translations are not Andrews source gates", "compound parsing is not purposive VNC generation", "Andrews purposive categories are architecture, not Classical surface authority"]);
     const PURPOSIVE_DIRECTIONAL_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "sourceStem",
       asks: "Which VNC stem is the source of the purposive or directional candidate?"
@@ -29,7 +52,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       asks: "Is the relation directional, purposive, both, or unknown?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided clause/form evidence supports purposive status?"
+      asks: "Which Andrews source gate or structured source supports purposive status?"
     })]);
     const LESSON29_PURPOSIVE_VALIDATION_REFS = Object.freeze(["src/tests/purposive.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON29_PURPOSIVE_PDF_REFS = Object.freeze(["Andrews Lesson 29.1", "Andrews Lesson 29.2", "Andrews Lesson 29.3", "Andrews Lesson 29.4", "Andrews Lesson 29.5", "Andrews Lesson 29.6", "Andrews Lesson 29.7"]);
@@ -217,7 +240,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       id: "lesson29-inbound",
       andrewsSection: "29.4",
       category: "inbound-purposive",
-      directiveEs: "La matriz entrante usa c/qu, adaptado como k en grafia nawat cuando haya evidencia de superficie.",
+      directiveEs: "La matriz entrante usa c/qu, adaptado como k por el puente ortografico Nawat/Pipil.",
       engineSurface: "inbound diagnostic frame",
       implementationState: "partial",
       redirectAction: "block-generation"
@@ -244,7 +267,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       directiveEs: "Hual/on externos pueden expresar nocion purposiva informal, combinarse con purposivos, o discrepar de la direccion interna.",
       engineSurface: "directional false-positive and boundary metadata",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     })]);
     function clonePurposiveLessonRecord(record) {
       if (!record || typeof record !== "object") {
@@ -260,7 +283,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         ...entry,
         pdfRef: entry.andrewsSection === "29.7" ? "Andrews Lesson 29.7 (printed as 29.1 in the PDF)" : `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-required",
         validationRefs: Array.from(LESSON29_PURPOSIVE_VALIDATION_REFS)
       }));
     }
@@ -276,9 +299,9 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         andrewsRefs: Array.from(LESSON29_PURPOSIVE_PDF_REFS),
         generationAllowed: false,
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-required"
         },
         ...options
       });
@@ -289,6 +312,20 @@ export function createPurposiveGlobals(targetObject = globalThis) {
     }
     function normalizePurposiveDirectionalRelation(value = "") {
       return normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_DIRECTIONAL_RELATION), PURPOSIVE_DIRECTIONAL_RELATION.unknown);
+    }
+    function normalizePurposiveDirection(value = "") {
+      return normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_DIRECTION), PURPOSIVE_DIRECTION.unknown);
+    }
+    function normalizePurposiveMood(value = "") {
+      return normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_MOOD), PURPOSIVE_MOOD.unknown);
+    }
+    function normalizePurposiveTense(value = "") {
+      const normalized = normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_TENSE), PURPOSIVE_TENSE.unknown);
+      return normalized;
+    }
+    function normalizePurposiveNumber(value = "") {
+      const normalized = normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_NUMBER), PURPOSIVE_NUMBER.unknown);
+      return normalized === PURPOSIVE_NUMBER.common ? PURPOSIVE_NUMBER.singular : normalized;
     }
     function normalizePurposiveDirectionalFalsePositiveSource(value = "") {
       return normalizePurposiveDirectionalEnum(value, Object.values(PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE), PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE.unknown);
@@ -317,7 +354,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         structuralSource: "Andrews Lesson 29",
         pdfRefs: Array.from(LESSON29_PURPOSIVE_PDF_REFS),
         subsectionInventory,
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews slot logic plus Nawat/Pipil orthography bridge",
         generationAllowed: false,
         confirmedExamples: [],
         knownDirectionalPrefixes: getKnownDirectionalPrefixesForPurposiveBoundary(),
@@ -340,7 +377,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         structuralQuestions: getPurposiveDirectionalStructuralQuestions(),
         boundaries: {
           hasDirectionalPrefixMechanics: true,
-          hasPurposiveGeneration: false,
+          hasPurposiveGeneration: true,
           hasConfirmedPurposiveFixtureData: false,
           hasLesson29PursuitFrame: true,
           changesDirectionalGeneration: false,
@@ -372,7 +409,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       const nonactiveEmbedFrame = clonePurposiveLessonRecord(LESSON29_NONACTIVE_EMBED_FRAME);
       const compoundEmbedFrame = clonePurposiveLessonRecord(LESSON29_COMPOUND_EMBED_FRAME);
       const externalDirectionalFrame = clonePurposiveLessonRecord(LESSON29_EXTERNAL_DIRECTIONAL_FRAME);
-      const remainingGaps = ["No confirmed Nawat/Pipil purposive VNC fixture inventory licenses finite purposive output.", "Outbound and inbound purposive paradigms are recorded but not generated.", "Silent future-morph behavior, vowel-length/glottal distinctions, optional o#, irregular plural n, and optative/admonitive contrasts remain diagnostic.", "Passive/impersonal purposive embeds, compound-stemmed embeds, external wal/un directional alternatives, fulfilled-purpose readings, and metaphorical movement remain evidence-needed."];
+      const remainingGaps = ["The Andrews outbound and inbound matrix shapes now generate structural purposive target stems without Nawat/Pipil fixture evidence.", "Finite VNC integration still needs full subject/object UI wiring, optional o#, vowel-length/glottal display, and optative/admonitive contrast controls.", "Passive/impersonal purposive embeds, compound-stemmed embeds, external wal/un directional alternatives, fulfilled-purpose readings, and metaphorical movement remain source-gated."];
       const frame = {
         kind: "lesson-29-purposive-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -389,7 +426,7 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-29-purposive-vnc-audit",
           result: "hit",
-          correction: "Lesson 29 now records Andrews purposive verbstem architecture, outbound and inbound paradigms, nonactive and compound-stemmed embeds, external directional alternatives, and anti-conflation with ordinary directional prefixes, progressive connective-t compounds, and admonitive endings while keeping generation blocked.",
+          correction: "Lesson 29 now records Andrews purposive verbstem architecture, generates outbound and inbound target stems from Andrews matrix shapes, and keeps nonactive embeds, compound-stemmed embeds, external directionals, progressive connective-t compounds, and admonitive endings separated.",
           andrewsRefs: Array.from(LESSON29_PURPOSIVE_PDF_REFS),
           feedbackRefs: Array.from(LESSON29_PURPOSIVE_VALIDATION_REFS)
         }],
@@ -406,10 +443,10 @@ export function createPurposiveGlobals(targetObject = globalThis) {
           boundaryMetadataImplemented: true,
           candidateClassifierImplemented: true,
           falsePositiveClassifierImplemented: true,
-          purposiveGenerationImplemented: false,
+          purposiveGenerationImplemented: true,
           confirmedPurposiveFixtureData: false,
-          outboundParadigmGenerationImplemented: false,
-          inboundParadigmGenerationImplemented: false,
+          outboundParadigmGenerationImplemented: true,
+          inboundParadigmGenerationImplemented: true,
           nonactiveEmbedGenerationImplemented: false,
           compoundStemmedEmbedGenerationImplemented: false,
           externalDirectionalPurposiveGenerationImplemented: false,
@@ -461,16 +498,391 @@ export function createPurposiveGlobals(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["purposive-vnc-diagnostic-only", "purposive-vnc-needs-nawat-evidence"]
+        diagnostics: ["purposive-vnc-source-gated", "purposive-vnc-orthography-bridge-required"]
+      });
+    }
+    function normalizePurposiveDirectionalCandidateSurface(value = "") {
+      const source = String(value || "").replace(/\[[^\]]+\]\s*\/\s*/g, "").replace(/\[sq0\]/gi, "").replace(/[Ø0□]/g, "").replace(/[#()[\]{}+_\s]/g, "").replace(/-/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews purposive candidate formula"
+      }) : null;
+      return conversion?.output || source;
+    }
+    function realizePurposiveDirectionalSegment(segment = "") {
+      const raw = String(segment || "").trim();
+      if (!raw || raw === "□" || raw === "0" || raw === "Ø") {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(raw, {
+        source: "Andrews purposive directional segment"
+      }) : null;
+      return String(conversion?.output || raw || "").trim();
+    }
+    function realizePurposiveDirectionalTargetStemFromSegments(segments = []) {
+      return (Array.isArray(segments) ? segments : []).map(segment => realizePurposiveDirectionalSegment(segment)).filter(Boolean).join("");
+    }
+    function buildPurposiveDirectionalSourceFrame({
+      embedStem = "",
+      sourceUnit = "VNC",
+      sourceRole = "future-embedded-predicate",
+      formulaSlots = null
+    } = {}) {
+      const normalizedEmbedStem = String(embedStem || "").trim();
+      if (!normalizedEmbedStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-purposive-directional-source-frame",
+        version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
+        sourceUnit,
+        sourceRole,
+        embedStem: normalizedEmbedStem,
+        formulaSlots: formulaSlots && typeof formulaSlots === "object" ? Object.freeze({
+          ...formulaSlots
+        }) : null,
+        renderedSurfaceIsNotAuthority: true
+      });
+    }
+    function getPurposiveMatrixShape({
+      direction = "",
+      mood = "",
+      tense = "",
+      number = ""
+    } = {}) {
+      const normalizedDirection = normalizePurposiveDirection(direction);
+      const normalizedMood = normalizePurposiveMood(mood || PURPOSIVE_MOOD.indicative);
+      const normalizedNumber = normalizePurposiveNumber(number || PURPOSIVE_NUMBER.singular);
+      const normalizedTense = normalizePurposiveTense(tense || (normalizedMood === PURPOSIVE_MOOD.optative ? PURPOSIVE_TENSE.nonpast : normalizedDirection === PURPOSIVE_DIRECTION.inbound ? PURPOSIVE_TENSE.nonfuture : PURPOSIVE_TENSE.nonpast));
+      const plural = normalizedNumber === PURPOSIVE_NUMBER.plural;
+      if (normalizedDirection === PURPOSIVE_DIRECTION.outbound && normalizedMood === PURPOSIVE_MOOD.indicative && normalizedTense === PURPOSIVE_TENSE.nonpast) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: plural ? "t-i-hui" : "t-i-uh",
+          matrixDirectionalMorph: "t",
+          matrixBaseStem: plural ? "i-hui" : "i-uh",
+          tenseMeaning: "present-or-future",
+          andrewsSection: "29.3"
+        };
+      }
+      if (normalizedDirection === PURPOSIVE_DIRECTION.outbound && normalizedMood === PURPOSIVE_MOOD.indicative && normalizedTense === PURPOSIVE_TENSE.past) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: "t-o",
+          matrixDirectionalMorph: "t",
+          matrixBaseStem: "o",
+          tenseMeaning: "preterit-imperfect-distant-past",
+          andrewsSection: "29.3",
+          antecessiveOParticleOptional: true
+        };
+      }
+      if (normalizedDirection === PURPOSIVE_DIRECTION.outbound && normalizedMood === PURPOSIVE_MOOD.optative && normalizedTense === PURPOSIVE_TENSE.nonpast) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: "t-i",
+          matrixDirectionalMorph: "t",
+          matrixBaseStem: "i",
+          tenseMeaning: "nonpast-optative",
+          andrewsSection: "29.3",
+          irregularPluralNAllowed: plural
+        };
+      }
+      if (normalizedDirection === PURPOSIVE_DIRECTION.inbound && normalizedMood === PURPOSIVE_MOOD.indicative && normalizedTense === PURPOSIVE_TENSE.nonfuture) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: "c-o",
+          matrixDirectionalMorph: "c",
+          matrixBaseStem: "o",
+          tenseMeaning: "present-preterit-imperfect-distant-past",
+          andrewsSection: "29.4",
+          antecessiveOParticleOptional: true
+        };
+      }
+      if (normalizedDirection === PURPOSIVE_DIRECTION.inbound && normalizedMood === PURPOSIVE_MOOD.indicative && normalizedTense === PURPOSIVE_TENSE.future) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: plural ? "qu-i-hui" : "qu-i-uh",
+          matrixDirectionalMorph: "qu",
+          matrixBaseStem: plural ? "i-hui" : "i-uh",
+          tenseMeaning: "future",
+          andrewsSection: "29.4"
+        };
+      }
+      if (normalizedDirection === PURPOSIVE_DIRECTION.inbound && normalizedMood === PURPOSIVE_MOOD.optative && normalizedTense === PURPOSIVE_TENSE.nonpast) {
+        return {
+          ok: true,
+          direction: normalizedDirection,
+          mood: normalizedMood,
+          tense: normalizedTense,
+          number: normalizedNumber,
+          matrixShape: "qu-i",
+          matrixDirectionalMorph: "qu",
+          matrixBaseStem: "i",
+          tenseMeaning: "nonpast-optative",
+          andrewsSection: "29.4"
+        };
+      }
+      return {
+        ok: false,
+        direction: normalizedDirection,
+        mood: normalizedMood,
+        tense: normalizedTense,
+        number: normalizedNumber,
+        diagnostics: ["purposive-directional-paradigm-not-andrews-licensed"]
+      };
+    }
+    function isPurposiveDirectionalSourceFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-purposive-directional-source-frame" && String(frame.embedStem || "").trim());
+    }
+    function isPurposiveDirectionalOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-purposive-directional-operation-frame" && isPurposiveDirectionalSourceFrame(frame.sourceFrame) && frame.matrixFrame && typeof frame.matrixFrame === "object" && frame.targetFrame && typeof frame.targetFrame === "object");
+    }
+    function buildPurposiveDirectionalOperationFrame({
+      sourceFrame = null,
+      direction = "",
+      mood = "",
+      tense = "",
+      number = "",
+      objectPrefix = "",
+      personPrefix = "0-0",
+      pluralNumberMorph = ""
+    } = {}) {
+      if (!isPurposiveDirectionalSourceFrame(sourceFrame)) {
+        return null;
+      }
+      const matrix = getPurposiveMatrixShape({
+        direction,
+        mood,
+        tense,
+        number
+      });
+      if (matrix.ok !== true) {
+        return null;
+      }
+      const normalizedNumber = matrix.number || normalizePurposiveNumber(number || PURPOSIVE_NUMBER.singular);
+      const requestedPluralN = String(pluralNumberMorph || "").trim().toLowerCase() === "n";
+      const num1 = "0";
+      const num2 = normalizedNumber === PURPOSIVE_NUMBER.plural ? requestedPluralN && matrix.irregularPluralNAllowed ? "n" : "h" : "0";
+      const objectSlot = String(objectPrefix || "").trim();
+      const normalizedPersonPrefix = String(personPrefix || "0-0").trim() || "0-0";
+      const targetSegments = Object.freeze([sourceFrame.embedStem, "□", matrix.matrixDirectionalMorph, ...String(matrix.matrixBaseStem || "").split("-").filter(Boolean)]);
+      const targetStemClassical = targetSegments.join("-");
+      return Object.freeze({
+        kind: "andrews-purposive-directional-operation-frame",
+        version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
+        operationId: "lesson-29-purposive-directional",
+        operationFamily: "purposive-directional-vnc",
+        sourceFrame,
+        matrixFrame: Object.freeze({
+          kind: "andrews-purposive-directional-matrix-frame",
+          direction: matrix.direction,
+          mood: matrix.mood,
+          tense: matrix.tense,
+          number: normalizedNumber,
+          matrixDirectionalMorph: matrix.matrixDirectionalMorph,
+          matrixBaseStem: matrix.matrixBaseStem,
+          matrixShape: matrix.matrixShape,
+          andrewsSection: matrix.andrewsSection,
+          tenseMeaning: matrix.tenseMeaning
+        }),
+        inflectionFrame: Object.freeze({
+          personPrefix: normalizedPersonPrefix,
+          objectPrefix: objectSlot,
+          tense: "0",
+          num1,
+          num2,
+          pluralNumberMorph: num2
+        }),
+        targetFrame: Object.freeze({
+          kind: "andrews-purposive-directional-target-frame",
+          targetUnit: "CNV",
+          targetSegments,
+          targetStemClassical
+        }),
+        renderedSurfaceIsNotAuthority: true
+      });
+    }
+    function buildAndrewsPurposiveDirectionalVnc({
+      sourceStem = "",
+      embedStem = "",
+      objectPrefix = "",
+      personPrefix = "0-0",
+      direction = "",
+      mood = "",
+      tense = "",
+      number = "",
+      pluralNumberMorph = "",
+      operationFrame = null
+    } = {}) {
+      void embedStem;
+      void objectPrefix;
+      void personPrefix;
+      void direction;
+      void mood;
+      void tense;
+      void number;
+      void pluralNumberMorph;
+      if (!isPurposiveDirectionalOperationFrame(operationFrame)) {
+        const blocked = {
+          kind: "purposive-directional-andrews-generation",
+          version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
+          sourceStem: String(sourceStem || ""),
+          embedStem: "",
+          generationAllowed: false,
+          diagnostics: ["purposive-directional-missing-typed-operation-frame"]
+        };
+        return attachPurposiveDirectionalGrammarContract(blocked, {
+          metadataKind: "purposive-directional-andrews-generation",
+          routeStage: "block-unsupported-purposive-paradigm",
+          sourceInput: blocked.sourceStem,
+          supported: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const sourceFrame = operationFrame.sourceFrame;
+      const matrix = operationFrame.matrixFrame;
+      const inflection = operationFrame.inflectionFrame || {};
+      const targetFrame = operationFrame.targetFrame || {};
+      const expectedTargetStemClassical = [sourceFrame.embedStem, "□", matrix.matrixDirectionalMorph, ...String(matrix.matrixBaseStem || "").split("-").filter(Boolean)].join("-");
+      const targetStemClassical = String(targetFrame.targetStemClassical || "").trim();
+      if (!targetStemClassical || targetStemClassical !== expectedTargetStemClassical) {
+        const blocked = {
+          kind: "purposive-directional-andrews-generation",
+          version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
+          sourceStem: String(sourceFrame.embedStem || ""),
+          embedStem: String(sourceFrame.embedStem || ""),
+          generationAllowed: false,
+          diagnostics: ["purposive-directional-contradictory-typed-operation-frame"]
+        };
+        return attachPurposiveDirectionalGrammarContract(blocked, {
+          metadataKind: "purposive-directional-andrews-generation",
+          routeStage: "block-contradictory-purposive-frame",
+          sourceInput: blocked.sourceStem,
+          supported: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const objectSlot = String(inflection.objectPrefix || "").trim();
+      const objectFormula = objectSlot ? `+${objectSlot}` : "";
+      const num1 = String(inflection.num1 || "0").trim() || "0";
+      const num2 = String(inflection.num2 || "0").trim() || "0";
+      const person = String(inflection.personPrefix || "0-0").trim() || "0-0";
+      const structuralFormula = `#${person}${objectFormula}(${targetStemClassical})0+${num1}-${num2}#`;
+      const surface = realizePurposiveDirectionalTargetStemFromSegments(targetFrame.targetSegments);
+      const classification = {
+        kind: "purposive-directional-andrews-generation",
+        version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
+        sourceStem: String(sourceFrame.embedStem || ""),
+        embedStem: String(sourceFrame.embedStem || ""),
+        objectPrefix: objectSlot,
+        personPrefix: person,
+        direction: matrix.direction,
+        mood: matrix.mood,
+        tense: matrix.tense,
+        number: matrix.number,
+        pluralNumberMorph: num2,
+        targetStemClassical,
+        targetStem: surface,
+        structuralFormula,
+        surface,
+        surfaceForms: surface ? [surface] : [],
+        generationAllowed: Boolean(surface),
+        formulaSlots: {
+          pers: person,
+          objectPrefix: objectSlot,
+          embedStem: sourceFrame.embedStem,
+          silentFutureTenseMorph: "□",
+          matrixDirectionalMorph: matrix.matrixDirectionalMorph,
+          matrixBaseStem: matrix.matrixBaseStem,
+          matrixShape: matrix.matrixShape,
+          tense: "0",
+          num1,
+          num2
+        },
+        andrewsSection: matrix.andrewsSection,
+        tenseMeaning: matrix.tenseMeaning,
+        diagnostics: ["purposive-directional-andrews-paradigm-generated", "purposive-directional-silent-future-morph", "orthography-bridge-realized"],
+        operationFrame
+      };
+      return attachPurposiveDirectionalGrammarContract(classification, {
+        metadataKind: "purposive-directional-andrews-generation",
+        routeStage: "generate-andrews-purposive-paradigm",
+        sourceInput: classification.sourceStem || classification.embedStem,
+        supported: classification.generationAllowed,
+        generationAllowed: classification.generationAllowed,
+        surface,
+        surfaceForms: classification.surfaceForms,
+        diagnostics: classification.diagnostics,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "orthography-bridge-realized",
+          sourceSurface: targetStemClassical,
+          surface,
+          surfaceForms: classification.surfaceForms
+        },
+        stemFrame: {
+          stemKind: "purposive-compound-verbstem",
+          sourceStem: classification.sourceStem,
+          targetStem: targetStemClassical,
+          realizedTargetStem: surface,
+          silentFutureMorph: true,
+          matrixDirectionalMorph: matrix.matrixDirectionalMorph,
+          matrixBaseStem: matrix.matrixBaseStem
+        },
+        inflectionFrame: {
+          mood: matrix.mood,
+          tense: matrix.tense,
+          tenseMorph: "0",
+          tenseMeaning: matrix.tenseMeaning,
+          numberDyad: `${num1}-${num2}`
+        },
+        targetContract: {
+          metadataKind: "purposive-directional-andrews-generation",
+          generationAllowed: classification.generationAllowed,
+          andrewsSection: matrix.andrewsSection,
+          finiteSurfaceExpansionAllowed: false,
+          operationFrame
+        }
       });
     }
     function classifyPurposiveDirectionalCandidate({
       sourceStem = "",
+      sourceFrame = null,
       candidate = "",
       directionalPrefix = "",
       relation = "",
       evidenceSource = "",
-      falsePositiveSource = ""
+      falsePositiveSource = "",
+      direction = "",
+      mood = "",
+      tense = "",
+      number = "",
+      objectPrefix = "",
+      personPrefix = "0-0",
+      pluralNumberMorph = ""
     } = {}) {
       const normalizedRelation = normalizePurposiveDirectionalRelation(relation);
       const normalizedFalsePositive = normalizePurposiveDirectionalFalsePositiveSource(falsePositiveSource);
@@ -478,39 +890,80 @@ export function createPurposiveGlobals(targetObject = globalThis) {
       const normalizedDirectionalPrefix = String(directionalPrefix || "").trim().toLowerCase();
       const hasKnownDirectionalPrefix = knownPrefixes.includes(normalizedDirectionalPrefix);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const relationGenerates = normalizedRelation === PURPOSIVE_DIRECTIONAL_RELATION.purpose || normalizedRelation === PURPOSIVE_DIRECTIONAL_RELATION.purposiveDirectional;
+      const andrewsGeneration = !String(candidate || "").trim() && relationGenerates ? (() => {
+        const operationFrame = buildPurposiveDirectionalOperationFrame({
+          sourceFrame,
+          direction,
+          mood,
+          tense,
+          number,
+          objectPrefix,
+          personPrefix,
+          pluralNumberMorph
+        });
+        return buildAndrewsPurposiveDirectionalVnc({
+          sourceStem,
+          operationFrame
+        });
+      })() : null;
+      const generatedCandidate = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.targetStemClassical : "";
+      const sourceSurface = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.surface : "";
+      const generated = relationGenerates && andrewsGeneration?.generationAllowed === true && normalizedFalsePositive === PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE.unknown;
       const classification = {
         kind: "purposive-directional-candidate-classification",
         version: PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION,
-        sourceStem: String(sourceStem || ""),
-        candidate: String(candidate || ""),
+        sourceStem: String(sourceFrame?.embedStem || sourceStem || ""),
+        candidate: String(candidate || generatedCandidate || ""),
         directionalPrefix: normalizedDirectionalPrefix,
         hasKnownDirectionalPrefix,
         relation: normalizedRelation,
         evidenceSource: String(evidenceSource || ""),
         falsePositiveSource: normalizedFalsePositive,
         confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "purposive-directional-needs-validation" : "purposive-directional-needs-nawat-evidence", hasKnownDirectionalPrefix ? "directional-prefix-recognized" : "directional-prefix-unconfirmed", normalizedFalsePositive !== PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE.unknown ? "purposive-directional-false-positive-source" : "purposive-directional-unconfirmed"],
+        generationAllowed: generated,
+        ...(generated ? {
+          surface: sourceSurface,
+          surfaceForms: [sourceSurface]
+        } : {}),
+        ...(andrewsGeneration?.generationAllowed === true ? {
+          andrewsGeneration,
+          structuralFormula: andrewsGeneration.structuralFormula,
+          formulaSlots: andrewsGeneration.formulaSlots
+        } : {}),
+        diagnostics: [andrewsGeneration?.generationAllowed === true ? "purposive-directional-andrews-paradigm-generated" : String(candidate || "").trim() && relationGenerates ? "purposive-directional-candidate-diagnostic-only" : hasEvidence ? "purposive-directional-source-provided" : "purposive-directional-source-gate-required", hasKnownDirectionalPrefix ? "directional-prefix-recognized" : "directional-prefix-unconfirmed", normalizedFalsePositive !== PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE.unknown ? "purposive-directional-false-positive-source" : generated ? "purposive-directional-structured-source" : "purposive-directional-unconfirmed"],
         boundary: buildPurposiveDirectionalBoundaryMetadata()
       };
       return attachPurposiveDirectionalGrammarContract(classification, {
         metadataKind: "purposive-directional-candidate-classification",
-        routeStage: "classify-candidate",
+        routeStage: generated ? "generate-structured-purposive" : "classify-candidate",
         sourceInput: classification.sourceStem || classification.candidate,
-        supported: false,
+        supported: generated,
+        generationAllowed: generated,
         diagnostics: classification.diagnostics,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: generated ? "orthography-bridge-realized" : "source-gated",
+          sourceSurface: andrewsGeneration?.targetStemClassical || classification.candidate,
+          surface: sourceSurface,
+          surfaceForms: generated ? [sourceSurface] : []
+        },
         stemFrame: {
           stemKind: "purposive-directional-candidate",
           sourceStem: classification.sourceStem,
           targetStem: classification.candidate,
+          realizedTargetStem: sourceSurface,
           directionalPrefix: normalizedDirectionalPrefix,
           relation: normalizedRelation
         },
+        inflectionFrame: andrewsGeneration?.frames?.inflectionFrame || undefined,
         targetContract: {
           metadataKind: "purposive-directional-candidate-classification",
-          generationAllowed: false,
+          generationAllowed: generated,
           relation: normalizedRelation,
-          hasKnownDirectionalPrefix
+          hasKnownDirectionalPrefix,
+          andrewsParadigmGenerated: andrewsGeneration?.generationAllowed === true
         }
       });
     }
@@ -544,6 +997,26 @@ export function createPurposiveGlobals(targetObject = globalThis) {
         configurable: true,
         enumerable: true,
         get() { return PURPOSIVE_DIRECTIONAL_RELATION; },
+    });
+    Object.defineProperty(api, "PURPOSIVE_DIRECTION", {
+        configurable: true,
+        enumerable: true,
+        get() { return PURPOSIVE_DIRECTION; },
+    });
+    Object.defineProperty(api, "PURPOSIVE_MOOD", {
+        configurable: true,
+        enumerable: true,
+        get() { return PURPOSIVE_MOOD; },
+    });
+    Object.defineProperty(api, "PURPOSIVE_TENSE", {
+        configurable: true,
+        enumerable: true,
+        get() { return PURPOSIVE_TENSE; },
+    });
+    Object.defineProperty(api, "PURPOSIVE_NUMBER", {
+        configurable: true,
+        enumerable: true,
+        get() { return PURPOSIVE_NUMBER; },
     });
     Object.defineProperty(api, "PURPOSIVE_DIRECTIONAL_FALSE_POSITIVE_SOURCE", {
         configurable: true,
@@ -615,19 +1088,32 @@ export function createPurposiveGlobals(targetObject = globalThis) {
     api.attachPurposiveDirectionalGrammarContract = attachPurposiveDirectionalGrammarContract;
     api.normalizePurposiveDirectionalEnum = normalizePurposiveDirectionalEnum;
     api.normalizePurposiveDirectionalRelation = normalizePurposiveDirectionalRelation;
+    api.normalizePurposiveDirection = normalizePurposiveDirection;
+    api.normalizePurposiveMood = normalizePurposiveMood;
+    api.normalizePurposiveTense = normalizePurposiveTense;
+    api.normalizePurposiveNumber = normalizePurposiveNumber;
     api.normalizePurposiveDirectionalFalsePositiveSource = normalizePurposiveDirectionalFalsePositiveSource;
     api.getPurposiveDirectionalAntiConflationRules = getPurposiveDirectionalAntiConflationRules;
     api.getPurposiveDirectionalStructuralQuestions = getPurposiveDirectionalStructuralQuestions;
     api.getKnownDirectionalPrefixesForPurposiveBoundary = getKnownDirectionalPrefixesForPurposiveBoundary;
     api.buildPurposiveDirectionalBoundaryMetadata = buildPurposiveDirectionalBoundaryMetadata;
     api.buildLesson29PurposivePursuitFrame = buildLesson29PurposivePursuitFrame;
+    api.normalizePurposiveDirectionalCandidateSurface = normalizePurposiveDirectionalCandidateSurface;
+    api.realizePurposiveDirectionalSegment = realizePurposiveDirectionalSegment;
+    api.realizePurposiveDirectionalTargetStemFromSegments = realizePurposiveDirectionalTargetStemFromSegments;
+    api.buildPurposiveDirectionalSourceFrame = buildPurposiveDirectionalSourceFrame;
+    api.getPurposiveMatrixShape = getPurposiveMatrixShape;
+    api.isPurposiveDirectionalSourceFrame = isPurposiveDirectionalSourceFrame;
+    api.isPurposiveDirectionalOperationFrame = isPurposiveDirectionalOperationFrame;
+    api.buildPurposiveDirectionalOperationFrame = buildPurposiveDirectionalOperationFrame;
+    api.buildAndrewsPurposiveDirectionalVnc = buildAndrewsPurposiveDirectionalVnc;
     api.classifyPurposiveDirectionalCandidate = classifyPurposiveDirectionalCandidate;
     api.classifyPurposiveDirectionalFalsePositive = classifyPurposiveDirectionalFalsePositive;
     return api;
 }
 
 export function installPurposiveGlobals(targetObject = globalThis) {
-    const api = createPurposiveGlobals(targetObject);
+    const api = createPurposiveApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

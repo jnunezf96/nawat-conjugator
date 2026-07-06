@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/composer/composer.js.
 
-export function createUiComposerModule(targetObject = globalThis) {
+export function createUiComposerApi(targetObject = globalThis) {
     // === Verb Composer ===
     function getComposerSlotKeyForTransitivity(transitivity) {
       return COMPOSER_SLOT_KEY_BY_TRANSITIVITY[transitivity] || "a";
@@ -336,6 +336,9 @@ export function createUiComposerModule(targetObject = globalThis) {
       if (!style || style.display === "none" || style.visibility === "hidden") {
         return false;
       }
+      if (typeof fieldEl.getClientRects !== "function") {
+        return true;
+      }
       return fieldEl.getClientRects().length > 0;
     }
     function resolveComposerSupportiveIToggleHost(slotKey = "", slotRefs = null) {
@@ -345,7 +348,10 @@ export function createUiComposerModule(targetObject = globalThis) {
         if (!fieldEl || !canShow || !isComposerFieldVisibleForSupportiveToggle(fieldEl)) {
           return;
         }
-        const rect = fieldEl.getBoundingClientRect();
+        const rect = typeof fieldEl.getBoundingClientRect === "function" ? fieldEl.getBoundingClientRect() : {
+          top: 0,
+          left: 0
+        };
         candidates.push({
           fieldEl,
           top: Number(rect.top) || 0,
@@ -3709,7 +3715,7 @@ export function createUiComposerModule(targetObject = globalThis) {
         classical,
         nawat,
         category,
-        detail: detail || `Andrews ${range}: requiere fuente generada o confirmada antes de funcionar como regla productiva.`
+        detail: detail || `Andrews ${range}: requiere fuente generada o contexto Andrews antes de funcionar como regla productiva.`
       });
       const supported = (range, classical, nawat, category, detail = "") => buildComposerMatrixAffixAndrewsJudgment({
         status: "supported",
@@ -4482,7 +4488,9 @@ export function createUiComposerModule(targetObject = globalThis) {
         return;
       }
       verbInput.placeholder = getVerbRegexPlaceholder();
-      targetObject.renderVerbMirror();
+      if (typeof targetObject.renderVerbMirror === "function") {
+        targetObject.renderVerbMirror();
+      }
     }
     function normalizeComposerStem(value) {
       const cleaned = String(value || "").toLowerCase().replace(/[^a-z]/g, "");
@@ -4911,12 +4919,24 @@ export function createUiComposerModule(targetObject = globalThis) {
           return String(segmentValue || "");
         }
         const markedSurface = targetObject.markOptionalSupportiveSurface(segmentValue, leadingLetter, targetObject.SUPPORTIVE_MARKER_FORMAT.envelope);
+        const supportiveSourceFrame = targetObject.buildOptionalSupportiveMarkedSurfaceSourceFrame({
+          precedingSurface,
+          markedSurface,
+          inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
+          outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
+          preserveMarkers: true,
+          sourceKind: "composer-optional-supportive-segment",
+          sourceRole: "tronco"
+        });
+        const supportiveOperationFrame = targetObject.buildOptionalSupportiveMarkedSurfaceOperationFrame(supportiveSourceFrame);
         return targetObject.resolveOptionalSupportiveMarkedSurface({
           precedingSurface,
           markedSurface,
           inputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
           outputFormat: targetObject.SUPPORTIVE_MARKER_FORMAT.envelope,
-          preserveMarkers: true
+          preserveMarkers: true,
+          sourceFrame: supportiveSourceFrame,
+          operationFrame: supportiveOperationFrame
         }).outputSurface || String(segmentValue || "");
       };
       if (targetObject.getStemLeadingSupportiveLetter(cleanEmbed)) {
@@ -6391,12 +6411,14 @@ export function createUiComposerModule(targetObject = globalThis) {
       Array.from(entryBoardButtons || []).forEach(button => {
         const board = normalizeComposerEntryBoard(button.getAttribute("data-composer-entry-board") || "");
         const isActive = isComposer && !ordinaryNncActive && board === activeBoard;
+        button.dataset.sourceTargetPerception = "clause-type-source-route-options";
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         button.tabIndex = 0;
       });
       Array.from(ordinaryNncModeButtons || []).forEach(button => {
         const isActive = isComposer && ordinaryNncActive;
+        button.dataset.sourceTargetPerception = "clause-type-source-route-options";
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         if (button.getAttribute("role") === "tab") {
@@ -6583,6 +6605,10 @@ export function createUiComposerModule(targetObject = globalThis) {
       delete verbEl.dataset.adjectivalNncFormulaEcho;
       delete verbEl.dataset.patientivoSource;
       delete verbEl.dataset.nominalizedVncKind;
+      delete verbEl.dataset.adjectivalNncSourceSelectedVariantId;
+      delete verbEl.dataset.adjectivalNncTargetSelectedVariantId;
+      delete verbEl.dataset.adjectivalNncSourceFormulaRealizationRecordId;
+      delete verbEl.dataset.adjectivalNncTargetFormulaRealizationRecordId;
       delete verbEl.dataset.adjectivalNncFunctionContract;
       delete verbEl.dataset.grammarAuthorityRef;
       delete verbEl.dataset.grammarEvidenceStatus;
@@ -6592,6 +6618,11 @@ export function createUiComposerModule(targetObject = globalThis) {
       delete verbEl.dataset.grammarGenerationAllowed;
       delete verbEl.dataset.grammarDiagnosticStatus;
       delete verbEl.dataset.grammarResultOk;
+      try {
+        delete verbEl.__adjectivalNncFunctionEntryContract;
+      } catch (_error) {
+        verbEl.__adjectivalNncFunctionEntryContract = null;
+      }
     }
     function getAdjectivalNncFunctionEntryGrammarFrame(frameLike = null) {
       if (!frameLike || typeof frameLike !== "object") {
@@ -6606,6 +6637,30 @@ export function createUiComposerModule(targetObject = globalThis) {
     function splitAdjectivalNncFunctionEntrySurfaceText(value = "") {
       return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry)).filter(Boolean);
     }
+    function getAdjectivalNncFunctionEntryCanonicalSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record").flatMap(record => [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""]).map(entry => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function isStructuredAdjectivalNncFunctionEntryFrameSurface(value = "") {
+      const text = normalizeAdjectivalNncFunctionEntrySurfaceValue(value);
+      return Boolean(text) && !/[\/,\n\r]/u.test(text);
+    }
+    function getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const forms = [];
+      if (Array.isArray(resultFrame.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+      }
+      if (resultFrame.surface) {
+        forms.push(resultFrame.surface);
+      }
+      return forms.map(entry => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry)).filter(entry => isStructuredAdjectivalNncFunctionEntryFrameSurface(entry)).filter((entry, index, list) => list.indexOf(entry) === index);
+    }
     function getAdjectivalNncFunctionEntrySurfaceForms({
       surface = "",
       grammarFrame = null
@@ -6613,16 +6668,14 @@ export function createUiComposerModule(targetObject = globalThis) {
       const frame = getAdjectivalNncFunctionEntryGrammarFrame(grammarFrame);
       const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object" ? frame.resultFrame : null;
       const hasResultFrame = Boolean(resultFrame);
-      const forms = [];
-      if (Array.isArray(resultFrame?.surfaceForms)) {
-        forms.push(...resultFrame.surfaceForms);
-      }
-      if (resultFrame?.surface) {
-        forms.push(resultFrame.surface);
+      const canonicalForms = getAdjectivalNncFunctionEntryCanonicalSurfaceForms(resultFrame);
+      if (canonicalForms.length) {
+        return canonicalForms;
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitAdjectivalNncFunctionEntrySurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms(resultFrame);
       }
+      const forms = [];
       if (!hasResultFrame && surface) {
         forms.push(surface);
       }
@@ -6636,6 +6689,26 @@ export function createUiComposerModule(targetObject = globalThis) {
         surface,
         grammarFrame
       })[0] || "";
+    }
+    function getAdjectivalNncFunctionEntryCanonicalFormulaRecords(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRecords) && resultFrame.formulaRecords.length ? resultFrame.formulaRecords : resultFrame.formulaRecord ? [resultFrame.formulaRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-record");
+    }
+    function getAdjectivalNncFunctionEntryCanonicalRealizationRecords(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record");
+    }
+    function isAdjectivalNncFunctionTypedContinuationFrame(frame = null) {
+      if (!frame || typeof frame !== "object") {
+        return false;
+      }
+      return frame.kind === "generated-output-typed-continuation-frame" && frame.formulaRecord?.kind === "grammar-formula-record" && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record";
     }
     function getAdjectivalNncFunctionOverrideSurface(override = null) {
       const adjectivalNnc = override?.adjectivalNnc && typeof override.adjectivalNnc === "object" ? override.adjectivalNnc : null;
@@ -6657,7 +6730,13 @@ export function createUiComposerModule(targetObject = globalThis) {
       sourceDenominalCompoundFrame = null,
       patientivoSource = "",
       nominalizedVncKind = "",
-      grammarFrame = null
+      grammarFrame = null,
+      sourceSelectedVariant = null,
+      targetSelectedVariant = null,
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
+      operationFrame = null,
+      requireCanonicalFormulaRecords = false
     } = {}) {
       const frame = getAdjectivalNncFunctionEntryGrammarFrame(grammarFrame);
       const authorityFrame = frame?.authorityFrame || {};
@@ -6671,6 +6750,17 @@ export function createUiComposerModule(targetObject = globalThis) {
         surface,
         grammarFrame: frame
       });
+      const normalizedSourceSelectedVariant = sourceSelectedVariant && typeof sourceSelectedVariant === "object" ? sourceSelectedVariant : null;
+      const normalizedTargetSelectedVariant = targetSelectedVariant && typeof targetSelectedVariant === "object" ? targetSelectedVariant : null;
+      const normalizedSourceContinuationFrame = sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? sourceContinuationFrame : null;
+      const normalizedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" ? targetContinuationFrame : null;
+      const normalizedOperationFrame = operationFrame && typeof operationFrame === "object" ? operationFrame : normalizedTargetContinuationFrame?.operationFrame && typeof normalizedTargetContinuationFrame.operationFrame === "object" ? normalizedTargetContinuationFrame.operationFrame : null;
+      const canonicalFormulaRecords = getAdjectivalNncFunctionEntryCanonicalFormulaRecords(resultFrame);
+      const canonicalFormulaRealizationRecords = getAdjectivalNncFunctionEntryCanonicalRealizationRecords(resultFrame);
+      const requiresCanonicalRecords = requireCanonicalFormulaRecords === true || Boolean(normalizedSourceContinuationFrame || normalizedTargetContinuationFrame);
+      const canonicalRecordsAvailable = Boolean(canonicalFormulaRecords.length && canonicalFormulaRealizationRecords.length);
+      const typedContinuationFramesAvailable = isAdjectivalNncFunctionTypedContinuationFrame(normalizedSourceContinuationFrame) && isAdjectivalNncFunctionTypedContinuationFrame(normalizedTargetContinuationFrame);
+      const structuredContinuationBlockReason = !canonicalRecordsAvailable ? "missing-canonical-formula-or-realization-record" : !typedContinuationFramesAvailable ? "missing-typed-source-or-target-continuation-frame" : "";
       const authorityRefs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
       const diagnosticIds = Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics.map(entry => String(entry?.id || entry?.code || entry || "").trim()).filter(Boolean) : [];
       return {
@@ -6685,6 +6775,26 @@ export function createUiComposerModule(targetObject = globalThis) {
         sourceFormulaEcho: resolvedSourceFormulaEcho,
         sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === "object" ? sourceCompoundFrame : null,
         sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === "object" ? sourceDenominalCompoundFrame : null,
+        sourceSelectedVariant: normalizedSourceSelectedVariant,
+        targetSelectedVariant: normalizedTargetSelectedVariant,
+        sourceContinuationFrame: normalizedSourceContinuationFrame,
+        targetContinuationFrame: normalizedTargetContinuationFrame,
+        operationFrame: normalizedOperationFrame,
+        sourceSelectedVariantId: String(normalizedSourceSelectedVariant?.variantId || normalizedSourceSelectedVariant?.selectedVariantId || "").trim(),
+        targetSelectedVariantId: String(normalizedTargetSelectedVariant?.variantId || normalizedTargetSelectedVariant?.selectedVariantId || "").trim(),
+        sourceFormulaRealizationRecordId: String(normalizedSourceSelectedVariant?.formulaRealizationRecordId || "").trim(),
+        targetFormulaRealizationRecordId: String(normalizedTargetSelectedVariant?.formulaRealizationRecordId || "").trim(),
+        sourceFormulaRecordId: String(normalizedSourceSelectedVariant?.formulaRecordId || "").trim(),
+        targetFormulaRecordId: String(normalizedTargetSelectedVariant?.formulaRecordId || "").trim(),
+        formulaRecord: canonicalFormulaRecords[0] || null,
+        formulaRecords: canonicalFormulaRecords,
+        formulaRealizationRecord: canonicalFormulaRealizationRecords[0] || null,
+        formulaRealizationRecords: canonicalFormulaRealizationRecords,
+        requiresCanonicalFormulaRecords: requiresCanonicalRecords,
+        canonicalFormulaRecordsAvailable: canonicalRecordsAvailable,
+        typedContinuationFramesAvailable,
+        blocked: requiresCanonicalRecords && Boolean(structuredContinuationBlockReason),
+        blockReason: requiresCanonicalRecords ? structuredContinuationBlockReason : "",
         patientivoSource: String(patientivoSource || "").trim(),
         nominalizedVncKind: String(nominalizedVncKind || "").trim(),
         authorityRefs,
@@ -6780,6 +6890,12 @@ export function createUiComposerModule(targetObject = globalThis) {
       patientivoSource = "",
       nominalizedVncKind = "",
       grammarFrame = null,
+      sourceSelectedVariant = null,
+      targetSelectedVariant = null,
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
+      operationFrame = null,
+      requireCanonicalFormulaRecords = false,
       refresh = true
     } = {}) {
       const verbEl = targetObject.document.getElementById("verb");
@@ -6800,8 +6916,18 @@ export function createUiComposerModule(targetObject = globalThis) {
         sourceDenominalCompoundFrame,
         patientivoSource,
         nominalizedVncKind,
-        grammarFrame
+        grammarFrame,
+        sourceSelectedVariant,
+        targetSelectedVariant,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
+        requireCanonicalFormulaRecords
       });
+      if (entryContract.blocked) {
+        entryContract.mutationApplied = false;
+        return entryContract;
+      }
       const entryFunctionUseValenceGate = buildAdjectivalNncFunctionEntryMutationValenceGate({
         formation,
         entryContract,
@@ -6824,11 +6950,21 @@ export function createUiComposerModule(targetObject = globalThis) {
       }
       entryContract.mutationApplied = true;
       verbEl.value = normalizedSurface;
+      Object.defineProperty(verbEl, "__adjectivalNncFunctionEntryContract", {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: entryContract
+      });
       verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface;
       verbEl.dataset.adjectivalNncFormation = String(formation || "").trim();
       verbEl.dataset.adjectivalNncFormulaEcho = String(formulaEcho || "").trim();
       verbEl.dataset.patientivoSource = String(patientivoSource || "").trim();
       verbEl.dataset.nominalizedVncKind = String(nominalizedVncKind || "").trim();
+      verbEl.dataset.adjectivalNncSourceSelectedVariantId = entryContract.sourceSelectedVariantId || "";
+      verbEl.dataset.adjectivalNncTargetSelectedVariantId = entryContract.targetSelectedVariantId || "";
+      verbEl.dataset.adjectivalNncSourceFormulaRealizationRecordId = entryContract.sourceFormulaRealizationRecordId || "";
+      verbEl.dataset.adjectivalNncTargetFormulaRealizationRecordId = entryContract.targetFormulaRealizationRecordId || "";
       const serializedContract = serializeAdjectivalNncFunctionEntryContract(entryContract);
       if (serializedContract) {
         verbEl.dataset.adjectivalNncFunctionContract = serializedContract;
@@ -7392,12 +7528,34 @@ export function createUiComposerModule(targetObject = globalThis) {
       }
       return true;
     }
+    function isActiveActionCompoundEmbedTypedTargetFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-typed-operation-continuation-frame" && frame.operationFrame?.operationId === "active-action-nounstem-as-compound-embed" && frame.sourceFrame?.kind === "generated-output-typed-continuation-frame" && frame.formulaSlots?.embeddedRoot && frame.formulaSlots?.matrixRoot);
+    }
+    function getActiveActionCompoundEmbedPayloadFromTargetFrame(frame = null) {
+      if (!isActiveActionCompoundEmbedTypedTargetFrame(frame)) {
+        return null;
+      }
+      const embeddedRoot = normalizeComposerEmbedValue(frame.formulaSlots.embeddedRoot.token || frame.sourceFrame?.selectedVariant?.surface || frame.sourceFrame?.formulaRealizationRecord?.surface || "");
+      const matrixRoot = normalizeComposerStem(frame.formulaSlots.matrixRoot.root || frame.matrixFrame?.root || "");
+      const targetInput = String(frame.targetInput || frame.resultFrame?.targetInput || frame.displayInput || "").trim();
+      if (!embeddedRoot || !matrixRoot || !targetInput) {
+        return null;
+      }
+      return {
+        embeddedRoot,
+        matrixRoot,
+        targetInput,
+        matrixSpecId: String(frame.formulaSlots.matrixRoot.matrixSpecId || frame.matrixFrame?.id || "").trim()
+      };
+    }
     function applyActiveActionCompoundEmbedRootsToVerbEntry({
       actionNominalSurface = "",
       matrixRoot = "tzajtzi",
       matrixSpecId = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       grammarFrame = null,
       sourceRouteFrame = null,
       routeFrame = null,
@@ -7405,10 +7563,21 @@ export function createUiComposerModule(targetObject = globalThis) {
       objectSlotOwnership = null,
       functionUseValenceGate = null
     } = {}) {
-      const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
-      const resolvedMatrixSpec = typeof targetObject.resolveActiveActionCompoundEmbedMatrixSpec === "function" ? targetObject.resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot || "tzajtzi") : null;
-      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : matrixRoot || "tzajtzi");
-      const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+      const typedPayload = getActiveActionCompoundEmbedPayloadFromTargetFrame(targetContinuationFrame);
+      if (!typedPayload) {
+        return false;
+      }
+      const displayActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
+      if (displayActionNominalSurface && displayActionNominalSurface !== typedPayload.embeddedRoot) {
+        return false;
+      }
+      if (sourceContinuationFrame && targetContinuationFrame.sourceFrame && sourceContinuationFrame !== targetContinuationFrame.sourceFrame) {
+        return false;
+      }
+      const normalizedActionNominalSurface = typedPayload.embeddedRoot;
+      const resolvedMatrixSpec = typeof targetObject.resolveActiveActionCompoundEmbedMatrixSpec === "function" ? targetObject.resolveActiveActionCompoundEmbedMatrixSpec(typedPayload.matrixRoot || matrixRoot || "tzajtzi") : null;
+      const normalizedMatrixRoot = normalizeComposerStem(resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : typedPayload.matrixRoot);
+      const resolvedMatrixSpecId = String(typedPayload.matrixSpecId || matrixSpecId || resolvedMatrixSpec?.id || "").trim();
       const verbEl = targetObject.document.getElementById("verb");
       if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !verbEl) {
         return false;
@@ -7473,10 +7642,7 @@ export function createUiComposerModule(targetObject = globalThis) {
       applyComposerStateToVerbInput({
         triggerGenerate: false
       });
-      const compoundVerbInput = String(verbEl.value || "").trim() || (typeof targetObject.buildActiveActionCompoundEmbedVerbInput === "function" ? targetObject.buildActiveActionCompoundEmbedVerbInput({
-        actionNominalSurface: normalizedActionNominalSurface,
-        matrixRoot: normalizedMatrixRoot
-      }) : `(${normalizedActionNominalSurface}/${normalizedMatrixRoot})`);
+      const compoundVerbInput = typedPayload.targetInput;
       if (verbEl.value !== compoundVerbInput) {
         verbEl.value = compoundVerbInput;
       }
@@ -7494,7 +7660,9 @@ export function createUiComposerModule(targetObject = globalThis) {
           actionNominalSurface: normalizedActionNominalSurface,
           matrixRoot: normalizedMatrixRoot,
           matrixSpecId: resolvedMatrixSpecId,
-          compoundVerbInput
+          compoundVerbInput,
+          sourceContinuationFrame,
+          targetContinuationFrame
         });
       }
       const applyButton = targetObject.document.getElementById("verb-entry-apply");
@@ -8665,7 +8833,9 @@ export function createUiComposerModule(targetObject = globalThis) {
         if (nextDisplayValue !== verbEl.value) {
           verbEl.value = nextDisplayValue;
           verbEl.dataset.prevValue = nextDisplayValue;
-          targetObject.renderVerbMirror();
+          if (typeof targetObject.renderVerbMirror === "function") {
+            targetObject.renderVerbMirror();
+          }
         }
       }
       clearVerbDisambiguation();
@@ -9666,15 +9836,28 @@ export function createUiComposerModule(targetObject = globalThis) {
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
         if (typeof targetObject.getAndrewsFirstTenseHoverTitle === "function") {
-          button.title = targetObject.getAndrewsFirstTenseHoverTitle(tenseValue);
+          button.title = targetObject.getAndrewsFirstTenseHoverTitle(tenseValue, targetObject.getActiveTenseMode());
         }
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(button, {
+            tenseValue,
+            mode: targetObject.getActiveTenseMode()
+          });
+        }
+        const selectionAuthority = typeof targetObject.applyAndrewsTenseTabSelectionAuthorityDataset === "function" ? targetObject.applyAndrewsTenseTabSelectionAuthorityDataset(button, {
+          tenseValue,
+          mode: targetObject.getActiveTenseMode(),
+          hasOutput,
+          endsWithConsonant,
+          isBlockedNominalTense
+        }) : null;
         if (isNominalMode) {
           setTensePresenceBadges(button, {
             active: activePresence,
             nonactive: nonactivePresence
           });
         }
-        button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
+        button.disabled = selectionAuthority ? selectionAuthority.disabled : endsWithConsonant || hasOutput === false || isBlockedNominalTense;
       });
       const universalRoot = universalContainer || container;
       const universalWrap = universalRoot?.querySelector(".tense-tabs-universal");
@@ -9712,9 +9895,23 @@ export function createUiComposerModule(targetObject = globalThis) {
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isUniversalActive || isClassActive));
         if (typeof targetObject.getAndrewsFirstTenseHoverTitle === "function") {
-          button.title = targetObject.getAndrewsFirstTenseHoverTitle(tenseValue);
+          button.title = targetObject.getAndrewsFirstTenseHoverTitle(tenseValue, targetObject.getActiveTenseMode());
         }
-        button.disabled = endsWithConsonant || !available || hasOutput === false;
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(button, {
+            tenseValue,
+            mode: targetObject.getActiveTenseMode()
+          });
+        }
+        const selectionAuthority = typeof targetObject.applyAndrewsTenseTabSelectionAuthorityDataset === "function" ? targetObject.applyAndrewsTenseTabSelectionAuthorityDataset(button, {
+          tenseValue,
+          mode: targetObject.getActiveTenseMode(),
+          hasOutput,
+          isAvailable: available,
+          endsWithConsonant,
+          isUniversal: true
+        }) : null;
+        button.disabled = selectionAuthority ? selectionAuthority.disabled : endsWithConsonant || !available || hasOutput === false;
       });
       return true;
     }
@@ -10862,7 +11059,7 @@ export function createUiComposerModule(targetObject = globalThis) {
         return `${raw.length}:${raw}`;
       };
       const encodeFlag = value => value === true ? "1" : "0";
-      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipValidation === true), encodeValue(overrideFormula.pers1 || override.pers1), encodeValue(overrideFormula.pers2 || overrideFormula.num2 || override.pers2 || override.num2), encodeValue(overrideFormula.obj1 || override.obj1), encodeValue(overrideFormula.obj2 || override.obj2), encodeValue(overrideFormula.obj3 || override.obj3), encodeValue(overrideFormula.tronco || override.tronco), encodeValue(overrideFormula.tiempo || override.tiempo), encodeValue(overrideFormula.poseedor || override.poseedor), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(getAdjectivalNncFunctionOverrideSurface(override)), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.formulaEcho), encodeValue(override.adjectivalNnc?.sourceFormulaEcho), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceCompoundFrame || override.adjectivalNnc?.compoundFrame || "")), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceDenominalCompoundFrame || override.adjectivalNnc?.denominalCompoundFrame || "")), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
+      const keyParts = [encodeFlag(options.allowPassiveObject === true), encodeFlag(options.skipValidation === true), encodeValue(overrideFormula.pers1 || override.pers1), encodeValue(overrideFormula.pers2 || overrideFormula.num2 || override.pers2 || override.num2), encodeValue(overrideFormula.obj1 || override.obj1), encodeValue(overrideFormula.obj2 || override.obj2), encodeValue(overrideFormula.obj3 || override.obj3), encodeValue(overrideFormula.tronco || override.tronco), encodeValue(overrideFormula.tiempo || override.tiempo), encodeValue(overrideFormula.poseedor || override.poseedor), encodeValue(override.patientivoOwnership), encodeValue(override.patientivoSource), encodeValue(override.predicateNominalSourceTense), encodeValue(targetObject.getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)), encodeValue(override.tenseMode), encodeValue(override.derivationMode), encodeValue(override.derivationType), encodeValue(override.voiceMode), encodeFlag(override.preservePassiveSubject === true), encodeFlag(override.allowPassiveObject === true), encodeValue(override.ordinaryNnc === true ? "true" : ""), encodeFlag(override.ordinaryNnc?.enabled === true), encodeValue(override.ordinaryNnc?.stem), encodeValue(override.ordinaryNnc?.state), encodeValue(override.ordinaryNnc?.number), encodeValue(override.ordinaryNnc?.pluralType), encodeValue(override.ordinaryNnc?.possessor), encodeValue(override.ordinaryNnc?.nounClass), encodeValue(override.ordinaryNnc?.animacy), encodeValue(override.adjectivalNnc === true ? "true" : ""), encodeFlag(override.adjectivalNnc?.enabled === true), encodeValue(override.adjectivalNnc?.stem), encodeValue(getAdjectivalNncFunctionOverrideSurface(override)), encodeValue(override.adjectivalNnc?.state), encodeValue(override.adjectivalNnc?.formation), encodeValue(override.adjectivalNnc?.formulaEcho), encodeValue(override.adjectivalNnc?.sourceFormulaEcho), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceCompoundFrame || override.adjectivalNnc?.compoundFrame || "")), encodeValue(JSON.stringify(override.adjectivalNnc?.sourceDenominalCompoundFrame || override.adjectivalNnc?.denominalCompoundFrame || "")), encodeValue(override.adjectivalNnc?.patientivoSurface), encodeValue(override.adjectivalNnc?.patientivoSource), encodeValue(override.adjectivalNnc?.nominalizedSurface), encodeValue(override.adjectivalNnc?.nominalizationProfile?.role?.nominalizationKind), encodeValue(tiCausativeClass), encodeValue(targetObject.getActiveTenseMode()), encodeValue(targetObject.getActiveDerivationMode()), encodeValue(targetObject.getActiveDerivationType()), encodeValue(targetObject.getActiveVoiceMode()), encodeValue(targetObject.getCombinedMode()), encodeValue(targetObject.buildConjugationSelectionStateCacheToken()), encodeValue(targetObject.getSelectedNonactiveSuffix()), encodeValue(targetObject.getActiveCausativeSubtype())];
       return keyParts.join("|");
     }
     function getCachedSilentGenerateWord(options = {}) {
@@ -10895,7 +11092,9 @@ export function createUiComposerModule(targetObject = globalThis) {
       verbInput.value = nextValue;
       targetObject.VerbInputState.lastNonSearchValue = nextValue;
       verbInput.dataset.lastClassVerb = targetObject.parseVerbInput(nextValue).verb;
-      targetObject.renderVerbMirror();
+      if (typeof targetObject.renderVerbMirror === "function") {
+        targetObject.renderVerbMirror();
+      }
       scheduleVerbInputRefresh(nextValue, {
         immediate: true,
         source: "immediate"
@@ -12217,8 +12416,14 @@ export function createUiComposerModule(targetObject = globalThis) {
     api.getAdjectivalNncFunctionEntryGrammarFrame = getAdjectivalNncFunctionEntryGrammarFrame;
     api.normalizeAdjectivalNncFunctionEntrySurfaceValue = normalizeAdjectivalNncFunctionEntrySurfaceValue;
     api.splitAdjectivalNncFunctionEntrySurfaceText = splitAdjectivalNncFunctionEntrySurfaceText;
+    api.getAdjectivalNncFunctionEntryCanonicalSurfaceForms = getAdjectivalNncFunctionEntryCanonicalSurfaceForms;
+    api.isStructuredAdjectivalNncFunctionEntryFrameSurface = isStructuredAdjectivalNncFunctionEntryFrameSurface;
+    api.getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms = getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms;
     api.getAdjectivalNncFunctionEntrySurfaceForms = getAdjectivalNncFunctionEntrySurfaceForms;
     api.getAdjectivalNncFunctionEntrySurface = getAdjectivalNncFunctionEntrySurface;
+    api.getAdjectivalNncFunctionEntryCanonicalFormulaRecords = getAdjectivalNncFunctionEntryCanonicalFormulaRecords;
+    api.getAdjectivalNncFunctionEntryCanonicalRealizationRecords = getAdjectivalNncFunctionEntryCanonicalRealizationRecords;
+    api.isAdjectivalNncFunctionTypedContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame;
     api.getAdjectivalNncFunctionOverrideSurface = getAdjectivalNncFunctionOverrideSurface;
     api.buildAdjectivalNncFunctionEntryContract = buildAdjectivalNncFunctionEntryContract;
     api.serializeAdjectivalNncFunctionEntryContract = serializeAdjectivalNncFunctionEntryContract;
@@ -12230,6 +12435,8 @@ export function createUiComposerModule(targetObject = globalThis) {
     api.applyPatientivoCompoundEmbedRootsToVerbEntry = applyPatientivoCompoundEmbedRootsToVerbEntry;
     api.applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry = applyPatientivoCharacteristicPropertyEmbedRootsToVerbEntry;
     api.applyPatientivoNominalCompoundToOrdinaryNncEntry = applyPatientivoNominalCompoundToOrdinaryNncEntry;
+    api.isActiveActionCompoundEmbedTypedTargetFrame = isActiveActionCompoundEmbedTypedTargetFrame;
+    api.getActiveActionCompoundEmbedPayloadFromTargetFrame = getActiveActionCompoundEmbedPayloadFromTargetFrame;
     api.applyActiveActionCompoundEmbedRootsToVerbEntry = applyActiveActionCompoundEmbedRootsToVerbEntry;
     api.buildComposerFunctionUseValenceRouteActionContract = buildComposerFunctionUseValenceRouteActionContract;
     api.blockComposerFunctionUseValenceRouteAction = blockComposerFunctionUseValenceRouteAction;
@@ -13215,7 +13422,7 @@ export function createUiComposerModule(targetObject = globalThis) {
 }
 
 export function installUiComposerGlobals(targetObject = globalThis) {
-    const api = createUiComposerModule(targetObject);
+    const api = createUiComposerApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

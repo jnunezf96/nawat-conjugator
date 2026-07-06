@@ -126,7 +126,12 @@ function getVisibleConjugationValueExportText(row) {
     const surfaceNode = valueNode.querySelector?.(".conjugation-conversion-surface");
     if (surfaceNode) {
         const surfaceLines = Array.from(surfaceNode.querySelectorAll?.(".conjugation-conversion-surface-line") || [])
-            .map((node) => node.textContent.trim())
+            .map((node) => String(
+                node.dataset?.formulaSurface
+                || node.querySelector?.(".conjugation-conversion-surface-form")?.textContent
+                || node.textContent
+                || ""
+            ).trim())
             .filter(Boolean);
         if (surfaceLines.length) {
             return surfaceLines.join("\n");
@@ -136,6 +141,52 @@ function getVisibleConjugationValueExportText(row) {
     const clone = valueNode.cloneNode(true);
     clone.querySelectorAll?.(".conjugation-conversion-actions").forEach((node) => node.remove());
     return clone.textContent.trim();
+}
+
+function getVisibleConjugationFormulaSurfaceExportMetadata(row = null) {
+    const valueNode = row?.querySelector?.(".conjugation-value") || null;
+    const surfaceLines = Array.from(
+        valueNode?.querySelectorAll?.(".conjugation-conversion-surface-line, .conjugation-formula-surface-line") || []
+    );
+    const linePairs = surfaceLines
+        .map((node) => ({
+            surface: String(node.dataset?.formulaSurface || node.textContent || "").trim(),
+            sourceFormulaEcho: String(node.dataset?.sourceFormulaEcho || "").trim(),
+            andrewsFormulaEcho: String(node.dataset?.andrewsFormulaEcho || node.dataset?.sourceFormulaEcho || "").trim(),
+            targetFormulaEcho: String(node.dataset?.targetFormulaEcho || "").trim(),
+            conjugatorFormulaEcho: String(node.dataset?.conjugatorFormulaEcho || node.dataset?.targetFormulaEcho || "").trim(),
+            sourceToTargetFormulaEcho: String(node.dataset?.sourceToTargetFormulaEcho || "").trim(),
+            andrewsToConjugatorFormulaEcho: String(node.dataset?.andrewsToConjugatorFormulaEcho || node.dataset?.sourceToTargetFormulaEcho || "").trim(),
+        }))
+        .filter((entry) => entry.surface && entry.targetFormulaEcho);
+    const rowSourceFormula = String(row?.dataset?.sourceFormulaEcho || row?.dataset?.andrewsCnvCnnNominalSourceFormulaEcho || "").trim();
+    const rowAndrewsFormula = String(
+        row?.dataset?.andrewsFormulaEcho
+        || row?.dataset?.andrewsCnvCnnNominalAndrewsFormulaEcho
+        || rowSourceFormula
+    ).trim();
+    const rowTargetFormula = String(row?.dataset?.targetFormulaEcho || "").trim();
+    const rowConjugatorFormula = String(
+        row?.dataset?.conjugatorFormulaEcho
+        || row?.dataset?.andrewsCnvCnnNominalConjugatorFormulaEcho
+        || rowTargetFormula
+    ).trim();
+    const rowRouteFormula = String(row?.dataset?.sourceToTargetFormulaEcho || "").trim();
+    const rowAndrewsToConjugatorFormula = String(
+        row?.dataset?.andrewsToConjugatorFormulaEcho
+        || row?.dataset?.andrewsCnvCnnNominalAndrewsToConjugatorFormulaEcho
+        || rowRouteFormula
+    ).trim();
+    const rowPairs = String(row?.dataset?.formulaSurfacePairs || "").trim();
+    return {
+        sourceFormulaEcho: linePairs.map((entry) => entry.sourceFormulaEcho).filter(Boolean).join(" | ") || rowSourceFormula,
+        andrewsFormulaEcho: linePairs.map((entry) => entry.andrewsFormulaEcho).filter(Boolean).join(" | ") || rowAndrewsFormula,
+        targetFormulaEcho: linePairs.map((entry) => entry.targetFormulaEcho).filter(Boolean).join(" | ") || rowTargetFormula,
+        conjugatorFormulaEcho: linePairs.map((entry) => entry.conjugatorFormulaEcho).filter(Boolean).join(" | ") || rowConjugatorFormula,
+        sourceToTargetFormulaEcho: linePairs.map((entry) => entry.sourceToTargetFormulaEcho).filter(Boolean).join(" | ") || rowRouteFormula,
+        andrewsToConjugatorFormulaEcho: linePairs.map((entry) => entry.andrewsToConjugatorFormulaEcho).filter(Boolean).join(" | ") || rowAndrewsToConjugatorFormula,
+        formulaSurfacePairs: linePairs.map((entry) => `${entry.surface}=>${entry.andrewsFormulaEcho || entry.sourceFormulaEcho || ""}=>${entry.conjugatorFormulaEcho || entry.targetFormulaEcho}`).join(" | ") || rowPairs,
+    };
 }
 
 function normalizeViewExportDomText(value = "") {
@@ -222,8 +273,8 @@ function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
         grammarAuthorityRef: getText("grammarAuthorityRef"),
         grammarAuthorityRefs: getText("grammarAuthorityRefs"),
         grammarEvidenceStatus: getText("grammarEvidenceStatus"),
-        grammarNawatEvidenceRef: getText("grammarNawatEvidenceRef"),
-        grammarNawatEvidenceRefs: getText("grammarNawatEvidenceRefs"),
+        grammarOrthographyRef: getText("grammarOrthographyRef"),
+        grammarOrthographyRefs: getText("grammarOrthographyRefs"),
         grammarSourceEvidenceKind: getText("grammarSourceEvidenceKind"),
         grammarSourceEvidenceStatus: getText("grammarSourceEvidenceStatus"),
         grammarSourceEvidenceTargetAuthority: getText("grammarSourceEvidenceTargetAuthority"),
@@ -238,6 +289,13 @@ function normalizeUnifiedVerbOutputGrammarMetadata(source = {}, defaults = {}) {
         grammarDiagnosticLayer: getText("grammarDiagnosticLayer"),
         grammarDiagnosticContractLayer: getText("grammarDiagnosticContractLayer"),
         grammarResultOk: getBooleanText("grammarResultOk"),
+        sourceFormulaEcho: getText("sourceFormulaEcho"),
+        andrewsFormulaEcho: getText("andrewsFormulaEcho"),
+        targetFormulaEcho: getText("targetFormulaEcho"),
+        conjugatorFormulaEcho: getText("conjugatorFormulaEcho"),
+        sourceToTargetFormulaEcho: getText("sourceToTargetFormulaEcho"),
+        andrewsToConjugatorFormulaEcho: getText("andrewsToConjugatorFormulaEcho"),
+        formulaSurfacePairs: getText("formulaSurfacePairs"),
     };
 }
 
@@ -247,8 +305,8 @@ function getUnifiedVerbOutputGrammarDatasetMetadata(dataset = {}) {
         grammarAuthorityRef: data.grammarAuthorityRef || "",
         grammarAuthorityRefs: data.grammarAuthorityRefs || data.grammarAuthorityRef || "",
         grammarEvidenceStatus: data.grammarEvidenceStatus || data.lcmEvidenceStatus || "",
-        grammarNawatEvidenceRef: data.grammarNawatEvidenceRef || "",
-        grammarNawatEvidenceRefs: data.grammarNawatEvidenceRefs || data.grammarNawatEvidenceRef || "",
+        grammarOrthographyRef: data.grammarOrthographyRef || "",
+        grammarOrthographyRefs: data.grammarOrthographyRefs || data.grammarOrthographyRef || "",
         grammarSourceEvidenceKind: data.grammarSourceEvidenceKind || "",
         grammarSourceEvidenceStatus: data.grammarSourceEvidenceStatus || "",
         grammarSourceEvidenceTargetAuthority: data.grammarSourceEvidenceTargetAuthority || "",
@@ -263,6 +321,13 @@ function getUnifiedVerbOutputGrammarDatasetMetadata(dataset = {}) {
         grammarDiagnosticLayer: data.grammarDiagnosticLayer || data.lcmFailedLayer || "",
         grammarDiagnosticContractLayer: data.grammarDiagnosticContractLayer || data.lcmContractLayer || "",
         grammarResultOk: data.grammarResultOk || "",
+        sourceFormulaEcho: data.sourceFormulaEcho || "",
+        andrewsFormulaEcho: data.andrewsFormulaEcho || data.sourceFormulaEcho || "",
+        targetFormulaEcho: data.targetFormulaEcho || "",
+        conjugatorFormulaEcho: data.conjugatorFormulaEcho || data.targetFormulaEcho || "",
+        sourceToTargetFormulaEcho: data.sourceToTargetFormulaEcho || "",
+        andrewsToConjugatorFormulaEcho: data.andrewsToConjugatorFormulaEcho || data.sourceToTargetFormulaEcho || "",
+        formulaSurfacePairs: data.formulaSurfacePairs || "",
     });
 }
 
@@ -446,6 +511,7 @@ function collectVisibleConjugationRowsFromDom() {
                 personSub: row.querySelector(".person-sub")?.textContent.trim() || "",
                 form: value,
                 objectSlotCount: explicitObjectToggleCount,
+                ...getVisibleConjugationFormulaSurfaceExportMetadata(row),
             };
             VERB_OBJECT_SLOT_SCHEMA.forEach((slot) => {
                 const hasDatasetValue = Object.prototype.hasOwnProperty.call(row.dataset, slot.datasetKey);
@@ -454,6 +520,7 @@ function collectVisibleConjugationRowsFromDom() {
                 exportRow[slot.id] = rawValue;
             });
             Object.assign(exportRow, getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset));
+            Object.assign(exportRow, getVisibleConjugationFormulaSurfaceExportMetadata(row));
             rows.push(normalizeUnifiedVerbOutputEntry(exportRow));
         });
     });
@@ -502,6 +569,7 @@ function collectPersonSubSlotStripExportRowsFromDom() {
                 ? row.dataset.exportInput
                 : "",
             sourceMode,
+            sourceLabel: normalizeViewExportDomText(row.dataset?.exportSourceLabel || ""),
             block: normalizeViewExportDomText(block?.querySelector?.(".tense-block__label")?.textContent || ""),
             person: normalizeViewExportDomText(row.querySelector?.(".person-label")?.textContent || ""),
             form: getVisibleConjugationValueExportText(row),
@@ -511,6 +579,7 @@ function collectPersonSubSlotStripExportRowsFromDom() {
             slotStrip: slotStripText,
             slotKinds: chips.map((chip) => getPersonSubSlotChipKind(chip)).filter(Boolean).join(" | "),
             slotDetails: chips.map((chip) => getPersonSubSlotChipDetail(chip)).filter(Boolean).join(" | "),
+            ...getVisibleConjugationFormulaSurfaceExportMetadata(row),
         });
     });
     return rows;
@@ -665,12 +734,18 @@ function buildViewExportCSV() {
         "bloque",
         "persona",
         "forma",
+        "formula fuente",
+        "formula Andrews",
+        "formula conjugador",
+        "ruta formula",
+        "ruta Andrews->conjugador",
+        "pares forma-formula",
         "ruta de contrato",
         "etapa de contrato",
         "generación de contrato",
         "Andrews",
         "estado evidencia",
-        "evidencia Nawat",
+        "ortografia Nawat/Pipil",
         "tipo evidencia fuente",
         "estado evidencia fuente",
         "estado diagnóstico de contrato",
@@ -690,12 +765,18 @@ function buildViewExportCSV() {
         row.block,
         row.person,
         row.value,
+        row.sourceFormulaEcho,
+        row.andrewsFormulaEcho,
+        row.conjugatorFormulaEcho,
+        row.sourceToTargetFormulaEcho,
+        row.andrewsToConjugatorFormulaEcho,
+        row.formulaSurfacePairs,
         row.grammarRouteFamily,
         row.grammarRouteStage,
         row.grammarGenerationAllowed,
         row.grammarAuthorityRefs || row.grammarAuthorityRef,
         row.grammarEvidenceStatus,
-        row.grammarNawatEvidenceRefs || row.grammarNawatEvidenceRef,
+        row.grammarOrthographyRefs || row.grammarOrthographyRef,
         row.grammarSourceEvidenceKind,
         row.grammarSourceEvidenceStatus,
         row.grammarDiagnosticStatus,
@@ -744,7 +825,7 @@ function buildPersonSubSlotStripViewExportCSV() {
     ].map((label) => escapeCSVValue(label)).join(",");
     const lines = rows.map((row) => ([
         row.inputValue || inputValue,
-        getViewExportSourceModeLabel(row.sourceMode, isNawat),
+        row.sourceLabel || getViewExportSourceModeLabel(row.sourceMode, isNawat),
         row.block,
         row.person,
         row.form,

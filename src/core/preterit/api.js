@@ -300,7 +300,7 @@ function attachPreteritClassBasedGrammarContract(output = null, {
                 surface,
                 surfaceForms: forms,
                 soundSpellingFrames,
-                spellingAuthority: "Nawat/Pipil evidence",
+                spellingAuthority: "Nawat/Pipil orthography bridge",
                 noClassicalSurfaceImport: true,
             },
             morphBoundaryFrame: {

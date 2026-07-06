@@ -373,7 +373,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON20_NONACTIVE_VALIDATION_REFS)
       }));
     }
@@ -634,7 +634,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Algunos troncos son neutrales de valencia y violan el principio de que el sufijo derivacional justifica el objeto.",
       engineSurface: "lexical/source evidence gates",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson24-type-one-causative",
       andrewsSection: "24.3",
@@ -658,7 +658,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Los destockales ni/hui usan vocal larga de stock, Clase B intransitiva y seleccion causativa por adicion o reemplazo.",
       engineSurface: "type-one causative choices and destockal hints",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson24-destockal-hua",
       andrewsSection: "24.6",
@@ -666,7 +666,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Los destockales hua usan stock a/e y su causativo siempre reemplaza hua por hu-a.",
       engineSurface: "Nawat wa/ua causative exceptions and source metadata",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson24-destockal-ihui-ahui",
       andrewsSection: "24.7",
@@ -697,7 +697,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON24_FIRST_TYPE_CAUSATIVE_VALIDATION_REFS)
       }));
     }
@@ -712,7 +712,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       const destockalIhuiAhuiFrame = cloneVncAllomorphyLessonRecord(LESSON24_DESTOCKAL_IHUI_AHUI_FRAME);
       const causativeVncGenerationFrame = cloneVncAllomorphyLessonRecord(LESSON24_CAUSATIVE_VNC_GENERATION_FRAME);
       const causativeAControlFrame = cloneVncAllomorphyLessonRecord(LESSON24_CAUSATIVE_A_CONTROL_FRAME);
-      const remainingGaps = ["Final-vowel valence tendencies are not a complete lexical source model; valence-neutral stems still need confirmed Nawat/Pipil evidence and source-specific gates.", "Type-one causative replacement versus addition is only partially controlled by current rules and exceptions, especially for a-final, ya-final, and consonant-replacement cases.", "Destockal ni/hui/hua/i-hui/a-hui inventories, class membership, coalesced stocks, synonym pairs, and gaps are not data-complete.", "Andrews 24.8 source-subject-to-causative-object generation is not yet a full source-CNV transform with imported causative subject and specific/reflexive/nonspecific object derivation.", "Andrews 24.9 matrix-stem or compound-stem analysis of causative a remains diagnostic until compound-source modeling is explicit."];
+      const remainingGaps = ["Final-vowel valence tendencies are not a complete lexical source model; valence-neutral stems still need Andrews source models plus orthography-bridge support and source-specific gates.", "Type-one causative replacement versus addition is only partially controlled by current rules and exceptions, especially for a-final, ya-final, and consonant-replacement cases.", "Destockal ni/hui/hua/i-hui/a-hui inventories, class membership, coalesced stocks, synonym pairs, and gaps are not data-complete.", "Andrews 24.8 source-subject-to-causative-object generation is not yet a full source-CNV transform with imported causative subject and specific/reflexive/nonspecific object derivation.", "Andrews 24.9 matrix-stem or compound-stem analysis of causative a remains diagnostic until compound-source modeling is explicit."];
       const frame = {
         kind: "lesson-24-first-type-causative-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -937,7 +937,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Tia reemplaza hua y frecuentemente muestra i final de base; hay formaciones inesperadas por terminacion de fuente.",
       engineSurface: "type-two causative source selection",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson25-o-ohua-source",
       andrewsSection: "25.3",
@@ -953,7 +953,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Tia reemplaza la o de lo y deja l ante tia; esta ruta gobierna clases C/D y muchas formaciones inesperadas.",
       engineSurface: "type-two causative l-tia routes",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson25-lia-causative",
       andrewsSection: "25.5",
@@ -985,7 +985,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Una misma fuente puede tener causativo tipo 1 y tipo 2, con significado igual o diferente.",
       engineSurface: "parallel causative stem pool",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson25-causative-transformation",
       andrewsSection: "25.9",
@@ -1056,7 +1056,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON25_SECOND_TYPE_CAUSATIVE_VALIDATION_REFS)
       }));
     }
@@ -1347,7 +1347,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Fuentes en i agregan lia y pueden mostrar alargamiento o cambios si/ti/tz.",
       engineSurface: "source-shape allomorphy",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson26-final-a-frame",
       andrewsSection: "26.5",
@@ -1371,7 +1371,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Fuentes consonante+a cambian a por i y agregan lia, con rutas xi/ch/ti.",
       engineSurface: "source-shape allomorphy",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson26-exceptions",
       andrewsSection: "26.8",
@@ -1379,7 +1379,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Clase D, clase B iya/eya y oya tienen excepciones propias antes de lia.",
       engineSurface: "exception stem pool",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson26-oa-huia-sources",
       andrewsSection: "26.9",
@@ -1411,7 +1411,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       directiveEs: "Una misma fuente puede tener aplicativo tipo 1 y tipo 2, con significado igual o diferente.",
       engineSurface: "parallel applicative stem pool",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson26-class-c",
       andrewsSection: "26.13",
@@ -1506,7 +1506,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON26_APPLICATIVE_VALIDATION_REFS)
       }));
     }
@@ -1683,7 +1683,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       }
       frames.push(frame);
     }
-    function applyNonspecificObjectAllomorphy({
+    function buildNonspecificObjectAllomorphySourceFrame({
       verb,
       analysisVerb,
       obj1,
@@ -1696,7 +1696,54 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       hasSlashMarker = false,
       hasBoundMarker = false,
       directionalPrefix = ""
-    }) {
+    } = {}) {
+      const normalizedVerb = normalizeRuleBase(String(verb || "").trim().toLowerCase());
+      const normalizedAnalysisVerb = normalizeRuleBase(String(analysisVerb || "").trim().toLowerCase());
+      const normalizedObj1 = String(obj1 || "").trim().toLowerCase();
+      const normalizedObj2 = String(obj2 || "").trim().toLowerCase();
+      const normalizedObj3 = String(obj3 || "").trim().toLowerCase();
+      const normalizedSupportivePrecedingSurface = targetObject.normalizeSupportiveYContextSurface(supportivePrecedingSurface);
+      const normalizedDirectionalPrefix = String(directionalPrefix || "").trim().toLowerCase();
+      return Object.freeze({
+        kind: "nonspecific-object-allomorphy-source-frame",
+        version: 1,
+        routeFamily: "nonspecific-object-allomorphy",
+        operationFamily: "object-prefix-supportive-marker-allomorphy",
+        verb: normalizedVerb,
+        analysisVerb: normalizedAnalysisVerb,
+        obj1: normalizedObj1,
+        obj2: normalizedObj2,
+        obj3: normalizedObj3,
+        hasOptionalSupportiveI: hasOptionalSupportiveI === true,
+        optionalSupportiveLetter: String(optionalSupportiveLetter || "").trim().toLowerCase(),
+        supportivePrecedingSurface: normalizedSupportivePrecedingSurface,
+        hasNonspecificValence: hasNonspecificValence === true,
+        hasSlashMarker: hasSlashMarker === true,
+        hasBoundMarker: hasBoundMarker === true,
+        directionalPrefix: normalizedDirectionalPrefix,
+        sourceSignature: [normalizedVerb, normalizedAnalysisVerb, normalizedObj1, normalizedObj2, normalizedObj3, hasOptionalSupportiveI === true ? "optional-supportive" : "no-optional-supportive", String(optionalSupportiveLetter || "").trim().toLowerCase(), normalizedSupportivePrecedingSurface, hasNonspecificValence === true ? "nonspecific-valence" : "specific-valence", hasSlashMarker === true ? "slash" : "no-slash", hasBoundMarker === true ? "bound" : "unbound", normalizedDirectionalPrefix].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function deriveNonspecificObjectAllomorphyTargetFromSourceFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonspecific-object-allomorphy-source-frame") {
+        return null;
+      }
+      const {
+        verb,
+        analysisVerb,
+        obj1,
+        obj2 = "",
+        obj3 = "",
+        hasOptionalSupportiveI = false,
+        optionalSupportiveLetter = "",
+        supportivePrecedingSurface = "",
+        hasNonspecificValence = false,
+        hasSlashMarker = false,
+        hasBoundMarker = false,
+        directionalPrefix = ""
+      } = sourceFrame;
       const soundSpellingFrames = [];
       if (!verb) {
         return {
@@ -1776,6 +1823,114 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         analysisVerb: nextAnalysis,
         obj1: nextObj1,
         soundSpellingFrames
+      };
+    }
+    function buildNonspecificObjectAllomorphyOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonspecific-object-allomorphy-source-frame") {
+        return null;
+      }
+      const targetFrame = deriveNonspecificObjectAllomorphyTargetFromSourceFrame(sourceFrame);
+      if (!targetFrame) {
+        return null;
+      }
+      const soundSpellingFrames = Array.isArray(targetFrame.soundSpellingFrames) ? targetFrame.soundSpellingFrames : [];
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-nonspecific-object-allomorphy-realization",
+        routeFamily: "nonspecific-object-allomorphy",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-object-prefix-supportive-marker-allomorphy",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame: Object.freeze({
+          verb: String(targetFrame.verb || ""),
+          analysisVerb: String(targetFrame.analysisVerb || ""),
+          obj1: String(targetFrame.obj1 || ""),
+          soundSpellingFrames: Object.freeze(soundSpellingFrames.map(frame => Object.freeze({
+            ...frame
+          })))
+        }),
+        targetSignature: [sourceFrame.sourceSignature, String(targetFrame.verb || ""), String(targetFrame.analysisVerb || ""), String(targetFrame.obj1 || ""), soundSpellingFrames.map(frame => [frame.ruleId || "", frame.grammarSlot || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":")).join(",")].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getNonspecificObjectAllomorphyFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      request = {}
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "nonspecific-object-allomorphy-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-nonspecific-object-allomorphy-realization" || operationFrame.routeFamily !== "nonspecific-object-allomorphy" || operationFrame.operationApplied !== "realize-object-prefix-supportive-marker-allomorphy" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || !operationFrame.targetFrame) {
+        return "operation-frame-required";
+      }
+      const expectedSourceFrame = buildNonspecificObjectAllomorphySourceFrame(request || {});
+      if (operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || expectedSourceFrame.sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      const expectedTarget = deriveNonspecificObjectAllomorphyTargetFromSourceFrame(sourceFrame);
+      const targetFrame = operationFrame.targetFrame || {};
+      const expectedFrames = Array.isArray(expectedTarget?.soundSpellingFrames) ? expectedTarget.soundSpellingFrames : [];
+      const targetFrames = Array.isArray(targetFrame.soundSpellingFrames) ? targetFrame.soundSpellingFrames : [];
+      const frameSignature = frames => frames.map(frame => [frame.ruleId || "", frame.grammarSlot || "", frame.sourceSegmentValue || "", frame.targetSegmentValue || ""].join(":")).join(",");
+      if (String(targetFrame.verb || "") !== String(expectedTarget?.verb || "") || String(targetFrame.analysisVerb || "") !== String(expectedTarget?.analysisVerb || "") || String(targetFrame.obj1 || "") !== String(expectedTarget?.obj1 || "") || frameSignature(targetFrames) !== frameSignature(expectedFrames)) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function applyNonspecificObjectAllomorphy({
+      verb,
+      analysisVerb,
+      obj1,
+      obj2 = "",
+      obj3 = "",
+      hasOptionalSupportiveI = false,
+      optionalSupportiveLetter = "",
+      supportivePrecedingSurface = "",
+      hasNonspecificValence = false,
+      hasSlashMarker = false,
+      hasBoundMarker = false,
+      directionalPrefix = "",
+      sourceFrame = null,
+      operationFrame = null
+    }) {
+      const request = {
+        verb,
+        analysisVerb,
+        obj1,
+        obj2,
+        obj3,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter,
+        supportivePrecedingSurface,
+        hasNonspecificValence,
+        hasSlashMarker,
+        hasBoundMarker,
+        directionalPrefix
+      };
+      if (getNonspecificObjectAllomorphyFrameMismatch({
+        sourceFrame,
+        operationFrame,
+        request
+      })) {
+        return {
+          verb: "",
+          analysisVerb: "",
+          obj1: "",
+          soundSpellingFrames: [],
+          blocked: true,
+          diagnosticId: "nonspecific-object-allomorphy-missing-typed-operation-frame"
+        };
+      }
+      return {
+        verb: String(operationFrame.targetFrame.verb || ""),
+        analysisVerb: String(operationFrame.targetFrame.analysisVerb || ""),
+        obj1: String(operationFrame.targetFrame.obj1 || ""),
+        soundSpellingFrames: Array.isArray(operationFrame.targetFrame.soundSpellingFrames) ? operationFrame.targetFrame.soundSpellingFrames.map(frame => ({
+          ...frame
+        })) : []
       };
     }
     function isObj1ValencyFilled(obj1, verbMeta) {
@@ -1879,26 +2034,114 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       if (!base.includes("-")) {
         return baseValue;
       }
+      const sourceFrame = arguments.length > 1 && arguments[1] && typeof arguments[1] === "object" && arguments[1].serialStemDashSourceFrame ? arguments[1].serialStemDashSourceFrame : null;
+      const operationFrame = arguments.length > 1 && arguments[1] && typeof arguments[1] === "object" && arguments[1].serialStemDashOperationFrame ? arguments[1].serialStemDashOperationFrame : null;
+      if (getSerialStemDashFrameMismatch({
+        sourceFrame,
+        operationFrame
+      })) {
+        return baseValue;
+      }
+      return operationFrame.targetInput || baseValue;
+    }
+    function buildSerialStemDashSourceFrame(baseValue = "") {
+      const base = String(baseValue || "").trim().toLowerCase();
+      if (!base || !base.includes("-")) {
+        return null;
+      }
       const slashIndex = base.lastIndexOf("/");
       const head = slashIndex > -1 ? base.slice(0, slashIndex + 1) : "";
       const tail = slashIndex > -1 ? base.slice(slashIndex + 1) : base;
       if (!tail || tail.startsWith("-")) {
-        return baseValue;
+        return null;
       }
-      const collapseByPattern = (pattern, buildCollapsedTail) => {
+      const collapseByPattern = (pattern, routeOperation, targetSuffix, sourceSegments) => {
         const match = tail.match(pattern);
         if (!match) {
-          return "";
+          return null;
         }
         const root = String(match[1] || "");
         if (!root || isValenceLikeDashPrefixToken(root)) {
-          return "";
+          return null;
         }
-        const collapsedTail = buildCollapsedTail(root);
-        return collapsedTail ? `${head}${collapsedTail}` : "";
+        const collapsedTail = `${root}${targetSuffix}`;
+        return Object.freeze({
+          root,
+          collapsedTail,
+          routeOperation,
+          sourceSegments: Object.freeze(sourceSegments),
+          targetSuffix
+        });
       };
-      const collapsed = collapseByPattern(/^([a-z]+)-ti$/i, root => `${root}ti`) || collapseByPattern(/^([a-z]+)-ya$/i, root => `${root}ya`) || collapseByPattern(/^([a-z]+)-u-a$/i, root => `${root}ua`) || collapseByPattern(/^([a-z]+)-a-wi$/i, root => `${root}awi`) || collapseByPattern(/^([a-z]+)-i-wi$/i, root => `${root}iwi`);
-      return collapsed || baseValue;
+      const route = collapseByPattern(/^([a-z]+)-ti$/i, "serial-ti-stem-dash-collapse", "ti", ["ti"]) || collapseByPattern(/^([a-z]+)-ya$/i, "serial-ya-stem-dash-collapse", "ya", ["ya"]) || collapseByPattern(/^([a-z]+)-u-a$/i, "serial-ua-stem-dash-collapse", "ua", ["u", "a"]) || collapseByPattern(/^([a-z]+)-a-wi$/i, "serial-awi-stem-dash-collapse", "awi", ["a", "wi"]) || collapseByPattern(/^([a-z]+)-i-wi$/i, "serial-iwi-stem-dash-collapse", "iwi", ["i", "wi"]);
+      if (!route) {
+        return null;
+      }
+      const targetInput = `${head}${route.collapsedTail}`;
+      return Object.freeze({
+        kind: "serial-stem-dash-source-frame",
+        version: 1,
+        rawInput: base,
+        head,
+        tail,
+        root: route.root,
+        sourceSegments: route.sourceSegments,
+        targetSuffix: route.targetSuffix,
+        targetInput,
+        routeOperation: route.routeOperation,
+        sourceSignature: [base, head, tail, route.root, route.sourceSegments.join("-"), route.targetSuffix, route.routeOperation].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildSerialStemDashOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "serial-stem-dash-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-serial-stem-dash-collapse",
+        routeFamily: "serial-stem-dash-source",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: sourceFrame.routeOperation,
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetInput: sourceFrame.targetInput,
+        targetSignature: [sourceFrame.sourceSignature, sourceFrame.targetInput].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getSerialStemDashFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      requestFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "serial-stem-dash-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-serial-stem-dash-collapse" || operationFrame.routeFamily !== "serial-stem-dash-source" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (operationFrame.sourceSignature !== sourceFrame.sourceSignature || requestFrame && requestFrame.sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      const expectedTargetSignature = [sourceFrame.sourceSignature, sourceFrame.targetInput].join("|");
+      if (operationFrame.targetInput !== sourceFrame.targetInput || operationFrame.targetSignature !== expectedTargetSignature) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function collapseSerialStemDashInputFromSourceFrame(baseValue = "") {
+      const sourceFrame = buildSerialStemDashSourceFrame(baseValue);
+      if (!sourceFrame) {
+        return baseValue;
+      }
+      const operationFrame = buildSerialStemDashOperationFrame(sourceFrame);
+      return collapseSerialStemDashInput(baseValue, {
+        serialStemDashSourceFrame: sourceFrame,
+        serialStemDashOperationFrame: operationFrame
+      });
     }
     function parseInlineTiCausativeClassFromBase(baseValue = "") {
       const base = String(baseValue || "");
@@ -2067,6 +2310,979 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         resultSuffix: normalizedResultSuffix
       });
     }
+    function buildMorphStemAppendSourceFrame({
+      sourceStem = "",
+      appendText = "",
+      sourceBase = "",
+      sourceSuffix = ""
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedAppendText = normalizeRuleBase(String(appendText || "").trim().toLowerCase());
+      if (!normalizedSourceStem || !normalizedAppendText) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-append-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "append",
+        sourceStem: normalizedSourceStem,
+        appendText: normalizedAppendText,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        sourceSignature: [normalizedSourceStem, normalizedAppendText, normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemAppendOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-append-source-frame") {
+        return null;
+      }
+      const targetStem = `${sourceFrame.sourceStem || ""}${sourceFrame.appendText || ""}`;
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-append-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "append-morph-stem-segment",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        appendText: sourceFrame.appendText,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "source-stem",
+          role: "morph-stem-source",
+          surface: sourceFrame.sourceStem
+        }), Object.freeze({
+          slot: "append",
+          role: "morph-stem-appended-segment",
+          surface: sourceFrame.appendText
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemAppendFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-append-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-append-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "append-morph-stem-segment" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specAppendText = normalizeRuleBase(String(spec?.appendText || "").trim().toLowerCase());
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specAppendText !== sourceFrame.appendText || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.appendText !== sourceFrame.appendText) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildMorphStemPrependSourceFrame({
+      sourceStem = "",
+      prependText = "",
+      sourceBase = "",
+      sourceSuffix = ""
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedPrependText = normalizeRuleBase(String(prependText || "").trim().toLowerCase());
+      if (!normalizedSourceStem || !normalizedPrependText) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-prepend-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "prepend",
+        sourceStem: normalizedSourceStem,
+        prependText: normalizedPrependText,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        sourceSignature: [normalizedPrependText, normalizedSourceStem, normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemPrependOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-prepend-source-frame") {
+        return null;
+      }
+      const targetStem = `${sourceFrame.prependText || ""}${sourceFrame.sourceStem || ""}`;
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-prepend-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "prepend-morph-stem-segment",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        prependText: sourceFrame.prependText,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "prepend",
+          role: "morph-stem-prepended-segment",
+          surface: sourceFrame.prependText
+        }), Object.freeze({
+          slot: "source-stem",
+          role: "morph-stem-source",
+          surface: sourceFrame.sourceStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemPrependFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-prepend-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-prepend-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "prepend-morph-stem-segment" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specPrependText = normalizeRuleBase(String(spec?.prependText || "").trim().toLowerCase());
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specPrependText !== sourceFrame.prependText || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.prependText !== sourceFrame.prependText) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildMorphStemReplaceSuffixSourceFrame({
+      sourceStem = "",
+      sourceSuffix = "",
+      replacement = "",
+      sourceBase = ""
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedSourceSuffix = normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase());
+      const normalizedReplacement = normalizeRuleBase(String(replacement || "").trim().toLowerCase());
+      if (!normalizedSourceStem) {
+        return null;
+      }
+      const normalizedSourceBase = normalizeRuleBase(String(sourceBase || "").trim().toLowerCase());
+      return Object.freeze({
+        kind: "morph-stem-replace-suffix-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "replace-suffix",
+        sourceStem: normalizedSourceStem,
+        sourceBase: normalizedSourceBase,
+        sourceSuffix: normalizedSourceSuffix,
+        replacement: normalizedReplacement,
+        sourceSignature: [normalizedSourceStem, normalizedSourceSuffix, normalizedReplacement, normalizedSourceBase].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemReplaceSuffixOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-replace-suffix-source-frame") {
+        return null;
+      }
+      const sourceStem = sourceFrame.sourceStem || "";
+      const sourceSuffix = sourceFrame.sourceSuffix || "";
+      const replacement = sourceFrame.replacement || "";
+      const targetStem = sourceSuffix && sourceStem.endsWith(sourceSuffix) ? `${sourceStem.slice(0, -sourceSuffix.length)}${replacement}` : `${sourceStem}${replacement}`;
+      if (!targetStem) {
+        return null;
+      }
+      const baseSurface = sourceSuffix && sourceStem.endsWith(sourceSuffix) ? sourceStem.slice(0, -sourceSuffix.length) : sourceStem;
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-replace-suffix-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "replace-morph-stem-suffix-segment",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix,
+        replacement,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "source-base",
+          role: "morph-stem-source-base",
+          surface: baseSurface
+        }), Object.freeze({
+          slot: "replacement",
+          role: "morph-stem-replacement-segment",
+          surface: replacement
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemReplaceSuffixFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-replace-suffix-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-replace-suffix-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "replace-morph-stem-suffix-segment" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specSourceSuffix = normalizeRuleBase(String(spec?.sourceSuffix || "").trim().toLowerCase());
+      const specReplacement = normalizeRuleBase(String(spec?.replacement || "").trim().toLowerCase());
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specSourceSuffix !== sourceFrame.sourceSuffix || specReplacement !== sourceFrame.replacement || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.sourceSuffix !== sourceFrame.sourceSuffix || operationFrame.replacement !== sourceFrame.replacement) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildMorphStemStripPrefixSourceFrame({
+      sourceStem = "",
+      prefix = "",
+      sourceBase = "",
+      sourceSuffix = ""
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedPrefix = normalizeRuleBase(String(prefix || "").trim().toLowerCase());
+      if (!normalizedSourceStem || !normalizedPrefix) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-strip-prefix-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "strip-prefix",
+        sourceStem: normalizedSourceStem,
+        prefix: normalizedPrefix,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        sourceSignature: [normalizedPrefix, normalizedSourceStem, normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemStripPrefixOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-strip-prefix-source-frame") {
+        return null;
+      }
+      const sourceStem = sourceFrame.sourceStem || "";
+      const prefix = sourceFrame.prefix || "";
+      const targetStem = sourceStem.startsWith(prefix) ? sourceStem.slice(prefix.length) : sourceStem;
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-strip-prefix-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "strip-morph-stem-prefix-segment",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem,
+        prefix,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "remaining-stem",
+          role: "morph-stem-prefix-stripped-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemStripPrefixFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-strip-prefix-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-strip-prefix-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "strip-morph-stem-prefix-segment" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specPrefix = normalizeRuleBase(String(spec?.prependText || "").trim().toLowerCase());
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specPrefix !== sourceFrame.prefix || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.prefix !== sourceFrame.prefix) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveMorphStemDeletionShiftTarget({
+      sourceStem = "",
+      deletionVariant = "",
+      isTransitive = false
+    } = {}) {
+      const stem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const variant = String(deletionVariant || "");
+      if (!stem) {
+        return "";
+      }
+      if (variant === "kw-to-k") {
+        return stem.endsWith("kw") ? `${stem.slice(0, -2)}k` : "";
+      }
+      if (variant === "w-keep") {
+        return stem;
+      }
+      if (variant === "w-to-j") {
+        return stem.endsWith("w") ? `${stem.slice(0, -1)}j` : "";
+      }
+      if (variant === "m-to-n") {
+        return stem.endsWith("m") ? `${stem.slice(0, -1)}n` : "";
+      }
+      if (variant === "y-shift") {
+        if (!stem.endsWith("y")) {
+          return "";
+        }
+        const letters = targetObject.splitVerbLetters(stem);
+        const recent = letters.slice(Math.max(0, letters.length - 6));
+        const hasRecentS = recent.includes("s");
+        const base = stem.slice(0, -1);
+        if (!isTransitive && hasRecentS) {
+          return base.endsWith("s") ? base : `${base}s`;
+        }
+        return `${base}sh`;
+      }
+      if (variant === "identity") {
+        return stem;
+      }
+      return stem;
+    }
+    function buildMorphStemDeletionShiftSourceFrame({
+      sourceStem = "",
+      deletionVariant = "",
+      sourceBase = "",
+      sourceSuffix = "",
+      isTransitive = false
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedDeletionVariant = String(deletionVariant || "");
+      if (!normalizedSourceStem || !normalizedDeletionVariant) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-deletion-shift-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "deletion-shift",
+        sourceStem: normalizedSourceStem,
+        deletionVariant: normalizedDeletionVariant,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        isTransitive: isTransitive === true,
+        sourceSignature: [normalizedSourceStem, normalizedDeletionVariant, isTransitive === true ? "transitive" : "intransitive", normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemDeletionShiftOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-deletion-shift-source-frame") {
+        return null;
+      }
+      const targetStem = deriveMorphStemDeletionShiftTarget({
+        sourceStem: sourceFrame.sourceStem,
+        deletionVariant: sourceFrame.deletionVariant,
+        isTransitive: sourceFrame.isTransitive === true
+      });
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-deletion-shift-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-morph-stem-deletion-shift",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        deletionVariant: sourceFrame.deletionVariant,
+        isTransitive: sourceFrame.isTransitive === true,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "morph-stem-deletion-shift-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemDeletionShiftFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-deletion-shift-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-deletion-shift-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "realize-morph-stem-deletion-shift" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specDeletionVariant = String(spec?.deletionVariant || "");
+      const specIsTransitive = spec?.isTransitive === true;
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specDeletionVariant !== sourceFrame.deletionVariant || specIsTransitive !== (sourceFrame.isTransitive === true) || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.deletionVariant !== sourceFrame.deletionVariant || operationFrame.isTransitive === true !== (sourceFrame.isTransitive === true)) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveMorphStemTruncateNonactiveBaseTarget({
+      sourceStem = "",
+      dropFinalW = false,
+      tzToCh = false
+    } = {}) {
+      const stem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const letters = targetObject.splitVerbLetters(stem);
+      if (!letters.length) {
+        return stem;
+      }
+      if (targetObject.isVerbLetterVowel(letters[letters.length - 1])) {
+        letters.pop();
+      }
+      let base = letters.join("");
+      if (base.endsWith("kw")) {
+        base = `${base.slice(0, -2)}k`;
+      }
+      if (base.endsWith("s")) {
+        base = `${base.slice(0, -1)}sh`;
+      }
+      if (dropFinalW === true && base.endsWith("w")) {
+        base = base.slice(0, -1);
+      }
+      if (tzToCh === true && base.endsWith("tz")) {
+        base = `${base.slice(0, -2)}ch`;
+      }
+      return base;
+    }
+    function buildMorphStemTruncateNonactiveBaseSourceFrame({
+      sourceStem = "",
+      sourceBase = "",
+      sourceSuffix = "",
+      dropFinalW = false,
+      tzToCh = false
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      if (!normalizedSourceStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-truncate-nonactive-base-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "truncate-nonactive-base",
+        sourceStem: normalizedSourceStem,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        dropFinalW: dropFinalW === true,
+        tzToCh: tzToCh === true,
+        sourceSignature: [normalizedSourceStem, dropFinalW === true ? "drop-final-w" : "keep-final-w", tzToCh === true ? "tz-to-ch" : "keep-tz", normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemTruncateNonactiveBaseOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-truncate-nonactive-base-source-frame") {
+        return null;
+      }
+      const targetStem = deriveMorphStemTruncateNonactiveBaseTarget({
+        sourceStem: sourceFrame.sourceStem,
+        dropFinalW: sourceFrame.dropFinalW === true,
+        tzToCh: sourceFrame.tzToCh === true
+      });
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-truncate-nonactive-base-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-morph-stem-truncate-nonactive-base",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        dropFinalW: sourceFrame.dropFinalW === true,
+        tzToCh: sourceFrame.tzToCh === true,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "morph-stem-truncate-nonactive-base-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemTruncateNonactiveBaseFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-truncate-nonactive-base-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-truncate-nonactive-base-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "realize-morph-stem-truncate-nonactive-base" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specDropFinalW = spec?.dropFinalW === true;
+      const specTzToCh = spec?.tzToCh === true;
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specDropFinalW !== (sourceFrame.dropFinalW === true) || specTzToCh !== (sourceFrame.tzToCh === true) || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.dropFinalW === true !== (sourceFrame.dropFinalW === true) || operationFrame.tzToCh === true !== (sourceFrame.tzToCh === true)) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveMorphStemWaOnsetVariantTarget({
+      sourceStem = "",
+      blockCh = false,
+      blockOnsetReplacement = false
+    } = {}) {
+      const stem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const letters = targetObject.splitVerbLetters(stem);
+      if (letters.length < 2) {
+        return "";
+      }
+      const last = letters[letters.length - 1];
+      if (!targetObject.isVerbLetterVowel(last)) {
+        return "";
+      }
+      const onsetIndex = letters.length - 2;
+      const onset = letters[onsetIndex];
+      if (onset === "s") {
+        letters[onsetIndex] = "sh";
+      } else if (onset === "t") {
+        if (blockCh === true || blockOnsetReplacement === true) {
+          return "";
+        }
+        letters[onsetIndex] = "ch";
+      } else {
+        return "";
+      }
+      return `${letters.join("")}wa`;
+    }
+    function buildMorphStemWaOnsetVariantSourceFrame({
+      sourceStem = "",
+      sourceBase = "",
+      sourceSuffix = "",
+      blockCh = false,
+      blockOnsetReplacement = false
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      if (!normalizedSourceStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-wa-onset-variant-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "nonactive-wa-onset-variant",
+        sourceStem: normalizedSourceStem,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        blockCh: blockCh === true,
+        blockOnsetReplacement: blockOnsetReplacement === true,
+        sourceSignature: [normalizedSourceStem, blockCh === true ? "block-ch" : "allow-ch", blockOnsetReplacement === true ? "block-onset-replacement" : "allow-onset-replacement", normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemWaOnsetVariantOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-wa-onset-variant-source-frame") {
+        return null;
+      }
+      const targetStem = deriveMorphStemWaOnsetVariantTarget({
+        sourceStem: sourceFrame.sourceStem,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true
+      });
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-wa-onset-variant-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-morph-stem-wa-onset-variant",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "morph-stem-wa-onset-variant-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemWaOnsetVariantFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-wa-onset-variant-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-wa-onset-variant-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "realize-morph-stem-wa-onset-variant" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specBlockCh = spec?.blockCh === true;
+      const specBlockOnsetReplacement = spec?.blockOnsetReplacement === true;
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specBlockCh !== (sourceFrame.blockCh === true) || specBlockOnsetReplacement !== (sourceFrame.blockOnsetReplacement === true) || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.blockCh === true !== (sourceFrame.blockCh === true) || operationFrame.blockOnsetReplacement === true !== (sourceFrame.blockOnsetReplacement === true)) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveMorphStemNonactiveUTarget({
+      sourceStem = "",
+      lastOnset = "",
+      lastNucleus = "",
+      blockCh = false,
+      blockOnsetReplacement = false,
+      allowFinalTaReplacement = false
+    } = {}) {
+      const stem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const letters = targetObject.splitVerbLetters(stem);
+      if (letters.length < 2) {
+        return "";
+      }
+      const lastIndex = letters.length - 1;
+      if (!targetObject.isVerbLetterVowel(letters[lastIndex])) {
+        return "";
+      }
+      const onset = normalizeRuleBase(String(lastOnset || "").trim().toLowerCase());
+      const nucleus = normalizeRuleBase(String(lastNucleus || "").trim().toLowerCase());
+      if (!onset) {
+        return "";
+      }
+      const onsetIndex = lastIndex - 1;
+      if (onset === "t" && (nucleus === "i" || nucleus === "a" && allowFinalTaReplacement === true)) {
+        if (blockCh !== true && blockOnsetReplacement !== true) {
+          letters[onsetIndex] = "ch";
+        }
+      } else if (onset === "s") {
+        letters[onsetIndex] = "sh";
+      } else if (onset === "tz") {
+        if (blockCh !== true && blockOnsetReplacement !== true) {
+          letters[onsetIndex] = "ch";
+        }
+      } else if (onset === "kw" && nucleus === "i") {
+        const prevLetter = letters[onsetIndex - 1] || "";
+        if (targetObject.isVerbLetterConsonant(prevLetter)) {
+          return "";
+        }
+        letters[onsetIndex] = "k";
+      }
+      letters[lastIndex] = "u";
+      return letters.join("");
+    }
+    function buildMorphStemNonactiveUSourceFrame({
+      sourceStem = "",
+      lastOnset = "",
+      lastNucleus = "",
+      sourceBase = "",
+      sourceSuffix = "",
+      blockCh = false,
+      blockOnsetReplacement = false,
+      allowFinalTaReplacement = false
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedLastOnset = normalizeRuleBase(String(lastOnset || "").trim().toLowerCase());
+      const normalizedLastNucleus = normalizeRuleBase(String(lastNucleus || "").trim().toLowerCase());
+      if (!normalizedSourceStem || !normalizedLastOnset) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-nonactive-u-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "nonactive-u",
+        sourceStem: normalizedSourceStem,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        lastOnset: normalizedLastOnset,
+        lastNucleus: normalizedLastNucleus,
+        blockCh: blockCh === true,
+        blockOnsetReplacement: blockOnsetReplacement === true,
+        allowFinalTaReplacement: allowFinalTaReplacement === true,
+        sourceSignature: [normalizedSourceStem, normalizedLastOnset, normalizedLastNucleus, blockCh === true ? "block-ch" : "allow-ch", blockOnsetReplacement === true ? "block-onset-replacement" : "allow-onset-replacement", allowFinalTaReplacement === true ? "allow-final-ta-replacement" : "block-final-ta-replacement", normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemNonactiveUOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-nonactive-u-source-frame") {
+        return null;
+      }
+      const targetStem = deriveMorphStemNonactiveUTarget({
+        sourceStem: sourceFrame.sourceStem,
+        lastOnset: sourceFrame.lastOnset,
+        lastNucleus: sourceFrame.lastNucleus,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true,
+        allowFinalTaReplacement: sourceFrame.allowFinalTaReplacement === true
+      });
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-nonactive-u-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-morph-stem-nonactive-u",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        lastOnset: sourceFrame.lastOnset,
+        lastNucleus: sourceFrame.lastNucleus,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true,
+        allowFinalTaReplacement: sourceFrame.allowFinalTaReplacement === true,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "morph-stem-nonactive-u-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemNonactiveUFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-nonactive-u-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-nonactive-u-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "realize-morph-stem-nonactive-u" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specLastOnset = normalizeRuleBase(String(spec?.lastOnset || "").trim().toLowerCase());
+      const specLastNucleus = normalizeRuleBase(String(spec?.lastNucleus || "").trim().toLowerCase());
+      const specBlockCh = spec?.blockCh === true;
+      const specBlockOnsetReplacement = spec?.blockOnsetReplacement === true;
+      const specAllowFinalTaReplacement = spec?.allowFinalTaReplacement === true;
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specLastOnset !== sourceFrame.lastOnset || specLastNucleus !== sourceFrame.lastNucleus || specBlockCh !== (sourceFrame.blockCh === true) || specBlockOnsetReplacement !== (sourceFrame.blockOnsetReplacement === true) || specAllowFinalTaReplacement !== (sourceFrame.allowFinalTaReplacement === true) || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.lastOnset !== sourceFrame.lastOnset || operationFrame.lastNucleus !== sourceFrame.lastNucleus || operationFrame.blockCh === true !== (sourceFrame.blockCh === true) || operationFrame.blockOnsetReplacement === true !== (sourceFrame.blockOnsetReplacement === true) || operationFrame.allowFinalTaReplacement === true !== (sourceFrame.allowFinalTaReplacement === true)) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveMorphStemNonactiveUwaTarget({
+      sourceStem = "",
+      lastOnset = "",
+      blockCh = false,
+      blockOnsetReplacement = false
+    } = {}) {
+      const stem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const letters = targetObject.splitVerbLetters(stem);
+      if (letters.length < 2) {
+        return "";
+      }
+      const lastIndex = letters.length - 1;
+      if (!targetObject.isVerbLetterVowel(letters[lastIndex])) {
+        return "";
+      }
+      const onset = normalizeRuleBase(String(lastOnset || "").trim().toLowerCase());
+      if (!onset) {
+        return "";
+      }
+      const onsetIndex = lastIndex - 1;
+      if (onset === "w") {
+        letters.splice(onsetIndex, 2);
+      } else {
+        if (onset === "s") {
+          letters[onsetIndex] = "sh";
+        } else if (onset === "tz") {
+          if (blockCh !== true && blockOnsetReplacement !== true) {
+            letters[onsetIndex] = "ch";
+          }
+        } else if (onset === "t") {
+          if (blockCh !== true && blockOnsetReplacement !== true) {
+            letters[onsetIndex] = "ch";
+          }
+        }
+        letters.splice(lastIndex, 1);
+      }
+      return `${letters.join("")}uwa`;
+    }
+    function buildMorphStemNonactiveUwaSourceFrame({
+      sourceStem = "",
+      lastOnset = "",
+      lastNucleus = "",
+      sourceBase = "",
+      sourceSuffix = "",
+      blockCh = false,
+      blockOnsetReplacement = false
+    } = {}) {
+      const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
+      const normalizedLastOnset = normalizeRuleBase(String(lastOnset || "").trim().toLowerCase());
+      const normalizedLastNucleus = normalizeRuleBase(String(lastNucleus || "").trim().toLowerCase());
+      if (!normalizedSourceStem || !normalizedLastOnset) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "morph-stem-nonactive-uwa-source-frame",
+        version: 1,
+        routeFamily: "morph-stem-transform",
+        operationFamily: "nonactive-uwa",
+        sourceStem: normalizedSourceStem,
+        sourceBase: normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()),
+        sourceSuffix: normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()),
+        lastOnset: normalizedLastOnset,
+        lastNucleus: normalizedLastNucleus,
+        blockCh: blockCh === true,
+        blockOnsetReplacement: blockOnsetReplacement === true,
+        sourceSignature: [normalizedSourceStem, normalizedLastOnset, normalizedLastNucleus, blockCh === true ? "block-ch" : "allow-ch", blockOnsetReplacement === true ? "block-onset-replacement" : "allow-onset-replacement", normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()), normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase())].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildMorphStemNonactiveUwaOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-nonactive-uwa-source-frame") {
+        return null;
+      }
+      const targetStem = deriveMorphStemNonactiveUwaTarget({
+        sourceStem: sourceFrame.sourceStem,
+        lastOnset: sourceFrame.lastOnset,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true
+      });
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-morph-stem-nonactive-uwa-realization",
+        routeFamily: "morph-stem-transform",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-morph-stem-nonactive-uwa",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem: sourceFrame.sourceStem,
+        sourceBase: sourceFrame.sourceBase,
+        sourceSuffix: sourceFrame.sourceSuffix,
+        lastOnset: sourceFrame.lastOnset,
+        lastNucleus: sourceFrame.lastNucleus,
+        blockCh: sourceFrame.blockCh === true,
+        blockOnsetReplacement: sourceFrame.blockOnsetReplacement === true,
+        targetStem,
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "morph-stem-nonactive-uwa-target",
+          surface: targetStem
+        })]),
+        targetSignature: [sourceFrame.sourceSignature, targetStem].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getMorphStemNonactiveUwaFrameMismatch({
+      spec = null,
+      sourceFrame = null,
+      operationFrame = null,
+      resolvedSourceStem = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "morph-stem-nonactive-uwa-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-morph-stem-nonactive-uwa-realization" || operationFrame.routeFamily !== "morph-stem-transform" || operationFrame.operationApplied !== "realize-morph-stem-nonactive-uwa" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const normalizedSourceStem = normalizeRuleBase(String(resolvedSourceStem || "").trim().toLowerCase());
+      const specLastOnset = normalizeRuleBase(String(spec?.lastOnset || "").trim().toLowerCase());
+      const specLastNucleus = normalizeRuleBase(String(spec?.lastNucleus || "").trim().toLowerCase());
+      const specBlockCh = spec?.blockCh === true;
+      const specBlockOnsetReplacement = spec?.blockOnsetReplacement === true;
+      if (normalizedSourceStem !== sourceFrame.sourceStem || specLastOnset !== sourceFrame.lastOnset || specLastNucleus !== sourceFrame.lastNucleus || specBlockCh !== (sourceFrame.blockCh === true) || specBlockOnsetReplacement !== (sourceFrame.blockOnsetReplacement === true) || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.lastOnset !== sourceFrame.lastOnset || operationFrame.lastNucleus !== sourceFrame.lastNucleus || operationFrame.blockCh === true !== (sourceFrame.blockCh === true) || operationFrame.blockOnsetReplacement === true !== (sourceFrame.blockOnsetReplacement === true)) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
     function buildTransformMorphStemSpec({
       transformKind = "",
       sourceStem = "",
@@ -2085,7 +3301,11 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       allowFinalTaReplacement = false,
       dropFinalW = false,
       tzToCh = false,
-      isTransitive = false
+      isTransitive = false,
+      typeOneSourceFrame = null,
+      typeOneOperationFrame = null,
+      morphStemSourceFrame = null,
+      morphStemOperationFrame = null
     } = {}) {
       const normalizedSourceStem = normalizeRuleBase(String(sourceStem || "").trim().toLowerCase());
       const normalizedSourceStemSpec = sourceStemSpec && typeof sourceStemSpec === "object" && sourceStemSpec.kind ? sourceStemSpec : null;
@@ -2111,28 +3331,61 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         allowFinalTaReplacement: allowFinalTaReplacement === true,
         dropFinalW: dropFinalW === true,
         tzToCh: tzToCh === true,
-        isTransitive: isTransitive === true
+        isTransitive: isTransitive === true,
+        ...(typeOneSourceFrame ? {
+          typeOneSourceFrame
+        } : {}),
+        ...(typeOneOperationFrame ? {
+          typeOneOperationFrame
+        } : {}),
+        ...(morphStemSourceFrame ? {
+          morphStemSourceFrame
+        } : {}),
+        ...(morphStemOperationFrame ? {
+          morphStemOperationFrame
+        } : {})
       });
     }
     function buildAppendMorphStemSpec(sourceStem = "", appendText = "", options = {}) {
+      const sourceStemSpec = options.sourceStemSpec && typeof options.sourceStemSpec === "object" && options.sourceStemSpec.kind ? options.sourceStemSpec : null;
+      const resolvedSourceStem = sourceStemSpec ? realizeMorphStemSpec(sourceStemSpec, options.fallbackSourceStem || "") : sourceStem;
+      const morphStemSourceFrame = buildMorphStemAppendSourceFrame({
+        sourceStem: resolvedSourceStem,
+        appendText,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix
+      });
+      const morphStemOperationFrame = buildMorphStemAppendOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.append,
         sourceStem,
-        sourceStemSpec: options.sourceStemSpec || null,
+        sourceStemSpec,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
-        appendText
+        appendText,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
     function buildPrependMorphStemSpec(sourceStemOrSpec = "", prependText = "", options = {}) {
       const sourceStemSpec = sourceStemOrSpec && typeof sourceStemOrSpec === "object" && sourceStemOrSpec.kind ? sourceStemOrSpec : null;
+      const resolvedSourceStem = sourceStemSpec ? realizeMorphStemSpec(sourceStemSpec, options.fallbackSourceStem || "") : sourceStemOrSpec;
+      const morphStemSourceFrame = buildMorphStemPrependSourceFrame({
+        sourceStem: resolvedSourceStem,
+        prependText,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix
+      });
+      const morphStemOperationFrame = buildMorphStemPrependOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.prepend,
         sourceStem: sourceStemSpec ? "" : sourceStemOrSpec,
         sourceStemSpec: sourceStemSpec || options.sourceStemSpec || null,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
-        prependText
+        prependText,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
     function buildStripPrefixMorphStemSpec(sourceStemOrSpec = "", prefix = "", options = {}) {
@@ -2141,13 +3394,23 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       if (!normalizedPrefix) {
         return sourceStemSpec || buildLiteralMorphStemSpec(sourceStemOrSpec);
       }
+      const resolvedSourceStem = sourceStemSpec ? realizeMorphStemSpec(sourceStemSpec, options.fallbackSourceStem || "") : sourceStemOrSpec;
+      const morphStemSourceFrame = buildMorphStemStripPrefixSourceFrame({
+        sourceStem: resolvedSourceStem,
+        prefix: normalizedPrefix,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix
+      });
+      const morphStemOperationFrame = buildMorphStemStripPrefixOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.stripPrefix,
         sourceStem: sourceStemSpec ? "" : sourceStemOrSpec,
         sourceStemSpec: sourceStemSpec || options.sourceStemSpec || null,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
-        prependText: normalizedPrefix
+        prependText: normalizedPrefix,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
     function buildReplaceSuffixMorphStemSpec(sourceStem = "", sourceSuffix = "", replacement = "", options = {}) {
@@ -2158,17 +3421,36 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         return null;
       }
       const derivedSourceBase = normalizedSourceSuffix && normalizedSourceStem.endsWith(normalizedSourceSuffix) ? normalizedSourceStem.slice(0, -normalizedSourceSuffix.length) : normalizedSourceStem;
+      const resolvedSourceSuffix = options.sourceSuffix || normalizedSourceSuffix;
+      const morphStemSourceFrame = buildMorphStemReplaceSuffixSourceFrame({
+        sourceStem: normalizedSourceStem,
+        sourceSuffix: resolvedSourceSuffix,
+        replacement,
+        sourceBase: options.sourceBase || derivedSourceBase
+      });
+      const morphStemOperationFrame = buildMorphStemReplaceSuffixOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.replaceSuffix,
         sourceStem: sourceStemSpec ? "" : normalizedSourceStem,
         sourceStemSpec: sourceStemSpec || null,
         sourceBase: options.sourceBase || derivedSourceBase,
-        sourceSuffix: options.sourceSuffix || normalizedSourceSuffix,
-        replacement
+        sourceSuffix: resolvedSourceSuffix,
+        replacement,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
     function buildDeletionShiftMorphStemSpec(sourceStemOrSpec = "", deletionVariant = "", options = {}) {
       const sourceStemSpec = sourceStemOrSpec && typeof sourceStemOrSpec === "object" && sourceStemOrSpec.kind ? sourceStemOrSpec : null;
+      const resolvedSourceStem = sourceStemSpec ? realizeMorphStemSpec(sourceStemSpec, options.fallbackSourceStem || "") : sourceStemOrSpec;
+      const morphStemSourceFrame = buildMorphStemDeletionShiftSourceFrame({
+        sourceStem: resolvedSourceStem,
+        deletionVariant,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix,
+        isTransitive: options.isTransitive === true
+      });
+      const morphStemOperationFrame = buildMorphStemDeletionShiftOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.deletionShift,
         sourceStem: sourceStemSpec ? "" : sourceStemOrSpec,
@@ -2176,54 +3458,172 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
         deletionVariant,
-        isTransitive: options.isTransitive === true
+        isTransitive: options.isTransitive === true,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
-    function buildIntransitiveTypeOneStem(baseStem = "", typeOneTarget = null) {
-      if (!baseStem || !typeOneTarget) {
+    function getIntransitiveTypeOneRightEdgeClass(baseStem = "") {
+      const stem = normalizeRuleBase(String(baseStem || "").trim().toLowerCase());
+      if (!stem) {
         return "";
       }
-      if (typeOneTarget === "na") {
-        if (baseStem.endsWith("ni")) {
-          return `${baseStem.slice(0, -1)}a`;
-        }
-        return "";
+      if (stem.endsWith("awa")) {
+        return "awa";
       }
-      if (typeOneTarget === "wa") {
-        if (baseStem.endsWith("wa")) {
-          return baseStem;
-        }
-        if (baseStem.endsWith("wi")) {
-          return `${baseStem.slice(0, -1)}a`;
-        }
-        return "";
+      if (stem.endsWith("iwa")) {
+        return "iwa";
       }
-      if (typeOneTarget === "ua") {
-        if (baseStem.endsWith("awa") || baseStem.endsWith("iwa") || baseStem.endsWith("ewa") || baseStem.endsWith("uwa")) {
-          return `${baseStem.slice(0, -3)}ua`;
-        }
-        if (baseStem.endsWith("awi") || baseStem.endsWith("iwi") || baseStem.endsWith("uwi")) {
-          return `${baseStem.slice(0, -3)}ua`;
-        }
-        if (baseStem.endsWith("wi")) {
-          return `${baseStem.slice(0, -2)}ua`;
-        }
-        return "";
+      if (stem.endsWith("ewa")) {
+        return "ewa";
+      }
+      if (stem.endsWith("uwa")) {
+        return "uwa";
+      }
+      if (stem.endsWith("awi")) {
+        return "awi";
+      }
+      if (stem.endsWith("iwi")) {
+        return "iwi";
+      }
+      if (stem.endsWith("uwi")) {
+        return "uwi";
+      }
+      if (stem.endsWith("ni")) {
+        return "ni";
+      }
+      if (stem.endsWith("wa")) {
+        return "wa";
+      }
+      if (stem.endsWith("wi")) {
+        return "wi";
       }
       return "";
     }
+    function buildIntransitiveTypeOneSourceFrame({
+      baseStem = "",
+      typeOneTarget = ""
+    } = {}) {
+      const sourceStem = normalizeRuleBase(String(baseStem || "").trim().toLowerCase());
+      const target = String(typeOneTarget || "").trim();
+      const rightEdgeClass = getIntransitiveTypeOneRightEdgeClass(sourceStem);
+      if (!sourceStem || !target || !rightEdgeClass) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "intransitive-type-one-source-frame",
+        version: 1,
+        routeFamily: "intransitive-type-one",
+        operationFamily: "type-one-causative-stem",
+        sourceStem,
+        typeOneTarget: target,
+        rightEdgeClass,
+        sourceSignature: [sourceStem, target, rightEdgeClass].join("|"),
+        authority: "Andrews type-one intransitive source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildIntransitiveTypeOneOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "intransitive-type-one-source-frame") {
+        return null;
+      }
+      const sourceStem = String(sourceFrame.sourceStem || "");
+      const target = String(sourceFrame.typeOneTarget || "");
+      const rightEdgeClass = String(sourceFrame.rightEdgeClass || "");
+      let targetStem = "";
+      if (target === "na" && rightEdgeClass === "ni") {
+        targetStem = `${sourceStem.slice(0, -1)}a`;
+      } else if (target === "wa" && rightEdgeClass === "wa") {
+        targetStem = sourceStem;
+      } else if (target === "wa" && rightEdgeClass === "wi") {
+        targetStem = `${sourceStem.slice(0, -1)}a`;
+      } else if (target === "ua" && ["awa", "iwa", "ewa", "uwa", "awi", "iwi", "uwi"].includes(rightEdgeClass)) {
+        targetStem = `${sourceStem.slice(0, -3)}ua`;
+      } else if (target === "ua" && rightEdgeClass === "wi") {
+        targetStem = `${sourceStem.slice(0, -2)}ua`;
+      }
+      if (!targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-intransitive-type-one-stem-realization",
+        routeFamily: "intransitive-type-one",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-type-one-target-from-right-edge-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceStem,
+        typeOneTarget: target,
+        rightEdgeClass,
+        targetStem,
+        targetSignature: [sourceStem, target, rightEdgeClass, targetStem].join("|"),
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          slot: "target-stem",
+          role: "intransitive-type-one-target-stem",
+          surface: targetStem
+        })]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getIntransitiveTypeOneFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "intransitive-type-one-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-intransitive-type-one-stem-realization" || operationFrame.routeFamily !== "intransitive-type-one" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.sourceStem !== sourceFrame.sourceStem || operationFrame.typeOneTarget !== sourceFrame.typeOneTarget || operationFrame.rightEdgeClass !== sourceFrame.rightEdgeClass) {
+        return "contradictory-source-frame";
+      }
+      const targetSurface = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames.map(segment => String(segment?.surface || "")).join("") : "";
+      if (!targetSurface || targetSurface !== String(operationFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildIntransitiveTypeOneStem(baseStem = "", typeOneTarget = null, options = {}) {
+      const sourceFrame = options?.sourceFrame || null;
+      const operationFrame = options?.operationFrame || null;
+      if (getIntransitiveTypeOneFrameMismatch({
+        sourceFrame,
+        operationFrame
+      })) {
+        return "";
+      }
+      const normalizedBaseStem = normalizeRuleBase(String(baseStem || "").trim().toLowerCase());
+      const normalizedTarget = String(typeOneTarget || "").trim();
+      if (normalizedBaseStem && normalizedBaseStem !== sourceFrame.sourceStem) {
+        return "";
+      }
+      if (normalizedTarget && normalizedTarget !== sourceFrame.typeOneTarget) {
+        return "";
+      }
+      return String(operationFrame.targetStem || "");
+    }
     function buildIntransitiveTypeOneMorphStemSpec(baseStem = "", typeOneTarget = null, options = {}) {
+      const sourceFrame = buildIntransitiveTypeOneSourceFrame({
+        baseStem,
+        typeOneTarget
+      });
+      const operationFrame = buildIntransitiveTypeOneOperationFrame(sourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.intransitiveTypeOne,
         sourceStem: baseStem,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
-        typeOneTarget
+        typeOneTarget,
+        typeOneSourceFrame: sourceFrame,
+        typeOneOperationFrame: operationFrame
       });
     }
     function buildNonactiveUStemMorphStemSpec(stem = "", lastOnset = "", lastNucleus = "", options = {}) {
-      return buildTransformMorphStemSpec({
-        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveU,
+      const morphStemSourceFrame = buildMorphStemNonactiveUSourceFrame({
         sourceStem: stem,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
@@ -2233,10 +3633,23 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         blockOnsetReplacement: options.blockOnsetReplacement,
         allowFinalTaReplacement: options.allowFinalTaReplacement
       });
+      const morphStemOperationFrame = buildMorphStemNonactiveUOperationFrame(morphStemSourceFrame);
+      return buildTransformMorphStemSpec({
+        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveU,
+        sourceStem: stem,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix,
+        lastOnset,
+        lastNucleus,
+        blockCh: options.blockCh,
+        blockOnsetReplacement: options.blockOnsetReplacement,
+        allowFinalTaReplacement: options.allowFinalTaReplacement,
+        morphStemSourceFrame,
+        morphStemOperationFrame
+      });
     }
     function buildNonactiveUwaStemMorphStemSpec(stem = "", lastOnset = "", lastNucleus = "", options = {}) {
-      return buildTransformMorphStemSpec({
-        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveUwa,
+      const morphStemSourceFrame = buildMorphStemNonactiveUwaSourceFrame({
         sourceStem: stem,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
@@ -2245,25 +3658,58 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         blockCh: options.blockCh,
         blockOnsetReplacement: options.blockOnsetReplacement
       });
+      const morphStemOperationFrame = buildMorphStemNonactiveUwaOperationFrame(morphStemSourceFrame);
+      return buildTransformMorphStemSpec({
+        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveUwa,
+        sourceStem: stem,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix,
+        lastOnset,
+        lastNucleus,
+        blockCh: options.blockCh,
+        blockOnsetReplacement: options.blockOnsetReplacement,
+        morphStemSourceFrame,
+        morphStemOperationFrame
+      });
     }
     function buildWaOnsetVariantMorphStemSpec(stem = "", options = {}) {
-      return buildTransformMorphStemSpec({
-        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveWaVariant,
+      const morphStemSourceFrame = buildMorphStemWaOnsetVariantSourceFrame({
         sourceStem: stem,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
         blockCh: options.blockCh,
         blockOnsetReplacement: options.blockOnsetReplacement
       });
+      const morphStemOperationFrame = buildMorphStemWaOnsetVariantOperationFrame(morphStemSourceFrame);
+      return buildTransformMorphStemSpec({
+        transformKind: MORPH_STEM_TRANSFORM_KIND.nonactiveWaVariant,
+        sourceStem: stem,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix,
+        blockCh: options.blockCh,
+        blockOnsetReplacement: options.blockOnsetReplacement,
+        morphStemSourceFrame,
+        morphStemOperationFrame
+      });
     }
     function buildTruncateNonactiveBaseMorphStemSpec(stem = "", options = {}) {
+      const morphStemSourceFrame = buildMorphStemTruncateNonactiveBaseSourceFrame({
+        sourceStem: stem,
+        sourceBase: options.sourceBase,
+        sourceSuffix: options.sourceSuffix,
+        dropFinalW: options.dropFinalW,
+        tzToCh: options.tzToCh
+      });
+      const morphStemOperationFrame = buildMorphStemTruncateNonactiveBaseOperationFrame(morphStemSourceFrame);
       return buildTransformMorphStemSpec({
         transformKind: MORPH_STEM_TRANSFORM_KIND.truncateNonactiveBase,
         sourceStem: stem,
         sourceBase: options.sourceBase,
         sourceSuffix: options.sourceSuffix,
         dropFinalW: options.dropFinalW,
-        tzToCh: options.tzToCh
+        tzToCh: options.tzToCh,
+        morphStemSourceFrame,
+        morphStemOperationFrame
       });
     }
     function buildMorphStemSpecFromRoute(sourceBase = "", sourceSuffix = "", outputStem = "") {
@@ -2306,87 +3752,109 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
           return "";
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.append) {
-          return `${sourceStem}${spec.appendText || ""}`;
+          if (getMorphStemAppendFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.prepend) {
-          return `${spec.prependText || ""}${sourceStem}`;
+          if (getMorphStemPrependFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.stripPrefix) {
-          const prefix = normalizeRuleBase(String(spec.prependText || "").trim().toLowerCase());
-          if (!prefix) {
-            return sourceStem;
+          if (getMorphStemStripPrefixFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
           }
-          return sourceStem.startsWith(prefix) ? sourceStem.slice(prefix.length) : sourceStem;
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.replaceSuffix) {
-          const sourceSuffix = normalizeRuleBase(String(spec.sourceSuffix || "").trim().toLowerCase());
-          const replacement = normalizeRuleBase(String(spec.replacement || "").trim().toLowerCase());
-          if (!sourceSuffix) {
-            return `${sourceStem}${replacement}`;
+          if (getMorphStemReplaceSuffixFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
           }
-          if (!sourceStem.endsWith(sourceSuffix)) {
-            return `${sourceStem}${replacement}`;
-          }
-          return `${sourceStem.slice(0, -sourceSuffix.length)}${replacement}`;
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.deletionShift) {
-          if (spec.deletionVariant === "kw-to-k") {
-            return sourceStem.endsWith("kw") ? `${sourceStem.slice(0, -2)}k` : "";
+          if (getMorphStemDeletionShiftFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
           }
-          if (spec.deletionVariant === "w-keep") {
-            return sourceStem;
-          }
-          if (spec.deletionVariant === "w-to-j") {
-            return sourceStem.endsWith("w") ? `${sourceStem.slice(0, -1)}j` : "";
-          }
-          if (spec.deletionVariant === "m-to-n") {
-            return sourceStem.endsWith("m") ? `${sourceStem.slice(0, -1)}n` : "";
-          }
-          if (spec.deletionVariant === "y-shift") {
-            if (!sourceStem.endsWith("y")) {
-              return "";
-            }
-            const letters = targetObject.splitVerbLetters(sourceStem);
-            const recent = letters.slice(Math.max(0, letters.length - 6));
-            const hasRecentS = recent.includes("s");
-            const base = sourceStem.slice(0, -1);
-            if (!spec.isTransitive && hasRecentS) {
-              return base.endsWith("s") ? base : `${base}s`;
-            }
-            return `${base}sh`;
-          }
-          if (spec.deletionVariant === "identity") {
-            return sourceStem;
-          }
-          return sourceStem;
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.intransitiveTypeOne) {
-          return buildIntransitiveTypeOneStem(sourceStem, spec.typeOneTarget);
+          return buildIntransitiveTypeOneStem(sourceStem, spec.typeOneTarget, {
+            sourceFrame: spec.typeOneSourceFrame || null,
+            operationFrame: spec.typeOneOperationFrame || null
+          });
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.nonactiveU) {
-          return buildNonactiveUStem(sourceStem, spec.lastOnset, spec.lastNucleus, {
-            blockCh: spec.blockCh,
-            blockOnsetReplacement: spec.blockOnsetReplacement,
-            allowFinalTaReplacement: spec.allowFinalTaReplacement
-          }) || "";
+          if (getMorphStemNonactiveUFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.nonactiveUwa) {
-          return buildNonactiveUwaStem(sourceStem, spec.lastOnset, spec.lastNucleus, {
-            blockCh: spec.blockCh,
-            blockOnsetReplacement: spec.blockOnsetReplacement
-          }) || "";
+          if (getMorphStemNonactiveUwaFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.nonactiveWaVariant) {
-          return buildWaOnsetVariant(sourceStem, {
-            blockCh: spec.blockCh,
-            blockOnsetReplacement: spec.blockOnsetReplacement
-          }) || "";
+          if (getMorphStemWaOnsetVariantFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
         if (spec.transformKind === MORPH_STEM_TRANSFORM_KIND.truncateNonactiveBase) {
-          return truncateNonactiveBase(sourceStem, {
-            dropFinalW: spec.dropFinalW,
-            tzToCh: spec.tzToCh
-          }) || "";
+          if (getMorphStemTruncateNonactiveBaseFrameMismatch({
+            spec,
+            sourceFrame: spec.morphStemSourceFrame || null,
+            operationFrame: spec.morphStemOperationFrame || null,
+            resolvedSourceStem: sourceStem
+          })) {
+            return "";
+          }
+          return String(spec.morphStemOperationFrame?.targetStem || "");
         }
       }
       return normalizeRuleBase(String(fallbackStem || "").trim().toLowerCase());
@@ -2460,6 +3928,53 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         lockNominalMarker: resolved.lockNominalMarker
       });
     }
+    function getPreteritAgentiveNominalConnectorFrame(subjectSuffix = "") {
+      const surface = String(subjectSuffix || "");
+      const frames = {
+        ki: {
+          num1: "ki",
+          num2: "0",
+          dyad: "ki-0"
+        },
+        k: {
+          num1: "k",
+          num2: "0",
+          dyad: "k-0"
+        },
+        ket: {
+          num1: "k",
+          num2: "et",
+          dyad: "k-et"
+        },
+        w: {
+          num1: "w",
+          num2: "0",
+          dyad: "w-0"
+        },
+        wan: {
+          num1: "w",
+          num2: "an",
+          dyad: "w-an"
+        }
+      };
+      const frame = frames[surface];
+      if (!frame) {
+        return null;
+      }
+      return Object.freeze({
+        surface,
+        displaySurface: frame.dyad,
+        displayConnector: frame.dyad,
+        displayDyad: frame.dyad,
+        compactDisplay: surface || "Ø",
+        compactSurface: surface,
+        num1: frame.num1,
+        num2: frame.num2,
+        displayNum1: frame.num1,
+        displayNum2: frame.num2,
+        dyadSource: "andrews-preterit-agentive-nnc-subject-number"
+      });
+    }
     function buildNominalNum1Num2({
       subjectSuffix = "",
       nominalKind = "",
@@ -2471,13 +3986,23 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       const suffixIsPredicateNominalizer = normalizedNominalKind === VERB_DERIVED_NOMINAL_KIND.sustantivoVerbal || normalizedNominalKind === "potencial";
       const derivationalSuffixRole = normalizedNominalKind === "potencial" ? "predicate.potential-patient-nominalizer" : "predicate.action-nominalizer";
       const surface = suffixIsPredicateNominalizer ? "" : rawSubjectSuffix;
+      const preteritAgentiveConnector = normalizedNominalKind === "agentivo-preterito" ? getPreteritAgentiveNominalConnectorFrame(surface) : null;
       return Object.freeze({
         version: 1,
         role: "subject-number-connector",
         slot: "subject.num1-num2",
         belongsTo: "subject",
         surface,
-        displaySurface: surface || "Ø",
+        displaySurface: preteritAgentiveConnector?.displaySurface || surface || "Ø",
+        displayConnector: preteritAgentiveConnector?.displayConnector || surface || "Ø",
+        displayDyad: preteritAgentiveConnector?.displayDyad || "",
+        compactDisplay: preteritAgentiveConnector?.compactDisplay || surface || "Ø",
+        compactSurface: preteritAgentiveConnector?.compactSurface || surface,
+        num1: preteritAgentiveConnector?.num1 || "",
+        num2: preteritAgentiveConnector?.num2 || "",
+        displayNum1: preteritAgentiveConnector?.displayNum1 || "",
+        displayNum2: preteritAgentiveConnector?.displayNum2 || "",
+        dyadSource: preteritAgentiveConnector?.dyadSource || "",
         nominalKind: normalizedNominalKind,
         predicateState: String(predicateState || "derived-nominal"),
         source: String(source || ""),
@@ -2562,7 +4087,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       calificativoInstrumentivo: "calificativo-instrumentivo",
       locativoTemporal: "locativo-temporal"
     });
-    const VNC_PREDICATE_NOMINAL_SOURCE_TENSES = Object.freeze(["presente", "presente-habitual", "imperfecto", "preterito", "pasado-remoto", "perfecto", "pluscuamperfecto", "condicional-perfecto", "futuro", "condicional"]);
+    const VNC_PREDICATE_NOMINAL_SOURCE_TENSES = Object.freeze(["presente", "presente-habitual", "imperfecto", "preterito", "pasado-remoto", "futuro"]);
     const VNC_PREDICATE_NOMINAL_TENSE_SOURCE_MAP = Object.freeze(Object.fromEntries(VNC_PREDICATE_NOMINAL_SOURCE_TENSES.map(sourceTense => [`predicado-nominal-${sourceTense}`, sourceTense])));
     function isPredicateNominalTense(tenseValue = "") {
       const tense = String(tenseValue || "").trim();
@@ -3226,6 +4751,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       patientivoSource = "",
       patientiveSourceStageFrame = null,
       patientiveMultipleDerivationContract = null,
+      sourceStem = "",
       generatedSurface = true
     } = {}) {
       const kind = String(nominalKind || "");
@@ -3270,6 +4796,31 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       });
       const instrumentiveNote2Frame = buildInstrumentiveNote2Frame(kind);
       const connectorSlot = num1Num2 || null;
+      const operationalSourceFrame = typeof targetObject.buildAndrewsCnvCnnOperationalSourceFrame === "function" ? targetObject.buildAndrewsCnvCnnOperationalSourceFrame({
+        nominalKind: kind,
+        nominalizationKind: roleDefaults.nominalizationKind || kind || "",
+        patientiveFamily: resolvedPatientiveFamily,
+        sourceStem: String(sourceStem || sourceModel?.matrixBase || sourceModel?.analysisVerb || sourceModel?.sourceRawVerb || ""),
+        sourceTense: resolvedSourceTense,
+        sourceVoice: String(sourceModel?.combinedMode || "active"),
+        sourceCombinedMode: String(sourceModel?.combinedMode || ""),
+        subjectNumber: String(connectorSlot?.surface || connectorSlot?.displaySurface || ""),
+        predicateState: String(predicateStateSlot?.state || ""),
+        possessorPrefix: String(predicateStateSlot?.possessorPrefix || ""),
+        connector: String(connectorSlot?.surface || ""),
+        patientiveStem: String(patientiveSourceStageFrame?.outputStem || "")
+      }) : null;
+      const operationalOperationFrame = typeof targetObject.buildAndrewsCnvCnnOperationalOperationFrame === "function" ? targetObject.buildAndrewsCnvCnnOperationalOperationFrame(operationalSourceFrame) : null;
+      const operationalSuboperationFrame = typeof targetObject.buildAndrewsCnvCnnOperationalSuboperationFrame === "function" ? targetObject.buildAndrewsCnvCnnOperationalSuboperationFrame({
+        nominalKind: kind,
+        nominalizationKind: roleDefaults.nominalizationKind || kind || "",
+        patientiveFamily: resolvedPatientiveFamily,
+        sourceTense: resolvedSourceTense,
+        sourceVoice: String(sourceModel?.combinedMode || "active"),
+        sourceCombinedMode: String(sourceModel?.combinedMode || ""),
+        sourceFrame: operationalSourceFrame,
+        operationFrame: operationalOperationFrame
+      }) : null;
       const profile = {
         version: 1,
         outputKind: "verb-derived-nominal",
@@ -3311,6 +4862,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         }),
         possessorSourceFrame,
         instrumentiveNote2Frame,
+        operationalSuboperationFrame,
         num1Num2: connectorSlot,
         boundaries: Object.freeze({
           nominalizationScope: "structural-word-output",
@@ -4773,54 +6325,48 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         }
         const hasTransitiveCodaS = isTransitive && hasEndingFamily("s+i");
         if (hasTransitiveCodaS && !hasOptionFamily(typeTwoOptions, "uwa")) {
-          const uwaStem = buildNonactiveUwaStem(ruleBase, finalOnset, finalNucleus, {
+          const uwaStemSpec = buildNonactiveUwaStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
+            sourceBase: ruleBase,
+            sourceSuffix: "uwa",
             blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
             blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
           });
+          const uwaStem = realizeMorphStemSpec(uwaStemSpec);
           if (uwaStem) {
             typeTwoOptions.push(annotateTypeTwoOption({
               suffix: "uwa",
-              stemSpec: buildNonactiveUwaStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
-                sourceBase: ruleBase,
-                sourceSuffix: "uwa",
-                blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
-                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
-              })
+              stemSpec: uwaStemSpec
             }));
           }
         }
         if (isTransitive && hasEndingFamily("w+i") && allowedSuffixes.includes("u") && !hasOptionFamily(typeTwoOptions, "u")) {
-          const uStem = buildNonactiveUStem(ruleBase, finalOnset, finalNucleus, {
+          const uStemSpec = buildNonactiveUStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
+            sourceBase: ruleBase,
+            sourceSuffix: "u",
             blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
             blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
           });
+          const uStem = realizeMorphStemSpec(uStemSpec);
           if (uStem) {
             typeTwoOptions.push(annotateTypeTwoOption({
               suffix: "u",
-              stemSpec: buildNonactiveUStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
-                sourceBase: ruleBase,
-                sourceSuffix: "u",
-                blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
-                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
-              })
+              stemSpec: uStemSpec
             }));
           }
         }
         const allowTransitiveChiwaUBase = isTransitive && targetObject.matchesDerivationRuleBaseList(["chiwa"], ruleBase, fullRuleBase);
         if (allowTransitiveChiwaUBase && allowedSuffixes.includes("u") && !hasOptionFamily(typeTwoOptions, "u")) {
-          const uStem = buildNonactiveUStem(ruleBase, finalOnset, finalNucleus, {
+          const uStemSpec = buildNonactiveUStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
+            sourceBase: ruleBase,
+            sourceSuffix: "u",
             blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
             blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
           });
+          const uStem = realizeMorphStemSpec(uStemSpec);
           if (uStem) {
             typeTwoOptions.push(annotateTypeTwoOption({
               suffix: "u",
-              stemSpec: buildNonactiveUStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
-                sourceBase: ruleBase,
-                sourceSuffix: "u",
-                blockCh: previousHasCoda || hasEndingFamily("t+i") && preFinalIsConsonant,
-                blockOnsetReplacement: isShortReplaciveOnsetBase(ruleBase)
-              })
+              stemSpec: uStemSpec
             }));
           }
         }
@@ -4859,17 +6405,16 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
           return endsWithCluster(clusterStem) ? clusterStem : "";
         })();
         if (forceUwaOnly && !hasOptionFamily(typeTwoOptions, "uwa")) {
-          const uwaStem = buildNonactiveUwaStem(ruleBase, finalOnset, finalNucleus, {
+          const uwaStemSpec = buildNonactiveUwaStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
+            sourceBase: ruleBase,
+            sourceSuffix: "uwa",
             blockCh: previousHasCoda
           });
+          const uwaStem = realizeMorphStemSpec(uwaStemSpec);
           if (uwaStem) {
             typeTwoOptions.push(annotateTypeTwoOption({
               suffix: "uwa",
-              stemSpec: buildNonactiveUwaStemMorphStemSpec(ruleBase, finalOnset, finalNucleus, {
-                sourceBase: ruleBase,
-                sourceSuffix: "uwa",
-                blockCh: previousHasCoda
-              })
+              stemSpec: uwaStemSpec
             }));
           }
         }
@@ -6923,27 +8468,20 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       };
     }
     function truncateNonactiveBase(stem, options = {}) {
-      const letters = targetObject.splitVerbLetters(stem);
-      if (!letters.length) {
-        return stem;
+      const sourceFrame = options?.sourceFrame || null;
+      const operationFrame = options?.operationFrame || null;
+      if (getMorphStemTruncateNonactiveBaseFrameMismatch({
+        spec: {
+          dropFinalW: options.dropFinalW === true,
+          tzToCh: options.tzToCh === true
+        },
+        sourceFrame,
+        operationFrame,
+        resolvedSourceStem: stem
+      })) {
+        return "";
       }
-      if (targetObject.isVerbLetterVowel(letters[letters.length - 1])) {
-        letters.pop();
-      }
-      let base = letters.join("");
-      if (base.endsWith("kw")) {
-        base = base.slice(0, -2) + "k";
-      }
-      if (base.endsWith("s")) {
-        base = base.slice(0, -1) + "sh";
-      }
-      if (options.dropFinalW && base.endsWith("w")) {
-        base = base.slice(0, -1);
-      }
-      if (options.tzToCh && base.endsWith("tz")) {
-        base = base.slice(0, -2) + "ch";
-      }
-      return base;
+      return String(operationFrame.targetStem || "");
     }
     function isShortReplaciveOnsetBase(value) {
       const base = targetObject.getNonReduplicatedRoot(value) || value || "";
@@ -6978,74 +8516,41 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       return `${letters.join("")}wa`;
     }
     function buildNonactiveUStem(stem, lastOnset, lastNucleus, options = {}) {
-      const letters = targetObject.splitVerbLetters(stem);
-      if (letters.length < 2) {
-        return null;
+      const sourceFrame = options?.sourceFrame || null;
+      const operationFrame = options?.operationFrame || null;
+      if (getMorphStemNonactiveUFrameMismatch({
+        spec: {
+          lastOnset,
+          lastNucleus,
+          blockCh: options.blockCh === true,
+          blockOnsetReplacement: options.blockOnsetReplacement === true,
+          allowFinalTaReplacement: options.allowFinalTaReplacement === true
+        },
+        sourceFrame,
+        operationFrame,
+        resolvedSourceStem: stem
+      })) {
+        return "";
       }
-      const lastIndex = letters.length - 1;
-      if (!targetObject.isVerbLetterVowel(letters[lastIndex])) {
-        return null;
-      }
-      if (!lastOnset) {
-        return null;
-      }
-      const blockOnsetReplacement = options.blockOnsetReplacement === true;
-      const onsetIndex = lastIndex - 1;
-      if (lastOnset === "t" && (lastNucleus === "i" || lastNucleus === "a" && options.allowFinalTaReplacement === true)) {
-        if (!options.blockCh && !blockOnsetReplacement) {
-          letters[onsetIndex] = "ch";
-        }
-      } else if (lastOnset === "s") {
-        // Keep s->sh for u even when short-base onset replacement is otherwise blocked.
-        letters[onsetIndex] = "sh";
-      } else if (lastOnset === "tz") {
-        if (!options.blockCh && !blockOnsetReplacement) {
-          letters[onsetIndex] = "ch";
-        }
-      } else if (lastOnset === "kw" && lastNucleus === "i") {
-        // If kw is preceded by a consonant (i.e. kw is part of a larger cluster like j+k+w),
-        // we don't form a -u nonactive at all for this path (e.g. -majkwi should not yield majku/majkwu).
-        const prevLetter = letters[onsetIndex - 1] || "";
-        if (targetObject.isVerbLetterConsonant(prevLetter)) {
-          return null;
-        }
-        letters[onsetIndex] = "k";
-      }
-      letters[lastIndex] = "u";
-      return letters.join("");
+      return String(operationFrame.targetStem || "");
     }
     function buildNonactiveUwaStem(stem, lastOnset, lastNucleus, options = {}) {
-      const letters = targetObject.splitVerbLetters(stem);
-      if (letters.length < 2) {
-        return null;
+      const sourceFrame = options?.sourceFrame || null;
+      const operationFrame = options?.operationFrame || null;
+      if (getMorphStemNonactiveUwaFrameMismatch({
+        spec: {
+          lastOnset,
+          lastNucleus,
+          blockCh: options.blockCh === true,
+          blockOnsetReplacement: options.blockOnsetReplacement === true
+        },
+        sourceFrame,
+        operationFrame,
+        resolvedSourceStem: stem
+      })) {
+        return "";
       }
-      const lastIndex = letters.length - 1;
-      if (!targetObject.isVerbLetterVowel(letters[lastIndex])) {
-        return null;
-      }
-      if (!lastOnset) {
-        return null;
-      }
-      const blockOnsetReplacement = options.blockOnsetReplacement === true;
-      const onsetIndex = lastIndex - 1;
-      if (lastOnset === "w") {
-        letters.splice(onsetIndex, 2);
-      } else {
-        if (lastOnset === "s") {
-          // Keep s->sh for uwa even when short-base onset replacement is otherwise blocked.
-          letters[onsetIndex] = "sh";
-        } else if (lastOnset === "tz") {
-          if (!options.blockCh && !blockOnsetReplacement) {
-            letters[onsetIndex] = "ch";
-          }
-        } else if (lastOnset === "t") {
-          if (!options.blockCh && !blockOnsetReplacement) {
-            letters[onsetIndex] = "ch";
-          }
-        }
-        letters.splice(lastIndex, 1);
-      }
-      return `${letters.join("")}uwa`;
+      return String(operationFrame.targetStem || "");
     }
     function getNonactiveBaseInfo(ruleBase) {
       const letters = targetObject.splitVerbLetters(ruleBase);
@@ -7776,39 +9281,172 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       }
       return `${embeddedPrefix}${stem}`;
     }
-    function deriveNonactiveStem(verb, analysisVerb, options = {}) {
-      const sourceContext = buildNonactiveRuleSourceContext(verb, analysisVerb, options);
-      const source = sourceContext.sourceStem || normalizeDerivationStemValue(verb || analysisVerb || "");
-      const analysisSource = sourceContext.analysisStem || source;
-      const ruleBase = sourceContext.ruleBase;
+    function buildNonactiveStemSelectionSourceFrame({
+      verb = "",
+      analysisVerb = "",
+      options = {},
+      nonactiveRuleSource = null
+    } = {}) {
+      const sourceContext = nonactiveRuleSource && typeof nonactiveRuleSource === "object" ? nonactiveRuleSource : buildNonactiveRuleSourceContext(verb, analysisVerb, options || {});
+      const sourceStem = normalizeDerivationStemValue(sourceContext.sourceStem || verb || analysisVerb || "");
+      const analysisStem = normalizeDerivationStemValue(sourceContext.analysisStem || analysisVerb || verb || sourceStem);
+      const ruleBase = normalizeRuleBase(sourceContext.ruleBase || "");
+      if (!sourceStem && !analysisStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "nonactive-stem-selection-source-frame",
+        version: 1,
+        routeFamily: "nonactive-stem-selection",
+        operationFamily: "select-nonactive-stem",
+        sourceStem,
+        analysisStem,
+        ruleBase,
+        isTransitive: options?.isTransitive === true,
+        isYawi: options?.isYawi === true,
+        rootPlusYaBase: normalizeDerivationStemValue(options?.rootPlusYaBase || ""),
+        nonactiveRuleSource: sourceContext,
+        sourceSignature: [sourceStem, analysisStem, ruleBase, options?.isTransitive === true ? "transitive" : "intransitive", options?.isYawi === true ? "yawi" : "not-yawi", normalizeDerivationStemValue(options?.rootPlusYaBase || "")].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function deriveNonactiveStemSelectionTargetFromSourceFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-stem-selection-source-frame") {
+        return null;
+      }
+      const source = sourceFrame.sourceStem || sourceFrame.analysisStem || "";
+      const analysisSource = sourceFrame.analysisStem || source;
+      const ruleBase = sourceFrame.ruleBase || "";
       if (!ruleBase || !targetObject.VOWEL_END_RE.test(ruleBase)) {
-        return source;
+        return {
+          targetStem: source,
+          targetStemSpec: buildLiteralMorphStemSpec(source, {
+            sourceBase: ruleBase || source
+          }),
+          selectedSuffix: ""
+        };
       }
       const optionsList = getVisibleNonactiveDerivationOptions(source, analysisSource, {
-        isTransitive: options.isTransitive === true,
-        isYawi: options.isYawi === true,
+        isTransitive: sourceFrame.isTransitive === true,
+        isYawi: sourceFrame.isYawi === true,
         ruleBase,
-        rootPlusYaBase: options.rootPlusYaBase,
-        nonactiveRuleSource: sourceContext
+        rootPlusYaBase: sourceFrame.rootPlusYaBase,
+        nonactiveRuleSource: sourceFrame.nonactiveRuleSource || null
       });
       if (!optionsList || !optionsList.length) {
-        return source;
+        return {
+          targetStem: source,
+          targetStemSpec: buildLiteralMorphStemSpec(source, {
+            sourceBase: ruleBase || source
+          }),
+          selectedSuffix: ""
+        };
       }
       const selectedSuffix = getDefaultNonactiveSuffix(optionsList);
       if (selectedSuffix) {
-        const optionMap = buildNonactiveOptionMap(optionsList);
-        const stems = optionMap.get(selectedSuffix) || [];
-        if (stems.length) {
-          return stems[0];
+        const optionSpecMap = buildNonactiveOptionSpecMap(optionsList);
+        const specs = optionSpecMap.get(selectedSuffix) || [];
+        const selectedSpec = specs[0] || null;
+        const selectedStem = selectedSpec ? realizeMorphStemSpec(selectedSpec, "") : "";
+        if (selectedStem) {
+          return {
+            targetStem: selectedStem,
+            targetStemSpec: selectedSpec,
+            selectedSuffix
+          };
         }
       }
-      return optionsList[0].stem || source;
+      const fallbackSpec = optionsList[0]?.stemSpec || null;
+      const fallbackStem = fallbackSpec ? realizeMorphStemSpec(fallbackSpec, "") : normalizeDerivationStemValue(optionsList[0]?.stem || source);
+      return {
+        targetStem: fallbackStem || source,
+        targetStemSpec: fallbackSpec || buildLiteralMorphStemSpec(fallbackStem || source, {
+          sourceBase: ruleBase || fallbackStem || source
+        }),
+        selectedSuffix: optionsList[0]?.suffix || ""
+      };
+    }
+    function buildNonactiveStemSelectionOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-stem-selection-source-frame") {
+        return null;
+      }
+      const target = deriveNonactiveStemSelectionTargetFromSourceFrame(sourceFrame);
+      if (!target || !target.targetStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-nonactive-stem-selection-realization",
+        routeFamily: "nonactive-stem-selection",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "select-nonactive-stem-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetStem: target.targetStem,
+        targetStemSpec: target.targetStemSpec || null,
+        selectedSuffix: target.selectedSuffix || "",
+        targetSignature: [sourceFrame.sourceSignature, target.targetStem, target.selectedSuffix || ""].join("|"),
+        targetFrame: Object.freeze({
+          stem: target.targetStem,
+          selectedSuffix: target.selectedSuffix || ""
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getNonactiveStemSelectionFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      requestFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-stem-selection-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-nonactive-stem-selection-realization" || operationFrame.routeFamily !== "nonactive-stem-selection" || operationFrame.operationApplied !== "select-nonactive-stem-from-source-frame" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || !operationFrame.targetFrame) {
+        return "operation-frame-required";
+      }
+      if (operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || requestFrame && requestFrame.sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      const expectedTarget = deriveNonactiveStemSelectionTargetFromSourceFrame(sourceFrame);
+      const expectedTargetSignature = [sourceFrame.sourceSignature, expectedTarget?.targetStem || "", expectedTarget?.selectedSuffix || ""].join("|");
+      const targetFrame = operationFrame.targetFrame || {};
+      if (operationFrame.targetSignature !== expectedTargetSignature || String(operationFrame.targetStem || "") !== String(expectedTarget?.targetStem || "") || String(targetFrame.stem || "") !== String(expectedTarget?.targetStem || "") || String(targetFrame.selectedSuffix || "") !== String(expectedTarget?.selectedSuffix || "")) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function deriveNonactiveStem(verb, analysisVerb, options = {}) {
+      const requestFrame = buildNonactiveStemSelectionSourceFrame({
+        verb,
+        analysisVerb,
+        options,
+        nonactiveRuleSource: options.nonactiveRuleSource || null
+      });
+      const sourceFrame = options.nonactiveStemSelectionSourceFrame || null;
+      const operationFrame = options.nonactiveStemSelectionOperationFrame || null;
+      if (getNonactiveStemSelectionFrameMismatch({
+        sourceFrame,
+        operationFrame,
+        requestFrame
+      })) {
+        return "";
+      }
+      return String(operationFrame.targetStem || "");
     }
     function getDefaultNonactiveSuffix(options) {
       const available = new Set(options.map(option => option.suffix));
       return targetObject.NONACTIVE_SUFFIX_ORDER.find(suffix => available.has(suffix)) || null;
     }
-    function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
+    function derivePatientivoStemFromNonactiveEntries(sourceFrame = null) {
+      const stem = String(sourceFrame?.sourceStem || "");
+      const suffix = String(sourceFrame?.sourceSuffix || "");
+      const options = {
+        isTransitive: sourceFrame?.isTransitive === true,
+        baseInfo: sourceFrame?.baseInfo || null,
+        stemSpec: sourceFrame?.stemSpec && typeof sourceFrame.stemSpec === "object" && sourceFrame.stemSpec.kind ? sourceFrame.stemSpec : null
+      };
       if (!stem || !suffix) {
         return [];
       }
@@ -7950,6 +9588,122 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         default:
           return [];
       }
+    }
+    function getPatientivoNonactiveSourceFrameSignature({
+      normalizedStem = "",
+      normalizedSuffix = "",
+      isTransitive = false,
+      baseInfo = null,
+      stemSpec = null
+    } = {}) {
+      return [normalizedStem, normalizedSuffix, isTransitive === true ? "transitive" : "intransitive", String(baseInfo?.lastOnset || ""), String(baseInfo?.lastNucleus || ""), normalizeDerivationStemValue(stemSpec?.sourceBase || ""), normalizePatientivoSourceSuffix(stemSpec?.sourceSuffix || ""), String(stemSpec?.kind || "")].join("|");
+    }
+    function buildPatientivoNonactiveStemSourceFrame({
+      stem = "",
+      suffix = "",
+      isTransitive = false,
+      baseInfo = null,
+      stemSpec = null
+    } = {}) {
+      const resolvedStemSpec = stemSpec && typeof stemSpec === "object" && stemSpec.kind ? stemSpec : null;
+      const normalizedStem = normalizeDerivationStemValue(resolvedStemSpec ? realizeMorphStemSpec(resolvedStemSpec, stem || "") : stem);
+      const normalizedSuffix = normalizePatientivoSourceSuffix(suffix);
+      const sourceSuffixContract = getPatientivoNonactiveSourceSuffixContract(normalizedSuffix);
+      if (!normalizedStem || !normalizedSuffix || !sourceSuffixContract) {
+        return null;
+      }
+      const normalizedBaseInfo = baseInfo && typeof baseInfo === "object" ? Object.freeze({
+        lastOnset: String(baseInfo.lastOnset || ""),
+        lastNucleus: String(baseInfo.lastNucleus || "")
+      }) : null;
+      return Object.freeze({
+        kind: "patientivo-nonactive-stem-source-frame",
+        version: 1,
+        routeFamily: "patientivo-nonactive-source",
+        operationFamily: "nonactive-source-to-patientive-stem",
+        sourceStem: normalizedStem,
+        sourceSuffix: normalizedSuffix,
+        isTransitive: isTransitive === true,
+        baseInfo: normalizedBaseInfo,
+        stemSpec: resolvedStemSpec,
+        sourceSuffixContract,
+        sourceSignature: getPatientivoNonactiveSourceFrameSignature({
+          normalizedStem,
+          normalizedSuffix,
+          isTransitive: isTransitive === true,
+          baseInfo: normalizedBaseInfo,
+          stemSpec: resolvedStemSpec
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPatientivoNonactiveEntrySignature(entries = []) {
+      return (Array.isArray(entries) ? entries : []).map(entry => [normalizeDerivationStemValue(entry?.stem || ""), String(entry?.suffix || ""), Array.isArray(entry?.allowedSuffixes) ? entry.allowedSuffixes.join("/") : "", entry?.blocksAbsolutiveZeroNominalMarker === true ? "blocks-zero" : "allows-zero", entry?.patientiveSourceStageFrame?.operation || "", entry?.patientiveSourceStageFrame?.sourceSuffix || ""].join(":")).join("|");
+    }
+    function buildPatientivoNonactiveStemOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "patientivo-nonactive-stem-source-frame") {
+        return null;
+      }
+      const targetEntries = derivePatientivoStemFromNonactiveEntries(sourceFrame);
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-patientivo-nonactive-stem-realization",
+        routeFamily: "patientivo-nonactive-source",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-patientive-stems-from-nonactive-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetEntries: Object.freeze((Array.isArray(targetEntries) ? targetEntries : []).map(entry => Object.freeze({
+          ...entry
+        }))),
+        targetSignature: [sourceFrame.sourceSignature, getPatientivoNonactiveEntrySignature(targetEntries)].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPatientivoNonactiveStemFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      requestFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "patientivo-nonactive-stem-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-patientivo-nonactive-stem-realization" || operationFrame.routeFamily !== "patientivo-nonactive-source" || operationFrame.operationApplied !== "realize-patientive-stems-from-nonactive-source-frame" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || !Array.isArray(operationFrame.targetEntries)) {
+        return "operation-frame-required";
+      }
+      if (operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || requestFrame && requestFrame.sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      const expectedEntries = derivePatientivoStemFromNonactiveEntries(sourceFrame);
+      const expectedTargetSignature = [sourceFrame.sourceSignature, getPatientivoNonactiveEntrySignature(expectedEntries)].join("|");
+      const actualTargetSignature = [sourceFrame.sourceSignature, getPatientivoNonactiveEntrySignature(operationFrame.targetEntries)].join("|");
+      if (operationFrame.targetSignature !== expectedTargetSignature || actualTargetSignature !== expectedTargetSignature) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getPatientivoStemFromNonactive(stem, suffix, options = {}) {
+      const requestFrame = buildPatientivoNonactiveStemSourceFrame({
+        stem,
+        suffix,
+        isTransitive: options.isTransitive === true,
+        baseInfo: options.baseInfo || null,
+        stemSpec: options.stemSpec || null
+      });
+      const sourceFrame = options.patientivoNonactiveSourceFrame || null;
+      const operationFrame = options.patientivoNonactiveOperationFrame || null;
+      if (getPatientivoNonactiveStemFrameMismatch({
+        sourceFrame,
+        operationFrame,
+        requestFrame
+      })) {
+        return [];
+      }
+      return operationFrame.targetEntries.map(entry => ({
+        ...entry
+      }));
     }
     const PATIENTIVO_DERIVATION_BUILDERS = Object.freeze({
       perfectivo: buildPatientivoPerfectivoDerivations,
@@ -8482,10 +10236,20 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       options.forEach(option => {
         const optionStemSpec = option?.stemSpec && typeof option.stemSpec === "object" && option.stemSpec.kind ? option.stemSpec : buildLiteralMorphStemSpec(realizeMorphStemSpec(option?.stemSpec, option?.stem || ""));
         const optionStem = realizeMorphStemSpec(optionStemSpec, "");
-        const derivedList = getPatientivoStemFromNonactive(optionStem, option.suffix, {
+        const patientivoNonactiveSourceFrame = buildPatientivoNonactiveStemSourceFrame({
+          stem: optionStem,
+          suffix: option.suffix,
           baseInfo,
           isTransitive,
           stemSpec: optionStemSpec
+        });
+        const patientivoNonactiveOperationFrame = buildPatientivoNonactiveStemOperationFrame(patientivoNonactiveSourceFrame);
+        const derivedList = getPatientivoStemFromNonactive(optionStem, option.suffix, {
+          baseInfo,
+          isTransitive,
+          stemSpec: optionStemSpec,
+          patientivoNonactiveSourceFrame,
+          patientivoNonactiveOperationFrame
         });
         if (!derivedList.length) {
           return;
@@ -9667,7 +11431,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       const matched = PATIENTIVO_ROOT_STOCK_VARIANT_CONSONANTS.find(entry => entry.classical === normalized || entry.nawat === normalized);
       return matched ? matched.nawat : "";
     }
-    function getPatientivoRootStockSourceContract(options = {}) {
+    function buildPatientivoRootStockSourceContractRecord(options = {}) {
       const normalizedSourceStem = normalizeDerivationStemValue(options.sourceStem || "");
       const normalizedOutputStem = normalizeDerivationStemValue(options.outputStem || "");
       const hasOutputConnector = Object.prototype.hasOwnProperty.call(options, "outputConnector");
@@ -9742,6 +11506,570 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
           routeStemOnly
         }
       }));
+    }
+    function getPatientivoRootStockSourceContract(options = {}) {
+      return buildPatientivoRootStockSourceContractRecord(options);
+    }
+    function getPatientivoRootStockStemSpecSignature(stemSpec = null) {
+      if (!stemSpec || typeof stemSpec !== "object") {
+        return "";
+      }
+      return [String(stemSpec.kind || ""), normalizeDerivationStemValue(stemSpec.sourceBase || stemSpec.sourceStem || ""), normalizeDerivationStemValue(stemSpec.targetStem || stemSpec.stem || ""), String(stemSpec.sourceSuffix || ""), String(stemSpec.resultSuffix || stemSpec.replacement || stemSpec.appendText || ""), String(stemSpec.operationId || "")].join(":");
+    }
+    function buildPatientivoRootStockStemSourceFrame({
+      sourceModel = null,
+      sourceStem = "",
+      gateStem = "",
+      sourceStemSpec = null,
+      isTransitive = false
+    } = {}) {
+      const normalizedSourceStem = normalizeDerivationStemValue(sourceStem);
+      const normalizedGateStem = normalizeDerivationStemValue(gateStem || sourceStem);
+      const resolvedStemSpec = sourceStemSpec && typeof sourceStemSpec === "object" && sourceStemSpec.kind ? sourceStemSpec : null;
+      if (!normalizedSourceStem || !normalizedGateStem) {
+        return null;
+      }
+      const sourceSyllables = targetObject.getSyllables(normalizedSourceStem, {
+        analysis: true,
+        assumeFinalV: true
+      });
+      const gateSyllables = targetObject.getSyllables(normalizedGateStem, {
+        analysis: true,
+        assumeFinalV: true
+      });
+      const endsWithLua = normalizedSourceStem.endsWith("lua");
+      const gateEndsWithLua = normalizedGateStem.endsWith("lua");
+      const endsWithProductiveNi = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "n", "i");
+      const endsWithProductiveNa = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "n", "a");
+      const gateEndsWithProductiveNi = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "n", "i");
+      const gateEndsWithProductiveNa = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "n", "a");
+      const endsWithPlainWa = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "w", "a");
+      const endsWithPlainWi = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "w", "i");
+      const gateEndsWithPlainWa = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "w", "a");
+      const gateEndsWithPlainWi = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "w", "i");
+      const endsWithProductiveKi = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "k", "i");
+      const gateEndsWithProductiveKi = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "k", "i");
+      const endsWithProductiveKa = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "k", "a");
+      const gateEndsWithProductiveKa = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "k", "a");
+      const endsWithProductiveTiya = normalizedSourceStem.endsWith("tiya");
+      const gateEndsWithProductiveTiya = normalizedGateStem.endsWith("tiya");
+      const endsWithProductiveYa = targetObject.endsWithOpenSyllableSuffix(normalizedSourceStem, "y", "a");
+      const gateEndsWithProductiveYa = targetObject.endsWithOpenSyllableSuffix(normalizedGateStem, "y", "a");
+      const sourceIwiAwiUaSuffix = normalizedSourceStem.endsWith("iwi") ? "iwi" : normalizedSourceStem.endsWith("awi") ? "awi" : normalizedSourceStem.endsWith("ua") ? "ua" : "";
+      const gateIwiAwiUaSuffix = normalizedGateStem.endsWith("iwi") ? "iwi" : normalizedGateStem.endsWith("awi") ? "awi" : normalizedGateStem.endsWith("ua") ? "ua" : "";
+      const getCoreBeforeSuffixSyllablesForStem = (suffix = "", sourceBase = "") => {
+        if (!suffix || !sourceBase.endsWith(suffix) || sourceBase.length <= suffix.length) {
+          return [];
+        }
+        return targetObject.getSyllables(sourceBase.slice(0, -suffix.length), {
+          analysis: true,
+          assumeFinalV: true
+        });
+      };
+      const hasShortOpenCoreBeforeSuffix = (suffix = "", sourceBase = "", coreSyllables = null) => {
+        if (!suffix || !sourceBase.endsWith(suffix) || sourceBase.length <= suffix.length) {
+          return false;
+        }
+        const resolvedCoreSyllables = Array.isArray(coreSyllables) ? coreSyllables : getCoreBeforeSuffixSyllablesForStem(suffix, sourceBase);
+        if (resolvedCoreSyllables.length !== 1) {
+          return false;
+        }
+        const [coreSyllable] = resolvedCoreSyllables;
+        return targetObject.isOpenSyllable(coreSyllable) && Boolean(coreSyllable?.onset);
+      };
+      const isShortWiSuperpositionCandidate = endsWithPlainWi && gateEndsWithPlainWi && hasShortOpenCoreBeforeSuffix("wi", normalizedGateStem);
+      const useIwiFamilySource = !isShortWiSuperpositionCandidate && sourceIwiAwiUaSuffix === "iwi" && gateIwiAwiUaSuffix === "iwi";
+      const useAwiFamilySource = !isShortWiSuperpositionCandidate && sourceIwiAwiUaSuffix === "awi" && gateIwiAwiUaSuffix === "awi";
+      const useUaFamilySource = isTransitive !== true && !isShortWiSuperpositionCandidate && sourceIwiAwiUaSuffix === "ua" && gateIwiAwiUaSuffix === "ua";
+      const isCvkiShape = sourceSyllables.length === 2 && sourceSyllables[0]?.form === "CV" && sourceSyllables[1]?.form === "CV" && sourceSyllables[1]?.onset === "k" && sourceSyllables[1]?.nucleus === "i";
+      const gateIsCvkiShape = gateSyllables.length === 2 && gateSyllables[0]?.form === "CV" && gateSyllables[1]?.form === "CV" && gateSyllables[1]?.onset === "k" && gateSyllables[1]?.nucleus === "i";
+      const sourceEndingFamily = endsWithLua && isTransitive === true ? "lua" : endsWithProductiveNi ? "productive-ni" : endsWithProductiveNa ? "productive-na" : endsWithPlainWa ? "plain-wa" : isShortWiSuperpositionCandidate ? "plain-wi" : useIwiFamilySource ? "iwi-family" : useAwiFamilySource ? "awi-family" : useUaFamilySource ? "ua-family" : endsWithPlainWi ? "plain-wi" : endsWithProductiveKi ? "productive-ki" : endsWithProductiveKa ? "productive-ka" : endsWithProductiveTiya ? "productive-tiya" : endsWithProductiveYa ? "productive-ya" : "";
+      const gateEndingFamily = gateEndsWithLua && isTransitive === true ? "lua" : gateEndsWithProductiveNi ? "productive-ni" : gateEndsWithProductiveNa ? "productive-na" : gateEndsWithPlainWa ? "plain-wa" : isShortWiSuperpositionCandidate ? "plain-wi" : useIwiFamilySource ? "iwi-family" : useAwiFamilySource ? "awi-family" : useUaFamilySource ? "ua-family" : gateEndsWithPlainWi ? "plain-wi" : gateEndsWithProductiveKi ? "productive-ki" : gateEndsWithProductiveKa ? "productive-ka" : gateEndsWithProductiveTiya ? "productive-tiya" : gateEndsWithProductiveYa ? "productive-ya" : "";
+      const sourceSuffix = endsWithLua && isTransitive === true ? "ua" : endsWithProductiveNi ? "ni" : endsWithProductiveNa ? "na" : endsWithPlainWa ? "wa" : isShortWiSuperpositionCandidate ? "wi" : useIwiFamilySource ? "iwi" : useAwiFamilySource ? "awi" : useUaFamilySource ? "ua" : endsWithPlainWi ? "wi" : endsWithProductiveKi ? "ki" : endsWithProductiveKa ? "ka" : endsWithProductiveTiya ? "tiya" : endsWithProductiveYa ? "ya" : "";
+      const gateSuffix = gateEndsWithLua && isTransitive === true ? "ua" : gateEndsWithProductiveNi ? "ni" : gateEndsWithProductiveNa ? "na" : gateEndsWithPlainWa ? "wa" : isShortWiSuperpositionCandidate ? "wi" : useIwiFamilySource ? "iwi" : useAwiFamilySource ? "awi" : useUaFamilySource ? "ua" : gateEndsWithPlainWi ? "wi" : gateEndsWithProductiveKi ? "ki" : gateEndsWithProductiveKa ? "ka" : gateEndsWithProductiveTiya ? "tiya" : gateEndsWithProductiveYa ? "ya" : "";
+      const sourceCore = sourceSuffix ? normalizedSourceStem.slice(0, -sourceSuffix.length) : "";
+      const sourceCoreSyllables = sourceCore ? targetObject.getSyllables(sourceCore, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const gateCore = gateSuffix ? normalizedGateStem.slice(0, -gateSuffix.length) : "";
+      const gateCoreSyllables = gateCore ? targetObject.getSyllables(gateCore, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const startsWithInitialRedup = (() => {
+        if (sourceSyllables.length < 2) {
+          return false;
+        }
+        const first = sourceSyllables[0];
+        const second = sourceSyllables[1];
+        if (!first || !second) {
+          return false;
+        }
+        const isStandardRedup = targetObject.REDUP_PREFIX_FORMS.has(first.form) && second.nucleus && targetObject.isOpenSyllable(second) && (first.onset || second.onset) && targetObject.getSyllableBaseKey(first) === targetObject.getSyllableBaseKey(second);
+        const isLRedup = second.nucleus && targetObject.getSyllableBaseKey(first) === targetObject.getSyllableBaseKey(second) && ((first.form === "V" || first.form === "Vj") && second.form === "Vl" || (first.form === "CV" || first.form === "CVj") && second.form === "CVl");
+        return isStandardRedup || isLRedup;
+      })();
+      const startsWithVj = sourceSyllables[0]?.form === "Vj";
+      const hasFinalConsonantCluster = (stem = "") => {
+        const letters = targetObject.splitVerbLetters(stem);
+        if (letters.length < 2) {
+          return false;
+        }
+        const last = letters[letters.length - 1] || "";
+        const prev = letters[letters.length - 2] || "";
+        return targetObject.isVerbLetterConsonant(last) && targetObject.isVerbLetterConsonant(prev);
+      };
+      const isShortWiSuperpositionSource = endsWithPlainWi && gateEndsWithPlainWi && sourceCore && sourceEndingFamily === "plain-wi" && gateEndingFamily === "plain-wi" && hasShortOpenCoreBeforeSuffix("wi", normalizedGateStem, gateCoreSyllables);
+      const routeOperation = (() => {
+        if (isTransitive === true && sourceEndingFamily === "lua" && gateEndingFamily === "lua" && sourceCore && sourceSyllables.length > 1) {
+          return "transitive-lua-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily && sourceEndingFamily === gateEndingFamily && (sourceEndingFamily === "productive-ni" || sourceEndingFamily === "productive-na") && sourceCore && sourceSyllables.length > 1) {
+          return `${sourceEndingFamily}-root-stock-stem`;
+        }
+        if (isTransitive !== true && isShortWiSuperpositionSource) {
+          return "short-wi-superposition-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "plain-wi" && gateEndingFamily === "plain-wi" && sourceCore && gateCoreSyllables.length > 1) {
+          return "plain-wi-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "iwi-family" && gateEndingFamily === "iwi-family" && sourceSuffix === "iwi" && gateSuffix === "iwi" && sourceCore && (gateCoreSyllables.length > 1 || gateCoreSyllables.length === 1 && targetObject.isSyllableSequencePronounceable(sourceCore))) {
+          return hasFinalConsonantCluster(sourceCore) ? "iwi-final-cluster-root-stock-stem" : "iwi-family-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "awi-family" && gateEndingFamily === "awi-family" && sourceSuffix === "awi" && gateSuffix === "awi" && sourceCore && (gateCoreSyllables.length > 1 || normalizedGateStem === "awi")) {
+          return hasFinalConsonantCluster(sourceCore) ? "awi-final-cluster-root-stock-stem" : "awi-family-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "ua-family" && gateEndingFamily === "ua-family" && sourceSuffix === "ua" && gateSuffix === "ua" && sourceCore && gateCoreSyllables.length > 1) {
+          return hasFinalConsonantCluster(sourceCore) ? "ua-final-cluster-root-stock-stem" : "ua-family-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "plain-wa" && gateEndingFamily === "plain-wa" && sourceCore && gateCoreSyllables.length > 1) {
+          return "plain-wa-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "productive-ki" && gateEndingFamily === "productive-ki" && isCvkiShape && gateIsCvkiShape && sourceCore) {
+          return "productive-ki-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "productive-ka" && gateEndingFamily === "productive-ka" && sourceCore && sourceCoreSyllables.length > 1 && (startsWithInitialRedup || startsWithVj)) {
+          return "productive-ka-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "productive-tiya" && gateEndingFamily === "productive-tiya" && sourceCore) {
+          return "productive-tiya-root-stock-stem";
+        }
+        if (isTransitive !== true && sourceEndingFamily === "productive-ya" && gateEndingFamily === "productive-ya" && sourceCore) {
+          return "productive-ya-l-root-stock-stem";
+        }
+        return "";
+      })();
+      const routeSupported = Boolean(routeOperation);
+      const rightEdgeFrame = Object.freeze({
+        sourceEndingFamily,
+        sourceSuffix,
+        gateEndingFamily,
+        gateSuffix,
+        sourceSyllableCount: sourceSyllables.length,
+        gateSyllableCount: gateSyllables.length,
+        sourceCore,
+        targetStem: routeOperation === "productive-ya-l-root-stock-stem" ? `${sourceCore}l` : routeOperation === "iwi-final-cluster-root-stock-stem" ? `${sourceCore}i` : routeOperation === "awi-final-cluster-root-stock-stem" ? `${sourceCore}a` : routeOperation === "ua-final-cluster-root-stock-stem" ? `${sourceCore}u` : sourceCore,
+        replacementSegment: routeOperation === "productive-ya-l-root-stock-stem" ? "l" : routeOperation === "iwi-final-cluster-root-stock-stem" ? "i" : routeOperation === "awi-final-cluster-root-stock-stem" ? "a" : routeOperation === "ua-final-cluster-root-stock-stem" ? "u" : "",
+        sourceCoreSyllableCount: sourceCoreSyllables.length,
+        gateCore,
+        gateCoreSyllableCount: gateCoreSyllables.length,
+        startsWithInitialRedup,
+        startsWithVj,
+        variantConsonants: routeOperation === "productive-ni-root-stock-stem" || routeOperation === "productive-na-root-stock-stem" || routeOperation === "plain-wa-root-stock-stem" || routeOperation === "plain-wi-root-stock-stem" || routeOperation === "productive-ki-root-stock-stem" ? Object.freeze(["k", "ch", "s", "sh"]) : routeOperation === "productive-ka-root-stock-stem" ? Object.freeze(["k", "ch", "j"]) : routeOperation === "short-wi-superposition-root-stock-stem" ? Object.freeze(["k"]) : routeOperation === "awi-family-root-stock-stem" || routeOperation === "awi-final-cluster-root-stock-stem" ? Object.freeze(["k", "ch", "s", "sh"]) : Object.freeze([]),
+        additionalVariantConsonants: routeOperation === "productive-ki-root-stock-stem" ? Object.freeze(["j"]) : Object.freeze([]),
+        hasProductiveKiSVariant: routeOperation === "productive-ki-root-stock-stem" && (normalizedSourceStem === "waki" || normalizedGateStem === "waki"),
+        routeOperation,
+        routeSupported
+      });
+      return Object.freeze({
+        kind: "patientivo-root-stock-stem-source-frame",
+        version: 1,
+        routeFamily: "patientivo-root-stock-source",
+        operationFamily: "derive-patientive-root-stock-stem",
+        sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
+        sourceStem: normalizedSourceStem,
+        gateStem: normalizedGateStem,
+        isTransitive: isTransitive === true,
+        sourceStemSpec: resolvedStemSpec,
+        sourceModel,
+        rightEdgeFrame,
+        sourceSignature: [normalizedSourceStem, normalizedGateStem, isTransitive === true ? "transitive" : "intransitive", rightEdgeFrame.sourceEndingFamily, rightEdgeFrame.gateEndingFamily, rightEdgeFrame.sourceCore, rightEdgeFrame.routeOperation, rightEdgeFrame.routeSupported === true ? "supported" : "blocked", getPatientivoRootStockStemSpecSignature(resolvedStemSpec)].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPatientivoRootStockEntrySignature(entries = []) {
+      return (Array.isArray(entries) ? entries : []).map(entry => [normalizeDerivationStemValue(entry?.stem || entry?.targetStem || ""), String(entry?.suffix || entry?.outputConnector || ""), entry?.lockNominalMarker === true ? "locked" : "unlocked", entry?.rootStockSourceContract?.outputSurface || "", entry?.rootStockSourceContract?.routeStemOnly === true ? "stem-only" : "with-connector", getPatientivoRootStockStemSpecSignature(entry?.stemSpec || entry?.targetStemSpec || null)].join(":")).join("|");
+    }
+    function derivePatientivoRootStockEntriesFromSourceFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "patientivo-root-stock-stem-source-frame") {
+        return [];
+      }
+      const rightEdgeFrame = sourceFrame.rightEdgeFrame || null;
+      if (rightEdgeFrame?.routeSupported !== true) {
+        return [];
+      }
+      const targetStem = normalizeDerivationStemValue(rightEdgeFrame.targetStem || rightEdgeFrame.sourceCore || "");
+      if (!targetStem) {
+        return [];
+      }
+      const sourceSuffix = rightEdgeFrame.sourceSuffix || "ua";
+      const targetStemSpec = buildReplaceSuffixMorphStemSpec(sourceFrame.sourceStemSpec && typeof sourceFrame.sourceStemSpec === "object" && sourceFrame.sourceStemSpec.kind ? sourceFrame.sourceStemSpec : sourceFrame.sourceStem, sourceSuffix, String(rightEdgeFrame.replacementSegment || ""), {
+        fallbackSourceStem: sourceFrame.sourceStem,
+        sourceSuffix,
+        sourceBase: targetStem
+      });
+      const buildContract = ({
+        outputStem = "",
+        outputConnector = "",
+        routeStemOnly = false,
+        variantConsonant = ""
+      } = {}) => buildPatientivoRootStockSourceContractRecord({
+        sourceStem: sourceFrame.sourceStem,
+        outputStem,
+        outputConnector,
+        routeStemOnly,
+        variantConsonant
+      });
+      if (rightEdgeFrame.routeOperation === "transitive-lua-root-stock-stem") {
+        const rootStockSourceContract = buildContract({
+          outputStem: targetStem,
+          outputConnector: "",
+          routeStemOnly: true
+        });
+        if (rootStockSourceContract.supported !== true) {
+          return [];
+        }
+        return [Object.freeze({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          lockNominalMarker: false,
+          rootStockSourceContract,
+          routeOperation: rightEdgeFrame.routeOperation
+        })];
+      }
+      if (rightEdgeFrame.routeOperation !== "productive-ni-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-na-root-stock-stem" && rightEdgeFrame.routeOperation !== "plain-wa-root-stock-stem" && rightEdgeFrame.routeOperation !== "plain-wi-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-ki-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-ka-root-stock-stem" && rightEdgeFrame.routeOperation !== "short-wi-superposition-root-stock-stem" && rightEdgeFrame.routeOperation !== "iwi-family-root-stock-stem" && rightEdgeFrame.routeOperation !== "iwi-final-cluster-root-stock-stem" && rightEdgeFrame.routeOperation !== "awi-family-root-stock-stem" && rightEdgeFrame.routeOperation !== "awi-final-cluster-root-stock-stem" && rightEdgeFrame.routeOperation !== "ua-family-root-stock-stem" && rightEdgeFrame.routeOperation !== "ua-final-cluster-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-tiya-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-ya-l-root-stock-stem") {
+        return [];
+      }
+      const entries = [];
+      const pushEntry = ({
+        stem = "",
+        suffix = "",
+        stemSpec = null,
+        lockNominalMarker = false,
+        routeStemOnly = false,
+        variantConsonant = ""
+      } = {}) => {
+        const normalizedStem = normalizeDerivationStemValue(stem);
+        if (!normalizedStem) {
+          return;
+        }
+        const rootStockSourceContract = buildContract({
+          outputStem: normalizedStem,
+          outputConnector: suffix,
+          routeStemOnly,
+          variantConsonant
+        });
+        if (rootStockSourceContract.supported !== true) {
+          return;
+        }
+        entries.push(Object.freeze({
+          stem: normalizedStem,
+          suffix,
+          stemSpec,
+          lockNominalMarker: lockNominalMarker === true,
+          rootStockSourceContract,
+          routeOperation: rightEdgeFrame.routeOperation,
+          variantConsonant: normalizePatientivoRootStockVariantConsonant(variantConsonant)
+        }));
+      };
+      const variantConsonants = rightEdgeFrame.routeOperation === "productive-ki-root-stock-stem" ? ["k", "ch", "j", ...(rightEdgeFrame.hasProductiveKiSVariant === true ? ["s"] : [])] : rightEdgeFrame.routeOperation === "awi-family-root-stock-stem" || rightEdgeFrame.routeOperation === "awi-final-cluster-root-stock-stem" ? [] : rightEdgeFrame.variantConsonants || [];
+      variantConsonants.forEach(consonant => {
+        const extendedStem = `${targetStem}${consonant}`;
+        const extendedStemSpec = buildAppendMorphStemSpec(targetStem, consonant, {
+          sourceStemSpec: targetStemSpec || null,
+          sourceBase: targetStem
+        });
+        pushEntry({
+          stem: extendedStem,
+          suffix: "",
+          stemSpec: extendedStemSpec,
+          routeStemOnly: true,
+          variantConsonant: consonant
+        });
+        pushEntry({
+          stem: extendedStem,
+          suffix: getTClassSuffixForStem(extendedStem),
+          stemSpec: extendedStemSpec,
+          lockNominalMarker: true,
+          variantConsonant: consonant
+        });
+      });
+      if (rightEdgeFrame.routeOperation === "short-wi-superposition-root-stock-stem") {
+        const tMirrorStem = `${targetStem}t`;
+        pushEntry({
+          stem: tMirrorStem,
+          suffix: "",
+          stemSpec: buildAppendMorphStemSpec(targetStem, "t", {
+            sourceStemSpec: targetStemSpec || null,
+            sourceBase: targetStem
+          }),
+          lockNominalMarker: true,
+          routeStemOnly: true
+        });
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "plain-wi-root-stock-stem") {
+        const targetLetters = targetObject.splitVerbLetters(targetStem);
+        const lastTarget = targetLetters[targetLetters.length - 1] || "";
+        const reducedTargetStem = targetObject.isVerbLetterVowel(lastTarget) ? targetStem.slice(0, -1) : targetStem;
+        const reducedTargetStemSpec = targetObject.isVerbLetterVowel(lastTarget) ? buildReplaceSuffixMorphStemSpec(targetStemSpec || targetStem, lastTarget, "", {
+          fallbackSourceStem: targetStem,
+          sourceSuffix: lastTarget,
+          sourceBase: reducedTargetStem
+        }) : targetStemSpec;
+        pushEntry({
+          stem: reducedTargetStem,
+          suffix: getTClassSuffixForStem(reducedTargetStem),
+          stemSpec: reducedTargetStemSpec,
+          lockNominalMarker: true
+        });
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "iwi-family-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          routeStemOnly: true
+        });
+      }
+      if (rightEdgeFrame.routeOperation === "iwi-final-cluster-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          routeStemOnly: true
+        });
+        pushEntry({
+          stem: targetStem,
+          suffix: getTClassSuffixForStem(targetStem),
+          stemSpec: targetStemSpec,
+          lockNominalMarker: true
+        });
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "awi-family-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          routeStemOnly: true
+        });
+        pushEntry({
+          stem: targetStem,
+          suffix: getTClassSuffixForStem(targetStem),
+          stemSpec: targetStemSpec,
+          lockNominalMarker: true
+        });
+        const awiStem = `${targetStem}a`;
+        const awiStemSpec = buildAppendMorphStemSpec(targetStem, "a", {
+          sourceStemSpec: targetStemSpec || null,
+          sourceBase: targetStem
+        });
+        (rightEdgeFrame.variantConsonants || []).forEach(consonant => {
+          const extendedStem = `${awiStem}${consonant}`;
+          const extendedStemSpec = buildAppendMorphStemSpec(awiStem, consonant, {
+            sourceStemSpec: awiStemSpec || null,
+            sourceBase: awiStem
+          });
+          pushEntry({
+            stem: extendedStem,
+            suffix: "",
+            stemSpec: extendedStemSpec,
+            routeStemOnly: true,
+            variantConsonant: consonant
+          });
+          pushEntry({
+            stem: extendedStem,
+            suffix: getTClassSuffixForStem(extendedStem),
+            stemSpec: extendedStemSpec,
+            lockNominalMarker: true,
+            variantConsonant: consonant
+          });
+        });
+        const aMirrorStem = `${awiStem}t`;
+        pushEntry({
+          stem: aMirrorStem,
+          suffix: "",
+          stemSpec: buildAppendMorphStemSpec(awiStem, "t", {
+            sourceStemSpec: awiStemSpec || null,
+            sourceBase: awiStem
+          }),
+          lockNominalMarker: true,
+          routeStemOnly: true
+        });
+        const fullAwiMirrorStem = `${sourceFrame.sourceStem}t`;
+        pushEntry({
+          stem: fullAwiMirrorStem,
+          suffix: "",
+          stemSpec: buildAppendMorphStemSpec(sourceFrame.sourceStem, "t", {
+            sourceStemSpec: sourceFrame.sourceStemSpec || null,
+            sourceBase: sourceFrame.sourceStem
+          }),
+          lockNominalMarker: true,
+          routeStemOnly: true
+        });
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "awi-final-cluster-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          routeStemOnly: true
+        });
+        pushEntry({
+          stem: targetStem,
+          suffix: getTClassSuffixForStem(targetStem),
+          stemSpec: targetStemSpec,
+          lockNominalMarker: true
+        });
+        (rightEdgeFrame.variantConsonants || []).forEach(consonant => {
+          const extendedStem = `${targetStem}${consonant}`;
+          const extendedStemSpec = buildAppendMorphStemSpec(targetStem, consonant, {
+            sourceStemSpec: targetStemSpec || null,
+            sourceBase: targetStem
+          });
+          pushEntry({
+            stem: extendedStem,
+            suffix: "",
+            stemSpec: extendedStemSpec,
+            routeStemOnly: true,
+            variantConsonant: consonant
+          });
+          pushEntry({
+            stem: extendedStem,
+            suffix: getTClassSuffixForStem(extendedStem),
+            stemSpec: extendedStemSpec,
+            lockNominalMarker: true,
+            variantConsonant: consonant
+          });
+        });
+        const fullAwiMirrorStem = `${sourceFrame.sourceStem}t`;
+        pushEntry({
+          stem: fullAwiMirrorStem,
+          suffix: "",
+          stemSpec: buildAppendMorphStemSpec(sourceFrame.sourceStem, "t", {
+            sourceStemSpec: sourceFrame.sourceStemSpec || null,
+            sourceBase: sourceFrame.sourceStem
+          }),
+          lockNominalMarker: true,
+          routeStemOnly: true
+        });
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "ua-family-root-stock-stem" || rightEdgeFrame.routeOperation === "ua-final-cluster-root-stock-stem") {
+        const targetLetters = targetObject.splitVerbLetters(targetStem);
+        const lastTarget = targetLetters[targetLetters.length - 1] || "";
+        if (lastTarget !== "t") {
+          pushEntry({
+            stem: targetStem,
+            suffix: "",
+            stemSpec: targetStemSpec,
+            routeStemOnly: true
+          });
+          pushEntry({
+            stem: targetStem,
+            suffix: getTClassSuffixForStem(targetStem),
+            stemSpec: targetStemSpec,
+            lockNominalMarker: true
+          });
+        }
+        const prevTarget = targetLetters[targetLetters.length - 2] || "";
+        if (lastTarget === "y" && targetObject.isVerbLetterVowel(prevTarget)) {
+          const yTrimmedStem = targetStem.slice(0, -1);
+          const yTrimmedStemSpec = buildReplaceSuffixMorphStemSpec(targetStemSpec || targetStem, "y", "", {
+            fallbackSourceStem: targetStem,
+            sourceSuffix: "y",
+            sourceBase: yTrimmedStem
+          });
+          const yMirrorStem = `${yTrimmedStem}t`;
+          pushEntry({
+            stem: yMirrorStem,
+            suffix: "",
+            stemSpec: buildAppendMorphStemSpec(yTrimmedStem, "t", {
+              sourceStemSpec: yTrimmedStemSpec || null,
+              sourceBase: yTrimmedStem
+            }),
+            lockNominalMarker: true,
+            routeStemOnly: true
+          });
+        }
+        return entries;
+      }
+      if (rightEdgeFrame.routeOperation === "productive-tiya-root-stock-stem" || rightEdgeFrame.routeOperation === "productive-ya-l-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: "",
+          stemSpec: targetStemSpec,
+          routeStemOnly: true
+        });
+      }
+      if (rightEdgeFrame.routeOperation !== "productive-ki-root-stock-stem" && rightEdgeFrame.routeOperation !== "productive-ka-root-stock-stem") {
+        pushEntry({
+          stem: targetStem,
+          suffix: getTClassSuffixForStem(targetStem),
+          stemSpec: targetStemSpec,
+          lockNominalMarker: true
+        });
+      }
+      return entries;
+    }
+    function buildPatientivoRootStockStemOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "patientivo-root-stock-stem-source-frame") {
+        return null;
+      }
+      const targetEntries = derivePatientivoRootStockEntriesFromSourceFrame(sourceFrame);
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-patientivo-root-stock-stem-realization",
+        routeFamily: "patientivo-root-stock-source",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-patientive-root-stock-stems-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetEntries: Object.freeze(targetEntries.map(entry => Object.freeze({
+          ...entry
+        }))),
+        targetSignature: [sourceFrame.sourceSignature, getPatientivoRootStockEntrySignature(targetEntries)].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPatientivoRootStockStemFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      requestFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "patientivo-root-stock-stem-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-patientivo-root-stock-stem-realization" || operationFrame.routeFamily !== "patientivo-root-stock-source" || operationFrame.operationApplied !== "realize-patientive-root-stock-stems-from-source-frame" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || !Array.isArray(operationFrame.targetEntries)) {
+        return "operation-frame-required";
+      }
+      if (operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || requestFrame && requestFrame.sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      const expectedEntries = derivePatientivoRootStockEntriesFromSourceFrame(sourceFrame);
+      const expectedTargetSignature = [sourceFrame.sourceSignature, getPatientivoRootStockEntrySignature(expectedEntries)].join("|");
+      const actualTargetSignature = [sourceFrame.sourceSignature, getPatientivoRootStockEntrySignature(operationFrame.targetEntries)].join("|");
+      if (operationFrame.targetSignature !== expectedTargetSignature || actualTargetSignature !== expectedTargetSignature) {
+        return "contradictory-target-frame";
+      }
+      return "";
     }
     function getPatientivoImperfectiveSourceStemContract({
       sourceStem = "",
@@ -9978,7 +12306,6 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       const endsWithProductiveKi = targetObject.endsWithOpenSyllableSuffix(base, "k", "i");
       const endsWithProductiveKa = targetObject.endsWithOpenSyllableSuffix(base, "k", "a");
       const endsWithProductiveYa = targetObject.endsWithOpenSyllableSuffix(base, "y", "a");
-      const isLuaEnding = base.endsWith("lua");
       const syllables = targetObject.getSyllables(base, {
         analysis: true,
         assumeFinalV: true
@@ -10270,13 +12597,67 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
           lockNominalMarker: true
         });
       };
+      const addTypedRootStockEntry = (targetEntry = null, operationFrame = null, sourceFrame = null) => {
+        if (!targetEntry || getPatientivoRootStockStemFrameMismatch({
+          sourceFrame,
+          operationFrame
+        })) {
+          return;
+        }
+        const normalized = normalizeDerivationStemValue(targetEntry.stem || "");
+        if (!normalized) {
+          return;
+        }
+        const suffix = String(targetEntry.suffix || "");
+        const nextEntry = buildPatientivoDerivationEntry({
+          sourceModel: patientivoSourceModel,
+          sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
+          stemSpec: targetEntry.stemSpec || null,
+          fallbackStem: normalized,
+          subjectSuffix: suffix,
+          lockNominalMarker: targetEntry.lockNominalMarker === true,
+          nominalMarkerPolicy: buildPatientivoNominalMarkerPolicy({
+            sourceType: PATIENTIVO_DERIVATION_SOURCE_TYPE.troncoVerbal,
+            defaultSuffix: suffix,
+            lockNominalMarker: targetEntry.lockNominalMarker === true
+          }),
+          metadata: {
+            rootStockSourceContract: targetEntry.rootStockSourceContract || null,
+            rootStockSourceFrame: sourceFrame,
+            rootStockOperationFrame: operationFrame,
+            rootStockTargetFrame: targetEntry
+          }
+        });
+        if (!nextEntry) {
+          return;
+        }
+        if (!shouldBypassPatientivoPronounceabilityGate(nextEntry) && !targetObject.isSyllableSequencePronounceable(`${nextEntry.verb}${nextEntry.subjectSuffix}`)) {
+          return;
+        }
+        const key = `${nextEntry.verb}|${nextEntry.subjectSuffix}`;
+        if (seen.has(key)) {
+          return;
+        }
+        seen.add(key);
+        results.push(nextEntry);
+      };
       if (isTransitive) {
-        if (!isLuaEnding) {
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
           return [];
         }
-        const core = base.slice(0, -2);
-        addRawResult(core, "", {
-          stemSpec: buildBaseSuffixTrimSpec("ua", "")
+        (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+          addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
         });
         return results;
       }
@@ -10310,15 +12691,44 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       })();
       const useShortWiSuperposition = gateEndsWithPlainWi && hasShortOpenCoreBeforeSuffix("wi", gateBase);
       if (useShortWiSuperposition) {
-        const shortWiCore = base.slice(0, -2);
-        if (shortWiCore) {
-          const shortWiCoreSpec = buildBaseSuffixTrimSpec("wi", "");
-          addWithConsonants(shortWiCore, ["k"], shortWiCoreSpec);
-          addTClassMirror(shortWiCore, shortWiCoreSpec);
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (!getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
+          (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+            addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+          });
         }
         return finalizeSeriesMirroredResults();
       }
       if (isIwiAwiUa && gateIsIwiAwiUa && gateIwiAwiUaSuffix === iwiAwiUaSuffix && (hasMultisyllableCoreBeforeSuffix(iwiAwiUaSuffix, gateBase) || allowShortIwiCore || allowMonosyllableIwiAwiUa)) {
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        if (rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "iwi-family-root-stock-stem" || rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "iwi-final-cluster-root-stock-stem" || rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "awi-family-root-stock-stem" || rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "awi-final-cluster-root-stock-stem" || rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "ua-family-root-stock-stem" || rootStockSourceFrame?.rightEdgeFrame?.routeOperation === "ua-final-cluster-root-stock-stem") {
+          const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+          if (!getPatientivoRootStockStemFrameMismatch({
+            sourceFrame: rootStockSourceFrame,
+            operationFrame: rootStockOperationFrame
+          })) {
+            (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+              addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+            });
+          }
+          return finalizeSeriesMirroredResults();
+        }
         const familyCore = base.slice(0, -iwiAwiUaSuffix.length);
         const familyCoreSpec = buildBaseSuffixTrimSpec(iwiAwiUaSuffix, "");
         if (familyCore) {
@@ -10384,6 +12794,44 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         if (!gateWiWaSuffix || gateWiWaSuffix !== wiWaSuffix || !hasAllowedCore) {
           return finalizeSeriesMirroredResults();
         }
+        if (endsWithPlainWa) {
+          const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+            sourceModel: patientivoSourceModel,
+            sourceStem: base,
+            gateStem: gateBase,
+            sourceStemSpec: baseStemSpec,
+            isTransitive
+          });
+          const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+          if (!getPatientivoRootStockStemFrameMismatch({
+            sourceFrame: rootStockSourceFrame,
+            operationFrame: rootStockOperationFrame
+          })) {
+            (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+              addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+            });
+          }
+          return finalizeSeriesMirroredResults();
+        }
+        if (endsWithPlainWi) {
+          const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+            sourceModel: patientivoSourceModel,
+            sourceStem: base,
+            gateStem: gateBase,
+            sourceStemSpec: baseStemSpec,
+            isTransitive
+          });
+          const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+          if (!getPatientivoRootStockStemFrameMismatch({
+            sourceFrame: rootStockSourceFrame,
+            operationFrame: rootStockOperationFrame
+          })) {
+            (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+              addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+            });
+            return finalizeSeriesMirroredResults();
+          }
+        }
         const core = base.slice(0, -2);
         const coreSpec = buildBaseSuffixTrimSpec(wiWaSuffix, "");
         if (endsWithPlainWi) {
@@ -10402,55 +12850,75 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         }
       }
       if (endsWithProductiveNi || endsWithProductiveNa) {
-        const core = base.slice(0, -2);
-        const coreSpec = buildBaseSuffixTrimSpec(endsWithProductiveNi ? "ni" : "na", "");
-        addWithConsonants(core, wiFamilyConsonants, coreSpec);
-        addResult(core, {
-          stemSpec: coreSpec
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
         });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (!getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
+          (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+            addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+          });
+        }
       }
       if (endsWithProductiveKi && isCvkiShape) {
-        const core = base.slice(0, -2);
-        const coreSpec = buildBaseSuffixTrimSpec("ki", "");
-        addWithConsonants(core, ["k", "ch", "j"], coreSpec);
-        if (base === "waki" || gateBase === "waki") {
-          const sCore = `${base.slice(0, -2)}s`;
-          const sCoreSpec = buildAppendedStemSpec(core, coreSpec, "s");
-          addRawResult(sCore, "", {
-            stemSpec: sCoreSpec
-          });
-          addResult(sCore, {
-            stemSpec: sCoreSpec
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (!getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
+          (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+            addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
           });
         }
       }
       if (endsWithProductiveKa && hasMultisyllableCoreBeforeSuffix("ka") && (startsWithInitialRedup || startsWithVj)) {
-        const core = base.slice(0, -2);
-        addWithConsonants(core, ["k", "ch", "j"], buildBaseSuffixTrimSpec("ka", ""));
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (!getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
+          (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+            addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+          });
+        }
       }
       if (endsWithProductiveYa) {
-        if (base.endsWith("tiya") && gateBase.endsWith("tiya")) {
-          const tiyaCore = base.slice(0, -4);
-          if (tiyaCore) {
-            const tiyaCoreSpec = buildBaseSuffixTrimSpec("tiya", "");
-            addRawResult(tiyaCore, "", {
-              stemSpec: tiyaCoreSpec
-            });
-            addResult(tiyaCore, {
-              stemSpec: tiyaCoreSpec
-            });
-          }
-        } else {
-          const lStem = `${base.slice(0, -2)}l`;
-          if (lStem) {
-            const lStemSpec = buildBaseSuffixTrimSpec("ya", "l");
-            addRawResult(lStem, "", {
-              stemSpec: lStemSpec
-            });
-            addResult(lStem, {
-              stemSpec: lStemSpec
-            });
-          }
+        const rootStockSourceFrame = buildPatientivoRootStockStemSourceFrame({
+          sourceModel: patientivoSourceModel,
+          sourceStem: base,
+          gateStem: gateBase,
+          sourceStemSpec: baseStemSpec,
+          isTransitive
+        });
+        const rootStockOperationFrame = buildPatientivoRootStockStemOperationFrame(rootStockSourceFrame);
+        if (!getPatientivoRootStockStemFrameMismatch({
+          sourceFrame: rootStockSourceFrame,
+          operationFrame: rootStockOperationFrame
+        })) {
+          (rootStockOperationFrame.targetEntries || []).forEach(targetEntry => {
+            addTypedRootStockEntry(targetEntry, rootStockOperationFrame, rootStockSourceFrame);
+          });
         }
       }
       return finalizeSeriesMirroredResults();
@@ -10925,17 +13393,14 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         if (!hasSOnset) {
           push("wa", baseWa);
         }
-        const onsetVariant = buildWaOnsetVariant(source, {
-          blockCh: blockChForTi,
-          blockOnsetReplacement: blockReplaciveOnsetForShort
-        });
         const onsetVariantSpec = buildWaOnsetVariantMorphStemSpec(source, {
           sourceBase: source,
           sourceSuffix: "wa",
           blockCh: blockChForTi,
           blockOnsetReplacement: blockReplaciveOnsetForShort
         });
-        if (onsetVariant && onsetVariant !== baseWaStem) {
+        const onsetVariantStem = realizeMorphStemSpec(onsetVariantSpec);
+        if (onsetVariantStem && onsetVariantStem !== baseWaStem) {
           push("wa", onsetVariantSpec);
         }
       }
@@ -11046,9 +13511,21 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         selectedRealizedStemSpec = selectedRealizedStemSpecs[0] || null;
         selectedRealizedStem = selectedRealizedStems[0] || null;
       } else {
-        selectedStem = deriveNonactiveStem(verb, analysisVerb, options);
+        const nonactiveStemSelectionSourceFrame = buildNonactiveStemSelectionSourceFrame({
+          verb,
+          analysisVerb,
+          options,
+          nonactiveRuleSource: sourceContext
+        });
+        const nonactiveStemSelectionOperationFrame = buildNonactiveStemSelectionOperationFrame(nonactiveStemSelectionSourceFrame);
+        selectedStem = deriveNonactiveStem(verb, analysisVerb, {
+          ...options,
+          nonactiveRuleSource: sourceContext,
+          nonactiveStemSelectionSourceFrame,
+          nonactiveStemSelectionOperationFrame
+        });
         selectedStems = selectedStem ? [selectedStem] : [];
-        selectedStemSpec = selectedStem ? buildLiteralMorphStemSpec(selectedStem) : null;
+        selectedStemSpec = selectedStem ? nonactiveStemSelectionOperationFrame?.targetStemSpec || buildLiteralMorphStemSpec(selectedStem) : null;
         selectedStemSpecs = selectedStemSpec ? [selectedStemSpec] : [];
         selectedRealizedStemSpec = selectedStemSpec ? targetObject.applyNonactiveSourceChainStemSpec(selectedStemSpec, selectedStem, sourceContext.chain, {
           sourceSuffix: selectedSuffix || "",
@@ -11312,6 +13789,10 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     api.replaceAnalysisSuffix = replaceAnalysisSuffix;
     api.buildVncAllomorphyLesson2SoundSpellingFrame = buildVncAllomorphyLesson2SoundSpellingFrame;
     api.pushVncAllomorphyLesson2SoundSpellingFrame = pushVncAllomorphyLesson2SoundSpellingFrame;
+    api.buildNonspecificObjectAllomorphySourceFrame = buildNonspecificObjectAllomorphySourceFrame;
+    api.deriveNonspecificObjectAllomorphyTargetFromSourceFrame = deriveNonspecificObjectAllomorphyTargetFromSourceFrame;
+    api.buildNonspecificObjectAllomorphyOperationFrame = buildNonspecificObjectAllomorphyOperationFrame;
+    api.getNonspecificObjectAllomorphyFrameMismatch = getNonspecificObjectAllomorphyFrameMismatch;
     api.applyNonspecificObjectAllomorphy = applyNonspecificObjectAllomorphy;
     api.isObj1ValencyFilled = isObj1ValencyFilled;
     api.isNonactiveTransitiveByObj1 = isNonactiveTransitiveByObj1;
@@ -11322,6 +13803,10 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     api.collapseSlashTiInput = collapseSlashTiInput;
     api.isValenceLikeDashPrefixToken = isValenceLikeDashPrefixToken;
     api.collapseSerialStemDashInput = collapseSerialStemDashInput;
+    api.buildSerialStemDashSourceFrame = buildSerialStemDashSourceFrame;
+    api.buildSerialStemDashOperationFrame = buildSerialStemDashOperationFrame;
+    api.getSerialStemDashFrameMismatch = getSerialStemDashFrameMismatch;
+    api.collapseSerialStemDashInputFromSourceFrame = collapseSerialStemDashInputFromSourceFrame;
     api.parseInlineTiCausativeClassFromBase = parseInlineTiCausativeClassFromBase;
     api.getCanonicalRuleBaseFromOptions = getCanonicalRuleBaseFromOptions;
     api.getDerivationRuleBase = getDerivationRuleBase;
@@ -11341,12 +13826,48 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     });
     api.buildLiteralMorphStemSpec = buildLiteralMorphStemSpec;
     api.buildBaseSuffixMorphStemSpec = buildBaseSuffixMorphStemSpec;
+    api.buildMorphStemAppendSourceFrame = buildMorphStemAppendSourceFrame;
+    api.buildMorphStemAppendOperationFrame = buildMorphStemAppendOperationFrame;
+    api.getMorphStemAppendFrameMismatch = getMorphStemAppendFrameMismatch;
+    api.buildMorphStemPrependSourceFrame = buildMorphStemPrependSourceFrame;
+    api.buildMorphStemPrependOperationFrame = buildMorphStemPrependOperationFrame;
+    api.getMorphStemPrependFrameMismatch = getMorphStemPrependFrameMismatch;
+    api.buildMorphStemReplaceSuffixSourceFrame = buildMorphStemReplaceSuffixSourceFrame;
+    api.buildMorphStemReplaceSuffixOperationFrame = buildMorphStemReplaceSuffixOperationFrame;
+    api.getMorphStemReplaceSuffixFrameMismatch = getMorphStemReplaceSuffixFrameMismatch;
+    api.buildMorphStemStripPrefixSourceFrame = buildMorphStemStripPrefixSourceFrame;
+    api.buildMorphStemStripPrefixOperationFrame = buildMorphStemStripPrefixOperationFrame;
+    api.getMorphStemStripPrefixFrameMismatch = getMorphStemStripPrefixFrameMismatch;
+    api.deriveMorphStemDeletionShiftTarget = deriveMorphStemDeletionShiftTarget;
+    api.buildMorphStemDeletionShiftSourceFrame = buildMorphStemDeletionShiftSourceFrame;
+    api.buildMorphStemDeletionShiftOperationFrame = buildMorphStemDeletionShiftOperationFrame;
+    api.getMorphStemDeletionShiftFrameMismatch = getMorphStemDeletionShiftFrameMismatch;
+    api.deriveMorphStemTruncateNonactiveBaseTarget = deriveMorphStemTruncateNonactiveBaseTarget;
+    api.buildMorphStemTruncateNonactiveBaseSourceFrame = buildMorphStemTruncateNonactiveBaseSourceFrame;
+    api.buildMorphStemTruncateNonactiveBaseOperationFrame = buildMorphStemTruncateNonactiveBaseOperationFrame;
+    api.getMorphStemTruncateNonactiveBaseFrameMismatch = getMorphStemTruncateNonactiveBaseFrameMismatch;
+    api.deriveMorphStemWaOnsetVariantTarget = deriveMorphStemWaOnsetVariantTarget;
+    api.buildMorphStemWaOnsetVariantSourceFrame = buildMorphStemWaOnsetVariantSourceFrame;
+    api.buildMorphStemWaOnsetVariantOperationFrame = buildMorphStemWaOnsetVariantOperationFrame;
+    api.getMorphStemWaOnsetVariantFrameMismatch = getMorphStemWaOnsetVariantFrameMismatch;
+    api.deriveMorphStemNonactiveUTarget = deriveMorphStemNonactiveUTarget;
+    api.buildMorphStemNonactiveUSourceFrame = buildMorphStemNonactiveUSourceFrame;
+    api.buildMorphStemNonactiveUOperationFrame = buildMorphStemNonactiveUOperationFrame;
+    api.getMorphStemNonactiveUFrameMismatch = getMorphStemNonactiveUFrameMismatch;
+    api.deriveMorphStemNonactiveUwaTarget = deriveMorphStemNonactiveUwaTarget;
+    api.buildMorphStemNonactiveUwaSourceFrame = buildMorphStemNonactiveUwaSourceFrame;
+    api.buildMorphStemNonactiveUwaOperationFrame = buildMorphStemNonactiveUwaOperationFrame;
+    api.getMorphStemNonactiveUwaFrameMismatch = getMorphStemNonactiveUwaFrameMismatch;
     api.buildTransformMorphStemSpec = buildTransformMorphStemSpec;
     api.buildAppendMorphStemSpec = buildAppendMorphStemSpec;
     api.buildPrependMorphStemSpec = buildPrependMorphStemSpec;
     api.buildStripPrefixMorphStemSpec = buildStripPrefixMorphStemSpec;
     api.buildReplaceSuffixMorphStemSpec = buildReplaceSuffixMorphStemSpec;
     api.buildDeletionShiftMorphStemSpec = buildDeletionShiftMorphStemSpec;
+    api.getIntransitiveTypeOneRightEdgeClass = getIntransitiveTypeOneRightEdgeClass;
+    api.buildIntransitiveTypeOneSourceFrame = buildIntransitiveTypeOneSourceFrame;
+    api.buildIntransitiveTypeOneOperationFrame = buildIntransitiveTypeOneOperationFrame;
+    api.getIntransitiveTypeOneFrameMismatch = getIntransitiveTypeOneFrameMismatch;
     api.buildIntransitiveTypeOneStem = buildIntransitiveTypeOneStem;
     api.buildIntransitiveTypeOneMorphStemSpec = buildIntransitiveTypeOneMorphStemSpec;
     api.buildNonactiveUStemMorphStemSpec = buildNonactiveUStemMorphStemSpec;
@@ -11364,6 +13885,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     api.buildStemNominalFormSpec = buildStemNominalFormSpec;
     api.realizeNominalFormSpec = realizeNominalFormSpec;
     api.withNominalFormSpecSuffix = withNominalFormSpecSuffix;
+    api.getPreteritAgentiveNominalConnectorFrame = getPreteritAgentiveNominalConnectorFrame;
     api.buildNominalNum1Num2 = buildNominalNum1Num2;
     api.normalizeNominalNum1Num2 = normalizeNominalNum1Num2;
     api.buildNominalFormEntry = buildNominalFormEntry;
@@ -11611,8 +14133,18 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     api.getFirstAvailableEntry = getFirstAvailableEntry;
     api.uniqueNonEmptyValues = uniqueNonEmptyValues;
     api.applyEmbeddedPrefixToStem = applyEmbeddedPrefixToStem;
+    api.buildNonactiveStemSelectionSourceFrame = buildNonactiveStemSelectionSourceFrame;
+    api.deriveNonactiveStemSelectionTargetFromSourceFrame = deriveNonactiveStemSelectionTargetFromSourceFrame;
+    api.buildNonactiveStemSelectionOperationFrame = buildNonactiveStemSelectionOperationFrame;
+    api.getNonactiveStemSelectionFrameMismatch = getNonactiveStemSelectionFrameMismatch;
     api.deriveNonactiveStem = deriveNonactiveStem;
     api.getDefaultNonactiveSuffix = getDefaultNonactiveSuffix;
+    api.derivePatientivoStemFromNonactiveEntries = derivePatientivoStemFromNonactiveEntries;
+    api.getPatientivoNonactiveSourceFrameSignature = getPatientivoNonactiveSourceFrameSignature;
+    api.buildPatientivoNonactiveStemSourceFrame = buildPatientivoNonactiveStemSourceFrame;
+    api.getPatientivoNonactiveEntrySignature = getPatientivoNonactiveEntrySignature;
+    api.buildPatientivoNonactiveStemOperationFrame = buildPatientivoNonactiveStemOperationFrame;
+    api.getPatientivoNonactiveStemFrameMismatch = getPatientivoNonactiveStemFrameMismatch;
     api.getPatientivoStemFromNonactive = getPatientivoStemFromNonactive;
     Object.defineProperty(api, "PATIENTIVO_DERIVATION_BUILDERS", {
         configurable: true,
@@ -11688,7 +14220,14 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     });
     api.buildPatientivoRootStockVariantOrthographyConversions = buildPatientivoRootStockVariantOrthographyConversions;
     api.normalizePatientivoRootStockVariantConsonant = normalizePatientivoRootStockVariantConsonant;
+    api.buildPatientivoRootStockSourceContractRecord = buildPatientivoRootStockSourceContractRecord;
     api.getPatientivoRootStockSourceContract = getPatientivoRootStockSourceContract;
+    api.getPatientivoRootStockStemSpecSignature = getPatientivoRootStockStemSpecSignature;
+    api.buildPatientivoRootStockStemSourceFrame = buildPatientivoRootStockStemSourceFrame;
+    api.getPatientivoRootStockEntrySignature = getPatientivoRootStockEntrySignature;
+    api.derivePatientivoRootStockEntriesFromSourceFrame = derivePatientivoRootStockEntriesFromSourceFrame;
+    api.buildPatientivoRootStockStemOperationFrame = buildPatientivoRootStockStemOperationFrame;
+    api.getPatientivoRootStockStemFrameMismatch = getPatientivoRootStockStemFrameMismatch;
     api.getPatientivoImperfectiveSourceStemContract = getPatientivoImperfectiveSourceStemContract;
     api.allowsPatientivoSFamily = allowsPatientivoSFamily;
     api.isPreferredPatientivoWrapperStem = isPreferredPatientivoWrapperStem;

@@ -73,7 +73,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized analysis issue remains unconfirmed without Nawat text evidence",
+        "recognized analysis issue remains unconfirmed without Andrews text-source context",
         ctx.classifyAnalysisIssueCandidate({
             textSource: "unknown",
             candidate: "mah",
@@ -95,7 +95,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "analysis-issue-needs-nawat-text-evidence",
+                "analysis-issue-source-gated",
                 "analysis-issue-kind-recognized",
                 "analysis-issue-false-positive-source",
             ],
@@ -128,7 +128,7 @@ function run(ctx) {
             "topic/focus UI labels are not absolute-topic evidence",
             "a bare mah-looking string is not a confirmed mah construction",
             "CSV verb rows and translation labels are not textual problem evidence",
-            "Andrews miscellany categories are architecture, not Nawat/Pipil form authority",
+            "Andrews miscellany categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     const lesson57PursuitFrame = ctx.buildLesson57AnalysisPursuitFrame();

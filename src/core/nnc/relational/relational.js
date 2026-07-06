@@ -1,8 +1,7 @@
 // core/nnc/relational/relational.js
 // Lessons 45-47 relational-NNC boundary metadata. This keeps ordinary NNC
 // generation, locative/temporal nominal outputs, and translation labels
-// separate from confirmed relational NNC generation until Nawat/Pipil evidence
-// supports it.
+// separate from Andrews source-gated relational NNC generation.
 
 "use strict";
 
@@ -72,14 +71,14 @@ const RELATIONAL_NNC_ANTI_CONFLATION_RULES = Object.freeze([
     "ordinary NNC fixtures are not relational NNC fixture evidence",
     "open-stem ordinary NNC previews are not relational nounstem data",
     "locative-temporal nominal outputs are not full relational NNC options",
-    "preposition or place translations are not Nawat/Pipil relational form evidence",
-    "Andrews relational categories are architecture, not Nawat/Pipil form authority",
+    "preposition or place translations are not orthography-bridge relational form evidence",
+    "Andrews relational categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const RELATIONAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([
     Object.freeze({
         field: "relationalStem",
-        asks: "Which Nawat/Pipil relational nounstem is evidenced?",
+        asks: "Which Andrews relational nounstem is licensed, before Nawat/Pipil orthography realizes it?",
     }),
     Object.freeze({
         field: "relationalKind",
@@ -87,7 +86,7 @@ const RELATIONAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "relationalOption",
-        asks: "Which relational usage option is evidenced: one, two, three, four, or unknown?",
+        asks: "Which Andrews relational usage option is licensed: one, two, three, four, or unknown?",
     }),
     Object.freeze({
         field: "governedArgument",
@@ -95,7 +94,7 @@ const RELATIONAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided example supports relational status?",
+        asks: "Which Andrews source gate or structured route licenses relational status?",
     }),
 ]);
 
@@ -137,6 +136,183 @@ function normalizeRelationalNncFalsePositiveSource(value = "") {
         Object.values(RELATIONAL_NNC_FALSE_POSITIVE_SOURCE),
         RELATIONAL_NNC_FALSE_POSITIVE_SOURCE.unknown
     );
+}
+
+function normalizeRelationalNncCandidateSurface(value = "") {
+    const raw = String(value || "").trim();
+    if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+    }
+    const source = raw
+        .replace(/\[[^\]]+\]/g, "")
+        .replace(/[Øø]/g, "")
+        .replace(/\b0\b/g, "")
+        .replace(/[#+(){}\s.-]/g, "")
+        .trim();
+    if (!source || /[A-Z_]/.test(source)) {
+        return "";
+    }
+    const conversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(source, {
+            source: "Andrews relational NNC candidate formula",
+            slot: "relational-nounstem",
+        })
+        : { output: source, diagnostics: [] };
+    return String(conversion?.output || source || "").trim();
+}
+
+function hasRelationalNncAndrewsSourceGate({
+    sourceGate = "",
+    structuredSource = false,
+} = {}) {
+    return structuredSource === true || Boolean(String(sourceGate || "").trim());
+}
+
+function buildRelationalNncSourceFrame({
+    candidate = "",
+    relationalStem = "",
+    relationalKind = "",
+    relationalOption = "",
+    governedArgument = "",
+    evidenceSource = "",
+    sourceGate = "",
+    sourceKind = "",
+    targetFormulaSlots = null,
+    targetSegmentFrames = [],
+} = {}) {
+    const normalizedKind = normalizeRelationalNncKind(relationalKind);
+    const normalizedOption = normalizeRelationalNncOption(relationalOption);
+    if (
+        normalizedKind === RELATIONAL_NNC_KIND.unknown
+        || normalizedOption === RELATIONAL_NNC_OPTION.unknown
+    ) {
+        return null;
+    }
+    const segments = Array.isArray(targetSegmentFrames)
+        ? targetSegmentFrames
+            .map((segment) => {
+                const surface = String(segment?.surface || "").trim();
+                if (!surface || /[A-Z_]/.test(surface)) {
+                    return null;
+                }
+                return Object.freeze({
+                    slot: String(segment?.slot || ""),
+                    role: String(segment?.role || ""),
+                    formulaValue: String(segment?.formulaValue || ""),
+                    sourceStem: String(segment?.sourceStem || ""),
+                    surface,
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                });
+            })
+            .filter(Boolean)
+        : [];
+    if (!segments.length) {
+        return null;
+    }
+    const targetSurface = segments.map((segment) => segment.surface).join("");
+    if (!targetSurface) {
+        return null;
+    }
+    return Object.freeze({
+        kind: "relational-nnc-source-frame",
+        version: RELATIONAL_NNC_BOUNDARY_VERSION,
+        routeFamily: "relational-nnc",
+        relationalKind: normalizedKind,
+        relationalOption: normalizedOption,
+        candidate: String(candidate || ""),
+        relationalStem: String(relationalStem || ""),
+        governedArgument: String(governedArgument || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        sourceKind: String(sourceKind || ""),
+        targetFormulaSlots,
+        targetSegmentFrames: Object.freeze(segments),
+        targetSurface,
+        authority: "Andrews Lessons 45-47 relational NNC source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildRelationalNncOperationFrame(sourceFrame = null) {
+    if (!sourceFrame || sourceFrame.kind !== "relational-nnc-source-frame") {
+        return null;
+    }
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-45-47-relational-nnc-realization",
+        routeFamily: "relational-nnc",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-relational-nnc-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceRelationalKind: sourceFrame.relationalKind,
+        sourceRelationalOption: sourceFrame.relationalOption,
+        sourceRelationalStem: sourceFrame.relationalStem,
+        sourceGovernedArgument: sourceFrame.governedArgument,
+        targetFormulaSlots: sourceFrame.targetFormulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function getRelationalNncOperationFrameMismatch({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    if (!sourceFrame || sourceFrame.kind !== "relational-nnc-source-frame") {
+        return "source-frame-required";
+    }
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-45-47-relational-nnc-realization"
+        || operationFrame.routeFamily !== "relational-nnc"
+        || operationFrame.consumesRenderedInput !== false
+        || operationFrame.displayStringsAuthorizeGrammar !== false
+    ) {
+        return "operation-frame-required";
+    }
+    if (
+        String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind
+        || String(operationFrame.sourceRelationalKind || "") !== String(sourceFrame.relationalKind || "")
+        || String(operationFrame.sourceRelationalOption || "") !== String(sourceFrame.relationalOption || "")
+        || String(operationFrame.sourceRelationalStem || "") !== String(sourceFrame.relationalStem || "")
+        || String(operationFrame.sourceGovernedArgument || "") !== String(sourceFrame.governedArgument || "")
+    ) {
+        return "contradictory-source-frame";
+    }
+    const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
+    if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+    }
+    const targetSurface = targetSegmentFrames
+        .map((segment) => String(segment?.surface || ""))
+        .join("");
+    if (
+        targetSurface !== String(sourceFrame.targetSurface || "")
+        || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "")
+    ) {
+        return "contradictory-target-frame";
+    }
+    if (
+        sourceFrame.targetFormulaSlots
+        && operationFrame.targetFormulaSlots !== sourceFrame.targetFormulaSlots
+    ) {
+        return "contradictory-target-frame";
+    }
+    return "";
+}
+
+function getRelationalNncBlockedDiagnostic({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    const mismatch = getRelationalNncOperationFrameMismatch({ sourceFrame, operationFrame });
+    return mismatch ? `relational-nnc-${mismatch}` : "";
 }
 
 function normalizeRelationalNncOptionGroup(value = "") {
@@ -410,20 +586,20 @@ const LESSON45_IC_FRAME = Object.freeze({
 const LESSON45_RELATIONAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson45-no-prepositions", andrewsSection: "45.1", category: "no-prepositions-or-postpositions", directiveEs: "El nahuatl no tiene preposiciones ni posposiciones; las preposiciones de traduccion no tienen contraparte morfologica.", engineSurface: "diagnostic relational boundary frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson45-relational-nounstems-as-nounstems", andrewsSection: "45.1 relational nounstems", category: "relational-nounstem-not-function-word", directiveEs: "Los troncos relacionales son troncos nominales usados para CNN adverbializadas, no palabras funcionales importadas de la traduccion.", engineSurface: "diagnostic relational boundary frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson45-high-generality", andrewsSection: "45.1 high-generality", category: "high-generality-relational-meaning", directiveEs: "Un mismo tronco relacional puede cubrir lugar, fuente, meta o ruta segun contexto.", engineSurface: "diagnostic relational boundary frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson45-affective-relational", andrewsSection: "45.1 note", category: "affective-relational-stem", directiveEs: "El afectivo relacional requiere matriz tzin/ton y validacion adverbial con co.", engineSurface: "diagnostic affective relational frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson45-high-generality", andrewsSection: "45.1 high-generality", category: "high-generality-relational-meaning", directiveEs: "Un mismo tronco relacional puede cubrir lugar, fuente, meta o ruta segun contexto.", engineSurface: "diagnostic relational boundary frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson45-affective-relational", andrewsSection: "45.1 note", category: "affective-relational-stem", directiveEs: "El afectivo relacional requiere matriz tzin/ton y validacion adverbial con co.", engineSurface: "diagnostic affective relational frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson45-option-one", andrewsSection: "45.2 option 1", category: "option-one-simple-possessive", directiveEs: "Opcion 1: tronco relacional como predicado simple en CNN posesiva.", engineSurface: "relational usage frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson45-option-two", andrewsSection: "45.2 option 2", category: "option-two-integrated-matrix", directiveEs: "Opcion 2: tronco relacional como matriz integrada; la CNN puede ser absolutiva o posesiva y suele orientarse al embed.", engineSurface: "relational usage frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson45-option-three", andrewsSection: "45.2 option 3", category: "option-three-linked-matrix", directiveEs: "Opcion 3: matriz relacional ligada; el conectivo separa y enlaza, aclarando orientacion al embed.", engineSurface: "relational usage frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson45-option-four", andrewsSection: "45.2 option 4", category: "option-four-compound-embed", directiveEs: "Opcion 4: el tronco relacional simple o compuesto llena el embed de un tronco compuesto.", engineSurface: "diagnostic compound-embed frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson45-option-four", andrewsSection: "45.2 option 4", category: "option-four-compound-embed", directiveEs: "Opcion 4: el tronco relacional simple o compuesto llena el embed de un tronco compuesto.", engineSurface: "diagnostic compound-embed frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson45-groupings", andrewsSection: "45.3", category: "relational-option-groupings", directiveEs: "Los grupos relacionales se definen por las opciones 1, 2 y 3 que acepta cada tronco.", engineSurface: "diagnostic grouping frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson45-option-one-only-overview", andrewsSection: "45.4", category: "option-one-only-overview", directiveEs: "Cuatro troncos permiten solo opcion 1; otra CNN solo coopera como poseedor suplementario.", engineSurface: "diagnostic option-one inventory frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson45-huan", andrewsSection: "45.4.1", category: "huan-company", directiveEs: "Huan expresa compania; ihuan en numerales no es conjuncion, y huan+yolqui puede lexicalizar parentesco.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson45-tloc", andrewsSection: "45.4.2", category: "tloc-proximity", directiveEs: "Tloc expresa lado/proximidad y puede aparecer como embed en agentivo preterito de posesion.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson45-pal", andrewsSection: "45.4.3", category: "pal-favor", directiveEs: "Pal expresa gracia/favor/cuenta/ayuda y su honorifico usa paltzinco.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson45-ic-means-purpose-reason", andrewsSection: "45.4.4 a-c", category: "ic-means-purpose-reason", directiveEs: "Ic usa solo poseedor i-0 y expresa medio, proposito o razon segun estructura.", engineSurface: "diagnostic ic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson45-huan", andrewsSection: "45.4.1", category: "huan-company", directiveEs: "Huan expresa compania; ihuan en numerales no es conjuncion, y huan+yolqui puede lexicalizar parentesco.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson45-tloc", andrewsSection: "45.4.2", category: "tloc-proximity", directiveEs: "Tloc expresa lado/proximidad y puede aparecer como embed en agentivo preterito de posesion.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson45-pal", andrewsSection: "45.4.3", category: "pal-favor", directiveEs: "Pal expresa gracia/favor/cuenta/ayuda y su honorifico usa paltzinco.", engineSurface: "diagnostic option-one stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson45-ic-means-purpose-reason", andrewsSection: "45.4.4 a-c", category: "ic-means-purpose-reason", directiveEs: "Ic usa solo poseedor i-0 y expresa medio, proposito o razon segun estructura.", engineSurface: "diagnostic ic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson45-ic-time", andrewsSection: "45.4.4.d", category: "ic-time", directiveEs: "Ic temporal puede preguntar cuando en posicion inicial, pierde fuerza interrogativa fuera de inicio y forma collocaciones como niman ic, ic cen y ayic.", engineSurface: "diagnostic ic frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson45-ic-special-uses", andrewsSection: "45.4.4.e", category: "ic-special-uses", directiveEs: "Ic crea ordinales, equivalentes adverbiales, grados y mediciones con CNN numerales o adjetivales.", engineSurface: "diagnostic ic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson45-ic-special-uses", andrewsSection: "45.4.4.e", category: "ic-special-uses", directiveEs: "Ic crea ordinales, equivalentes adverbiales, grados y mediciones con CNN numerales o adjetivales.", engineSurface: "diagnostic ic frame", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function cloneRelationalNncLessonRecord(record) {
@@ -443,7 +619,7 @@ function getLesson45RelationalNncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON45_RELATIONAL_NNC_VALIDATION_REFS),
     }));
 }
@@ -457,7 +633,7 @@ function buildLesson45RelationalNncPursuitFrame() {
     const icFrame = cloneRelationalNncLessonRecord(LESSON45_IC_FRAME);
     const remainingGaps = [
         "Current Lesson 45 support records Andrews' relational NNC architecture as diagnostics and usage frames; it does not implement relational NNC generation or static relational fixture data.",
-        "Translation prepositions, place labels, locative-temporal nominal rows, and ordinary NNC outputs remain false-positive evidence until confirmed Nawat/Pipil relational examples are available.",
+        "Translation prepositions, place labels, locative-temporal nominal rows, and ordinary NNC outputs remain false-positive evidence until Andrews relational source models plus the orthography bridge are available.",
         "Option-four compound embeds, option-one-only stem inventories, ic special uses, affective relational stems, parser/search detection, acciones de interfaz, and concrete surface routing remain partial or evidence-needed.",
     ];
     const frame = {
@@ -523,9 +699,9 @@ function buildLesson45RelationalNncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 45.1-45.4",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil relational evidence",
+            spellingAuthority: "Nawat/Pipil relational orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
         },
         morphBoundaryFrame: {
             noPrepositionsFrame,
@@ -553,7 +729,7 @@ function buildLesson45RelationalNncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["relational-nnc-lesson-45-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+        diagnostics: ["relational-nnc-lesson-45-diagnostic-partial", "relational-nnc-source-gated"],
     });
 }
 
@@ -849,28 +1025,28 @@ const LESSON46_EXAMPLE_SENTENCE_FRAME = Object.freeze({
 });
 
 const LESSON46_RELATIONAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson46-option-two-only", andrewsSection: "46.1", category: "option-two-only-matrix-stems", directiveEs: "Once troncos relacionales solo ocurren como matrices integradas; no se deben tratar como sufijos.", engineSurface: "diagnostic option-two-only inventory", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-n-locative", andrewsSection: "46.2", category: "n-locative-matrix", directiveEs: "El tronco n de lugar forma compuestos locativos o temporales, casi siempre en CNN adverbializadas de segundo grado.", engineSurface: "diagnostic locative-n frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-option-two-only", andrewsSection: "46.1", category: "option-two-only-matrix-stems", directiveEs: "Once troncos relacionales solo ocurren como matrices integradas; no se deben tratar como sufijos.", engineSurface: "diagnostic option-two-only inventory", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-n-locative", andrewsSection: "46.2", category: "n-locative-matrix", directiveEs: "El tronco n de lugar forma compuestos locativos o temporales, casi siempre en CNN adverbializadas de segundo grado.", engineSurface: "diagnostic locative-n frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-n-ca-embed-overview", andrewsSection: "46.3", category: "ca-plus-n-locative", directiveEs: "La combinacion ca+n tiene dos formas: X-ca+n y X+ca-n; ambas deben mantenerse como arquitectura de matriz integrada.", engineSurface: "diagnostic ca-n embed frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson46-preterit-agentive-embed", andrewsSection: "46.3.1.a", category: "preterit-agentive-place", directiveEs: "El embed agentivo preterito produce lugar de quien hizo la accion; puede ser CNN normal, pero es mas frecuente como adverbializada.", engineSurface: "diagnostic ca-n embed frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-active-action-embed", andrewsSection: "46.3.1.b", category: "active-action-place", directiveEs: "El embed de accion activa produce lugar de la accion en CNN posesiva; el poseedor representa el agente.", engineSurface: "diagnostic ca-n embed frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-preterit-agentive-embed", andrewsSection: "46.3.1.a", category: "preterit-agentive-place", directiveEs: "El embed agentivo preterito produce lugar de quien hizo la accion; puede ser CNN normal, pero es mas frecuente como adverbializada.", engineSurface: "diagnostic ca-n embed frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-active-action-embed", andrewsSection: "46.3.1.b", category: "active-action-place", directiveEs: "El embed de accion activa produce lugar de la accion en CNN posesiva; el poseedor representa el agente.", engineSurface: "diagnostic ca-n embed frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-can-question", andrewsSection: "46.3.2.a", category: "can-interrogative-place", directiveEs: "Can pregunta por lugar solo en posicion interrogativa; can in contiene el adjunctor in y canin puede fusionarse por uso frecuente.", engineSurface: "diagnostic can frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson46-x-can-modifiers", andrewsSection: "46.3.2.b", category: "x-plus-can-modifier", directiveEs: "Con X presente, el embed puede ser pronominal, cuantitivo, numeral o patientivo; los estados siguen la fuente.", engineSurface: "diagnostic x-can frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-x-can-modifiers", andrewsSection: "46.3.2.b", category: "x-plus-can-modifier", directiveEs: "Con X presente, el embed puede ser pronominal, cuantitivo, numeral o patientivo; los estados siguen la fuente.", engineSurface: "diagnostic x-can frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-imperfect-embed-overview", andrewsSection: "46.4", category: "imperfect-predicate-place", directiveEs: "Un predicado imperfecto nominalizado llena el embed de n y significa lugar de actividad acostumbrada.", engineSurface: "diagnostic imperfect embed frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson46-active-imperfect-embed", andrewsSection: "46.4.1", category: "active-imperfect-place", directiveEs: "La fuente activa suele dar CNN posesiva; el poseedor viene del sujeto fuente y puede extenderse a tiempo o manera.", engineSurface: "diagnostic source-voice frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-active-imperfect-embed", andrewsSection: "46.4.1", category: "active-imperfect-place", directiveEs: "La fuente activa suele dar CNN posesiva; el poseedor viene del sujeto fuente y puede extenderse a tiempo o manera.", engineSurface: "diagnostic source-voice frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-passive-imperfect-embed", andrewsSection: "46.4.2", category: "passive-imperfect-place", directiveEs: "La fuente pasiva produce solo CNN posesiva, con poseedor derivado del sujeto fuente.", engineSurface: "diagnostic source-voice frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson46-impersonal-imperfect-embed", andrewsSection: "46.4.3", category: "impersonal-imperfect-place", directiveEs: "La fuente impersonal produce solo CNN absolutiva; no se asocia con individuo especifico.", engineSurface: "diagnostic source-voice frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson46-yan-locative", andrewsSection: "46.5", category: "yan-locative-perfective-core", directiveEs: "Yan toma nucleo perfectivo activo nominalizado; normalmente es posesivo, con casos absolutivos cuando hay particula o tronco adverbial incorporado.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-tlah-abundance", andrewsSection: "46.6", category: "tlah-abundance-place", directiveEs: "Tlah expresa lugar de abundancia o caracterizacion; admite absolutivo o posesivo y sujeto normal o adverbializado.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-co-c-location", andrewsSection: "46.7", category: "co-c-specific-location", directiveEs: "Co/c expresa ubicacion especifica; co sigue consonante, c sigue vocal, con excepcion de tleco.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-yan-locative", andrewsSection: "46.5", category: "yan-locative-perfective-core", directiveEs: "Yan toma nucleo perfectivo activo nominalizado; normalmente es posesivo, con casos absolutivos cuando hay particula o tronco adverbial incorporado.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-tlah-abundance", andrewsSection: "46.6", category: "tlah-abundance-place", directiveEs: "Tlah expresa lugar de abundancia o caracterizacion; admite absolutivo o posesivo y sujeto normal o adverbializado.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-co-c-location", andrewsSection: "46.7", category: "co-c-specific-location", directiveEs: "Co/c expresa ubicacion especifica; co sigue consonante, c sigue vocal, con excepcion de tleco.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-seeming-compound-matrix", andrewsSection: "46.8", category: "bodypart-co-c-warning", directiveEs: "Las secuencias tipo ixco o ijtic son embed+matriz, no preposiciones compuestas ni posposiciones.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson46-ca-interval", andrewsSection: "46.9", category: "ca-interval-distance", directiveEs: "Ca expresa intervalo o distancia; se distingue de achi ic aunque pueda escribirse achic.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-pa-directional", andrewsSection: "46.10", category: "pa-directional", directiveEs: "Pa direccional embebe particulas, troncos y compuestos relacionales; copa puede traducirse como medio, razon o con.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-pa-frequency", andrewsSection: "46.11", category: "pa-frequency", directiveEs: "Pa de frecuencia es homonimo de pa direccional y solo embebe cuantitivos o numerales.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-nal-far-bank", andrewsSection: "46.12.1", category: "nal-far-bank", directiveEs: "Nal embebe normalmente a-tl, puede formar CNN no adverbial y tambien incorporarse como adverbio.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-chi-direction", andrewsSection: "46.12.2", category: "chi-direction-toward", directiveEs: "Chi expresa direccion hacia; su embed favorito es tlal-li, con otros embeds raros.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-ic-downward", andrewsSection: "46.13", category: "ic-downward-direction", directiveEs: "Ic expresa direccion hacia abajo con troncos de partes del cuerpo y puede entrar como embed verbal compuesto.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson46-teuh-manner", andrewsSection: "46.14", category: "teuh-similarity-manner", directiveEs: "Teuh expresa semejanza o manera y crea CNN adverbializadas de modo.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson46-ca-interval", andrewsSection: "46.9", category: "ca-interval-distance", directiveEs: "Ca expresa intervalo o distancia; se distingue de achi ic aunque pueda escribirse achic.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-pa-directional", andrewsSection: "46.10", category: "pa-directional", directiveEs: "Pa direccional embebe particulas, troncos y compuestos relacionales; copa puede traducirse como medio, razon o con.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-pa-frequency", andrewsSection: "46.11", category: "pa-frequency", directiveEs: "Pa de frecuencia es homonimo de pa direccional y solo embebe cuantitivos o numerales.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-nal-far-bank", andrewsSection: "46.12.1", category: "nal-far-bank", directiveEs: "Nal embebe normalmente a-tl, puede formar CNN no adverbial y tambien incorporarse como adverbio.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-chi-direction", andrewsSection: "46.12.2", category: "chi-direction-toward", directiveEs: "Chi expresa direccion hacia; su embed favorito es tlal-li, con otros embeds raros.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-ic-downward", andrewsSection: "46.13", category: "ic-downward-direction", directiveEs: "Ic expresa direccion hacia abajo con troncos de partes del cuerpo y puede entrar como embed verbal compuesto.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson46-teuh-manner", andrewsSection: "46.14", category: "teuh-similarity-manner", directiveEs: "Teuh expresa semejanza o manera y crea CNN adverbializadas de modo.", engineSurface: "diagnostic matrix-stem frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson46-example-sentences", andrewsSection: "46.15", category: "sentence-use-inference", directiveEs: "Las preposiciones de traduccion se infieren por contexto; un numeral que modifica una CNN adverbializada co/c tambien debe adverbializarse.", engineSurface: "diagnostic example-sentence frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
 ]);
 
@@ -879,7 +1055,7 @@ function getLesson46RelationalNncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON46_RELATIONAL_NNC_VALIDATION_REFS),
     }));
 }
@@ -895,6 +1071,18 @@ function normalizeLesson46RouteStemToken(value = "") {
         .split("-")
         .filter((part) => part && part !== "0" && part !== "Ø" && part !== "□")
         .join("-");
+}
+
+function tokenizeLesson46RouteStemFormula(value = "") {
+    return String(value == null ? "" : value)
+        .trim()
+        .replace(/^#+|#+$/g, "")
+        .replace(/[()]/g, "")
+        .replace(/\+/g, "-")
+        .replace(/\s+/g, "")
+        .replace(/^-+|-+$/g, "")
+        .split("-")
+        .filter((part) => part && part !== "Ø" && part !== "□");
 }
 
 function splitLesson46EmbeddedSourceStem(value = "") {
@@ -918,12 +1106,742 @@ function splitLesson46EmbeddedSourceStem(value = "") {
     };
 }
 
-function flattenLesson46FormulaStemToSurface(formulaStem = "") {
-    return String(formulaStem || "")
-        .replace(/[()#]/g, "")
-        .split("-")
-        .filter((part) => part && part !== "0" && part !== "Ø" && part !== "□")
-        .join("");
+function analyzeLesson46PreteritAgentiveLocativeSource({
+    embeddedSource = "",
+    sourceVerb = "",
+    incorporatedNounStem = "",
+} = {}) {
+    const embeddedParts = tokenizeLesson46RouteStemFormula(embeddedSource);
+    const embeddedIsPreteritAgentiveStem = embeddedParts.length >= 4
+        && embeddedParts[embeddedParts.length - 2] === "0"
+        && embeddedParts[embeddedParts.length - 1] === "ka";
+    if (embeddedIsPreteritAgentiveStem) {
+        const sourceVerbStem = embeddedParts[embeddedParts.length - 3];
+        const incorporatedStemValue = embeddedParts.slice(0, -3).join("-");
+        const sourceVncFormula = `(${incorporatedStemValue}-${sourceVerbStem})`;
+        const preteritPredicateFormula = `(${incorporatedStemValue}-${sourceVerbStem}-0)`;
+        const preteritAgentiveStemFormula = `(${incorporatedStemValue}-${sourceVerbStem}-0-ka)`;
+        return {
+            sourceVerbStem,
+            incorporatedStemValue,
+            visibleSourceFormula: preteritAgentiveStemFormula,
+            sourceVncFormula,
+            preteritPredicateFormula,
+            preteritAgentiveStemFormula,
+            finalRouteImmediateSourceFormula: preteritAgentiveStemFormula,
+            sourceKind: "preterit-agentive-general-use-stem",
+            visibleSourceKind: "preterit-agentive-general-use-stem",
+            sourcePreparationRequired: false,
+        };
+    }
+    const splitEmbeddedSource = splitLesson46EmbeddedSourceStem(embeddedSource);
+    const sourceVerbStem = normalizeLesson46RouteStemToken(
+        sourceVerb || (embeddedSource ? splitEmbeddedSource.sourceVerb : "")
+    );
+    const incorporatedStemValue = normalizeLesson46RouteStemToken(
+        incorporatedNounStem || (embeddedSource ? splitEmbeddedSource.incorporatedNounStem : "")
+    );
+    const sourceVncFormula = incorporatedStemValue && sourceVerbStem
+        ? `(${incorporatedStemValue}-${sourceVerbStem})`
+        : "";
+    const preteritPredicateFormula = incorporatedStemValue && sourceVerbStem
+        ? `(${incorporatedStemValue}-${sourceVerbStem}-0)`
+        : "";
+    const preteritAgentiveStemFormula = incorporatedStemValue && sourceVerbStem
+        ? `(${incorporatedStemValue}-${sourceVerbStem}-0-ka)`
+        : "";
+    return {
+        sourceVerbStem,
+        incorporatedStemValue,
+        visibleSourceFormula: sourceVncFormula,
+        sourceVncFormula,
+        preteritPredicateFormula,
+        preteritAgentiveStemFormula,
+        finalRouteImmediateSourceFormula: preteritAgentiveStemFormula,
+        sourceKind: "preterit-agentive-general-use-stem",
+        visibleSourceKind: "source-vnc-core",
+        sourcePreparationRequired: true,
+    };
+}
+
+function normalizeLesson4631aSourceSlot(value = "") {
+    return String(value == null ? "" : value)
+        .trim()
+        .replace(/^#+|#+$/g, "")
+        .replace(/[()]/g, "")
+        .replace(/\s+/g, "")
+        .replace(/^-+|-+$/g, "");
+}
+
+function buildLesson4631aTargetSegmentFrames({
+    incorporatedNounStem = "",
+    sourceVerbStem = "",
+} = {}) {
+    return Object.freeze([
+        Object.freeze({
+            slot: "incorporated-nounstem",
+            role: "embedded-source-nounstem",
+            formulaValue: incorporatedNounStem,
+            surface: incorporatedNounStem,
+        }),
+        Object.freeze({
+            slot: "source-verbstem",
+            role: "source-cnv-verbstem",
+            formulaValue: sourceVerbStem,
+            surface: sourceVerbStem,
+        }),
+        Object.freeze({
+            slot: "preterit-zero",
+            role: "preterit-predicate-zero",
+            formulaValue: "0",
+            surface: "",
+        }),
+        Object.freeze({
+            slot: "preterit-agentive",
+            role: "general-use-agentive-ka",
+            formulaValue: "ka",
+            surface: "ka",
+        }),
+        Object.freeze({
+            slot: "locative-relational-n",
+            role: "relational-matrix-n",
+            formulaValue: "n",
+            surface: "n",
+        }),
+        Object.freeze({
+            slot: "adverbial-zero",
+            role: "adverbialized-zero-connector",
+            formulaValue: "0",
+            surface: "",
+        }),
+    ]);
+}
+
+function buildLesson4631aFormulaSlots({
+    predicateStem = "",
+    formulaStem = "",
+    surface = "",
+} = {}) {
+    return Object.freeze({
+        pers1Pers2: Object.freeze({
+            slot: "pers1-pers2",
+            connector: "Ø",
+            surface: "",
+        }),
+        predicateStem: Object.freeze({
+            slot: "STEM",
+            formula: `(${predicateStem})`,
+            displayStem: `(${predicateStem})`,
+            stem: `(${predicateStem})`,
+            sourceFormula: formulaStem,
+            state: "adverbialized-zero",
+            stateLabel: "adverbializado -0-",
+            surface,
+        }),
+        num1Num2: Object.freeze({
+            slot: "num1-num2",
+            connector: "Ø",
+            displayConnector: "Ø",
+            sourceFormula: "-0-",
+            surface: "",
+        }),
+    });
+}
+
+function buildLesson4631aPreteritAgentiveLocativeSourceFrame({
+    sourceFormulaSlots = null,
+    sourceVerbStem = "",
+    incorporatedNounStem = "",
+    immediateSourceKind = "",
+    sourcePreparationRequired = true,
+    evidenceSource = "",
+} = {}) {
+    const slotSourceVerbStem = sourceFormulaSlots?.sourceVerbStem?.stem
+        || sourceFormulaSlots?.sourceVerbStem?.surface
+        || sourceFormulaSlots?.sourceVerbStem
+        || sourceVerbStem;
+    const slotIncorporatedNounStem = sourceFormulaSlots?.incorporatedNounStem?.stem
+        || sourceFormulaSlots?.incorporatedNounStem?.surface
+        || sourceFormulaSlots?.incorporatedNounStem
+        || incorporatedNounStem;
+    const normalizedSourceVerbStem = normalizeLesson4631aSourceSlot(slotSourceVerbStem);
+    const normalizedIncorporatedNounStem = normalizeLesson4631aSourceSlot(slotIncorporatedNounStem);
+    if (!normalizedSourceVerbStem || !normalizedIncorporatedNounStem) {
+        return null;
+    }
+    const sourcePreparation = sourcePreparationRequired !== false;
+    const visibleSourceKind = sourcePreparation
+        ? "source-vnc-core"
+        : "preterit-agentive-general-use-stem";
+    const sourceKind = "preterit-agentive-general-use-stem";
+    const sourceVncFormula = `(${normalizedIncorporatedNounStem}-${normalizedSourceVerbStem})`;
+    const preteritPredicateFormula = `(${normalizedIncorporatedNounStem}-${normalizedSourceVerbStem}-0)`;
+    const preteritAgentiveStemFormula = `(${normalizedIncorporatedNounStem}-${normalizedSourceVerbStem}-0-ka)`;
+    const finalRouteImmediateSourceFormula = preteritAgentiveStemFormula;
+    const visibleSourceFormula = sourcePreparation ? sourceVncFormula : preteritAgentiveStemFormula;
+    const predicateStem = `${normalizedIncorporatedNounStem}-${normalizedSourceVerbStem}-0-ka-n`;
+    const formulaStem = `(${predicateStem})-0-`;
+    const formulaEcho = `#Ø-Ø(${predicateStem})Ø#`;
+    const targetSegmentFrames = buildLesson4631aTargetSegmentFrames({
+        incorporatedNounStem: normalizedIncorporatedNounStem,
+        sourceVerbStem: normalizedSourceVerbStem,
+    });
+    const targetSurface = targetSegmentFrames.map((segment) => segment.surface).join("");
+    const formulaSlots = buildLesson4631aFormulaSlots({
+        predicateStem,
+        formulaStem,
+        surface: targetSurface,
+    });
+    const sourceSignature = [
+        normalizedIncorporatedNounStem,
+        normalizedSourceVerbStem,
+        visibleSourceKind,
+        finalRouteImmediateSourceFormula,
+    ].join("|");
+    const targetSignature = [
+        predicateStem,
+        formulaStem,
+        formulaEcho,
+        targetSurface,
+    ].join("|");
+    return Object.freeze({
+        kind: "lesson-46-3-1-a-preterit-agentive-locative-source-frame",
+        version: RELATIONAL_NNC_BOUNDARY_VERSION,
+        routeFamily: "relational-nnc",
+        routeStage: "lesson-46-3-1-a-preterit-agentive-locative",
+        sourceKind,
+        visibleSourceKind,
+        sourcePreparationRequired: sourcePreparation,
+        sourceVerbStem: normalizedSourceVerbStem,
+        incorporatedNounStem: normalizedIncorporatedNounStem,
+        visibleSourceFormula,
+        sourceVncFormula,
+        preteritPredicateFormula,
+        preteritAgentiveStemFormula,
+        finalRouteImmediateSourceFormula,
+        predicateStem,
+        formulaStem,
+        formulaEcho,
+        formulaSlots,
+        targetSegmentFrames,
+        targetSurface,
+        immediateSourceKind: immediateSourceKind || sourceKind,
+        evidenceSource: String(evidenceSource || ""),
+        sourceSignature,
+        targetSignature,
+        authority: "Andrews Lesson 46.3.1.a",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildLesson4631aPreteritAgentiveLocativeOperationFrame(sourceFrame = null) {
+    if (
+        !sourceFrame
+        || sourceFrame.kind !== "lesson-46-3-1-a-preterit-agentive-locative-source-frame"
+    ) {
+        return null;
+    }
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-46-3-1-a-preterit-agentive-locative-realization",
+        routeFamily: "relational-nnc",
+        routeStage: "execute-lesson-46-3-1-a-typed-operation-frame",
+        operationApplied: "preterit-agentive-locative-n-plus-adverbial-zero",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetSignature: sourceFrame.targetSignature,
+        sourceKind: sourceFrame.sourceKind,
+        visibleSourceKind: sourceFrame.visibleSourceKind,
+        sourcePreparationRequired: sourceFrame.sourcePreparationRequired,
+        sourceVerbStem: sourceFrame.sourceVerbStem,
+        incorporatedNounStem: sourceFrame.incorporatedNounStem,
+        finalRouteImmediateSourceFormula: sourceFrame.finalRouteImmediateSourceFormula,
+        predicateStem: sourceFrame.predicateStem,
+        formulaStem: sourceFrame.formulaStem,
+        formulaEcho: sourceFrame.formulaEcho,
+        formulaSlots: sourceFrame.formulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function getLesson4631aPreteritAgentiveLocativeFrameMismatch({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    if (
+        !sourceFrame
+        || sourceFrame.kind !== "lesson-46-3-1-a-preterit-agentive-locative-source-frame"
+    ) {
+        return "source-frame-required";
+    }
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-46-3-1-a-preterit-agentive-locative-realization"
+        || operationFrame.routeFamily !== "relational-nnc"
+        || operationFrame.consumesRenderedInput !== false
+        || operationFrame.displayStringsAuthorizeGrammar !== false
+    ) {
+        return "operation-frame-required";
+    }
+    if (
+        operationFrame.sourceFrameKind !== sourceFrame.kind
+        || operationFrame.sourceSignature !== sourceFrame.sourceSignature
+        || operationFrame.sourceKind !== sourceFrame.sourceKind
+        || operationFrame.visibleSourceKind !== sourceFrame.visibleSourceKind
+        || operationFrame.sourcePreparationRequired !== sourceFrame.sourcePreparationRequired
+        || operationFrame.sourceVerbStem !== sourceFrame.sourceVerbStem
+        || operationFrame.incorporatedNounStem !== sourceFrame.incorporatedNounStem
+        || operationFrame.finalRouteImmediateSourceFormula !== sourceFrame.finalRouteImmediateSourceFormula
+    ) {
+        return "contradictory-source-frame";
+    }
+    const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
+    const targetSurface = targetSegmentFrames.map((segment) => String(segment?.surface || "")).join("");
+    if (
+        operationFrame.targetSignature !== sourceFrame.targetSignature
+        || operationFrame.predicateStem !== sourceFrame.predicateStem
+        || operationFrame.formulaStem !== sourceFrame.formulaStem
+        || operationFrame.formulaEcho !== sourceFrame.formulaEcho
+        || operationFrame.formulaSlots !== sourceFrame.formulaSlots
+        || targetSurface !== sourceFrame.targetSurface
+        || operationFrame.targetSurface !== sourceFrame.targetSurface
+    ) {
+        return "contradictory-target-frame";
+    }
+    return "";
+}
+
+function flattenLesson46FormulaStemToSurface(formulaStem = "", options = {}) {
+    const operationFrame = options && typeof options === "object"
+        ? options.operationFrame
+        : null;
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-46-3-1-a-preterit-agentive-locative-realization"
+    ) {
+        return "";
+    }
+    const formulaText = String(formulaStem || "").trim();
+    if (formulaText && formulaText !== String(operationFrame.formulaStem || "")) {
+        return "";
+    }
+    return String(operationFrame.targetSurface || "");
+}
+
+function buildLesson463RouteFamilyGraph({
+    sourceAnalysis = null,
+    incorporatedNounStem = "",
+    sourceVerbStem = "",
+    predicateStem = "",
+    formulaStem = "",
+    formulaEcho = "",
+    surface = "",
+    operationFrame = null,
+} = {}) {
+    const normalizedSourceAnalysis = sourceAnalysis && typeof sourceAnalysis === "object"
+        ? sourceAnalysis
+        : {};
+    const normalizedIncorporatedStem = normalizeLesson46RouteStemToken(
+        incorporatedNounStem || normalizedSourceAnalysis.incorporatedStemValue || ""
+    );
+    const normalizedSourceVerbStem = normalizeLesson46RouteStemToken(
+        sourceVerbStem || normalizedSourceAnalysis.sourceVerbStem || ""
+    );
+    const visibleSourceFormula = normalizedSourceAnalysis.visibleSourceFormula || (
+        normalizedIncorporatedStem && normalizedSourceVerbStem
+            ? `(${normalizedIncorporatedStem}-${normalizedSourceVerbStem})`
+            : ""
+    );
+    const preteritPredicateFormula = normalizedSourceAnalysis.preteritPredicateFormula || (
+        normalizedIncorporatedStem && normalizedSourceVerbStem
+            ? `(${normalizedIncorporatedStem}-${normalizedSourceVerbStem}-0)`
+            : ""
+    );
+    const preteritAgentiveStemFormula = normalizedSourceAnalysis.preteritAgentiveStemFormula
+        || normalizedSourceAnalysis.finalRouteImmediateSourceFormula
+        || (
+            normalizedIncorporatedStem && normalizedSourceVerbStem
+                ? `(${normalizedIncorporatedStem}-${normalizedSourceVerbStem}-0-ka)`
+                : ""
+        );
+    const explicitPredicateStem = tokenizeLesson46RouteStemFormula(predicateStem).join("-");
+    const normalizedPredicateStem = explicitPredicateStem || (
+        normalizedIncorporatedStem && normalizedSourceVerbStem
+            ? `${normalizedIncorporatedStem}-${normalizedSourceVerbStem}-0-ka-n`
+            : ""
+    );
+    const locativeCompoundFormula = normalizedPredicateStem ? `(${normalizedPredicateStem})` : "";
+    const adverbialFormulaStem = formulaStem
+        || operationFrame?.formulaStem
+        || (locativeCompoundFormula ? `${locativeCompoundFormula}-0-` : "");
+    const adverbialFormulaEcho = formulaEcho || (normalizedPredicateStem ? `#Ø-Ø(${normalizedPredicateStem})Ø#` : "");
+    const normalCnnFormula = normalizedPredicateStem
+        ? `#pers1-pers2(${normalizedPredicateStem})num1-num2#`
+        : "#pers1-pers2(STEM)num1-num2#";
+    const normalizedSurface = surface || flattenLesson46FormulaStemToSurface(adverbialFormulaStem, { operationFrame });
+    const nodes = [
+        {
+            id: "46.3",
+            label: "46.3 ca+n locativo",
+            unitKind: "route-family",
+            andrewsSection: "46.3",
+            formulaShapes: ["(X-ca)+(-n)-tli-", "(X)+(ca-n)-tli-"],
+        },
+        {
+            id: "46.3.1",
+            label: "(X-ca)+(-n)-tli-",
+            unitKind: "route-pattern",
+            andrewsSection: "46.3.1",
+            childRouteIds: ["46.3.1.a", "46.3.1.b"],
+        },
+        {
+            id: "46.3.1.a",
+            label: "preterit-agentive embed",
+            unitKind: "route-pattern",
+            andrewsSection: "46.3.1.a",
+            sourceRequirement: "general-use preterit-agentive nounstem",
+            normalNonadverbialNncPossible: true,
+            moreOftenAdverbialized: true,
+        },
+        {
+            id: "source-cnv-core",
+            label: "CNV origen",
+            unitKind: normalizedSourceAnalysis.visibleSourceKind || "source-vnc-core",
+            formula: visibleSourceFormula,
+            reusableAsSource: true,
+        },
+        {
+            id: "preterit-predicate",
+            label: "predicado pretérito",
+            unitKind: "vnc-predicate",
+            formula: preteritPredicateFormula,
+            reusableAsSource: true,
+        },
+        {
+            id: "preterit-agentive-general-use-stem",
+            label: "agentivo pretérito",
+            unitKind: "vnc-derived-nnc-stem",
+            formula: preteritAgentiveStemFormula,
+            andrewsSection: "35.5",
+            reusableAsSource: true,
+        },
+        {
+            id: "locative-compound-nounstem",
+            label: "relacional locativo nounstem",
+            unitKind: "compound-nounstem",
+            formula: locativeCompoundFormula,
+            andrewsSection: "46.3.1.a",
+            reusableAsSource: true,
+            branchIds: ["normal-cnn", "adverbialized-cnn"],
+        },
+        {
+            id: "normal-cnn-output",
+            label: "CNN normal posible",
+            unitKind: "nominal-nuclear-clause",
+            formula: normalCnnFormula,
+            selected: false,
+            generationAllowed: false,
+            blocker: "requires explicit subject and number connector selection",
+        },
+        {
+            id: "adverbialized-cnn-output",
+            label: "CNN adverbializada",
+            unitKind: "adverbialized-nominal-nuclear-clause",
+            formula: adverbialFormulaStem,
+            formulaEcho: adverbialFormulaEcho,
+            selected: true,
+            generationAllowed: Boolean(normalizedSurface),
+        },
+        {
+            id: "surface-output",
+            label: "salida",
+            unitKind: "surface",
+            surface: normalizedSurface,
+            selected: true,
+        },
+        {
+            id: "46.3.1.b",
+            label: "active-action embed",
+            unitKind: "route-pattern",
+            andrewsSection: "46.3.1.b",
+            sourceRequirement: "active-action nounstem in possessive-state route",
+            possessorRepresentsAgent: true,
+            subjectAmbiguousNormalOrAdverbialized: true,
+            generationAllowed: false,
+            blocker: "not the selected 46.3.1.a route",
+        },
+        {
+            id: "46.3.2.a",
+            label: "X absent: can",
+            unitKind: "route-pattern",
+            andrewsSection: "46.3.2.a",
+            sourceRequirement: "no X component",
+            generationAllowed: false,
+            blocker: "interrogative/place-adverb route not selected",
+        },
+        {
+            id: "46.3.2.b",
+            label: "X present + ca-n",
+            unitKind: "route-pattern",
+            andrewsSection: "46.3.2.b",
+            sourceRequirement: "incorporated modifier X",
+            generationAllowed: false,
+            blocker: "modifier-plus-ca-n route not selected",
+        },
+    ];
+    const edges = [
+        {
+            id: "select-46.3.1",
+            label: "familia",
+            sourceNodeId: "46.3",
+            targetNodeId: "46.3.1",
+            andrewsSection: "46.3.1",
+        },
+        {
+            id: "select-46.3.1.a",
+            label: "subruta",
+            sourceNodeId: "46.3.1",
+            targetNodeId: "46.3.1.a",
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "source-visible",
+            label: "origen",
+            sourceNodeId: "46.3.1.a",
+            targetNodeId: "source-cnv-core",
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "build-preterit-predicate",
+            label: "predicado pretérito",
+            sourceNodeId: "source-cnv-core",
+            targetNodeId: "preterit-predicate",
+            formulaTransition: [visibleSourceFormula, preteritPredicateFormula].filter(Boolean).join(" -> "),
+        },
+        {
+            id: "build-preterit-agentive-general-use-stem",
+            label: "agentivo pretérito",
+            sourceNodeId: "preterit-predicate",
+            targetNodeId: "preterit-agentive-general-use-stem",
+            andrewsSection: "35.5",
+            formulaTransition: [preteritPredicateFormula, preteritAgentiveStemFormula].filter(Boolean).join(" -> "),
+        },
+        {
+            id: "gate-46-3-1-a-immediate-source",
+            label: "fuente inmediata",
+            sourceNodeId: "46.3.1.a",
+            targetNodeId: "preterit-agentive-general-use-stem",
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "add-locative-relational-n",
+            label: "relacional locativo",
+            sourceNodeId: "preterit-agentive-general-use-stem",
+            targetNodeId: "locative-compound-nounstem",
+            andrewsSection: "46.3.1.a",
+            formulaTransition: [preteritAgentiveStemFormula, locativeCompoundFormula].filter(Boolean).join(" -> "),
+        },
+        {
+            id: "adverbialize-zero-connector",
+            label: "adverbial",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "adverbialized-cnn-output",
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "branch-normal-cnn",
+            label: "CNN normal posible",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "normal-cnn-output",
+            andrewsSection: "46.3.1.a",
+            selected: false,
+        },
+        {
+            id: "branch-adverbialized-cnn",
+            label: "CNN adverbializada frecuente",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "adverbialized-cnn-output",
+            andrewsSection: "46.3.1.a",
+            selected: true,
+        },
+        {
+            id: "realize-surface",
+            label: "salida",
+            sourceNodeId: "adverbialized-cnn-output",
+            targetNodeId: "surface-output",
+            selected: true,
+        },
+    ];
+    const branches = [
+        {
+            id: "normal-cnn",
+            label: "CNN normal posible",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "normal-cnn-output",
+            formula: normalCnnFormula,
+            selected: false,
+            allowedByAndrews: true,
+            generationAllowed: false,
+            blocker: "requires explicit subject and number connector selection",
+            branchAction: {
+                actionKind: "select-route-branch-source",
+                branchId: "normal-cnn",
+                sourceNodeId: "locative-compound-nounstem",
+                targetNodeId: "normal-cnn-output",
+                sourceVerb: locativeCompoundFormula,
+                sourceInput: locativeCompoundFormula,
+                sourceInputDisplay: ["CNN normal posible", normalCnnFormula].filter(Boolean).join(": "),
+                displaySurface: locativeCompoundFormula,
+                generatedSurface: "",
+                targetUnitKind: "nominal-nuclear-clause",
+                targetFormula: normalCnnFormula,
+                requiresExplicitSubjectNumber: true,
+                generationAllowed: false,
+                allowedByAndrews: true,
+            },
+        },
+        {
+            id: "adverbialized-cnn",
+            label: "CNN adverbializada frecuente",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "adverbialized-cnn-output",
+            formula: adverbialFormulaStem,
+            formulaEcho: adverbialFormulaEcho,
+            outputSurface: normalizedSurface,
+            selected: true,
+            allowedByAndrews: true,
+            generationAllowed: Boolean(normalizedSurface),
+            branchAction: {
+                actionKind: "select-route-branch-source",
+                branchId: "adverbialized-cnn",
+                sourceNodeId: "locative-compound-nounstem",
+                targetNodeId: "adverbialized-cnn-output",
+                sourceVerb: locativeCompoundFormula,
+                sourceInput: locativeCompoundFormula,
+                sourceInputDisplay: ["CNN adverbializada frecuente", adverbialFormulaStem].filter(Boolean).join(": "),
+                displaySurface: normalizedSurface || adverbialFormulaStem,
+                generatedSurface: normalizedSurface,
+                targetUnitKind: "adverbialized-nominal-nuclear-clause",
+                targetFormula: adverbialFormulaStem,
+                targetFormulaEcho: adverbialFormulaEcho,
+                requiresExplicitSubjectNumber: false,
+                generationAllowed: Boolean(normalizedSurface),
+                allowedByAndrews: true,
+            },
+        },
+    ];
+    const ruleTrace = [
+        {
+            id: "if-source-cnv-then-preterit-predicate",
+            label: "si fuente CNV",
+            ifCondition: "source unit is CNV core with incorporated nounstem plus verbstem",
+            thenOperation: "build preterit predicate layer",
+            sourceGate: "source-vnc-core",
+            sourceNodeId: "source-cnv-core",
+            targetNodeId: "preterit-predicate",
+            inputFormula: visibleSourceFormula,
+            outputFormula: preteritPredicateFormula,
+            selected: normalizedSourceAnalysis.sourcePreparationRequired !== false,
+        },
+        {
+            id: "if-preterit-predicate-then-agentive-ka",
+            label: "si predicado preterito",
+            ifCondition: "source has preterit predicate layer",
+            thenOperation: "derive general-use preterit-agentive stem with -ka",
+            sourceGate: "vnc-predicate",
+            sourceNodeId: "preterit-predicate",
+            targetNodeId: "preterit-agentive-general-use-stem",
+            inputFormula: preteritPredicateFormula,
+            outputFormula: preteritAgentiveStemFormula,
+            andrewsSection: "35.5",
+            selected: normalizedSourceAnalysis.sourcePreparationRequired !== false,
+        },
+        {
+            id: "if-preterit-agentive-then-locative-n",
+            label: "si agentivo preterito",
+            ifCondition: "immediate source is a general-use preterit-agentive stem",
+            thenOperation: "add locative relational -n",
+            sourceGate: "preterit-agentive-general-use-stem",
+            sourceNodeId: "preterit-agentive-general-use-stem",
+            targetNodeId: "locative-compound-nounstem",
+            inputFormula: preteritAgentiveStemFormula,
+            outputFormula: locativeCompoundFormula,
+            andrewsSection: "46.3.1.a",
+            selected: true,
+        },
+        {
+            id: "if-locative-nounstem-then-normal-cnn-branch",
+            label: "si rama CNN normal",
+            ifCondition: "locative compound nounstem is used as a normal CNN predicate stem",
+            thenOperation: "require explicit subject and number connectors",
+            sourceGate: "compound-nounstem",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "normal-cnn-output",
+            inputFormula: locativeCompoundFormula,
+            outputFormula: normalCnnFormula,
+            andrewsSection: "46.3.1.a",
+            selected: false,
+            generationAllowed: false,
+            blocker: "requires explicit subject and number connector selection",
+        },
+        {
+            id: "if-locative-nounstem-then-adverbial-zero",
+            label: "si rama adverbial",
+            ifCondition: "locative compound nounstem is used adverbially",
+            thenOperation: "add zero connector/adverbializer -0-",
+            sourceGate: "compound-nounstem",
+            sourceNodeId: "locative-compound-nounstem",
+            targetNodeId: "adverbialized-cnn-output",
+            inputFormula: locativeCompoundFormula,
+            outputFormula: adverbialFormulaStem,
+            andrewsSection: "46.3.1.a",
+            selected: true,
+            generationAllowed: Boolean(normalizedSurface),
+        },
+        {
+            id: "if-adverbial-formula-then-surface",
+            label: "si formula adverbial",
+            ifCondition: "adverbialized CNN formula is complete",
+            thenOperation: "realize the Nawat-letter surface",
+            sourceGate: "adverbialized-nominal-nuclear-clause",
+            sourceNodeId: "adverbialized-cnn-output",
+            targetNodeId: "surface-output",
+            inputFormula: adverbialFormulaStem,
+            outputSurface: normalizedSurface,
+            selected: true,
+            generationAllowed: Boolean(normalizedSurface),
+        },
+    ];
+
+    return {
+        kind: "andrews-route-family-graph",
+        familyId: "andrews-46.3-ca-n-locative",
+        andrewsSection: "46.3",
+        structuralSource: "Andrews Lesson 46.3",
+        graphSourceOfTruth: true,
+        lessonAsEvidenceIndex: true,
+        selectedRouteId: "46.3.1.a",
+        selectedBranchId: "adverbialized-cnn",
+        nodes,
+        edges,
+        branches,
+        ruleTrace,
+        invariants: {
+            finalSurfaceIsNotSource: true,
+            selectedOutputIsNotWholeRouteFamily: true,
+            intermediateNodesReusableAsSources: true,
+            unselectedAndrewsBranchesRemainRepresented: true,
+            currentConjugatorRowsAreRenderersOnly: true,
+        },
+    };
 }
 
 function buildLesson46PreteritAgentiveLocativeNncFromSource({
@@ -939,53 +1857,62 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
     incorporatedStem = "",
     embeddedNounStem = "",
     evidenceSource = "",
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
-    const rawEmbeddedSourceInput = String(source || sourceFormula || embeddedSource || embeddedSourceStem || "");
-    const splitEmbeddedSource = splitLesson46EmbeddedSourceStem(rawEmbeddedSourceInput);
-    const rawSourceInput = String(
-        sourceVerb
+    const sourceInput = String(
+        source
+        || sourceFormula
+        || embeddedSource
+        || embeddedSourceStem
+        || sourceVerb
         || sourceVerbstem
-        || (rawEmbeddedSourceInput ? splitEmbeddedSource.sourceVerb : "")
         || sourceStem
         || verbStem
+        || incorporatedNounStem
+        || incorporatedStem
+        || embeddedNounStem
         || ""
     );
-    const rawIncorporatedInput = String(incorporatedNounStem || incorporatedStem || embeddedNounStem || "");
-    const rawResolvedIncorporatedInput = rawIncorporatedInput || (rawEmbeddedSourceInput ? splitEmbeddedSource.incorporatedNounStem : "");
-    const sourceVerbStem = normalizeLesson46RouteStemToken(rawSourceInput);
-    const incorporatedStemValue = normalizeLesson46RouteStemToken(rawResolvedIncorporatedInput);
-    const diagnostics = [];
-
-    if (!sourceVerbStem) {
-        diagnostics.push("lesson-46-3-1-a-source-verbstem-required");
-    }
-    if (!incorporatedStemValue) {
-        diagnostics.push("lesson-46-3-1-a-incorporated-nounstem-required");
-    }
-
-    const sourceInput = rawEmbeddedSourceInput || rawSourceInput || rawIncorporatedInput;
+    const mismatch = getLesson4631aPreteritAgentiveLocativeFrameMismatch({
+        sourceFrame,
+        operationFrame,
+    });
+    const sourceVerbStem = String(sourceFrame?.sourceVerbStem || "");
+    const incorporatedStemValue = String(sourceFrame?.incorporatedNounStem || "");
     const baseRecord = {
         kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         andrewsSection: "46.3.1.a",
         structuralSource: "Andrews Lesson 46.3.1.a",
-        targetAuthority: "Andrews route plus user-provided Nawat-letter realization",
+        targetAuthority: "Andrews route source frame plus typed operation frame",
         sourceInput,
         sourceVerb: sourceVerbStem,
-        sourceKind: "source-vnc-core",
+        sourceKind: sourceFrame?.sourceKind || "",
+        visibleSourceKind: sourceFrame?.visibleSourceKind || "",
+        sourcePreparationRequired: sourceFrame?.sourcePreparationRequired === true,
         incorporatedNounStem: incorporatedStemValue,
         relationalStem: "n",
         relationalKind: RELATIONAL_NNC_KIND.locative,
         relationalOption: RELATIONAL_NNC_OPTION.optionTwo,
         optionGroup: RELATIONAL_NNC_OPTION_GROUP.optionTwoOnly,
         sourceState: RELATIONAL_NNC_SOURCE_STATE.absolutive,
+        predicateState: "adverbialized-zero",
+        predicateStateLabel: "adverbializado -0-",
         sourceVoice: RELATIONAL_NNC_SOURCE_VOICE.active,
         sourceFormation: "general-use preterit-agentive nounstem",
         formulaShape: "(X-ka)+(-n)-0",
         evidenceSource: String(evidenceSource || "user-provided Nawat-letter target").trim(),
     };
 
-    if (diagnostics.length) {
+    if (mismatch) {
+        const diagnosticByMismatch = {
+            "source-frame-required": "lesson-46-3-1-a-source-frame-required",
+            "operation-frame-required": "lesson-46-3-1-a-operation-frame-required",
+            "contradictory-source-frame": "lesson-46-3-1-a-contradictory-source-frame",
+            "contradictory-target-frame": "lesson-46-3-1-a-contradictory-target-frame",
+        };
+        const diagnostics = [diagnosticByMismatch[mismatch] || "lesson-46-3-1-a-typed-frame-required"];
         return attachRelationalNncGrammarContract({
             ...baseRecord,
             supported: false,
@@ -1015,54 +1942,129 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
                 stemKind: "relational-nnc-derived-stem",
                 sourceStem: sourceVerbStem,
                 embeddedStem: incorporatedStemValue,
+                immediateSourceStem: sourceFrame?.finalRouteImmediateSourceFormula || "",
                 matrixStem: "n",
                 sourceFormation: "general-use preterit-agentive nounstem",
             },
             nuclearClauseFrame: {
                 clauseKind: "nominal-nuclear-clause",
-                sourceClauseKind: "VNC source core feeding relational NNC",
+                sourceClauseKind: "preterit-agentive general-use stem feeding relational NNC",
                 state: "absolutive",
                 tenseSlotPresent: false,
             },
             targetContract: {
                 metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
                 generationAllowed: false,
-                missingSourceSlots: diagnostics,
+                missingSourceSlots: mismatch === "source-frame-required" ? diagnostics : [],
+                missingOperationFrame: mismatch === "operation-frame-required",
+                contradictoryFrame: mismatch === "contradictory-source-frame" || mismatch === "contradictory-target-frame",
             },
             diagnostics,
         });
     }
 
-    const embeddedStem = `${incorporatedStemValue}-${sourceVerbStem}`;
-    const predicateStem = `${embeddedStem}-0-ka-n`;
-    const formulaStem = `(${predicateStem})-0-`;
-    const surface = flattenLesson46FormulaStemToSurface(formulaStem);
-    const formulaEcho = `#Ø-Ø(${predicateStem})Ø#`;
-    const formulaSlots = {
-        pers1Pers2: {
-            slot: "pers1-pers2",
-            connector: "Ø",
-            surface: "",
-        },
-        predicateStem: {
-            slot: "STEM",
-            formula: `(${predicateStem})`,
-            sourceFormula: formulaStem,
-            surface,
-        },
-        num1Num2: {
-            slot: "num1-num2",
-            connector: "Ø",
-            sourceFormula: "-0-",
-            surface: "",
-        },
+    const sourceAnalysis = {
+        sourceVerbStem,
+        incorporatedStemValue,
+        visibleSourceFormula: sourceFrame.visibleSourceFormula,
+        sourceVncFormula: sourceFrame.sourceVncFormula,
+        preteritPredicateFormula: sourceFrame.preteritPredicateFormula,
+        preteritAgentiveStemFormula: sourceFrame.preteritAgentiveStemFormula,
+        finalRouteImmediateSourceFormula: sourceFrame.finalRouteImmediateSourceFormula,
+        sourceKind: sourceFrame.sourceKind,
+        visibleSourceKind: sourceFrame.visibleSourceKind,
+        sourcePreparationRequired: sourceFrame.sourcePreparationRequired,
     };
+    const embeddedStem = `${incorporatedStemValue}-${sourceVerbStem}`;
+    const predicateStem = operationFrame.predicateStem;
+    const formulaStem = operationFrame.formulaStem;
+    const surface = operationFrame.targetSurface;
+    const formulaEcho = operationFrame.formulaEcho;
+    const routeFamilyGraph = buildLesson463RouteFamilyGraph({
+        sourceAnalysis,
+        incorporatedNounStem: incorporatedStemValue,
+        sourceVerbStem,
+        predicateStem,
+        formulaStem,
+        formulaEcho,
+        surface,
+        operationFrame,
+    });
+    const routeRuleTrace = Array.isArray(routeFamilyGraph.ruleTrace)
+        ? routeFamilyGraph.ruleTrace
+        : [];
+    const routeSteps = [
+        {
+            id: "source-visible",
+            layerLabel: "origen",
+            requirement: sourceAnalysis.sourcePreparationRequired
+                ? "CNV fuente licenciada para incrustación agentiva pretérita"
+                : "tronco agentivo pretérito de uso general",
+            sourceUnit: sourceAnalysis.visibleSourceKind,
+            formula: sourceAnalysis.visibleSourceFormula,
+        },
+        ...(sourceAnalysis.sourcePreparationRequired ? [
+            {
+                id: "build-preterit-predicate",
+                layerLabel: "predicado pretérito",
+                operation: "formar capa predicativa pretérita/cero",
+                sourceUnit: "vnc-predicate",
+                inputFormula: sourceAnalysis.sourceVncFormula,
+                outputFormula: sourceAnalysis.preteritPredicateFormula,
+            },
+            {
+                id: "build-preterit-agentive-general-use-stem",
+                layerLabel: "agentivo pretérito",
+                operation: "reanálisis con agentivo pretérito de uso general -ka",
+                sourceUnit: "vnc-derived-nnc-stem",
+                inputFormula: sourceAnalysis.preteritPredicateFormula,
+                outputFormula: sourceAnalysis.preteritAgentiveStemFormula,
+                andrewsSection: "35.5",
+            },
+        ] : []),
+        {
+            id: "gate-46-3-1-a-immediate-source",
+            layerLabel: "fuente inmediata",
+            requirement: "tronco agentivo pretérito de uso general",
+            sourceUnit: "preterit-agentive-general-use-stem",
+            formula: sourceAnalysis.finalRouteImmediateSourceFormula,
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "add-locative-relational-n",
+            layerLabel: "relacional locativo",
+            operation: "añadir relacional locativo -n",
+            sourceUnit: "relational-nnc-stem",
+            inputFormula: sourceAnalysis.finalRouteImmediateSourceFormula,
+            outputFormula: `(${predicateStem})`,
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "adverbialize-zero-connector",
+            layerLabel: "adverbial",
+            operation: "adverbializar con conector cero -0-",
+            sourceUnit: "adverbialized-relational-nnc",
+            inputFormula: `(${predicateStem})`,
+            outputFormula: formulaStem,
+            andrewsSection: "46.3.1.a",
+        },
+        {
+            id: "realize-surface",
+            layerLabel: "salida",
+            operation: "realizar superficie con letras Nawat",
+            inputFormula: formulaStem,
+            outputSurface: surface,
+        },
+    ];
+    const formulaSlots = operationFrame.formulaSlots;
     const record = {
         ...baseRecord,
         embeddedStem,
         predicateStem,
         formulaStem,
         formulaSlots,
+        sourceFrame,
+        operationFrame,
         formulaEcho,
         surface,
         result: surface,
@@ -1071,15 +2073,23 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
         generationAllowed: true,
         routeStage: "generate-lesson-46-3-1-a",
         routeContract: {
-            sourceUnitKind: "vnc-verbstem-source",
+            sourceUnitKind: "preterit-agentive-general-use-stem",
+            visibleSourceUnitKind: sourceAnalysis.visibleSourceKind,
             targetUnitKind: "relational-nnc",
             sourceWasFinishedSurface: false,
+            sourcePreparationRequired: sourceAnalysis.sourcePreparationRequired,
+            immediateSourceFormula: sourceAnalysis.finalRouteImmediateSourceFormula,
+            routeSteps,
+            ruleTrace: routeRuleTrace,
+            routeFamilyGraph,
             derivesFromSourceVerb: true,
             newWordGenerationAllowed: true,
         },
+        routeFamilyGraph,
+        ruleTrace: routeRuleTrace,
         diagnostics: [
             "lesson-46-3-1-a-source-route-generated",
-            "lesson-46-3-1-a-user-nawat-letter-realization",
+            "lesson-46-3-1-a-typed-operation-realization",
         ],
     };
 
@@ -1095,11 +2105,11 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
         surface,
         surfaceForms: [surface],
         orthographyFrame: {
-            spellingAuthority: "user-provided Nawat/Pipil letters",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
             surface,
             surfaceForms: [surface],
-            orthographyStatus: "user-provided-nawat-letter-realization",
+            orthographyStatus: "typed-segment-frame-realization",
         },
         morphBoundaryFrame: {
             caNEmbedFrame: cloneRelationalNncLessonRecord(LESSON46_CA_N_EMBED_FRAME),
@@ -1113,13 +2123,14 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
             stemKind: "relational-nnc-derived-stem",
             sourceStem: sourceVerbStem,
             embeddedStem,
+            immediateSourceStem: sourceAnalysis.finalRouteImmediateSourceFormula,
             predicateStem,
             matrixStem: "n",
             sourceFormation: "general-use preterit-agentive nounstem",
         },
         nuclearClauseFrame: {
             clauseKind: "nominal-nuclear-clause",
-            sourceClauseKind: "VNC source core feeding relational NNC",
+            sourceClauseKind: "preterit-agentive general-use stem feeding relational NNC",
             state: "absolutive",
             tenseSlotPresent: false,
             formula: "#pers1-pers2(STEM)num1-num2#",
@@ -1135,13 +2146,22 @@ function buildLesson46PreteritAgentiveLocativeNncFromSource({
             sourceInput,
             sourceVerb: sourceVerbStem,
             incorporatedNounStem: incorporatedStemValue,
+            visibleSourceKind: sourceAnalysis.visibleSourceKind,
+            immediateSourceKind: "preterit-agentive-general-use-stem",
+            immediateSourceFormula: sourceAnalysis.finalRouteImmediateSourceFormula,
+            sourcePreparationRequired: sourceAnalysis.sourcePreparationRequired,
             sourceWasFinishedSurface: false,
+            sourceFrameKind: sourceFrame.kind,
         },
         targetContract: {
             metadataKind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
             generationAllowed: true,
             formulaStem,
             surface,
+            operationId: operationFrame.operationId,
+            routeSteps,
+            ruleTrace: routeRuleTrace,
+            routeFamilyGraph,
         },
         diagnostics: record.diagnostics,
     });
@@ -1233,10 +2253,10 @@ function buildLesson46RelationalNncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 46.1-46.15",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil relational evidence",
+            spellingAuthority: "Nawat/Pipil relational orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
         },
         morphBoundaryFrame: {
             optionTwoOnlyFrame,
@@ -1265,7 +2285,7 @@ function buildLesson46RelationalNncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+        diagnostics: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-source-gated"],
     });
 }
 
@@ -1429,20 +2449,20 @@ const LESSON47_PERTINENCY_FRAME = Object.freeze({
 
 const LESSON47_RELATIONAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson47-options-one-two", andrewsSection: "47.1", category: "options-one-two-group", directiveEs: "Dos troncos aceptan opcion 1 y opcion 2; la interfaz no debe colapsarlos con el grupo solo opcion 2.", engineSurface: "diagnostic relational grouping frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson47-tzalan", andrewsSection: "47.1.1", category: "tzalan-between-amid", directiveEs: "Tzalan expresa area entre o en medio; admite CNN posesiva simple y matriz integrada, incluso CNN no adverbial cuando el significado lo permite.", engineSurface: "diagnostic options-one-two frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-huic", andrewsSection: "47.1.2", category: "huic-direction", directiveEs: "Huic expresa direccion; puede combinarse con otros troncos locativos/direccionales y tambien con pa o copa.", engineSurface: "diagnostic options-one-two frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson47-tzalan", andrewsSection: "47.1.1", category: "tzalan-between-amid", directiveEs: "Tzalan expresa area entre o en medio; admite CNN posesiva simple y matriz integrada, incluso CNN no adverbial cuando el significado lo permite.", engineSurface: "diagnostic options-one-two frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-huic", andrewsSection: "47.1.2", category: "huic-direction", directiveEs: "Huic expresa direccion; puede combinarse con otros troncos locativos/direccionales y tambien con pa o copa.", engineSurface: "diagnostic options-one-two frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson47-options-one-three", andrewsSection: "47.2", category: "options-one-three-group", directiveEs: "Dos troncos aceptan opcion 1 y opcion 3; el conectivo t debe quedar como arquitectura relacional, no como superficie generada sin evidencia.", engineSurface: "diagnostic relational grouping frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson47-ca-means", andrewsSection: "47.2.1", category: "ca-means", directiveEs: "Ca expresa medio; tambien forma compuestos temporales y usos contextuales que la traduccion puede rendir como con, por o acerca de.", engineSurface: "diagnostic options-one-three frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-icpac", andrewsSection: "47.2.2", category: "icpac-top-location", directiveEs: "Icpac es una matriz compuesta de ubicacion superior; actua como ca en opcion 1/3 y no embebe otro tronco por estructura integrada.", engineSurface: "diagnostic options-one-three frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson47-ca-means", andrewsSection: "47.2.1", category: "ca-means", directiveEs: "Ca expresa medio; tambien forma compuestos temporales y usos contextuales que la traduccion puede rendir como con, por o acerca de.", engineSurface: "diagnostic options-one-three frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-icpac", andrewsSection: "47.2.2", category: "icpac-top-location", directiveEs: "Icpac es una matriz compuesta de ubicacion superior; actua como ca en opcion 1/3 y no embebe otro tronco por estructura integrada.", engineSurface: "diagnostic options-one-three frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson47-options-one-two-three", andrewsSection: "47.3", category: "options-one-two-three-group", directiveEs: "Tres troncos aceptan opciones 1, 2 y 3; las diferencias de posicion simple, integrada y con conectivo t deben permanecer visibles en metadata.", engineSurface: "diagnostic relational grouping frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson47-tech", andrewsSection: "47.3.1", category: "tech-contact", directiveEs: "Tech expresa contacto o superficie lateral; puede aparecer como simple posesivo, matriz integrada, matriz con conectivo t, o embed de pa/copa.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-tlan", andrewsSection: "47.3.2", category: "tlan-bottom-adjacent", directiveEs: "Tlan expresa superficie inferior, ubicacion baja o adyacencia; ixtlan y tzintlan precisan partes del cuerpo y tlan puede embebarse en pa.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-pan", andrewsSection: "47.3.3", category: "pan-surface-time", directiveEs: "Pan expresa superficie superior, lugar o tiempo; pampa extiende direccion a apoyo/razon e ipan puede conectar grupos numerales.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-associated-entity", andrewsSection: "47.4", category: "associated-entity-nnc", directiveEs: "Un compuesto relacional puede embebarse en ca-tl para nombrar una entidad asociada; no se debe confundir automaticamente con gentilicio.", engineSurface: "diagnostic associated-entity frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson47-tech", andrewsSection: "47.3.1", category: "tech-contact", directiveEs: "Tech expresa contacto o superficie lateral; puede aparecer como simple posesivo, matriz integrada, matriz con conectivo t, o embed de pa/copa.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-tlan", andrewsSection: "47.3.2", category: "tlan-bottom-adjacent", directiveEs: "Tlan expresa superficie inferior, ubicacion baja o adyacencia; ixtlan y tzintlan precisan partes del cuerpo y tlan puede embebarse en pa.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-pan", andrewsSection: "47.3.3", category: "pan-surface-time", directiveEs: "Pan expresa superficie superior, lugar o tiempo; pampa extiende direccion a apoyo/razon e ipan puede conectar grupos numerales.", engineSurface: "diagnostic options-one-two-three frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-associated-entity", andrewsSection: "47.4", category: "associated-entity-nnc", directiveEs: "Un compuesto relacional puede embebarse en ca-tl para nombrar una entidad asociada; no se debe confundir automaticamente con gentilicio.", engineSurface: "diagnostic associated-entity frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson47-associated-entity-co-c", andrewsSection: "47.4 co/c replacement", category: "associated-entity-co-c-silent", directiveEs: "Cuando co/c entra en ca-tl, la matriz co/c se reemplaza por variante silenciosa.", engineSurface: "diagnostic associated-entity frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson47-pertinency-overview", andrewsSection: "47.5", category: "pertinency-nnc", directiveEs: "Yo-tl crea pertinencia sobre compuestos relacionales; la traduccion puede ocultar la complejidad morfologica.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-pertinency-direct", andrewsSection: "47.5.1", category: "direct-pertinency", directiveEs: "Yo-tl puede embeder directamente el tronco de una CNN adverbializada; el poseedor interno no cambia el estado absolutivo.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson47-pertinency-associated-entity", andrewsSection: "47.5.2", category: "associated-entity-pertinency", directiveEs: "Yo-tl tambien puede embeder un tronco de entidad asociada en ca-tl para expresar pertinencia.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson47-pertinency-overview", andrewsSection: "47.5", category: "pertinency-nnc", directiveEs: "Yo-tl crea pertinencia sobre compuestos relacionales; la traduccion puede ocultar la complejidad morfologica.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-pertinency-direct", andrewsSection: "47.5.1", category: "direct-pertinency", directiveEs: "Yo-tl puede embeder directamente el tronco de una CNN adverbializada; el poseedor interno no cambia el estado absolutivo.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson47-pertinency-associated-entity", andrewsSection: "47.5.2", category: "associated-entity-pertinency", directiveEs: "Yo-tl tambien puede embeder un tronco de entidad asociada en ca-tl para expresar pertinencia.", engineSurface: "diagnostic pertinency frame", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function getLesson47RelationalNncSubsectionInventory() {
@@ -1450,7 +2470,7 @@ function getLesson47RelationalNncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON47_RELATIONAL_NNC_VALIDATION_REFS),
     }));
 }
@@ -1464,7 +2484,7 @@ function buildLesson47RelationalNncPursuitFrame() {
     const pertinencyFrame = cloneRelationalNncLessonRecord(LESSON47_PERTINENCY_FRAME);
     const remainingGaps = [
         "Current Lesson 47 support records Andrews' option-one/two/three relational NNC architecture as diagnostics; it does not implement relational fixture data, associated-entity generation, or pertinency generation.",
-        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.",
         "Parser/search detection, supplementary possessor resolution, pa/copa embedding, connective-t relational compounds, body-part compound distinctions, associated-entity versus gentilic contrast, pertinency routing, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed.",
     ];
     const frame = {
@@ -1529,10 +2549,10 @@ function buildLesson47RelationalNncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 47.1-47.5",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil relational evidence",
+            spellingAuthority: "Nawat/Pipil relational orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
         },
         morphBoundaryFrame: {
             optionsOneTwoFrame,
@@ -1560,7 +2580,7 @@ function buildLesson47RelationalNncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["relational-nnc-lesson-47-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+        diagnostics: ["relational-nnc-lesson-47-diagnostic-partial", "relational-nnc-source-gated"],
     });
 }
 
@@ -1571,7 +2591,7 @@ function buildRelationalNncBoundaryMetadata() {
         lessons: [45, 46, 47],
         status: "partial",
         structuralSource: "Andrews Lessons 45-47",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews relational NNC rules with Nawat/Pipil orthographic realization",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getRelationalNncStructuralQuestions(),
@@ -1601,13 +2621,38 @@ function classifyRelationalNncCandidate({
     relationalOption = "",
     governedArgument = "",
     evidenceSource = "",
+    sourceGate = "",
+    structuredSource = false,
     falsePositiveSource = "",
     sourceKind = "",
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
     const normalizedKind = normalizeRelationalNncKind(relationalKind);
     const normalizedOption = normalizeRelationalNncOption(relationalOption);
     const normalizedFalsePositive = normalizeRelationalNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
+    const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+    const requiresTypedOperation = (
+        normalizedKind !== RELATIONAL_NNC_KIND.unknown
+        && normalizedOption !== RELATIONAL_NNC_OPTION.unknown
+        && normalizedFalsePositive === RELATIONAL_NNC_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const blockedDiagnostic = requiresTypedOperation
+        ? getRelationalNncBlockedDiagnostic({ sourceFrame: resolvedSourceFrame, operationFrame })
+        : "";
+    const sourceSurface = blockedDiagnostic ? "" : String(operationFrame?.targetSurface || "");
+    const canGenerate = Boolean(
+        sourceSurface
+        && !blockedDiagnostic
+        && normalizedKind !== RELATIONAL_NNC_KIND.unknown
+        && normalizedOption !== RELATIONAL_NNC_OPTION.unknown
+        && normalizedFalsePositive === RELATIONAL_NNC_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const targetFormulaSlots = canGenerate ? operationFrame.targetFormulaSlots : null;
+    const targetSegmentFrames = canGenerate && Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
     const classification = {
         kind: "relational-nnc-candidate-classification",
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
@@ -1617,30 +2662,73 @@ function classifyRelationalNncCandidate({
         relationalOption: normalizedOption,
         governedArgument: String(governedArgument || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
         sourceKind: String(sourceKind || ""),
-        confirmed: false,
-        generationAllowed: false,
+        ...(resolvedSourceFrame ? { sourceFrame: resolvedSourceFrame } : {}),
+        ...(operationFrame ? { operationFrame } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(canGenerate ? {
+            formulaSlots: targetFormulaSlots,
+            targetSegmentFrames,
+        } : {}),
         diagnostics: [
-            hasEvidence ? "relational-nnc-needs-validation" : "relational-nnc-needs-nawat-evidence",
+            canGenerate ? "relational-nnc-andrews-source-generated" : (
+                blockedDiagnostic || (hasEvidence ? "relational-nnc-needs-validation" : "relational-nnc-source-gate-required")
+            ),
             normalizedKind !== RELATIONAL_NNC_KIND.unknown
                 ? "relational-nnc-kind-recognized"
                 : "relational-nnc-kind-unconfirmed",
             normalizedFalsePositive !== RELATIONAL_NNC_FALSE_POSITIVE_SOURCE.unknown
                 ? "relational-nnc-false-positive-source"
-                : "relational-nnc-unconfirmed",
+                : (canGenerate ? "relational-nnc-structured-source" : "relational-nnc-unconfirmed"),
         ],
         boundary: buildRelationalNncBoundaryMetadata(),
     };
     return attachRelationalNncGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-relational-nnc" : "classify-boundary",
         sourceInput: classification.candidate || classification.relationalStem,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+            surface: classification.surface,
+            surfaceForms: classification.surfaceForms,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame,
+        },
         morphBoundaryFrame: classification.boundary,
         stemFrame: {
             stemKind: "relational-nounstem-candidate",
             sourceStem: classification.relationalStem,
             useStatus: classification.relationalOption,
+            sourceGate: resolvedSourceFrame?.sourceGate || classification.sourceGate,
+            targetStem: classification.surface,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame,
+        },
+        nuclearClauseFrame: canGenerate ? {
+            formulaFamily: "relational NNC",
+            relationalKind: normalizedKind,
+            relationalOption: normalizedOption,
+            governedArgument: classification.governedArgument,
+            formulaSlots: targetFormulaSlots,
+            targetSegmentFrames,
+        } : null,
+        targetContract: {
+            metadataKind: "relational-nnc-candidate-classification",
+            generationAllowed: canGenerate,
+            consumesRenderedInput: false,
+            displayStringsAuthorizeGrammar: false,
         },
     });
 }
@@ -1749,7 +2837,7 @@ function buildRelationalNncUsageFrame({
         version: RELATIONAL_NNC_BOUNDARY_VERSION,
         lessonRange: "45-47",
         structuralSource: "Andrews Lessons 45.2-46",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         candidate: String(candidate || ""),
         relationalStem: String(relationalStem || ""),
         relationalKind: normalizedKind,
@@ -1776,7 +2864,7 @@ function buildRelationalNncUsageFrame({
         translationWarning: {
             labelsAreMorphology: false,
             translationLabel: String(translationLabel || ""),
-            warning: "preposition and conjunction labels are translation-only unless Nawat/Pipil morphology is evidenced",
+            warning: "preposition and conjunction labels are translation-only unless orthography-bridge morphology is sourced",
         },
         diagnostics,
         boundary: buildRelationalNncBoundaryMetadata(),

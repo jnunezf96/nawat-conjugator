@@ -250,11 +250,11 @@ function run(ctx) {
         ctx.getConceptAntiConflationRules(),
         [
             "concept glossary is not generation",
-            "notation token is not Nawat/Pipil surface evidence",
+            "notation token is not orthography-bridge surface evidence",
             "Andrews formula notation is an engine contract, not surface text",
             "lesson heading is not an engine boundary",
             "VNC/NNC category label is not a complete sentence model",
-            "Andrews terminology is architecture, not Nawat/Pipil form authority",
+            "Andrews terminology is architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("concept glossary does not expose surface forms", Object.prototype.hasOwnProperty.call(glossary, "surfaceForms"));

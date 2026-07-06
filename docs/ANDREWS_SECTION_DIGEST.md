@@ -6,6 +6,8 @@ Generated from the local PDF with bundled Python/pypdf on 2026-06-08. This docum
 
 Scope: Lessons 1-58, all detected `#.#` lesson sections, and detected/cited internal subsection IDs such as `#.#.#`, `#.#.#.a`, and `#.#.#.a.i`. pypdf may miss visual list hierarchy or misread diacritics, so unresolved referenced subpoints are marked explicitly.
 
+Companion formula docs: curated template inventory in `docs/ANDREWS_FORMULA_INVENTORY.md`; exhaustive occurrence index in `docs/ANDREWS_FORMULA_OCCURRENCES.md`; visual audit for OCR-risk formula rows in `docs/ANDREWS_FORMULA_VISUAL_AUDIT.md`.
+
 ## Counts
 - Main lesson sections detected: 472.
 - Internal subsection IDs detected or cited: 921.

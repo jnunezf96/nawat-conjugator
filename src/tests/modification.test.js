@@ -82,7 +82,7 @@ function run(ctx) {
                 missCount: frame.missCount,
                 generationAllowed: frame.generationAllowed,
                 closestPass: frame.closestPass,
-                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Confirmed Nawat\/Pipil/.test(gap)),
+                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Andrews modifier\/head clause-source model/.test(gap)),
             };
         })(),
         {
@@ -173,7 +173,7 @@ function run(ctx) {
                 fullLesson42GenerationImplemented: false,
             },
             grammarRouteStage: "audit-lesson-42",
-            diagnosticIds: ["adjectival-modification-lesson-42-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"],
+            diagnosticIds: ["adjectival-modification-lesson-42-diagnostic-partial", "adjectival-modification-source-gated"],
         }
     );
     s.eq(
@@ -196,7 +196,7 @@ function run(ctx) {
                 missCount: frame.missCount,
                 generationAllowed: frame.generationAllowed,
                 closestPass: frame.closestPass,
-                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Confirmed Nawat\/Pipil/.test(gap)),
+                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /Andrews modifier\/head clause-source model/.test(gap)),
             };
         })(),
         {
@@ -298,7 +298,7 @@ function run(ctx) {
                 fullLesson43GenerationImplemented: false,
             },
             grammarRouteStage: "audit-lesson-43",
-            diagnosticIds: ["adjectival-modification-lesson-43-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"],
+            diagnosticIds: ["adjectival-modification-lesson-43-diagnostic-partial", "adjectival-modification-source-gated"],
         }
     );
 
@@ -310,7 +310,14 @@ function run(ctx) {
                 state: "absolutive",
                 number: "singular",
             });
-            const modifier = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "yektiya" });
+            const parsedVerb = ctx.resolveAdjectivalNncParsedVerb("yektiya");
+            const sourceFrame = ctx.buildRootPlusYaAdjectivalNncSourceFrame({ parsedVerb });
+            const operationFrame = ctx.buildRootPlusYaAdjectivalNncOperationFrame(sourceFrame);
+            const modifier = ctx.generateRootPlusYaAdjectivalNncOutput({
+                stem: "yektiya",
+                sourceFrame,
+                operationFrame,
+            });
             const ast = ctx.buildAdjectivalModificationAst({
                 head,
                 modifier,
@@ -371,13 +378,13 @@ function run(ctx) {
         (() => {
             const headFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-head / frame-head-alt"],
+                    surfaceForms: ["frame-head", "frame-head-alt"],
                     outputKind: "nnc",
                 }),
             });
             const modifierFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-modifier / frame-modifier-alt"],
+                    surfaceForms: ["frame-modifier", "frame-modifier-alt"],
                     outputKind: "adjectival-nnc",
                 }),
             });
@@ -564,7 +571,7 @@ function run(ctx) {
             surface: "",
             diagnostics: [
                 "adjectival-modification-requires-head-surface",
-                "adjectival-modification-needs-nawat-clause-evidence",
+                "adjectival-modification-source-gated",
             ],
         }
     );
@@ -591,7 +598,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "adjectival-modification-needs-nawat-clause-evidence",
+                "adjectival-modification-source-gated",
                 "adjectival-modification-relation-recognized",
                 "adjectival-modification-false-positive-source",
             ],
@@ -625,11 +632,146 @@ function run(ctx) {
             "nominalizationProfile is not adjectival modification syntax",
             "ordinary NNC formulaSlots are not modifier/head relation metadata",
             "single generated words do not prove modification, supplementation, or topic relations",
-            "Andrews modification categories are architecture, not Nawat/Pipil form authority",
+            "Andrews modification categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("adjectival modification boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("adjectival modification boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "adjectival modification handoff reads canonical realization before split display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "modification-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical-modification)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical-modification", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "modification-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical-modification", surface: "canonical-modification" },
+                ],
+                surfaceForms: ["canonical-modification"],
+            });
+            const input = {
+                surface: "top-lie / top-alt-lie",
+                result: "result-lie / result-alt-lie",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie / frame-alt-lie"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            };
+            return {
+                surface: ctx.getAdjectivalModificationSurface(input, "fallback-lie"),
+                forms: ctx.getAdjectivalModificationSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "canonical-modification",
+            forms: ["canonical-modification"],
+        }
+    );
+    s.eq(
+        "adjectival modification AST carries canonical selected variant ids instead of display surfaces",
+        (() => {
+            const makeInput = (label) => {
+                const formulaRecord = ctx.buildGrammarFormulaRecord({
+                    id: `${label}-formula`,
+                    unit: "NNC",
+                    formula: `#0-0(${label})0-0#`,
+                    formulaSlots: {
+                        predicateStem: { stem: label, slot: "STEM" },
+                    },
+                });
+                const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                    id: `${label}-realization`,
+                    formulaRecord,
+                    segmentFrames: [
+                        { slot: "predicateStem", formulaValue: label, surface: `${label}-canonical` },
+                    ],
+                    surfaceForms: [`${label}-canonical`],
+                });
+                return {
+                    surface: `${label}-surface-lie`,
+                    result: `${label}-result-lie / ${label}-result-alt-lie`,
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                formulaRecord,
+                                formulaRealizationRecord,
+                            }),
+                            surface: `${label}-frame-lie`,
+                            surfaceForms: [`${label}-frame-lie / ${label}-frame-alt-lie`],
+                            formulaRecord,
+                            formulaRealizationRecord,
+                            formulaRealizationRecords: [formulaRealizationRecord],
+                        },
+                    }),
+                };
+            };
+            const ast = ctx.buildAdjectivalModificationAst({
+                head: makeInput("head-modification"),
+                modifier: makeInput("modifier-modification"),
+                order: "head-modifier",
+                evidenceSource: "test-selected-variant-contract",
+            });
+            return {
+                surface: ast.surface,
+                headVariantId: ast.head.selectedVariantId,
+                modifierVariantId: ast.modifier.selectedVariantId,
+                headRealizationId: ast.head.formulaRealizationRecordId,
+                modifierRealizationId: ast.modifier.formulaRealizationRecordId,
+            };
+        })(),
+        {
+            surface: "head-modification-canonical modifier-modification-canonical",
+            headVariantId: "head-modification-realization::surface-0",
+            modifierVariantId: "modifier-modification-realization::surface-0",
+            headRealizationId: "head-modification-realization",
+            modifierRealizationId: "modifier-modification-realization",
+        }
+    );
+    s.eq(
+        "adjectival modification handoff blocks slash-joined result-frame display strings",
+        (() => {
+            const input = {
+                surface: "top-modification-lie",
+                result: "result-modification-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-modification-a / frame-modification-b",
+                        surfaceForms: ["frame-modification-a / frame-modification-b"],
+                    },
+                },
+            };
+            return {
+                surface: ctx.getAdjectivalModificationSurface(input, "fallback-lie"),
+                forms: ctx.getAdjectivalModificationSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
+        }
+    );
 
     return s;
 }

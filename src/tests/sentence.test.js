@@ -119,7 +119,7 @@ function run(ctx) {
             },
             diagnostics: [
                 "sentence-layer-diagnostic-only",
-                "sentence-layer-needs-confirmed-nawat-evidence",
+                "sentence-layer-source-gated",
             ],
         }
     );
@@ -185,7 +185,7 @@ function run(ctx) {
             },
             diagnostics: [
                 "sentence-layer-diagnostic-only",
-                "sentence-layer-needs-confirmed-nawat-evidence",
+                "sentence-layer-source-gated",
             ],
         }
     );
@@ -261,10 +261,10 @@ function run(ctx) {
         [
             "sentence layer metadata is not generation",
             "finite optative/admonitive form is not full sentence mood semantics",
-            "negation/question/emphasis labels are not Nawat/Pipil particle evidence",
+            "negation/question/emphasis labels are not orthography-bridge particle evidence",
             "VNC output is not a complete sentence",
             "topic and supplementation require separate clause metadata",
-            "Andrews sentence categories are architecture, not Nawat/Pipil form authority",
+            "Andrews sentence categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("sentence boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));

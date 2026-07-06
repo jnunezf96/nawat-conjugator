@@ -95,30 +95,56 @@ function run(ctx) {
     );
 
     s.eq(
-        "Andrews CNV/CNN route action contract makes a generated/control path answer route record and obstacle gates",
+        "Andrews CNV/CNN route action contract requires explicit route authority before obstacle gates",
         (() => {
             const record = ctx.getAndrewsCnvCnnBackAndForthRouteRecordById("cnn-nounstem-to-cnv-verbstem-denominal");
-            const inferredDenominal = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+            const blockedTemplateOnly = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
                 routeTemplateId: "inceptive-stative-ti",
                 sourceRequirement: {
                     requirements: [{ id: "intransitive-ti-verbstem-source" }],
                 },
             });
-            const inferredActionNominal = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+            const blockedFamilyOnly = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
                 routeFamily: "action-nominal",
                 nominalizationProfile: {
                     role: { nominalizationKind: "action-nominal" },
                 },
             });
-            const inferredVerbNominalChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+            const blockedVerbNominalChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
                 dataset: {
                     verbNominalContinuation: "true",
                     targetTense: "agentivo-preterito",
                 },
             });
-            const inferredCompoundLoopChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+            const blockedCompoundLoopChip = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
                 dataset: {
                     preteritAgentiveCompoundEmbedContinuation: "true",
+                },
+            });
+            const blockedChipContract = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
+                dataset: {
+                    verbNominalContinuation: "true",
+                    targetTense: "agentivo-preterito",
+                },
+            });
+            const blockedExplicitDatasetRouteId = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                dataset: {
+                    verbNominalContinuation: "true",
+                    targetTense: "agentivo-preterito",
+                    andrewsRouteRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                },
+            });
+            const structuralRouteFrameId = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                sourceRouteFrame: {
+                    kind: "andrews-cnv-cnn-route-coordinate-frame",
+                    routeId: "cnv-to-cnn-to-cnv-loop",
+                },
+            });
+            const structuralRouteContractId = ctx.inferAndrewsCnvCnnBackAndForthRouteRecordId({
+                routeContract: {
+                    sourceContract: {
+                        andrewsRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    },
                 },
             });
             const contract = ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({
@@ -132,10 +158,14 @@ function run(ctx) {
             });
             return {
                 recordTransition: record.transition,
-                inferredDenominal,
-                inferredActionNominal,
-                inferredVerbNominalChip,
-                inferredCompoundLoopChip,
+                blockedTemplateOnly,
+                blockedFamilyOnly,
+                blockedVerbNominalChip,
+                blockedCompoundLoopChip,
+                blockedChipContract,
+                blockedExplicitDatasetRouteId,
+                structuralRouteFrameId,
+                structuralRouteContractId,
                 contractKind: contract.kind,
                 contractRouteRecordId: contract.routeRecordId,
                 contractSourceUnit: contract.sourceUnit,
@@ -152,10 +182,14 @@ function run(ctx) {
         })(),
         {
             recordTransition: "CNN nounstem -> CNV verbstem",
-            inferredDenominal: "cnn-nounstem-to-cnv-verbstem-denominal",
-            inferredActionNominal: "cnv-core-to-cnn-nounstem-deverbal",
-            inferredVerbNominalChip: "cnv-predicate-to-cnn-nounstem-nominalization",
-            inferredCompoundLoopChip: "cnv-to-cnn-to-cnv-loop",
+            blockedTemplateOnly: "",
+            blockedFamilyOnly: "",
+            blockedVerbNominalChip: "",
+            blockedCompoundLoopChip: "",
+            blockedChipContract: null,
+            blockedExplicitDatasetRouteId: "",
+            structuralRouteFrameId: "cnv-to-cnn-to-cnv-loop",
+            structuralRouteContractId: "cnn-nounstem-to-cnv-verbstem-denominal",
             contractKind: "andrews-cnv-cnn-route-action-contract",
             contractRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
             contractSourceUnit: "CNN nounstem",
@@ -1040,7 +1074,7 @@ function run(ctx) {
                     ["cnn-cnv-cnn-active-action-loop", 7],
                 ],
                 functionUsePositionCounts: [["function-use-not-primary-gate", 1057], ["downstream-after-route-frame", 519]],
-                objectSlotOwnershipCounts: [["object-slot-gate-owned-by-valence-frame", 1258], ["object-slot-not-primary-gate", 318]],
+                    objectSlotOwnershipCounts: [["object-slot-gate-owned-by-valence-frame", 1259], ["object-slot-not-primary-gate", 317]],
                 sourceTargetRouteCounts: [["CNV->CNV", 915], ["CNV->CNN", 432], ["CNN->CNV", 222], ["CNN->CNN", 7]],
                 valenceFrameDimensionCounts: [["route-requires-valence-frame", 1569], ["state-frame-without-verbal-valence-slot", 7]],
                 coordinateCoverage: {
@@ -1050,7 +1084,7 @@ function run(ctx) {
                     missingObstacleCoordinateIds: [],
                     functionUseGateCoordinateCount: 519,
                     functionUseGatesDownstreamAfterRouteFrame: true,
-                    valenceObjectGateCoordinateCount: 1258,
+                    valenceObjectGateCoordinateCount: 1259,
                     valenceObjectGatesOwnedByValenceFrame: true,
                 },
             },
@@ -1080,6 +1114,17 @@ function run(ctx) {
                 "nimana",
                 { mode: "verbo" }
             );
+            const authorizedSurfaceCnvStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
+                "nimana",
+                {
+                    mode: "verbo",
+                    structuralSourceFrame: {
+                        formulaType: "CNV",
+                        formulaPosition: "predicate",
+                        stemRank: "predicate",
+                    },
+                }
+            );
             const surfaceObjectCnvStage = ctx.getAndrewsCnvCnnRouteStageFromFormulaInput(
                 "metzmati",
                 { mode: "verbo" }
@@ -1104,6 +1149,9 @@ function run(ctx) {
             });
             const surfaceCnvBoard = ctx.buildAndrewsCnvCnnRouteBoard({
                 sourceStage: surfaceCnvStage,
+            });
+            const authorizedSurfaceCnvBoard = ctx.buildAndrewsCnvCnnRouteBoard({
+                sourceStage: authorizedSurfaceCnvStage,
             });
             const surfaceCnnBoard = ctx.buildAndrewsCnvCnnRouteBoard({
                 sourceStage: surfaceCnnStage,
@@ -1241,8 +1289,17 @@ function run(ctx) {
                     markerRole: surfaceCnvStage.surfaceInputFrame?.markerRole || "",
                     inputHasWildcard: surfaceCnvStage.inputHasWildcard,
                     unresolvedDimensions: surfaceCnvStage.unresolvedDimensions,
+                    routeAuthorizationGate: surfaceCnvStage.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: surfaceCnvStage.routeAuthorizationFrame?.authorized === true,
                     ticketDimensions: (surfaceCnvStage.inputTicketFrame?.dimensionSlots || [])
                         .map((entry) => [entry.id, entry.status]),
+                },
+                authorizedSurfaceCnvStage: {
+                    label: ctx.getAndrewsCnvCnnRouteStageLabel(authorizedSurfaceCnvStage),
+                    inputKind: authorizedSurfaceCnvStage.inputKind,
+                    routeAuthorizationGate: authorizedSurfaceCnvStage.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: authorizedSurfaceCnvStage.routeAuthorizationFrame?.authorized === true,
+                    structuralSourceStage: authorizedSurfaceCnvStage.routeAuthorizationFrame?.structuralSourceStage || null,
                 },
                 surfaceObjectCnvStage: {
                     label: ctx.getAndrewsCnvCnnRouteStageLabel(surfaceObjectCnvStage),
@@ -1261,6 +1318,17 @@ function run(ctx) {
                     sourceCandidateCount: surfaceCnvBoard.sourceCandidateStageCount,
                     sourceCandidateKeys: surfaceCnvBoard.sourceCandidateStageKeys,
                     sourceCandidateLabels: surfaceCnvBoard.sourceCandidateStageLabels,
+                    routeAuthorizationGate: surfaceCnvBoard.currentStation.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: surfaceCnvBoard.currentStation.routeAuthorizationFrame?.authorized === true,
+                },
+                authorizedSurfaceCnvBoardInput: {
+                    currentStation: authorizedSurfaceCnvBoard.currentStation.label,
+                    inputKind: authorizedSurfaceCnvBoard.currentStation.inputKind,
+                    sourceCandidateCount: authorizedSurfaceCnvBoard.sourceCandidateStageCount,
+                    sourceCandidateKeys: authorizedSurfaceCnvBoard.sourceCandidateStageKeys,
+                    sourceCandidateLabels: authorizedSurfaceCnvBoard.sourceCandidateStageLabels,
+                    routeAuthorizationGate: authorizedSurfaceCnvBoard.currentStation.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: authorizedSurfaceCnvBoard.currentStation.routeAuthorizationFrame?.authorized === true,
                 },
                 surfaceCnnStage: {
                     label: ctx.getAndrewsCnvCnnRouteStageLabel(surfaceCnnStage),
@@ -1273,6 +1341,8 @@ function run(ctx) {
                     slot: surfaceCnnStage.surfaceInputFrame?.slot || "",
                     inputHasWildcard: surfaceCnnStage.inputHasWildcard,
                     unresolvedDimensions: surfaceCnnStage.unresolvedDimensions,
+                    routeAuthorizationGate: surfaceCnnStage.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: surfaceCnnStage.routeAuthorizationFrame?.authorized === true,
                     ticketDimensions: (surfaceCnnStage.inputTicketFrame?.dimensionSlots || [])
                         .map((entry) => [entry.id, entry.label, entry.status, entry.value]),
                 },
@@ -1285,6 +1355,8 @@ function run(ctx) {
                     sourceCandidateCount: surfaceCnnBoard.sourceCandidateStageCount,
                     sourceCandidateKeys: surfaceCnnBoard.sourceCandidateStageKeys,
                     sourceCandidateLabels: surfaceCnnBoard.sourceCandidateStageLabels,
+                    routeAuthorizationGate: surfaceCnnBoard.currentStation.routeAuthorizationFrame?.gate || "",
+                    routeAuthorizationAllowed: surfaceCnnBoard.currentStation.routeAuthorizationFrame?.authorized === true,
                 },
                 wildcardFormulaStage: {
                     label: ctx.getAndrewsCnvCnnRouteStageLabel(wildcardFormulaStage),
@@ -1661,6 +1733,8 @@ function run(ctx) {
                 markerRole: "subject",
                 inputHasWildcard: false,
                 unresolvedDimensions: ["formula-boundary", "stem-boundary", "slot-boundary"],
+                routeAuthorizationGate: "surface-candidate-not-route-authority",
+                routeAuthorizationAllowed: false,
                 ticketDimensions: [
                     ["formula-boundary", "open"],
                     ["stem-rank", "positioned"],
@@ -1668,6 +1742,17 @@ function run(ctx) {
                     ["slot-ownership", "deferred"],
                     ["function-use", "deferred-last"],
                 ],
+            },
+            authorizedSurfaceCnvStage: {
+                label: "CNV · predicado",
+                inputKind: "whole-cnv-surface-candidate",
+                routeAuthorizationGate: "structural-source-authorizes-surface-candidate",
+                routeAuthorizationAllowed: true,
+                structuralSourceStage: {
+                    formulaType: "CNV",
+                    formulaPosition: "predicate",
+                    stemRank: "predicate",
+                },
             },
             surfaceObjectCnvStage: {
                 label: "CNV · predicado",
@@ -1683,6 +1768,15 @@ function run(ctx) {
                 inputScope: "nuclear-clause",
                 boundaryKind: "cnv-surface-nuclear-clause-candidate",
                 boundaryConfidence: "surface-candidate",
+                sourceCandidateCount: 0,
+                sourceCandidateKeys: [],
+                sourceCandidateLabels: [],
+                routeAuthorizationGate: "surface-candidate-not-route-authority",
+                routeAuthorizationAllowed: false,
+            },
+            authorizedSurfaceCnvBoardInput: {
+                currentStation: "CNV · predicado",
+                inputKind: "whole-cnv-surface-candidate",
                 sourceCandidateCount: 3,
                 sourceCandidateKeys: [
                     "CNV:predicate:predicate",
@@ -1694,6 +1788,8 @@ function run(ctx) {
                     "CNV · nucleo verbal",
                     "CNV · tronco verbal",
                 ],
+                routeAuthorizationGate: "structural-source-authorizes-surface-candidate",
+                routeAuthorizationAllowed: true,
             },
             surfaceCnnStage: {
                 label: "CNN · tronco nominal",
@@ -1706,6 +1802,8 @@ function run(ctx) {
                 slot: "st1-st2",
                 inputHasWildcard: false,
                 unresolvedDimensions: ["formula-boundary", "stem-boundary", "slot-boundary"],
+                routeAuthorizationGate: "surface-candidate-not-route-authority",
+                routeAuthorizationAllowed: false,
                 ticketDimensions: [
                     ["formula-boundary", "Frontera", "open", "cnn-surface-nuclear-clause-candidate"],
                     ["stem-rank", "Base", "positioned", "nounstem"],
@@ -1720,9 +1818,11 @@ function run(ctx) {
                 inputScope: "nuclear-clause",
                 boundaryKind: "cnn-surface-nuclear-clause-candidate",
                 boundaryConfidence: "surface-candidate",
-                sourceCandidateCount: 1,
-                sourceCandidateKeys: ["CNN:predicate-stem:nounstem"],
-                sourceCandidateLabels: ["CNN · tronco nominal"],
+                sourceCandidateCount: 0,
+                sourceCandidateKeys: [],
+                sourceCandidateLabels: [],
+                routeAuthorizationGate: "surface-candidate-not-route-authority",
+                routeAuthorizationAllowed: false,
             },
             wildcardFormulaStage: {
                 label: "CNV · predicado",
@@ -1768,7 +1868,7 @@ function run(ctx) {
             routeTerrain: {
                 count: 7,
                 first: ["cnn-to-cnv-to-cnn-active-action-loop", 114, "least"],
-                last: ["cnv-to-cnn-to-cnv-loop", 1637, "most"],
+                last: ["cnv-to-cnn-to-cnv-loop", 1636, "most"],
             },
             averageRouteStageClicks: 1.48,
             maxRouteStageClicks: 2,
@@ -1868,7 +1968,7 @@ function run(ctx) {
                 leastVisible: [["cnn-to-cnv-to-cnn-active-action-loop"], 114],
                 mostVisible: [["cnn-nounstem-to-cnv-verbstem-denominal"], 505],
                 leastRoute: ["cnn-to-cnv-to-cnn-active-action-loop", 114],
-                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1637],
+                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1636],
                 equations: [
                     "z-score",
                     "pearson-correlation",
@@ -2478,10 +2578,10 @@ function run(ctx) {
                     ["cnv-core-to-cnn-nounstem-deverbal", 482, 193],
                     ["cnn-nounstem-to-cnv-verbstem-denominal", 505, 198],
                     ["cnv-predicate-to-cnn-nounstem-nominalization", 587, 239],
-                    ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                    ["cnv-to-cnn-to-cnv-loop", 1636, 731],
                 ],
                 mostRanking: [
-                    ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                    ["cnv-to-cnn-to-cnv-loop", 1636, 731],
                     ["cnv-predicate-to-cnn-nounstem-nominalization", 587, 239],
                     ["cnn-nounstem-to-cnv-verbstem-denominal", 505, 198],
                     ["cnv-core-to-cnn-nounstem-deverbal", 482, 193],
@@ -2490,10 +2590,10 @@ function run(ctx) {
                     ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7],
                 ],
                 leastRoute: ["cnn-to-cnv-to-cnn-active-action-loop", 114, 7],
-                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1637, 731],
+                mostRoute: ["cnv-to-cnn-to-cnv-loop", 1636, 731],
                 mostTopGateDomains: [
                     ["formula-boundary", 701],
-                    ["valence-object", 507],
+                    ["valence-object", 508],
                     ["stem-rank-class", 458],
                     ["function-use", 299],
                     ["operation-suffix", 268],
@@ -2504,11 +2604,11 @@ function run(ctx) {
                 toRouteId: "cnn-to-cnv-to-cnn-active-action-loop",
                 fromRouteLabel: "CNV core -> CNN deverbal nounstem -> CNV denominal verbstem",
                 toRouteLabel: "CNN nounstem -> CNV denominal/deverbal verbstem -> CNN active-action nounstem",
-                scoreReductionNeeded: 1523,
+                scoreReductionNeeded: 1522,
                 obstacleReductionNeeded: 724,
                 highResistanceDimensions: [
                     ["formula-boundary", 701, 6, 695],
-                    ["valence-object", 507, 7, 500],
+                    ["valence-object", 508, 7, 501],
                     ["stem-rank-class", 458, 6, 452],
                     ["function-use", 299, 2, 297],
                     ["operation-suffix", 268, 6, 262],
@@ -2618,31 +2718,31 @@ function run(ctx) {
                 "gate-domain-cooccurrence-fisher-exact-test",
             ],
             scoreDistribution: {
-                mean: 563.142857,
-                populationStandardDeviation: 469.571059,
+                mean: 563,
+                populationStandardDeviation: 469.244377,
                 median: 482,
             },
             topZScores: [
-                ["cnv-to-cnn-to-cnv-loop", 2.28689, "above-one-standard-deviation"],
-                ["cnv-predicate-to-cnn-nounstem-nominalization", 0.050806, "within-one-standard-deviation"],
+                ["cnv-to-cnn-to-cnv-loop", 2.286655, "above-one-standard-deviation"],
+                ["cnv-predicate-to-cnn-nounstem-nominalization", 0.051146, "within-one-standard-deviation"],
             ],
             bottomZScore: [
-                ["cnn-to-cnv-to-cnn-active-action-loop", -0.956496, "within-one-standard-deviation"],
+                ["cnn-to-cnv-to-cnn-active-action-loop", -0.956857, "within-one-standard-deviation"],
             ],
             positiveCorrelationTargets: [
-                ["obstacleCount", 0.999765, 0.000198412698, 0.001587301584, true, true],
-                ["blockingOrRequirementGateCount", 0.998946, 0.000992063492, 0.003968253968, true, true],
-                ["sourceOrNawatEvidenceGateCount", 0.941639, 0.004761904762, 0.012698412699, true, true],
-                ["uniqueGateDomainCount", 0.787609, 0.009523809524, 0.019047619048, true, true],
+                ["obstacleCount", 0.99977, 0.000198412698, 0.001587301584, true, true],
+                ["blockingOrRequirementGateCount", 0.998951, 0.000992063492, 0.003968253968, true, true],
+                ["sourceOrOrthographyGateCount", 0.938895, 0.004761904762, 0.012698412699, true, true],
+                ["uniqueGateDomainCount", 0.787754, 0.009523809524, 0.019047619048, true, true],
             ],
             significantRouteFeatureTests: [
                 ["obstacleCount", 0.000198412698, 0.001587301584],
                 ["blockingOrRequirementGateCount", 0.000992063492, 0.003968253968],
-                ["sourceOrNawatEvidenceGateCount", 0.004761904762, 0.012698412699],
+                ["sourceOrOrthographyGateCount", 0.004761904762, 0.012698412699],
                 ["uniqueGateDomainCount", 0.009523809524, 0.019047619048],
             ],
             negativeCorrelationTargets: [
-                ["formulaTypeChanged", -0.323102, 0.685714285714, 0.914285714285, false],
+                ["formulaTypeChanged", -0.322976, 0.685714285714, 0.914285714285, false],
             ],
             overrepresentedMostDomains: [
                 ["formula-boundary", 0.101817, 1.669157, 695],
@@ -2651,7 +2751,7 @@ function run(ctx) {
             ],
             overrepresentedLeastDomains: [
                 ["operation-suffix", -0.490522, -2.012293, 262],
-                ["valence-object", -0.30643, -1.892429, 500],
+                ["valence-object", -0.305062, -1.885996, 501],
                 ["source-evidence", -0.366816, -1.417721, 249],
                 ["stem-rank-class", -0.230604, -0.949678, 452],
             ],
@@ -2668,12 +2768,12 @@ function run(ctx) {
                 ["source-evidence", 6e-12, 1.8e-11, "presence-associated-with-lower-resistance"],
                 ["state-possessor-number", 0.000007365457, 0.000016572278, "presence-associated-with-higher-resistance"],
                 ["formula-boundary", 0.000014450115, 0.000026010207, "presence-associated-with-higher-resistance"],
-                ["valence-object", 0.000246980119, 0.000370470179, "presence-associated-with-lower-resistance"],
+                ["valence-object", 0.000248423283, 0.000372634925, "presence-associated-with-lower-resistance"],
             ],
             lowResistanceDomains: [
                 ["operation-suffix", 0.037343, 2e-12, 9e-12],
                 ["source-evidence", 0.022754, 6e-12, 1.8e-11],
-                ["valence-object", 0.006401, 0.000246980119, 0.000370470179],
+                ["valence-object", 0.006282, 0.000248423283, 0.000372634925],
                 ["orthography-surface", 0.002669, 0.017806078351, 0.022893529308],
             ],
             equationDrivenReductionPatterns: [
@@ -2681,10 +2781,10 @@ function run(ctx) {
                     equation: "pearson-correlation",
                     pattern: "positive route-feature correlation",
                     topFeatures: [
-                        ["obstacleCount", 0.999765, 0.000198412698, 0.001587301584, true],
-                        ["blockingOrRequirementGateCount", 0.998946, 0.000992063492, 0.003968253968, true],
-                        ["sourceOrNawatEvidenceGateCount", 0.941639, 0.004761904762, 0.012698412699, true],
-                        ["uniqueGateDomainCount", 0.787609, 0.009523809524, 0.019047619048, true],
+                        ["obstacleCount", 0.99977, 0.000198412698, 0.001587301584, true],
+                        ["blockingOrRequirementGateCount", 0.998951, 0.000992063492, 0.003968253968, true],
+                        ["sourceOrOrthographyGateCount", 0.938895, 0.004761904762, 0.012698412699, true],
+                        ["uniqueGateDomainCount", 0.787754, 0.009523809524, 0.019047619048, true],
                     ],
                     topDomains: undefined,
                 },
@@ -2705,7 +2805,7 @@ function run(ctx) {
                     topDomains: [
                         ["operation-suffix", 0.037343, 0.334702, 2e-12, 9e-12, true],
                         ["source-evidence", 0.022754, 0.333744, 6e-12, 1.8e-11, true],
-                        ["valence-object", 0.006401, 0.279014, 0.000246980119, 0.000370470179, true],
+                        ["valence-object", 0.006282, 0.278793, 0.000248423283, 0.000372634925, true],
                         ["orthography-surface", 0.002669, 0.318519, 0.017806078351, 0.022893529308, true],
                     ],
                 },
@@ -2793,7 +2893,7 @@ function run(ctx) {
                 ["valence-object+function-use", 0.029801, 2e-12, 2.2e-11, "pair-presence-associated-with-higher-resistance", 0.192234],
                 ["valence-object+operation-suffix", 0.028066, 2e-12, 2.2e-11, "pair-presence-associated-with-lower-resistance", -0.171032],
                 ["stem-rank-class+function-use", 0.026655, 3e-12, 2.2e-11, "pair-presence-associated-with-higher-resistance", 0.191338],
-                ["source-evidence+valence-object", 0.023073, 4e-12, 2.4e-11, "pair-presence-associated-with-lower-resistance", -0.156877],
+                ["source-evidence+valence-object", 0.022877, 5e-12, 3e-11, "pair-presence-associated-with-lower-resistance", -0.156189],
                 ["formula-boundary+operation-suffix", 0.018951, 1.7e-10, 8.74e-10, "pair-presence-associated-with-lower-resistance", -0.141109],
                 ["operation-suffix+function-use", 0.01242, 2.7819e-7, 0.000001251855, "pair-presence-associated-with-higher-resistance", 0.142546],
                 ["formula-boundary+state-possessor-number", 0.010809, 0.000001637292, 0.000006549168, "pair-presence-associated-with-higher-resistance", 0.119791],
@@ -2803,11 +2903,11 @@ function run(ctx) {
             ],
             newRelationshipCandidates: [
                 ["source-evidence+operation-suffix", "cooccurs-more-than-null", 0.363657, 2e-12, 2.4e-11, 1.576851],
-                ["source-evidence+valence-object", "cooccurs-more-than-null", 0.265242, 2e-12, 2.4e-11, 1.416324],
-                ["valence-object+operation-suffix", "cooccurs-more-than-null", 0.249034, 2e-12, 2.4e-11, 1.247004],
+                ["source-evidence+valence-object", "cooccurs-more-than-null", 0.26709, 2e-12, 2.4e-11, 1.430189],
+                ["valence-object+operation-suffix", "cooccurs-more-than-null", 0.247314, 2e-12, 2.4e-11, 1.239484],
                 ["source-evidence+orthography-surface", "cooccurs-more-than-null", 0.131038, 2.22974e-7, 0.000001283107, 0.715545],
                 ["operation-suffix+orthography-surface", "cooccurs-more-than-null", 0.087116, 0.000564254362, 0.001692763086, 0.496949],
-                ["formula-boundary+stem-rank-class", "cooccurs-more-than-null", 0.08214, 0.001481205987, 0.004101801195, 0.595112],
+                ["formula-boundary+stem-rank-class", "cooccurs-more-than-null", 0.08214, 0.001481205987, 0.003808815395, 0.595112],
             ],
             warning: "These are Andrews-catalog statistical candidates. They identify where architecture may need a named gate; they do not create Nawat surfaces or new grammar licenses.",
             auditDiscovery: {
@@ -3085,7 +3185,7 @@ function run(ctx) {
                 id: "synonym-source-no-sibling-generation",
                 sourceRefs: ["Andrews 40.10", "Andrews 40.11"],
                 gateDomains: ["source-evidence", "valence-object", "operation-suffix", "orthography-surface"],
-                evidenceStatus: "source-or-nawat-evidence-gate",
+                evidenceStatus: "andrews-source-or-orthography-gate",
                 stage: "#2 Fórmula/Rutas",
                 pathDepth: 2,
             },
@@ -4126,7 +4226,7 @@ function run(ctx) {
                 "causative-ti-a-acquired-entity-huah-source-boundary",
                 "causative-ti-a-yo-matrix-source-not-applicative-boundary",
                 "causative-ti-source-unattested-and-o-a-chain-boundary",
-                "ohhuitia-teteltzingo-glottal-evidence-boundary",
+                "ohhuitia-teteltzingo-glottal-source-boundary",
                 "causative-inceptive-ti-first-type-class-c-boundary",
                 "causative-possessive-source-double-object-valence-boundary",
                 "causative-possessive-source-ti-stem-unattested-boundary",
@@ -4214,7 +4314,7 @@ function run(ctx) {
                 "adverbial-nnc-supplement-vs-adverbial-modifier-boundary",
                 "deleted-quotation-head-clause-boundary",
                 "silent-pers1-after-sounded-first-person-boundary",
-                "silent-pers1-reflexive-evidence-boundary",
+                "silent-pers1-reflexive-source-boundary",
   "nounstem-forming-li-no-nonactive-source-boundary",
   "nounstem-forming-li-imitation-not-patientive-source-boundary",
   "nounstem-forming-li-heterogeneous-nominal-source-set-boundary",
@@ -5704,7 +5804,7 @@ function run(ctx) {
                 "causative-ti-a-acquired-entity-huah-source-boundary": [595, 597],
                 "causative-ti-a-yo-matrix-source-not-applicative-boundary": [595],
                 "causative-ti-source-unattested-and-o-a-chain-boundary": [595, 596],
-                "ohhuitia-teteltzingo-glottal-evidence-boundary": [595],
+                "ohhuitia-teteltzingo-glottal-source-boundary": [595],
                 "causative-inceptive-ti-first-type-class-c-boundary": [596],
                 "causative-possessive-source-double-object-valence-boundary": [596, 597],
                 "causative-possessive-source-ti-stem-unattested-boundary": [596],
@@ -5792,7 +5892,7 @@ function run(ctx) {
                 "adverbial-nnc-supplement-vs-adverbial-modifier-boundary": [628, 629],
                 "deleted-quotation-head-clause-boundary": [628, 629],
                 "silent-pers1-after-sounded-first-person-boundary": [629],
-                "silent-pers1-reflexive-evidence-boundary": [629],
+                "silent-pers1-reflexive-source-boundary": [629],
     "nounstem-forming-li-no-nonactive-source-boundary": [629, 630],
     "nounstem-forming-li-imitation-not-patientive-source-boundary": [630],
     "nounstem-forming-li-heterogeneous-nominal-source-set-boundary": [630],
@@ -6335,7 +6435,7 @@ function run(ctx) {
             obstacleCount: 6,
             antiConflationMentionsNoFormalAdjective: true,
             deverbalRecord: "No confundir deverbalización con nominalización funcional de Lessons 35-36.",
-            denominalRecord: "No ejecutar generación finita desde un blanco de tronco si falta fuente, objeto, tiempo o evidencia Nawat/Pipil.",
+            denominalRecord: "No ejecutar generación finita desde un blanco de tronco si falta fuente Andrews concreta, objeto, tiempo o puente ortografico.",
         }
     );
 
@@ -6585,7 +6685,7 @@ function run(ctx) {
                 formulaRepresentsMorphicFillers: true,
                 formulaIsEngineContract: true,
                 surfaceGenerationAuthority: false,
-                nawatEvidenceCannotChangeSlotOrder: true,
+                orthographyCannotChangeSlotOrder: true,
                 stemDimensionsExplicit: true,
             },
             subjectFrame: {
@@ -7210,10 +7310,15 @@ function run(ctx) {
                 num1Num2: {
                     slot: "num1-num2",
                     role: "subject-number-connector",
+                    formulaSchemaId: "ordinary-nnc-shell",
+                    formulaSlot: "num1-num2",
+                    slotPath: "subject.num1-num2",
                     connector: "t",
                     displayConnector: "t",
                     nounClass: "t",
+                    blockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
                     notLexicalSuffix: true,
+                    notStemSuffix: true,
                     notTense: true,
                 },
             },
@@ -7264,10 +7369,15 @@ function run(ctx) {
                 num1Num2: {
                     slot: "num1-num2",
                     role: "subject-number-connector",
+                    formulaSchemaId: "ordinary-nnc-shell",
+                    formulaSlot: "num1-num2",
+                    slotPath: "subject.num1-num2",
                     connector: "t",
                     displayConnector: "t",
                     nounClass: "t",
+                    blockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
                     notLexicalSuffix: true,
+                    notStemSuffix: true,
                     notTense: true,
                 },
             },
@@ -7415,7 +7525,7 @@ function run(ctx) {
             "objective personal pronouns belong only in VNC predicates",
             "possessive personal pronouns belong only in NNC predicates",
             "topic and supplementation are clause-level relations, not noun classes",
-            "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
+            "Andrews slot order is architecture, not orthography-bridge surface evidence",
             "Andrews formulas are engine contracts, not optional metadata",
         ]
     );
@@ -7455,6 +7565,81 @@ function run(ctx) {
             hasTensePosition: false,
             andrewsRef: "Andrews Lesson 4",
             enumerableGrammarFrame: false,
+        }
+    );
+    s.eq(
+        "nuclear clause shell handoff reads canonical realization before split display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "clause-shell-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical-clause)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical-clause", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "clause-shell-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical-clause", surface: "canonical-clause" },
+                ],
+                surfaceForms: ["canonical-clause"],
+            });
+            const input = {
+                surface: "top-lie / top-alt-lie",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie / frame-alt-lie"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            };
+            return {
+                framed: ctx.getNuclearClauseShellFramedSurface(input),
+                resolved: ctx.resolveNuclearClauseShellText(input, ["surface"], "fallback-lie"),
+                selectedVariantId: ctx.getNuclearClauseShellSelectedRealizationVariant(input)?.selectedVariantId || "",
+                formulaRealizationRecordId: ctx.getNuclearClauseShellSelectedRealizationVariant(input)?.formulaRealizationRecordId || "",
+            };
+        })(),
+        {
+            framed: "canonical-clause",
+            resolved: "canonical-clause",
+            selectedVariantId: "clause-shell-handoff-realization::surface-0",
+            formulaRealizationRecordId: "clause-shell-handoff-realization",
+        }
+    );
+    s.eq(
+        "nuclear clause shell handoff blocks slash-joined result-frame display strings",
+        (() => {
+            const input = {
+                surface: "top-clause-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-clause-a / frame-clause-b",
+                        surfaceForms: ["frame-clause-a / frame-clause-b"],
+                    },
+                },
+            };
+            return {
+                framed: ctx.getNuclearClauseShellFramedSurface(input),
+                resolved: ctx.resolveNuclearClauseShellText(input, ["surface"], "fallback-lie"),
+            };
+        })(),
+        {
+            framed: "",
+            resolved: "",
         }
     );
 

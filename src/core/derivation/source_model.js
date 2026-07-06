@@ -109,6 +109,113 @@ function getDerivationContinuationContractTargetInput(record = null) {
     ).trim();
 }
 
+function isGeneratedOutputTypedDerivationContinuationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "generated-output-typed-continuation-frame"
+        && frame.formulaRecord?.kind === "grammar-formula-record"
+        && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record"
+    );
+}
+
+function normalizeTypedDerivationContinuationSurface(value = "") {
+    const text = normalizeDerivationContinuationContractSurface(value);
+    return text && !/[\/,\n\r]/u.test(text) ? text : "";
+}
+
+function getTypedDerivationContinuationFrameSurface(frame = null) {
+    if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
+        return "";
+    }
+    return [
+        frame.selectedVariant?.surface,
+        frame.formulaRealizationRecord?.surface,
+        ...(Array.isArray(frame.formulaRealizationRecord?.surfaceForms)
+            ? frame.formulaRealizationRecord.surfaceForms
+            : []),
+    ].map(normalizeTypedDerivationContinuationSurface).find(Boolean) || "";
+}
+
+function buildActiveActionCompoundEmbedTargetContinuationFrame({
+    sourceContinuationFrame = null,
+    matrixSpec = null,
+    compoundVerbInput = "",
+} = {}) {
+    const sourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+    const targetInput = String(compoundVerbInput || "").trim();
+    if (!sourceSurface || !matrixRoot || !targetInput) {
+        return null;
+    }
+    const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "active-action-nounstem-as-compound-embed",
+        operationFamily: "active-action-compound-embed",
+        andrewsSection: matrix.grammarSource || "Andrews 37.5.4",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN active-action nounstem -> CNV compound verbstem",
+        embedRole: "compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true,
+    });
+    return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+            routeFamily: "derivation-continuation",
+            routeStage: "active-action-compound-embed-target-frame",
+            generationAllowed: true,
+            grammarSource: matrix.grammarSource || "Andrews 37.5.4",
+            outputKind: "active-action-compound-embed-continuation-contract",
+        }),
+        formulaSlots: Object.freeze({
+            embeddedRoot: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-active-action-nounstem",
+                token: sourceSurface,
+                sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+                sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+                sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            }),
+            matrixRoot: Object.freeze({
+                slot: "matrix-root",
+                role: "compound-verbal-matrix",
+                root: matrixRoot,
+                matrixSpecId: String(matrix.id || "").trim(),
+                classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            }),
+        }),
+        matrixFrame: Object.freeze({
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+            grammarSource: String(matrix.grammarSource || "Andrews 37.5.4").trim(),
+        }),
+        resultFrame: Object.freeze({
+            kind: "andrews-typed-target-result-frame",
+            targetInput,
+            displayOnly: true,
+            displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"]),
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"]),
+    });
+}
+
 function normalizeDerivationContinuationContractSurface(value = "") {
     if (typeof normalizeGrammarSurfaceValue === "function") {
         return normalizeGrammarSurfaceValue(value);
@@ -150,7 +257,8 @@ function getDerivationContinuationContractSourceInput(record = null) {
         framedForms.push(resultFrame.surface);
     }
     const normalizedFrameForms = framedForms
-        .flatMap((entry) => splitDerivationContinuationContractSurface(entry))
+        .map((entry) => normalizeDerivationContinuationContractSurface(entry))
+        .filter((entry) => entry && !entry.includes("/"))
         .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     if (normalizedFrameForms.length) {
         return normalizedFrameForms[0];
@@ -319,18 +427,22 @@ function getDerivationContinuationMatrixFrame(record = null) {
     };
 }
 
-function getDerivationContinuationFinalFormulaShape(targetInput = "", outputKind = "") {
-    const target = String(targetInput || "").trim();
-    if (/^-?\([^()/]+\/[^()/]+\)$/.test(target)) {
-        return "compound-vnc-embed-before-matrix";
-    }
-    if (/^\([^()]+\)-\([^()]+\)$/.test(target)) {
-        return "adjacent-nnc-ownerhood-matrix";
-    }
-    if (/nominal-compound/i.test(String(outputKind || ""))) {
+function getDerivationContinuationFinalFormulaShape(record = null, outputKind = "") {
+    const source = record && typeof record === "object" ? record : {};
+    const kind = String(outputKind || source.outputKind || "").trim();
+    const embeddedRoot = getDerivationContinuationEmbeddedRoot(source);
+    const embedRole = getDerivationContinuationEmbedRole(source, kind);
+    const matrix = getDerivationContinuationMatrixFrame(source);
+    if (/nominal-compound/i.test(kind)) {
         return "compound-nnc-embed-before-matrix";
     }
-    return target ? "route-target-specific-shape" : "";
+    if (/ownerhood/i.test(embedRole)) {
+        return embeddedRoot && matrix.root ? "adjacent-nnc-ownerhood-matrix" : "";
+    }
+    if ((embeddedRoot || embedRole) && matrix.root) {
+        return "compound-vnc-embed-before-matrix";
+    }
+    return "";
 }
 
 function getDerivationContinuationSourceExternalObjectSlots(sourceFormulaSlots = null) {
@@ -451,7 +563,7 @@ function buildDerivationContinuationIncorporationRouteFrame(record = null, {
     const sourceExternalObjectSlots = getDerivationContinuationSourceExternalObjectSlots(record.sourceFormulaSlots);
     const sourceInput = getDerivationContinuationContractSourceInput(record);
     const sourceAdjunctSurface = getDerivationContinuationSourceAdjunctSurface(record);
-    const finalFormulaShape = getDerivationContinuationFinalFormulaShape(targetInput, kind);
+    const finalFormulaShape = getDerivationContinuationFinalFormulaShape(record, kind);
     if (!embeddedRoot && !embedRole && !finalFormulaShape) {
         return null;
     }
@@ -593,11 +705,16 @@ function attachDerivationContinuationGrammarContract(record = null) {
         return record;
     }
     const outputKind = String(record.outputKind || "derivation-continuation-contract").trim();
-    const supported = record.supported === true;
     const sourceInput = getDerivationContinuationContractSourceInput(record);
+    const resultFrame = getDerivationContinuationContractResultFrame(record);
+    const structuredSourceMissing = Boolean(resultFrame) && !sourceInput;
+    const supported = record.supported === true && !structuredSourceMissing;
     const sourceSurface = sourceInput;
     const targetInput = getDerivationContinuationContractTargetInput(record);
-    const inputDiagnostics = Array.isArray(record.diagnostics) ? record.diagnostics : [];
+    const inputDiagnostics = [
+        ...(Array.isArray(record.diagnostics) ? record.diagnostics : []),
+        ...(structuredSourceMissing ? ["derivation-continuation-structured-source-frame-empty"] : []),
+    ];
     const routeStage = supported ? "preview-continuation" : "blocked";
     const diagnostics = normalizeDerivationContinuationDiagnosticEntries(inputDiagnostics, {
         routeStage,
@@ -644,6 +761,9 @@ function attachDerivationContinuationGrammarContract(record = null) {
             patientivoSurface: String(record.patientivoSurface || "").trim(),
             sourceState: String(record.sourceState || "").trim(),
             sourceKind: String(record.sourceKind || "").trim(),
+            sourceContinuationFrame: record.sourceContinuationFrame && typeof record.sourceContinuationFrame === "object"
+                ? record.sourceContinuationFrame
+                : null,
             sourceFormulaSlots: record.sourceFormulaSlots && typeof record.sourceFormulaSlots === "object"
                 ? record.sourceFormulaSlots
                 : null,
@@ -657,6 +777,12 @@ function attachDerivationContinuationGrammarContract(record = null) {
             outputKind,
             targetInput,
             generationAllowed: supported,
+            sourceContinuationFrame: record.sourceContinuationFrame && typeof record.sourceContinuationFrame === "object"
+                ? record.sourceContinuationFrame
+                : null,
+            targetContinuationFrame: record.targetContinuationFrame && typeof record.targetContinuationFrame === "object"
+                ? record.targetContinuationFrame
+                : null,
             incorporationRouteFrame,
             sourceRouteFrame: incorporationRouteFrame,
             routeFrame: incorporationRouteFrame,
@@ -671,7 +797,7 @@ function attachDerivationContinuationGrammarContract(record = null) {
         orthographyFrame: {
             surface: "",
             surfaceForms: [],
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
             targetInput,
         },
@@ -684,12 +810,24 @@ function attachDerivationContinuationGrammarContract(record = null) {
             targetInput,
             matrix: record.matrix || null,
             formationFrame: record.formationFrame || null,
+            sourceContinuationFrame: record.sourceContinuationFrame && typeof record.sourceContinuationFrame === "object"
+                ? record.sourceContinuationFrame
+                : null,
+            targetContinuationFrame: record.targetContinuationFrame && typeof record.targetContinuationFrame === "object"
+                ? record.targetContinuationFrame
+                : null,
             incorporationRouteFrame,
             sourceRouteFrame: incorporationRouteFrame,
             routeFrame: incorporationRouteFrame,
         },
         morphBoundaryFrame: {
             formationFrame: record.formationFrame || null,
+            sourceContinuationFrame: record.sourceContinuationFrame && typeof record.sourceContinuationFrame === "object"
+                ? record.sourceContinuationFrame
+                : null,
+            targetContinuationFrame: record.targetContinuationFrame && typeof record.targetContinuationFrame === "object"
+                ? record.targetContinuationFrame
+                : null,
             incorporationRouteFrame,
             sourceRouteFrame: incorporationRouteFrame,
             routeFrame: incorporationRouteFrame,
@@ -754,7 +892,17 @@ function normalizeDerivationSourceOuterPiece(piece = null) {
     return null;
 }
 
-function buildCurrentRegexDerivationSourceModel(rawValue = "") {
+function isCurrentRegexDerivationSourceParseTree(value = null) {
+    return Boolean(
+        value
+        && typeof value === "object"
+        && value.kind === "current-regex-derivation-source-parse-tree"
+        && value.coreFrame
+        && typeof value.coreFrame === "object"
+    );
+}
+
+function buildCurrentRegexDerivationSourceParseTree(rawValue = "") {
     const raw = serializeRegexInputValue(String(rawValue || "").trim());
     if (!raw) {
         return null;
@@ -777,7 +925,7 @@ function buildCurrentRegexDerivationSourceModel(rawValue = "") {
         .replace(/^\[([iy])\]/i, "")
         .trim()
         .toLowerCase();
-    const inline = parseInlineTiCausativeClassFromBase(collapseSerialStemDashInput(plainCore));
+    const inline = parseInlineTiCausativeClassFromBase(collapseSerialStemDashInputFromSourceFrame(plainCore));
     const normalizedCoreBase = String(inline.base || plainCore || "").trim().toLowerCase();
     const adjacentCoreEmbed = getMovingTargetAdjacentEmbedParts(normalizedCoreBase);
     const matrixBase = normalizeRuleBase(adjacentCoreEmbed ? adjacentCoreEmbed.stem : normalizedCoreBase);
@@ -791,16 +939,94 @@ function buildCurrentRegexDerivationSourceModel(rawValue = "") {
             corePrefixParts.push({ type: "adjacent-embed", value: normalizedEmbed });
         }
     }
-    return {
-        sourceKind: "current-regex",
+    return Object.freeze({
+        kind: "current-regex-derivation-source-parse-tree",
+        version: 1,
         parseLanguage: "current-regex",
         rawRegex: raw,
         transitivity: movingTargetParsed.transitivity || COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: Object.freeze(outerPieces.map((piece) => Object.freeze({
+            kind: "derivation-source-outer-piece",
+            role: "outer",
+            type: piece.type,
+            value: piece.value,
+        }))),
+        coreFrame: Object.freeze({
+            kind: "derivation-source-core-frame",
+            role: "matrix-core",
+            rawCoreText: String(movingTargetParsed.coreText || "").trim(),
+            markedCore,
+            plainCore,
+            supportiveMarker,
+            corePrefixParts: Object.freeze(corePrefixParts.map((piece) => Object.freeze({
+                kind: "derivation-source-core-prefix-piece",
+                role: "core-prefix",
+                type: piece.type,
+                value: piece.value,
+            }))),
+            adjacentCoreEmbed: normalizeRuleBase(adjacentCoreEmbed?.embed || ""),
+            matrixBase,
+            inlineTiCausativeClass: String(inline.tiCausativeClass || ""),
+        }),
+    });
+}
+
+function normalizeCurrentRegexDerivationSourceParseTree(value = null) {
+    if (!isCurrentRegexDerivationSourceParseTree(value)) {
+        return null;
+    }
+    const coreFrame = value.coreFrame || {};
+    const matrixBase = normalizeRuleBase(coreFrame.matrixBase || "");
+    if (!matrixBase) {
+        return null;
+    }
+    const outerPieces = (Array.isArray(value.outerPieces) ? value.outerPieces : [])
+        .map((piece) => normalizeDerivationSourceOuterPiece(piece))
+        .filter(Boolean);
+    const corePrefixParts = (Array.isArray(coreFrame.corePrefixParts) ? coreFrame.corePrefixParts : [])
+        .map((piece) => {
+            if (!piece || !piece.type || !piece.value) {
+                return null;
+            }
+            const normalizedValue = normalizeRuleBase(piece.value);
+            return normalizedValue ? { type: String(piece.type || ""), value: normalizedValue } : null;
+        })
+        .filter(Boolean);
+    return {
+        ...value,
+        rawRegex: String(value.rawRegex || "").trim(),
+        transitivity: value.transitivity || COMPOSER_TRANSITIVITY.intransitive,
         outerPieces,
-        corePrefixParts,
-        supportiveMarker,
-        adjacentCoreEmbed: normalizeRuleBase(adjacentCoreEmbed?.embed || ""),
-        matrixBase,
+        coreFrame: {
+            ...coreFrame,
+            matrixBase,
+            supportiveMarker: String(coreFrame.supportiveMarker || "").trim().toLowerCase(),
+            adjacentCoreEmbed: normalizeRuleBase(coreFrame.adjacentCoreEmbed || ""),
+            corePrefixParts,
+        },
+    };
+}
+
+function buildCurrentRegexDerivationSourceModel(rawValue = "") {
+    const parseTree = isCurrentRegexDerivationSourceParseTree(rawValue)
+        ? normalizeCurrentRegexDerivationSourceParseTree(rawValue)
+        : buildCurrentRegexDerivationSourceParseTree(rawValue);
+    if (!parseTree) {
+        return null;
+    }
+    const coreFrame = parseTree.coreFrame || {};
+    return {
+        sourceKind: "current-regex",
+        parseLanguage: "current-regex",
+        rawRegex: String(parseTree.rawRegex || "").trim(),
+        transitivity: parseTree.transitivity || COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: Array.isArray(parseTree.outerPieces) ? parseTree.outerPieces : [],
+        corePrefixParts: Array.isArray(coreFrame.corePrefixParts) ? coreFrame.corePrefixParts : [],
+        supportiveMarker: String(coreFrame.supportiveMarker || ""),
+        adjacentCoreEmbed: normalizeRuleBase(coreFrame.adjacentCoreEmbed || ""),
+        matrixBase: normalizeRuleBase(coreFrame.matrixBase || ""),
+        sourceParseTree: parseTree,
+        parseTree,
     };
 }
 
@@ -937,6 +1163,15 @@ function buildFallbackDerivationSourceModel(verbMeta = {}, verb = "", analysisVe
 
 function buildDerivationSourceModel(verbMeta = {}, verb = "", analysisVerb = "") {
     const meta = verbMeta || {};
+    const explicitCurrentRegexParseTree = normalizeCurrentRegexDerivationSourceParseTree(
+        meta?.currentRegexSourceParseTree
+        || meta?.sourceParseTree
+        || meta?.canonical?.currentRegexSourceParseTree
+        || null
+    );
+    if (explicitCurrentRegexParseTree) {
+        return buildCurrentRegexDerivationSourceModel(explicitCurrentRegexParseTree);
+    }
     const rawRegexCandidate = String(meta?.sourceRawVerb || verb || "").trim();
     const currentRegexModel = buildCurrentRegexDerivationSourceModel(rawRegexCandidate);
     if (currentRegexModel) {
@@ -1232,7 +1467,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         nawatRoot: "ita",
         aliases: ["itta"],
         label: "perceive/see",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["absolutive"],
         evidence: ["data/data.csv: -ita", "data/basic-data.csv: -itta", "Andrews 39.7"],
     }),
@@ -1241,7 +1476,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te- ~ tla-(mati)",
         nawatRoot: "mati",
         label: "consider/know",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["absolutive"],
         evidence: ["data/data.csv: -mati", "Andrews 30.15.2", "Andrews 39.7"],
     }),
@@ -1251,7 +1486,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         nawatRoot: "neki",
         aliases: ["nejneki"],
         label: "want/pretend",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["absolutive"],
         evidence: ["data/data.csv: -neki", "data/basic-data.csv: -nejneki", "Andrews 30.15.2", "Andrews 39.7"],
     }),
@@ -1260,7 +1495,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te- ~ tla-(toca)",
         nawatRoot: "tuka",
         label: "consider without foundation",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["absolutive", "possessive"],
         evidence: ["data/data.csv: -tuka", "Andrews 30.15.2", "Andrews 39.7"],
     }),
@@ -1269,7 +1504,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "tla-(tlani)",
         nawatRoot: "tajtani",
         label: "want/request",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["absolutive", "possessive"],
         evidence: ["data/data.csv: -tajtani", "Andrews 39.7", "Andrews 39.8"],
     }),
@@ -1278,7 +1513,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "tla-(ih-tlani)",
         nawatRoot: "tatajtania",
         label: "request",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["possessive"],
         evidence: ["data/basic-data.csv: -tatajtania", "Andrews 39.8"],
     }),
@@ -1287,7 +1522,7 @@ const PATIENTIVO_PRELOCATIVE_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "tla-(tem-o-a)",
         nawatRoot: "temua",
         label: "seek",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         sourceStates: ["possessive"],
         evidence: ["data/basic-data.csv: -ishtemua/-shuchitemua", "Andrews 39.8"],
     }),
@@ -1302,7 +1537,7 @@ const PATIENTIVO_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([
         nawatRoot: "miki",
         aliases: ["miqui"],
         label: "die/be affected as",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         matrixValency: "intransitive",
         evidence: ["data/data.csv: miki", "Andrews 39.6"],
     }),
@@ -1318,7 +1553,7 @@ const PATIENTIVO_NOMINAL_COMPOUND_MATRIX_SPECS = Object.freeze([
         nounClass: "zero",
         animacy: "inanimate",
         label: "house/place noun matrix",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         evidence: ["data/static_nnc.json: kal", "data/basic-data.csv: kal", "Andrews 39.6"],
     }),
 ]);
@@ -1333,7 +1568,7 @@ const PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "(chic-a-hu-a)",
         nawatRoot: "chikawa",
         label: "strengthen/intensify by the embedded property",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         matrixValency: "transitive",
         evidence: ["data/basic-data.csv: -yulchikawa", "data/exact_rules.json: kakchikawa/akchikawa", "Andrews 39.9"],
     }),
@@ -1348,7 +1583,7 @@ const ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([
         nawatRoot: "tzajtzi",
         aliases: ["tzahtzi"],
         label: "shout with the embedded action",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         matrixValency: "intransitive",
         evidence: ["data/data.csv: tzajtzi", "data/basic-data.csv: tzajtzi", "Andrews 37.5.4"],
     }),
@@ -1364,7 +1599,7 @@ const ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_SPECS = Object.freeze([
         nounClass: "zero",
         animacy: "inanimate",
         label: "house/place noun matrix",
-        status: "nawat-data-backed",
+        status: "orthography-bridge-data-backed",
         evidence: ["data/static_nnc.json: kal", "data/basic-data.csv: kal", "Andrews 37.5.4"],
     }),
 ]);
@@ -1383,7 +1618,7 @@ const CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "(toca)",
         nawatRoot: "tuka",
         grammarSource: "Andrews 36.3",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "consider as the embedded fully nominalized customary-agentive entity",
@@ -1402,7 +1637,7 @@ const PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS = Object.freeze([
         surfaceMatrix: "waj",
         ownerhoodKind: "ownerhood",
         grammarSource: "Andrews 35.9",
-        status: "andrews-authoritative-nawat-matrix-evidence",
+        status: "andrews-authoritative-matrix-orthography-bridge",
         matrixValency: "transitive",
         label: "ownerhood matrix",
         evidence: [
@@ -1417,7 +1652,7 @@ const PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_SPECS = Object.freeze([
         surfaceMatrix: "yuj",
         ownerhoodKind: "abundant-ownerhood",
         grammarSource: "Andrews 35.10",
-        status: "andrews-authoritative-nawat-matrix-evidence",
+        status: "andrews-authoritative-matrix-orthography-bridge",
         matrixValency: "transitive",
         label: "abundant ownerhood matrix",
         evidence: [
@@ -1433,7 +1668,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te-(tlal-i-a)",
         nawatRoot: "talia",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "establish as the embedded preterit-agentive entity",
@@ -1444,7 +1679,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te-(cahua)",
         nawatRoot: "kawa",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "leave as the embedded preterit-agentive entity",
@@ -1455,7 +1690,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te-(peh-pena)",
         nawatRoot: "pejpena",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "choose as the embedded preterit-agentive entity",
@@ -1466,7 +1701,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te- ~ tla-(mati)",
         nawatRoot: "mati",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "consider as the embedded preterit-agentive entity",
@@ -1477,7 +1712,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te- ~ tla-(toca)",
         nawatRoot: "tuka",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "treat as the embedded preterit-agentive entity",
@@ -1488,7 +1723,7 @@ const PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "te- ~ tla-(neh-nequi)",
         nawatRoot: "nejneki",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "transitive",
         objectPrefix: "ki",
         label: "pretend as the embedded preterit-agentive entity",
@@ -1502,7 +1737,7 @@ const PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_SPECS = Object.freeze([
         classicalMatrix: "(nemi)",
         nawatRoot: "nemi",
         grammarSource: "Andrews 35.12",
-        status: "andrews-authoritative-nawat-data-backed",
+        status: "andrews-authoritative-orthography-bridge-data-backed",
         matrixValency: "intransitive",
         adverbialFocus: "subject",
         label: "live/go in the manner of the embedded preterit-agentive entity",
@@ -1518,7 +1753,7 @@ const ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS = Object.freeze([
         surfaceMatrix: "ej",
         ownerhoodKind: "ownerhood",
         grammarSource: "Andrews 35.9",
-        status: "andrews-authoritative-nawat-orthography",
+        status: "andrews-authoritative-orthography-bridge",
         matrixValency: "transitive",
         defaultForNounClasses: ["t"],
         label: "ownerhood matrix for compatible t-class nouns",
@@ -1534,7 +1769,7 @@ const ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS = Object.freeze([
         surfaceMatrix: "waj",
         ownerhoodKind: "ownerhood",
         grammarSource: "Andrews 35.9",
-        status: "andrews-authoritative-nawat-orthography",
+        status: "andrews-authoritative-orthography-bridge",
         matrixValency: "transitive",
         defaultForNounClasses: ["in", "zero"],
         label: "ownerhood matrix for compatible in/zero-class nouns",
@@ -1550,7 +1785,7 @@ const ORDINARY_NOUN_OWNERHOOD_MATRIX_SPECS = Object.freeze([
         surfaceMatrix: "yuj",
         ownerhoodKind: "abundant-ownerhood",
         grammarSource: "Andrews 35.10",
-        status: "andrews-authoritative-nawat-orthography",
+        status: "andrews-authoritative-orthography-bridge",
         matrixValency: "transitive",
         defaultForNounClasses: ["t", "ti", "in", "zero"],
         label: "abundant ownerhood matrix",
@@ -1987,12 +2222,149 @@ function buildPatientivoCompoundEmbedVerbInput({
     return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
 }
 
+function buildPatientivoCompoundEmbedOperationFrame({
+    incorporatedRoot = "",
+    matrixSpec = null,
+    patientivoSurface = "",
+    sourceSurface = "",
+} = {}) {
+    const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!normalizedIncorporatedRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${normalizedIncorporatedRoot}${matrixRoot}`;
+    return Object.freeze({
+        kind: "andrews-patientivo-compound-embed-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.6",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "patientivo-nounstem-as-compound-vnc-embed",
+            operationFamily: "patientivo-compound-embed",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "patientivo-compound-embed-source-frame",
+            role: "compound-embed",
+            root: normalizedIncorporatedRoot,
+            sourceSurface: String(sourceSurface || "").trim(),
+            patientivoSurface: String(patientivoSurface || "").trim(),
+            source: "generated-patientive-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "patientivo-compound-embed-matrix-frame",
+            role: "compound-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "patientivo-compound-embed-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix: matrix.matrixValency === "transitive" ? "ki" : "",
+            displayInput: buildPatientivoCompoundEmbedVerbInput({
+                incorporatedRoot: normalizedIncorporatedRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "patientivo-compound-embed",
+            routeStage: "typed-operation-frame",
+            grammarSource: "Andrews 39.6",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            compoundEmbed: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-patientive-nounstem",
+                root: normalizedIncorporatedRoot,
+            }),
+            compoundMatrix: Object.freeze({
+                slot: "compound-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "compound-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPatientivoCompoundEmbedOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-patientivo-compound-embed-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPatientivoCompoundEmbedOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["patientivo-compound-embed-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
+}
+
 function resolvePatientivoCompoundEmbedFormationFrame({
     matrixSpec = null,
     incorporatedRoot = "",
     patientivoSurface = "",
     sourceSurface = "",
     compoundVerbInput = "",
+    operationFrame = null,
 } = {}) {
     return {
         kind: "patientivo-compound-embed-formation-frame",
@@ -2018,9 +2390,12 @@ function resolvePatientivoCompoundEmbedFormationFrame({
         output: {
             kind: "compound-vnc-input",
             verbInput: String(compoundVerbInput || "").trim(),
+            targetStem: String(operationFrame?.targetFrame?.stem || ""),
+            operationFrameKind: String(operationFrame?.kind || ""),
+            displayInputIsNotAuthority: operationFrame?.operationFrame?.displayInputIsNotAuthority === true,
         },
         evidencePolicy: {
-            matrixRequiresNawatData: true,
+            matrixRequiresStructuredMatrixSource: true,
             matrixDataBacked: Boolean(matrixSpec?.supported),
             patientiveSurfaceComesFromSalida: true,
             createsOrdinaryNncFixture: false,
@@ -2053,6 +2428,61 @@ function formatPatientivoNominalCompoundOrdinaryNncInput({
     const normalizedClass = String(nounClass || "").trim();
     const connector = ["t", "ti", "in"].includes(normalizedClass) ? normalizedClass : "";
     return `(${normalizedStem})${connector}`;
+}
+
+function buildNominalCompoundOrdinaryNncRequest({
+    compoundStem = "",
+    nounClass = "zero",
+    animacy = "inanimate",
+} = {}) {
+    const normalizedStem = String(compoundStem || "").trim();
+    if (!normalizedStem) {
+        return null;
+    }
+    const normalizedClass = String(nounClass || "zero").trim() || "zero";
+    const normalizedAnimacy = String(animacy || "inanimate").trim() || "inanimate";
+    return {
+        stem: normalizedStem,
+        state: "absolutive",
+        number: "singular",
+        pluralType: "auto",
+        nounClass: normalizedClass,
+        animacy: normalizedAnimacy,
+        formulaSlots: {
+            predicateStem: {
+                role: "predicate",
+                slot: "STEM",
+                stem: normalizedStem,
+                state: "absolutive",
+            },
+            num1Num2: {
+                role: "subject-number-connector",
+                slot: "num1-num2",
+                nounClass: normalizedClass,
+                referenceNumber: "singular",
+                pluralType: "",
+            },
+        },
+        routeContract: {
+            routeFamily: "ordinary-nnc",
+            routeStage: "nominal-compound-continuation",
+            formulaSlots: {
+                predicateStem: {
+                    role: "predicate",
+                    slot: "STEM",
+                    stem: normalizedStem,
+                    state: "absolutive",
+                },
+                num1Num2: {
+                    role: "subject-number-connector",
+                    slot: "num1-num2",
+                    nounClass: normalizedClass,
+                    referenceNumber: "singular",
+                    pluralType: "",
+                },
+            },
+        },
+    };
 }
 
 function stripPatientivoCharacteristicPropertySuffix(surface = "", {
@@ -2169,12 +2599,157 @@ function buildPatientivoCharacteristicPropertyEmbedVerbInput({
     return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
 }
 
+function buildPatientivoCharacteristicPropertyEmbedOperationFrame({
+    embedSource = null,
+    matrixSpec = null,
+    characteristicSurface = "",
+    sourceSurface = "",
+} = {}) {
+    const sourceRoot = String(embedSource?.incorporatedRoot || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const objectPrefix = String(embedSource?.objectPrefix || "").trim();
+    return Object.freeze({
+        kind: "andrews-patientivo-characteristic-property-embed-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.9",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "patientivo-characteristic-property-nounstem-as-incorporated-object",
+            operationFamily: "patientivo-characteristic-property-embed",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "patientivo-characteristic-property-embed-source-frame",
+            role: "incorporated-object",
+            root: sourceRoot,
+            sourceState: String(embedSource?.sourceState || ""),
+            sourceRole: String(embedSource?.sourceRole || ""),
+            characteristicSurface: String(characteristicSurface || "").trim(),
+            sourceSurface: String(sourceSurface || "").trim(),
+            omittedSuffix: String(embedSource?.omittedSuffix || ""),
+            possessorPrefix: String(embedSource?.possessorPrefix || ""),
+            source: "generated-characteristic-property-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "patientivo-characteristic-property-matrix-frame",
+            role: "compound-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "patientivo-characteristic-property-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix,
+            displayInput: buildPatientivoCharacteristicPropertyEmbedVerbInput({
+                incorporatedRoot: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        objectTransferFrame: embedSource?.objectTransfer && typeof embedSource.objectTransfer === "object"
+            ? Object.freeze({ ...embedSource.objectTransfer })
+            : null,
+        routeContract: Object.freeze({
+            routeFamily: "patientivo-characteristic-property-embed",
+            routeStage: "typed-operation-frame",
+            grammarSource: "Andrews 39.9",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            incorporatedObject: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-characteristic-property-root",
+                root: sourceRoot,
+            }),
+            compoundMatrix: Object.freeze({
+                slot: "compound-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "compound-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPatientivoCharacteristicPropertyEmbedOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-patientivo-characteristic-property-embed-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPatientivoCharacteristicPropertyEmbedGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPatientivoCharacteristicPropertyEmbedOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["patientivo-characteristic-property-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
+}
+
 function resolvePatientivoCharacteristicPropertyFormationFrame({
     embedSource = null,
     matrixSpec = null,
     characteristicSurface = "",
     sourceSurface = "",
     compoundVerbInput = "",
+    operationFrame = null,
 } = {}) {
     const sourceState = String(embedSource?.sourceState || "").trim();
     const omittedSuffix = String(embedSource?.omittedSuffix || "").trim();
@@ -2219,6 +2794,9 @@ function resolvePatientivoCharacteristicPropertyFormationFrame({
             doesNotPreserveYoMatrix: true,
         },
         verbInput: String(compoundVerbInput || "").trim(),
+        targetStem: String(operationFrame?.targetFrame?.stem || ""),
+        operationFrameKind: String(operationFrame?.kind || ""),
+        displayInputIsNotAuthority: operationFrame?.operationFrame?.displayInputIsNotAuthority === true,
     };
 }
 
@@ -2234,6 +2812,139 @@ function buildActiveActionCompoundEmbedVerbInput({
     }
     const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
     return `${transitiveMarker}(${normalizedActionNominalSurface}/${normalizedMatrixRoot})`;
+}
+
+function buildActiveActionCompoundEmbedOperationFrame({
+    sourceContinuationFrame = null,
+    matrixSpec = null,
+    targetContinuationFrame = null,
+} = {}) {
+    const sourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceSurface || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceSurface}${matrixRoot}`;
+    return Object.freeze({
+        kind: "andrews-active-action-compound-embed-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 37.5.4",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "active-action-nounstem-as-compound-embed",
+            operationFamily: "active-action-compound-embed",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "active-action-compound-embed-source-frame",
+            role: "compound-embed",
+            root: sourceSurface,
+            sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+            sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
+            source: "generated-active-action-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "active-action-compound-embed-matrix-frame",
+            role: "compound-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "active-action-compound-embed-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix: matrix.matrixValency === "transitive" ? "ki" : "",
+            displayInput: String(targetContinuationFrame?.targetInput || ""),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "active-action-compound-embed",
+            routeStage: "typed-operation-frame",
+            grammarSource: "Andrews 37.5.4",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            compoundEmbed: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-active-action-nounstem",
+                root: sourceSurface,
+            }),
+            compoundMatrix: Object.freeze({
+                slot: "compound-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "compound-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isActiveActionCompoundEmbedOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-active-action-compound-embed-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildActiveActionCompoundEmbedGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isActiveActionCompoundEmbedOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["active-action-compound-embed-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
 }
 
 function buildActiveActionNominalCompoundStem({
@@ -2261,6 +2972,141 @@ function buildPreteritAgentiveCompoundEmbedVerbInput({
     }
     const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
     return `${transitiveMarker}(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+}
+
+function buildPreteritAgentiveCompoundEmbedOperationFrame({
+    preteritAgentiveStem = "",
+    matrixSpec = null,
+} = {}) {
+    const sourceRoot = String(preteritAgentiveStem || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const objectPrefix = matrix.matrixValency === "transitive"
+        ? (String(matrix.objectPrefix || "ki").trim() || "ki")
+        : "";
+    return Object.freeze({
+        kind: "andrews-preterit-agentive-compound-embed-operation-frame",
+        version: 1,
+        grammarSource: matrix.grammarSource || "Andrews 35.7",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "preterit-agentive-nounstem-as-compound-embed",
+            operationFamily: "preterit-agentive-compound-embed",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "preterit-agentive-compound-embed-source-frame",
+            role: "compound-embed",
+            root: sourceRoot,
+            source: "generated-preterit-agentive-general-use-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "preterit-agentive-compound-embed-matrix-frame",
+            role: "compound-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "preterit-agentive-compound-embed-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix,
+            displayInput: buildPreteritAgentiveCompoundEmbedVerbInput({
+                preteritAgentiveStem: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "preterit-agentive-compound-embed",
+            routeStage: "typed-operation-frame",
+            grammarSource: matrix.grammarSource || "Andrews 35.7",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            compoundEmbed: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-preterit-agentive-nounstem",
+                root: sourceRoot,
+            }),
+            compoundMatrix: Object.freeze({
+                slot: "compound-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "compound-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPreteritAgentiveCompoundEmbedOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-preterit-agentive-compound-embed-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPreteritAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPreteritAgentiveCompoundEmbedOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["preterit-agentive-compound-embed-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
 }
 
 function buildPreteritAgentiveNominalCompoundStem({
@@ -2303,6 +3149,142 @@ function buildCustomaryAgentiveCompoundEmbedVerbInput({
     return `${transitiveMarker}(${normalizedCustomaryAgentiveStem}/${normalizedMatrixRoot})`;
 }
 
+function buildCustomaryAgentiveCompoundEmbedOperationFrame({
+    customaryAgentiveStem = "",
+    matrixSpec = null,
+    objectPrefix = "",
+} = {}) {
+    const sourceRoot = String(customaryAgentiveStem || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const resolvedObjectPrefix = matrix.matrixValency === "transitive"
+        ? (String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki")
+        : "";
+    return Object.freeze({
+        kind: "andrews-customary-agentive-compound-embed-operation-frame",
+        version: 1,
+        grammarSource: matrix.grammarSource || "Andrews 36.3",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "customary-agentive-nounstem-as-compound-embed",
+            operationFamily: "customary-agentive-compound-embed",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "customary-agentive-compound-embed-source-frame",
+            role: "compound-embed",
+            root: sourceRoot,
+            source: "generated-customary-agentive-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "customary-agentive-compound-embed-matrix-frame",
+            role: "compound-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "customary-agentive-compound-embed-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix,
+            displayInput: buildCustomaryAgentiveCompoundEmbedVerbInput({
+                customaryAgentiveStem: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "customary-agentive-compound-embed",
+            routeStage: "typed-operation-frame",
+            grammarSource: matrix.grammarSource || "Andrews 36.3",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            compoundEmbed: Object.freeze({
+                slot: "compound-embed",
+                role: "embedded-customary-agentive-nounstem",
+                root: sourceRoot,
+            }),
+            compoundMatrix: Object.freeze({
+                slot: "compound-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "compound-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isCustomaryAgentiveCompoundEmbedOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-customary-agentive-compound-embed-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildCustomaryAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isCustomaryAgentiveCompoundEmbedOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["customary-agentive-compound-embed-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
+}
+
 function formatPreteritAgentiveNominalCompoundOrdinaryNncInput({
     compoundStem = "",
     nounClass = "",
@@ -2336,6 +3318,455 @@ function buildPreteritAgentiveOwnerhoodVerbInput({
     return `(${normalizedPreteritAgentiveStem})-(${normalizedMatrixRoot})`;
 }
 
+function buildTypedOwnerhoodParsedVerbFrame({
+    sourceRoot = "",
+    matrixRoot = "",
+    targetStem = "",
+    operationFamily = "ownerhood",
+} = {}) {
+    const normalizedSourceRoot = String(sourceRoot || "").trim();
+    const normalizedMatrixRoot = String(matrixRoot || "").trim();
+    const normalizedTargetStem = String(targetStem || `${normalizedSourceRoot}${normalizedMatrixRoot}`).trim();
+    if (!normalizedSourceRoot || !normalizedMatrixRoot || !normalizedTargetStem) {
+        return null;
+    }
+    const verbSegment = `${normalizedSourceRoot}-${normalizedMatrixRoot}`;
+    return Object.freeze({
+        parseLanguage: "andrews-typed-operation-frame",
+        sourceRawVerb: normalizedTargetStem,
+        verb: normalizedTargetStem,
+        analysisVerb: normalizedTargetStem,
+        rawAnalysisVerb: normalizedTargetStem,
+        ruleBase: normalizedMatrixRoot,
+        fullRuleBase: normalizedTargetStem,
+        exactBaseVerb: normalizedMatrixRoot,
+        sourceBase: normalizedMatrixRoot,
+        sourcePrefix: normalizedSourceRoot,
+        parts: Object.freeze([normalizedSourceRoot, normalizedMatrixRoot]),
+        verbSegment,
+        embeddedPrefix: normalizedSourceRoot,
+        hasSuffixSeparator: false,
+        hasSlashMarker: false,
+        hasCompoundMarker: true,
+        isTaFusion: false,
+        hasLeadingDash: true,
+        dashCount: 1,
+        hasDoubleDash: false,
+        isMarkedTransitive: true,
+        valenceSlotCount: 1,
+        totalValenceSlotCount: 1,
+        embeddedValenceCount: 0,
+        hasSpecificValence: false,
+        hasNonspecificValence: false,
+        hasNonactiveSpecificValence: false,
+        hasNonactiveNonspecificValence: false,
+        directObjectToken: "",
+        indirectObjectMarker: "",
+        objectSegment: "",
+        objectToken: "",
+        boundPrefixes: Object.freeze([]),
+        boundExplicitFlags: Object.freeze([]),
+        lexicalBoundPrefixes: Object.freeze([normalizedSourceRoot]),
+        lexicalBoundPrefix: normalizedSourceRoot,
+        fusionPrefixes: Object.freeze([]),
+        directionalPrefix: "",
+        directionalPrefixFromSlash: "",
+        directionalRuleModeProvisional: "",
+        directionalRuleMode: "",
+        hasImpersonalTaPrefix: false,
+        hasOptionalSupportiveI: false,
+        optionalSupportiveLetter: "",
+        hasBoundMarker: false,
+        isYawi: false,
+        isWeya: false,
+        hasFinalYaSuffix: false,
+        finalYaHost: "",
+        finalYaHostKind: "",
+        bareRootPlusYaBase: "",
+        bareRootPlusYaBasePronounceable: "",
+        rootPlusYaBase: "",
+        rootPlusYaBasePronounceable: "",
+        isRootPlusYa: false,
+        displayVerb: normalizedTargetStem,
+        displayCore: normalizedTargetStem,
+        coreText: normalizedTargetStem,
+        dashPrefix: "-",
+        hasExternalObjectDash: true,
+        semanticObjectSlotCount: 1,
+        compoundAst: Object.freeze({
+            version: 1,
+            kind: "compound",
+            operationFamily,
+            matrix: Object.freeze({
+                role: "matrix",
+                stem: normalizedMatrixRoot,
+                ruleBase: normalizedMatrixRoot,
+            }),
+            embeds: Object.freeze([
+                Object.freeze({
+                    role: "outer-lexical",
+                    kind: "lexical",
+                    value: normalizedSourceRoot,
+                    source: "typed-operation-frame",
+                    index: 0,
+                    explicit: false,
+                }),
+            ]),
+            source: Object.freeze({
+                rawInput: normalizedTargetStem,
+                displayVerb: normalizedTargetStem,
+                displayCore: normalizedTargetStem,
+                verb: normalizedTargetStem,
+                analysisVerb: normalizedTargetStem,
+                embeddedPrefix: normalizedSourceRoot,
+                sourcePrefix: normalizedSourceRoot,
+                sourceBase: normalizedMatrixRoot,
+                verbSegment,
+                parts: Object.freeze([normalizedSourceRoot, normalizedMatrixRoot]),
+            }),
+            valency: Object.freeze({
+                transitivity: "transitive",
+                tokens: Object.freeze([]),
+                slotCount: 1,
+                hasSpecific: false,
+                hasNonspecific: false,
+                isMarkedTransitive: true,
+                isTaFusion: false,
+            }),
+            flags: Object.freeze({
+                hasCompoundMarker: true,
+                hasSlashMarker: false,
+                hasSuffixSeparator: false,
+                hasBoundMarker: false,
+                hasImpersonalTaPrefix: false,
+            }),
+            outerPieces: Object.freeze([
+                Object.freeze({
+                    type: "lexical",
+                    value: normalizedSourceRoot,
+                    index: 0,
+                }),
+            ]),
+            corePieces: Object.freeze([]),
+            lexicalPrefixes: Object.freeze([normalizedSourceRoot]),
+        }),
+        ordinaryNncFixtureClassifications: Object.freeze([]),
+        canonicalRuleBase: normalizedMatrixRoot,
+        canonicalFullRuleBase: normalizedTargetStem,
+    });
+}
+
+function buildPreteritAgentiveOwnerhoodOperationFrame({
+    preteritAgentiveStem = "",
+    matrixSpec = null,
+    sourceSurface = "",
+} = {}) {
+    const sourceRoot = String(preteritAgentiveStem || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
+        sourceRoot,
+        matrixRoot,
+        targetStem,
+        operationFamily: "preterit-agentive-ownerhood",
+    });
+    if (!parsedVerb) {
+        return null;
+    }
+    const grammarSource = String(matrix.grammarSource || "Andrews 35.9-35.10");
+    return Object.freeze({
+        kind: "andrews-preterit-agentive-ownerhood-operation-frame",
+        version: 1,
+        grammarSource,
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "preterit-agentive-general-use-stem-as-ownerhood-embed",
+            operationFamily: "preterit-agentive-ownerhood",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            parsedTargetFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "preterit-agentive-ownerhood-source-frame",
+            role: "incorporated-ownerhood-embed",
+            root: sourceRoot,
+            sourceSurface: String(sourceSurface || "").trim(),
+            source: "generated-preterit-agentive-general-use-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "preterit-agentive-ownerhood-matrix-frame",
+            role: "ownerhood-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            surfaceMatrix: String(matrix.surfaceMatrix || ""),
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            ownerhoodKind: String(matrix.ownerhoodKind || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "preterit-agentive-ownerhood-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            parsedVerb,
+            displayInput: buildPreteritAgentiveOwnerhoodVerbInput({
+                preteritAgentiveStem: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "preterit-agentive-ownerhood",
+            routeStage: "typed-operation-frame",
+            grammarSource,
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            ownerhoodEmbed: Object.freeze({
+                slot: "ownerhood-embed",
+                role: "preterit-agentive-general-use-stem",
+                root: sourceRoot,
+            }),
+            ownerhoodMatrix: Object.freeze({
+                slot: "ownerhood-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                ownerhoodKind: String(matrix.ownerhoodKind || ""),
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "ownerhood-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPreteritAgentiveOwnerhoodOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-preterit-agentive-ownerhood-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+        && frame.targetFrame?.parsedVerb?.sourceRawVerb === frame.targetFrame.stem
+    );
+}
+
+function buildPreteritAgentiveOwnerhoodGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "pasado-remoto",
+} = {}) {
+    if (!isPreteritAgentiveOwnerhoodOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["preterit-agentive-ownerhood-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: "",
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "pasado-remoto"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                    parsedVerb: operationFrame.targetFrame.parsedVerb,
+                },
+            },
+        },
+    };
+}
+
+function buildOrdinaryNounOwnerhoodOperationFrame({
+    nounStem = "",
+    nounClass = "",
+    sourceSurface = "",
+    sourceKind = "",
+    matrixSpec = null,
+    ownerhoodKind = "ownerhood",
+} = {}) {
+    const sourceRoot = String(nounStem || "").trim();
+    const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !normalizedClass || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
+        sourceRoot,
+        matrixRoot,
+        targetStem,
+        operationFamily: "ordinary-noun-ownerhood",
+    });
+    if (!parsedVerb) {
+        return null;
+    }
+    const grammarSource = String(matrix.grammarSource || "Andrews 35.9-35.10");
+    const resolvedKind = String(matrix.ownerhoodKind || ownerhoodKind || "ownerhood").trim();
+    return Object.freeze({
+        kind: "andrews-ordinary-noun-ownerhood-operation-frame",
+        version: 1,
+        grammarSource,
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "ordinary-nounstem-as-ownerhood-embed",
+            operationFamily: "ordinary-noun-ownerhood",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            nounClassFrameRequired: true,
+            parsedTargetFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "ordinary-noun-ownerhood-source-frame",
+            role: "incorporated-ownerhood-embed",
+            root: sourceRoot,
+            nounClass: normalizedClass,
+            sourceSurface: String(sourceSurface || "").trim(),
+            sourceKind: String(sourceKind || "").trim(),
+            source: "generated-or-fixture-ordinary-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "ordinary-noun-ownerhood-matrix-frame",
+            role: "ownerhood-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            surfaceMatrix: String(matrix.surfaceMatrix || ""),
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            ownerhoodKind: resolvedKind,
+            defaultForNounClasses: Object.freeze(Array.isArray(matrix.defaultForNounClasses)
+                ? matrix.defaultForNounClasses.slice()
+                : []),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "ordinary-noun-ownerhood-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            parsedVerb,
+            displayInput: buildOrdinaryNounOwnerhoodVerbInput({
+                nounStem: sourceRoot,
+                nounClass: normalizedClass,
+                matrixRoot,
+                ownerhoodKind: resolvedKind,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "ordinary-noun-ownerhood",
+            routeStage: "typed-operation-frame",
+            grammarSource,
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            ownerhoodEmbed: Object.freeze({
+                slot: "ownerhood-embed",
+                role: "ordinary-nounstem",
+                root: sourceRoot,
+                nounClass: normalizedClass,
+            }),
+            ownerhoodMatrix: Object.freeze({
+                slot: "ownerhood-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                ownerhoodKind: resolvedKind,
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "ownerhood-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isOrdinaryNounOwnerhoodOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-ordinary-noun-ownerhood-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.sourceFrame?.nounClass
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+        && frame.targetFrame?.parsedVerb?.sourceRawVerb === frame.targetFrame.stem
+    );
+}
+
+function buildOrdinaryNounOwnerhoodGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "pasado-remoto",
+} = {}) {
+    if (!isOrdinaryNounOwnerhoodOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["ordinary-noun-ownerhood-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: "",
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "pasado-remoto"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                    parsedVerb: operationFrame.targetFrame.parsedVerb,
+                },
+            },
+        },
+    };
+}
+
 function buildPreteritAgentiveComplementVerbInput({
     preteritAgentiveStem = "",
     matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT,
@@ -2347,6 +3778,149 @@ function buildPreteritAgentiveComplementVerbInput({
         return "";
     }
     return `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+}
+
+function buildPreteritAgentiveComplementOperationFrame({
+    preteritAgentiveStem = "",
+    matrixSpec = null,
+    sourceSurface = "",
+    objectPrefix = "",
+} = {}) {
+    const sourceRoot = String(preteritAgentiveStem || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const resolvedObjectPrefix = String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki";
+    const grammarSource = String(matrix.grammarSource || "Andrews 35.12");
+    return Object.freeze({
+        kind: "andrews-preterit-agentive-complement-operation-frame",
+        version: 1,
+        grammarSource,
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "preterit-agentive-general-use-stem-as-incorporated-complement",
+            operationFamily: "preterit-agentive-complement",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            objectTransferRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "preterit-agentive-complement-source-frame",
+            role: "incorporated-complement",
+            root: sourceRoot,
+            sourceSurface: String(sourceSurface || "").trim(),
+            source: "generated-preterit-agentive-general-use-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "preterit-agentive-complement-matrix-frame",
+            role: "complement-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "preterit-agentive-complement-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix,
+            displayInput: buildPreteritAgentiveComplementVerbInput({
+                preteritAgentiveStem: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "preterit-agentive-complement",
+            routeStage: "typed-operation-frame",
+            grammarSource,
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            complementEmbed: Object.freeze({
+                slot: "complement-embed",
+                role: "preterit-agentive-general-use-stem",
+                root: sourceRoot,
+            }),
+            complementMatrix: Object.freeze({
+                slot: "complement-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            outsideObject: Object.freeze({
+                slot: "obj1",
+                role: "outside-object",
+                prefix: resolvedObjectPrefix,
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "complement-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPreteritAgentiveComplementOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-preterit-agentive-complement-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPreteritAgentiveComplementGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPreteritAgentiveComplementOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["preterit-agentive-complement-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
 }
 
 function buildPreteritAgentiveAdverbialVerbInput({
@@ -2362,6 +3936,152 @@ function buildPreteritAgentiveAdverbialVerbInput({
     return matrixSpec.matrixValency === "transitive"
         ? `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`
         : `(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
+}
+
+function buildPreteritAgentiveAdverbialOperationFrame({
+    preteritAgentiveStem = "",
+    matrixSpec = null,
+    sourceSurface = "",
+    objectPrefix = "",
+} = {}) {
+    const sourceRoot = String(preteritAgentiveStem || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const resolvedObjectPrefix = matrix.matrixValency === "transitive"
+        ? (String(objectPrefix || "ki").trim() || "ki")
+        : "";
+    const grammarSource = String(matrix.grammarSource || "Andrews 35.12");
+    return Object.freeze({
+        kind: "andrews-preterit-agentive-adverbial-operation-frame",
+        version: 1,
+        grammarSource,
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "preterit-agentive-general-use-stem-as-adverbial-manner",
+            operationFamily: "preterit-agentive-adverbial",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "preterit-agentive-adverbial-source-frame",
+            role: "incorporated-adverbial-manner",
+            root: sourceRoot,
+            sourceSurface: String(sourceSurface || "").trim(),
+            source: "generated-preterit-agentive-general-use-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "preterit-agentive-adverbial-matrix-frame",
+            role: "adverbial-matrix",
+            type: "verbal",
+            id: String(matrix.id || "").trim(),
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            adverbialFocus: String(matrix.adverbialFocus || ""),
+            supported: matrix.supported === true,
+        }),
+        targetFrame: Object.freeze({
+            kind: "preterit-agentive-adverbial-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix,
+            displayInput: buildPreteritAgentiveAdverbialVerbInput({
+                preteritAgentiveStem: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "preterit-agentive-adverbial",
+            routeStage: "typed-operation-frame",
+            grammarSource,
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            adverbialEmbed: Object.freeze({
+                slot: "adverbial-embed",
+                role: "preterit-agentive-general-use-stem",
+                root: sourceRoot,
+            }),
+            adverbialMatrix: Object.freeze({
+                slot: "adverbial-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+                adverbialFocus: String(matrix.adverbialFocus || ""),
+            }),
+            outsideObject: Object.freeze({
+                slot: "obj1",
+                role: "outside-object",
+                prefix: resolvedObjectPrefix,
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "adverbial-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPreteritAgentiveAdverbialOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-preterit-agentive-adverbial-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPreteritAgentiveAdverbialGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPreteritAgentiveAdverbialOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["preterit-agentive-adverbial-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
 }
 
 function buildOrdinaryNounOwnerhoodVerbInput({
@@ -2437,7 +4157,7 @@ function resolvePatientivoNominalCompoundFormationFrame({
             fixtureBacked: false,
         },
         evidencePolicy: {
-            matrixRequiresNawatData: true,
+            matrixRequiresStructuredMatrixSource: true,
             matrixDataBacked: Boolean(matrixSpec?.supported),
             patientiveSurfaceComesFromSalida: true,
             createsOrdinaryNncFixture: false,
@@ -2473,6 +4193,179 @@ function buildPatientivoPrelocativeVerbInput({
     return `-(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
 }
 
+function buildPatientivoPrelocativeOperationFrame({
+    incorporatedRoot = "",
+    matrixSpec = null,
+    objectTransfer = null,
+    patientivoSurface = "",
+    sourceSurface = "",
+} = {}) {
+    const sourceRoot = String(incorporatedRoot || "").trim();
+    const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+    const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+    if (!sourceRoot || !matrixRoot) {
+        return null;
+    }
+    const sourceState = String(objectTransfer?.sourceState || "").trim();
+    const matrixId = String(matrix.id || "").trim();
+    const isPossessive = sourceState === "possessive";
+    const incorporatedRole = isPossessive && (
+        matrixId === "tla-ih-tlani"
+        || matrixId === "tla-tem-o-a"
+        || matrixId === "tla-tlani"
+    )
+        ? "incorporated-object"
+        : "object-complement";
+    const targetStem = `${sourceRoot}${matrixRoot}`;
+    const objectPrefix = String(objectTransfer?.objectPrefix || "").trim();
+    return Object.freeze({
+        kind: "andrews-patientivo-prelocative-operation-frame",
+        version: 1,
+        grammarSource: isPossessive && incorporatedRole === "incorporated-object"
+            ? "Andrews 39.8"
+            : "Andrews 39.7",
+        operationFrame: Object.freeze({
+            kind: "andrews-typed-operation-frame",
+            operationId: "patientivo-prelocative-nounstem-as-verbal-incorporate",
+            operationFamily: "patientivo-prelocative",
+            sourceUnit: "CNN",
+            targetUnit: "CNV",
+            sourceFrameRequired: true,
+            matrixFrameRequired: true,
+            objectTransferRequired: true,
+            displayInputIsNotAuthority: true,
+        }),
+        sourceFrame: Object.freeze({
+            kind: "patientivo-prelocative-source-frame",
+            role: incorporatedRole,
+            root: sourceRoot,
+            sourceState,
+            sourceRole: String(objectTransfer?.sourceRole || ""),
+            patientivoSurface: String(patientivoSurface || "").trim(),
+            sourceSurface: String(sourceSurface || "").trim(),
+            source: "generated-patientive-nounstem",
+        }),
+        matrixFrame: Object.freeze({
+            kind: "patientivo-prelocative-matrix-frame",
+            role: "prelocative-matrix",
+            type: "verbal",
+            id: matrixId,
+            root: matrixRoot,
+            classicalMatrix: String(matrix.classicalMatrix || ""),
+            valency: String(matrix.matrixValency || ""),
+            supported: matrix.supported === true,
+            sourceStates: Object.freeze(Array.isArray(matrix.sourceStates)
+                ? matrix.sourceStates.slice()
+                : []),
+        }),
+        objectFrame: Object.freeze({
+            kind: "patientivo-prelocative-object-transfer-frame",
+            role: "outside-object",
+            originRole: String(objectTransfer?.sourceRole || ""),
+            originPrefix: String(objectTransfer?.sourcePrefix || "").trim(),
+            originSuffix: String(objectTransfer?.sourceSuffix || "").trim(),
+            prefix: objectPrefix,
+            line: String(objectTransfer?.objectLine || "mainline").trim(),
+            case: String(objectTransfer?.objectCase || "objective").trim(),
+        }),
+        targetFrame: Object.freeze({
+            kind: "patientivo-prelocative-target-frame",
+            unit: "CNV",
+            stem: targetStem,
+            objectPrefix,
+            displayInput: buildPatientivoPrelocativeVerbInput({
+                incorporatedRoot: sourceRoot,
+                matrixRoot,
+            }),
+        }),
+        routeContract: Object.freeze({
+            routeFamily: "patientivo-prelocative",
+            routeStage: "typed-operation-frame",
+            grammarSource: isPossessive && incorporatedRole === "incorporated-object"
+                ? "Andrews 39.8"
+                : "Andrews 39.7",
+            generationAllowed: true,
+        }),
+        formulaSlots: Object.freeze({
+            prelocativeEmbed: Object.freeze({
+                slot: "prelocative-embed",
+                role: incorporatedRole,
+                root: sourceRoot,
+            }),
+            prelocativeMatrix: Object.freeze({
+                slot: "prelocative-matrix",
+                role: "verbal-matrix",
+                root: matrixRoot,
+                valency: String(matrix.matrixValency || ""),
+            }),
+            outsideObject: Object.freeze({
+                slot: "obj1",
+                role: "outside-object",
+                prefix: objectPrefix,
+            }),
+            targetStem: Object.freeze({
+                slot: "STEM",
+                role: "prelocative-verbstem",
+                stem: targetStem,
+            }),
+        }),
+    });
+}
+
+function isPatientivoPrelocativeOperationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-patientivo-prelocative-operation-frame"
+        && frame.operationFrame?.kind === "andrews-typed-operation-frame"
+        && frame.sourceFrame?.root
+        && frame.matrixFrame?.root
+        && frame.targetFrame?.stem
+    );
+}
+
+function buildPatientivoPrelocativeGenerationRequestFromOperationFrame(operationFrame = null, {
+    subjectPrefix = "",
+    subjectSuffix = "",
+    tense = "presente",
+} = {}) {
+    if (!isPatientivoPrelocativeOperationFrame(operationFrame)) {
+        return {
+            supported: false,
+            diagnostics: ["patientivo-prelocative-missing-typed-operation-frame"],
+            request: null,
+        };
+    }
+    const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+    const objectPrefix = String(operationFrame.targetFrame.objectPrefix || "").trim();
+    return {
+        supported: true,
+        diagnostics: [],
+        request: {
+            posicionesFormula: {
+                pers1: String(subjectPrefix || ""),
+                obj1: objectPrefix,
+                tronco: targetStem,
+                pers2: String(subjectSuffix || ""),
+                num2: String(subjectSuffix || ""),
+                poseedor: "",
+                tiempo: String(tense || "presente"),
+            },
+            options: {
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: "verbo",
+                    combinedMode: "active",
+                    derivationMode: "active",
+                    voiceMode: "active",
+                    typedCompoundOperationFrame: operationFrame,
+                },
+            },
+        },
+    };
+}
+
 function isPatientivoPrelocativeMatrixCompatibleWithSourceState(matrixSpec = null, sourceState = "") {
     if (!matrixSpec || matrixSpec.supported === false) {
         return false;
@@ -2490,6 +4383,7 @@ function resolvePatientivoPrelocativeFormationFrame({
     patientivoSurface = "",
     sourceSurface = "",
     prelocativeVerbInput = "",
+    operationFrame = null,
 } = {}) {
     const sourceState = String(objectTransfer?.sourceState || "").trim();
     const matrixId = String(matrixSpec?.id || "").trim();
@@ -2542,6 +4436,9 @@ function resolvePatientivoPrelocativeFormationFrame({
             sourceCompatible: isPatientivoPrelocativeMatrixCompatibleWithSourceState(matrixSpec, sourceState),
         },
         verbInput: String(prelocativeVerbInput || "").trim(),
+        targetStem: String(operationFrame?.targetFrame?.stem || ""),
+        operationFrameKind: String(operationFrame?.kind || ""),
+        displayInputIsNotAuthority: operationFrame?.operationFrame?.displayInputIsNotAuthority === true,
     };
 }
 
@@ -2686,12 +4583,22 @@ function buildPatientivoCharacteristicPropertyEmbedContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPatientivoCharacteristicPropertyEmbedOperationFrame({
+            embedSource,
+            matrixSpec,
+            characteristicSurface: normalizedCharacteristicSurface,
+            sourceSurface,
+        })
+        : null;
+    const compoundRequest = buildPatientivoCharacteristicPropertyEmbedGenerationRequestFromOperationFrame(operationFrame);
     const formationFrame = resolvePatientivoCharacteristicPropertyFormationFrame({
         embedSource,
         matrixSpec,
         characteristicSurface: normalizedCharacteristicSurface,
         sourceSurface,
         compoundVerbInput,
+        operationFrame,
     });
     return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-characteristic-property-embed-continuation-contract",
@@ -2713,6 +4620,9 @@ function buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         compoundVerbInput,
         objectPrefix: embedSource.objectPrefix || "ki",
         objectTransfer: embedSource.objectTransfer,
+        compoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        compoundRequest,
         formationFrame,
         diagnostics: uniqueDiagnostics,
     });
@@ -2777,6 +4687,16 @@ function buildPatientivoPrelocativeContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPatientivoPrelocativeOperationFrame({
+            incorporatedRoot,
+            matrixSpec,
+            objectTransfer,
+            patientivoSurface,
+            sourceSurface,
+        })
+        : null;
+    const prelocativeRequest = buildPatientivoPrelocativeGenerationRequestFromOperationFrame(operationFrame);
     const formationFrame = resolvePatientivoPrelocativeFormationFrame({
         matrixSpec,
         objectTransfer,
@@ -2784,6 +4704,7 @@ function buildPatientivoPrelocativeContinuationContract({
         patientivoSurface,
         sourceSurface,
         prelocativeVerbInput,
+        operationFrame,
     });
     return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-prelocative-continuation-contract",
@@ -2805,6 +4726,9 @@ function buildPatientivoPrelocativeContinuationContract({
         matrixSourceCompatible,
         prelocativeVerbInput,
         objectTransfer,
+        prelocativeOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        prelocativeRequest,
         formationFrame,
         diagnostics: uniqueDiagnostics,
     });
@@ -2853,12 +4777,22 @@ function buildPatientivoCompoundEmbedContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPatientivoCompoundEmbedOperationFrame({
+            incorporatedRoot,
+            matrixSpec,
+            patientivoSurface,
+            sourceSurface,
+        })
+        : null;
+    const compoundRequest = buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
     const formationFrame = resolvePatientivoCompoundEmbedFormationFrame({
         matrixSpec,
         incorporatedRoot,
         patientivoSurface,
         sourceSurface,
         compoundVerbInput,
+        operationFrame,
     });
     return attachDerivationContinuationGrammarContract({
         outputKind: "patientivo-compound-embed-continuation-contract",
@@ -2877,6 +4811,9 @@ function buildPatientivoCompoundEmbedContinuationContract({
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
+        compoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        compoundRequest,
         formationFrame,
         diagnostics: uniqueDiagnostics,
     });
@@ -2957,14 +4894,11 @@ function buildPatientivoNominalCompoundContinuationContract({
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: compoundStem ? {
-            stem: ordinaryNncInput || compoundStem,
-            state: "absolutive",
-            number: "singular",
-            pluralType: "auto",
+        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
+            compoundStem,
             nounClass: matrixSpec.nounClass || "zero",
             animacy: matrixSpec.animacy || "inanimate",
-        } : null,
+        }),
         formationFrame,
         diagnostics: uniqueDiagnostics,
     });
@@ -2975,12 +4909,22 @@ function buildActiveActionCompoundEmbedContinuationContract({
     sourceSurface = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
     matrixRoot = DEFAULT_ACTIVE_ACTION_COMPOUND_EMBED_MATRIX_ROOT,
 } = {}) {
     const diagnostics = [];
-    const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+    const typedSourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+    const normalizedActionNominalSurface = typedSourceSurface;
+    const displayActionNominalSurface = String(actionNominalSurface || "").trim();
+    if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("active-action-compound-embed-missing-typed-source-frame");
+    }
+    if (displayActionNominalSurface && typedSourceSurface && displayActionNominalSurface !== typedSourceSurface) {
+        diagnostics.push("active-action-compound-embed-display-surface-contradicts-source-frame");
+    }
     if (!normalizedActionNominalSurface) {
-        diagnostics.push("active-action-compound-embed-missing-action-nominal-surface");
+        diagnostics.push("active-action-compound-embed-missing-typed-action-nominal-realization");
     }
     const matrixSpec = resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot);
     if (!matrixSpec.supported) {
@@ -2995,9 +4939,31 @@ function buildActiveActionCompoundEmbedContinuationContract({
     if (!compoundVerbInput && !matrixSpec.supported) {
         diagnostics.push("active-action-compound-embed-missing-verb-input");
     }
+    const resolvedTargetContinuationFrame = (
+        targetContinuationFrame
+        && typeof targetContinuationFrame === "object"
+        && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame"
+    )
+        ? targetContinuationFrame
+        : buildActiveActionCompoundEmbedTargetContinuationFrame({
+            sourceContinuationFrame,
+            matrixSpec,
+            compoundVerbInput,
+        });
+    if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("active-action-compound-embed-missing-typed-target-frame");
+    }
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildActiveActionCompoundEmbedOperationFrame({
+            sourceContinuationFrame,
+            matrixSpec,
+            targetContinuationFrame: resolvedTargetContinuationFrame,
+        })
+        : null;
+    const compoundRequest = buildActiveActionCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "active-action-compound-embed-continuation-contract",
         grammarSource: "Andrews 37.5.4",
@@ -3009,9 +4975,16 @@ function buildActiveActionCompoundEmbedContinuationContract({
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         actionNominalSurface: normalizedActionNominalSurface,
         incorporatedRoot: normalizedActionNominalSurface,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)
+            ? sourceContinuationFrame
+            : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
+        compoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        compoundRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3065,14 +5038,11 @@ function buildActiveActionNominalCompoundContinuationContract({
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: compoundStem ? {
-            stem: ordinaryNncInput || compoundStem,
-            state: "absolutive",
-            number: "singular",
-            pluralType: "auto",
+        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
+            compoundStem,
             nounClass: matrixSpec.nounClass || "zero",
             animacy: matrixSpec.animacy || "inanimate",
-        } : null,
+        }),
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3105,6 +5075,13 @@ function buildPreteritAgentiveCompoundEmbedContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPreteritAgentiveCompoundEmbedOperationFrame({
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixSpec,
+        })
+        : null;
+    const compoundRequest = buildPreteritAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-compound-embed-continuation-contract",
         grammarSource: "Andrews 35.7",
@@ -3119,6 +5096,9 @@ function buildPreteritAgentiveCompoundEmbedContinuationContract({
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
+        compoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        compoundRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3172,14 +5152,11 @@ function buildPreteritAgentiveNominalCompoundContinuationContract({
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: compoundStem ? {
-            stem: ordinaryNncInput || compoundStem,
-            state: "absolutive",
-            number: "singular",
-            pluralType: "auto",
+        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
+            compoundStem,
             nounClass: matrixSpec.nounClass || "zero",
             animacy: matrixSpec.animacy || "inanimate",
-        } : null,
+        }),
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3233,14 +5210,11 @@ function buildCustomaryAgentiveNominalCompoundContinuationContract({
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: compoundStem ? {
-            stem: ordinaryNncInput || compoundStem,
-            state: "absolutive",
-            number: "singular",
-            pluralType: "auto",
+        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
+            compoundStem,
             nounClass: matrixSpec.nounClass || "zero",
             animacy: matrixSpec.animacy || "inanimate",
-        } : null,
+        }),
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3277,6 +5251,14 @@ function buildCustomaryAgentiveCompoundEmbedContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildCustomaryAgentiveCompoundEmbedOperationFrame({
+            customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+            matrixSpec,
+            objectPrefix: resolvedObjectPrefix,
+        })
+        : null;
+    const compoundRequest = buildCustomaryAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "customary-agentive-compound-embed-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 36.3",
@@ -3292,14 +5274,9 @@ function buildCustomaryAgentiveCompoundEmbedContinuationContract({
         matrix: matrixSpec,
         objectPrefix: resolvedObjectPrefix,
         compoundVerbInput,
-        compoundRequest: compoundVerbInput ? {
-            verb: compoundVerbInput,
-            tense: "presente",
-            tenseMode: "verbo",
-            derivationMode: "active",
-            voiceMode: "active",
-            objectPrefix: resolvedObjectPrefix,
-        } : null,
+        compoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        compoundRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3332,6 +5309,14 @@ function buildPreteritAgentiveOwnerhoodContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPreteritAgentiveOwnerhoodOperationFrame({
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixSpec,
+            sourceSurface,
+        })
+        : null;
+    const ownerhoodRequest = buildPreteritAgentiveOwnerhoodGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-ownerhood-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
@@ -3348,13 +5333,9 @@ function buildPreteritAgentiveOwnerhoodContinuationContract({
         ownerhoodKind: matrixSpec.ownerhoodKind || "",
         matrix: matrixSpec,
         ownerhoodVerbInput,
-        ownerhoodRequest: ownerhoodVerbInput ? {
-            verb: ownerhoodVerbInput,
-            tense: "pasado-remoto",
-            tenseMode: "verbo",
-            derivationMode: "active",
-            voiceMode: "active",
-        } : null,
+        ownerhoodOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ownerhoodRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3389,6 +5370,15 @@ function buildPreteritAgentiveComplementContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPreteritAgentiveComplementOperationFrame({
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixSpec,
+            sourceSurface,
+            objectPrefix: resolvedObjectPrefix,
+        })
+        : null;
+    const complementRequest = buildPreteritAgentiveComplementGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-complement-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
@@ -3404,14 +5394,9 @@ function buildPreteritAgentiveComplementContinuationContract({
         matrix: matrixSpec,
         objectPrefix: resolvedObjectPrefix,
         complementVerbInput,
-        complementRequest: complementVerbInput ? {
-            verb: complementVerbInput,
-            tense: "presente",
-            tenseMode: "verbo",
-            derivationMode: "active",
-            voiceMode: "active",
-            objectPrefix: resolvedObjectPrefix,
-        } : null,
+        complementOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        complementRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3448,6 +5433,15 @@ function buildPreteritAgentiveAdverbialContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildPreteritAgentiveAdverbialOperationFrame({
+            preteritAgentiveStem: normalizedPreteritAgentiveStem,
+            matrixSpec,
+            sourceSurface,
+            objectPrefix: resolvedObjectPrefix,
+        })
+        : null;
+    const adverbialRequest = buildPreteritAgentiveAdverbialGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-adverbial-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.12",
@@ -3464,14 +5458,9 @@ function buildPreteritAgentiveAdverbialContinuationContract({
         adverbialFocus: matrixSpec.adverbialFocus || "",
         objectPrefix: resolvedObjectPrefix,
         adverbialVerbInput,
-        adverbialRequest: adverbialVerbInput ? {
-            verb: adverbialVerbInput,
-            tense: "presente",
-            tenseMode: "verbo",
-            derivationMode: "active",
-            voiceMode: "active",
-            objectPrefix: resolvedObjectPrefix,
-        } : null,
+        adverbialOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        adverbialRequest,
         diagnostics: uniqueDiagnostics,
     });
 }
@@ -3526,6 +5515,17 @@ function buildOrdinaryNounOwnerhoodContinuationContract({
     const uniqueDiagnostics = diagnostics.filter((item, index, list) => (
         item && list.indexOf(item) === index
     ));
+    const operationFrame = uniqueDiagnostics.length === 0
+        ? buildOrdinaryNounOwnerhoodOperationFrame({
+            nounStem: normalizedNounStem,
+            nounClass: normalizedClass,
+            sourceSurface,
+            sourceKind,
+            matrixSpec,
+            ownerhoodKind: normalizedKind,
+        })
+        : null;
+    const ownerhoodRequest = buildOrdinaryNounOwnerhoodGenerationRequestFromOperationFrame(operationFrame);
     return attachDerivationContinuationGrammarContract({
         outputKind: "ordinary-noun-ownerhood-continuation-contract",
         grammarSource: matrixSpec.grammarSource || "Andrews 35.9-35.10",
@@ -3547,13 +5547,9 @@ function buildOrdinaryNounOwnerhoodContinuationContract({
         ownerhoodKind: matrixSpec.ownerhoodKind || normalizedKind,
         matrix: matrixSpec,
         ownerhoodVerbInput,
-        ownerhoodRequest: ownerhoodVerbInput ? {
-            verb: ownerhoodVerbInput,
-            tense: "pasado-remoto",
-            tenseMode: "verbo",
-            derivationMode: "active",
-            voiceMode: "active",
-        } : null,
+        ownerhoodOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ownerhoodRequest,
         diagnostics: uniqueDiagnostics,
     });
 }

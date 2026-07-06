@@ -4,15 +4,17 @@ Source: `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_6
 
 Extraction check: local PDF read with bundled Python/pypdf on 2026-06-08. The PDF has 693 pages. The lesson/page sequence below follows the printed Contents: Lessons 1-58, Appendices A-G, and Index.
 
+Formula docs: curated template inventory in `docs/ANDREWS_FORMULA_INVENTORY.md`; exhaustive occurrence index in `docs/ANDREWS_FORMULA_OCCURRENCES.md`; visual audit for OCR-risk formula rows in `docs/ANDREWS_FORMULA_VISUAL_AUDIT.md`.
+
 Copyright boundary: this is a paraphrased engineering digest. It is not a replacement for the book, does not reproduce paradigms or exercises, and should not be used as quoted wording. Before changing engine behavior, re-check the relevant PDF section directly.
 
 ## Authority Rules
 
-- Andrews PDF governs grammar architecture: categories, slot order, dependencies, boundaries, source/target roles, derivational operations, and generation gates.
+- Andrews PDF governs grammar architecture and grammar logic: categories, slot order, dependencies, boundaries, source/target roles, derivational operations, and generation gates.
 - Modern Nawat/Pipil orthography governs spelling realization. Classical spellings from Andrews are structural input, not direct Nawat surfaces.
-- Nawat/Pipil evidence and user-confirmed forms may govern spelling and already-scoped preterit indicative surfaces only. They may be recorded as lexical evidence, but they do not authorize preterit-derived grammar, unsupported derivational routes, or formula architecture.
+- Nawat/Pipil evidence and user-confirmed forms may be recorded as lexical/spelling evidence, but they do not decide whether Andrews-licensed grammar logic can generate.
 - Lessons are curriculum and evidence indexes. The app should implement reusable engines, metadata, diagnostics, and controls rather than one module/control per lesson.
-- A route can be shown as structural or diagnostic even when generation is blocked. Do not silently generate where Andrews requires an unconfirmed source.
+- A route can be shown as structural or diagnostic when Andrews blocks it. Do not block Andrews-licensed grammar logic only because Nawat/Pipil evidence has not confirmed a surface.
 
 ## Global Grammar Model
 
@@ -51,7 +53,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 
 - Presents Classical Nahuatl phonemes, vowel length, glottal stop, consonant classes, syllables, assimilation, elision, consonant loss, and spelling changes.
 - Distinguishes phonemic/phonetic facts from inherited Spanish spelling conventions.
-- Engine implication: Andrews spellings are grammar-rule evidence, but Nawat/Pipil spelling output must pass through the repo orthography bridge and Nawat evidence.
+- Engine implication: Andrews spellings are grammar-rule evidence; Nawat/Pipil spelling output must pass through the repo orthography bridge, but Nawat/Pipil evidence is not the grammar-logic gate.
 
 ### Lesson 3: Particles (printed pp. 39-44)
 
@@ -64,7 +66,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 - Defines nuclear clauses and divides them into VNCs and NNCs.
 - Builds formulas in stages, showing internal predicate structure and outside subject/object/number positions.
 - Introduces personal pronouns as affixal material in nuclear clauses.
-- Engine implication: VNC/NNC formulas should be structured slots, not plain strings.
+- Engine implication: VNC/NNC formulas should be structured slots, not plain strings. Use `docs/ANDREWS_FORMULA_INVENTORY.md` for curated templates, `docs/ANDREWS_FORMULA_OCCURRENCES.md` for exhaustive formula-occurrence lookup, and `docs/ANDREWS_FORMULA_VISUAL_AUDIT.md` when a row has OCR-risk stem material.
 
 ### Lesson 5: Intransitive VNCs (printed pp. 50-55)
 
@@ -127,7 +129,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 15: Further NNC Remarks (printed pp. 120-125)
 
 - Adds natural possession/state-case issues and NNC sentence structure.
-- Engine implication: natural/required/inalienable possession needs confirmed Nawat/Pipil evidence before fixture fields or automatic generation.
+- Engine implication: natural/required/inalienable possession needs an Andrews state/source contract before automatic generation; Nawat/Pipil evidence may confirm fixture spelling, but it is not the grammar gate.
 
 ### Lesson 16: Pronominal NNCs (printed pp. 126-135)
 
@@ -189,7 +191,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 27: Frequentative Verbstems (printed pp. 228-234)
 
 - Covers repeated/customary/assorted-action frequentatives, reduplication, object-pronoun reduplication, destockal sources, uncertain derivations, and nonactive frequentatives.
-- Engine implication: frequentative must be isolated from generic reduplication helpers until confirmed Nawat/Pipil route examples are available.
+- Engine implication: frequentative must be isolated from generic reduplication helpers until its Andrews route contract is implemented with an orthography bridge; Nawat/Pipil examples can confirm spelling fixtures, not license the grammar by themselves.
 
 ### Lesson 28: Compound Verbstems with Verbal Embed (printed pp. 235-250)
 
@@ -199,7 +201,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 29: Purposive VNCs (printed pp. 251-259)
 
 - Covers purposive verbstems, inbound/outbound directional behavior, passive/impersonal purposives, compound embeds, and directional prefixes.
-- Engine implication: purposive should be directional/purposive boundary metadata until a proven Nawat generation route is scoped.
+- Engine implication: the scoped outbound/inbound purposive target-stem route now generates from Andrews matrix shapes through the Nawat/Pipil orthography bridge; passive/impersonal embeds, compound-stemmed embeds, external directionals, and full finite UI expansion remain separately scoped.
 
 ### Lesson 30: Compound Verbstems with Nominal Embed (printed pp. 260-278)
 
@@ -219,12 +221,12 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 33: Honorific and Pejorative VNCs (printed pp. 298-306)
 
 - Covers honorific formation through causative/applicative routes, projective/reflexive sources, reverential subtype, pejoratives, and compound-stem interactions.
-- Engine implication: honorific/pejorative behavior should not be confused with ordinary causative/applicative generation unless the honorific source contract is explicit.
+- Engine implication: honorific/pejorative behavior should not be confused with ordinary causative/applicative generation unless the honorific source contract is explicit; the scoped preterit-embed target-stem route now follows Andrews `tzin-o-a`/`pol-o-a` matrices through the orthography bridge.
 
 ### Lesson 34: Cardinal-Numeral NNCs (printed pp. 307-318)
 
 - Covers numeral stems, one/two/three/four/five/ten/fifteen, vigesimal multipliers, conjoined numerals, object-shape counting sets, reduplication, approximation/more, and measures.
-- Engine implication: numeral NNCs require their own numeral stem system and cannot be generated from ordinary open-stem NNCs alone.
+- Engine implication: numeral NNCs require their own numeral stem system and cannot be generated from ordinary open-stem NNCs alone. The basic simple-count one-through-four formulas can generate from Andrews slots first, then realize `ce`, `ome`, `eyi`, and `nahui` through the Nawat/Pipil orthography bridge.
 
 ### Lesson 35: Nominalization of VNCs, Part One (printed pp. 319-338)
 
@@ -269,7 +271,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 43: Adjectival Modification, Part Two (printed pp. 423-429)
 
 - Covers nonpreposed modifiers, cooperation of preposed/nonpreposed modifiers, discontinuity, interrogative heads, modified `oc ce`, shared-referent violations, singling-out, male-bonding, and named-partner modifiers.
-- Engine implication: modifier/head order and shared-reference constraints should be AST metadata until confirmed examples justify generation.
+- Engine implication: modifier/head order and shared-reference constraints should be AST metadata until Andrews source contracts and the orthography bridge justify generation.
 
 ### Lesson 44: Adverbial Nuclear Clauses (printed pp. 430-444)
 
@@ -290,13 +292,13 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Lesson 47: Relational NNCs, Part Three (printed pp. 476-492)
 
 - Covers relational stems with options one/two/three, associated-entity NNCs, and pertinency NNCs.
-- Engine implication: relational compounds and possessive relational predicates can be source evidence only when explicitly confirmed.
+- Engine implication: relational compounds and possessive relational predicates can be source context only when the Andrews relational contract is explicit.
 
 ### Lesson 48: Place-Name and Gentilic NNCs (printed pp. 493-511)
 
 - Defines place-name NNCs as adverbial in character and organizes place-name formation groups.
 - Covers gentilic NNCs, incorporation, adjectival use, collectivity, and profession extensions.
-- Engine implication: place/gentilic data needs confirmed Nawat/Pipil evidence; ordinary NNC fixtures or calendar labels are not enough.
+- Engine implication: place/gentilic generation needs Andrews place/gentilic route contracts and orthography-bridge handling; ordinary NNC fixtures, calendar labels, or Nawat/Pipil spelling evidence alone are not enough.
 
 ### Lesson 49: Adverbial Modification, Part One (printed pp. 512-522)
 
@@ -373,7 +375,7 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 ### Appendix E: Day, Month, and Year Names (printed pp. 648-654)
 
 - Summarizes divinatory and solar calendar naming, day signs, months, and year names.
-- Engine implication: calendar data needs confirmed Nawat/Pipil forms and should not be inferred from ordinary NNC or place-name logic.
+- Engine implication: calendar data needs its Andrews calendar-name contract and orthography-bridge handling; it should not be inferred from ordinary NNC, place-name logic, or spelling evidence alone.
 
 ### Appendix F: Spelling Conventions in Older Texts (printed pp. 655-658)
 

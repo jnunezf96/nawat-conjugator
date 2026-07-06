@@ -1,7 +1,7 @@
 // core/comparison/comparison.js
 // Lesson 53 similarity/comparison boundary metadata. This keeps adjective-like
 // outputs, degree words, question labels, and translations separate from
-// confirmed comparison syntax until Nawat/Pipil evidence supports it.
+// confirmed comparison syntax until Andrews source logic plus the orthography bridge supports it.
 
 "use strict";
 
@@ -34,9 +34,9 @@ const COMPARISON_ANTI_CONFLATION_RULES = Object.freeze([
     "comparison boundary metadata is not generation",
     "adjective-like word output is not comparison syntax",
     "adjectival modification metadata is not similarity or comparison evidence",
-    "degree, question, or translation labels are not Nawat/Pipil comparison forms",
+    "degree, question, or translation labels are not comparison surface forms",
     "single generated words do not prove equality, similarity, comparative, or superlative relations",
-    "Andrews comparison categories are architecture, not Nawat/Pipil form authority",
+    "Andrews comparison categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const COMPARISON_STRUCTURAL_QUESTIONS = Object.freeze([
@@ -46,7 +46,7 @@ const COMPARISON_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "standard",
-        asks: "Which Nawat/Pipil standard or reference item is evidenced?",
+        asks: "Which Andrews comparison standard or reference item is modeled?",
     }),
     Object.freeze({
         field: "comparisonRelation",
@@ -62,7 +62,7 @@ const COMPARISON_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided clause evidence supports comparison?",
+        asks: "What Andrews source model or user-provided clause context supports comparison?",
     }),
 ]);
 
@@ -355,8 +355,8 @@ function buildLesson53ComparisonPursuitFrame() {
     const superlativeFrame = cloneComparisonLessonRecord(LESSON53_SUPERLATIVE_FRAME);
     const remainingGaps = [
         "Current Lesson 53 support records Andrews' similarity and comparison architecture as diagnostics only; it does not implement comparison ASTs, static comparison data, parser/search detection, or generation.",
-        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Similarity-route classification, iuhqui/ihuan/tloc/tlapanahuia parsing, equality and size-comparison detection, comparative conjunction integration, superlative routing, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.",
+        "Similarity-route classification, iuhqui/ihuan/tloc/tlapanahuia parsing, equality and size-comparison detection, comparative conjunction integration, superlative routing, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-53-comparison-pursuit-frame",
@@ -421,7 +421,7 @@ function buildLesson53ComparisonPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 53.1-53.7",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil comparison-clause evidence",
+            spellingAuthority: "Nawat/Pipil comparison-clause orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
@@ -454,7 +454,7 @@ function buildLesson53ComparisonPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["comparison-lesson-53-diagnostic-partial", "comparison-needs-nawat-clause-evidence"],
+        diagnostics: ["comparison-lesson-53-diagnostic-partial", "comparison-source-gated"],
     });
 }
 
@@ -465,7 +465,7 @@ function buildComparisonBoundaryMetadata() {
         lesson: 53,
         status: "partial",
         structuralSource: "Andrews Lesson 53",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getComparisonStructuralQuestions(),
@@ -516,7 +516,7 @@ function classifyComparisonCandidate({
         confirmed: false,
         generationAllowed: false,
         diagnostics: [
-            hasEvidence ? "comparison-needs-validation" : "comparison-needs-nawat-clause-evidence",
+            hasEvidence ? "comparison-needs-validation" : "comparison-source-gated",
             normalizedRelation !== COMPARISON_RELATION.unknown
                 ? "comparison-relation-recognized"
                 : "comparison-relation-unconfirmed",

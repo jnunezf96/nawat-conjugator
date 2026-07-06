@@ -192,7 +192,7 @@ function getLesson23VerbObjectsSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON23_VERB_OBJECTS_VALIDATION_REFS),
     }));
 }
@@ -209,7 +209,7 @@ function buildLesson23VerbObjectsPursuitFrame() {
         "The discontinuous object-plus-suffix contract for causative and applicative objects is not yet enforced or explained across all object slots.",
         "The full mainline/shuntline derivational history for one-, two-, and three-object VNCs is not exhaustively audited against current obj1/obj2/obj3 behavior.",
         "Silent shuntline morphs and the thirteen Andrews 23.5 three-object combinations are not yet a complete generation/validation table.",
-        "Appendix C object-combination inventory and Nawat/Pipil exceptions still need direct evidence before closest-pass.",
+        "Appendix C object-combination inventory and Appendix C exceptions still need Andrews source modeling and orthography-bridge verification before closest-pass.",
     ];
     const frame = {
         kind: "lesson-23-verb-objects-pursuit-frame",
@@ -1278,6 +1278,119 @@ function normalizeConjugationDisplayText(value = "") {
     return text && text !== "—" ? text : "";
 }
 
+function getAgreementFormulaSurfacePairs(result = null) {
+    const source = result && typeof result === "object" ? result : {};
+    const grammarFrame = source.grammarFrame && typeof source.grammarFrame === "object"
+        ? source.grammarFrame
+        : (source.frames && typeof source.frames === "object" ? source.frames : null);
+    const candidates = [
+        source.formulaSurfacePairs,
+        source.cnvFormulaSurfacePath?.formulaSurfacePairs,
+        source.nuclearClauseShell?.formulaSurfacePairs,
+        source.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs,
+        grammarFrame?.morphBoundaryFrame?.formulaSurfacePairs,
+        grammarFrame?.morphBoundaryFrame?.cnvFormulaSurfacePath?.formulaSurfacePairs,
+        grammarFrame?.nuclearClauseFrame?.formulaSurfacePairs,
+        grammarFrame?.resultFrame?.formulaSurfacePairs,
+        grammarFrame?.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs,
+    ];
+    const pairs = candidates.find((candidate) => Array.isArray(candidate) && candidate.length) || [];
+    return pairs
+        .map((entry) => (entry && typeof entry === "object" ? {
+            surface: String(entry.surface || "").trim(),
+            sourceFormulaEcho: String(entry.sourceFormulaEcho || "").trim(),
+            andrewsFormulaEcho: String(entry.andrewsFormulaEcho || entry.sourceFormulaEcho || "").trim(),
+            targetFormulaEcho: String(entry.targetFormulaEcho || "").trim(),
+            conjugatorFormulaEcho: String(entry.conjugatorFormulaEcho || entry.targetFormulaEcho || "").trim(),
+            sourceToTargetFormulaEcho: String(entry.sourceToTargetFormulaEcho || "").trim(),
+            andrewsToConjugatorFormulaEcho: String(entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho || "").trim(),
+        } : null))
+        .filter((entry) => entry && entry.surface && entry.targetFormulaEcho);
+}
+
+function getAgreementFormulaSurfacePairForDisplay(result = null, displayValue = "") {
+    const pairs = getAgreementFormulaSurfacePairs(result);
+    if (!pairs.length) {
+        return null;
+    }
+    const normalize = (value = "") => String(value || "").replace(/\s+/g, "").trim();
+    const displayKey = normalize(displayValue);
+    if (displayKey) {
+        const displayPair = pairs.find((entry) => normalize(entry.surface) === displayKey);
+        if (displayPair) {
+            return displayPair;
+        }
+    }
+    return pairs[0] || null;
+}
+
+function applyAgreementFormulaSurfaceDataset(element = null, result = null, displayValue = "") {
+    if (!element?.dataset) {
+        return null;
+    }
+    const pairs = getAgreementFormulaSurfacePairs(result);
+    if (!pairs.length) {
+        return null;
+    }
+    const pair = getAgreementFormulaSurfacePairForDisplay(result, displayValue);
+    element.dataset.formulaSurfacePairs = pairs
+        .map((entry) => `${entry.surface}=>${entry.andrewsFormulaEcho || entry.sourceFormulaEcho || ""}=>${entry.conjugatorFormulaEcho || entry.targetFormulaEcho}`)
+        .join("|");
+    if (pair) {
+        element.dataset.formulaSurface = pair.surface;
+        element.dataset.sourceFormulaEcho = pair.sourceFormulaEcho;
+        element.dataset.andrewsFormulaEcho = pair.andrewsFormulaEcho;
+        element.dataset.targetFormulaEcho = pair.targetFormulaEcho;
+        element.dataset.conjugatorFormulaEcho = pair.conjugatorFormulaEcho;
+        element.dataset.sourceToTargetFormulaEcho = pair.sourceToTargetFormulaEcho;
+        element.dataset.andrewsToConjugatorFormulaEcho = pair.andrewsToConjugatorFormulaEcho;
+        element.title = pair.andrewsToConjugatorFormulaEcho || pair.sourceToTargetFormulaEcho || pair.targetFormulaEcho;
+    }
+    return pair;
+}
+
+function renderAgreementFormulaSurfaceValue(value = null, result = null, displayValue = "") {
+    if (!value || typeof value.replaceChildren !== "function" || typeof document === "undefined") {
+        return false;
+    }
+    const pairs = getAgreementFormulaSurfacePairs(result);
+    if (!pairs.length) {
+        return false;
+    }
+    const renderedPairs = pairs.length > 1
+        ? pairs
+        : [getAgreementFormulaSurfacePairForDisplay(result, displayValue) || pairs[0]];
+    const surfaceTexts = renderedPairs
+        .map((entry) => ({
+            pair: entry,
+            surface: String(entry?.surface || "").trim(),
+        }))
+        .filter((entry) => entry.surface);
+    if (!surfaceTexts.length) {
+        return false;
+    }
+    value.replaceChildren();
+    surfaceTexts.forEach(({ pair, surface }, index) => {
+        if (index) {
+            value.appendChild(document.createTextNode(" / "));
+        }
+        const line = document.createElement("span");
+        line.className = "conjugation-formula-surface-line";
+        line.textContent = surface;
+        line.dataset.formulaSurfacePair = "true";
+        line.dataset.formulaSurface = pair.surface;
+        line.dataset.sourceFormulaEcho = pair.sourceFormulaEcho;
+        line.dataset.andrewsFormulaEcho = pair.andrewsFormulaEcho;
+        line.dataset.targetFormulaEcho = pair.targetFormulaEcho;
+        line.dataset.conjugatorFormulaEcho = pair.conjugatorFormulaEcho;
+        line.dataset.sourceToTargetFormulaEcho = pair.sourceToTargetFormulaEcho;
+        line.dataset.andrewsToConjugatorFormulaEcho = pair.andrewsToConjugatorFormulaEcho;
+        line.title = pair.andrewsToConjugatorFormulaEcho || pair.sourceToTargetFormulaEcho || pair.targetFormulaEcho;
+        value.appendChild(line);
+    });
+    return true;
+}
+
 function applyConjugationEvaluationPresentation({
     row = null,
     value = null,
@@ -1318,6 +1431,7 @@ function applyConjugationEvaluationPresentation({
         row.dataset.lcmDiagnosticId = String(primaryDiagnostic.id || primaryDiagnostic.code || "").trim();
         row.dataset.lcmFailedLayer = String(datasetLayerDiagnostic.failedLayer || "").trim();
         row.dataset.lcmContractLayer = String(datasetLayerDiagnostic.contractLayer || "").trim();
+        applyAgreementFormulaSurfaceDataset(row, evaluation?.result, formattedValue);
     }
     if (!value) {
         return;
@@ -1343,7 +1457,10 @@ function applyConjugationEvaluationPresentation({
         value.classList.add("conjugation-error");
         return;
     }
-    value.textContent = displayValue;
+    if (!renderAgreementFormulaSurfaceValue(value, evaluation?.result, displayValue)) {
+        value.textContent = displayValue;
+    }
+    applyAgreementFormulaSurfaceDataset(value, evaluation?.result, displayValue);
     if (evaluation?.result?.isReflexive) {
         value.classList.add("conjugation-reflexive");
     }
@@ -1805,13 +1922,24 @@ function buildNounForwardStemContexts({
         if (!targetVerb) {
             return null;
         }
-        const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+        const nonspecificAllomorphyRequest = {
             verb: targetVerb,
             analysisVerb: targetAnalysisVerb,
             obj1: objectPrefix,
             ...buildNonspecificAllomorphyOptions(verbMeta),
             obj2: indirectObjectMarker,
             obj3: thirdObjectMarker,
+        };
+        const nonspecificAllomorphySourceFrame = buildNonspecificObjectAllomorphySourceFrame(
+            nonspecificAllomorphyRequest
+        );
+        const nonspecificAllomorphyOperationFrame = buildNonspecificObjectAllomorphyOperationFrame(
+            nonspecificAllomorphySourceFrame
+        );
+        const nonspecificAllomorphy = applyNonspecificObjectAllomorphy({
+            ...nonspecificAllomorphyRequest,
+            sourceFrame: nonspecificAllomorphySourceFrame,
+            operationFrame: nonspecificAllomorphyOperationFrame,
         });
         return {
             verb: nonspecificAllomorphy.verb || targetVerb,
@@ -1983,7 +2111,7 @@ function attachVerbDerivedNominalBuilderContextContract(context = null, {
             orthographyFrame: {
                 surface: "",
                 surfaceForms: [],
-                spellingAuthority: "Nawat/Pipil evidence",
+                spellingAuthority: "Nawat/Pipil orthography bridge",
                 noClassicalSurfaceImport: true,
             },
             morphBoundaryFrame: {

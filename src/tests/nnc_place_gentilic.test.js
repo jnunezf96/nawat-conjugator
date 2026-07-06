@@ -19,8 +19,11 @@ function run(ctx) {
             typeof ctx.getPlaceGentilicNncAntiConflationRules,
             typeof ctx.buildLesson48PlaceGentilicPursuitFrame,
             typeof ctx.getLesson48PlaceGentilicSubsectionInventory,
+            typeof ctx.buildPlaceGentilicNncSourceFrame,
+            typeof ctx.buildPlaceGentilicNncOperationFrame,
+            typeof ctx.getPlaceGentilicNncOperationFrameMismatch,
         ],
-        ["function", "function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildPlaceGentilicNncBoundaryMetadata();
@@ -69,7 +72,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized place/gentilic category remains unconfirmed without Nawat evidence",
+        "recognized place/gentilic category remains blocked without Andrews source gate",
         ctx.classifyPlaceGentilicNncCandidate({
             candidate: "place translation",
             placeNameSource: "unknown",
@@ -87,12 +90,16 @@ function run(ctx) {
             associatedPlace: "unknown",
             collectivity: "",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "place-translation",
             sourceKind: "",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "place-gentilic-nnc-needs-nawat-evidence",
+                "place-gentilic-nnc-source-gate-required",
                 "place-gentilic-nnc-kind-recognized",
                 "place-gentilic-nnc-false-positive-source",
             ],
@@ -124,8 +131,209 @@ function run(ctx) {
             routeStage: "classify-boundary",
             generationAllowed: false,
             stemKind: "place-gentilic-source-candidate",
-            diagnosticId: "place-gentilic-nnc-needs-nawat-evidence",
+            diagnosticId: "place-gentilic-nnc-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews place-name candidate generates through orthography bridge",
+        (() => {
+            const formulaSlots = Object.freeze({
+                placeStem: Object.freeze({ slot: "place-name-stem", structural: "teopan", surface: "teupan" }),
+            });
+            const sourceFrame = ctx.buildPlaceGentilicNncSourceFrame({
+                candidate: "teopan",
+                placeNameSource: "teopan",
+                placeGentilicKind: "place-name",
+                associatedPlace: "teopan",
+                sourceGate: "Andrews 48 place-name NNC route",
+                sourceKind: "place-name",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "place-name-stem", role: "place-name", formulaValue: "teopan", surface: "teupan" },
+                ],
+            });
+            const operationFrame = ctx.buildPlaceGentilicNncOperationFrame(sourceFrame);
+            const classification = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "lying-candidate",
+                placeNameSource: "lying-place",
+                placeGentilicKind: "place-name",
+                associatedPlace: "lying-place",
+                sourceGate: "lying gate",
+                structuredSource: true,
+                sourceKind: "place-name",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                operationId: classification.operationFrame.operationId,
+                formulaStem: classification.formulaSlots.placeStem.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "teupan",
+            operationId: "andrews-48-place-gentilic-nnc-realization",
+            formulaStem: "teupan",
+            diagnostics: [
+                "place-gentilic-nnc-andrews-source-generated",
+                "place-gentilic-nnc-kind-recognized",
+                "place-gentilic-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-place-gentilic-nnc",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "teupan",
+        }
+    );
+    s.eq(
+        "place/gentilic NNC candidate blocks legacy string gates and contradictory frames",
+        (() => {
+            const formulaSlots = Object.freeze({
+                placeStem: Object.freeze({ slot: "place-name-stem", structural: "teopan", surface: "teupan" }),
+            });
+            const sourceFrame = ctx.buildPlaceGentilicNncSourceFrame({
+                candidate: "teopan",
+                placeNameSource: "teopan",
+                placeGentilicKind: "place-name",
+                associatedPlace: "teopan",
+                sourceGate: "Andrews 48 place-name NNC route",
+                sourceKind: "place-name",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "place-name-stem", role: "place-name", formulaValue: "teopan", surface: "teupan" },
+                ],
+            });
+            const operationFrame = ctx.buildPlaceGentilicNncOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildPlaceGentilicNncSourceFrame({
+                candidate: "altepet",
+                placeNameSource: "altepet",
+                placeGentilicKind: "place-name",
+                associatedPlace: "altepet",
+                sourceGate: "Andrews 48 place-name NNC route",
+                sourceKind: "place-name",
+                targetFormulaSlots: Object.freeze({
+                    placeStem: Object.freeze({ slot: "place-name-stem", structural: "altepet", surface: "altepet" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "place-name-stem", role: "place-name", formulaValue: "altepet", surface: "altepet" },
+                ],
+            });
+            const otherOperationFrame = ctx.buildPlaceGentilicNncOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizePlaceGentilicNncCandidateSurface;
+            if (typeof ctx.normalizePlaceGentilicNncCandidateSurface === "function") {
+                ctx.normalizePlaceGentilicNncCandidateSurface = () => "poison";
+            }
+            const poisoned = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "poison",
+                placeNameSource: "poison",
+                placeGentilicKind: "place-name",
+                associatedPlace: "poison",
+                sourceGate: "poison",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizePlaceGentilicNncCandidateSurface = originalNormalizer;
+            }
+            const stringOnly = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "teopan",
+                placeNameSource: "teopan",
+                placeGentilicKind: "place-name",
+                associatedPlace: "teopan",
+                sourceGate: "Andrews 48 place-name NNC route",
+                structuredSource: true,
+            });
+            const missingOperation = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "teopan",
+                placeNameSource: "teopan",
+                placeGentilicKind: "place-name",
+                associatedPlace: "teopan",
+                sourceGate: "Andrews 48 place-name NNC route",
+                structuredSource: true,
+                sourceFrame,
+            });
+            const contradictory = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "teopan",
+                placeNameSource: "teopan",
+                placeGentilicKind: "place-name",
+                associatedPlace: "teopan",
+                sourceGate: "Andrews 48 place-name NNC route",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyPlaceGentilicNncCandidate({
+                candidate: "changed",
+                placeNameSource: "changed",
+                placeGentilicKind: "place-name",
+                associatedPlace: "changed",
+                sourceGate: "changed",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    targetStem: poisoned.frames.stemFrame.targetStem,
+                },
+                stringOnly: {
+                    generationAllowed: stringOnly.generationAllowed,
+                    surface: stringOnly.surface,
+                    diagnostics: stringOnly.diagnostics,
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    targetStem: changedStrings.frames.stemFrame.targetStem,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "teupan",
+                targetStem: "teupan",
+            },
+            stringOnly: {
+                generationAllowed: false,
+                surface: "",
+                diagnostics: [
+                    "place-gentilic-nnc-source-frame-required",
+                    "place-gentilic-nnc-kind-recognized",
+                    "place-gentilic-nnc-unconfirmed",
+                ],
+            },
+            missingOperation: [
+                "place-gentilic-nnc-operation-frame-required",
+                "place-gentilic-nnc-kind-recognized",
+                "place-gentilic-nnc-unconfirmed",
+            ],
+            contradictory: [
+                "place-gentilic-nnc-contradictory-source-frame",
+                "place-gentilic-nnc-kind-recognized",
+                "place-gentilic-nnc-unconfirmed",
+            ],
+            changedStrings: {
+                surface: "teupan",
+                targetStem: "teupan",
+            },
         }
     );
 
@@ -154,8 +362,8 @@ function run(ctx) {
             "open-stem ordinary NNC previews are not place-name or gentilic data",
             "locative-temporal nominal outputs are not place-name NNC evidence",
             "relational NNC boundary metadata is not place-name or gentilic evidence",
-            "place, profession, or gentilic translations are not Nawat/Pipil form evidence",
-            "Andrews place-name and gentilic categories are architecture, not Nawat/Pipil form authority",
+            "place, profession, or gentilic translations are not orthography-bridge form evidence",
+            "Andrews place-name and gentilic categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("place/gentilic NNC boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -271,7 +479,7 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-48",
-            diagnosticIds: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-source-gated"],
         }
     );
 

@@ -12,8 +12,8 @@
 
 ## Standing Interpretation
 
-- Andrews PDF supplies the supreme grammar-rule authority for engine structure: order, roles, slots, boundaries, categories, dependencies, supported derivational operations, source/target routes, and generation gates.
-- Nawat/Pipil evidence and user-provided forms may decide spelling realization and preterit-indicative surfaces. They do not authorize preterit-derived grammar, unsupported derivational routes, or formula architecture.
+- Andrews PDF supplies the supreme grammar-rule authority for engine structure and generation logic: order, roles, slots, boundaries, categories, dependencies, supported derivational operations, source/target routes, and generation gates.
+- Nawat/Pipil evidence and user-provided forms may be recorded as lexical/spelling evidence. They do not decide whether Andrews-licensed grammar logic can generate.
 - Classical spellings from Andrews grammar rules should pass through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` before they become Nawat/Pipil engine surfaces. Andrews-supported derivations remain structurally valid after letter conversion; e.g. Classical `tl` maps to Nawat `t`, `tla-` maps to `ta-`, `tla-(pa-tla)` corresponds structurally to Nawat `ta-(pa-ta)`, Classical `(pa-ti)-tl` corresponds to Nawat `(pa-ti)-t`, and Classical person `-h` maps to Nawat `-t`. This converts letters only; it is not lexical fixture evidence.
 - Keep current UI/engine contracts as the starting point.
 - Andrews is lesson-per-lesson; the UI/engine is not. Use lessons as curriculum/status and evidence indexes, then implement reusable grammar categories, slot metadata, diagnostics, and controls.
@@ -59,6 +59,1557 @@ Files changed:
 Blocked by:
 
 - No blocker.
+
+## Current Explicit Implementation Target: Andrews Logic Authority
+
+Date: 2026-06-23
+
+Status: Active in current worktree.
+
+Target:
+
+- Make Andrews, not Nawat/Pipil evidence, the deciding authority for grammar logic and Andrews-licensed generation gates.
+- Keep Classical spellings structural and pass realized Nawat/Pipil output through the orthography bridge.
+- Change concrete generation behavior where routes were blocked only because Nawat/Pipil evidence was missing.
+
+Boundaries:
+
+- Do not import Classical surface spellings directly as Nawat/Pipil output.
+- Do not use Nawat/Pipil examples to invent unsupported Andrews routes.
+- Keep patches scoped and tested by formula/workbench behavior before larger derivational rewrites.
+- Keep implementation reusable as a route-builder category/workflow, not a one-off hard-coded lesson panel.
+
+## Completed Phase: Preterit Class A P+i CV|CV Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for transitive `p+i` with `CV|CV` right-edge shape no longer authorizes Class A candidate selection or the ki-only target policy from descriptor-only `CV-CV(pV)` matches; the selected broad `CV-CV(pV)` target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassAPiCvTransitiveSourceFrame()` represents the original source verb, `p+i` right edge, `CV|CV` profile, transitivity, monosyllable gate, and target policy; `buildPretClassAPiCvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-pi-cv-transitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassA()` require those typed frames for the selected `tapi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|CV(w+i) Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for non-reduplicated transitive `w+i` with `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, or Class B `k` output from descriptor-only `CV-CV(wi)` matches; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvwiTransitiveSourceFrame()` represents the original source verb, `w+i` right edge, `CV|CV` profile, transitivity, non-reduplicated state, monosyllable gate, and target policy; `buildPretClassACvwiTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvwi-transitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected transitive `sewi`-style route; missing source/operation/target frames, contradictory reduplication/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A P+a CV|CV Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `p+a` with `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A ki-only output, or Class B `k` output from descriptor-only `CV-CV(pV)` matches; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassAPaCvIntransitiveSourceFrame()` represents the original source verb, `p+a` right edge, `CV|CV` profile, intransitivity, monosyllable gate, and target policy; `buildPretClassAPaCvIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-pa-cv-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected `mipa`-style route; missing source/operation/target frames, contradictory source/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Both Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A N+a CV|CV Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `n+a` with `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, or Class B `k` output from descriptor-only `CV-CV(na)` matches; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassANaCvIntransitiveSourceFrame()` represents the original source verb, `n+a` right edge, `CV|CV` profile, intransitivity, monosyllable gate, and target policy; `buildPretClassANaCvIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-cv-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected `pana`-style route; missing source/operation/target frames, contradictory source/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Both Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B Kw+i CV|CV Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `kw+i` with `CV|CV` right-edge shape no longer authorizes Class B candidate selection or the `k` target from descriptor-only `CV-CV(kwi)` matches; the selected Class B target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassBKwiCvIntransitiveSourceFrame()` represents the original source verb, `kw+i` right edge, `CV|CV` profile, intransitivity, monosyllable gate, and target policy; `buildPretClassBKwiCvIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-kwi-cv-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `takwi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B V|CV|CV(u) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `V|CV|CV` ending in `u` no longer authorizes Class B candidate selection or the `k` target from descriptor-only `V-CV-CV(u)` matches; the selected Class B target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassBVcvcuIntransitiveSourceFrame()` represents the original source verb, `*+u` right edge, `V|CV|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassBVcvcuIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-vcvcu-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `akaku`-style route; missing source/operation/target frames, contradictory final-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B Vl|CV|CV(wi) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `w+i` with `Vl|CV|CV` right-edge shape no longer authorizes Class B candidate selection or the `k` target from descriptor-only `Vl-CV-CV(wi)` matches; the selected Class B target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassBVlcvwiIntransitiveSourceFrame()` represents the original source verb, `w+i` right edge, `Vl|CV|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassBVlcvwiIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-vlcvwi-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `altawi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B CV(u)|CV(ni) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `n+i` with `CV|CV` right-edge shape and previous nucleus `u` no longer authorizes Class B candidate selection or the `k` target from descriptor-only `CV(u)-CV(ni)` matches; the selected Class B target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassBCvniuIntransitiveSourceFrame()` represents the original source verb, `n+i` right edge, `CV|CV` profile, previous nucleus, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassBCvniuIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-cvniu-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `kuni`-style route; missing source/operation/target frames, contradictory previous-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|V|CV(ni) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `n+i` with `CV|V|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, Class B `k` output, or the singular-vs-Class-B policy from descriptor-only `CV-V-CV(ni)` matches; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvvniIntransitiveSourceFrame()` represents the original source verb, `n+i` right edge, `CV|V|CV` profile, previous nucleus, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassACvvniIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvvni-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, `buildPretUniversalClassB()`, and the preterit singular-vs-Class-B policy rule require those typed frames for the selected `teini`-style route; missing source/operation/target frames, contradictory previous-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|CV(s+i) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `s+i` with `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, or Class B `k` output from descriptor-only `CV-CV(sV)` matches; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvsvIntransitiveSourceFrame()` represents the original source verb, `s+i` right edge, `CV|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassACvsvIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvsv-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected `pasi`-style route; missing source/operation/target frames, contradictory final-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B Vj|CV(wa) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `w+a` with `Vj|CV` right-edge shape no longer authorizes Class B candidate selection or the `k` target from descriptor-only `Vj-CV(wa)` matches.
+- `buildPretClassBVjwaIntransitiveSourceFrame()` represents the original source verb, `w+a` right edge, `Vj|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassBVjwaIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-vjwa-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `ajwa`-style route; the candidate/blocking guard now reads the typed right-edge descriptor directly, the Class B builder consumes the typed target frame for the `k` suffix, and missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|CV(w+i) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `w+i` with `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, or Class B `k` output from the broad descriptor-only `Wi` aggregate; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvwiIntransitiveSourceFrame()` represents the original source verb, `w+i` right edge, `CV|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassACvwiIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvwi-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected `sewi`-style route; missing source/operation/target frames, contradictory final-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|CV|CV(w+i) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `w+i` with `CV|CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A `ki` output, or Class B `k` output from the broad descriptor-only `Wi` aggregate; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvcvwiIntransitiveSourceFrame()` represents the original source verb, `w+i` right edge, `CV|CV|CV` profile, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassACvcvwiIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvcvwi-intransitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected `tepewi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A/B CV|CV|CV(w+i) Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for non-reduplicated transitive `w+i` with `CV|CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A zero-suffix output, or Class B `k` output from descriptor-only `Wi` state; the selected Class A and Class B target branches now consume typed source/operation/target frames directly.
+- `buildPretClassACvcvwiTransitiveSourceFrame()` represents the original source verb, `w+i` right edge, `CV|CV|CV` profile, final onset/nucleus, transitivity, monosyllable gate, reduplication absence, and target policy; `buildPretClassACvcvwiTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvcvwi-transitive-policy`.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require those typed frames for the selected transitive `tepewi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A and Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A CV(i)|CV(w+a) Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for transitive `w+a` with `CV|CV` right-edge shape and leading `i` nucleus no longer authorizes Class A candidate selection, Class A `ki` output, or Class A zero-suffix output from descriptor-only `CV(i)-CV(wa)` state.
+- `buildPretClassACvwaiTransitiveSourceFrame()` represents the original source verb, `w+a` right edge, `CV|CV` profile, previous nucleus, final onset/nucleus, transitivity, monosyllable gate, and target policy; `buildPretClassACvwaiTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvwai-transitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassA()` require those typed frames for the selected transitive `chiwa`-style route; the candidate/blocking guard now reads the typed right-edge descriptor directly, the target builder consumes the typed target frame for zero/`ki` permission, and missing source/operation/target frames, contradictory previous-nucleus/target frames, display-string poisoning, descriptor poisoning, intransitive/non-`i`/non-`CV|CV` source attempts, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A CV(e)|CV(w+a) Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for transitive `w+a` with `CV|CV` right-edge shape and leading `e` nucleus no longer authorizes Class A candidate selection or Class A `ki` output from descriptor-only `Ewa` state.
+- `buildPretClassACvewaTransitiveSourceFrame()` represents the original source verb, `w+a` right edge, `CV|CV` profile, previous nucleus, final onset/nucleus, transitivity, monosyllable gate, and target policy; `buildPretClassACvewaTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-cvewa-transitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassA()` require those typed frames for the selected transitive `sewa`-style route; the candidate/blocking guard now reads the typed right-edge descriptor directly, the target builder consumes the typed target frame for `ki` permission, and missing source/operation/target frames, contradictory previous-nucleus/target frames, display-string poisoning, descriptor poisoning, intransitive/non-`e`/non-`CV|CV` source attempts, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class A CV(a)|CV(w+a) Transitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for non-reduplicated, non-slash transitive `w+a` with `CV|CV` right-edge shape and leading `a` nucleus no longer authorizes Class A candidate selection or Class A `ki` output from descriptor-only `Wa` state.
+- `buildPretClassACvawaTransitiveSourceFrame()` represents the original source verb, `w+a` right edge, `CV|CV` profile, previous nucleus, final onset/nucleus, transitivity, monosyllable gate, reduplication absence, slash-marker absence, and target policy through the shared `preterit-class-a-cvwa-transitive` route-family helper; `buildPretClassACvawaTransitiveOperationFrame()` consumes that family frame and emits `andrews-preterit-class-a-cvawa-transitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassA()` require those typed frames for the selected transitive `kawa`-style route; the candidate/blocking guard now reads the typed right-edge descriptor directly, the target builder consumes the typed target frame for `ki` permission and `j`-base exclusion, and missing source/operation/target frames, contradictory slash/target frames, display-string poisoning, descriptor poisoning, intransitive/non-`a`/non-`CV|CV`/reduplicated/slash source attempts, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class A variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Preterit Class B CV(u)|CV(wa) Intransitive Policy Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live preterit route for intransitive `w+a` with `CV|CV` right-edge shape and leading `u` nucleus no longer authorizes Class B candidate selection or the `k` target from descriptor-only `CV(u)-CV(wa)` matches.
+- `buildPretClassBCuwaIntransitiveSourceFrame()` represents the original source verb, `w+a` right edge, `CV|CV` profile, leading nucleus, final onset/nucleus, intransitivity, monosyllable gate, and target policy; `buildPretClassBCuwaIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-cuwa-intransitive-policy`.
+- `getPretUniversalClassCandidates()` and `buildPretUniversalClassB()` require those typed frames for the selected `kuwa`-style route; the candidate/blocking guard now reads the typed right-edge descriptor directly, the Class B builder consumes the typed target frame for the `k` suffix, and missing source/operation/target frames, contradictory leading-nucleus/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
+- Class B variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Current Regex Shorthand Source-Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live parser route for bare current-regex shorthand inputs such as `nemi` no longer authorizes the envelope target `(nemi)` through the direct string helper `getCurrentRegexShorthandParseInput(rawValue)`.
+- `buildCurrentRegexShorthandSourceFrame()` represents the original source input, protected supportive markers, source boundary flags, slash-boundary status, leading dash, normalized bare core, and target regex input. `buildCurrentRegexShorthandOperationFrame()` consumes that frame and emits the `andrews-current-regex-shorthand-operation-frame` plus typed target frame.
+- Parser/validation callers use `getCurrentRegexShorthandParseInputFromSourceFrame()`, while direct string-only calls to `getCurrentRegexShorthandParseInput("nemi")` return empty and cannot authorize `(nemi)`.
+- Slash boundaries now block as typed source-frame state (`boundary-present`), and missing operation frames, changed caller strings, contradictory target frames, missing target frames, and poisoned display fields cannot authorize or alter this shorthand route.
+
+## Completed Phase: Verb Disambiguation Candidate Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live composer/parser disambiguation route for bare inputs such as `taketza` no longer authorizes candidate values by mutating `displayVerb`, deleting `/`, or reconstructing slash/dash candidates from rendered text.
+- `buildVerbDisambiguationSourceFrame()` now represents the original input through current-regex parse structure, including source core, source token stream, boundary state, dash state, and display mirrors. `buildVerbDisambiguationOperationFrame()` consumes that source frame and emits typed candidate frames.
+- `buildVerbDisambiguationCandidates()` consumes the typed operation frame before scoring candidates like `ta-ketza` and `t-aketza`; `buildVerbDisambiguationCandidatesFromOperationFrame()` blocks when the operation frame is missing or mismatched.
+- Changed source frames, missing operation frames, slash-only display strings, and poisoned `stem` / `surface` / `result` / `formulaEcho` fields cannot authorize or alter disambiguation suggestions.
+
+## Completed Phase: Embedded Slash Object Slot Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live parser route for adjacent-core embedded slash inputs such as `-(ish/kwi)` no longer authorizes embedded transitive object-slot count through direct slash placement in `getEmbeddedSlashTransitiveObjSlotCount(rawValue)`.
+- `buildEmbeddedSlashObjectSlotSourceFrame()` now represents the original current-regex core boundary, slash boundary, adjacent embedded token, matrix token, transitivity, object-slot frame, and target count frame. `buildEmbeddedSlashObjectSlotOperationFrame()` consumes that source frame and emits the `andrews-embedded-slash-object-slot-operation-frame`.
+- `parseVerbInput("-(ish/kwi)")` carries the typed source/operation frames and sets `embeddedValenceCount` from the operation frame before downstream object-slot availability is computed.
+- Direct string-only calls return `null`; missing operation frames, changed source frames, contradictory target frames, valence-marker slash left sides, and poisoned display fields cannot authorize or alter the embedded object-slot count.
+
+## Completed Phase: Compound Static Constants Token-Class Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected static parser-configuration route for compound marker, split, and allowed-character behavior no longer authorizes parser character classes from JSON regex strings such as `compoundMarkerRe.pattern`.
+- `data/static_constants.json` now carries structured `compoundTokenClasses` with marker tokens, split tokens, and allowed letter ranges. `applyStaticConstants()` consumes those token-class records and derives runtime regexes from escaped token frames instead of evaluating data-provided regex patterns.
+- Legacy `compoundMarkerRe`, `compoundMarkerSplitRe`, and `compoundAllowedRe` payloads are ignored; poisoned legacy regex strings cannot change marker removal, split behavior, or allowed-character filtering once token classes are authoritative.
+
+## Completed Phase: Unit Mode Source-Target Route Options Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live Formula-panel unit-mode route no longer authorizes CNV/CNN source-target route options from static pipe-delimited HTML such as `data-source-target-options="CNV->CNV|CNN->CNV|CNV/CNN->CNV/CNN"`.
+- `buildAndrewsUnitSourceTargetRouteOptionsSourceFrame()` represents the selected unit mode, target formula frame, route option frames, and explicit no-DOM/no-pipe authority boundaries. `buildAndrewsUnitSourceTargetRouteOptionsOperationFrame()` consumes that source frame and emits the typed `andrews-unit-source-target-route-options-operation-frame`.
+- `updateTenseModeTabs()` builds those frames from the active unit-mode state and renders `dataset.sourceTargetOptions` / `dataset.targetFormulaType` only after `applyAndrewsUnitSourceTargetRouteOptionsDataset()` validates the operation frame.
+- Direct pipe strings, missing operation frames, contradictory target frames, stale DOM dataset text, and poisoned `surface` / `result` / `formulaEcho` mirrors cannot authorize or alter the unit source-target options.
+
+## Completed Phase: Tense Block Output Audit Row-Model Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live UI audit route for tense-block output rows no longer authorizes row generation, route-contract, result, logic-authority, or orthography diagnostics from `.conjugation-row.dataset.grammar*` strings.
+- `applyGrammarFrameRouteDataset()` now attaches a non-enumerable `andrews-tense-block-output-row-audit-model` built directly from the row's grammar frame: authority frame, route contract, orthography frame, diagnostic frame, result frame, source context, and source evidence.
+- `getAndrewsTenseBlockOutputAuditRecord()` consumes only the typed row audit model's source/operation/target frames for row diagnostics. Dataset mirrors are still rendered for export/debug display, but stale or poisoned row datasets cannot authorize row counts, allowed/blocked status, result success, logic authority, source authority, or orthography status.
+- Missing row audit operation frames and contradictory source/target audit frames block as missing route-contract diagnostics instead of falling back to DOM strings.
+
+## Completed Phase: Tense Tab Selection Audit State-Model Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live UI audit route for Formula-panel tense tabs no longer authorizes selected, blocked, disabled, hard-gate, or output-probe state from `.tense-tab` classes, ARIA text, or `data-andrews-selection-*` strings.
+- `applyAndrewsTenseTabSelectionAuthorityDataset()` now attaches a non-enumerable `andrews-tense-tab-selection-audit-model` built from the Andrews tense authority state, generation gate, output availability role, and typed selection target frame.
+- `getAndrewsTenseTabSelectionAuditRecord()` consumes only the typed selection audit model's source/operation/target frames for selection counts. DOM datasets, class names, and ARIA attributes remain rendered mirrors/audit surfaces only.
+- Missing selection audit operation frames, dataset-only tab metadata, poisoned DOM mirrors, and contradictory source/target selection frames block or diagnose instead of falling back to DOM strings.
+
+## Completed Phase: Tense Tab Click Authority Model Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live Formula-panel tense-tab click route no longer authorizes click allowance from `data-andrews-selection-*`, native `disabled`, or ARIA strings.
+- `getAndrewsTenseTabClickAuthorityState()` now consumes the typed selection audit target frame and builds an `andrews-tense-tab-click-authority-model` with source, operation, and target frames before returning click state.
+- `applyAndrewsTenseTabClickAuthorityDataset()` attaches that click authority model and renders `data-andrews-click-*` only as audit/display mirrors.
+- Missing selection audit operation frames, dataset-only selection/click metadata, poisoned DOM mirrors, and contradictory selection target frames block or diagnose instead of changing the authoritative click gate.
+
+## Completed Phase: Visible CNV Formula Path-Slot Alignment Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live rendering route for path-specific visible CNV formula chips no longer authorizes formula rewrites by regex-parsing `formulaEcho` or matching projected formula text against rendered `surface` strings.
+- `buildVisibleCnvFormulaAlignmentSourceFrame()` represents the structured `cnvFormulaSurfacePath.pathsBySurface[].paths` slot frames, and `buildVisibleCnvFormulaAlignmentOperationFrame()` consumes that frame to emit the visible target formula.
+- `getVisibleCnvFormulaEchoEntries()` and `formatVisibleCnvFormulaSurfacePairEcho()` pass source/operation/target frames into `alignVisibleCnvFormulaEchoToSurface()` before rendering chip text; direct record-backed string-only calls return blocked output.
+- Missing source frames, missing operation frames, contradictory target frames, poisoned `formulaEcho`, stale result/surface display strings, and changed display-only surface text cannot authorize or alter path-specific visible formula output.
+
+## Completed Phase: Denominal Route Surface Suffix Inventory Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live Lesson 54-55 denominal route-family inventory path no longer treats slash-delimited perfect suffix strings such as `-iwtuk/-ijtuk` and `-awtuk/-ajtuk` as active suffix inventory values.
+- `data/static_modes.json` now carries structured `surfaceSuffixes` arrays for those perfect routes, while the legacy `surfaceSuffix` string remains a display mirror.
+- `buildNawatRouteSurfaceSuffixInventorySourceFrame()` represents the route id, family, display mirror, structured suffix frames, and block state. `buildNawatRouteSurfaceSuffixInventoryOperationFrame()` consumes that source frame before `getNawatDenominalRouteFamilyInventory()` adds suffixes.
+- Missing operation frames, stale display suffixes, missing structured arrays for slash display strings, and slash-delimited structured suffix entries cannot authorize suffix inventory output.
+
+## Completed Phase: Surface Chain Subject-I Stem-I Reduction Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for subject `ni` / `ti` before an `i`-initial stem no longer authorizes the target subject prefix by checking `tronco.startsWith("i")` and rewriting `pers1` inside `realizeSurfaceChainSubjectIInitialReduction()`.
+- `buildSurfaceChainSubjectIInitialReductionSourceFrame()` represents the original subject prefix, object slot state, original `tronco`, stem-initial letter, and target prefix; `buildSurfaceChainSubjectIInitialReductionOperationFrame()` consumes that frame and emits the `andrews-surface-chain-subject-i-initial-reduction-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainSubjectIInitialReduction()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the `tronco` segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the reduction.
+
+## Completed Phase: Surface Chain Optative Ki Reduction Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for optative `ki` before a consonant-initial following segment no longer authorizes the target object prefix by scanning segment strings inside `realizeSurfaceChainOptativeKiReduction()`.
+- `buildSurfaceChainOptativeKiReductionSourceFrame()` represents the original object prefix, next source segment role/value, requested surface rule, vowel-start block state, and target object prefix; `buildSurfaceChainOptativeKiReductionOperationFrame()` consumes that frame and emits the `andrews-surface-chain-optative-ki-reduction-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainOptativeKiReduction()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the next segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the reduction.
+
+## Completed Phase: Surface Chain K-Contact Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for object-prefix final `k` before stem-initial `k` / `kw` no longer authorizes target object/stem segments by checking `obj1.endsWith("k")`, `tronco.startsWith("k")`, and slicing the object or stem string inside `realizeSurfaceChainKContact()`.
+- `buildSurfaceChainKContactSourceFrame()` represents the original object prefix, original `tronco`, contact branch (`k-before-k` or `k-before-kw`), and target object/stem segments; `buildSurfaceChainKContactOperationFrame()` consumes that frame and emits the `andrews-surface-chain-k-contact-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainKContact()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the stem changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter either k-contact branch.
+
+## Completed Phase: Surface Chain KW-Coda Coalescence Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for coda `kw` reducing to `k` no longer authorizes the target segment by scanning current segment strings with a coda regex and calling `replace()` inside `realizeSurfaceChainKwCoalescence()`.
+- `buildSurfaceChainKwCodaCoalescenceSourceFrame()` represents the original source segment role/slot/value, source coda, target coda, coalescence count, and target segment; `buildSurfaceChainKwCodaCoalescenceOperationFrame()` consumes that frame and emits the `andrews-surface-chain-kw-coda-coalescence-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainKwCoalescence()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing source/target/operation frames, stale source-frame reuse after the segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the coalescence.
+
+## Completed Phase: Surface Chain NH-Before-Vowel Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for open-transition final `n` before a vowel-initial next segment no longer authorizes `nh` by looping over current segment strings, finding the next non-empty segment, testing vowels, and appending `h` inside `realizeSurfaceChainNhBeforeVowel()`.
+- `buildSurfaceChainNhBeforeVowelSourceFrame()` represents the original current segment role/slot/value, next segment role/slot/value, source final, previous source letter, next initial, and target current segment; `buildSurfaceChainNhBeforeVowelOperationFrame()` consumes that frame and emits the `andrews-surface-chain-nh-before-vowel-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainNhBeforeVowel()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing source/target/operation frames, stale source-frame reuse after the next segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the transition.
+
+## Completed Phase: Surface Chain Y-Coda Shift Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for coda `y` shifting to `sh` no longer authorizes the target segment by scanning current segment strings with a coda regex, checking transitivity from the current object string, and calling `replace()` inside `realizeSurfaceChainYShift()`.
+- `buildSurfaceChainYShiftSourceFrame()` represents the original source segment role/slot/value, object-slot transitivity state, preserve-coda gate, source coda, target coda, shift count, and target segment; `buildSurfaceChainYShiftOperationFrame()` consumes that frame and emits the `andrews-surface-chain-y-coda-shift-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainYShift()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing source/target/operation frames, stale source-frame reuse after the segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the shift.
+
+## Completed Phase: Surface Chain M-Coda Assimilation Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for coda `m` assimilating to `n` no longer authorizes the target segment by scanning current segment strings, peeking at the next segment string, applying a final-before-vowel exception, and calling `replace()` inside `realizeSurfaceChainMCodaAssimilation()`.
+- `buildSurfaceChainMCodaAssimilationSourceFrame()` represents the original source segment role/slot/value, next segment role/slot/value, source coda, target coda, final-before-vowel block state, assimilation count, and target segment; `buildSurfaceChainMCodaAssimilationOperationFrame()` consumes that frame and emits the `andrews-surface-chain-m-coda-assimilation-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainMCodaAssimilation()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing source/target/operation frames, stale source-frame reuse after the segment changes, contradictory target frames, final `m` before a vowel, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the assimilation.
+
+## Completed Phase: Optional Supportive-Y Output Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for optional supportive `y` no longer authorizes target stem output by parsing marked surface strings inside `resolveOptionalSupportiveOutputVerb()` / `resolveOptionalSupportiveMarkedSurface()`.
+- `buildOptionalSupportiveOutputVerbSourceFrame()` represents the original subject, possessor, object, source `tronco`, supportive request, supportive letter, marked source stem, and nested marked-surface source frame. `buildOptionalSupportiveOutputVerbOperationFrame()` consumes that source frame and emits the `andrews-optional-supportive-output-verb-operation-frame` with a nested `andrews-optional-supportive-marked-surface-operation-frame`.
+- `buildOutputSurfaceChain()` builds the typed frame from source slot input before realization; `resolveOptionalSupportiveOutputVerb()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy supportive-y calls without typed operation frames, missing operation frames, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the supportive-y output route.
+
+## Completed Phase: Derived Mu-Stem Interaction Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live morphology-output route for derived `mu` stem interaction no longer authorizes object-prefix deletion, embedded `ta` / `te` insertion, or `tamu` / `temu` reshaping by direct `startsWith()` / `slice()` string surgery inside `realizeDerivedMuStemInteraction()`.
+- `buildDerivedMuStemInteractionSourceFrame()` represents the original object slot, original `tronco`, derived-prefix gate, and alternate form source frames. `buildDerivedMuStemInteractionOperationFrame()` consumes that frame and emits the `andrews-derived-mu-stem-interaction-operation-frame` with target object/stem slots and alternate target frames.
+- `applyMorphologyRules()` builds the typed source and operation frames from source slots before calling `realizeDerivedMuStemInteraction()`, and the executor consumes only the operation target frame before mutating the live object/stem/alternate payload.
+- Direct legacy calls without typed operation frames, missing operation frames, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the derived `mu` interaction route.
+
+## Completed Phase: Surface Chain Render Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live surface-chain render route no longer authorizes final joined output by directly mapping segment values and joining strings inside `joinSurfaceChain()`.
+- `buildSurfaceChainRenderSourceFrame()` represents the segment roles, slots, values, and final render target. `buildSurfaceChainRenderOperationFrame()` consumes that frame and emits the `andrews-surface-chain-render-operation-frame`.
+- `buildSurfaceChainState()` and surface-chain mutation helpers attach/refresh the typed render operation frame from structured segment state; `joinSurfaceChain()` consumes the typed render frame and blocks when the render frame is missing or stale against the current segment records.
+- Direct segment-only chains without a render operation frame, stale render frames after manual segment mutation, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the render result.
+
+## Completed Phase: Optional Parenthetical Forms Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live generation/display route for optional parenthetical forms no longer authorizes active output variants by directly regex-expanding `(...)` inside `expandOptionalParentheticalForms()`.
+- `buildOptionalParentheticalFormsSourceFrame()` represents the source forms, optional marker frames, and structured source segment frames. `buildOptionalParentheticalFormsOperationFrame()` consumes that source frame and emits the `andrews-optional-parenthetical-forms-operation-frame` with target variants.
+- `formatConjugationDisplay()` and `executeNuclearClauseSurfaceRequest()` now build typed optional-parenthetical frames before expanding variants; the live generation route passes output-surface segment records into the source frame instead of using rendered slash/display strings as authority.
+- Direct parenthetical calls without frames, missing operation frames, contradictory target frames, stale source forms, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter optional-parenthetical variants.
+
+## Completed Phase: Generated Nominal Formula Render Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected generated nominal formula-pair route no longer authorizes target formula echoes by directly joining stem pieces into `#...(...)...#` inside `buildGeneratedNominalFormulaFromSurfacePath()`.
+- `buildGeneratedNominalFormulaSourceFrame()` represents the structured CNV surface path slots, segment frames, subject slots, predicate/object/connector pieces, nominal family, and preterit-agentive state. `buildGeneratedNominalFormulaOperationFrame()` consumes that source frame and emits the `generated-nominal-formula-render` typed operation frame with the target formula frame.
+- `buildGeneratedNominalFormulaSurfacePairs()` now creates the source/operation frames from `cnvFormulaSurfacePath` records before rendering source-to-target formula pairs. The direct helper without frames returns an empty formula and cannot authorize a generated nominal formula.
+- Missing operation frames, contradictory target frames, changed structured path/source frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter generated nominal formula rendering.
+
+## Completed Phase: Generated Result Text Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live generation result payload no longer authorizes the top-level `result` text by directly joining `forms` with `" / "` inside `executeNuclearClauseSurfaceRequest()`.
+- `buildGeneratedOutputResultTextSourceFrame()` represents generated output surface records and their structured segment frames. `buildGeneratedOutputResultTextOperationFrame()` consumes that source frame and emits the `generated-output-result-text-render` typed operation frame with target surface forms and result text.
+- `executeNuclearClauseSurfaceRequest()` now builds and carries the typed source/operation frames before rendering the display-only `result` string; direct result-text helper calls without frames return empty.
+- Missing output surface records, missing operation frames, contradictory target frames, changed record/form order, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter generated result text.
+
+## Completed Phase: Lesson 32 Pil NNC-Side Result Text Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected ordinary NNC output-set route for Andrews p.294 `pil` NNC-side rows no longer authorizes the top-level result text by directly joining surface strings from generated entries.
+- `buildLesson32PilChildNncSideResultTextSourceFrame()` represents canonical formula-realization records and their segment frames from `buildLesson32PilChildNncSideFormulaSurfacePairs()`. `buildLesson32PilChildNncSideResultTextOperationFrame()` consumes that source frame and emits a `lesson-32-pil-child-nnc-side-result-text-render` typed operation frame.
+- `buildLesson32PilChildNncSideFormulaSurfacePairs()` now derives row surfaces from structured segment frames before rendering pair display fields, so stale entry surfaces and poisoned pair display strings cannot become result authority.
+- Direct result-text helper calls without source/operation frames, missing target frames, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` fields cannot authorize or alter the Lesson 32 result text.
+
+## Completed Phase: Ordinary NNC Segment-Derived Result Text Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live ordinary NNC segment-derived output routes no longer authorize top-level `result` by directly joining `resolvedSurfaceForms`.
+- `buildOrdinaryNncResultTextSourceFrame()` represents canonical ordinary NNC formula-realization records whose segment frames fully derive the surface. `buildOrdinaryNncResultTextOperationFrame()` consumes that source frame and emits an `ordinary-nnc-result-text-render` typed operation frame.
+- `generateOrdinaryNncParadigm()` now carries the typed result-text source/operation frames for segment-derived ordinary NNC outputs before rendering display-only `result`; if that selected typed route is supported but its operation frame does not validate, the route blocks instead of falling back to a slash join.
+- Absolutive singular output now builds an `ordinary-nnc-absolutive-singular-source-frame` from the structural predicate stem and noun-class frame, consumes an `ordinary-nnc-absolutive-singular-realization` typed operation frame, and passes predicate plus number-connector segment frames into the result-text source frame instead of letting fixture `surfaceForms` choose the target.
+- Animate singular subject-prefixed output now builds an `ordinary-nnc-animate-subject-prefix-source-frame` from the prior typed absolutive-singular target frame plus the structural subject frame, consumes an `ordinary-nnc-animate-subject-prefix-realization` typed operation frame, and passes subject/predicate segment frames into the result-text source frame.
+- Animate possessive singular subject-prefixed output now builds an `ordinary-nnc-animate-subject-prefix-source-frame` from the prior typed open-stem possessive target frame plus the structural subject frame, consumes an `ordinary-nnc-animate-subject-prefix-realization` typed operation frame, and passes subject plus prior possessive segment frames into the result-text source frame instead of letting fixture possessive `surfaceForms` choose the target.
+- Animate count-plural output now builds an `ordinary-nnc-animate-count-plural-source-frame` from the authorized singular source form plus the structural subject frame, consumes an `ordinary-nnc-animate-count-plural-realization` typed operation frame, and passes subject, predicate, and `met` number-connector segment frames into the result-text source frame.
+- Animate possessive count-plural output now builds an `ordinary-nnc-animate-possessive-count-plural-source-frame` from the structural predicate stem, possessor frame, and subject frame, consumes an `ordinary-nnc-animate-possessive-count-plural-realization` typed operation frame, and passes subject, possessor, predicate, and possessive-plural segment frames into the result-text source frame.
+- Animate possessive plural output with a singular possessor and distributive plural request now builds an `ordinary-nnc-animate-possessive-plural-identity-source-frame` from the structural predicate stem, possessor frame, and prior typed `ordinary-nnc-open-stem-possessive-realization` target frame, consumes an `ordinary-nnc-animate-possessive-plural-identity` typed operation frame, and passes the prior possessive segment frames into the result-text source frame; string-only animate possessive plural helper calls and contradictory prior frames block.
+- Nonanimate possessive distributive output now builds an `ordinary-nnc-nonanimate-possessive-distributive-source-frame` from either the structural zero-class predicate stem or a structured fixture `possessiveStem` plus possessor frame, consumes an `ordinary-nnc-nonanimate-possessive-distributive-realization` typed operation frame, and passes possessor and reduplicated-predicate segment frames into the result-text source frame.
+- Nonanimate distributive plural output now builds an `ordinary-nnc-distributive-reduplication-source-frame` from the prior typed `ordinary-nnc-absolutive-singular-source-frame` plus `ordinary-nnc-absolutive-singular-realization` target frame, consumes an `ordinary-nnc-distributive-reduplication` typed operation frame, and passes the resulting segment frame into the result-text source frame; string-only source-surface calls and contradictory prior frames block.
+- Animate absolutive distributive output now builds an `ordinary-nnc-animate-distributive-source-frame` from the structural predicate stem and subject frame, consumes an `ordinary-nnc-animate-distributive-realization` typed operation frame, and passes subject, predicate, and number-connector segment frames into the result-text source frame.
+- Possessive animate distributive output for plural possessors now builds an `ordinary-nnc-possessive-distributive-source-frame` from the structural predicate stem and possessor frame, consumes an `ordinary-nnc-possessive-distributive-realization` typed operation frame, and passes the resulting segment frames into the result-text source frame.
+- Possessive animate distributive output with an explicit animate subject now builds an `ordinary-nnc-animate-subject-prefix-source-frame` from the prior typed possessive-distributive target frame plus the structural subject frame, consumes an `ordinary-nnc-animate-subject-prefix-realization` typed operation frame, and passes subject plus prior typed target segment frames into the result-text source frame.
+- Open-stem possessive singular output and the Andrews 39.3.4 organic-possession surface handoff now build an `ordinary-nnc-open-stem-possessive-source-frame` from the structural/prior-typed predicate stem and possessor frame, consume an `ordinary-nnc-open-stem-possessive-realization` typed operation frame, and pass possessor/predicate segment frames into the result-text source frame.
+- Structured fixture possessive singular output with a static `possessiveStem` now builds an `ordinary-nnc-open-stem-possessive-source-frame` from that structured possessive predicate stem plus the Andrews formula stem and possessor frame, consumes an `ordinary-nnc-open-stem-possessive-realization` typed operation frame, and passes possessor/predicate segment frames into the result-text source frame instead of letting fixture `surfaceForms` choose the target.
+- Zero-class fixture possessive singular output now uses the same `ordinary-nnc-open-stem-possessive-source-frame` from the Andrews formula stem plus possessor frame when the fixture has a possessive state cell, so fixture `surfaceForms` cannot choose `nukal`.
+- Direct result-text helper calls without source/operation frames, direct old `buildOrdinaryNncReduplicatedSurface()`, `buildOrdinaryNncAnimatePossessivePluralForms()`, `buildOrdinaryNncPossessiveDistributiveSurface()`, `buildOrdinaryNncPossessiveDistributiveSurfaceResult()`, `buildOrdinaryNncOpenStemPossessiveSurface()`, and no-frame or legacy-allow animate `applyOrdinaryNncSubjectPrefixResult()` string calls, missing structured source frames, missing structured `possessiveStem` for nonzero nonanimate possessive distributives and structured fixture possessives, missing target frames, contradictory target frames, stale realization frames, monkeypatched legacy surface helpers, monkeypatched animate possessive plural helper, monkeypatched subject-prefix string helpers on animate singular/count plural, animate possessive singular, animate possessive distributive, and possessive count plural, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` fields cannot authorize or alter the selected absolutive singular, animate subject-prefixed singular, animate possessive subject-prefixed singular, animate count-plural, animate possessive count-plural, animate possessive singular-possessor distributive plural, nonanimate distributive, nonanimate possessive distributive, zero-class fixture possessive singular, structured fixture possessive singular, animate absolutive distributive, possessive animate distributive, open-stem possessive singular, or organic-possession surface result text.
+
+## Completed Phase: Surface Chain Final IA/UA Trim Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for final `ia` / `ua` stem-vowel trimming no longer authorizes the target `tronco` by checking `endsWithAny(tronco, IA_UA_SUFFIXES)` and slicing the current segment string inside `realizeSurfaceChainFinalIAUATrim()`.
+- `buildSurfaceChainFinalIAUATrimSourceFrame()` represents the original `tronco`, requested surface rule, source suffix, removed letter, and target stem; `buildSurfaceChainFinalIAUATrimOperationFrame()` consumes that frame and emits the `andrews-surface-chain-final-ia-ua-trim-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainFinalIAUATrim()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the `tronco` segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the trim.
+
+## Completed Phase: Surface Chain Object-I Stem-I Elision Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for object-prefix final `i` plus stem-initial `i` no longer authorizes the target `tronco` by checking `obj1.endsWith("i")`, `tronco.startsWith("i")`, and slicing the current stem string inside `realizeSurfaceChainObjectIInitialElision()`.
+- `buildSurfaceChainObjectIInitialElisionSourceFrame()` represents the original object prefix, original `tronco`, requested surface rule, source boundary letters, and target stem; `buildSurfaceChainObjectIInitialElisionOperationFrame()` consumes that frame and emits the `andrews-surface-chain-object-i-initial-elision-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainObjectIInitialElision()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the `tronco` segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the elision.
+
+## Completed Phase: Surface Chain Mu-Iskalia Reduction Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live output-surface route for `mu` plus `iskalia` no longer authorizes the target `tronco` by checking `tronco.startsWith("iskalia")` and replacing the current stem string inside `realizeSurfaceChainMuIskaliaReduction()`.
+- `buildSurfaceChainMuIskaliaReductionSourceFrame()` represents the original object prefix, original `tronco`, requested surface rule, source initial letter, and target stem; `buildSurfaceChainMuIskaliaReductionOperationFrame()` consumes that frame and emits the `andrews-surface-chain-mu-iskalia-reduction-operation-frame`.
+- `buildSurfaceChainState()` builds the typed frame from source slot input before realization; `realizeSurfaceChainMuIskaliaReduction()` consumes the operation frame directly and passes it through output-surface source/target/orthography contracts as `surfaceOperationFrames`.
+- Direct legacy chains without typed operation frames, missing operation frames, stale source-frame reuse after the `tronco` segment changes, contradictory target frames, and poisoned `surface` / `result` / `surfaceForms` / `formulaEcho` strings cannot authorize or alter the reduction.
+
+## Completed Phase: Serial Stem Dash Collapse Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected current-regex source route for serial stem dash inputs such as `(nemi-a-wi)` no longer authorizes the collapsed matrix base by direct regex matching and string concatenation inside `collapseSerialStemDashInput()`.
+- `buildSerialStemDashSourceFrame()` now represents the original input, head/tail boundary, root, source suffix segments, target suffix, target input, and route operation. `buildSerialStemDashOperationFrame()` consumes that source frame and carries the target input through an `andrews-serial-stem-dash-collapse` typed operation frame.
+- Current parser/source-model/search callers use `collapseSerialStemDashInputFromSourceFrame()`, while direct string-only calls to `collapseSerialStemDashInput("nemi-a-wi")` return the uncollapsed input and cannot authorize `nemiawi`.
+- Changed request frames and contradictory target operation frames block the collapse route; display strings remain outside this route's authority.
+
+## Completed Phase: Patientivo Intransitive Final-Cluster Iwi/Awi Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo routes for final-cluster `-iwi` and `-awi` root-stock stems no longer authorize target stems by trimming the suffix, recovering a vowel with string conditionals, appending variant consonants, and adding mirrors inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents the final-cluster `iwi` / `awi` right-edge structure, source/gate suffix, source core, recovered target vowel, target stem, allowed variant consonants for `awi`, and the route support gate. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits recovered route targets, tli-class targets, and `awi` variant/full-mirror targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for live `(ijsiwi)` and `(ishtawi)` style routes before adding `ijsi`, `ijsit`, `ishta`, `ishtat`, `ishtak`, `ishtach`, `ishtas`, `ishtash`, and `ishtawit`; structurally authorized consonant+tli targets remain filtered by the existing series-mirror gate.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter these final-cluster routes.
+
+## Completed Phase: Patientivo Intransitive Plain-Wi Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for multisyllable plain `-wi` root-stock stems no longer authorizes target stems by directly slicing `base.slice(0, -2)`, appending `k/ch/s/sh`, and reducing a final core vowel for the tli-class target inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents the plain-`wi` right-edge structure, source/gate suffix, source core, allowed Nawat/Pipil orthography-bridge variant consonants, and the route support gate. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits route-only variant targets, their tli-class targets, and the reduced-core tli-class target.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(tepewi)` style route before adding `tepek`, `tepech`, `tepes`, `tepesh`, and `tepti`; the structurally authorized consonant+tli targets remain filtered by the existing series-mirror gate.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this plain-`wi` route.
+
+## Completed Phase: Patientivo Intransitive Awi-Family Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for non-final-cluster `-awi` family root-stock stems no longer authorizes target stems by directly trimming `awi`, appending `a + k/ch/s/sh`, and adding `t` mirrors from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents the `awi` right-edge structure, source/gate suffix, source core, allowed Nawat/Pipil orthography-bridge variant consonants, and the route support gate. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits the route target, tli-class target, `a + consonant` variants with their tli-class targets, the `a + t` mirror, and the full-`awi + t` mirror.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(nemawi)` style route before adding `nem`, `nemti`, `nemak`, `nemach`, `nemas`, `nemash`, `nemat`, and `nemawit`; the structurally authorized consonant+tli targets remain filtered by the existing series-mirror gate.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this `awi` family route.
+
+## Completed Phase: Patientivo Intransitive Iwi-Family Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for non-short `-iwi` family root-stock stems no longer authorizes target stems by directly trimming `iwi` from the surface base and passing the result through raw/tli-class string helpers inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents the `iwi` right-edge structure, source/gate suffix, source core, target stem, and route support gate. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits the route target plus the tli-class target.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(tekiwi)` style route before adding `tek` and `tekti`.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this `iwi` family route.
+
+## Completed Phase: Patientivo Intransitive Short-Wi Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for short open-core `-wi` superposition stems no longer authorizes target stems by directly slicing `base.slice(0, -2)`, appending `k`, and adding a t-class mirror from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents the short-`wi` right-edge structure, one-syllable open source/gate core, source suffix, and allowed `k` variant. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits the `k` route target, its tli-class connector target, and the t-class mirror target.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(chiwi)` style route before adding `chik` and `chit`; display-only `chikti` is structurally authorized but remains filtered by the existing series-mirror gate.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this short-`wi` route.
+
+## Completed Phase: Patientivo Intransitive Productive-Ka Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for intransitive productive `-ka` root-stock stems no longer authorizes target route stems by directly slicing `base.slice(0, -2)` and appending `k/ch/j` from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents productive `-ka` right-edge structure, reduplication / Vj eligibility, source core, and allowed variant consonants. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits route-only stems plus tli-class targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(chuchuka)` style route before adding `chuchuk`, `chuchukti`, `chuchuch`, `chuchuchti`, `chuchuj`, and `chuchujti`.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this productive-`ka` root-stock route.
+
+## Completed Phase: Patientivo Intransitive Productive-Ya Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for intransitive productive `-ya` / `-tiya` root-stock stems no longer authorizes target route stems by directly slicing `base`, replacing `ya` with `l`, or deleting `tiya` from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents productive `-ya` and `-tiya` right-edge structure, source core, target stem, and replacement segment. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits route-only stems plus tli-class targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for live `(istaya)` and `(matiya)` style routes before adding `istal`, `istalti`, `ma`, and `mat`.
+- Display-string poisoning does not change source suffix/syllable analysis, and missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this productive-`ya` root-stock route.
+
+## Completed Phase: Patientivo Intransitive Productive-Ki Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for intransitive productive `-ki` root-stock stems no longer authorizes target route stems by directly slicing `base.slice(0, -2)`, appending `k/ch/j`, and adding the `waki -> was` special variant from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents productive `-ki` right-edge structure, CV-ki shape, source core, the `j` additional variant, and the `waki`-only `s` variant gate. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits route-only stems plus tli-class targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(waki)` style route before adding `wak`, `wakti`, `wach`, `wachti`, `waj`, `wajti`, `was`, and `wasti`.
+- Missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this productive-`ki` root-stock route.
+
+## Completed Phase: Patientivo Intransitive Plain-Wa Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for intransitive plain `-wa` root-stock stems no longer authorizes target route stems by directly slicing `base.slice(0, -2)`, appending `k/ch/s/sh`, and adding the t-class core from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents plain `-wa` right-edge structure, source core, gate core, allowed Nawat/Pipil orthography-bridge variant consonants, and the Andrews root-stock route operation. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits route-only stems plus tli-class targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(chipawa)` style route before adding `chipak`, `chipach`, `chipas`, `chipash`, and `chipat`.
+- Missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this plain-`wa` root-stock route.
+
+## Completed Phase: Patientivo Intransitive Productive-N Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for intransitive productive `-ni` / `-na` root-stock stems no longer authorizes target route stems by directly slicing `base.slice(0, -2)`, appending `k/ch/s/sh`, and adding t-class connectors from suffix-family strings inside the option builder.
+- `buildPatientivoRootStockStemSourceFrame()` now represents productive `-ni` / `-na` right-edge structure, the source core, allowed Nawat/Pipil orthography-bridge variant consonants, and the Andrews root-stock route operation. `buildPatientivoRootStockStemOperationFrame()` consumes that frame and emits the target route stems plus locked tli-class targets.
+- `buildPatientivoTroncoDerivations()` consumes the typed operation frame for the live `(pusuni)` style route before adding `pusuk`, `pusukti`, `pusuch`, `pusuchti`, `pusus`, `pususti`, `pusush`, `pusushti`, and `pusut`.
+- Missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter this productive-N root-stock route.
+
+## Completed Phase: Patientivo Transitive Root-Stock Stem Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected live `tronco-verbal` patientivo route for transitive `-lua` stems no longer authorizes the target route stem by directly slicing the surface base with `base.slice(0, -2)` inside the option builder.
+- `buildPatientivoTroncoDerivations()` now builds a `patientivo-root-stock-stem-source-frame` for the source stem, gate stem, transitivity, right-edge suffix frame, and source stem spec, then consumes an `andrews-patientivo-root-stock-stem-realization` typed operation frame before appending the route entry.
+- The target entry carries the root-stock source contract, source frame, operation frame, and target frame through `buildPatientivoDerivationEntry()`; display surfaces and the later `sal / salti` expansion are rendered after structural authorization.
+- Missing source frames, missing operation frames, changed caller strings, contradictory target frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter the typed transitive root-stock route.
+
+## Completed Phase: Intransitive Type-One Stem Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- `buildIntransitiveTypeOneStem()` no longer decides type-one target stems from direct `baseStem.endsWith(...)` string calls.
+- Type-one stem realization now requires an `intransitive-type-one-source-frame` and matching `andrews-intransitive-type-one-stem-realization` typed operation frame. `buildIntransitiveTypeOneMorphStemSpec()` constructs and carries those frames, and `realizeMorphStemSpec()` consumes them before returning the stem.
+- Direct string-only calls, missing operation frames, contradictory source/target frames, and changed caller stems cannot authorize or alter the structurally framed type-one output.
+
+## Completed Phase: Root-Plus-Ya Adjectival NNC Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- `generateRootPlusYaAdjectivalNncOutput()` no longer authorizes Andrews 40.9 output from a direct `stem` string and no longer decides the visible `k` connector by concatenating `subjectPrefix + rootPlusYaBase + "k"`.
+- Andrews 40.9 root-plus-ya adjectival NNC generation now requires a `root-plus-ya-adjectival-nnc-source-frame` plus a matching `andrews-40-9-root-plus-ya-adjectival-nnc-realization` typed operation frame. The live adjectival generation branch and CNV/CNN audit probes build and pass those frames before rendering.
+- Direct string-only calls, missing operation frames, contradictory source/target frames, poisoned caller stems, and target-surface mutations cannot authorize or alter the structurally framed root-plus-ya output.
+
+## Completed Phase: Intensified Adjectival NNC Segment-Frame Output Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- `buildIntensifiedAdjectivalNncOutput()` no longer renders Andrews 41.1 output by recomputing `subjectPrefix + intensifiedStem + connector` from formula-slot strings after checking metadata.
+- The `andrews-41-1-intensified-adjectival-reduplication` typed operation frame now carries target segment frames and target surface. The executor consumes those operation-frame targets directly before rendering `result`, `surfaceForms`, and `formulaEcho`.
+- Missing source frames, missing operation frames, contradictory source/target frames, poisoned display strings, changed caller formula slots, monkeypatched legacy reduplication, and target-surface mutations cannot authorize or alter the structurally framed intensified output.
+
+## Completed Phase: Morph-Stem Append Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The append branch of `realizeMorphStemSpec()` no longer decides its target stem by returning `sourceStem + appendText` from transform-spec strings.
+- Append morph-stem realization now requires a `morph-stem-append-source-frame` plus matching `andrews-morph-stem-append-realization` typed operation frame. `buildAppendMorphStemSpec()` carries those frames, and `realizeMorphStemSpec()` consumes the operation frame before returning the appended stem.
+- Hand-built legacy append specs, missing operation frames, contradictory source frames, changed caller source stems, and target-segment/target-stem contradictions cannot authorize or alter appended morph-stem output.
+
+## Completed Phase: Morph-Stem Prepend Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The prepend branch of `realizeMorphStemSpec()` no longer decides its target stem by returning `prependText + sourceStem` from transform-spec strings.
+- Prepend morph-stem realization now requires a `morph-stem-prepend-source-frame` plus matching `andrews-morph-stem-prepend-realization` typed operation frame. `buildPrependMorphStemSpec()` carries those frames, and `realizeMorphStemSpec()` consumes the operation frame before returning the prepended stem.
+- Hand-built legacy prepend specs, missing operation frames, contradictory source frames, changed caller source stems, and target-segment/target-stem contradictions cannot authorize or alter prepended morph-stem output.
+
+## Completed Phase: Morph-Stem Replace-Suffix Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The replace-suffix branch of `realizeMorphStemSpec()` no longer decides its target stem by slicing `sourceStem` / `sourceSuffix` and appending `replacement` from transform-spec strings.
+- Replace-suffix morph-stem realization now requires a `morph-stem-replace-suffix-source-frame` plus matching `andrews-morph-stem-replace-suffix-realization` typed operation frame. `buildReplaceSuffixMorphStemSpec()` carries those frames, and `realizeMorphStemSpec()` consumes the operation frame before returning the replaced stem.
+- Hand-built legacy replace-suffix specs, missing operation frames, contradictory source frames, changed caller source stems, and target-segment/target-stem contradictions cannot authorize or alter replaced morph-stem output.
+
+## Completed Phase: Morph-Stem Strip-Prefix Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The strip-prefix branch of `realizeMorphStemSpec()` no longer decides its target stem by checking `sourceStem.startsWith(prefix)` and slicing from transform-spec strings.
+- Strip-prefix morph-stem realization now requires a `morph-stem-strip-prefix-source-frame` plus matching `andrews-morph-stem-strip-prefix-realization` typed operation frame. `buildStripPrefixMorphStemSpec()` carries those frames, and `realizeMorphStemSpec()` consumes the operation frame before returning the stripped stem.
+- Hand-built legacy strip-prefix specs, missing operation frames, contradictory source frames, changed caller source stems, and target-segment/target-stem contradictions cannot authorize or alter stripped morph-stem output.
+
+## Completed Phase: Morph-Stem Deletion-Shift Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The deletion-shift branch of `realizeMorphStemSpec()` no longer decides its target stem by branching over `deletionVariant` and slicing/mutating the source stem from transform-spec strings.
+- Deletion-shift morph-stem realization now requires a `morph-stem-deletion-shift-source-frame` plus matching `andrews-morph-stem-deletion-shift-realization` typed operation frame. `buildDeletionShiftMorphStemSpec()` carries those frames, and `realizeMorphStemSpec()` consumes the operation frame before returning the shifted stem.
+- Hand-built legacy deletion-shift specs, missing operation frames, contradictory source frames, changed caller source stems, and target-segment/target-stem contradictions cannot authorize or alter shifted morph-stem output.
+
+## Completed Phase: CNV-to-CNN Operational Suboperation Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The Andrews CNV-to-CNN operational suboperation path no longer lets `executeAndrewsCnvCnnOperationalHandler()` decide target stems by direct string suffixing such as `ni`, `ka`, `s`, `liz`, `yo`, `yan`, or `kan`, then scrub formula text into a surface.
+- `buildAndrewsCnvCnnOperationalSuboperationFrame()` now requires an `andrews-cnv-cnn-operational-source-frame` plus matching `andrews-cnv-cnn-operational-suboperation-realization` typed operation frame before it reports generated output. The live verb-derived nominalization profile path builds and passes those frames before rendering `surface`, `surfaceForms`, and formula echoes.
+- Direct string-only suboperation calls, missing operation frames, contradictory source/target frames, poisoned `sourceStem` / `sourceCore` / `formulaEcho` / `result` / `surface` strings, and monkeypatched legacy surface realization cannot authorize or alter the structurally framed output.
+
+## Completed Phase: Lesson 46.3.1.a Relational Locative Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The scoped Andrews 46.3.1.a preterit-agentive locative relational NNC route no longer derives `michnamakakan` by parsing `source`, `sourceVerb`, `incorporatedNounStem`, visible `posicionesFormula.tronco`, or formula text and flattening hyphenated strings.
+- `buildLesson46PreteritAgentiveLocativeNncFromSource()` now requires a `lesson-46-3-1-a-preterit-agentive-locative-source-frame` and matching `andrews-46-3-1-a-preterit-agentive-locative-realization` typed operation frame. The executor reads source identity, predicate stem, formula slots, formula echo, target segment frames, and surface from those frames before rendering output fields.
+- Direct string-only source formulas, the visible locativo tab without typed frames, missing operation frames, contradictory source/target frames, poisoned caller strings, and monkeypatched formula-flattening cannot authorize or alter the structurally framed route.
+
+## Completed Phase: Monadic Possessive-State Workbench Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The monadic possessive-state NNC workbench example no longer marks itself generated by concatenating `possessiveState.surface + stem`.
+- `buildPossessiveStateNncFormulaWorkbenchExample()` now requires a `possessive-state-nnc-monadic-source-frame` and matching `possessive-state-nnc-monadic-realization` typed operation frame before a monadic example can surface.
+- Direct string-only monadic calls block; missing operation frames, contradictory source/target frames, and changed display stem/possessor strings cannot authorize or alter the structurally framed monadic output.
+
+## Completed Phase: Organic Possession Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The Andrews 39.3.4 ordinary NNC organic-possession route no longer derives the target predicate stem by appending `yu` to a direct `stem` string.
+- `generateOrdinaryNncParadigm()` now requires ordinary NNC formula slots for this route, builds an `ordinary-nnc-organic-possession-source-frame`, consumes an `ordinary-nnc-organic-possession-yu-realization` typed operation frame, and only then renders the possessive-state surface.
+- Direct stem-only requests block with `ordinary-nnc-organic-possession-missing-source-frame`; missing operation calls return no target; contradictory source/target frames block; changing caller `stem` strings or monkeypatching the old stem helper cannot alter the structurally authorized output.
+
+## Completed Phase: CNV Lesson 7 Surface Slot Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The public `getCnvFormulaLesson7SurfaceSlots()` resolver is no longer a direct string-recovery API. It now requires a `cnv-formula-lesson-7-surface-slots-source-frame` and matching `cnv-formula-lesson-7-surface-slot-realization` typed operation frame before it returns surface slots.
+- The live `cnvFormulaSurfacePath` record builder constructs those source and operation frames for each generated surface path and consumes the operation target slots before building visible path records.
+- Focused VNC coverage asserts the new helper/frame APIs, direct string-only blocking, missing-operation blocking, contradictory source/target blocking, and immunity to changed caller strings/formula slots after a typed frame has authorized the target.
+
+## Completed Phase: Andrews Formula Generation Authority Contract
+
+Date: 2026-07-04
+
+Decision:
+
+- The shared Andrews formula schema now has an executable generation-authority evaluator. It combines the Andrews logic-authority policy, the formula schema generation contract, and required source slots, then returns the gate/status that says whether Andrews formula logic licensed generation.
+- Ordinary and possessive NNC formula workbench slices now expose that formula-authority gate separately from the Nawat/Pipil realization result. The surface still comes from the existing realization path, but the grammar permission is no longer only an Andrews-looking echo or metadata pass-through.
+- The live ordinary NNC route `generateOrdinaryNncParadigm()` now consumes supplied Andrews `formulaSlots` / route-contract formula slots before rendering. Formula-looking strings such as `(siwa)t` are blocked from authorizing or inferring grammar by themselves, and conflicting legacy strings cannot override structural slots.
+- Focused grammar/NNC tests assert the authorized and blocked formula gates, Andrews logic authority, Nawat/Pipil orthography authority, spelling-evidence role, Classical surface-import block, and hostile legacy-string behavior.
+
+## Completed Phase: Andrews Route Board Surface Candidate Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live route-board entry function `getAndrewsCnvCnnRouteStageFromFormulaInput()` now marks surface-looking inputs such as `nimana`, `metzmati`, and `nukal` with a route-authorization frame.
+- Surface candidates remain visible as diagnostics, but `buildAndrewsCnvCnnRouteBoard()` no longer lets them infer source candidates, departures, route options, or continuations unless the caller supplies an Andrews structural source frame, formula slots, or route contract that matches the candidate formula type.
+- Hostile clause coverage now proves a bare surface candidate has zero route candidates, while the same surface with a matching structural source frame can expose the Andrews route candidates.
+
+## Completed Phase: Andrews Route Action Record Authority Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live route-action entry function `inferAndrewsCnvCnnBackAndForthRouteRecordId()` no longer maps route-family strings, route-template strings, dataset booleans, or target-tense labels into Andrews route record ids.
+- Route action contracts can still use explicit Andrews route record ids and embedded structural route/action frames. Generated denominal rows now carry the Andrews route coordinate frame from the denominal family profile before route-action metadata is rendered.
+- Hostile clause coverage proves template-only, family-only, and dataset-only route chips cannot infer or build an action contract, while explicit route ids and structural route frames still authorize the contract.
+
+## Completed Phase: Denominal Route Verbalized Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live route-family preview path `resolveNawatRouteVerbalizedVerb()` now resolves target verbstems from a structured verbalized-source frame.
+- Explicit `sourceStem` and generated patientivo-tronco source frames can authorize the verbalized target; finite route surfaces, configured surface suffixes, `verbalizer+k` text, and parsed source strings can no longer be stripped or appended into a target verbstem.
+- Linked denominal stage previews pass selected-stage source evidence (`sourceBaseStem` / `sourceVerbStem`) into the next route preview as structural source-stem input, so continuation chains remain composable without reactivating finite-surface suffix inference.
+- Hostile state coverage proves a poisoned verbalizer route with a plausible finite surface suffix cannot infer `targetVerb`, while the same route with an explicit source stem can still authorize structurally.
+
+## Completed Phase: Ordinary NNC Formula String Parser Quarantine
+
+Date: 2026-07-04
+
+Decision:
+
+- `parseOrdinaryNncPredicateFormulaInput()` is now diagnostic-only by default. It returns a blocked diagnostic frame unless the caller explicitly asks for diagnostic parsing.
+- Ordinary NNC paradigm sets, formula workbench normalization, subject-number connector workbench normalization, and fixture resolution no longer infer stems or noun classes from formula-looking strings such as `(siwa)t`.
+- The live ordinary NNC generation path may still use diagnostic parsing to explain a legacy formula-string conflict, but formula generation authority remains with structural `formulaSlots` / route-contract slots.
+- Patientivo, active-action, preterit-agentive, and customary-agentive nominal-compound continuation contracts now pass ordinary NNC continuation requests as structural formula slots / route contracts. Their parenthesized `ordinaryNncInput` strings remain display artifacts only.
+- Hostile NNC coverage proves blocked parser output, opt-in diagnostic parsing, blocked paradigm-set inference, blocked fixture lookup, authorized structural slots, and poisoned conflicting slots.
+- Hostile derivation coverage proves a lying continuation request `stem` string cannot change the nominal-compound ordinary NNC output when the structural formula slots remain unchanged.
+
+## Completed Phase: Patientivo Compound Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 39.6 patientivo verbal compound route now builds its target through a typed operation frame: generated patientive nounstem source frame + verbal matrix frame + target CNV stem frame.
+- `buildPatientivoCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `(tamati/miki)` for display, but the executable `compoundRequest` uses the typed operation frame and target stem `tamatimiki`.
+- The VNC executor consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; a poisoned `tronco` string or poisoned display `compoundVerbInput` cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior.
+
+## Completed Phase: Active-Action Compound Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 37.5.4 active-action verbal compound route now builds its target through a typed operation frame: generated active-action nounstem source frame + verbal matrix frame + target CNV stem frame.
+- `buildActiveActionCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `(chukilis/tzajtzi)` for display, but the executable `compoundRequest` uses the typed operation frame and target stem `chukilistzajtzi`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the active-action compound route.
+
+## Completed Phase: Customary-Agentive Compound Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 36.3 customary-agentive verbal compound route now builds its target through a typed operation frame: generated customary-agentive nounstem source frame + verbal matrix frame + target CNV stem frame.
+- `buildCustomaryAgentiveCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `-(nemini/tuka)` for display, but the executable `compoundRequest` uses the typed operation frame, target stem `neminituka`, and structural object prefix `ki`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the customary-agentive compound route.
+
+## Completed Phase: Preterit-Agentive Compound Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 35.7 preterit-agentive verbal compound route now builds its target through a typed operation frame: generated preterit-agentive general-use nounstem source frame + verbal matrix frame + target CNV stem frame.
+- `buildPreteritAgentiveCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `(tamatka/tzajtzi)` for display, but the executable `compoundRequest` uses the typed operation frame and target stem `tamatkatzajtzi`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the preterit-agentive compound route.
+
+## Completed Phase: Patientivo Characteristic-Property Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 39.9 characteristic-property incorporated-object route now builds its target through a typed operation frame: generated characteristic-property source frame + verbal matrix frame + target CNV stem frame.
+- `buildPatientivoCharacteristicPropertyEmbedContinuationContract()` still exposes `compoundVerbInput` such as `-(mikka/chikawa)` for display, but the executable `compoundRequest` uses the typed operation frame, target stem `mikkachikawa`, and the structural outside object prefix (`ki` for absolutive, possessor-mapped prefixes such as `nech` for possessive).
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the characteristic-property embed route.
+
+## Completed Phase: Patientivo Prelocative Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 39.7-39.8 patientivo prelocative/incorporated-root route now builds finite VNC output through a typed operation frame: generated patientive nounstem source frame + prelocative matrix frame + outside object transfer frame + target CNV stem frame.
+- `buildPatientivoPrelocativeContinuationContract()` still exposes `prelocativeVerbInput` such as `-(tamati/tajtani)` for display, but the executable `prelocativeRequest` uses the typed operation frame, target stem `tamatitajtani`, and structural outside object prefixes such as `nech` or `metz`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `prelocativeVerbInput` strings cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old prelocative/compound-string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the prelocative route.
+
+## Completed Phase: Preterit-Agentive Ownerhood Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 35.9-35.10 preterit-agentive ownerhood route now builds finite VNC output through a typed operation frame: generated preterit-agentive general-use nounstem source frame + ownerhood matrix frame + typed parsed-target frame + target CNV stem frame.
+- `buildPreteritAgentiveOwnerhoodContinuationContract()` still exposes `ownerhoodVerbInput` such as `(tamatka)-(wa)` for display, but the executable `ownerhoodRequest` uses the typed operation frame, target stem `tamatkawa`, and a structured parsed-target frame that carries the embed/matrix split without invoking the old parenthesized string parser.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display `ownerhoodVerbInput` strings, or a poisoned legacy ownerhood string builder cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old ownerhood string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the preterit-agentive ownerhood route.
+
+## Completed Phase: Ordinary-Noun Ownerhood Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 35.9-35.10 ordinary-noun ownerhood route now builds finite VNC output through a typed operation frame: ordinary nounstem source frame + noun-class frame + ownerhood matrix frame + typed parsed-target frame + target CNV stem frame.
+- `buildOrdinaryNounOwnerhoodContinuationContract()` still exposes `ownerhoodVerbInput` such as `(shuchi)-(e)` or `(kal)-(wa)` for display, but the executable `ownerhoodRequest` uses the typed operation frame, target stems such as `shuchie` and `kalwa`, and a structured parsed-target frame that carries the embed/matrix split without invoking the old parenthesized string parser.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display/formula strings, or a poisoned legacy ownerhood string builder cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old ownerhood string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the ordinary-noun ownerhood route.
+
+## Completed Phase: Preterit-Agentive Complement Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 35.12 preterit-agentive incorporated-complement route now builds finite VNC output through a typed operation frame: generated preterit-agentive general-use nounstem source frame + complement matrix frame + outside object frame + target CNV stem frame.
+- `buildPreteritAgentiveComplementContinuationContract()` still exposes `complementVerbInput` such as `-(tamatka/mati)` for display, but the executable `complementRequest` uses the typed operation frame, target stem `tamatkamati`, and the structural object prefix `ki`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display/formula strings, or a poisoned legacy complement string builder cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old complement string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the complement route.
+
+## Completed Phase: Preterit-Agentive Adverbial Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews 35.12 preterit-agentive adverbial-manner route now builds finite VNC output through a typed operation frame: generated preterit-agentive general-use nounstem source frame + adverbial matrix frame + target CNV stem frame.
+- `buildPreteritAgentiveAdverbialContinuationContract()` still exposes `adverbialVerbInput` such as `(tamatka/nemi)` for display, but the executable `adverbialRequest` uses the typed operation frame and target stem `tamatkanemi`.
+- The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display/formula strings, or a poisoned legacy adverbial string builder cannot change the generated form.
+- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old adverbial string parser.
+- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the adverbial route.
+
+## Completed Phase: Current Regex Source Parse-Tree Authority Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live derivation source-model entry `buildCurrentRegexDerivationSourceModel()` now consumes a typed `current-regex-derivation-source-parse-tree` with explicit outer source pieces, core-prefix pieces, supportive marker, adjacent embed, and matrix-base frame.
+- Legacy current-regex strings can still be parsed once into that tree for compatibility, but callers that supply `currentRegexSourceParseTree` / `sourceParseTree` have the structural tree treated as authority before `sourceRawVerb` or display input.
+- Poisoned raw regex text inside a parse-tree object, or contradictory `sourceRawVerb` alongside an explicit parse tree, cannot change the selected matrix base or outer source surface.
+- Focused derivation coverage proves typed tree construction, typed model consumption, poisoned raw-text resistance, and explicit parse-tree precedence.
+
+## Completed Phase: Nonactive Bound-Source Base Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live nonactive fallback `stripBoundSourcePrefixFromNonactiveBase()` no longer recovers a matrix base by slicing `sourcePrefix` from `baseVerb` when a bound source is present.
+- Bound-source recovery now requires a structured source chain/source model with outer pieces and matrix base, and the supplied prefix/base must agree with that frame.
+- Missing structured source frames return no base with `nonactive-bound-source-missing-structured-source-frame`; contradictory prefix or base frames return no base with the corresponding contradiction diagnostic.
+- Existing nonactive and parsing callers pass the already-built source chain into the fallback, so display strings remain outputs of the source model rather than authority for stripping.
+- Focused derivation coverage proves structured stripping, poisoned `sourceRawVerb` resistance, missing-source-frame block, and contradictory-base-frame block.
+
+## Completed Phase: Purposive Directional Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews Lesson 29 purposive directional generator `buildAndrewsPurposiveDirectionalVnc()` now requires an `andrews-purposive-directional-operation-frame` built from a typed source frame, matrix frame, inflection frame, and target segment frame.
+- Bare `sourceStem`, `candidate`, target-stem strings, and formula text no longer authorize generation. Candidate strings remain diagnostic-only, and the old string-only generator call blocks with `purposive-directional-missing-typed-operation-frame`.
+- The generator realizes the target from typed target segments with the orthography bridge; it no longer uses the legacy formula/candidate string scrubber as an executor.
+- Contradictory target frames block with `purposive-directional-contradictory-typed-operation-frame`, and monkeypatching the legacy string normalizer does not affect typed output.
+- Focused purposive coverage proves candidate-string blocking, typed operation success, missing operation-frame blocking, contradictory frame blocking, and legacy-normalizer poisoning resistance.
+
+## Completed Phase: Honorific/Pejorative Preterit-Embed Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Andrews Lesson 33 preterit-embed honorific/pejorative generator `buildAndrewsHonorificPejorativePreteritEmbedVnc()` now requires an `andrews-honorific-pejorative-preterit-embed-operation-frame` built from a typed preterit source frame, matrix frame, inflection frame, and target segment frame.
+- Bare `sourceStem`, `preteritEmbedStem`, candidate strings, source-gate labels, target-stem strings, and formula text no longer authorize generation. Candidate strings remain diagnostic-only, and the old string-only generator call blocks with `honorific-pejorative-preterit-embed-missing-typed-operation-frame`.
+- The generator realizes target output from typed target segments with the orthography bridge; it no longer uses the legacy candidate/formula string scrubber as an executor.
+- Contradictory target frames block with `honorific-pejorative-preterit-embed-contradictory-typed-operation-frame`, and monkeypatching the legacy string normalizer does not affect typed output.
+- Focused honorific/pejorative coverage proves candidate-string blocking, typed operation success, missing operation-frame blocking, contradictory frame blocking, and legacy-normalizer poisoning resistance.
+
+## Completed Phase: Irregular Suppletive Stem Inventory Authority Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live irregular suppletive helpers for `yawi` and `weya` now consume explicit `lesson-11-current-suppletive-stem-frame` and `lesson-11-current-suppletive-preterit-variant-frame` records from `CURRENT_SUPPLETIVE_STEM_INVENTORY`.
+- `getSuppletiveWeyaCanonical()` no longer synthesizes `weyya` from `rootBase + "ya"`; the canonical and root-plus-ya base are separate inventory stem frames.
+- `buildSuppletiveYawiStemSet()` no longer constructs the preterit base with `base + "j"`; the class-D preterit variant is an explicit stemSpec record `{ base: "yaj", suffix: "ki" }`.
+- Missing or contradictory suppletive stem/preterit frames block through diagnostic helpers instead of falling back to raw string synthesis.
+- Focused irregular coverage proves explicit stemSpec use, missing-frame block, contradictory-frame block, and resistance to poisoned old `SUPPLETIVE_YAWI_IMPERFECTIVE`, `SUPPLETIVE_WEYA_ROOT`, and `SUPPLETIVE_WEYA_CANONICAL` globals.
+
+## Completed Phase: Preterit Base Transform Operation Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live preterit base executor `realizePretBaseSpec()` now delegates transform specs to `evaluatePretBaseOperationFrame()`, which consumes a typed `preterit-base-transform-operation-frame` with a source-base frame and typed segment frames.
+- Append, replace-suffix, perfective-replacement, deletion-shift, and final-`i` coalescence transforms are executed from the operation frame; transform specs without that frame block instead of using `sourceBase`, `appendText`, `replacement`, `deletionVariant`, or `fallbackBase` as authority.
+- Literal base specs remain explicit base records, but legacy transform objects are no longer enough to authorize preterit base formation.
+- Missing operation frames and contradictory operation frames block with diagnostics, and poisoned legacy transform fields do not change output when the typed operation frame is unchanged.
+- Focused preterit coverage proves typed operation-frame output, old transform-string API blocking, poisoned legacy field resistance, and contradictory operation-frame blocking.
+
+## Completed Phase: Preterit Class A Root-Plus-Ya Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live preterit Class A root-plus-`ya` branch in `buildPretUniversalClassA()` now consumes a `preterit-root-plus-ya-source-frame` carried by the preterit context.
+- Root-plus-`ya` source identity is no longer selected by normalizing candidate strings from `verb`, `analysisVerb`, `exactBaseVerb`, and `rootPlusYaBase` inside the Class A branch.
+- The source frame carries root-base, suffix, source-verb, source-kind, Weya status, and denominal matrix metadata; the Class A branch converts that frame into a typed preterit base operation frame before realizing the base.
+- Missing or contradictory root-plus-`ya` source frames block the Class A root-plus-`ya` branch instead of falling back to poisoned context strings.
+- Focused preterit coverage proves source-frame output, lying context-string resistance, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Class A Final-Vowel Deletion Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live ordinary preterit Class A final-vowel deletion path in `buildPretUniversalClassA()` now consumes a `preterit-class-a-final-vowel-deletion-source-frame` carried by the preterit context.
+- The context builds that source frame from syllable/right-edge structure: source verb, deleted base, deleted final vowel, deleted-base final segment, and right-edge descriptor metadata.
+- The Class A branch no longer derives the deleted base with `context.verb.slice(0, -1)` or chooses deletion-shift variants by probing the sliced string. It asks `buildPretClassAFinalVowelDeletionBaseSpecsFromSourceFrame()` for typed base specs and then realizes those through the typed preterit base operation-frame executor.
+- Missing or contradictory final-vowel deletion source frames block the ordinary Class A branch instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+- Focused preterit coverage proves source-frame output for `kisa -> kiski`, lying context-string resistance, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Class A Direct Yya Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live direct `yya` special path in `buildPretUniversalClassA()` now consumes a `preterit-class-a-yya-source-frame` carried by the preterit context.
+- The context builds that source frame from syllable/right-edge structure instead of asking whether `verb.endsWith("yya")`: source verb, retained base, deleted `ya` suffix, previous-`y`, final onset, final nucleus, and right-edge descriptor metadata.
+- The Class A branch no longer builds the direct `yya` base from `context.verb` plus a raw replace-suffix call. It converts the source frame into a typed preterit base operation frame before realization.
+- Missing or contradictory direct-`yya` source frames block the special branch instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+- Focused preterit coverage proves source-frame output for `weyya -> weyki`, lying context-string resistance, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Prefix-Base Contact Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The core preterit prefix/base contact executor `adjustPretPrefixBaseContact()` now requires a `preterit-prefix-base-contact-frame` with prefix, base, base-subject, boundary segment, and typed operation metadata.
+- The legacy positional string API for that executor is blocked with `preterit-prefix-base-contact-missing-frame`; callers must pass the contact frame rather than raw prefix/base strings.
+- The typed contact evaluator performs prefix-final/base-initial contact, composed object-prefix `k` contact, `wal` + `ya` contact, and pre-vocalic `nh` realization from segment frames.
+- Missing operation frames and contradictory segment frames block instead of falling back to string surgery.
+- Focused preterit coverage proves typed contact output, old string API blocking, missing operation-frame blocking, contradictory frame blocking, resistance to monkeypatched legacy contact helper behavior, and composed object-prefix boundary contact through the frame path.
+
+## Completed Phase: Preterit Variant Assembly Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live preterit variant assembly entry `buildPretUniversalResultDetailedFromVariants()` now requires a `preterit-variant-assembly-frame`.
+- The assembly frame carries a structured source frame with variants, participant/morph-boundary slots, directional metadata, inflection metadata, and a typed `preterit-variant-assembly-operation-frame`.
+- The legacy direct variants-array API is blocked with `preterit-variant-assembly-missing-frame`; internal preterit callers build the assembly frame before rendering `result`, `forms`, `surface`, and grammar result frames.
+- Missing source frames, missing operation frames, and contradictory source-frame variant counts block instead of falling back to display strings or stale result/form data.
+- Focused preterit coverage proves frame-authorized assembly, legacy API blocking, missing source-frame blocking, missing operation-frame blocking, contradictory source-frame blocking, and resistance to lying `stem`, `surface`, `result`, and `formulaEcho` properties on the assembly request.
+
+## Completed Phase: Preterit Class A Ita Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live transitive Class A `ita -> itz` special path in `buildPretUniversalClassA()` now consumes a `preterit-class-a-ita-source-frame` carried by the preterit context.
+- The context builds that source frame from exact syllable/right-edge structure (`i` + `ta`) instead of letting `analysisVerb === "ita"` and `context.verb` decide the special branch.
+- The Class A branch no longer builds the `ita` base from `context.verb` plus a raw replace-suffix call. It converts the source frame into a typed preterit base operation frame before realization.
+- Missing or contradictory `ita` source frames block the special branch instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+- Focused preterit coverage proves source-frame output for `ita -> itzki`, lying context-string resistance, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Class C Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Class C perfective-replacement path in `buildPretUniversalClassC()` now consumes a `preterit-class-c-source-frame` carried by the preterit context.
+- The context builds that source frame from syllable/right-edge structure: source verb, retained base, final vowel, previous nucleus, final form, and right-edge descriptor metadata.
+- The Class C branch no longer builds the perfective replacement from `context.verb`. It converts the Class C source frame into a typed preterit base operation frame before realization.
+- Missing or contradictory Class C source frames block the branch instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+- Focused preterit coverage proves source-frame output for `nemia -> nemij`, lying context-string resistance, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Class D Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Class D append path in `buildPretUniversalClassD()` now consumes a `preterit-class-d-source-frame` carried by the preterit context.
+- The context builds that source frame from resolved source structure: source verb, append segment, syllable count, final form, final nucleus, and right-edge descriptor metadata.
+- The Class D branch no longer builds the append operation from `context.verb` or from `context.monosyllableStemPath.classDBaseSpec`. It converts the Class D source frame into a typed preterit base operation frame before realization.
+- The direct `getMonosyllableStemPath()` string API now requires the Class D source frame; old string calls block with `null` instead of producing a target base.
+- Missing or contradictory Class D source frames block the branch instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+
+## Completed Phase: Preterit Class B Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Class B literal-base path in `buildPretUniversalClassB()` now consumes source frames carried by the preterit context: `preterit-class-b-source-frame` for ordinary one-vowel and intransitive `wa` branches, and `preterit-root-plus-ya-source-frame` for root-plus-`ya` branches.
+- The converted Class B branches no longer build their literal base from `context.verb`. They validate the Class B source frame's source verb, vowel count, syllable count, right-edge segment fields, and typed literal-base operation frame before creating the base spec.
+- Root-plus-`ya` Class B alternates validate the root-plus-`ya` source frame before creating the full-source, deleted-`ya`, and root-base variants.
+- Missing, operation-less, or contradictory Class B source frames block the converted branches instead of falling back to poisoned `verb`, `analysisVerb`, or `exactBaseVerb` strings.
+- Focused preterit coverage proves source-frame output for `ki -> kij`, lying context-string resistance, old string API blocking, missing-source-frame blocking, and contradictory-source-frame blocking.
+
+## Completed Phase: Preterit Class B Fallback Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- `getPronounceableClassBFallback()` now consumes the same `preterit-class-b-source-frame` plus typed literal-base operation frame before it can produce the last-resort Class B `base+k` variant.
+- Missing source frames, missing operation frames, and contradictory source frames return no fallback instead of reviving `context.verb`.
+- The clicked denominal `-ti` route finite-surface bridge builds the Class B preterit surface from a fresh Class B source frame, typed base-spec conversion, a variant assembly frame, and the target frame carried by `resolveNawatRouteTarget()`.
+- Focused preterit and state coverage prove fallback output from frames, lying context-string resistance, missing-frame blocking, operation-frame blocking, and preservation of clicked `tronco` route continuation output.
+
+## Completed Phase: Denominal Clicked-Source Target Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live clicked denominal `tronco` route path now requires the target verbstem to be authorized by a `nawat-route-verbalized-verb-source-frame` with source-stem, verbalizer, target-verb segment frames, and a typed `append-verbalizer-to-source-stem` operation frame.
+- `resolveNawatRouteTarget()` derives `targetVerb` from that evaluated frame rather than from the frame's display `targetVerb` field or route-target strings.
+- `getNawatRouteFiniteSurfaceResult()` now treats the default denominal VI preterit route and clicked `tronco` continuations as the same structural Class-B route. It consumes the evaluated target source frame directly, blocks missing, operation-less, or contradictory target frames, and no longer uses the direct `executeNuclearClauseSurfaceRequest()` string executor as the authority for these route surfaces.
+- Supplied `targetVerb`, `stem`, `surface`, `result`, `formulaEcho`, DOM-style dataset, or `posicionesFormula.tronco` cannot revive the old string path for structural intransitive preterit paths (`-ti`, `-iwi`, `-awi`).
+- Focused state coverage proves unchanged structural frames win over poisoned display strings, missing target frames block, missing operation frames block, contradictory target frames block, the direct no-frame string API blocks, the explicit clicked `-iwi` route uses the structural Class-B frame, and monkeypatching legacy string builders/executors does not affect the converted route.
+
+## Completed Phase: Direct Active Preterit Structural Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live direct active preterit route `direct-active-preterit` now carries a `nawat-route-direct-preterit-source-frame` from `resolveNawatRouteTarget()`.
+- The frame stores the source verb segment, selected Class A preterit class frame, typed base-spec variant frame, suffix frame, target-surface frame, and a typed `assemble-class-a-preterit-from-source-frame` operation frame.
+- `getNawatRouteFiniteSurfaceResult()` consumes that frame directly for the route surface and blocks missing, operation-less, incomplete, or contradictory frames before the old direct nuclear string executor can run.
+- Supplied `targetVerb`, `stem`, `surface`, `result`, `formulaEcho`, DOM-style dataset, or `posicionesFormula.tronco` cannot alter or authorize the route surface.
+- Focused state coverage proves structural Class A output for `(pusuni) -> pusunki`, poisoned display-string resistance, direct no-frame API blocking, missing operation frame blocking, contradictory base-frame blocking, and poisoned legacy nuclear executor resistance.
+
+## Completed Phase: Patientivo Perfective Noun Structural Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live patientivo perfective noun route `patientivo-perfective-ti-noun` now carries a `nawat-route-patientivo-perfective-source-frame` from `resolveNawatRouteTarget()`.
+- The frame stores the source verb segment, structural direct-preterit source frame, perfective source-ending contract, target patientivo stem, nominal suffix, source-surface frame, target-surface frame, and a typed `append-perfective-patientivo-suffix-to-preterit-base-frame` operation frame.
+- `getNawatRouteSourceSurfaceResult()`, `getNawatRouteGeneratedPatientivoConnectorSuffix()`, and `getNawatVerbNounConversionNominalSurfaceResult()` consume that frame directly for this route. They no longer call the patientivo nuclear string executor or derive the patientivo noun by source-surface suffix surgery.
+- Missing, operation-less, incomplete, contradictory, or unsupported-ending frames block instead of falling back to `executeNuclearClauseSurfaceRequest()`, `generateNawatRoutePatientivoSurfaceResult()`, source-surface text, or `posicionesFormula.tronco`.
+- Focused state coverage proves structural output for `(ketza) -> ketzki -> ketzti`, poisoned display-string resistance, poisoned legacy patientivo executor resistance, direct no-frame API blocking, missing operation frame blocking, contradictory target-frame blocking, and blocked unsupported `kuchi` perfective patientivo generation.
+
+## Completed Phase: Patientivo Imperfective Noun Structural Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live patientivo imperfective noun route `patientivo-imperfective-t` now carries a `nawat-route-patientivo-imperfective-source-frame` from `resolveNawatRouteTarget()` when the selected source route is active imperfective.
+- The frame stores the source verb segment, source object prefix segment, source-surface frame, target patientivo stem, nominal suffix, target-surface frame, and a typed `append-imperfective-patientivo-suffix-to-source-stem-frame` operation frame. It keeps the finite VNC source shell and derived CNN patientivo shell as structural metadata for display and diagnostics.
+- `getNawatRouteSourceSurfaceResult()`, `getNawatRouteGeneratedPatientivoConnectorSuffix()`, and `getNawatVerbNounConversionNominalSurfaceResult()` consume that frame directly for the selected structural route. They no longer call the patientivo nuclear string executor or derive the patientivo noun by source-surface suffix surgery.
+- Missing, operation-less, incomplete, or contradictory frames block instead of falling back to `executeNuclearClauseSurfaceRequest()`, `generateNawatRoutePatientivoSurfaceResult()`, source-surface text, or `posicionesFormula.tronco`.
+- Focused state coverage proves structural output for `(kuchi) -> kuchiya -> kuchit` and `-(mati) -> tematiya -> tamatit`, poisoned display-string resistance, poisoned legacy patientivo executor resistance, missing source-frame blocking, missing operation-frame blocking, and contradictory target-frame blocking.
+
+## Completed Phase: Patientivo Passive Nonactive Noun Structural Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live explicit passive branch of the patientivo nonactive noun route `patientivo-nonactive-t` now carries a `nawat-route-patientivo-nonactive-source-frame` from `resolveNawatRouteTarget()` for the selected `-(mati)` preterit nonactive path.
+- The frame stores the source verb, source object prefix, source base, source ending, nonactive source surface, passive patientivo stem, target prefix, target stem, suffix, target surface, nonactive source-suffix contract, `patientiveSourceStageFrame`, and a typed `append-nonactive-patientivo-suffix-to-source-stem-frame` operation frame.
+- `getNawatRouteSourceSurfaceResult()`, `getNawatRouteGeneratedPatientivoConnectorSuffix()`, and `getNawatVerbNounConversionNominalSurfaceResult()` consume that frame directly for the selected passive/impersonal nonactive structural route. They no longer call the patientivo nuclear string executor or derive the patientivo noun by source-surface suffix surgery for that selected branch.
+- Missing, operation-less, incomplete, or contradictory frames block instead of falling back to `executeNuclearClauseSurfaceRequest()`, `generateNawatRoutePatientivoSurfaceResult()`, source-surface text, or `posicionesFormula.tronco`.
+- Focused state coverage proves structural output for `-(mati) -> machu -> machit`, poisoned display-string resistance, poisoned legacy patientivo executor resistance, missing source-frame blocking, missing operation-frame blocking, and contradictory target-frame blocking.
+
+## Completed Phase: Patientivo Default Nonactive Noun Structural Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live default nonactive branch of the patientivo nonactive noun route `patientivo-nonactive-t` now carries a `nawat-route-patientivo-nonactive-source-frame` from `resolveNawatRouteTarget()` for the selected `(pulua)` present nonactive path.
+- The frame stores the source verb, source base, source ending, generated nonactive source surface, target stem, generated `ti` connector, target surface, nonactive source-suffix contract, `patientiveSourceStageFrame`, and a typed `append-nonactive-patientivo-suffix-to-source-stem-frame` operation frame.
+- `getNawatRouteSourceSurfaceResult()`, `getNawatRouteGeneratedPatientivoConnectorSuffix()`, and `getNawatVerbNounConversionNominalSurfaceResult()` consume that frame directly for the selected structural route. They no longer call the patientivo nuclear string executor or derive the patientivo noun by source-surface suffix surgery for this path.
+- Missing, operation-less, incomplete, or contradictory frames block instead of falling back to `executeNuclearClauseSurfaceRequest()`, `generateNawatRoutePatientivoSurfaceResult()`, source-surface text, or `posicionesFormula.tronco`.
+- Focused state coverage proves structural output for `(pulua) -> pululu -> pululti`, poisoned display-string resistance, poisoned legacy patientivo executor resistance, missing source-frame blocking, missing operation-frame blocking, and contradictory target-frame blocking.
+
+## Completed Phase: Nonactive Habitual Structural Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live verb-to-verb route `nonactive-habitual-potential` now carries a `nawat-route-nonactive-habitual-source-frame` from `resolveNawatRouteTarget()` for the selected `(pusuni)` nonactive habitual path.
+- The frame stores the source verb/source stem, selected nonactive target stem spec, target stem, habitual `ni` connector, target surface, target variants, formula-slot frame, morphology frame, and a typed `derive-nonactive-habitual-from-source-frame` operation frame.
+- `getNawatRouteFiniteSurfaceResult()` consumes that frame directly before the old configured route string executor can run. The selected route no longer calls `executeNawatRouteConfiguredGeneration()` or `executeNuclearClauseSurfaceRequest()` as the grammar authority for this finite route surface.
+- Missing, operation-less, incomplete, contradictory, or variant-contradictory frames block instead of falling back to route strings, display fields, DOM-style datasets, `targetVerb`, `surface`, `result`, `formulaEcho`, or `posicionesFormula.tronco`.
+- Focused state coverage proves structural output for `(pusuni) -> no activo -> pusuniwani` with variant `pusunuwani`, poisoned display-string resistance, poisoned legacy route executor resistance, missing source-frame blocking, missing operation-frame blocking, and contradictory target-frame blocking.
+
+## Completed Phase: Continuation Route Action Structural Contract Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The shared continuation-chip route action path now treats `applyAndrewsCnvCnnRouteActionDataset()` as a renderer of an already-authorized Andrews route action contract, not as a DOM-dataset inference point.
+- `inferAndrewsCnvCnnBackAndForthRouteRecordId()` no longer accepts `dataset.andrewsRouteRecordId`, `dataset.routeRecordId`, `dataset.conversionRouteRecordId`, or `dataset.routeId` as route authority. Route ids must come from direct structured input, embedded route action contracts, route contracts, route coordinate frames, or grammar frames.
+- `getAndrewsCnvCnnRouteActionContractForRendering()` no longer reconstructs an action contract from DOM dataset route ids. If a continuation element lacks a structural route action contract/frame, `applyAndrewsCnvCnnRouteActionDataset()` clears stale Andrews route-action dataset mirrors and returns no contract.
+- The selected live path is the shared Andrews CNV/CNN continuation action renderer for generated continuation chips. It now consumes `andrews-cnv-cnn-route-action-contract` frames directly, including typed route coordinate frames, obstacle gates, generation/ranking gates, and embedded function-use valence gates, before rendering DOM datasets/title/ARIA mirrors.
+- Hostile UI and clause coverage proves plain DOM continuation flags and even a lying `data-andrews-route-record-id` cannot authorize or infer a route action. Structural contracts still render the 7-record Andrews route metadata, and blocked function-use contracts still disable click actions before state mutation.
+
+## Completed Phase: Verb Nominal Row Continuation Action Contract Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The actual generated verb-to-nominal row continuation button path now builds an `andrews-cnv-cnn-route-action-contract` before the DOM action is appended.
+- `appendVerbToNominalRowContinuations()` maps the structural `sourceUnit` to the Andrews route record (`cnv-predicate-to-cnn-nounstem-nominalization` or `cnv-core-to-cnn-nounstem-deverbal`) and requires the preview's grammar frame to carry both a route contract and an OK result frame.
+- Missing preview frames, blocked result frames, or unsupported source units suppress the continuation action instead of letting `data-target-tense`, `data-target-surface`, stale route datasets, `surface`, `result`, `formulaEcho`, `stem`, or `posicionesFormula.tronco` authorize the route.
+- The continuation element receives the structural action contract as `continueButton.andrewsRouteActionContract`; DOM datasets remain rendered mirrors after the Andrews route contract is already authorized.
+- Hostile UI coverage proves poisoned display strings, DOM route ids, and `posicionesFormula.tronco` cannot change the selected Andrews route record, while string-only and blocked previews produce no route action contract.
+
+## Completed Phase: VNC Adjectival Function Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 40.3 VNC-as-adjectival-function route now treats generated VNC formula/realization frames as the route authority. The selected live path is the generated VNC row continuation through `appendVncAdjectivalFunctionRowContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `resolveAdjectivalNncFunctionOverrideFromInput()`, and `executeAdjectivalNncGenerationRoute()`.
+- `buildVncAdjectivalNncFunctionOutput()` now requires a typed source continuation frame, typed target continuation frame, and `andrews-40-3-vnc-adjectival-function` operation frame. The route surface is read from the target formula-realization record, not from `vncSurface`, `surface`, `stem`, the input value, or `posicionesFormula.tronco`.
+- The renderer builds and passes the typed source/target/operation frames when it creates VNC adjectival continuation contracts. The composer stores those frames on the structured entry contract, and the VNC facade carries the operation frame into the generation override.
+- Missing source frames, missing target/operation frames, string-only inputs, or contradictory source/target formula-realization frames block instead of falling back to the old generated-surface builder.
+- Hostile adjectival coverage proves poisoned display strings and `posicionesFormula.tronco` do not change output, string-only VNC adjectival requests block, missing operation frames block, contradictory target frames block, and the operation frame explicitly records that rendered input is not consumed as grammar authority.
+
+## Completed Phase: Patientive Adjectival Function Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 40.4 patientive-NNC-as-adjectival-function route now treats generated patientive NNC formula/realization frames as the route authority. The selected live path is the generated patientivo row continuation through `renderPatientivoAdjectivalFunctionContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `resolveAdjectivalNncFunctionOverrideFromInput()`, and `executeAdjectivalNncGenerationRoute()`.
+- `buildPatientivoAdjectivalNncFunctionOutput()` now requires a typed source continuation frame, typed target continuation frame, and `andrews-40-4-patientive-adjectival-function` operation frame. The route surface is read from the target formula-realization record, not from `patientivoSurface`, `surface`, `stem`, the input value, a frame-only display surface, or `posicionesFormula.tronco`.
+- The renderer builds and passes the typed source/target/operation frames when it creates patientive adjectival continuation contracts. The composer stores those frames on the structured entry contract, and the VNC facade already carries the operation frame into the generation override.
+- Missing source frames, missing target/operation frames, string-only inputs, frame/display-only overrides, or contradictory source/target formula-realization frames block instead of falling back to the old generated-surface builder.
+- Hostile adjectival coverage proves poisoned display strings and `posicionesFormula.tronco` do not change output, string-only patientive adjectival requests block, missing operation frames block, contradictory target frames block, and the operation frame explicitly records that rendered input is not consumed as grammar authority.
+
+## Completed Phase: Compound-Source Adjectival Function Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 41.2 compound-source-NNC-as-adjectival-function route now treats generated compound NNC formula/realization frames plus the parsed compound source frame as the route authority. The selected live path is the generated compound-source row continuation through `renderCompoundSourceAdjectivalFunctionContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `resolveAdjectivalNncFunctionOverrideFromInput()`, and `executeAdjectivalNncGenerationRoute()`.
+- `buildCompoundSourceAdjectivalNncFunctionOutput()` now requires a typed source continuation frame, typed target continuation frame, parsed compound source frame, and `andrews-41-2-compound-source-adjectival-function` operation frame. The route surface and formula echo are read from the target/source formula-realization records, not from `compoundSourceSurface`, `surface`, `stem`, `formulaEcho`, the input value, DOM display metadata, or `posicionesFormula.tronco`.
+- The renderer builds and passes the typed source/target/operation frames when it creates compound-source adjectival continuation contracts. The composer stores those frames on the structured entry contract, and the VNC facade carries the operation frame and parsed compound frame into the generation override.
+- Missing source frames, missing target/operation frames, string-only inputs, missing parsed compound source frames, display-only overrides, legacy `requireStructuredContinuation: false` calls, or contradictory source/target formula-realization frames block instead of falling back to the old generated-surface builder.
+- Hostile adjectival coverage proves poisoned `compoundSourceSurface`, `surface`, `stem`, `formulaEcho`, and `posicionesFormula.tronco` do not change grammar output, string-only compound-source adjectival requests block, missing operation frames block, contradictory target frames block, and the operation frame explicitly records that rendered input is not consumed as grammar authority.
+
+## Completed Phase: Nominalized VNC Adjectival Function Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 40.5-40.8 nominalized-VNC-NNC-as-adjectival-function route now treats generated nominalized NNC formula/realization frames plus nominalization kind/profile as the route authority. The selected live path is the generated nominalized VNC row continuation through `renderNominalizedVncAdjectivalFunctionContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `resolveAdjectivalNncFunctionOverrideFromInput()`, and `executeAdjectivalNncGenerationRoute()`.
+- `buildNominalizedVncAdjectivalNncFunctionOutput()` now requires a typed source continuation frame, typed target continuation frame, supported nominalization kind, and `andrews-40-5-40-8-nominalized-vnc-adjectival-function` operation frame. The route surface and formula echo are read from the target/source formula-realization records, not from `nominalizedSurface`, `surface`, `stem`, `formulaEcho`, the input value, DOM display metadata, or `posicionesFormula.tronco`.
+- The renderer builds and passes the typed source/target/operation frames when it creates nominalized VNC adjectival continuation contracts. The composer stores those frames on the structured entry contract, and the VNC facade carries the operation frame and nominalization profile into the generation override.
+- Missing source frames, missing target/operation frames, string-only inputs, display-only overrides, legacy `requireStructuredContinuation: false` calls, unsupported nominalization kinds, or contradictory source/target formula-realization frames block instead of falling back to the old generated-surface builder.
+- Hostile adjectival coverage proves poisoned `nominalizedSurface`, `surface`, `stem`, `formulaEcho`, and `posicionesFormula.tronco` do not change grammar output, string-only nominalized VNC adjectival requests block, missing operation frames block, contradictory target frames block, and the operation frame explicitly records that rendered input is not consumed as grammar authority.
+
+## Completed Phase: Denominal Compound Adjectival Function Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 41.3 denominal-compound-NNC-as-adjectival-function route now treats generated preterit-agentive NNC formula/realization frames plus the parsed denominal compound source frame as the route authority. The selected live path is the generated denominal compound row continuation through `renderDenominalCompoundAdjectivalFunctionContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `resolveAdjectivalNncFunctionOverrideFromInput()`, and `executeAdjectivalNncGenerationRoute()`.
+- `buildDenominalCompoundAdjectivalNncFunctionOutput()` now requires a typed source continuation frame, typed target continuation frame, parsed denominal compound source frame, and `andrews-41-3-denominal-compound-adjectival-function` operation frame. The route surface and formula echo are read from the target/source formula-realization records, not from `denominalCompoundSurface`, `surface`, `stem`, `formulaEcho`, the input value, DOM display metadata, or `posicionesFormula.tronco`.
+- The renderer builds and passes the typed source/target/operation frames when it creates denominal compound adjectival continuation contracts. The composer stores those frames on the structured entry contract, and the VNC facade carries the operation frame and parsed denominal compound frame into the generation override.
+- Missing source frames, missing target/operation frames, string-only inputs, missing parsed denominal compound source frames, display-only overrides, legacy `requireStructuredContinuation: false` calls, or contradictory source/target formula-realization frames block instead of falling back to the old generated-surface builder.
+- Hostile adjectival coverage proves poisoned `denominalCompoundSurface`, `surface`, `stem`, `formulaEcho`, and `posicionesFormula.tronco` do not change grammar output, string-only denominal compound adjectival requests block, missing operation frames block, missing source frames block, contradictory target frames block, and the operation frame explicitly records that rendered input is not consumed as grammar authority.
+- The Andrews CNV/CNN back-and-forth audit probe for the denominal-compound loop now builds the same typed source/target/operation frames before calling the route executor, so the audit no longer depends on the legacy string API.
+
+## Completed Phase: Active-Action Source-Subject Possessor Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 36.11 active-action general-use NNC route now treats source-subject-to-possessor transfer as a typed Andrews operation, not as a mapping inferred from `subjectPrefix` / `subjectSuffix` strings. The selected live path is the `calificativo-instrumentivo` general-use source-subject possessor continuation through `renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation()`, `evaluateNounCombinationState()`, `applyMorphologyRules()`, and `getCalificativoInstrumentivoResult()`.
+- `getCalificativoInstrumentivoResult()` now requires an `andrews-source-subject-frame` and an `andrews-36-11-active-action-source-subject-to-possessor` operation frame whenever the route tries to derive the target possessor from the source VNC subject. The target possessive prefix is read from the typed source subject frame plus operation frame; the legacy direct string API blocks when those frames are absent.
+- The morphology engine builds the typed source-subject frame from the structured generation slots for generated `calificativo-instrumentivo` general-use requests, and the row renderer builds and passes the same source/operation frames for the visible source-subject possessor continuation. Display strings and DOM datasets remain mirrors after authorization.
+- Missing source-subject frames, missing operation frames, unmappable source-subject frames, and contradictory target/source operation frames block before the route can generate. A poisoned `subjectPrefix` / `subjectSuffix` string pair cannot override the typed frame's possessor decision.
+- Hostile NNC coverage proves string-only source-subject possessor calls block, poisoned subject strings do not change the generated target, missing operation frames block, contradictory target frames block, and generated top-level requests still succeed by using structured slot-derived frames rather than display surfaces.
+
+## Completed Phase: Instrumentivo Source-Subject Possessor Typed Frame Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 36.6 instrumentivo possessive route now treats source-subject-to-possessor transfer as a typed Andrews operation, not as a mapping inferred from `subjectPrefix` / `subjectSuffix` strings. The selected live path is the `instrumentivo` source-subject possessive continuation through `renderInstrumentivoSourceSubjectPossessiveContinuation()`, `evaluateNounCombinationState()`, `applyMorphologyRules()`, and `getInstrumentivoResult()`.
+- `getInstrumentivoResult()` now requires an `andrews-source-subject-frame` and an `andrews-36-6-instrumentive-source-subject-to-possessor` operation frame whenever the route tries to derive the target possessor from the source VNC subject. The target possessive prefix is read from the typed source subject frame plus operation frame; the legacy direct string API blocks when those frames are absent.
+- The morphology engine builds the typed source-subject frame from structured generation slots for generated `instrumentivo` possessive requests with implicit source-subject possessor transfer, and the row renderer builds and passes the same source/operation frames for the visible instrumentivo source-subject possessive continuation. Display strings and DOM datasets remain mirrors after authorization.
+- Missing source-subject frames, missing operation frames, unmappable source-subject frames, and contradictory target/source operation frames block before the route can generate. Poisoned `subjectPrefix` / `subjectSuffix` strings cannot override the typed frame's possessor decision.
+- Hostile NNC coverage proves string-only instrumentivo source-subject possessor calls block, poisoned subject strings do not change the generated target, missing operation frames block, contradictory target frames block, and generated top-level requests still succeed by using structured slot-derived frames rather than display surfaces.
+
+## Completed Phase: Predicate-Nominal Absolutive t/ti Connector Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 36.6 note 2 predicate-nominal route now treats the absolutive `t/ti` connector choice as a typed Andrews operation over the predicate stem frame, not as a regex/string read of rendered predicate-stem text. The selected live path is `predicado-nominal` generation through `applyMorphologyRules()` and `getPredicateNominalResult()`.
+- `getPredicateNominalResult()` now requires an `andrews-predicate-nominal-connector-operation-frame` whenever it must derive the target absolutive connector from the source VNC predicate stem. The connector is resolved from the typed `predicateStemSpec`/operation frame after the source morphology has been authorized, and the old string-only connector path blocks when that operation frame is absent.
+- The morphology engine builds the operation frame from structured predicate-nominal generation slots before calling the NNC executor. Display strings such as `predicateStem`, `formulaEcho`, and generated surfaces remain output mirrors after the route has been authorized.
+- Missing operation frames, contradictory source-tense frames, contradictory operation frames, and incomplete predicate-stem frames block before the route can generate. Hostile NNC coverage proves a direct string-only predicate-nominal call blocks, the legacy string resolver returns no active connector without diagnostic opt-in, a typed future source resolves `ti` from the predicate stem frame, and a contradictory source-tense operation frame blocks.
+
+## Completed Phase: Intensified Adjectival Function Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live Andrews 41.1 intensified adjectival NNC continuation now treats reduplicative intensification as a typed Andrews operation over the source formula frame, not as a call to the old source-stem string reduplication helper. The selected live path is `renderIntensifiedAdjectivalFunctionContinuation()`, `applyAdjectivalNncFunctionToVerbEntry()`, `executeAdjectivalNncGenerationRoute()`, and `buildIntensifiedAdjectivalNncOutput()`.
+- `buildIntensifiedAdjectivalNncOutput()` now requires a `generated-output-typed-continuation-frame` source frame and an `andrews-41-1-intensified-adjectival-reduplication` operation frame. It consumes the operation frame's target formula slots and target predicate stem directly; `sourceSurface`, `surface`, `sourceFormulaEcho`, and caller-supplied formula slots are display/mirror inputs after authorization.
+- The renderer builds the typed source frame from the selected canonical formula-realization variant, builds the Andrews 41.1 operation frame, and passes source/target selected variants plus source/target/operation frames through the continuation button into the composer override.
+- Missing source frames, missing operation frames, contradictory operation frames, poisoned display strings, changed caller formula slots, and monkeypatched legacy string reduplication do not authorize or change the route. Hostile adjectival tests prove the typed frame path still generates `yejyektik` while the string-only path blocks.
+
+## Completed Phase: Andrews Lesson 32 p294 NNC-Side Output Generation
+
+Date: 2026-06-24
+
+Decision:
+
+- Andrews printed p. 294 / PDF p. 309 `pil` child/noble NNC-side rows now generate scoped output rows from structural formula records.
+- Generated surfaces are slot-wise Nawat/Pipil orthography-bridge realizations of Andrews formulas, e.g. `#0-0(cihua-pi-pil)t-in#` -> `siwapipiltin` and `#0-0(pil-ton)tli-0#` -> `piltunti`.
+- The implementation keeps possessive-state material such as `+n-o` / `+i-m` on the predicate side, keeps `hu-an`, `0-[sq0]`, `t-in`, and `tli-0` as outside subject-number connectors, and records that there is no VNC tense slot.
+- This is not a new ordinary NNC generation gate and does not complete general affective NNC generation for all Lesson 32 patterns.
+
+## Completed Phase: Andrews Lesson 32 p294 NNC-Side Typed Row Realization Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The p.294 `pil` child/noble row generator no longer lets row ids, formula text, normalized slot strings, or concatenated display strings authorize the target. The selected live path is `buildLesson32PilChildNncSideOrdinaryNncOutputSet()` through `generateLesson32PilChildNncSideOutputs()` and `generateLesson32PilChildNncSideOutput()`.
+- `generateLesson32PilChildNncSideOutput()` now requires a `lesson-32-pil-child-nnc-side-source-frame` plus an `andrews-32-6-pil-child-nnc-side-row-realization` typed operation frame. The target surface is read from the operation frame's segment frames after the source frame has fixed the Andrews formula slots, row id, predicate stem, state, and connector roles.
+- The output-set builder constructs source and operation frames from the scoped p.294 row inventory before row execution. The single-row legacy string/id API now blocks unless those typed frames are supplied.
+- Missing source frames, missing operation frames, contradictory source/target frames, poisoned row/formula strings, changed caller strings, and monkeypatched legacy surface normalization cannot authorize or change the row output. Hostile compound tests prove the typed first row still generates `annupilwan` and string-only calls block.
+
+## Completed Phase: Andrews Lesson 32 p294 Ordinary CNN Output Route
+
+Date: 2026-06-24
+
+Decision:
+
+- The p.294 `pil` child/noble NNC-side output set is now available through the ordinary CNN output-generation route by explicit request: `ordinaryNnc.outputSet = "lesson32-pil-child-nnc-side"`.
+- The route remains `generationRoute: "ordinary-nnc"` with `subGenerationRoute: "lesson-32-pil-child-nnc-side"` and does not change default ordinary nounstem generation.
+- Active and no-active request contexts both produce the same NNC output set; the route records requested derivation/voice mode metadata but keeps the CNN structure tense-free.
+- The ordinary CNN request builder can carry that output-set opt-in, so UI/request code can target `CLÁUSULA NUCLEAR NOMINAL (CNN) · SUSTANTIVO ORDINARIO · ACTIVO + NO ACTIVO` without adding a lesson-specific generation gate.
+
+## Completed Phase: Andrews Logic Authority Denominal Source Context
+
+Date: 2026-06-24
+
+Decision:
+
+- Lessons 54-55 source-context/source-evidence requirements are now diagnostic metadata for denominal route targets, not finite-generation gates. Andrews executable route contracts decide whether a target can build a finite request; pending source context is exposed as `andrews-source-context-diagnostic-not-generation-gate`.
+- Nawat/Pipil evidence remains orthography/provenance data and does not authorize or veto Andrews grammar logic. Classical rule spellings still pass through the Nawat/Pipil orthography bridge before output.
+- Transitive, causative, applicative, and usually-transitive route targets still require an explicit object prefix before request construction.
+- Denominal continuation chips now remain clickable when only source context is pending, show that pending context as diagnostic, and still block only the object-prefix layer when an object is missing.
+
+## Completed Phase: Andrews Source Target Route Authority On Tense Controls
+
+Date: 2026-06-24
+
+Decision:
+
+- Existing `button.tense-tab` and `div.tense-block` controls now carry Andrews source-target route authority metadata; no duplicate top-level tabs were added.
+- The metadata resolves from the existing Andrews source-gated route registry when available, then exposes source formula type, target formula type, transition, route class, registry ids, matched ids, route branch, source gate, route host, logic authority, structural Classical spelling role, and Nawat/Pipil output spelling authority.
+- Current nominal outputs such as `agentivo`, `agentivo-presente`, `agentivo-preterito`, `agentivo-futuro`, `sustantivo-verbal`, `patientivo`, `instrumentivo`, `calificativo-instrumentivo`, `locativo-temporal`, and `locativo-agentivo-preterito` are marked as Andrews `CNV->CNN` routes where their current control is a nominal output surface.
+- Patientivo subtypes remain `div.tense-block` branches (`patientivo-pasivo`, `patientivo-impersonal`, `patientivo-perfectivo`, `patientivo-imperfectivo`, `patientivo-tronco`) and carry `CNV->CNN` branch authority instead of becoming duplicate `button.tense-tab` controls.
+- `CNN->CNV`, `CNV->CNV`, and mixed `CNV/CNN->CNV/CNN` classifications are routed to Andrews route-directory, verb-derivation-control, output-continuation, or mixed-compound hosts rather than nominal-output tabs.
+- The visible nominal tab groups remain the CNV-to-CNN output inventory. Source-target perception now belongs on the existing `Tipo de cláusula` and `Unidad` controls: clause-type buttons expose the current source side, and unit buttons expose target `CNV`/`CNN` plus `CNV->CNV`, `CNN->CNV`, `CNV->CNN`, `CNN->CNN`, and mixed `CNV/CNN->CNV/CNN` route options without mounting another route-directory column.
+
+## Completed Phase: Andrews Tense Authority UI Metadata
+
+Date: 2026-06-24
+
+Decision:
+
+- `button.tense-tab` and `div.tense-block` now receive Andrews authority metadata through a shared UI helper.
+- The self-audit now treats that element contract literally: `.tense-tab` controls must be `button.tense-tab`, and `.tense-block` output frames must be `div.tense-block`, with diagnostics for tag drift.
+- The metadata now records Andrews as grammar-logic authority, Classical spelling as structural-only, and Nawat/Pipil as the output orthography boundary on each annotated tab/block.
+- CNV tense tabs distinguish Andrews-licensed `tns` logic from Nawat/Pipil finite extensions that remain spelling/surface evidence only.
+- Programmatic CNV rendering now checks that same Andrews generation gate before building output rows, so Nawat/Pipil extension keys cannot bypass the tab inventory and generate CNV output as grammar. If a blocked key reaches rendering, the diagnostic block keeps the original tense value and `not-andrews-grammar-gate` metadata.
+- The core CNV generation executor now applies the shared Andrews tense gate before finite output even when `skipValidation` is set, so direct `executeGenerateWordRequest()` calls for Nawat/Pipil extension tenses return blocked diagnostics instead of surfaces or formula shells.
+- Denominal linked-route previews preserve their route stems but do not fall back to target-stem display when the finite target tense is blocked by the Andrews CNV gate.
+- Annotated `button.tense-tab` and `div.tense-block` controls now also carry executor gate metadata (`data-andrews-executor-*`) for the direct CNV output boundary, including the blocked `andrews-cnv-tense-logic-gate`, formula-shell block, and no-target-stem-fallback policy.
+- Tense tabs/blocks also carry explicit logic-role, generation-gate, output-role, Nawat/Pipil evidence-role, and Classical-output-import metadata so rendered controls do not treat visible Nawat/Pipil surface labels as grammar permission.
+- Tense tabs/blocks also carry `andrewsOutputSpellingAuthority="Nawat/Pipil orthography bridge"` and `andrewsOrthographyRealizationPath="andrews-logic-then-nawat-pipil-realization"` so the rendered control itself records that Andrews licenses logic before spelling realization.
+- Unclassified tense values no longer default into the CNV `tns` slot; they require an Andrews frame and self-audit as diagnostic until classified.
+- Nonactive suffix tabs are Andrews-licensed derived-stem controls, not tense evidence or Nawat/Pipil grammar gates.
+- CNN/nominal output blocks are explicitly marked as Andrews nominal routes with `no-vnc-tns`, preserving the ordinary NNC rule that nominal clauses do not acquire a VNC tense slot.
+- Tense-tab hover/title text now resolves through the same mode-aware Andrews authority frame as the dataset, so CNN controls do not inherit CNV unknown-tense wording.
+- Partícula output blocks are explicitly marked as Andrews particle boundaries with `no-vnc-tns`, keeping particle examples outside CNV/CNN tense logic.
+- Placeholder output blocks are marked as Andrews output gates so missing route selections do not fall back to an unclassified tense frame.
+- A DOM audit helper now checks annotated tabs/blocks for missing authority fields and slot conflicts.
+- The DOM audit also checks authority class state against the canonical dataset, so stale `nawat-extension`, `surface-evidence-only`, or Andrews-generation visual classes cannot contradict metadata.
+- DOM sync treats the rendered/root mode as authoritative over stale `data-andrews-tense-mode`, so reused controls moved between CNV and CNN contexts are repaired to the current Andrews frame.
+- Annotated tabs/blocks now write self-audit fields (`data-andrews-authority-audit`, `data-andrews-authority-missing`, `data-andrews-authority-diagnostics`) so rendered tense controls expose whether Andrews authority metadata is coherent.
+- A DOM sync helper now backfills missing authority metadata on rendered `.tense-tab`/`.tense-block` controls, repairs stale self-consistent authority metadata from the rendered tense value, and writes aggregate audit counts on the tab/output roots.
+- Tense-tab selection now treats Andrews grammar gates separately from surface-output probes: an Andrews-licensed tab is not disabled merely because the current Nawat/Pipil surface probe is empty, while Nawat/Pipil finite extensions and unclassified frames remain blocked by the Andrews generation gate.
+- Tense-tab selection metadata now also records Andrews as the selection logic authority, mirrors the grammar gate into `data-andrews-selection-grammar-gate`, keeps Nawat/Pipil as an orthography boundary only, and self-audits stale surface-probe or Classical-output-import contradictions.
+- DOM sync now repairs missing/stale tense-tab selection metadata and writes aggregate `data-andrews-tab-selection-*` counts on the root, so clickable/disabled selection state has the same visible audit boundary as tense-block output rows.
+- Tense-tab selection authority now writes native `disabled`, `aria-disabled`, and `data-andrews-selection-disabled` from the Andrews gate, and self-audits stale disabled/ARIA state so a visually clickable tab cannot contradict a blocked Andrews grammar gate.
+- Tense-tab click handlers now re-check that same Andrews gate before mutating selection state; `data-andrews-click-*` metadata and self-audit diagnostics expose stale clickable paths even when DOM disabled state is manually or programmatically contradicted.
+- Tense-tab selection sync now clears stale `is-active`/`aria-selected` state on blocked Andrews grammar gates and records selected-vs-blocked counts on the root audit, so a Nawat/Pipil extension tab cannot remain visually selected as grammar output.
+- Tense-block output audit now records generated row counts and marks hard-blocked Andrews gates as diagnostic if a blocked `div.tense-block` contains generated `.conjugation-row` output.
+- Tense-block output audit now rejects visible rows that lack an Andrews route contract (`grammarRouteFamily`, `grammarRouteStage`, and `grammarGenerationAllowed`) and aggregates the missing-contract count on the root audit, so a row cannot bypass the Andrews gate by omitting route metadata.
+- Tense-block output audit now rejects row-level contradictions where `grammarGenerationAllowed="false"` still reports `grammarResultOk="true"`, and aggregates the blocked-success count on the root audit.
+- DOM sync writes aggregate tense-block output audit counts on each audited root so blocked-generation leakage is visible at the tab/output container level.
+- Tense-block output audit now also aggregates child row grammar route contracts onto `div.tense-block`, including route families, route stages, diagnostic ids, Andrews generation-allowed row counts, and blocked route row counts, so the block boundary exposes whether displayed rows came through an Andrews-licensed executor path.
+- Tense-block output audit now flags generated rows that still carry a blocked Andrews route stage or blocked diagnostic id, so a row cannot claim `grammarGenerationAllowed=true` while retaining `andrews-cnv-tense-logic-gate` or `not-andrews-grammar-gate`.
+- Tense-block output audit now also flags generated rows whose `grammarResultOk` is not `true`, so a row cannot claim Andrews generation while its result frame still says output failed.
+- Tense-block output audit now also aggregates generated row orthography contracts (`grammarOrthographyBoundary`, `grammarSpellingAuthority`, and `grammarClassicalSurfaceImport`) and flags generated rows that lack the Nawat/Pipil boundary or permit Classical surface import.
+- Tense-block output audit now also flags generated rows whose spelling authority is not Nawat/Pipil orthography, so a row cannot silently route output spelling back to Classical or another source.
+- Generated row datasets now also expose `grammarLogicAuthority="Andrews"` and `grammarSpellingEvidenceRole="orthography-realization-only"`; tense-block audit flags generated rows that omit Andrews logic authority or treat spelling evidence as a grammar authority.
+- Tense-block output audit now also flags generated rows whose source-context or source-evidence target authority is present but not Andrews, so Nawat/Pipil generated surfaces and orthography evidence cannot become row-level grammar authority.
+- Generated row datasets now also expose `grammarClassicalSpellingRole="structural-only"`; tense-block audit flags generated rows that treat Classical spelling as output spelling instead of structural rule spelling.
+- Tense-block output audit now also repairs visible output-state classes (`blocked`, `generated`, `nominal`, `particle`, and blocked-row leakage) from the Andrews gate, so class state cannot contradict the generated-output audit.
+- Annotated tense tabs/blocks now also resolve CNV verb authority from the shared core Andrews tense frame and carry core source/slot/family/role/gate fields (`data-andrews-core-*`) with self-audit mismatch diagnostics, so UI gate state cannot drift from the Andrews logic authority frame.
+- Selection-required output blocks remain Andrews route gates and do not get compared to a fake CNV core tense frame, so a missing user route does not self-audit as an unclassified tense.
+- The UI cache was bumped for panels, rendering, composer, and CSS; focused UI coverage checks the metadata contract and extension/authority split.
+
+## Completed Phase: Andrews 46.3.1.a Dedicated Route Builder v1
+
+Date: 2026-06-21
+
+Decision:
+
+- Andrews §46.3.1.a now carries an ordered `puzzleStackTemplate.actionModel` for `(mich-namaka)`.
+- The dedicated route-builder in the Andrews route browser starts from `(mich-namaka)` and advances one operation at a time: preterit `-0`, general-use preterit-agentive `-ka`, locative relational `-n`, adverbial zero connector `-0-`, and final Nawat/Pipil surface realization.
+- The builder shows current formula, source evidence, route boundary, next operation, progress, and local back/reset controls.
+- Generated conjugation rows no longer project §46.3.1.a route nodes, rules, branches, or route-action chips. Rows keep the compact formula/result chips while the route contract remains available for the dedicated builder.
+- Focused coverage was updated in registry/UI tests; full `node scripts/run_tests.js` and `npm run check:data` pass.
+
+## Completed Phase: Andrews 46.3.1.a Absolutive t/ti Route Operation
+
+Date: 2026-06-21
+
+Decision:
+
+- The §46.3.1.a route builder now treats absolutive as one Nawat/Pipil `t/ti` allomorph operation, not separate `t` and `ti` route choices.
+- The operation records `previous-non-zero-segment` as its selector and applies after either consonant-final or vowel-final previous non-zero material.
+- The `(mich-namaka)` builder displays `-ka < absolutive t/ti` and `-n < absolutive t/ti`; edge-source traces resolve `ka -> t` and `n -> ti` without reintroducing split chips.
+- Registry/UI coverage checks the connector family, consonant/vowel applicability, previous-nonzero selector, and dedicated builder metadata.
+
+## Superseded Phase: Andrews 46.3.1.a Predicate-Nominal Row Guard
+
+Date: 2026-06-21
+
+Decision:
+
+- This temporary guard was too strong and has been replaced by the predicate-nominal `t/ti` boundary correction below.
+- The dedicated Andrews §46.3.1.a route builder remains the primary interaction for the `(mich-namaka)` route sequence.
+- Future predicate-nominal source forms are not blocked when the NNC target can represent the correct structure: the source future `s` belongs inside the predicate stem and the absolutive subject connector resolves outside the parentheses as the single Nawat/Pipil `t/ti` operation.
+
+## Completed Phase: Predicate-Nominal Future Source Absolutive t/ti Boundary
+
+Date: 2026-06-21
+
+Decision:
+
+- Future `predicado-nominal` source predicates now keep source-tense `s` inside the NNC predicate stem, e.g. `#Ø-Ø(tamaka-s)ti#` and `#Ø-Ø(michnamakalu-s)ti#`.
+- The absolutive subject connector is one `t/ti` operation selected from the previous non-zero predicate-stem segment after source `s` is appended; vowel-final stems still resolve `t`, consonant-final future stems resolve `ti`.
+- Generated surfaces remain fused (`tamakasti`, `tanamakasti`, `michnamakalusti`) while formula metadata exposes the operation boundary inside the predicate stem.
+- The generic predicate-nominal row no longer emits the `andrews-46-3-1-a-route-builder-required` block for `(mich)-(namaka)`; the dedicated route builder still owns the §46.3.1.a step-by-step route interaction.
+
+## Superseded Phase: Predicate-Nominal Full VNC Source-Tense Inventory
+
+Date: 2026-06-21
+
+Decision:
+
+- The full-app finite VNC source inventory was too broad for `predicado-nominal`.
+- `presente-desiderativo`, `perfecto`, `pluscuamperfecto`, `condicional-perfecto`, and `condicional` are Nawat/Pipil finite extensions or app-level tense keys, not Andrews-only predicate-nominal source choices.
+- This phase is replaced by the Andrews-only source-tense inventory below.
+
+## Completed Phase: Predicate-Nominal Andrews Source-Tense Inventory
+
+Date: 2026-06-21
+
+Decision:
+
+- `predicado-nominal` source tense selection is limited to the Andrews-attested VNC tenses: `presente`, `presente-habitual`, `imperfecto`, `preterito`, `pasado-remoto`, and `futuro`.
+- Nawat/Pipil-only finite extensions such as `presente-desiderativo`, `perfecto`, `pluscuamperfecto`, `condicional-perfecto`, and `condicional`, plus mood keys such as `optativo`, do not appear in the predicate-nominal source picker and normalize through the existing default source tense if passed directly.
+- Focused morphology coverage pins the Andrews-only inventory, the future `s` plus absolutive `t/ti` boundary, and fallback behavior for unsupported source-tense keys.
 
 ## Completed Phase: Lesson 1 Grammar OS Glossary v1
 
@@ -410,6 +1961,8 @@ Decision:
 - `pers1-pers2` maps to subject person prefix/suffix metadata.
 - `STEM` maps to the predicate stem and predicate state metadata.
 - `num1-num2` maps to the subject-number connector slot, with noun class kept separately as `clase Ø/t/ti/in`.
+- Andrews structural absolutive connector dyads stay Classical in formula evidence (`tl-0`, `tli-0 ~ li-0`, `in-0`, `0-0`, plural `t-in`, `m-eh`, `0-h`); Nawat/Pipil `t/ti` and `-t` spellings are orthography-bridge realization, not formula-source spellings.
+- The `other NNC(s)` PDF search evidence is recorded in the formula inventory as an evidence index and does not create a new ordinary NNC generation gate; printed p. 294 / PDF p. 309 separately feeds the scoped Lesson 32 `pil` child/noble NNC-side output generator.
 - No Nawat surface forms or routing behavior changed.
 
 ## Completed Phase: Ordinary NNC Category Profile
@@ -427,6 +1980,7 @@ Decision:
   - `Referencia: singular/plural`
   - `Conector num1-num2: Ø/t/ti/in`
 - Unsupported possessive requests remain unsupported diagnostics; labels do not make unavailable marking appear valid.
+- The slot-scoped Classical-to-Nawat/Pipil NNC realization table is now explicit: `tl-0 -> t-0`, `tli-0 ~ li-0 -> ti-0`, `m-eh -> m-et`, `0-h -> 0-t`, `st=tla -> ta`, and specific possessor dyads such as `n-o -> n-u`, `t-o -> t-u`, `m-o -> m-u`, `am-o -> anm-u`, `i-m/i-n... -> i-n/i-nh`. These are orthography/slot realizations, not replacements for Andrews formula-source spellings.
 
 ## Completed Phase: Ordinary NNC UI Gating
 
@@ -698,14 +2252,14 @@ Date: 2026-06-06
 Decision:
 
 - Lessons 28 and 30 have partial Nawat/Pipil support through current compound parser/composer metadata and selected unchanged VNC output paths.
-- Lesson 29 has diagnostic purposive/directional boundary metadata only. Lessons 31-32 have diagnostic compound/affective NNC boundary metadata only. Lesson 33 has diagnostic honorific/pejorative VNC boundary metadata only. Lesson 34 and Appendix D have diagnostic numeral-NNC boundary metadata only.
+- Lesson 29 now has a scoped Andrews outbound/inbound purposive target-stem generator plus directional/purposive boundary metadata. Lessons 31-32 have diagnostic compound/affective NNC boundary metadata only. Lesson 33 now has a scoped Andrews preterit-embed target-stem generator plus honorific/pejorative boundary metadata. Lesson 34 and Appendix D have diagnostic numeral-NNC boundary metadata plus scoped basic cardinal one-through-four generation.
 - Current `compoundAst` metadata is additive parser metadata for matrix, embed, source, valency, and flags. It is not a complete compound generation engine.
 - Generated VNC rows for accepted compound inputs may expose diagnostic `compoundFrame` metadata derived from `compoundAst`; rendering may show `Compuesto VNC` and `Incrustado`, without changing generated surfaces.
 - Current ordinary NNC fixture classifications can identify lexical embeds such as `shuchi` or `a`, but that does not implement compound NNC generation, affective NNC generation, or numeral NNCs.
-- Current Lesson 29 metadata records the boundary between directional prefix mechanics and purposive VNC evidence. It does not generate forms or change existing directional output.
+- Current Lesson 29 logic records the boundary between directional prefix mechanics and purposive VNC evidence, and it generates scoped outbound/inbound target stems from Andrews direction, mood, tense, number, and source-stem slots through the orthography bridge.
 - Current Lessons 31-32 metadata records the boundary between VNC `compoundAst`/ordinary NNC fixtures and confirmed compound or affective NNC evidence. It does not generate forms or change ordinary NNC/VNC output.
-- Current Lesson 33 metadata records the boundary between ordinary VNC derivation, person labels, translation tone, and confirmed honorific or pejorative evidence. It does not generate forms or change VNC output.
-- Current Lesson 34/Appendix D metadata records the boundary between ordinary NNC open-stem output, UI number labels, Appendix D headings, and confirmed numeral-NNC evidence. It does not generate forms or change ordinary NNC output.
+- Current Lesson 33 logic records the boundary between ordinary VNC derivation, person labels, translation tone, and honorific/pejorative evidence, and it generates scoped preterit-embed target stems from supplied preterit predicate stems plus Andrews `tzin-o-a` or `pol-o-a` matrices through the orthography bridge.
+- Current Lesson 34/Appendix D metadata records the boundary between ordinary NNC open-stem output, UI number labels, Appendix D headings, and numeral-NNC generation. It can generate the Andrews basic simple-count stems `ce`, `ome`, `eyi`, and `nahui` through the orthography bridge as `se`, `ume`, `eyi`, and `nawi`; broader numeral behavior remains diagnostic and ordinary NNC output is unchanged.
 - Do not force compound NNC, affective, or numeral behavior into ordinary NNC `formulaSlots`.
 - Do not treat parser punctuation, slash/dash syntax, UI composer embeds, or Appendix D labels as Nawat/Pipil fixture evidence.
 - Do not import Andrews/Classical compound, purposive, affective, honorific, pejorative, or numeral examples as Nawat/Pipil forms.
@@ -714,10 +2268,10 @@ Future path:
 
 1. Keep current `compoundAst` as parser metadata unless a future target explicitly broadens compound generation.
 2. Add status/metadata tests for current Lesson 28/30 parser support before broadening behavior.
-3. Keep `core/vnc/purposive` non-generative until confirmed Nawat/Pipil purposive examples justify data, schema, generation, or UI.
+3. Extend `core/vnc/purposive` beyond the current Andrews target-stem route only when a future explicit target covers the remaining finite-output, passive/impersonal embed, compound-stemmed embed, or external-directional contracts with tests.
 4. Keep `core/nnc/compound` non-generative until confirmed Nawat/Pipil compound-NNC or affective examples justify data, schema, generation, or UI.
-5. Keep `core/vnc/honorific_pejorative` non-generative until confirmed Nawat/Pipil honorific/pejorative examples justify data, schema, generation, or UI.
-6. Keep `core/nnc/numerals` non-generative until confirmed Nawat/Pipil numeral-NNC or number-lexeme examples justify data, schema, generation, or UI.
+5. Extend `core/vnc/honorific_pejorative` beyond the current Andrews preterit-embed target-stem route only when a future explicit target covers route choice, reverential doubling, compound-verbstem targeting, or full finite UI expansion with tests.
+6. Extend `core/nnc/numerals` beyond the current basic one-through-four generator only when a future explicit target covers the remaining Andrews numeral contracts with focused tests.
 7. Reduce pending counts only after evidence-backed implementation and tests.
 
 Candidate schema questions to revisit later:
@@ -756,7 +2310,7 @@ Decision:
 - Compound-source patientivo outputs now preserve their parsed source compound in `patientiveCompoundSourceFrame`, following Andrews 41.2.3's warning that matching patientive surfaces may require underlying compound-source evidence to distinguish passive and impersonal analyses.
 - Andrews 36.2-36.3 now has an actual `agentivo` connector contract: generated output keeps Nawat surfaces such as `nemini/tineminimet`, but `ni` is represented inside the predicate stem and the NNC connector is `Ø/met/wan`. The §36.3 fully nominalized customary-agentive stem can now feed the first nominal compound continuation from `#3 salida` (`nemini` + `kal` -> `(neminikal)` -> `neminikal`) as an open-stem ordinary NNC output action, and the first data-backed verbal compound matrix (`tuka`) as a real VNC action (`nemini` -> `-(nemini/tuka)` -> `kineminituka` with outside object `ki`).
 - Andrews 36.7 now has an opt-in `agentivo-presente` contract: generated output reanalyzes the Nawat present predicate as the NNC stem (`nemi`, `tamati`), remains absolutive-only, and keeps the present source number connector in `num1-num2`.
-- Andrews 35.3/35.5-35.12 now has an opt-in `agentivo-preterito` contract: generated output reanalyzes the Nawat preterit predicate as the NNC stem (`nenki` as `(nen)ki`, `tamatki` as `(tamat)ki`), keeps preterit connectors in `num1-num2`, uses the general-use Nawat `-ka` matrix with `w/wan` connectors for possessive-state probes, and derives the 35.7 general-use compound stem dynamically in `#3 salida` row actions for data-backed verbal/nominal matrices such as `tzajtzi` and `kal`. The same output-stage stem now feeds Andrews 35.9-35.10 ownerhood/abundant-ownerhood VNC matrices as real generated inputs (`(tamatka)-(wa)`, `(tamatka)-(yua)`) using Nawat `waj/yuj` orthography, Andrews 35.12 incorporated-complement VNC matrices with an outside object slot (`(tamatka/mati)` -> `kitamatkamati`, `(tamatka/talia)` -> `kitamatkatalia`), and the first Andrews 35.12 adverbial-manner matrix (`(tamatka/nemi)` -> `tamatkanemi`). Ordinary NNC output rows also feed first class-compatible ownerhood continuations from their generated nounstem: `t` -> `e/ej`, `zero/in` -> `wa/waj`, and abundant -> `yua/yuj`, while `ti` ownerhood remains diagnostic until subclass evidence is confirmed.
+- Andrews 35.3/35.5-35.12 now has an opt-in `agentivo-preterito` contract: generated output reanalyzes the Nawat preterit predicate inside the NNC stem with Andrews' zero visible (`nenki` as `#Ø-Ø(nen-0)ki-0#`, `tamatki` as `#Ø-Ø(tamat-0)ki-0#`), keeps preterit connector dyads in `num1-num2` (`ki-0`, `k-0`, `k-et`), uses the general-use Nawat `-ka` matrix inside the stem with `w-0/w-an` connectors for possessive-state probes (`ninumikikaw` as `#ni-Ø+nu(miki-0-ka)w-0#`), and derives the 35.7 general-use compound surface stem dynamically in `#3 salida` row actions for data-backed verbal/nominal matrices such as `tzajtzi` and `kal`. The same output-stage stem now feeds Andrews 35.9-35.10 ownerhood/abundant-ownerhood VNC matrices as real generated inputs (`(tamatka)-(wa)`, `(tamatka)-(yua)`) using Nawat `waj/yuj` orthography, Andrews 35.12 incorporated-complement VNC matrices with an outside object slot (`(tamatka/mati)` -> `kitamatkamati`, `(tamatka/talia)` -> `kitamatkatalia`), and the first Andrews 35.12 adverbial-manner matrix (`(tamatka/nemi)` -> `tamatkanemi`). Ordinary NNC output rows also feed first class-compatible ownerhood continuations from their generated nounstem: `t` -> `e/ej`, `zero/in` -> `wa/waj`, and abundant -> `yua/yuj`, while `ti` ownerhood remains diagnostic until subclass evidence is confirmed.
 - Andrews 36.8 now has an opt-in `agentivo-futuro` contract: generated restricted-use output keeps future `s` inside the predicate stem with NNC connector `ki/ket`, while possessive-state probes use the general-use `-ka` matrix with Nawat `w/wan` connectors.
 - Andrews 36.5 now has an actual generation contract in `potencial-habitual`: source reflexive `mu` maps to shuntline `ne`, single projective sources stay absent from the nounstem, double-projective sources keep exactly the selected projective (`ta+te` -> `tamachuni/tamatuni/tamatiluni`; `te+ta` -> `temachuni/tematuni/tematiluni`), and possessive-state probes remain absolutive.
 - Andrews 36.6 now has an actual `instrumentivo` generation contract: absolutive output reads the customary-present impersonal/nonactive source, possessive output reads the imperfect active source, the source-tense `ni/ya` belongs inside the predicate stem rather than the NNC subject connector, explicit possessive-mode requests can transform the source VNC subject into a Nawat possessor (`ni` -> `nu`, `ti` -> `mu`, `Ø` -> `i`, `ti...t` -> `tu`, `an...t` -> `anmu`, `Ø...t` -> `in`), `#3 salida` rows expose those generated possessive continuations dynamically, and source reflexive `mu` maps to shuntline `ne` in both states.
@@ -869,6 +2423,7 @@ Decision:
 - The verified Andrews §54.2-§55.7 denominal contract inventory now exists as structural metadata: §54.2.1 `ti`, §54.2.2 `hui` plus `hui-lia`, §54.2.3 root-plus-`ya`, deverbal `ti-ya`/`hui-ya`, and `ya`-deleting `lia`, §54.2.4 limited `a`, §54.2.5 deverbal `hua`, §54.3 included-possessor `ti`, §54.4 possession `ti`, §54.2/§54.4 `ti` + `lia` causatives, §54.5 `ti-a`, §54.6 `t-ia`, §55.1 `tia`, §55.2 causative `tla`, §55.2 `tla -> ti-lia` applicative, §55.2 less-productive intransitive `tla`, the §55.2 note's intransitive `tla -> ti-a/ti-lia` continuations, §55.3 `o-a`/`huia`, the §55.3 note 2 `o-a` source to hypothetical `i-l-huia`/`a-l-huia` applicative path, §55.4 `huia`, §55.5 relational `o-a`/`huia`, §55.6 `i-hui`/`a-hui > o-a`, and §55.7 `i-a`. Classical rule spellings are converted to Nawat/Pipil letters in the metadata, and unmodeled contracts remain pending rather than generation.
 - `generateNawatDenominalAndrewsContractRoutePreview()` now builds stem-only VNC route targets from that verified Andrews inventory for a supplied Nawat/Pipil source stem. Generated denominal output rows carry this preview in `denominalFamilyProfile.andrewsContractRoutePreview`, and rendering can show the target count, explicit-request count, object-prefix-required count, class-contract count, source-evidence-required count, warning count, note count, sample VNC inputs, and limited Andrews denominal VNC continuation chips. It converts Classical suffix sequences such as `hui`, `hui-lia`, `ti-ya`, `hui-ya`, `ya`, `lia`, `a`, `hua`, causative/intransitive `tla`, §55.2 replacement `ti-a`/`ti-lia`, `o-a`, `huia`, §55.3 note 2 `i-l-huia`/`a-l-huia`, `i-hui`, `a-hui`, and `i-a` into Nawat/Pipil route suffixes, records segmented target inputs, records verified Andrews stem classes for the supported Class A/B/C targets including §54.4 possession `ti` as Class A/B with no deverbal `ya`, §54.2/§54.4 `ti-lia` as Class C after generated `ti` source evidence, §54.2 `ti-ya` as Class A/B, and §54.2 `hui-ya` as Class B, records source requirements for §54.3 possessive-state predicates, §54.2.2 generated intransitive `hui` sources, §54.2.3 generated `ti`/`hui` sources before `ti-ya`/`hui-ya`, §54.2.3 generated intransitive `ya` sources with `ya` deletion before `lia`, §54.2/§54.4 `ti-lia`, §54.5 `ti-a`, and §54.6 `t-ia` targets from generated intransitive `ti` sources, §55.1 temporal compounds, §55.2 `tla` causative sources, §55.2 note intransitive `tla` sources, §55.3 note 2 generated intransitive `o-a` sources that bypass the transitive `o-a` step through a hypothetical `i-hui`/`a-hui` source, §55.4 adverbial nounstems, §55.5 relational compounds/relational possessive predicates, and §55.6 `i-hui`/`a-hui` sources, records §55.7 `i-a` no-intransitive-counterpart, source-final pattern, w-final `huia` ambiguity, source-nounstem-`i`, and possible `i-hui` source-path diagnostics through finite request/execution provenance, and explicitly does not run finite VNC generation or create fixture evidence by itself. The finite §54.5 `ti-a` route is single-object only; Andrews' possessive-state double-object §54.5 path remains unmodeled rather than forced into the current VNC request. Generated ordinary possessive NNC outputs can now provide bounded §54.3 source evidence: the Nawat possessive predicate surface feeds the included-possessor `ti` target, and metadata records that the possessor remains inside the verbstem rather than becoming a VNC object. Generated ordinary NNC outputs can also provide the predicate nounstem for §54.4 possession `ti`, keeping nounstem-focused possession `ti` separate from the included-possessor path. Generated §54.2 inceptive/stative `ti` targets, generated §54.4 possession `ti` targets, and selected current `vi-ti` verbalizer stages can now satisfy the following `ti-ya`, §54.2/§54.4 `ti-lia`, §54.5 `ti-a`, and §54.6 `t-ia` continuation contracts without creating lexical evidence; generated §54.2.2 `hui` targets satisfy `hui-ya` and `hui-lia`, and generated `ti-ya`/`hui-ya`/root-plus-`ya` targets satisfy the `ya`-deleting `lia` continuation after final `ya` is removed. Traditional `tia`/`huia` spellings are exposed only as ambiguity labels because Andrews warns they can be confused with causative/applicative suffixes. Generated §55.2 intransitive `tla` targets satisfy the note's `ti-a` and `ti-lia` continuations; generated §55.3 intransitive `o-a` targets satisfy the note 2 `i-l-huia` and `a-l-huia` applicative continuations. Explicit source-classification helpers now satisfy §55.4 adverbial-nounstem and §55.5 relational compound/possessive relational predicate source requirements only when a caller supplies that confirmed source classification; they do not treat configured adverbio rows or relational boundary frames as automatic evidence. `buildNawatDenominalAndrewsContractRouteGenerateWordRequest()`, `executeNawatDenominalAndrewsContractRoute()`, `activateNawatDenominalAndrewsContractRouteTarget()`, `previewNawatDenominalAndrewsContractRouteNextSource()`, `previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput()`, `previewNawatDenominalAndrewsPossessionTiRouteFromOrdinaryNncOutput()`, `previewNawatDenominalAndrewsAdverbialHuiaRouteFromSource()`, and `previewNawatDenominalAndrewsRelationalCompoundRouteFromSource()` can route a selected Andrews target into the VNC engine only with an explicit target tense and with source evidence satisfied for source-limited targets; transitive, causative, applicative, and usually-transitive targets also require a Nawat object prefix before finite request construction.
 - §55.1 temporal `tia` now has the same explicit source-classification boundary as §55.4 and §55.5: `previewNawatDenominalAndrewsTemporalTiaRouteFromSource()` accepts a confirmed compound-temporal NNC source with a time-segment matrix and numeral embed, satisfies the `temporal-compound-nounstem` route requirement, and does not treat generated `locativo-temporal` rows as automatic evidence.
+- 2026-06-24 Andrews-logic authority update: older wording here that says source-limited targets become finite-routable only after source evidence is satisfied now means the source context is preserved as diagnostic/provenance metadata. It no longer gates finite request construction; Andrews route-contract validity, explicit target tense, and explicit object-prefix requirements are the finite request gates.
 - §54.2 inceptive/stative target class metadata follows Andrews' source-final wording after Nawat orthography: `ti` records Class A after consonant-final sources and A/B after vowel-final sources, `hui` records Class A after consonant-final sources and Class B after vowel-final sources, root-plus-`ya` and deverbal `ti-ya` record A/B, deverbal `hui-ya` records Class B, limited `a` records Class C, and `hua -> wa` records Class A without collapsing into §55.3 `o-a`.
 - §55.7 source-final status is diagnostic metadata only: majority Classical `[c]`/`/l/` sources surface as Nawat `k/l`, attested minority `/k/`/`/n/` examples surface as Nawat `k/n` with Classical `/k/` collapsed into the same Nawat `k`, and w-final ambiguity remains a lexical-confirmation warning. It does not reject route targets or create fixture evidence.
 - Current `data/static_modes.json` route profiles explicitly configure the supported denominal families (`vi-ti`, `vi-iwi`, `vi-awi`, and `vt-na`) and route contracts. Andrews-backed suffix contracts are limited to §54.2/§54.4 `ti` and §55.6 `i-hui`/`a-hui`, with Classical spellings converted to Nawat letters as `ti`, `i-wi`, and `a-wi` before `-ti`, `-iwi`, and `-awi` route metadata is surfaced. The existing `vt-na` route is kept as current Nawat route data only because the verified Andrews wording supports transitive denominal `i-a`, `o-a`, and `huia`, not `-na`; metadata marks it `nawat-transitive-route-no-andrews-suffix` and `noAndrewsSuffixContract`. Source-state, generated-output, route-family inventory, and linked route-preview metadata derive from that route data and mark `routeProfileSource: "static-modes"` when configured data is available. Preview stages carry `nextSource` candidates for later composition; selected `vi-ti` verbalizer stages carry bounded generated `ti` source evidence into the next route preview so `ti-ya`, §54.2/§54.4 `ti-lia`, §54.5 `ti-a`, and §54.6 `t-ia` continuations can become finite-routable only after that generated stage is selected, and selected `vi-iwi`/`vi-awi` verbalizer stages carry bounded §55.6 `i-hui`/`a-hui` source evidence so the matching `o-a` counterpart can become finite-routable only after that generated stage is selected. Andrews contract route targets can now do the same when the PDF states a target is the source for a later route: generated §54.2/§54.4 `ti` satisfies the following `ti-ya`, `ti-lia`, `ti-a`, and `t-ia` source requirements, generated §54.2.2 `hui` satisfies `hui-ya` and `hui-lia`, generated §54.2.3 `ya` satisfies `ya-lia`, generated `ti-ya`/`hui-ya` satisfy `ya-lia` after final `ya` deletion, generated §55.2 causative `tla` satisfies the following `tla -> ti-lia` source requirement, generated §55.2 intransitive `tla` satisfies the note's `ti-a`/`ti-lia` source requirements, generated §55.3 intransitive `o-a` satisfies the note 2 `i-l-huia`/`a-l-huia` applicative source requirements, and generated §55.6 `i-hui`/`a-hui` satisfies the `o-a` counterpart source requirement. Linked stages can be converted into direct generation requests, linked-stage execution returns provenance, next-source preview can show supported route-family candidates for a selected stage without executing it or mutating state, chain preview can compose an explicit user-selected sequence of stages, `buildNawatLinkedGrammarPathSelectionSummary()` can expose the current source plus appendable next route/stage choices without executing stages, selection-state helpers can store/clear/backtrack an explicit selected stage chain without executing it, and chain execution can run that sequence while preserving linked-path provenance. The visible linked-path controls live dynamically in `#3 SALIDA` as output composition, not as a separate `ruta nawat` rail; reusable stages show `Siguiente fuente`, `Salida de etapa`, `Continuaciones`, and bounded Andrews source-evidence labels, and selected-path helpers show `Fuente actual`, `Opciones siguientes`, and `Siguiente salida`. Andrews continuation chips can distinguish pending source evidence from source evidence satisfied by a generated stage and can mark traditional `tia`/`huia` spelling ambiguity without treating those spellings as separate Nawat evidence. The output surface can show appendable next choices plus `seguir` actions that store the chosen next route without executing it, selected chains can render back as `Trayecto`, `atrás` can backtrack the last selected stage, `borrar` can clear the chain, `generar trayecto` can execute the stored chain on request, `usar etapa N` can promote any executed stage's generated surface as the new linked-path source while retaining wrapped source-input provenance, `usar salida` can promote the final generated surface as the new linked-path source and sync it into the visible input only for that explicit promotion action, and the selected-path summary can offer multiple `seguir` choices from that promoted/current source. This adds no route families and does not complete Lessons 54-55.
@@ -1389,7 +2944,7 @@ Decision:
 
 - Adjectival NNC function entry contracts now serialize their `grammarFrame` / `frames` payload alongside the existing route summary so promoted UI entries do not lose the LCM contract before generation.
 - `resolveAdjectivalNncFunctionOverrideFromInput()` now restores the serialized frame into `override.adjectivalNnc.grammarFrame` and reads the result-frame surface before dataset surface text.
-- `executeAdjectivalNncGenerationRoute()` now uses `resolveAdjectivalNncGenerationSurface()` for intensified, VNC, nominalized-VNC, patientive, root-plus-ya, and default adjectival NNC routes, preferring framed output before compatibility `surface` / `stem` fields.
+- `executeAdjectivalNncGenerationRoute()` now uses `resolveAdjectivalNncGenerationSurface()` for intensified, nominalized-VNC, patientive, root-plus-ya, and default adjectival NNC routes, preferring framed output before compatibility `surface` / `stem` fields. The Andrews 40.3 VNC adjectival route was later hardened further: it now requires typed VNC continuation and operation frames rather than this frame-first display fallback.
 - Adjectival function rendering and silent-generation cache keys now use frame-first readers instead of direct `override.adjectivalNnc.surface`.
 - This closes an adjectival-chip route bypass without adding Nawat/Pipil surfaces, fixture evidence, grammar licenses, or Andrews/Classical examples.
 
@@ -2761,6 +4316,425 @@ Decision:
 - The same live next-source surface keeps §54.2.3 `ti-ya` and `hui-ya` reachable from generated `ti`/`hui` sources, and those generated `ti-ya`/`hui-ya` outputs still expose the following `ya-lia` source-evidence route.
 - Bounded source-evidence records now explicitly mark `sourceEvidenceSupportsTiYaDeverbal` and `sourceEvidenceSupportsHuiYaDeverbal` for generated `ti`/`hui` sources. This documents the engine contract edge without adding lexical fixtures or importing Classical example surfaces.
 - The renderer change applies to denominal Andrews route continuations generally: if a route is finite-available after its source guards pass, the UI can show it; object-prefix-required routes still block at the object layer until the user picks `mu`, `ta`, or `te`.
+
+## Completed Phase: Compound NNC Affective Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyCompoundNncAffectiveCandidate()` route no longer lets `headStem`/`embeddedStem` display strings authorize compound-NNC generation.
+- Compound nounstem generation now requires a `compound-nnc-affective-source-frame` plus an `andrews-31-compound-nounstem-source-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy normalizers block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Adjectival NNC Function Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyAdjectivalNncFunctionCandidate()` route no longer lets `candidate`, `predicateSurface`, `sourceGate`, or `structuredSource` strings authorize adjectival-function generation.
+- Adjectival-function candidate generation now requires an `adjectival-nnc-function-candidate-source-frame` plus an `andrews-40-41-adjectival-function-candidate-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy candidate normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Basic Cardinal Numeral NNC Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `buildAndrewsBasicCardinalNumeralNnc()` generator no longer lets `value`, `numeralBase`, formula-template text, or structural stem strings authorize cardinal numeral NNC generation.
+- Basic cardinal numeral generation now requires a `basic-cardinal-numeral-nnc-source-frame` plus an `andrews-34-basic-cardinal-numeral-nnc-realization` typed operation frame.
+- The generator reads formula slots, target segment frames, target stem, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization.
+- `classifyNumeralNncCandidate()` no longer normalizes `candidate`/`numeralBase` strings or implicitly calls cardinal generation as authority. It can classify display strings, but generated output requires the same typed source and operation frames.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched numeral-surface normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Personal-Name NNC Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyPersonalNameNncCandidate()` route no longer lets `candidate`, `nameSource`, `sourceGate`, or `structuredSource` strings authorize personal-name NNC generation.
+- Personal-name candidate generation now requires a `personal-name-nnc-source-frame` plus an `andrews-56-personal-name-nnc-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy candidate normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Place/Gentilic NNC Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyPlaceGentilicNncCandidate()` route no longer lets `candidate`, `placeNameSource`, `gentilicSource`, `sourceGate`, or `structuredSource` strings authorize place-name or gentilic NNC generation.
+- Place/gentilic candidate generation now requires a `place-gentilic-nnc-source-frame` plus an `andrews-48-place-gentilic-nnc-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy candidate normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Relational NNC Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyRelationalNncCandidate()` route no longer lets `candidate`, `relationalStem`, `sourceGate`, or `structuredSource` strings authorize relational NNC generation.
+- Relational candidate generation now requires a `relational-nnc-source-frame` plus an `andrews-45-47-relational-nnc-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy candidate normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: Nominalization Boundary Candidate Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `classifyNominalizationBoundaryCandidate()` route no longer lets `candidate`, `sourceVnc`, `stemUse`, `sourceGate`, or `structuredSource` strings authorize nominalization generation.
+- Nominalization boundary candidate generation now requires a `nominalization-boundary-source-frame` plus an `andrews-35-39-nominalization-boundary-realization` typed operation frame.
+- The classifier reads target formula slots, segment frames, and realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; caller strings remain display/classification inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, poisoned caller strings, and monkeypatched legacy candidate normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: VNC Valence Formula Surface Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `getVncValenceAndrewsLogicSurfaceForSlots()` route no longer lets formula-slot strings by themselves authorize the Andrews-logic VNC valence surface.
+- VNC valence formula-workbench surface realization now requires a `vnc-valence-andrews-logic-surface-source-frame` plus an `andrews-vnc-valence-slot-surface-realization` typed operation frame.
+- The surface executor reads target segment frames and the realized Nawat/Pipil surface from the typed operation frame after Andrews authorization; `formulaSlots`, normalized surface-part strings, and workbench display echoes remain caller/display inputs only.
+- Missing source frames, missing operation frames, contradictory source frames, contradictory target frames, changed caller formula slots, and monkeypatched legacy surface-part normalization block or fail to alter generated output under focused hostile coverage.
+
+## Completed Phase: VNC Valence Workbench Source Frame Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live `buildVncValenceFormulaWorkbenchSlice()` route no longer lets `normalizeVncValenceWorkbenchStem()` or `inferVncValenceWorkbenchSelection()` decide stem/valence from raw formula or surface strings.
+- VNC valence workbench selection now parses user input once into a `vnc-valence-workbench-source-frame`; stem and valence selection are then read from that typed source frame.
+- The legacy direct stem/selection APIs now block without the typed source frame, and the live workbench consumes the source frame directly instead of routing through the monkeypatchable string helpers.
+- String-only direct calls, changed caller strings with the same frame, and monkeypatched legacy stem/selection helpers cannot authorize or alter the selected stem, valence kind, formula, or generated surface under focused hostile coverage.
+
+## Completed Phase: Lesson 6 Direct Nawat Dyad Split Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live Lesson 6 direct Nawat object-dyad route no longer lets `splitLesson6DirectNawatDyad()` parse `n-ech`, `m-etz-in`, `k-in`, or similar display-like dyad strings into `va1`/`va2`.
+- Direct dyad splitting now requires a `lesson-6-direct-nawat-dyad-source-frame` plus an `andrews-6-direct-nawat-dyad-split` typed operation frame.
+- `getLesson6DirectNawatObjectDyadFrame()` builds and validates those frames, then consumes the typed target dyad frame directly before rendering formula/display mirrors.
+- String-only direct split calls, missing source frames, missing operation frames, contradictory source frames, contradictory target frames, changed caller strings, and monkeypatched legacy split calls block or fail to alter `va1`/`va2` output under focused hostile coverage.
+
+## Completed Phase: Generated Class Perfective Formula Profile Typed Operation Gate
+
+Date: 2026-07-04
+
+Decision:
+
+- The live generated class-perfective formula profile route no longer lets `buildGeneratedClassPerfectiveFormulaProfile()` reverse-match generated surface strings to infer formula base/object slots.
+- Class-perfective formula profile selection now requires a `generated-class-perfective-formula-source-frame` plus a `generated-class-perfective-formula-profile-realization` typed operation frame.
+- The formula-profile executor reads base, object prefix, formula object, and object surface from the typed operation target profile; `surfaceForms`, `subjectPrefix`, `objectPrefix`, `sourceStem`, and result strings remain caller/display inputs only after authorization.
+- String-only direct calls, missing source frames, missing operation frames, contradictory source frames, contradictory target frames, changed caller strings/surfaces, and monkeypatched legacy surface-core matching block or fail to alter output under focused hostile coverage.
+
+## Completed Phase: Morph-Stem Truncate Nonactive Base Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The `realizeMorphStemSpec()` truncate-nonactive-base transform route no longer lets hand-built transform specs or caller source strings authorize nonactive-base truncation.
+- Truncate-nonactive-base morph stem realization now requires a `morph-stem-truncate-nonactive-base-source-frame` plus an `andrews-morph-stem-truncate-nonactive-base-realization` typed operation frame.
+- The realization branch reads the target stem from the typed operation frame after validating source identity and coda operation flags; `sourceStem`, `dropFinalW`, `tzToCh`, and target strings are frame contracts rather than display/string authority.
+- The legacy direct `truncateNonactiveBase()` string API now blocks unless called with matching typed source and operation frames; hand-built legacy specs, changed caller source stems, missing operation frames, contradictory source frames, and target-segment/target-stem contradictions block under focused hostile coverage.
+
+## Completed Phase: Morph-Stem Wa-Onset Variant Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The `realizeMorphStemSpec()` nonactive-wa-variant transform route no longer lets hand-built transform specs or caller source strings authorize `s`/`t` onset replacement plus `wa`.
+- Wa-onset-variant morph stem realization now requires a `morph-stem-wa-onset-variant-source-frame` plus an `andrews-morph-stem-wa-onset-variant-realization` typed operation frame.
+- The live nonactive `wa` option builder now realizes and compares the typed stem spec instead of calling the legacy `buildWaOnsetVariant()` helper to decide whether a variant exists.
+- Hand-built legacy specs, changed caller source stems, missing operation frames, contradictory source frames, and target-segment/target-stem contradictions block under focused hostile coverage.
+
+## Completed Phase: Morph-Stem Nonactive-U Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The `realizeMorphStemSpec()` nonactive-u transform route no longer lets hand-built transform specs or caller source strings authorize final-vowel replacement, `s`/`t`/`tz` onset replacement, or `kw` simplification.
+- Nonactive-u morph stem realization now requires a `morph-stem-nonactive-u-source-frame` plus an `andrews-morph-stem-nonactive-u-realization` typed operation frame.
+- The live type-two nonactive `u` option builder now realizes the typed `u` stem spec instead of calling the legacy `buildNonactiveUStem()` helper to decide whether a `u` option exists.
+- The legacy direct `buildNonactiveUStem()` string API now blocks unless called with matching typed source and operation frames; hand-built legacy specs, changed caller source stems, missing operation frames, contradictory source frames, and target-segment/target-stem contradictions block under focused hostile coverage.
+
+## Completed Phase: Morph-Stem Nonactive-Uwa Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The `realizeMorphStemSpec()` nonactive-uwa transform route no longer lets hand-built transform specs or caller source strings authorize final-vowel deletion, `w` deletion, `s`/`t`/`tz` onset replacement, or `uwa` addition.
+- Nonactive-uwa morph stem realization now requires a `morph-stem-nonactive-uwa-source-frame` plus an `andrews-morph-stem-nonactive-uwa-realization` typed operation frame.
+- The live type-two nonactive `uwa` option builder now realizes the typed `uwa` stem spec instead of calling the legacy `buildNonactiveUwaStem()` helper to decide whether a `uwa` option exists.
+- The legacy direct `buildNonactiveUwaStem()` string API now blocks unless called with matching typed source and operation frames; hand-built legacy specs, changed caller source stems, missing operation frames, contradictory source frames, and target-segment/target-stem contradictions block under focused hostile coverage.
+
+## Completed Phase: Nonspecific Object Allomorphy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live object-prefix allomorphy route `applyObj1Allomorphy()` no longer lets `applyNonspecificObjectAllomorphy()` decide `mu > m` or supportive-`i` deletion from direct request strings alone.
+- Nonspecific object allomorphy now requires a `nonspecific-object-allomorphy-source-frame` plus an `andrews-nonspecific-object-allomorphy-realization` typed operation frame before it can return changed `verb`, `analysisVerb`, `obj1`, or Lesson 2 sound/spelling frames.
+- The generation-valency and noun-forward agreement callers now build the typed source and operation frames before applying allomorphy; continuation carries the operation frame on `applyObj1Allomorphy()` output, while display strings and sound/spelling chips are rendered from the authorized target frame.
+- The legacy direct `applyNonspecificObjectAllomorphy()` string API now blocks without matching typed frames; missing operation frames, changed caller strings, contradictory source frames, and contradictory target frames block under focused hostile coverage.
+
+## Completed Phase: Patientivo Nonactive Stem Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live nonactive patientivo source route no longer lets `getPatientivoStemFromNonactive()` recover patientive stems by direct suffix-string comparison and slicing from caller `stem` / `suffix` strings.
+- Nonactive patientivo stem realization now requires a `patientivo-nonactive-stem-source-frame` plus an `andrews-patientivo-nonactive-stem-realization` typed operation frame before it can return patientive stem entries.
+- The live `buildPatientivoNonactiveDerivations()` continuation path builds those typed frames from the selected nonactive option's `stemSpec`, suffix family, base info, and transitivity before requesting patientive entries; resulting entries continue through `stemSpec`, source-stage frames, and nominal marker metadata rather than rendered strings as authority.
+- The legacy direct `getPatientivoStemFromNonactive()` string API now blocks without matching typed frames; missing operation frames, changed caller strings, contradictory source frames, and contradictory target entries block under focused hostile coverage.
+
+## Completed Phase: Nonactive Stem Selection Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The live `resolveNonactiveStemSelection()` fallback route no longer lets `deriveNonactiveStem()` decide the selected nonactive stem from direct `verb` / `analysisVerb` strings.
+- Nonactive stem selection now requires a `nonactive-stem-selection-source-frame` plus an `andrews-nonactive-stem-selection-realization` typed operation frame before the fallback path can produce `selectedStem`, `selectedStemSpec`, `selectedStems`, and downstream realized-stem payloads.
+- The fallback live route builds the source frame from `buildNonactiveRuleSourceContext()` plus structural options, then carries the operation frame target stem spec through continuation; rendered `selectedStem` is output after that authorization.
+- The legacy direct `deriveNonactiveStem()` string API now blocks without matching typed frames; changed caller strings, missing operation frames, contradictory source frames, and contradictory target frames block under focused hostile coverage.
+
+## Completed Phase: Patientivo Tronco UA Root-Stock Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected intransitive patientivo `tronco-verbal` `ua` root/stock route no longer lets the `iwi`/`awi`/`ua` suffix-family branch build `sakam`, `sakamti`, or `tay`-joined mirror targets through direct suffix slicing and appended string mirrors.
+- `buildPatientivoRootStockStemSourceFrame()` now classifies intransitive `ua` source frames as `ua-family-root-stock-stem` / `ua-final-cluster-root-stock-stem`, with target stem and mirror target entries emitted by `andrews-patientivo-root-stock-stem-realization`.
+- `buildPatientivoTroncoDerivations()` consumes those typed source/operation/target frames before adding route entries; the series mirror filter remains a downstream display/output filter and cannot make the old suffix-family builder authoritative.
+- Poisoned display strings, changed caller source frames, contradictory target entries, missing operation frames, and monkeypatched legacy root-stock string contract helpers cannot authorize or alter the selected `ua` family route.
+
+## Completed Phase: Preterit Class A Slash-Aki Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A slash `aki` policy no longer lets `context.analysisVerb === "aki"` authorize the zero-only Class A/Class B coexistence policy.
+- `buildPretClassASlashAkiSourceFrame()` represents the source verb, slash boundary, `a` + `ki` syllable/right-edge structure, and zero-suffix target; `buildPretClassASlashAkiOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-slash-aki-zero-suffix-policy`.
+- `buildPretUniversalClassA()` and `getKVClassPolicy()` now consume the typed source/operation/target frames through `hasAuthoritativePretClassASlashAkiZeroFrame()`; lying `verb`, `analysisVerb`, and `exactBaseVerb` strings cannot authorize or remove the selected slash-`aki` zero policy when frames are valid.
+- Missing operation frames, contradictory target frames, and poisoned display fields block or fail to alter the selected policy. The adjacent transitive `t+a` redup guard now uses the structured `isItaVerb` source-shape flag instead of `analysisVerb !== "ita"`.
+
+## Completed Phase: Preterit Class A KWV Force Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A final `kw` + non-`u` policy no longer lets `context.forceClassAForKWV` or `context.allowIntransitiveKV` authorize Class A preference, Class B masking, or Class B fallback-to-A behavior.
+- `buildPretClassAKwvSourceFrame()` represents the original source verb, syllable/right-edge final form, final onset, final nucleus, root-plus-`ya` block, monosyllable block, override block, and force-Class-A target policy. `buildPretClassAKwvOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-kwv-force-policy` with the typed force target frame.
+- `buildPretUniversalClassA()`, `getKVClassPolicy()`, and the Class B fallback-to-A branch now consume those typed source/operation/target frames through `hasAuthoritativePretClassAKwvForceFrame()`; poisoned `verb`, `analysisVerb`, `exactBaseVerb`, `forceClassAForKWV`, and `allowIntransitiveKV` fields cannot authorize or remove the selected KWV force policy when frames are valid.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected policy. Remaining Class A right-edge eligibility cleanup is still tracked in `docs/STRING_MACHINE_PATH_INDEX.md`.
+
+## Completed Phase: Preterit Class A KV Allow Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A final `k` + non-`u` intransitive allowance no longer lets `context.allowIntransitiveKV` authorize Class A eligibility through the K-series guard.
+- `buildPretClassAKvAllowSourceFrame()` represents the original source verb, syllable/right-edge final form, final onset, final nucleus, absent slash boundary, absent root-plus-`ya` state, and allow-Class-A target policy. `buildPretClassAKvAllowOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-kv-allow-policy` with the typed allow target frame.
+- `buildPretUniversalClassA()` now consumes those typed source/operation/target frames through `hasAuthoritativePretClassAKvAllowFrame()` for final `k` non-`u`; poisoned `verb`, `analysisVerb`, `exactBaseVerb`, and `allowIntransitiveKV` fields cannot authorize or remove the selected KV allowance when frames are valid.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected policy. The adjacent KWV force policy remains a separate target frame because it also masks/skips Class B.
+
+## Completed Phase: Preterit Class A Chi Allow Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A intransitive final `ch+i` allowance no longer lets right-edge descriptor checks alone authorize Class A candidates or bypass the VtV-start Class A guard.
+- `buildPretClassAChiAllowSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, intransitive state, non-monosyllable state, and allow-Class-A/B target policy. `buildPretClassAChiAllowOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-chi-allow-policy` with the typed allow target frame.
+- `buildPretUniversalClassA()` now consumes those typed source/operation/target frames through `hasAuthoritativePretClassAChiAllowFrame()`, and the class-candidate rule table also requires the same operation frame before emitting `A`/`B` candidates for this route.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected policy.
+
+## Completed Phase: Preterit Class A TA Redup Candidate Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `t+a` CVCV reduplication candidate route no longer lets `analysisVerb !== "ita"` plus descriptor-only right-edge state authorize `A`/`B` class candidates.
+- `buildPretClassATaRedupSourceFrame()` represents the original reduplicated source verb, non-reduplicated analysis base, right-edge ending family, final onset, final nucleus, transitive state, CVCV reduplication state, non-`ita` shape, and ki-only target policy. `buildPretClassATaRedupOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-ta-redup-policy`.
+- The `descriptor_t+a_transitive_redup_cvcv` class-candidate rule now consumes the typed source/operation/target frames before emitting Class A; lying `analysisVerb`, `verb`, and `exactBaseVerb` strings cannot authorize or remove the selected candidate route when frames are valid.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route. The broader non-reduplicated transitive `t+a` Class B rule now uses the structured `isItaVerb` shape flag instead of `analysisVerb !== "ita"`.
+
+## Completed Phase: Preterit Class A PA Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `p+a` route no longer lets descriptor-only right-edge state authorize Class A candidates or the ki-only target suffix policy.
+- `buildPretClassAPaTransitiveSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, transitive state, non-monosyllable state, and ki-only Class A target policy. `buildPretClassAPaTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-pa-transitive-policy`.
+- The `descriptor_p+a_transitive`, selected broad `CV-CV(pV)` target policy branch, and default candidate fallback now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned descriptors, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A M Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `m+a` / `m+i` route no longer lets descriptor-only right-edge state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
+- `buildPretClassAMTransitiveSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` Class A target policy. `buildPretClassAMTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-m-transitive-policy`.
+- The `descriptor_m+[a|i]_transitive` / broad `CV-CV(mV)` class-candidate paths and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting both zero and `ki` suffixes. A gate rule blocks this selected right-edge route from falling through to default Class A candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned descriptors, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A PI Intransitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A intransitive final `p+i` route no longer lets descriptor-only right-edge state authorize `A`/`B` class candidates or the Class A `ki`-only target suffix policy.
+- `buildPretClassAPiIntransitiveSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, intransitive state, non-monosyllable state, and `A`/`B`-candidate `ki`-only target policy. `buildPretClassAPiIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-pi-intransitive-policy`.
+- The `descriptor_p+i_intransitive` class-candidate rule, `buildPretUniversalClassA()` target policy, Class B variant policy, and singular-vs-Class-B policy rule now consume the typed source/operation/target frames before allowing Class A/B or selecting `ki` / `k` suffix behavior. A gate rule blocks this selected right-edge route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned descriptors, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class B TA Intransitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class B intransitive final `t+a` route no longer lets descriptor-only right-edge state authorize Class B candidates or the Class B `k` suffix target policy.
+- `buildPretClassBTaIntransitiveSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, intransitive state, non-monosyllable state, and Class B `k` target policy. `buildPretClassBTaIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-ta-intransitive-policy`.
+- The `descriptor_t+a_intransitive` class-candidate rule and `buildPretUniversalClassB()` target policy now consume the typed source/operation/target frames before allowing Class B or selecting `k`. A gate rule blocks this selected right-edge route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class B TA Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class B transitive final `t+a` non-`ita` route no longer lets descriptor-only right-edge state or `analysisVerb`/`verb` strings authorize Class B candidates or the Class B `k` suffix target policy.
+- `buildPretClassBTaTransitiveSourceFrame()` represents the original source verb, right-edge ending family, final onset, final nucleus, transitive state, non-monosyllable state, non-`ita` shape, and Class B `k` target policy. `buildPretClassBTaTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-ta-transitive-policy`.
+- The `descriptor_t+a_transitive` class-candidate rule and `buildPretUniversalClassB()` target policy now consume the typed source/operation/target frames before allowing Class B or selecting `k`. A gate rule blocks this selected right-edge route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NI CV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+i` with `CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
+- `buildPretClassANiCvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `CV|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` target policy. `buildPretClassANiCvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-ni-cv-transitive-policy`.
+- The selected `descriptor_ni_transitive` `CV|CV` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting both zero and `ki`. A gate rule blocks this selected right-edge route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NA CV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+a` with `CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the `ki`-only target suffix policy.
+- `buildPretClassANaCvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `CV|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and `ki`-only target policy. `buildPretClassANaCvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-cv-transitive-policy`.
+- The selected `descriptor_na_transitive` `CV|CV` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected right-edge route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A/B NA CV Intransitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A/B intransitive final `n+a` with `CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A/B candidates, the Class A `ki` target, or the Class B `k` target.
+- `buildPretClassANaCvIntransitiveSourceFrame()` represents the original source verb, right-edge ending family, `CV|CV` profile, final onset, final nucleus, intransitive state, non-monosyllable state, and A/B target policy. `buildPretClassANaCvIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-cv-intransitive-policy`.
+- The selected `descriptor_cvna_intransitive` branch, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` now consume the typed source/operation/target frames before allowing Class A/B or selecting `ki`/`k` suffixes. A gate rule blocks this selected shape route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class B VNA Intransitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class B intransitive final `n+a` with `V|CV` right-edge profile no longer lets descriptor-only shape state authorize Class B candidates or the Class B `k` target; the selected Class B target branch now consumes typed source/operation/target frames directly.
+- `buildPretClassBVnaIntransitiveSourceFrame()` represents the original source verb, right-edge ending family, `V|CV` profile, final onset, final nucleus, intransitive state, non-monosyllable state, and Class B target policy. `buildPretClassBVnaIntransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-b-vna-intransitive-policy`.
+- The selected `descriptor_vna_intransitive` branch and `buildPretUniversalClassB()` now consume the typed source/operation/target frames before allowing Class B or selecting `k`. A gate rule blocks this selected shape route from falling through to default candidates when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NA CVCVCV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+a` with `CV|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
+- `buildPretClassANaCvcvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `CV|CV|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` target policy. `buildPretClassANaCvcvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-cvcvcv-transitive-policy`.
+- The selected `descriptor_na_three_syllable_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting zero plus `ki`. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NA CVLVCV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+a` with `CVl|V|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
+- `buildPretClassANaCvlvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `CVl|V|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` target policy. `buildPretClassANaCvlvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-cvlvcv-transitive-policy`.
+- The selected `descriptor_cvlvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting zero plus `ki`. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NA VLCVCV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+a` with `Vl|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the `ki`-only target suffix policy.
+- `buildPretClassANaVlcvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `Vl|CV|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and `ki`-only target policy. `buildPretClassANaVlcvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-vlcvcv-transitive-policy`.
+- The selected `descriptor_vlcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A NA VJCVCV Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `n+a` with `Vj|CV|CV` / expanded `V|C|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
+- `buildPretClassANaVjcvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, right-edge profile, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` target policy. `buildPretClassANaVjcvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-vjcvcv-transitive-policy`.
+- The selected `descriptor_vjcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting zero plus `ki`. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+
+## Completed Phase: Preterit Class A TZA Transitive Policy Typed Operation Gate
+
+Date: 2026-07-05
+
+Decision:
+
+- The selected preterit Class A transitive final `tz+a` with `CV|CV`, `Vj|CV|CV`, or expanded `V|C|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the `ki`-only target suffix policy.
+- `buildPretClassATzaTransitiveSourceFrame()` represents the original source verb, right-edge ending family, right-edge profile, final onset, final nucleus, transitive state, non-monosyllable state, and `ki`-only target policy. `buildPretClassATzaTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-tza-transitive-policy`.
+- The selected `descriptor_cvtza_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_tz+*` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
 
 ## Merge Rules
 

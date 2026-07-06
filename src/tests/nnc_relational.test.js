@@ -24,11 +24,29 @@ function run(ctx) {
             typeof ctx.buildLesson46PreteritAgentiveLocativeNncFromSource,
             typeof ctx.buildLesson47RelationalNncPursuitFrame,
             typeof ctx.getLesson47RelationalNncSubsectionInventory,
+            typeof ctx.buildRelationalNncSourceFrame,
+            typeof ctx.buildRelationalNncOperationFrame,
+            typeof ctx.getRelationalNncOperationFrameMismatch,
+            typeof ctx.buildLesson4631aPreteritAgentiveLocativeSourceFrame,
+            typeof ctx.buildLesson4631aPreteritAgentiveLocativeOperationFrame,
+            typeof ctx.getLesson4631aPreteritAgentiveLocativeFrameMismatch,
         ],
-        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildRelationalNncBoundaryMetadata();
+    const buildLesson4631aTypedFrames = (options = {}) => {
+        const sourceFrame = ctx.buildLesson4631aPreteritAgentiveLocativeSourceFrame({
+            sourceVerbStem: "namaka",
+            incorporatedNounStem: "mich",
+            sourcePreparationRequired: true,
+            ...options,
+        });
+        return {
+            sourceFrame,
+            operationFrame: ctx.buildLesson4631aPreteritAgentiveLocativeOperationFrame(sourceFrame),
+        };
+    };
     s.eq(
         "relational NNC boundary is explicit and non-generative",
         {
@@ -68,7 +86,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized relational category remains unconfirmed without Nawat evidence",
+        "recognized relational category remains blocked without Andrews source gate",
         ctx.classifyRelationalNncCandidate({
             candidate: "place translation",
             relationalStem: "unknown",
@@ -86,12 +104,16 @@ function run(ctx) {
             relationalOption: "option-two",
             governedArgument: "unknown",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "preposition-translation",
             sourceKind: "",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "relational-nnc-needs-nawat-evidence",
+                "relational-nnc-source-gate-required",
                 "relational-nnc-kind-recognized",
                 "relational-nnc-false-positive-source",
             ],
@@ -124,8 +146,218 @@ function run(ctx) {
             routeStage: "classify-boundary",
             generationAllowed: false,
             stemKind: "relational-nounstem-candidate",
-            diagnosticId: "relational-nnc-needs-nawat-evidence",
+            diagnosticId: "relational-nnc-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews relational NNC candidate generates through orthography bridge",
+        (() => {
+            const formulaSlots = Object.freeze({
+                relationalStem: Object.freeze({ slot: "relational-stem", structural: "i-c", surface: "ik" }),
+            });
+            const sourceFrame = ctx.buildRelationalNncSourceFrame({
+                candidate: "i-c",
+                relationalStem: "ic",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "third-person possessor",
+                sourceGate: "Andrews 45.4.4 ic option-one relational route",
+                sourceKind: "option-one-simple-possessive",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "relational-stem", role: "relational-nounstem", formulaValue: "i-c", surface: "ik" },
+                ],
+            });
+            const operationFrame = ctx.buildRelationalNncOperationFrame(sourceFrame);
+            const classification = ctx.classifyRelationalNncCandidate({
+                candidate: "lying-candidate",
+                relationalStem: "lying-stem",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "lying argument",
+                sourceGate: "lying gate",
+                structuredSource: true,
+                sourceKind: "option-one-simple-possessive",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                operationId: classification.operationFrame.operationId,
+                formulaStem: classification.formulaSlots.relationalStem.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                sourceGate: classification.frames.stemFrame.sourceGate,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "ik",
+            operationId: "andrews-45-47-relational-nnc-realization",
+            formulaStem: "ik",
+            diagnostics: [
+                "relational-nnc-andrews-source-generated",
+                "relational-nnc-kind-recognized",
+                "relational-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-relational-nnc",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            sourceGate: "Andrews 45.4.4 ic option-one relational route",
+        }
+    );
+    s.eq(
+        "relational NNC candidate blocks legacy string gates and contradictory frames",
+        (() => {
+            const formulaSlots = Object.freeze({
+                relationalStem: Object.freeze({ slot: "relational-stem", structural: "i-c", surface: "ik" }),
+            });
+            const sourceFrame = ctx.buildRelationalNncSourceFrame({
+                candidate: "i-c",
+                relationalStem: "ic",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "third-person possessor",
+                sourceGate: "Andrews 45.4.4 ic option-one relational route",
+                sourceKind: "option-one-simple-possessive",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "relational-stem", role: "relational-nounstem", formulaValue: "i-c", surface: "ik" },
+                ],
+            });
+            const operationFrame = ctx.buildRelationalNncOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildRelationalNncSourceFrame({
+                candidate: "i-pan",
+                relationalStem: "ipan",
+                relationalKind: "locative",
+                relationalOption: "2",
+                governedArgument: "third-person place",
+                sourceGate: "Andrews 46 locative relational route",
+                sourceKind: "option-two-locative",
+                targetFormulaSlots: Object.freeze({
+                    relationalStem: Object.freeze({ slot: "relational-stem", structural: "i-pan", surface: "ipan" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "relational-stem", role: "locative-relational-nounstem", formulaValue: "i-pan", surface: "ipan" },
+                ],
+            });
+            const otherOperationFrame = ctx.buildRelationalNncOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizeRelationalNncCandidateSurface;
+            if (typeof ctx.normalizeRelationalNncCandidateSurface === "function") {
+                ctx.normalizeRelationalNncCandidateSurface = () => "poison";
+            }
+            const poisoned = ctx.classifyRelationalNncCandidate({
+                candidate: "poison",
+                relationalStem: "poison",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "poison",
+                sourceGate: "poison",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizeRelationalNncCandidateSurface = originalNormalizer;
+            }
+            const stringOnly = ctx.classifyRelationalNncCandidate({
+                candidate: "i-c",
+                relationalStem: "ic",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "third-person possessor",
+                sourceGate: "Andrews 45.4.4 ic option-one relational route",
+                structuredSource: true,
+            });
+            const missingOperation = ctx.classifyRelationalNncCandidate({
+                candidate: "i-c",
+                relationalStem: "ic",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "third-person possessor",
+                sourceGate: "Andrews 45.4.4 ic option-one relational route",
+                structuredSource: true,
+                sourceFrame,
+            });
+            const contradictory = ctx.classifyRelationalNncCandidate({
+                candidate: "i-c",
+                relationalStem: "ic",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "third-person possessor",
+                sourceGate: "Andrews 45.4.4 ic option-one relational route",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyRelationalNncCandidate({
+                candidate: "changed",
+                relationalStem: "changed",
+                relationalKind: "relational-stem",
+                relationalOption: "1",
+                governedArgument: "changed",
+                sourceGate: "changed",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    targetStem: poisoned.frames.stemFrame.targetStem,
+                },
+                stringOnly: {
+                    generationAllowed: stringOnly.generationAllowed,
+                    surface: stringOnly.surface,
+                    diagnostics: stringOnly.diagnostics,
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    targetStem: changedStrings.frames.stemFrame.targetStem,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "ik",
+                targetStem: "ik",
+            },
+            stringOnly: {
+                generationAllowed: false,
+                surface: "",
+                diagnostics: [
+                    "relational-nnc-source-frame-required",
+                    "relational-nnc-kind-recognized",
+                    "relational-nnc-unconfirmed",
+                ],
+            },
+            missingOperation: [
+                "relational-nnc-operation-frame-required",
+                "relational-nnc-kind-recognized",
+                "relational-nnc-unconfirmed",
+            ],
+            contradictory: [
+                "relational-nnc-contradictory-source-frame",
+                "relational-nnc-kind-recognized",
+                "relational-nnc-unconfirmed",
+            ],
+            changedStrings: {
+                surface: "ik",
+                targetStem: "ik",
+            },
         }
     );
 
@@ -153,8 +385,8 @@ function run(ctx) {
             "ordinary NNC fixtures are not relational NNC fixture evidence",
             "open-stem ordinary NNC previews are not relational nounstem data",
             "locative-temporal nominal outputs are not full relational NNC options",
-            "preposition or place translations are not Nawat/Pipil relational form evidence",
-            "Andrews relational categories are architecture, not Nawat/Pipil form authority",
+            "preposition or place translations are not orthography-bridge relational form evidence",
+            "Andrews relational categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("relational NNC boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -180,7 +412,7 @@ function run(ctx) {
                 missCount: frame.missCount,
                 generationAllowed: frame.generationAllowed,
                 closestPass: frame.closestPass,
-                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /confirmed Nawat\/Pipil/.test(gap)),
+                remainingGapsMentionSourceGate: frame.remainingGaps.some((gap) => /Andrews relational source models plus the orthography bridge/.test(gap)),
             };
         })(),
         {
@@ -215,7 +447,7 @@ function run(ctx) {
             missCount: 0,
             generationAllowed: false,
             closestPass: false,
-            remainingGapsMentionEvidence: true,
+            remainingGapsMentionSourceGate: true,
         }
     );
     s.eq(
@@ -280,7 +512,7 @@ function run(ctx) {
                 fullLesson45GenerationImplemented: false,
             },
             grammarRouteStage: "audit-lesson-45",
-            diagnosticIds: ["relational-nnc-lesson-45-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["relational-nnc-lesson-45-diagnostic-partial", "relational-nnc-source-gated"],
         }
     );
 
@@ -440,16 +672,150 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-46",
-            diagnosticIds: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["relational-nnc-lesson-46-diagnostic-partial", "relational-nnc-source-gated"],
+        }
+    );
+    s.eq(
+        "Lesson 46.3 route-family graph keeps reusable nodes and both CNN branches",
+        (() => {
+            const { sourceFrame, operationFrame } = buildLesson4631aTypedFrames();
+            const sourceAnalysis = {
+                sourceVerbStem: sourceFrame.sourceVerbStem,
+                incorporatedStemValue: sourceFrame.incorporatedNounStem,
+                visibleSourceFormula: sourceFrame.visibleSourceFormula,
+                sourceVncFormula: sourceFrame.sourceVncFormula,
+                preteritPredicateFormula: sourceFrame.preteritPredicateFormula,
+                preteritAgentiveStemFormula: sourceFrame.preteritAgentiveStemFormula,
+                finalRouteImmediateSourceFormula: sourceFrame.finalRouteImmediateSourceFormula,
+                sourceKind: sourceFrame.sourceKind,
+                visibleSourceKind: sourceFrame.visibleSourceKind,
+                sourcePreparationRequired: sourceFrame.sourcePreparationRequired,
+            };
+            const graph = ctx.buildLesson463RouteFamilyGraph({
+                sourceAnalysis,
+                incorporatedNounStem: sourceFrame.incorporatedNounStem,
+                sourceVerbStem: sourceFrame.sourceVerbStem,
+                operationFrame,
+            });
+            return {
+                familyId: graph.familyId,
+                graphSourceOfTruth: graph.graphSourceOfTruth,
+                selectedRouteId: graph.selectedRouteId,
+                selectedBranchId: graph.selectedBranchId,
+                routePatternIds: graph.nodes
+                    .filter((node) => node.unitKind === "route-pattern")
+                    .map((node) => node.id),
+                reusableNodeIds: graph.nodes
+                    .filter((node) => node.reusableAsSource)
+                    .map((node) => node.id),
+                branchSummaries: graph.branches.map((branch) => ({
+                    id: branch.id,
+                    formula: branch.formula,
+                    selected: branch.selected,
+                    allowedByAndrews: branch.allowedByAndrews,
+                    generationAllowed: branch.generationAllowed,
+                    actionKind: branch.branchAction?.actionKind || "",
+                    actionSource: branch.branchAction?.sourceVerb || "",
+                    targetUnitKind: branch.branchAction?.targetUnitKind || "",
+                    targetFormula: branch.branchAction?.targetFormula || "",
+                    requiresExplicitSubjectNumber: branch.branchAction?.requiresExplicitSubjectNumber === true,
+                })),
+                routeEdges: graph.edges
+                    .filter((edge) => [
+                        "source-visible",
+                        "build-preterit-predicate",
+                        "build-preterit-agentive-general-use-stem",
+                        "gate-46-3-1-a-immediate-source",
+                        "add-locative-relational-n",
+                        "adverbialize-zero-connector",
+                        "realize-surface",
+                    ].includes(edge.id))
+                    .map((edge) => `${edge.id}:${edge.sourceNodeId}>${edge.targetNodeId}`),
+                ruleTrace: graph.ruleTrace.map((rule) => [
+                    rule.id,
+                    rule.sourceGate,
+                    rule.sourceNodeId,
+                    rule.targetNodeId,
+                    rule.selected === true ? "selected" : "available",
+                    rule.generationAllowed === false ? "blocked" : "",
+                ].join(">")),
+                invariants: graph.invariants,
+            };
+        })(),
+        {
+            familyId: "andrews-46.3-ca-n-locative",
+            graphSourceOfTruth: true,
+            selectedRouteId: "46.3.1.a",
+            selectedBranchId: "adverbialized-cnn",
+            routePatternIds: ["46.3.1", "46.3.1.a", "46.3.1.b", "46.3.2.a", "46.3.2.b"],
+            reusableNodeIds: [
+                "source-cnv-core",
+                "preterit-predicate",
+                "preterit-agentive-general-use-stem",
+                "locative-compound-nounstem",
+            ],
+            branchSummaries: [
+                {
+                    id: "normal-cnn",
+                    formula: "#pers1-pers2(mich-namaka-0-ka-n)num1-num2#",
+                    selected: false,
+                    allowedByAndrews: true,
+                    generationAllowed: false,
+                    actionKind: "select-route-branch-source",
+                    actionSource: "(mich-namaka-0-ka-n)",
+                    targetUnitKind: "nominal-nuclear-clause",
+                    targetFormula: "#pers1-pers2(mich-namaka-0-ka-n)num1-num2#",
+                    requiresExplicitSubjectNumber: true,
+                },
+                {
+                    id: "adverbialized-cnn",
+                    formula: "(mich-namaka-0-ka-n)-0-",
+                    selected: true,
+                    allowedByAndrews: true,
+                    generationAllowed: true,
+                    actionKind: "select-route-branch-source",
+                    actionSource: "(mich-namaka-0-ka-n)",
+                    targetUnitKind: "adverbialized-nominal-nuclear-clause",
+                    targetFormula: "(mich-namaka-0-ka-n)-0-",
+                    requiresExplicitSubjectNumber: false,
+                },
+            ],
+            routeEdges: [
+                "source-visible:46.3.1.a>source-cnv-core",
+                "build-preterit-predicate:source-cnv-core>preterit-predicate",
+                "build-preterit-agentive-general-use-stem:preterit-predicate>preterit-agentive-general-use-stem",
+                "gate-46-3-1-a-immediate-source:46.3.1.a>preterit-agentive-general-use-stem",
+                "add-locative-relational-n:preterit-agentive-general-use-stem>locative-compound-nounstem",
+                "adverbialize-zero-connector:locative-compound-nounstem>adverbialized-cnn-output",
+                "realize-surface:adverbialized-cnn-output>surface-output",
+            ],
+            ruleTrace: [
+                "if-source-cnv-then-preterit-predicate>source-vnc-core>source-cnv-core>preterit-predicate>selected>",
+                "if-preterit-predicate-then-agentive-ka>vnc-predicate>preterit-predicate>preterit-agentive-general-use-stem>selected>",
+                "if-preterit-agentive-then-locative-n>preterit-agentive-general-use-stem>preterit-agentive-general-use-stem>locative-compound-nounstem>selected>",
+                "if-locative-nounstem-then-normal-cnn-branch>compound-nounstem>locative-compound-nounstem>normal-cnn-output>available>blocked",
+                "if-locative-nounstem-then-adverbial-zero>compound-nounstem>locative-compound-nounstem>adverbialized-cnn-output>selected>",
+                "if-adverbial-formula-then-surface>adverbialized-nominal-nuclear-clause>adverbialized-cnn-output>surface-output>selected>",
+            ],
+            invariants: {
+                finalSurfaceIsNotSource: true,
+                selectedOutputIsNotWholeRouteFamily: true,
+                intermediateNodesReusableAsSources: true,
+                unselectedAndrewsBranchesRemainRepresented: true,
+                currentConjugatorRowsAreRenderersOnly: true,
+            },
         }
     );
 
     s.eq(
         "Lesson 46.3.1.a derives the Nawat-letter locative from source -(namaka) plus mich",
         (() => {
+            const { sourceFrame, operationFrame } = buildLesson4631aTypedFrames();
             const generated = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
-                sourceVerb: "-(namaka)",
-                incorporatedNounStem: "mich",
+                sourceVerb: "poison",
+                incorporatedNounStem: "poison",
+                sourceFrame,
+                operationFrame,
             });
             return {
                 kind: generated.kind,
@@ -457,8 +823,17 @@ function run(ctx) {
                 sourceInput: generated.sourceInput,
                 sourceVerb: generated.sourceVerb,
                 sourceKind: generated.sourceKind,
+                visibleSourceKind: generated.visibleSourceKind,
+                sourcePreparationRequired: generated.sourcePreparationRequired,
+                immediateSourceFormula: generated.routeContract.immediateSourceFormula,
                 incorporatedNounStem: generated.incorporatedNounStem,
                 sourceWasFinishedSurface: generated.routeContract.sourceWasFinishedSurface,
+                routeSteps: generated.routeContract.routeSteps.map((step) => step.id),
+                routeRuleTrace: generated.routeContract.ruleTrace.map((rule) => rule.id),
+                topLevelRuleTrace: generated.ruleTrace.map((rule) => rule.id),
+                routeFamilyId: generated.routeFamilyGraph.familyId,
+                routeGraphBranches: generated.routeFamilyGraph.branches.map((branch) => branch.id),
+                normalCnnFormula: generated.routeFamilyGraph.branches.find((branch) => branch.id === "normal-cnn")?.formula || "",
                 formulaShape: generated.formulaShape,
                 formulaStem: generated.formulaStem,
                 formulaEcho: generated.formulaEcho,
@@ -473,18 +848,51 @@ function run(ctx) {
                 frameGenerationAllowed: generated.frames.routeContract.generationAllowed,
                 frameSourceVerb: generated.frames.routeContract.sourceContract.sourceVerb,
                 frameIncorporatedStem: generated.frames.routeContract.sourceContract.incorporatedNounStem,
+                frameRuleTrace: generated.frames.routeContract.targetContract.ruleTrace.map((rule) => rule.id),
                 frameFormulaStem: generated.frames.routeContract.targetContract.formulaStem,
+                operationId: generated.operationFrame.operationId,
                 diagnosticIds: generated.contractDiagnostics.map((entry) => entry.id),
             };
         })(),
         {
             kind: "lesson-46-3-1-a-preterit-agentive-locative-nnc",
             andrewsSection: "46.3.1.a",
-            sourceInput: "-(namaka)",
+            sourceInput: "poison",
             sourceVerb: "namaka",
-            sourceKind: "source-vnc-core",
+            sourceKind: "preterit-agentive-general-use-stem",
+            visibleSourceKind: "source-vnc-core",
+            sourcePreparationRequired: true,
+            immediateSourceFormula: "(mich-namaka-0-ka)",
             incorporatedNounStem: "mich",
             sourceWasFinishedSurface: false,
+            routeSteps: [
+                "source-visible",
+                "build-preterit-predicate",
+                "build-preterit-agentive-general-use-stem",
+                "gate-46-3-1-a-immediate-source",
+                "add-locative-relational-n",
+                "adverbialize-zero-connector",
+                "realize-surface",
+            ],
+            routeRuleTrace: [
+                "if-source-cnv-then-preterit-predicate",
+                "if-preterit-predicate-then-agentive-ka",
+                "if-preterit-agentive-then-locative-n",
+                "if-locative-nounstem-then-normal-cnn-branch",
+                "if-locative-nounstem-then-adverbial-zero",
+                "if-adverbial-formula-then-surface",
+            ],
+            topLevelRuleTrace: [
+                "if-source-cnv-then-preterit-predicate",
+                "if-preterit-predicate-then-agentive-ka",
+                "if-preterit-agentive-then-locative-n",
+                "if-locative-nounstem-then-normal-cnn-branch",
+                "if-locative-nounstem-then-adverbial-zero",
+                "if-adverbial-formula-then-surface",
+            ],
+            routeFamilyId: "andrews-46.3-ca-n-locative",
+            routeGraphBranches: ["normal-cnn", "adverbialized-cnn"],
+            normalCnnFormula: "#pers1-pers2(mich-namaka-0-ka-n)num1-num2#",
             formulaShape: "(X-ka)+(-n)-0",
             formulaStem: "(mich-namaka-0-ka-n)-0-",
             formulaEcho: "#Ø-Ø(mich-namaka-0-ka-n)Ø#",
@@ -499,15 +907,24 @@ function run(ctx) {
             frameGenerationAllowed: true,
             frameSourceVerb: "namaka",
             frameIncorporatedStem: "mich",
+            frameRuleTrace: [
+                "if-source-cnv-then-preterit-predicate",
+                "if-preterit-predicate-then-agentive-ka",
+                "if-preterit-agentive-then-locative-n",
+                "if-locative-nounstem-then-normal-cnn-branch",
+                "if-locative-nounstem-then-adverbial-zero",
+                "if-adverbial-formula-then-surface",
+            ],
             frameFormulaStem: "(mich-namaka-0-ka-n)-0-",
+            operationId: "andrews-46-3-1-a-preterit-agentive-locative-realization",
             diagnosticIds: [
                 "lesson-46-3-1-a-source-route-generated",
-                "lesson-46-3-1-a-user-nawat-letter-realization",
+                "lesson-46-3-1-a-typed-operation-realization",
             ],
         }
     );
     s.eq(
-        "Lesson 46.3.1.a derives from a single embedded source formula",
+        "Lesson 46.3.1.a blocks a single embedded source formula without typed frames",
         (() => {
             const generated = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
                 source: "(mich-namaka)",
@@ -520,21 +937,61 @@ function run(ctx) {
                 surface: generated.surface,
                 result: generated.result,
                 generationAllowed: generated.generationAllowed,
+                supported: generated.supported,
                 diagnosticIds: generated.contractDiagnostics.map((entry) => entry.id),
             };
         })(),
         {
             sourceInput: "(mich-namaka)",
+            sourceVerb: "",
+            incorporatedNounStem: "",
+            formulaStem: undefined,
+            surface: "",
+            result: "—",
+            generationAllowed: false,
+            supported: false,
+            diagnosticIds: ["lesson-46-3-1-a-source-frame-required"],
+        }
+    );
+    s.eq(
+        "Lesson 46.3.1.a can take the prebuilt preterit-agentive general-use stem as its immediate source",
+        (() => {
+            const { sourceFrame, operationFrame } = buildLesson4631aTypedFrames({
+                sourcePreparationRequired: false,
+            });
+            const generated = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                source: "poison",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                sourceInput: generated.sourceInput,
+                sourceVerb: generated.sourceVerb,
+                sourceKind: generated.sourceKind,
+                visibleSourceKind: generated.visibleSourceKind,
+                sourcePreparationRequired: generated.sourcePreparationRequired,
+                immediateSourceFormula: generated.routeContract.immediateSourceFormula,
+                routeSteps: generated.routeContract.routeSteps.map((step) => step.id),
+                formulaStem: generated.formulaStem,
+                surface: generated.surface,
+            };
+        })(),
+        {
+            sourceInput: "poison",
             sourceVerb: "namaka",
-            incorporatedNounStem: "mich",
+            sourceKind: "preterit-agentive-general-use-stem",
+            visibleSourceKind: "preterit-agentive-general-use-stem",
+            sourcePreparationRequired: false,
+            immediateSourceFormula: "(mich-namaka-0-ka)",
+            routeSteps: [
+                "source-visible",
+                "gate-46-3-1-a-immediate-source",
+                "add-locative-relational-n",
+                "adverbialize-zero-connector",
+                "realize-surface",
+            ],
             formulaStem: "(mich-namaka-0-ka-n)-0-",
             surface: "michnamakakan",
-            result: "michnamakakan",
-            generationAllowed: true,
-            diagnosticIds: [
-                "lesson-46-3-1-a-source-route-generated",
-                "lesson-46-3-1-a-user-nawat-letter-realization",
-            ],
         }
     );
     s.eq(
@@ -556,7 +1013,7 @@ function run(ctx) {
             };
         })(),
         {
-            sourceVerb: "namaka",
+            sourceVerb: "",
             incorporatedNounStem: "",
             supported: false,
             generationAllowed: false,
@@ -564,12 +1021,96 @@ function run(ctx) {
             result: "—",
             surfaceForms: [],
             frameRouteStage: "generate-lesson-46-3-1-a-blocked",
-            diagnosticIds: ["lesson-46-3-1-a-incorporated-nounstem-required"],
+            diagnosticIds: ["lesson-46-3-1-a-source-frame-required"],
+        }
+    );
+    s.eq(
+        "Lesson 46.3.1.a typed route rejects missing and contradictory operation frames",
+        (() => {
+            const { sourceFrame, operationFrame } = buildLesson4631aTypedFrames();
+            const missingOperation = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                sourceFrame,
+            });
+            const contradictorySource = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                sourceFrame: {
+                    ...sourceFrame,
+                    sourceSignature: "poison",
+                },
+                operationFrame,
+            });
+            const contradictoryTarget = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                sourceFrame,
+                operationFrame: {
+                    ...operationFrame,
+                    targetSurface: "poison",
+                },
+            });
+            const oldFlatten = ctx.flattenLesson46FormulaStemToSurface;
+            if (typeof ctx.flattenLesson46FormulaStemToSurface === "function") {
+                ctx.flattenLesson46FormulaStemToSurface = () => "poison";
+            }
+            const monkeypatched = ctx.buildLesson46PreteritAgentiveLocativeNncFromSource({
+                source: "(poison)",
+                sourceVerb: "poison",
+                incorporatedNounStem: "poison",
+                sourceFrame,
+                operationFrame,
+            });
+            if (oldFlatten) {
+                ctx.flattenLesson46FormulaStemToSurface = oldFlatten;
+            }
+            return {
+                directFlatten: ctx.flattenLesson46FormulaStemToSurface("(mich-namaka-0-ka-n)-0-"),
+                typedFlatten: ctx.flattenLesson46FormulaStemToSurface("(mich-namaka-0-ka-n)-0-", { operationFrame }),
+                missingOperation: {
+                    supported: missingOperation.supported,
+                    diagnosticIds: missingOperation.contractDiagnostics.map((entry) => entry.id),
+                },
+                contradictorySource: {
+                    supported: contradictorySource.supported,
+                    diagnosticIds: contradictorySource.contractDiagnostics.map((entry) => entry.id),
+                },
+                contradictoryTarget: {
+                    supported: contradictoryTarget.supported,
+                    diagnosticIds: contradictoryTarget.contractDiagnostics.map((entry) => entry.id),
+                },
+                monkeypatched: {
+                    result: monkeypatched.result,
+                    surface: monkeypatched.surface,
+                    formulaStem: monkeypatched.formulaStem,
+                    sourceVerb: monkeypatched.sourceVerb,
+                    incorporatedNounStem: monkeypatched.incorporatedNounStem,
+                },
+            };
+        })(),
+        {
+            directFlatten: "",
+            typedFlatten: "michnamakakan",
+            missingOperation: {
+                supported: false,
+                diagnosticIds: ["lesson-46-3-1-a-operation-frame-required"],
+            },
+            contradictorySource: {
+                supported: false,
+                diagnosticIds: ["lesson-46-3-1-a-contradictory-source-frame"],
+            },
+            contradictoryTarget: {
+                supported: false,
+                diagnosticIds: ["lesson-46-3-1-a-contradictory-target-frame"],
+            },
+            monkeypatched: {
+                result: "michnamakakan",
+                surface: "michnamakakan",
+                formulaStem: "(mich-namaka-0-ka-n)-0-",
+                sourceVerb: "namaka",
+                incorporatedNounStem: "mich",
+            },
         }
     );
     s.eq(
         "generateWord can execute the scoped Lesson 46.3.1.a source route",
         (() => {
+            const { sourceFrame, operationFrame } = buildLesson4631aTypedFrames();
             const generated = ctx.executeGenerateWordRequest({
                 options: {
                     silent: true,
@@ -580,8 +1121,10 @@ function run(ctx) {
                         voiceMode: ctx.VOICE_MODE.active,
                         relationalNnc: {
                             enabled: true,
-                            sourceVerb: "-(namaka)",
-                            incorporatedNounStem: "mich",
+                            sourceVerb: "poison",
+                            incorporatedNounStem: "poison",
+                            sourceFrame,
+                            operationFrame,
                         },
                     },
                 },
@@ -612,7 +1155,7 @@ function run(ctx) {
                 shellFormulaEcho: generated.nuclearClauseShell?.formulaEcho,
                 relationalFrameFormulaStem: generated.relationalNncGenerationFrame?.formulaStem,
                 frameUnitKind: generated.frames.unitFrame.unitKind,
-                frameRouteStage: generated.frames.routeContract.routeStage,
+                frameRouteStage: generated.relationalNncGenerationFrame?.frames?.routeContract?.routeStage || "",
                 frameGenerationAllowed: generated.frames.routeContract.generationAllowed,
             };
         })(),
@@ -634,7 +1177,60 @@ function run(ctx) {
         }
     );
     s.eq(
-        "generateWord can execute the scoped Lesson 46.3.1.a route from a single embedded source formula",
+        "visible locativo agentivo preterito tab blocks without Andrews typed frames",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.sustantivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                    },
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(mich-namaka)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "locativo-agentivo-preterito",
+                },
+                entradaTronco: {
+                    tieneControlTronco: false,
+                    valorTronco: "",
+                },
+            });
+            return {
+                result: generated.result,
+                surface: generated.surface,
+                formulaStem: generated.formulaStem,
+                sourceKind: generated.sourceKind,
+                visibleSourceKind: generated.visibleSourceKind,
+                sourcePreparationRequired: generated.sourcePreparationRequired,
+                immediateSourceFormula: generated.routeContract?.immediateSourceFormula || "",
+                routeSteps: generated.routeContract?.routeSteps?.map((step) => step.id) || [],
+                frameRouteStage: generated.relationalNncGenerationFrame?.frames?.routeContract?.routeStage || "",
+                diagnosticIds: generated.relationalNncGenerationFrame?.contractDiagnostics?.map((entry) => entry.id) || [],
+            };
+        })(),
+        {
+            result: "—",
+            surface: "",
+            formulaStem: undefined,
+            sourceKind: "",
+            visibleSourceKind: "",
+            sourcePreparationRequired: false,
+            immediateSourceFormula: "",
+            routeSteps: [],
+            frameRouteStage: "generate-lesson-46-3-1-a-blocked",
+            diagnosticIds: ["lesson-46-3-1-a-source-frame-required"],
+        }
+    );
+    s.eq(
+        "generateWord blocks the scoped Lesson 46.3.1.a route from a single embedded source formula",
         (() => {
             const generated = ctx.executeGenerateWordRequest({
                 options: {
@@ -671,21 +1267,21 @@ function run(ctx) {
                 sourceVerb: generated.sourceVerb,
                 incorporatedNounStem: generated.incorporatedNounStem,
                 relationalFrameFormulaStem: generated.relationalNncGenerationFrame?.formulaStem,
-                frameRouteStage: generated.frames.routeContract.routeStage,
+                frameRouteStage: generated.relationalNncGenerationFrame?.frames?.routeContract?.routeStage || "",
             };
         })(),
         {
-            result: "michnamakakan",
-            surface: "michnamakakan",
-            formulaStem: "(mich-namaka-0-ka-n)-0-",
-            sourceVerb: "namaka",
-            incorporatedNounStem: "mich",
-            relationalFrameFormulaStem: "(mich-namaka-0-ka-n)-0-",
-            frameRouteStage: "generate-lesson-46-3-1-a",
+            result: "—",
+            surface: "",
+            formulaStem: undefined,
+            sourceVerb: "",
+            incorporatedNounStem: "",
+            relationalFrameFormulaStem: undefined,
+            frameRouteStage: "generate-lesson-46-3-1-a-blocked",
         }
     );
     s.eq(
-        "generateWord can execute Lesson 46.3.1.a from the visible embedded stem when no split slots are supplied",
+        "generateWord blocks Lesson 46.3.1.a from the visible embedded stem when typed frames are absent",
         (() => {
             const generated = ctx.executeGenerateWordRequest({
                 options: {
@@ -723,11 +1319,11 @@ function run(ctx) {
             };
         })(),
         {
-            result: "michnamakakan",
+            result: "—",
             sourceInput: "(mich-namaka)",
-            sourceVerb: "namaka",
-            incorporatedNounStem: "mich",
-            formulaStem: "(mich-namaka-0-ka-n)-0-",
+            sourceVerb: "",
+            incorporatedNounStem: "",
+            formulaStem: undefined,
         }
     );
 
@@ -849,7 +1445,7 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-47",
-            diagnosticIds: ["relational-nnc-lesson-47-diagnostic-partial", "relational-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["relational-nnc-lesson-47-diagnostic-partial", "relational-nnc-source-gated"],
         }
     );
 

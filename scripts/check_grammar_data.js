@@ -1037,6 +1037,13 @@ function validateStaticNncSurfaceCell(cell, where, add) {
         return;
     }
     validateStaticNncStringArray(cell.surfaceForms, `${where}.surfaceForms`, add);
+    if (Object.prototype.hasOwnProperty.call(cell, "possessiveStem")) {
+        if (!isNonEmptyValidationString(cell.possessiveStem)) {
+            add(`${where}.possessiveStem must be a non-empty string when present.`);
+        } else if (cell.possessiveStem !== cell.possessiveStem.trim()) {
+            add(`${where}.possessiveStem must not have leading or trailing whitespace.`);
+        }
+    }
     if (Object.prototype.hasOwnProperty.call(cell, "formsByPluralType")) {
         if (!isPlainObject(cell.formsByPluralType)) {
             add(`${where}.formsByPluralType must be an object.`);
@@ -1218,8 +1225,8 @@ function checkAndrewsTrajectoryDoc() {
         "Correctness Before Existence Rule",
         "Supreme Goal",
         "grammar GIS",
-        "Nawat/Pipil may realize spelling and preterit indicative surfaces only",
-        "does not license preterit-derived routes",
+        "Nawat/Pipil may realize spelling through the orthography bridge",
+        "does not decide whether Andrews-licensed grammar logic can generate",
         "Patch Judgment Gate",
         "which Andrews waypoint it advances",
         "which LCM boundary it preserves",
@@ -1241,31 +1248,31 @@ function checkAndrewsTrajectoryDoc() {
         {
             relPath: "AGENTS.md",
             markers: [
-                "current Nawat finite surface authority is limited to preterit indicative",
-                "do not authorize preterit-derived grammar",
+                "Andrews as the grammar-rule authority for engine architecture and generation logic",
+                "do not decide whether Andrews-licensed grammar logic can generate",
             ],
         },
         {
             relPath: "docs/CODEX_BOARD.md",
             markers: [
-                "Andrews PDF supplies the supreme grammar-rule authority",
-                "may decide spelling realization and preterit-indicative surfaces",
+                "Andrews PDF supplies the supreme grammar-rule authority for engine structure and generation logic",
+                "do not decide whether Andrews-licensed grammar logic can generate",
             ],
         },
         {
             relPath: "docs/ANDREWS_LAYER_LCM.md",
             markers: [
-                "supreme grammar architecture authority",
-                "already-scoped preterit indicative surfaces only",
-                "Nawat/Pipil evidence alone can never upgrade it from diagnostic or blocked to generated",
+                "supreme grammar architecture and grammar-logic authority",
+                "it does not decide whether Andrews-licensed grammar logic can generate",
+                "lack of Nawat/Pipil evidence alone can never downgrade Andrews-licensed logic",
             ],
         },
         {
             relPath: "docs/ANDREWS_PDF_DIGEST.md",
             markers: [
-                "Andrews PDF governs grammar architecture",
-                "already-scoped preterit indicative surfaces only",
-                "do not authorize preterit-derived grammar",
+                "Andrews PDF governs grammar architecture and grammar logic",
+                "do not decide whether Andrews-licensed grammar logic can generate",
+                "Do not block Andrews-licensed grammar logic only because Nawat/Pipil evidence has not confirmed a surface",
             ],
         },
     ].forEach(({ relPath, markers }) => {
@@ -1632,7 +1639,7 @@ function checkAndrewsTrajectoryRegistry() {
         "diagnostic-only",
         "block-generation",
         "refactor-engine",
-        "needs-nawat-evidence",
+        "source-gated",
     ];
     if (redirectActions.join("\u0000") !== expectedActions.join("\u0000")) {
         addError(`src/lessons/registry.js redirect actions must be exactly: ${expectedActions.join(", ")}.`);

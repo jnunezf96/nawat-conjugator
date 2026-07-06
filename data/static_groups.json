@@ -40,18 +40,32 @@
     "sustantivo": {
       "left": [
         {
-          "heading": { "labelEs": "Nominalización", "labelNa": "Nominalización" },
+          "heading": { "labelEs": "Predicado CNV", "labelNa": "CNV tajtaya" },
+          "hoverTitle": { "labelEs": "Microscopio y rutas Andrews donde el predicado de la CNV se reanaliza como tronco o predicado CNN.", "labelNa": "Microscopio y rutas Andrews donde CNV tajtaya se vuelve tronco o tajtaya CNN." },
           "tenses": [
-            "sustantivo-verbal",
+            "predicado-nominal",
             "agentivo",
             "agentivo-presente",
             "agentivo-preterito",
             "agentivo-futuro",
-            "patientivo",
             "instrumentivo",
-            "predicado-nominal",
-            "calificativo-instrumentivo",
             "locativo-temporal"
+          ]
+        },
+        {
+          "heading": { "labelEs": "Núcleo CNV", "labelNa": "CNV núcleo" },
+          "hoverTitle": { "labelEs": "Microscopio y rutas Andrews derivadas desde núcleo, tronco o stock CNV antes de tratarlo como predicado nominalizado.", "labelNa": "Microscopio y rutas Andrews desde núcleo, tronco o stock CNV." },
+          "tenses": [
+            "sustantivo-verbal",
+            "patientivo"
+          ]
+        },
+        {
+          "heading": { "labelEs": "CNN derivada de CNV", "labelNa": "CNN kisa ipan CNV" },
+          "hoverTitle": { "labelEs": "Rutas Andrews donde una CNN derivada de CNV se reutiliza como fuente para otra función.", "labelNa": "Rutas Andrews donde CNN kisa ipan CNV se usa como nueva fuente." },
+          "tenses": [
+            "calificativo-instrumentivo",
+            "locativo-agentivo-preterito"
           ]
         }
       ],

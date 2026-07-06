@@ -18,13 +18,19 @@ function run(ctx) {
             typeof ctx.getNumeralNncAntiConflationRules,
             typeof ctx.buildLesson34CardinalNumeralNncPursuitFrame,
             typeof ctx.getLesson34CardinalNumeralNncSubsectionInventory,
+            typeof ctx.getBasicCardinalNumeralNncStem,
+            typeof ctx.getBasicCardinalNumeralNncStemInventory,
+            typeof ctx.buildBasicCardinalNumeralNncSourceFrame,
+            typeof ctx.buildBasicCardinalNumeralNncOperationFrame,
+            typeof ctx.getBasicCardinalNumeralNncOperationFrameMismatch,
+            typeof ctx.buildAndrewsBasicCardinalNumeralNnc,
         ],
-        ["function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildNumeralNncBoundaryMetadata();
     s.eq(
-        "numeral NNC boundary is explicit and non-generative",
+        "numeral NNC boundary is explicit about scoped Andrews generation",
         {
             kind: boundary.kind,
             lesson: boundary.lesson,
@@ -44,7 +50,8 @@ function run(ctx) {
             confirmedExamples: [],
             boundaries: {
                 hasOrdinaryNncGeneration: true,
-                hasNumeralNncGeneration: false,
+                hasNumeralNncGeneration: true,
+                hasBasicCardinalGeneration: true,
                 hasStaticNumberData: false,
                 hasConfirmedFixtureData: false,
                 changesOrdinaryNncGeneration: false,
@@ -61,7 +68,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized cardinal category remains unconfirmed without Nawat evidence",
+        "recognized cardinal category remains blocked without Andrews source gate",
         ctx.classifyNumeralNncCandidate({
             candidate: "number label",
             numeralBase: "1",
@@ -76,12 +83,16 @@ function run(ctx) {
             numeralKind: "cardinal",
             nncRole: "",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "ui-number-label",
             sourceKind: "",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "numeral-nnc-needs-nawat-evidence",
+                "numeral-nnc-source-gate-required",
                 "numeral-nnc-category-recognized",
                 "numeral-nnc-false-positive-source",
             ],
@@ -111,8 +122,272 @@ function run(ctx) {
             unitKind: "numeral-nnc",
             routeStage: "classify-boundary",
             generationAllowed: false,
-            diagnosticId: "numeral-nnc-needs-nawat-evidence",
+            diagnosticId: "numeral-nnc-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews numeral candidate generates through orthography bridge",
+        (() => {
+            const sourceFrame = ctx.buildBasicCardinalNumeralNncSourceFrame({ value: "ce" });
+            const operationFrame = ctx.buildBasicCardinalNumeralNncOperationFrame(sourceFrame);
+            const classification = ctx.classifyNumeralNncCandidate({
+                candidate: "poison",
+                numeralBase: "poison",
+                numeralKind: "cardinal",
+                nncRole: "cardinal numeral NNC",
+                sourceGate: "poison",
+                structuredSource: true,
+                sourceKind: "basic-set",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                candidate: classification.candidate,
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                formulaStem: classification.formulaSlots.numeralStem.surface,
+                operationId: classification.operationFrame.operationId,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+                realizedTargetStem: classification.frames.stemFrame.realizedTargetStem,
+            };
+        })(),
+        {
+            candidate: "poison",
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "se",
+            formulaStem: "se",
+            operationId: "andrews-34-basic-cardinal-numeral-nnc-realization",
+            diagnostics: [
+                "basic-cardinal-numeral-nnc-andrews-generated",
+                "numeral-nnc-category-recognized",
+                "numeral-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-numeral-nnc",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "ce",
+            realizedTargetStem: "se",
+        }
+    );
+
+    s.eq(
+        "basic cardinal numeral NNC inventory preserves Andrews stems",
+        ctx.getBasicCardinalNumeralNncStemInventory().map((entry) => entry.structuralStem),
+        ["ce", "ome", "eyi", "nahui"]
+    );
+
+    s.eq(
+        "Andrews basic cardinal numeral NNC builds formula slots before surface",
+        (() => {
+            const sourceFrame = ctx.buildBasicCardinalNumeralNncSourceFrame({ value: 4 });
+            const operationFrame = ctx.buildBasicCardinalNumeralNncOperationFrame(sourceFrame);
+            const generated = ctx.buildAndrewsBasicCardinalNumeralNnc({
+                value: "poison",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                value: generated.value,
+                targetStemClassical: generated.targetStemClassical,
+                structuralStem: generated.structuralStem,
+                surface: generated.surface,
+                structuralFormula: generated.structuralFormula,
+                formulaSlots: {
+                    pers: generated.formulaSlots.pers1Pers2.structural,
+                    stem: generated.formulaSlots.numeralStem.structural,
+                    stemSurface: generated.formulaSlots.numeralStem.surface,
+                    num: generated.formulaSlots.num1Num2.structural,
+                },
+                operationId: generated.operationFrame.operationId,
+                routeStage: generated.frames.routeContract.routeStage,
+                frameGenerationAllowed: generated.frames.routeContract.generationAllowed,
+                finiteSurfaceExpansionAllowed: generated.frames.routeContract.targetContract.finiteSurfaceExpansionAllowed,
+                tenseSlotAllowed: generated.frames.nuclearClauseFrame.tenseSlotAllowed,
+            };
+        })(),
+        {
+            value: 4,
+            targetStemClassical: "nahui",
+            structuralStem: "nahui",
+            surface: "nawi",
+            structuralFormula: "#0-0(nahui)0-0#",
+            formulaSlots: {
+                pers: "0-0",
+                stem: "nahui",
+                stemSurface: "nawi",
+                num: "0-0",
+            },
+            operationId: "andrews-34-basic-cardinal-numeral-nnc-realization",
+            routeStage: "generate-basic-cardinal-numeral-nnc",
+            frameGenerationAllowed: true,
+            finiteSurfaceExpansionAllowed: false,
+            tenseSlotAllowed: false,
+        }
+    );
+
+    s.eq(
+        "omitted basic cardinal candidate generates from Andrews numeral base",
+        (() => {
+            const sourceFrame = ctx.buildBasicCardinalNumeralNncSourceFrame({ value: "2" });
+            const operationFrame = ctx.buildBasicCardinalNumeralNncOperationFrame(sourceFrame);
+            const classification = ctx.classifyNumeralNncCandidate({
+                numeralBase: "poison",
+                numeralKind: "cardinal",
+                nncRole: "cardinal numeral NNC",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                candidate: classification.candidate,
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                structuralFormula: classification.structuralFormula,
+                formulaSlots: {
+                    pers: classification.formulaSlots.pers1Pers2.structural,
+                    stem: classification.formulaSlots.numeralStem.structural,
+                    stemSurface: classification.formulaSlots.numeralStem.surface,
+                    num: classification.formulaSlots.num1Num2.structural,
+                },
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                sourceSurface: classification.frames.orthographyFrame.sourceSurface,
+                targetStem: classification.frames.stemFrame.targetStem,
+                realizedTargetStem: classification.frames.stemFrame.realizedTargetStem,
+                basicCardinalGenerated: classification.frames.routeContract.targetContract.basicCardinalGenerated,
+            };
+        })(),
+        {
+            candidate: "ome",
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "ume",
+            structuralFormula: "#0-0(ome)0-0#",
+            formulaSlots: {
+                pers: "0-0",
+                stem: "ome",
+                stemSurface: "ume",
+                num: "0-0",
+            },
+            diagnostics: [
+                "basic-cardinal-numeral-nnc-andrews-generated",
+                "numeral-nnc-category-recognized",
+                "numeral-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-numeral-nnc",
+            frameGenerationAllowed: true,
+            sourceSurface: "ome",
+            targetStem: "ome",
+            realizedTargetStem: "ume",
+            basicCardinalGenerated: true,
+        }
+    );
+
+    s.eq(
+        "basic cardinal numeral NNC blocks string-only and contradictory generation",
+        (() => {
+            const sourceFrame = ctx.buildBasicCardinalNumeralNncSourceFrame({ value: 4 });
+            const operationFrame = ctx.buildBasicCardinalNumeralNncOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildBasicCardinalNumeralNncSourceFrame({ value: 1 });
+            const otherOperationFrame = ctx.buildBasicCardinalNumeralNncOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizeNumeralNncCandidateSurface;
+            if (typeof ctx.normalizeNumeralNncCandidateSurface === "function") {
+                ctx.normalizeNumeralNncCandidateSurface = () => "poison";
+            }
+            const poisoned = ctx.buildAndrewsBasicCardinalNumeralNnc({
+                value: "poison",
+                numeralBase: "poison",
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizeNumeralNncCandidateSurface = originalNormalizer;
+            }
+            const stringOnlyGenerator = ctx.buildAndrewsBasicCardinalNumeralNnc({ value: 4 });
+            const stringOnlyClassifier = ctx.classifyNumeralNncCandidate({
+                candidate: "nahui",
+                numeralBase: "4",
+                numeralKind: "cardinal",
+                sourceGate: "Andrews 34.4",
+                structuredSource: true,
+            });
+            const missingOperation = ctx.buildAndrewsBasicCardinalNumeralNnc({
+                value: 4,
+                sourceFrame,
+            });
+            const contradictory = ctx.buildAndrewsBasicCardinalNumeralNnc({
+                value: 4,
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyNumeralNncCandidate({
+                candidate: "changed",
+                numeralBase: "changed",
+                numeralKind: "cardinal",
+                sourceGate: "changed",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    structuralFormula: poisoned.structuralFormula,
+                    targetStem: poisoned.frames.stemFrame.realizedTargetStem,
+                },
+                stringOnlyGenerator: stringOnlyGenerator.diagnostics,
+                stringOnlyClassifier: {
+                    generationAllowed: stringOnlyClassifier.generationAllowed,
+                    surface: stringOnlyClassifier.surface,
+                    diagnostics: stringOnlyClassifier.diagnostics,
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    structuralFormula: changedStrings.structuralFormula,
+                    targetStem: changedStrings.frames.stemFrame.realizedTargetStem,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "nawi",
+                structuralFormula: "#0-0(nahui)0-0#",
+                targetStem: "nawi",
+            },
+            stringOnlyGenerator: ["basic-cardinal-numeral-nnc-source-frame-required"],
+            stringOnlyClassifier: {
+                generationAllowed: false,
+                surface: "",
+                diagnostics: [
+                    "basic-cardinal-numeral-nnc-source-frame-required",
+                    "numeral-nnc-category-recognized",
+                    "numeral-nnc-unconfirmed",
+                ],
+            },
+            missingOperation: ["basic-cardinal-numeral-nnc-operation-frame-required"],
+            contradictory: ["basic-cardinal-numeral-nnc-contradictory-source-frame"],
+            changedStrings: {
+                surface: "nawi",
+                structuralFormula: "#0-0(nahui)0-0#",
+                targetStem: "nawi",
+            },
         }
     );
 
@@ -137,10 +412,10 @@ function run(ctx) {
         [
             "numeral NNC boundary metadata is not generation",
             "ordinary NNC open-stem output is not numeral NNC fixture evidence",
-            "UI number labels are not Nawat/Pipil numeral data",
+            "UI number labels are not orthography-bridge numeral data",
             "Appendix D headings are not fixture cells",
-            "English or Spanish number translations are not Nawat/Pipil form evidence",
-            "Andrews numeral categories are architecture, not Nawat/Pipil form authority",
+            "English or Spanish number translations are not orthography-bridge form evidence",
+            "Andrews numeral categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     const lesson34Frame = ctx.buildLesson34CardinalNumeralNncPursuitFrame();
@@ -204,7 +479,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Lesson 34 frame records Andrews numeral architecture without licensing output",
+        "Lesson 34 frame records Andrews numeral architecture and scoped output boundary",
         {
             base: lesson34Frame.numeralSystemFrame.numericalBase,
             orders: lesson34Frame.numeralSystemFrame.successiveOrders,
@@ -218,6 +493,8 @@ function run(ctx) {
             specialTwentySetIds: lesson34Frame.classifierSetFrame.specialTwentySets.map((entry) => entry.id),
             reduplicatesAllConjuncts: lesson34Frame.reduplicationFrame.conjoinedStructuresReduplicateAllConjuncts,
             measureJoinsByModification: lesson34Frame.modifierMeasureFrame.measuredThingJoinsByAdjectivalModification,
+            cardinalGeneration: lesson34Frame.currentEngineBoundary.cardinalNumeralGenerationImplemented,
+            basicOneThroughFourGeneration: lesson34Frame.currentEngineBoundary.basicSimpleCountOneThroughFourGenerationImplemented,
             routeStage: lesson34Frame.frames.routeContract.routeStage,
             diagnosticId: lesson34Frame.contractDiagnostics[0].id,
         },
@@ -234,6 +511,8 @@ function run(ctx) {
             specialTwentySetIds: ["tecpan", "ipil", "quimil"],
             reduplicatesAllConjuncts: true,
             measureJoinsByModification: true,
+            cardinalGeneration: true,
+            basicOneThroughFourGeneration: true,
             routeStage: "audit-lesson-34",
             diagnosticId: "cardinal-numeral-nnc-diagnostic-only",
         }

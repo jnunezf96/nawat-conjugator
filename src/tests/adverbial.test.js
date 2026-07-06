@@ -83,7 +83,7 @@ function run(ctx) {
                 missCount: frame.missCount,
                 generationAllowed: frame.generationAllowed,
                 closestPass: frame.closestPass,
-                remainingGapsMentionEvidence: frame.remainingGaps.some((gap) => /confirmed Nawat\/Pipil examples/.test(gap)),
+                remainingGapsMentionSourceGate: frame.remainingGaps.some((gap) => /Andrews source models plus orthography-bridge fixtures/.test(gap)),
             };
         })(),
         {
@@ -120,7 +120,7 @@ function run(ctx) {
             missCount: 0,
             generationAllowed: false,
             closestPass: false,
-            remainingGapsMentionEvidence: true,
+            remainingGapsMentionSourceGate: true,
         }
     );
     s.eq(
@@ -186,7 +186,7 @@ function run(ctx) {
                 fullLesson44GenerationImplemented: false,
             },
             grammarRouteStage: "audit-lesson-44",
-            diagnosticIds: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-needs-nawat-evidence"],
+            diagnosticIds: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-source-gated"],
         }
     );
 
@@ -296,7 +296,7 @@ function run(ctx) {
 	                resultFrame: ctx.buildGrammarResultFrame({
 	                    ok: true,
 	                    surface: "frame-matika",
-	                    surfaceForms: ["frame-matka / frame-matika"],
+                    surfaceForms: ["frame-matka", "frame-matika"],
 	                    sourceInput: "frame-source",
 	                    outputKind: "vnc",
 	                    generationRoute: "adverbio",
@@ -408,11 +408,15 @@ function run(ctx) {
             adverbialKind: "manner-surface",
             adverbialDegree: "",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "configured-adverbio-surface",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "adverbial-nuclear-needs-nawat-evidence",
+                "adverbial-nuclear-source-gate-required",
                 "configured-adverbio-surface-recognized",
                 "adverbial-nuclear-false-positive-source",
             ],
@@ -445,8 +449,50 @@ function run(ctx) {
             unitKind: "adverbial-nuclear-clause",
             routeStage: "classify-boundary",
             generationAllowed: false,
-            diagnosticId: "adverbial-nuclear-needs-nawat-evidence",
+            diagnosticId: "adverbial-nuclear-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews adverbial nuclear candidate generates through orthography bridge",
+        (() => {
+            const classification = ctx.classifyAdverbialNuclearCandidate({
+                source: "Andrews lexicalized iuh note",
+                candidate: "iuh",
+                adverbialKind: "nnc-adverbial",
+                adverbialDegree: "lexicalized",
+                sourceGate: "Andrews 44.3 iuh/iz adverbial note",
+                structuredSource: true,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                sourceGate: classification.frames.nuclearClauseFrame.sourceGate,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "iw",
+            diagnostics: [
+                "adverbial-nuclear-andrews-source-generated",
+                "configured-adverbio-surface-unconfirmed",
+                "adverbial-nuclear-structured-source",
+            ],
+            routeStage: "generate-structured-adverbial-nuclear",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            sourceGate: "Andrews 44.3 iuh/iz adverbial note",
         }
     );
 
@@ -473,14 +519,134 @@ function run(ctx) {
             "adverbial nuclear-clause boundary metadata is not generation",
             "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms",
             "configured adverbio word output is not a full Lesson 44 engine",
-            "adverb translations are not Nawat/Pipil adverbial-clause evidence",
+            "adverb translations are not orthography-bridge adverbial-clause evidence",
             "particle-looking labels are not particle or adverbial NNC fixture evidence",
             "ordinary NNC/VNC outputs are not clause-level adverbialization evidence",
-            "Andrews adverbial categories are architecture, not Nawat/Pipil form authority",
+            "Andrews adverbial categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("adverbial nuclear boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
     s.no("adverbial nuclear boundary does not expose generated forms", Object.prototype.hasOwnProperty.call(boundary, "generatedForms"));
+
+    s.eq(
+        "adverbial nuclear handoff reads canonical realization before split display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "adverbial-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical-adverbial)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical-adverbial", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "adverbial-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical-adverbial", surface: "canonical-adverbial" },
+                ],
+                surfaceForms: ["canonical-adverbial"],
+            });
+            return ctx.getAdverbialNuclearContractSurfaceForms({
+                surface: "top-lie / top-alt-lie",
+                result: {
+                    result: "result-lie / result-alt-lie",
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                formulaRecord,
+                                formulaRealizationRecord,
+                            }),
+                            surface: "frame-lie",
+                            surfaceForms: ["frame-lie / frame-alt-lie"],
+                            formulaRecord,
+                            formulaRecords: [formulaRecord],
+                            formulaRealizationRecord,
+                            formulaRealizationRecords: [formulaRealizationRecord],
+                        },
+                    }),
+                },
+            });
+        })(),
+        ["canonical-adverbial"]
+    );
+    s.eq(
+        "adverbial nuclear clause frame carries canonical selected variant ids instead of display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "adverbial-selected-formula",
+                unit: "NNC",
+                formula: "#0-0(adverbial-selected)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "adverbial-selected", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "adverbial-selected-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "adverbial-selected", surface: "adverbial-selected-canonical" },
+                ],
+                surfaceForms: ["adverbial-selected-canonical"],
+            });
+            const frame = ctx.buildAdverbialNuclearClauseFrame({
+                result: {
+                    result: "result-lie / result-alt-lie",
+                    surface: "surface-lie",
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                sourceInput: "adverbial-selected-source",
+                                formulaRecord,
+                                formulaRealizationRecord,
+                            }),
+                            surface: "frame-lie",
+                            surfaceForms: ["frame-lie / frame-alt-lie"],
+                            formulaRecord,
+                            formulaRealizationRecord,
+                            formulaRealizationRecords: [formulaRealizationRecord],
+                        },
+                    }),
+                },
+                sourceClauseKind: "vnc",
+                adverbialKind: "vnc-adverbial",
+                adverbialDegree: "first-degree",
+                semanticDomain: "manner",
+            });
+            return {
+                outputSurfaceForms: frame.output.surfaceForms,
+                selectedVariantId: frame.output.selectedVariantId,
+                formulaRealizationRecordId: frame.output.formulaRealizationRecordId,
+                formulaRecordId: frame.output.formulaRecordId,
+            };
+        })(),
+        {
+            outputSurfaceForms: ["adverbial-selected-canonical"],
+            selectedVariantId: "adverbial-selected-realization::surface-0",
+            formulaRealizationRecordId: "adverbial-selected-realization",
+            formulaRecordId: "adverbial-selected-formula",
+        }
+    );
+    s.eq(
+        "adverbial nuclear handoff blocks slash-joined result-frame display strings",
+        ctx.getAdverbialNuclearContractSurfaceForms({
+            surface: "top-adverbial-lie",
+            result: {
+                result: "result-adverbial-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-adverbial-a / frame-adverbial-b",
+                        surfaceForms: ["frame-adverbial-a / frame-adverbial-b"],
+                    },
+                },
+            },
+        }),
+        []
+    );
 
     return s;
 }

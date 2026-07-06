@@ -70,10 +70,38 @@ function getOutputProvenanceResultFrame(record = null, options = {}) {
         : null;
 }
 
+function getOutputProvenanceCanonicalRealizationSurfaceForms(record = null, options = {}) {
+    const resultFrame = getOutputProvenanceResultFrame(record, options);
+    if (!resultFrame) {
+        return [];
+    }
+    const realizationRecords = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return realizationRecords
+        .filter((entry) => entry && typeof entry === "object" && entry.kind === "grammar-formula-realization-record")
+        .flatMap((entry) => {
+            const forms = [];
+            if (Array.isArray(entry.surfaceForms)) {
+                forms.push(...entry.surfaceForms);
+            }
+            if (entry.surface) {
+                forms.push(entry.surface);
+            }
+            return forms;
+        })
+        .map((entry) => normalizeOutputProvenanceContractSurfaceValue(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
 function getOutputProvenanceSurfaceForms(record = null, fallbackSurface = "", options = {}) {
     const node = record && typeof record === "object" ? record : {};
     const resultFrame = getOutputProvenanceResultFrame(node, options);
     const hasResultFrame = Boolean(resultFrame);
+    const canonicalForms = getOutputProvenanceCanonicalRealizationSurfaceForms(node, options);
+    if (canonicalForms.length) {
+        return canonicalForms;
+    }
     const candidates = [];
     if (Array.isArray(resultFrame?.surfaceForms)) {
         candidates.push(...resultFrame.surfaceForms);
@@ -83,7 +111,8 @@ function getOutputProvenanceSurfaceForms(record = null, fallbackSurface = "", op
     }
     if (hasResultFrame) {
         return candidates
-            .flatMap((entry) => splitOutputProvenanceContractSurfaceText(entry))
+            .map((entry) => normalizeOutputProvenanceContractSurfaceValue(entry))
+            .filter((entry) => entry && !entry.includes("/"))
             .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
@@ -121,6 +150,43 @@ function attachOutputProvenanceGrammarContract(record = null, options = {}) {
     );
     const surfaceForms = getOutputProvenanceSurfaceForms(record, fallbackSurface, options);
     const surface = getOutputProvenancePrimarySurface(record, fallbackSurface, options);
+    const optionFrame = options?.grammarFrame && typeof options.grammarFrame === "object"
+        ? options.grammarFrame
+        : (options?.frames && typeof options.frames === "object" ? options.frames : null);
+    const recordFrame = record?.grammarFrame && typeof record.grammarFrame === "object"
+        ? record.grammarFrame
+        : (record?.frames && typeof record.frames === "object" ? record.frames : null);
+    const inboundFrame = optionFrame || recordFrame || null;
+    const inboundResultFrame = inboundFrame?.resultFrame && typeof inboundFrame.resultFrame === "object"
+        ? inboundFrame.resultFrame
+        : null;
+    const sanitizedFrame = inboundResultFrame
+        ? {
+            ...inboundFrame,
+            resultFrame: {
+                ...inboundResultFrame,
+                surface,
+                surfaceForms,
+            },
+        }
+        : null;
+    const sanitizedRecord = sanitizedFrame
+        ? {
+            ...record,
+            grammarFrame: record.grammarFrame ? sanitizedFrame : record.grammarFrame,
+            frames: record.frames ? sanitizedFrame : record.frames,
+            surfaceForms,
+        }
+        : {
+            ...record,
+            surfaceForms,
+        };
+    const metadataOptions = sanitizedFrame
+        ? {
+            ...options,
+            grammarFrame: sanitizedFrame,
+        }
+        : options;
     const supported = options.supported !== undefined
         ? options.supported === true
         : Boolean(surface || surfaceForms.length);
@@ -133,10 +199,8 @@ function attachOutputProvenanceGrammarContract(record = null, options = {}) {
     const metadataKind = String(options.metadataKind || "output-provenance").trim();
     const routeStage = String(options.routeStage || (supported ? "record-result-provenance" : "blocked")).trim();
     const andrewsRefs = getOutputProvenanceAndrewsRefs({ derivationType });
-    return attachGrammarMetadataContract({
-        ...record,
-        surfaceForms,
-    }, {
+    return attachGrammarMetadataContract(sanitizedRecord, {
+        ...metadataOptions,
         enumerable: false,
         metadataKind,
         unitKind: "output-provenance",
@@ -172,7 +236,7 @@ function attachOutputProvenanceGrammarContract(record = null, options = {}) {
         orthographyFrame: {
             surface,
             surfaceForms,
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
         },
         morphBoundaryFrame: {

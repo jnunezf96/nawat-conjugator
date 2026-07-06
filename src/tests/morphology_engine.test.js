@@ -88,7 +88,7 @@ function run(ctx) {
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
                         surface: "frame-generate-surface",
-                        surfaceForms: ["frame-generate-a / frame-generate-b"],
+                        surfaceForms: ["frame-generate-a", "frame-generate-b"],
                         outputKind: "vnc",
                     }),
                 }),
@@ -112,6 +112,92 @@ function run(ctx) {
             runtimeSurface: "frame-generate-a",
             runtimeWrappedSurface: "frame-generate-a",
             runtimeWrappedFrameForms: ["frame-generate-a", "frame-generate-b", "frame-generate-surface"],
+        }
+    );
+    s.eq(
+        "runtime and morphology readers block slash-joined result-frame forms instead of splitting display strings",
+        (() => {
+            const result = {
+                result: "top-runtime-a / top-runtime-b",
+                surface: "top-runtime-surface",
+                surfaceForms: ["top-runtime-forms-a / top-runtime-forms-b"],
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-runtime-surface-a / frame-runtime-surface-b",
+                        surfaceForms: ["frame-runtime-a / frame-runtime-b"],
+                        outputKind: "vnc",
+                    },
+                },
+            };
+            return {
+                runtimeSurface: ctx.resolveGenerateRuntimeContractSurface(result),
+                runtimeForms: ctx.getGenerateRuntimeSurfaceForms(result),
+                morphologyForms: ctx.getMorphologyApplicationSurfaceForms(result, "fallback-morphology-lie"),
+                morphologySourceForms: ctx.getMorphologyApplicationSourceSurfaceForms({
+                    ...result,
+                    forms: ["stale-source-a / stale-source-b"],
+                }),
+            };
+        })(),
+        {
+            runtimeSurface: "",
+            runtimeForms: [],
+            morphologyForms: [],
+            morphologySourceForms: [],
+        }
+    );
+    s.eq(
+        "runtime and morphology readers prefer canonical realization records over stale result-frame strings",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "runtime-morphology-formula",
+                unit: "CNV",
+                formula: "#ni-0(stem)0#",
+                formulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "stem" },
+                },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "runtime-morphology-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "stem", surface: "canonical-runtime" },
+                ],
+                surfaceForms: ["canonical-runtime", "canonical-runtime-alt"],
+            });
+            const result = {
+                result: "top-runtime-lie",
+                surface: "top-runtime-surface-lie",
+                surfaceForms: ["top-runtime-a / top-runtime-b"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ok: true,
+                        surface: "frame-runtime-surface-lie",
+                        surfaceForms: ["frame-runtime-a / frame-runtime-b"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord: realizationRecord,
+                        formulaRealizationRecords: [realizationRecord],
+                    },
+                }),
+            };
+            return {
+                runtimeSurface: ctx.resolveGenerateRuntimeContractSurface(result),
+                runtimeForms: ctx.getGenerateRuntimeSurfaceForms(result),
+                morphologyForms: ctx.getMorphologyApplicationSurfaceForms(result, "fallback-morphology-lie"),
+                morphologySourceForms: ctx.getMorphologyApplicationSourceSurfaceForms({
+                    ...result,
+                    forms: ["stale-source-a / stale-source-b"],
+                }),
+            };
+        })(),
+        {
+            runtimeSurface: "canonical-runtime",
+            runtimeForms: ["canonical-runtime", "canonical-runtime-alt"],
+            morphologyForms: ["canonical-runtime", "canonical-runtime-alt"],
+            morphologySourceForms: ["canonical-runtime", "canonical-runtime-alt"],
         }
     );
     s.eq(
@@ -307,7 +393,7 @@ function run(ctx) {
                     resultFrame: ctx.buildGrammarResultFrame({
                         ok: true,
                         surface: "frame-preterit-surface",
-                        surfaceForms: ["frame-preterit-a / frame-preterit-b"],
+                        surfaceForms: ["frame-preterit-a", "frame-preterit-b"],
                         outputKind: "preterit-source",
                     }),
                 }),
@@ -400,7 +486,7 @@ function run(ctx) {
                 verb: "stale-morph-verb",
                 frames: ctx.buildGrammarFrame({
                     resultFrame: ctx.buildGrammarResultFrame({
-                        surfaceForms: ["frame-morph-a / frame-morph-b"],
+                        surfaceForms: ["frame-morph-a", "frame-morph-b"],
                         outputKind: "morphology-application",
                         generationRoute: "presente",
                     }),
@@ -682,6 +768,21 @@ function run(ctx) {
         isAdjectivalModification: false,
         doesNotImplementLessons42_43: true,
     });
+    s.eq("generateWord agentivo profile carries executable Andrews suboperation frame", {
+        operationId: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.operationId || "",
+        status: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.status || "",
+        operationApplied: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.operationApplied || "",
+        formulaEcho: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.formulaEcho || "",
+        surface: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.surface || "",
+        spellingAuthority: generatedAgentivo.nominalizationProfile?.operationalSuboperationFrame?.orthography?.spellingAuthority || "",
+    }, {
+        operationId: "customary-agentive-reanalysis",
+        status: "andrews-logic-generated",
+        operationApplied: "append-customary-present-ni-inside-nounstem",
+        formulaEcho: "CNV(nemi) -> #Ø-Ø(nemini)Ø#",
+        surface: "nemini",
+        spellingAuthority: "Nawat/Pipil orthography bridge",
+    });
     const generatedPresentAgentivo = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -811,8 +912,8 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivo.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["nenki", "nemik"],
-        connector: "ki",
-        formulaEcho: "#Ø-Ø(nen)ki#",
+        connector: "ki-0",
+        formulaEcho: "#Ø-Ø(nen-0)ki-0#",
     });
     s.eq("Andrews 35 preterit-agentive profile stays distinct from customary, present, and future agentives", summarizeNominalizationProfile(generatedPreteritAgentivo.nominalizationProfile), {
         curriculumRef: { source: "Andrews", range: "35-41", role: "curriculum-index" },
@@ -850,8 +951,8 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoPlural.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["tinenket", "tinemiket"],
-        connector: "ket",
-        formulaEcho: "#ti-Ø(nen)ket#",
+        connector: "k-et",
+        formulaEcho: "#ti-Ø(nen-0)k-et#",
     });
     const generatedPreteritAgentivoTransitive = ctx.generateWord({
         silent: true,
@@ -873,8 +974,195 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoTransitive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["tamatki", "tamatik"],
-        formulaEcho: "#Ø-Ø(tamat)ki#",
+        formulaEcho: "#Ø-Ø(tamat-0)ki-0#",
     });
+    const transitiveResultTextRecords = (
+        generatedPreteritAgentivoTransitive.generatedOutputResultTextSourceFrame?.outputSurfaceRecordFrames || []
+    ).map((record) => ({
+        surface: record.surface,
+        segments: record.segmentFrames,
+    }));
+    const transitiveResultTextSourceFrame = ctx.buildGeneratedOutputResultTextSourceFrame({
+        surfaceForms: generatedPreteritAgentivoTransitive.surfaceForms,
+        outputSurfaceRecords: transitiveResultTextRecords,
+        result: "hostile-result",
+        surface: "hostile-surface",
+        formulaEcho: "#HOSTILE#",
+    });
+    const transitiveResultTextOperationFrame = ctx.buildGeneratedOutputResultTextOperationFrame(
+        transitiveResultTextSourceFrame
+    );
+    s.eq("generated output result text consumes typed output records", {
+        result: generatedPreteritAgentivoTransitive.result,
+        framedResult: ctx.buildGeneratedOutputResultText(generatedPreteritAgentivoTransitive.surfaceForms, {
+            outputSurfaceRecords: transitiveResultTextRecords,
+            sourceFrame: transitiveResultTextSourceFrame,
+            operationFrame: transitiveResultTextOperationFrame,
+            result: "hostile-result",
+            surface: "hostile-surface",
+            surfaceForms: ["hostile-a / hostile-b"],
+            formulaEcho: "#HOSTILE#",
+        }),
+        sourceKind: transitiveResultTextSourceFrame.kind,
+        operationId: transitiveResultTextOperationFrame.operationId,
+        excluded: transitiveResultTextSourceFrame.displayOnlyFieldsExcluded,
+    }, {
+        result: "tamatki / tamatik",
+        framedResult: "tamatki / tamatik",
+        sourceKind: "generated-output-result-text-source-frame",
+        operationId: "generated-output-result-text-render",
+        excluded: ["formulaEcho", "result", "surface", "surfaceForms"],
+    });
+    s.eq(
+        "generated output result text direct legacy path without frames blocks",
+        ctx.buildGeneratedOutputResultText(generatedPreteritAgentivoTransitive.surfaceForms, {
+            outputSurfaceRecords: transitiveResultTextRecords,
+        }),
+        ""
+    );
+    s.eq(
+        "generated output result text missing operation frame blocks",
+        ctx.buildGeneratedOutputResultText(generatedPreteritAgentivoTransitive.surfaceForms, {
+            outputSurfaceRecords: transitiveResultTextRecords,
+            sourceFrame: transitiveResultTextSourceFrame,
+        }),
+        ""
+    );
+    s.eq(
+        "generated output result text contradictory target frame blocks",
+        ctx.buildGeneratedOutputResultText(generatedPreteritAgentivoTransitive.surfaceForms, {
+            outputSurfaceRecords: transitiveResultTextRecords,
+            sourceFrame: transitiveResultTextSourceFrame,
+            operationFrame: {
+                ...transitiveResultTextOperationFrame,
+                targetFrame: {
+                    ...transitiveResultTextOperationFrame.targetFrame,
+                    resultText: "hostile-result",
+                },
+            },
+        }),
+        ""
+    );
+    s.eq("Andrews 35.3 preterit-agentive transitive formula rendering maps each alternant", {
+        formulaEcho: generatedPreteritAgentivoTransitive.nominalizationProfile?.operationalSuboperationFrame?.formulaEcho || "",
+        pairs: (generatedPreteritAgentivoTransitive.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs || [])
+            .map((entry) => ({
+                surface: entry.surface,
+                targetFormulaEcho: entry.targetFormulaEcho,
+                sourceToTargetFormulaEcho: entry.sourceToTargetFormulaEcho,
+            })),
+    }, {
+        formulaEcho: "CNV(mati) -> #Ø-Ø(tamat-0)ki-0# | CNV(mati) -> #Ø-Ø(tamati-0)k-0#",
+        pairs: [
+            {
+                surface: "tamatki",
+                targetFormulaEcho: "#Ø-Ø(tamat-0)ki-0#",
+                sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamat-0)ki-0#",
+            },
+            {
+                surface: "tamatik",
+                targetFormulaEcho: "#Ø-Ø(tamati-0)k-0#",
+                sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamati-0)k-0#",
+            },
+        ],
+    });
+    const transitiveNominalFrame = generatedPreteritAgentivoTransitive.nominalizationProfile?.operationalSuboperationFrame || null;
+    const transitiveNominalPath = generatedPreteritAgentivoTransitive.cnvFormulaSurfacePath?.pathsBySurface?.[0] || null;
+    const transitiveNominalFormulaSourceFrame = ctx.buildGeneratedNominalFormulaSourceFrame(transitiveNominalPath, {
+        frame: transitiveNominalFrame,
+        nuclearClauseShell: generatedPreteritAgentivoTransitive.nuclearClauseShell,
+        formulaEcho: "#HOSTILE#",
+        result: "hostile-result",
+        surface: "hostile-surface",
+        surfaceForms: ["hostile-a / hostile-b"],
+    });
+    const transitiveNominalFormulaOperationFrame = ctx.buildGeneratedNominalFormulaOperationFrame(
+        transitiveNominalFormulaSourceFrame
+    );
+    s.eq(
+        "generated nominal formula route consumes typed source and operation frames",
+        {
+            formula: ctx.buildGeneratedNominalFormulaFromSurfacePath(transitiveNominalPath, {
+                frame: transitiveNominalFrame,
+                nuclearClauseShell: generatedPreteritAgentivoTransitive.nuclearClauseShell,
+                sourceFrame: transitiveNominalFormulaSourceFrame,
+                operationFrame: transitiveNominalFormulaOperationFrame,
+                formulaEcho: "#HOSTILE#",
+                result: "hostile-result",
+                surface: "hostile-surface",
+                surfaceForms: ["hostile-a / hostile-b"],
+            }),
+            sourceKind: transitiveNominalFormulaSourceFrame.kind,
+            operationId: transitiveNominalFormulaOperationFrame.operationId,
+            targetStem: transitiveNominalFormulaOperationFrame.targetFrame.targetStem,
+            excluded: transitiveNominalFormulaSourceFrame.displayOnlyFieldsExcluded,
+        },
+        {
+            formula: "#Ø-Ø(tamat-0)ki-0#",
+            sourceKind: "generated-nominal-formula-source-frame",
+            operationId: "generated-nominal-formula-render",
+            targetStem: "tamat-0",
+            excluded: ["formulaEcho", "result", "surface", "surfaceForms"],
+        }
+    );
+    s.eq(
+        "generated nominal formula direct legacy path without frames blocks",
+        ctx.buildGeneratedNominalFormulaFromSurfacePath(transitiveNominalPath, {
+            frame: transitiveNominalFrame,
+            nuclearClauseShell: generatedPreteritAgentivoTransitive.nuclearClauseShell,
+        }),
+        ""
+    );
+    s.eq(
+        "generated nominal formula missing operation frame blocks",
+        ctx.buildGeneratedNominalFormulaFromSurfacePath(transitiveNominalPath, {
+            frame: transitiveNominalFrame,
+            nuclearClauseShell: generatedPreteritAgentivoTransitive.nuclearClauseShell,
+            sourceFrame: transitiveNominalFormulaSourceFrame,
+        }),
+        ""
+    );
+    s.eq(
+        "generated nominal formula contradictory target frame blocks",
+        ctx.buildGeneratedNominalFormulaFromSurfacePath(transitiveNominalPath, {
+            frame: transitiveNominalFrame,
+            nuclearClauseShell: generatedPreteritAgentivoTransitive.nuclearClauseShell,
+            sourceFrame: transitiveNominalFormulaSourceFrame,
+            operationFrame: {
+                ...transitiveNominalFormulaOperationFrame,
+                targetFrame: {
+                    ...transitiveNominalFormulaOperationFrame.targetFrame,
+                    formula: "#HOSTILE#",
+                },
+            },
+        }),
+        ""
+    );
+    s.eq(
+        "generated nominal formula ignores poisoned display surface when frames match",
+        ctx.buildGeneratedNominalFormulaFromSurfacePath({
+            ...transitiveNominalPath,
+            surface: "hostile-surface",
+            result: "hostile-result",
+            formulaEcho: "#HOSTILE#",
+            surfaceForms: ["hostile-a / hostile-b"],
+        }, {
+            frame: {
+                ...transitiveNominalFrame,
+                formulaEcho: "#HOSTILE#",
+                surface: "hostile-surface",
+                result: "hostile-result",
+                surfaceForms: ["hostile-a / hostile-b"],
+            },
+            nuclearClauseShell: {
+                ...generatedPreteritAgentivoTransitive.nuclearClauseShell,
+                formulaEcho: "#HOSTILE-SHELL#",
+            },
+            sourceFrame: transitiveNominalFormulaSourceFrame,
+            operationFrame: transitiveNominalFormulaOperationFrame,
+        }),
+        "#Ø-Ø(tamat-0)ki-0#"
+    );
     const generatedPreteritAgentivoPossessive = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -897,9 +1185,32 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoPossessive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["nutamatkaw", "nutamatikaw"],
-        connector: "w",
+        connector: "w-0",
         predicateState: "possessive",
-        formulaEcho: "#Ø-Ø(tamatka)w#",
+        formulaEcho: "#Ø-Ø+nu(tamat-0-ka)w-0#",
+    });
+    s.eq("Andrews 35.5-35.6 preterit-agentive possessive formula rendering maps each alternant", {
+        formulaEcho: generatedPreteritAgentivoPossessive.nominalizationProfile?.operationalSuboperationFrame?.formulaEcho || "",
+        pairs: (generatedPreteritAgentivoPossessive.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs || [])
+            .map((entry) => ({
+                surface: entry.surface,
+                targetFormulaEcho: entry.targetFormulaEcho,
+                sourceToTargetFormulaEcho: entry.sourceToTargetFormulaEcho,
+            })),
+    }, {
+        formulaEcho: "CNV(mati) -> #Ø-Ø+nu(tamat-0-ka)w-0# | CNV(mati) -> #Ø-Ø+nu(tamati-0-ka)w-0#",
+        pairs: [
+            {
+                surface: "nutamatkaw",
+                targetFormulaEcho: "#Ø-Ø+nu(tamat-0-ka)w-0#",
+                sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø+nu(tamat-0-ka)w-0#",
+            },
+            {
+                surface: "nutamatikaw",
+                targetFormulaEcho: "#Ø-Ø+nu(tamati-0-ka)w-0#",
+                sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø+nu(tamati-0-ka)w-0#",
+            },
+        ],
     });
     const generatedPreteritAgentivoReflexivePossessive = ctx.generateWord({
         silent: true,
@@ -921,7 +1232,7 @@ function run(ctx) {
         formulaEcho: generatedPreteritAgentivoReflexivePossessive.nuclearClauseShell?.formulaEcho || "",
     }, {
         forms: ["nunematkaw", "nunematikaw"],
-        formulaEcho: "#Ø-Ø(nematka)w#",
+        formulaEcho: "#Ø-Ø+nu(nemat-0-ka)w-0#",
     });
     const generatedPreteritAgentivoMikiPossessive = ctx.generateWord({
         silent: true,
@@ -946,7 +1257,7 @@ function run(ctx) {
     }, {
         forms: ["ninumikikaw"],
         predicateState: "possessive",
-        formulaEcho: "#ni-Ø(mikika)w#",
+        formulaEcho: "#ni-Ø+nu(miki-0-ka)w-0#",
         possessorSourceFrame: {
             grammarSource: "Andrews 36.12",
             possessorOrigin: "external",
@@ -1068,6 +1379,154 @@ function run(ctx) {
         predicateState: "possessive",
         formulaEcho: "#Ø-Ø(tamatiska)w#",
     });
+    const andrewsNominalSurfaceFormulaAudit = (() => {
+        const routeTenses = [
+            "agentivo",
+            "agentivo-presente",
+            "agentivo-preterito",
+            "agentivo-futuro",
+            "sustantivo-verbal",
+            "instrumentivo",
+            "calificativo-instrumentivo",
+            "locativo-temporal",
+            "predicado-nominal",
+            "locativo-agentivo-preterito",
+        ];
+        const sourceStems = [
+            { label: "nemi", obj1: "", tronco: "nemi" },
+            { label: "ta-mati", obj1: "ta", tronco: "-(mati)" },
+            { label: "miki", obj1: "", tronco: "(miki)" },
+            { label: "chuka", obj1: "", tronco: "chuka" },
+            { label: "ajsi", obj1: "", tronco: "ajsi" },
+            { label: "ta-teomati", obj1: "ta", tronco: "-(teomati)" },
+        ];
+        const derivationModes = [
+            { label: "active", override: {}, obj1: null },
+            { label: "nonactive", override: { derivationMode: ctx.DERIVATION_MODE.nonactive }, obj1: null },
+            { label: "reflexive", override: {}, obj1: "mu" },
+        ];
+        const predicateSourceTenses = [
+            "presente",
+            "presente-habitual",
+            "imperfecto",
+            "preterito",
+            "pasado-remoto",
+            "futuro",
+        ];
+        const normalizeSurfaceForms = (forms = []) => [...new Set((Array.isArray(forms) ? forms : [])
+            .flatMap((entry) => String(entry || "").split(/\s*\/\s*/))
+            .map((entry) => entry.trim())
+            .filter(Boolean))];
+        const rows = [];
+        routeTenses.forEach((tense) => {
+            sourceStems.forEach((sourceStem) => {
+                derivationModes.forEach((derivationMode) => {
+                    const sourceTenses = tense === "predicado-nominal" ? predicateSourceTenses : [""];
+                    sourceTenses.forEach((sourceTense) => {
+                        const override = {
+                            tenseMode: ctx.TENSE_MODE.sustantivo,
+                            ...derivationMode.override,
+                        };
+                        if (sourceTense) {
+                            override.predicateNominalSourceTense = sourceTense;
+                        }
+                        const output = ctx.generateWord({
+                            silent: true,
+                            skipValidation: true,
+                            override,
+                            posicionesFormula: {
+                                pers1: "",
+                                obj1: derivationMode.obj1 === null ? sourceStem.obj1 : derivationMode.obj1,
+                                tronco: sourceStem.tronco,
+                                pers2: "",
+                                num2: "",
+                                poseedor: "",
+                                tiempo: tense,
+                            },
+                        });
+                        const frame = output.nominalizationProfile?.operationalSuboperationFrame || null;
+                        const surfaces = normalizeSurfaceForms(output.surfaceForms);
+                        if (!frame || !surfaces.length) {
+                            return;
+                        }
+                        const formulaPairs = Array.isArray(frame.formulaSurfacePairs)
+                            ? frame.formulaSurfacePairs
+                            : [];
+                        const pairSurfaces = formulaPairs
+                            .map((entry) => String(entry?.surface || "").trim())
+                            .filter(Boolean);
+                        const targetFormulaEchoes = formulaPairs
+                            .map((entry) => String(entry?.targetFormulaEcho || "").trim())
+                            .filter(Boolean);
+                        const sourceToTargetFormulaEchoes = formulaPairs
+                            .map((entry) => String(entry?.sourceToTargetFormulaEcho || "").trim())
+                            .filter(Boolean);
+                        rows.push({
+                            label: [
+                                sourceStem.label,
+                                tense,
+                                derivationMode.label,
+                                sourceTense || "default",
+                            ].join("|"),
+                            surfaces,
+                            pairSurfaces,
+                            targetFormulaEchoes,
+                            sourceToTargetFormulaEchoes,
+                        });
+                    });
+                });
+            });
+        });
+        const mismatches = rows
+            .map((row) => {
+                const missing = row.surfaces.filter((surface) => !row.pairSurfaces.includes(surface));
+                const extra = row.pairSurfaces.filter((surface) => !row.surfaces.includes(surface));
+                const repeatedSurfaces = row.pairSurfaces.filter((surface, index) => row.pairSurfaces.indexOf(surface) !== index);
+                const incompletePairCount = row.pairSurfaces.length !== row.targetFormulaEchoes.length
+                    || row.pairSurfaces.length !== row.sourceToTargetFormulaEchoes.length;
+                return {
+                    label: row.label,
+                    missing,
+                    extra,
+                    repeatedSurfaces,
+                    incompletePairCount,
+                    surfaceCount: row.surfaces.length,
+                    pairCount: row.pairSurfaces.length,
+                };
+            })
+            .filter((row) => row.missing.length
+                || row.extra.length
+                || row.repeatedSurfaces.length
+                || row.incompletePairCount
+                || row.surfaceCount !== row.pairCount);
+        const requiredRows = [
+            "ta-mati|agentivo-preterito|active|default",
+            "ta-mati|agentivo-preterito|nonactive|default",
+            "ta-mati|predicado-nominal|nonactive|futuro",
+            "ta-mati|calificativo-instrumentivo|nonactive|default",
+            "ta-mati|sustantivo-verbal|active|default",
+        ];
+        return {
+            auditedCount: rows.length,
+            requiredRowsPresent: requiredRows.every((label) => rows.some((row) => row.label === label)),
+            mismatches,
+        };
+    })();
+    s.eq(
+        "Andrews CNV-to-CNN generated Nawat outputs have one formula pair per surface across tenses and derivation modes",
+        {
+            requiredRowsPresent: andrewsNominalSurfaceFormulaAudit.requiredRowsPresent,
+            mismatches: andrewsNominalSurfaceFormulaAudit.mismatches,
+        },
+        {
+            requiredRowsPresent: true,
+            mismatches: [],
+        }
+    );
+    s.ok(
+        "Andrews CNV-to-CNN surface/formula audit covers a broad generated set",
+        andrewsNominalSurfaceFormulaAudit.auditedCount >= 50
+    );
 
     const nemiActionNominal = ctx.generateWord({
         silent: true,
@@ -1330,6 +1789,46 @@ function run(ctx) {
         "Andrews Lesson 37 active-action transitive NNC keeps the object pronoun",
         transitiveActionNominal.surfaceForms,
         ["tamatilis", "tamatis"]
+    );
+    s.eq(
+        "Andrews Lesson 37 active-action transitive NNC returns slash-joined output in generated order",
+        transitiveActionNominal.result,
+        "tamatilis / tamatis"
+    );
+    s.no(
+        "Andrews Lesson 37 active-action transitive NNC does not collapse or reorder final slash output",
+        [
+            "tamatis / tamatilis",
+            "tamatilis",
+            "tamatis",
+        ].includes(transitiveActionNominal.result)
+    );
+    s.eq(
+        "Andrews Lesson 37 active-action formula rendering keeps lis/s inside the nounstem",
+        {
+            formulaEcho: transitiveActionNominal.nominalizationProfile?.operationalSuboperationFrame?.formulaEcho || "",
+            pairs: (transitiveActionNominal.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs || [])
+                .map((entry) => ({
+                    surface: entry.surface,
+                    targetFormulaEcho: entry.targetFormulaEcho,
+                    sourceToTargetFormulaEcho: entry.sourceToTargetFormulaEcho,
+                })),
+        },
+        {
+            formulaEcho: "CNV(mati) -> #Ø-Ø(tamatilis)Ø# | CNV(mati) -> #Ø-Ø(tamatis)Ø#",
+            pairs: [
+                {
+                    surface: "tamatilis",
+                    targetFormulaEcho: "#Ø-Ø(tamatilis)Ø#",
+                    sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamatilis)Ø#",
+                },
+                {
+                    surface: "tamatis",
+                    targetFormulaEcho: "#Ø-Ø(tamatis)Ø#",
+                    sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamatis)Ø#",
+                },
+            ],
+        }
     );
     const reflexiveActionNominal = ctx.generateWord({
         silent: true,
@@ -2089,6 +2588,40 @@ function run(ctx) {
             tiempo: "predicado-nominal",
         },
     });
+    const unsupportedPresentDesiderativePredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            predicateNominalSourceTense: "presente-desiderativo",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    const unsupportedOptativePredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            predicateNominalSourceTense: "optativo",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "ta",
+            tronco: "-(mati)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
     const activeFuturePredicateNominal = ctx.generateWord({
         silent: true,
         skipValidation: true,
@@ -2107,28 +2640,63 @@ function run(ctx) {
         },
     });
     s.eq(
-        "predicado-nominal source-tense option changes the source predicate instead of reusing imperfect",
+        "predicado-nominal source-tense option exposes only Andrews VNC tenses",
         {
+            sourceTenses: typeof ctx.getPredicateNominalSourceTenses === "function"
+                ? ctx.getPredicateNominalSourceTenses()
+                : [],
             present: {
                 forms: activePresentPredicateNominal.surfaceForms,
                 formulaEcho: activePresentPredicateNominal.nuclearClauseShell?.formulaEcho || "",
                 sourceTense: activePresentPredicateNominal.nominalizationProfile?.source?.sourceTense || "",
             },
+            unsupportedPresentDesiderative: {
+                forms: unsupportedPresentDesiderativePredicateNominal.surfaceForms,
+                formulaEcho: unsupportedPresentDesiderativePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+                sourceTense: unsupportedPresentDesiderativePredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            },
+            unsupportedOptative: {
+                forms: unsupportedOptativePredicateNominal.surfaceForms,
+                formulaEcho: unsupportedOptativePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+                sourceTense: unsupportedOptativePredicateNominal.nominalizationProfile?.source?.sourceTense || "",
+            },
             future: {
                 forms: activeFuturePredicateNominal.surfaceForms,
+                connector: activeFuturePredicateNominal.num1Num2?.displaySurface || "",
                 formulaEcho: activeFuturePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+                predicateDisplay: activeFuturePredicateNominal.nuclearClauseShell?.slots?.predicateStem?.displayStem || "",
                 sourceTense: activeFuturePredicateNominal.nominalizationProfile?.source?.sourceTense || "",
             },
         },
         {
+            sourceTenses: [
+                "presente",
+                "presente-habitual",
+                "imperfecto",
+                "preterito",
+                "pasado-remoto",
+                "futuro",
+            ],
             present: {
                 forms: ["tamatit"],
                 formulaEcho: "#Ø-Ø(tamati)t#",
                 sourceTense: "presente",
             },
+            unsupportedPresentDesiderative: {
+                forms: ["tamatiyat"],
+                formulaEcho: "#Ø-Ø(tamatiya)t#",
+                sourceTense: "imperfecto",
+            },
+            unsupportedOptative: {
+                forms: ["tamatiyat"],
+                formulaEcho: "#Ø-Ø(tamatiya)t#",
+                sourceTense: "imperfecto",
+            },
             future: {
-                forms: ["tamatist"],
-                formulaEcho: "#Ø-Ø(tamatis)t#",
+                forms: ["tamatisti"],
+                connector: "ti",
+                formulaEcho: "#Ø-Ø(tamati-s)ti#",
+                predicateDisplay: "tamati-s",
                 sourceTense: "futuro",
             },
         }
@@ -2161,11 +2729,44 @@ function run(ctx) {
             sourceUnit: passiveFuturePredicateNominal.nominalizationProfile?.source?.sourceUnit || "",
         },
         {
-            forms: ["machulust", "matilust", "matulust", "matust", "matilulust"],
-            formulaEcho: "#Ø-Ø(matilulus)t#",
+            forms: ["machusti", "matusti", "matilusti"],
+            formulaEcho: "#Ø-Ø(matilu-s)ti#",
             sourceTense: "futuro",
             sourceCombinedMode: "nonactive",
             sourceUnit: "vnc-predicate",
+        }
+    );
+    const nonactiveMichNamakaFuturePredicateNominal = ctx.generateWord({
+        silent: true,
+        skipValidation: true,
+        override: {
+            tenseMode: ctx.TENSE_MODE.sustantivo,
+            derivationMode: ctx.DERIVATION_MODE.nonactive,
+            predicateNominalSourceTense: "futuro",
+        },
+        posicionesFormula: {
+            pers1: "",
+            obj1: "",
+            tronco: "(mich)-(namaka)",
+            pers2: "",
+            num2: "",
+            poseedor: "",
+            tiempo: "predicado-nominal",
+        },
+    });
+    s.eq(
+        "predicado-nominal nonactive future source does not apply the nonactive layer twice",
+        {
+            forms: nonactiveMichNamakaFuturePredicateNominal.surfaceForms,
+            formulaEcho: nonactiveMichNamakaFuturePredicateNominal.nuclearClauseShell?.formulaEcho || "",
+            connector: nonactiveMichNamakaFuturePredicateNominal.num1Num2?.displaySurface || "",
+            sourceCombinedMode: nonactiveMichNamakaFuturePredicateNominal.nominalizationProfile?.source?.sourceCombinedMode || "",
+        },
+        {
+            forms: ["michnamakalusti", "michnamakilusti"],
+            formulaEcho: "#Ø-Ø(michnamakalu-s)ti#",
+            connector: "ti",
+            sourceCombinedMode: "nonactive",
         }
     );
     const generatedInstrumentiveSourceSubjectPossessive = ctx.generateWord({
@@ -2379,7 +2980,19 @@ function run(ctx) {
         }
     );
     const summarizeNonactivePatientiveStemDerivations = (sourceStem, sourceSuffix) => (
-        ctx.getPatientivoStemFromNonactive(sourceStem, sourceSuffix, { isTransitive: true })
+        (() => {
+            const sourceFrame = ctx.buildPatientivoNonactiveStemSourceFrame({
+                stem: sourceStem,
+                suffix: sourceSuffix,
+                isTransitive: true,
+            });
+            const operationFrame = ctx.buildPatientivoNonactiveStemOperationFrame(sourceFrame);
+            return ctx.getPatientivoStemFromNonactive(sourceStem, sourceSuffix, {
+                isTransitive: true,
+                patientivoNonactiveSourceFrame: sourceFrame,
+                patientivoNonactiveOperationFrame: operationFrame,
+            });
+        })()
             .map((entry) => ({
                 stem: entry.stem,
                 connector: entry.suffix,
@@ -3122,7 +3735,7 @@ function run(ctx) {
         frames: ctx.buildGrammarFrame({
             resultFrame: ctx.buildGrammarResultFrame({
                 ok: true,
-                surfaceForms: ["frame-allomorph-a / frame-allomorph-b"],
+                surfaceForms: ["frame-allomorph-a", "frame-allomorph-b"],
                 outputKind: "vnc-allomorphy-contract",
                 generationRoute: "test-frame-reader",
                 sourceInput: "frame-source-input",
@@ -5569,7 +6182,7 @@ function run(ctx) {
             },
         ],
     });
-    s.eq("generated denominal metadata carries Andrews NNC-to-VNC route targets without finite generation", {
+    s.eq("generated denominal metadata carries Andrews NNC-to-VNC route targets before finite surface execution", {
         outputKind: generatedAndrewsRoutePreview?.outputKind || "",
         sourceStem: generatedAndrewsRoutePreview?.sourceStem || "",
         contractCount: generatedAndrewsRoutePreview?.contractCount || 0,
@@ -5612,9 +6225,9 @@ function run(ctx) {
         sourceStem: "pusuk",
         contractCount: 26,
         routeCount: 31,
-        finiteRouteRequestCount: 11,
-        finiteRouteObjectPrefixRequiredCount: 3,
-        finiteRouteStemClassContractCount: 10,
+        finiteRouteRequestCount: 31,
+        finiteRouteObjectPrefixRequiredCount: 17,
+        finiteRouteStemClassContractCount: 18,
         finiteRouteSourceEvidenceRequiredCount: 20,
         doesNotGenerateFiniteVnc: true,
         noFixtureEvidence: true,
@@ -5636,24 +6249,24 @@ function run(ctx) {
                 routeTemplateId: "ti-ya",
                 classicalSuffixSequence: "ti-ya",
                 nawatSurfaceSuffix: "tiya",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktiya",
+                targetInputValue: "(pusukti)-(ya)",
                 targetStemClass: "A/B",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "54.2.3-hui-ya-deverbal",
                 routeTemplateId: "hui-ya",
                 classicalSuffixSequence: "hui-ya",
                 nawatSurfaceSuffix: "wiya",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukwiya",
+                targetInputValue: "(pusukwi)-(ya)",
                 targetStemClass: "B",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "54.4-possession-ti",
@@ -5684,48 +6297,48 @@ function run(ctx) {
                 routeTemplateId: "tla-ti-lia",
                 classicalSuffixSequence: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.2-intransitive-tla",
                 routeTemplateId: "intransitive-tla",
                 classicalSuffixSequence: "tla",
                 nawatSurfaceSuffix: "ta",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukta",
+                targetInputValue: "(pusukta)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.2-intransitive-tla-ti-a-causative",
                 routeTemplateId: "intransitive-tla-ti-a",
                 classicalSuffixSequence: "ti-a",
                 nawatSurfaceSuffix: "tia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusukti)-(a)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.2-intransitive-tla-ti-lia-applicative",
                 routeTemplateId: "intransitive-tla-ti-lia",
                 classicalSuffixSequence: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.3-intransitive-o-a-applicative-huia",
@@ -5756,24 +6369,24 @@ function run(ctx) {
                 routeTemplateId: "o-a-i-l-huia",
                 classicalSuffixSequence: "i-l-huia",
                 nawatSurfaceSuffix: "ilwia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukilwia",
+                targetInputValue: "(pusuk)-(ilwia)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.3-o-a-il-huia-al-huia-applicative-note",
                 routeTemplateId: "o-a-a-l-huia",
                 classicalSuffixSequence: "a-l-huia",
                 nawatSurfaceSuffix: "alwia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukalwia",
+                targetInputValue: "(pusuk)-(alwia)",
                 targetStemClass: "",
                 finiteGenerationRequiresSourceEvidence: true,
                 generationAllowed: false,
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
             },
             {
                 contractId: "55.7-transitive-i-a",

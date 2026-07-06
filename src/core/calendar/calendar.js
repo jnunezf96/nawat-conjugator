@@ -1,7 +1,7 @@
 // core/calendar/calendar.js
 // Appendix E calendar-name boundary metadata. This keeps roadmap text,
-// personal-name metadata, and place/gentilic metadata separate from confirmed
-// Nawat/Pipil day, month, year, or cycle-name generation.
+// personal-name metadata, and place/gentilic metadata separate from Andrews
+// source-gated day, month, year, or cycle-name generation.
 
 "use strict";
 
@@ -33,11 +33,11 @@ const CALENDAR_NAME_FALSE_POSITIVE_SOURCE = Object.freeze({
 
 const CALENDAR_NAME_ANTI_CONFLATION_RULES = Object.freeze([
     "calendar-name boundary metadata is not generation",
-    "day, month, year, or cycle labels are not Nawat/Pipil calendar-name fixture data",
+    "day, month, year, or cycle labels are not calendar-name orthography fixture data",
     "personal-name NNC boundary metadata is not calendar-name data",
     "place/gentilic boundary metadata and calendar roadmap text are not confirmed calendar names",
     "ordinary NNC fixtures or open-stem previews are not calendar-name evidence",
-    "Andrews calendar categories are architecture, not Nawat/Pipil form authority",
+    "Andrews calendar categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const CALENDAR_NAME_STRUCTURAL_QUESTIONS = Object.freeze([
@@ -51,7 +51,7 @@ const CALENDAR_NAME_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "sourceName",
-        asks: "Which Nawat/Pipil calendar-name form is evidenced?",
+        asks: "Which Andrews calendar-name form is licensed before Nawat/Pipil orthography realizes it?",
     }),
     Object.freeze({
         field: "nameFunction",
@@ -59,7 +59,7 @@ const CALENDAR_NAME_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided evidence supports calendar-name status?",
+        asks: "Which Andrews source gate or structured route licenses calendar-name status?",
     }),
 ]);
 
@@ -82,6 +82,36 @@ function normalizeCalendarNameFalsePositiveSource(value = "") {
         Object.values(CALENDAR_NAME_FALSE_POSITIVE_SOURCE),
         CALENDAR_NAME_FALSE_POSITIVE_SOURCE.unknown
     );
+}
+
+function normalizeCalendarNameCandidateSurface(value = "") {
+    const raw = String(value || "").trim();
+    if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+    }
+    const source = raw
+        .replace(/\[[^\]]+\]/g, "")
+        .replace(/[Øø]/g, "")
+        .replace(/\b0\b/g, "")
+        .replace(/[#+(){}\s.-]/g, "")
+        .trim();
+    if (!source || /[A-Z_]/.test(source)) {
+        return "";
+    }
+    const conversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(source, {
+            source: "Andrews calendar-name candidate formula",
+            slot: "calendar-name",
+        })
+        : { output: source, diagnostics: [] };
+    return String(conversion?.output || source || "").trim();
+}
+
+function hasCalendarNameAndrewsSourceGate({
+    sourceGate = "",
+    structuredSource = false,
+} = {}) {
+    return structuredSource === true || Boolean(String(sourceGate || "").trim());
 }
 
 function getCalendarNameAntiConflationRules() {
@@ -111,7 +141,7 @@ function buildCalendarNameBoundaryMetadata() {
         appendix: "E",
         status: "partial",
         structuralSource: "Andrews Appendix E",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews Appendix E with Nawat/Pipil orthographic realization",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getCalendarNameStructuralQuestions(),
@@ -142,11 +172,21 @@ function classifyCalendarNameCandidate({
     sourceName = "",
     nameFunction = "",
     evidenceSource = "",
+    sourceGate = "",
+    structuredSource = false,
     falsePositiveSource = "",
 } = {}) {
     const normalizedKind = normalizeCalendarNameKind(calendarKind);
     const normalizedFalsePositive = normalizeCalendarNameFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
+    const sourceSurface = normalizeCalendarNameCandidateSurface(candidate || sourceName);
+    const hasSourceGate = hasCalendarNameAndrewsSourceGate({ sourceGate, structuredSource });
+    const canGenerate = Boolean(
+        sourceSurface
+        && hasSourceGate
+        && normalizedKind !== CALENDAR_NAME_KIND.unknown
+        && normalizedFalsePositive === CALENDAR_NAME_FALSE_POSITIVE_SOURCE.unknown
+    );
     const classification = {
         kind: "calendar-name-candidate-classification",
         version: CALENDAR_NAME_BOUNDARY_VERSION,
@@ -156,25 +196,48 @@ function classifyCalendarNameCandidate({
         sourceName: String(sourceName || ""),
         nameFunction: String(nameFunction || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
-        confirmed: false,
-        generationAllowed: false,
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
         diagnostics: [
-            hasEvidence ? "calendar-name-needs-validation" : "calendar-name-needs-nawat-evidence",
+            canGenerate
+                ? "calendar-name-andrews-source-generated"
+                : (hasEvidence ? "calendar-name-needs-validation" : "calendar-name-source-gate-required"),
             normalizedKind !== CALENDAR_NAME_KIND.unknown
                 ? "calendar-name-kind-recognized"
                 : "calendar-name-kind-unconfirmed",
             normalizedFalsePositive !== CALENDAR_NAME_FALSE_POSITIVE_SOURCE.unknown
                 ? "calendar-name-false-positive-source"
-                : "calendar-name-unconfirmed",
+                : (canGenerate ? "calendar-name-structured-source" : "calendar-name-unconfirmed"),
         ],
         boundary: buildCalendarNameBoundaryMetadata(),
     };
     return attachCalendarNameGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-calendar-name" : "classify-boundary",
         sourceInput: classification.candidate || classification.sourceName,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+            surface: classification.surface,
+            surfaceForms: classification.surfaceForms,
+        },
         morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+            stemKind: "calendar-name-candidate",
+            sourceStem: classification.sourceName,
+            targetStem: classification.surface,
+            sourceGate: classification.sourceGate,
+        },
     });
 }
 

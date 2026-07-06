@@ -181,11 +181,11 @@ const PARTICLE_PLACEMENT_FRAME = Object.freeze([
 
 const PARTICLE_ANTI_CONFLATION_RULES = Object.freeze([
     "particle placement metadata is not particle generation",
-    "particle-looking string is not confirmed Nawat/Pipil particle evidence",
+    "particle-looking string is not an Andrews-licensed particle source",
     "particle mode label is not a particle inventory",
     "preposed output segment is not a Lesson 3 particle engine",
     "topic/focus label is not supplementation",
-    "Andrews particle categories are architecture, not Nawat/Pipil form authority",
+    "Andrews particle categories are architecture, not Nawat/Pipil orthography authority",
     "particle categories do not occupy CNV/CNN formula slots",
 ]);
 
@@ -684,7 +684,7 @@ function buildParticlePlacementMetadata({
         kind: "particle-placement-metadata",
         version: PARTICLE_METADATA_VERSION,
         structuralSource: "Andrews Lesson 3",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         candidate: String(candidate == null ? "" : candidate),
         source,
         placement: placement || {
@@ -700,7 +700,7 @@ function buildParticlePlacementMetadata({
         generationAllowed: false,
         diagnostics: [
             "particle-placement-diagnostic-only",
-            "particle-needs-confirmed-nawat-evidence",
+            "particle-source-gated",
         ],
         antiConflationRules: getParticleAntiConflationRules(),
     };
@@ -866,7 +866,7 @@ function buildParticleModeDisplayModel({
         lesson: 3,
         title: "Partículas",
         structuralSource: "Andrews Lesson 3",
-        targetAuthority: "Modern Nawat/Pipil orthography; repo data still decides confirmed forms",
+        targetAuthority: "Modern Nawat/Pipil orthography; repo data records confirmed spellings",
         candidate: candidateProfile.raw,
         candidateDisplay,
         candidateProfile,

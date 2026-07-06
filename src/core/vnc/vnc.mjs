@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/vnc/vnc.js.
 
-export function createVncFacadeApi(targetObject = globalThis) {
+export function createVncApi(targetObject = globalThis) {
     const VNC_LESSON5_VALIDATION_REFS = Object.freeze(["src/tests/vnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const VNC_LESSON5_PDF_REFS = Object.freeze(["Andrews Lesson 5.1", "Andrews Lesson 5.2", "Andrews Lesson 5.3", "Andrews Lesson 5.4", "Andrews Lesson 5.5"]);
     const VNC_LESSON5_INTRANSITIVE_FORMULA_FRAME = Object.freeze({
@@ -130,8 +130,8 @@ export function createVncFacadeApi(targetObject = globalThis) {
       andrewsSection: "5.3",
       category: "subject-morphic-fillers",
       directiveEs: "Los rellenos de sujeto son morfos portadores de persona, caso y número; las variantes clásicas no se importan como formas nawat.",
-      engineSurface: "agreement slot inventory and Nawat evidence-gated subject prefixes/suffixes",
-      redirectAction: "needs-nawat-evidence",
+      engineSurface: "agreement slot inventory and Andrews source-gated subject prefixes/suffixes",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-with-nawat-realization",
       implementationState: "implemented-adapted"
     }), Object.freeze({
@@ -586,7 +586,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
       }), Object.freeze({
         pattern: "y to s/x",
         example: "(tlaoco-ya) > (tlaoco-x)",
-        nawatBoundary: "Nawat h/j/x/s choices remain evidence-gated"
+        nawatBoundary: "Nawat h/j/x/s choices remain source-gated"
       })]),
       traditionalSpellingWarning: "oa/ia spellings can obscure w/y and mislead class assignment"
     });
@@ -612,7 +612,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
       id: "final-ka",
       sourceSection: "Andrews §7.6.3",
       classId: "A",
-      directiveEs: "Sílabas finales ka apuntan a clase A, con excepciones evidence-gated."
+      directiveEs: "Sílabas finales ka apuntan a clase A, con excepciones source-gated."
     }), Object.freeze({
       id: "final-tla",
       sourceSection: "Andrews §7.6.4",
@@ -718,9 +718,9 @@ export function createVncFacadeApi(targetObject = globalThis) {
       id: "lesson7-class-b-changes",
       andrewsSection: "7.4",
       category: "class-b-perfective-changes",
-      directiveEs: "La pérdida o silencio de la vocal final en clase B provoca cambios ortográficos o fonológicos; la realización Nawat requiere evidencia local.",
+      directiveEs: "La pérdida o silencio de la vocal final en clase B provoca cambios ortográficos o fonológicos; la realización Nawat requiere fuente Andrews concreta y verificación ortográfica local.",
       engineSurface: "preterit class allomorphy and orthography bridge diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-with-nawat-realization",
       implementationState: "implemented-adapted"
     }), Object.freeze({
@@ -738,7 +738,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
       category: "class-determination-guidelines",
       directiveEs: "Las guías de clase orientan clasificación; no sustituyen evidencia léxica Nawat/Pipil.",
       engineSurface: "class guessers, parsed metadata, and preterit class tests",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-diagnostic",
       implementationState: "implemented-diagnostic"
     }), Object.freeze({
@@ -812,7 +812,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
-        generationPolicy: "solo por rutas de cláusula verbal existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures"
+        generationPolicy: "solo por rutas de cláusula verbal existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures"
       }));
     }
     function buildVncLesson5PursuitFrame() {
@@ -894,7 +894,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
-        generationPolicy: "solo por rutas CNV existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures"
+        generationPolicy: "solo por rutas CNV existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures"
       }));
     }
     function getVncLesson6ShotReport() {
@@ -999,7 +999,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON7_VALIDATION_REFS),
-        generationPolicy: "solo por rutas CNV existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures"
+        generationPolicy: "solo por rutas CNV existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures"
       }));
     }
     function buildVncLesson7PursuitFrame() {
@@ -1052,6 +1052,10 @@ export function createVncFacadeApi(targetObject = globalThis) {
         return null;
       }
     }
+    function getAdjectivalNncFunctionEntryObjectContract(troncoControl = null) {
+      const contract = troncoControl?.__adjectivalNncFunctionEntryContract;
+      return contract && typeof contract === "object" ? contract : null;
+    }
     function normalizeAdjectivalNncFunctionSurfaceValue(value = "") {
       const surface = String(value || "").trim();
       return surface === "—" ? "" : surface;
@@ -1067,10 +1071,29 @@ export function createVncFacadeApi(targetObject = globalThis) {
       const frame = getAdjectivalNncFunctionEntryContractFrame(contract);
       return Boolean(frame?.resultFrame && typeof frame.resultFrame === "object");
     }
+    function isAdjectivalNncFunctionTypedContinuationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "generated-output-typed-continuation-frame" && frame.formulaRecord?.kind === "grammar-formula-record" && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record");
+    }
+    function getAdjectivalNncFunctionTypedFrameSurface(frame = null, selectedVariant = null) {
+      if (!isAdjectivalNncFunctionTypedContinuationFrame(frame)) {
+        return "";
+      }
+      const record = frame.formulaRealizationRecord;
+      const surfaces = [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""].map(entry => normalizeAdjectivalNncFunctionSurfaceValue(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      if (!surfaces.length) {
+        return "";
+      }
+      const selectedIndex = Number.isInteger(Number(selectedVariant?.variantIndex)) ? Number(selectedVariant.variantIndex) : 0;
+      return surfaces[selectedIndex] || surfaces[0] || "";
+    }
     function getAdjectivalNncFunctionEntryContractSurface(contract = null) {
       const source = contract && typeof contract === "object" ? contract : {};
       const frame = getAdjectivalNncFunctionEntryContractFrame(source);
       const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object" ? frame.resultFrame : null;
+      const canonicalForms = typeof targetObject.getGrammarResultFrameCanonicalSurfaceForms === "function" ? targetObject.getGrammarResultFrameCanonicalSurfaceForms(resultFrame) : [];
+      if (canonicalForms.length) {
+        return canonicalForms[0] || "";
+      }
       const forms = [];
       if (Array.isArray(resultFrame?.surfaceForms)) {
         forms.push(...resultFrame.surfaceForms);
@@ -1118,38 +1141,73 @@ export function createVncFacadeApi(targetObject = globalThis) {
       return ["t", "ti", "in"].includes(connector) ? connector : "";
     }
     function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
-      const dataset = troncoControl?.dataset || {};
       const currentSurface = String(troncoControl?.value || "").trim();
-      const entryRouteContract = parseAdjectivalNncFunctionEntryContract(dataset);
+      const entryRouteContract = getAdjectivalNncFunctionEntryObjectContract(troncoControl);
       const entryGrammarFrame = getAdjectivalNncFunctionEntryContractFrame(entryRouteContract);
       const hasEntryResultFrame = hasAdjectivalNncFunctionEntryContractResultFrame(entryRouteContract);
-      const targetSurface = getAdjectivalNncFunctionEntryContractSurface(entryRouteContract) || (!hasEntryResultFrame ? normalizeAdjectivalNncFunctionSurfaceValue(dataset.adjectivalNncFunctionSurface) : "");
-      if (!currentSurface || !targetSurface || currentSurface !== targetSurface) {
+      const formation = String(entryRouteContract?.formation || "").trim();
+      const sourceContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame(entryRouteContract?.sourceContinuationFrame) ? entryRouteContract.sourceContinuationFrame : null;
+      const targetContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame(entryRouteContract?.targetContinuationFrame) ? entryRouteContract.targetContinuationFrame : null;
+      const entryOperationFrame = entryRouteContract?.operationFrame && typeof entryRouteContract.operationFrame === "object" ? entryRouteContract.operationFrame : targetContinuationFrame?.operationFrame && typeof targetContinuationFrame.operationFrame === "object" ? targetContinuationFrame.operationFrame : null;
+      const requiresStructuredContinuation = entryRouteContract?.requiresCanonicalFormulaRecords === true;
+      if (requiresStructuredContinuation && (!sourceContinuationFrame || !targetContinuationFrame)) {
         return null;
       }
-      const formation = String(dataset.adjectivalNncFormation || "").trim();
-      const nominalizedVncKind = String(dataset.nominalizedVncKind || "").trim();
-      const patientivoSource = String(dataset.patientivoSource || "").trim();
-      const formulaEcho = String(dataset.adjectivalNncFormulaEcho || "").trim();
+      const targetSurface = requiresStructuredContinuation ? getAdjectivalNncFunctionTypedFrameSurface(targetContinuationFrame, entryRouteContract?.targetSelectedVariant) : getAdjectivalNncFunctionEntryContractSurface(entryRouteContract) || (hasEntryResultFrame ? "" : normalizeAdjectivalNncFunctionSurfaceValue(entryRouteContract?.surface));
+      if (!targetSurface) {
+        return null;
+      }
+      if (!requiresStructuredContinuation && (!currentSurface || currentSurface !== targetSurface)) {
+        return null;
+      }
+      const nominalizedVncKind = String(entryRouteContract?.nominalizedVncKind || "").trim();
+      const patientivoSource = String(entryRouteContract?.patientivoSource || "").trim();
       const sourceContract = entryGrammarFrame?.routeContract?.sourceContract || {};
       const stemFrame = entryGrammarFrame?.stemFrame || {};
       const inflectionFrame = entryGrammarFrame?.inflectionFrame || {};
       const formulaSlots = getAdjectivalNncFunctionEntrySourceFormulaSlots(entryGrammarFrame);
       const entrySourceFormulaSlots = entryRouteContract?.sourceFormulaSlots && typeof entryRouteContract.sourceFormulaSlots === "object" ? entryRouteContract.sourceFormulaSlots : null;
-      const entrySourceFormulaEcho = String(entryRouteContract?.sourceFormulaEcho || "").trim();
       const entrySourceCompoundFrame = entryRouteContract?.sourceCompoundFrame && typeof entryRouteContract.sourceCompoundFrame === "object" ? entryRouteContract.sourceCompoundFrame : null;
       const entrySourceDenominalCompoundFrame = entryRouteContract?.sourceDenominalCompoundFrame && typeof entryRouteContract.sourceDenominalCompoundFrame === "object" ? entryRouteContract.sourceDenominalCompoundFrame : null;
+      const sourceSelectedVariant = entryRouteContract?.sourceSelectedVariant && typeof entryRouteContract.sourceSelectedVariant === "object" ? entryRouteContract.sourceSelectedVariant : null;
+      const targetSelectedVariant = entryRouteContract?.targetSelectedVariant && typeof entryRouteContract.targetSelectedVariant === "object" ? entryRouteContract.targetSelectedVariant : null;
       const predicateSlot = formulaSlots?.predicateStem || null;
       const subjectSlot = formulaSlots?.pers1Pers2 || null;
       const connectorSlot = formulaSlots?.num1Num2 || null;
       const adjectivalNnc = {
         enabled: true,
-        stem: targetSurface,
-        surface: targetSurface,
-        surfaceForms: targetSurface ? [targetSurface] : [],
         state: "absolutive",
-        role: "predicate-surface"
+        role: "predicate-surface",
+        requiresStructuredContinuation
       };
+      if (!requiresStructuredContinuation) {
+        adjectivalNnc.stem = targetSurface;
+        adjectivalNnc.surface = targetSurface;
+        adjectivalNnc.surfaceForms = targetSurface ? [targetSurface] : [];
+      }
+      if (sourceContinuationFrame) {
+        adjectivalNnc.sourceContinuationFrame = sourceContinuationFrame;
+      }
+      if (targetContinuationFrame) {
+        adjectivalNnc.targetContinuationFrame = targetContinuationFrame;
+      }
+      if (entryOperationFrame) {
+        adjectivalNnc.operationFrame = entryOperationFrame;
+      }
+      if (sourceSelectedVariant) {
+        adjectivalNnc.sourceSelectedVariant = sourceSelectedVariant;
+        adjectivalNnc.sourceSelectedVariantId = String(sourceSelectedVariant.variantId || sourceSelectedVariant.selectedVariantId || "").trim();
+        adjectivalNnc.sourceFormulaRealizationRecordId = String(sourceSelectedVariant.formulaRealizationRecordId || "").trim();
+        adjectivalNnc.sourceFormulaRecordId = String(sourceSelectedVariant.formulaRecordId || "").trim();
+      }
+      if (targetSelectedVariant) {
+        adjectivalNnc.targetSelectedVariant = targetSelectedVariant;
+        adjectivalNnc.selectedVariant = targetSelectedVariant;
+        adjectivalNnc.targetSelectedVariantId = String(targetSelectedVariant.variantId || targetSelectedVariant.selectedVariantId || "").trim();
+        adjectivalNnc.selectedVariantId = adjectivalNnc.targetSelectedVariantId;
+        adjectivalNnc.formulaRealizationRecordId = String(targetSelectedVariant.formulaRealizationRecordId || "").trim();
+        adjectivalNnc.formulaRecordId = String(targetSelectedVariant.formulaRecordId || "").trim();
+      }
       if (entryGrammarFrame) {
         adjectivalNnc.grammarFrame = entryGrammarFrame;
         adjectivalNnc.frames = entryGrammarFrame;
@@ -1162,18 +1220,25 @@ export function createVncFacadeApi(targetObject = globalThis) {
         adjectivalNnc.patientivoSource = patientivoSource;
       }
       if (formation === "ordinary-absolutive") {
-        const sourceStem = getAdjectivalNncFunctionEntryFormulaSlotSurface(predicateSlot, ["stem", "surface"]) || String(stemFrame.sourceStem || stemFrame.stem || "").trim();
-        if (sourceStem) {
-          adjectivalNnc.stem = sourceStem;
-          adjectivalNnc.sourceStem = sourceStem;
-          adjectivalNnc.predicateStem = sourceStem;
+        const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
+        if (sourceFormulaSlots) {
+          adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
+          adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        adjectivalNnc.pers1 = String(subjectSlot?.prefix || "").trim();
-        adjectivalNnc.pers2 = String(subjectSlot?.suffix || "").trim();
-        adjectivalNnc.subjectKey = String(subjectSlot?.personSubKey || subjectSlot?.label || "").trim();
-        adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot);
-        adjectivalNnc.number = String(connectorSlot?.referenceNumber || "").trim() || "singular";
-        adjectivalNnc.pluralType = String(connectorSlot?.pluralType || "").trim() || "auto";
+        if (!requiresStructuredContinuation) {
+          const sourceStem = getAdjectivalNncFunctionEntryFormulaSlotSurface(predicateSlot, ["stem", "surface"]) || String(stemFrame.sourceStem || stemFrame.stem || "").trim();
+          if (sourceStem) {
+            adjectivalNnc.stem = sourceStem;
+            adjectivalNnc.sourceStem = sourceStem;
+            adjectivalNnc.predicateStem = sourceStem;
+          }
+          adjectivalNnc.pers1 = String(subjectSlot?.prefix || "").trim();
+          adjectivalNnc.pers2 = String(subjectSlot?.suffix || "").trim();
+          adjectivalNnc.subjectKey = String(subjectSlot?.personSubKey || subjectSlot?.label || "").trim();
+          adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot);
+          adjectivalNnc.number = String(connectorSlot?.referenceNumber || "").trim() || "singular";
+          adjectivalNnc.pluralType = String(connectorSlot?.pluralType || "").trim() || "auto";
+        }
       }
       if (formation === "intensified-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
@@ -1181,15 +1246,9 @@ export function createVncFacadeApi(targetObject = globalThis) {
           adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
           adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        const sourceFormulaEcho = entrySourceFormulaEcho || formulaEcho || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
-        if (sourceFormulaEcho) {
-          adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-          adjectivalNnc.formulaEcho = sourceFormulaEcho;
-        }
       }
       if (formation === "compound-source-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
-        const sourceFormulaEcho = entrySourceFormulaEcho || formulaEcho || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
         adjectivalNnc.compoundSourceSurface = targetSurface;
         adjectivalNnc.nominalizedSurface = targetSurface;
         adjectivalNnc.sourceCompoundFrame = entrySourceCompoundFrame;
@@ -1208,14 +1267,9 @@ export function createVncFacadeApi(targetObject = globalThis) {
           adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
           adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        if (sourceFormulaEcho) {
-          adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-          adjectivalNnc.formulaEcho = sourceFormulaEcho;
-        }
       }
       if (formation === "denominal-compound-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
-        const sourceFormulaEcho = entrySourceFormulaEcho || formulaEcho || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
         adjectivalNnc.denominalCompoundSurface = targetSurface;
         adjectivalNnc.nominalizedSurface = targetSurface;
         adjectivalNnc.sourceDenominalCompoundFrame = entrySourceDenominalCompoundFrame;
@@ -1233,10 +1287,6 @@ export function createVncFacadeApi(targetObject = globalThis) {
         if (sourceFormulaSlots) {
           adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
           adjectivalNnc.formulaSlots = sourceFormulaSlots;
-        }
-        if (sourceFormulaEcho) {
-          adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-          adjectivalNnc.formulaEcho = sourceFormulaEcho;
         }
       }
       if (formation === "vnc-adjectival") {
@@ -1256,9 +1306,6 @@ export function createVncFacadeApi(targetObject = globalThis) {
             value: "absolutive"
           }
         };
-      }
-      if (formulaEcho) {
-        adjectivalNnc.formulaEcho = formulaEcho;
       }
       if (entryRouteContract) {
         adjectivalNnc.entryRouteContract = entryRouteContract;
@@ -1635,10 +1682,13 @@ export function createVncFacadeApi(targetObject = globalThis) {
     api.getVncLesson7SubsectionInventory = getVncLesson7SubsectionInventory;
     api.buildVncLesson7PursuitFrame = buildVncLesson7PursuitFrame;
     api.parseAdjectivalNncFunctionEntryContract = parseAdjectivalNncFunctionEntryContract;
+    api.getAdjectivalNncFunctionEntryObjectContract = getAdjectivalNncFunctionEntryObjectContract;
     api.normalizeAdjectivalNncFunctionSurfaceValue = normalizeAdjectivalNncFunctionSurfaceValue;
     api.splitAdjectivalNncFunctionSurfaceText = splitAdjectivalNncFunctionSurfaceText;
     api.getAdjectivalNncFunctionEntryContractFrame = getAdjectivalNncFunctionEntryContractFrame;
     api.hasAdjectivalNncFunctionEntryContractResultFrame = hasAdjectivalNncFunctionEntryContractResultFrame;
+    api.isAdjectivalNncFunctionTypedContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame;
+    api.getAdjectivalNncFunctionTypedFrameSurface = getAdjectivalNncFunctionTypedFrameSurface;
     api.getAdjectivalNncFunctionEntryContractSurface = getAdjectivalNncFunctionEntryContractSurface;
     api.getAdjectivalNncFunctionEntrySourceFormulaSlots = getAdjectivalNncFunctionEntrySourceFormulaSlots;
     api.getAdjectivalNncFunctionEntryFormulaSlotSurface = getAdjectivalNncFunctionEntryFormulaSlotSurface;
@@ -1650,7 +1700,7 @@ export function createVncFacadeApi(targetObject = globalThis) {
 }
 
 export function installVncFacadeGlobals(targetObject = globalThis) {
-    const api = createVncFacadeApi(targetObject);
+    const api = createVncApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

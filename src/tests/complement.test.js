@@ -67,7 +67,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized complement role remains unconfirmed without Nawat clause evidence",
+        "recognized complement role remains unconfirmed without Andrews clause-source context",
         ctx.classifyComplementClauseCandidate({
             principalClause: "unknown",
             complement: "single generated word",
@@ -89,7 +89,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "complement-clause-needs-nawat-clause-evidence",
+                "complement-clause-source-gated",
                 "complement-clause-role-recognized",
                 "complement-clause-unit-recognized",
                 "complement-clause-false-positive-source",
@@ -122,7 +122,7 @@ function run(ctx) {
             "ordinary VNC or NNC output is not a complement AST",
             "nominalizationProfile is not a clause-level complement relation",
             "single generated words do not prove object, subject, or adverbial complements",
-            "Andrews complementation categories are architecture, not Nawat/Pipil form authority",
+            "Andrews complementation categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("complement boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -242,7 +242,7 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-51",
-            diagnosticIds: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"],
+            diagnosticIds: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-source-gated"],
         }
     );
 
@@ -322,13 +322,13 @@ function run(ctx) {
         (() => {
             const principalFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-principal / frame-principal-alt"],
+                    surfaceForms: ["frame-principal", "frame-principal-alt"],
                     outputKind: "vnc",
                 }),
             });
             const complementFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-complement / frame-complement-alt"],
+                    surfaceForms: ["frame-complement", "frame-complement-alt"],
                     outputKind: "nnc",
                 }),
             });
@@ -599,8 +599,145 @@ function run(ctx) {
             surface: "",
             diagnostics: [
                 "complement-clause-requires-principal-surface",
-                "complement-clause-needs-nawat-clause-evidence",
+                "complement-clause-source-gated",
             ],
+        }
+    );
+    s.eq(
+        "complement clause handoff reads canonical realization before split display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "complement-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical-complement)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical-complement", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "complement-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical-complement", surface: "canonical-complement" },
+                ],
+                surfaceForms: ["canonical-complement"],
+            });
+            const input = {
+                surface: "top-lie / top-alt-lie",
+                result: "result-lie / result-alt-lie",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie / frame-alt-lie"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            };
+            return {
+                surface: ctx.getComplementClauseSurface(input, "fallback-lie"),
+                forms: ctx.getComplementClauseSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "canonical-complement",
+            forms: ["canonical-complement"],
+        }
+    );
+    s.eq(
+        "complement clause AST carries canonical selected variant ids instead of display surfaces",
+        (() => {
+            const makeInput = (label) => {
+                const formulaRecord = ctx.buildGrammarFormulaRecord({
+                    id: `${label}-formula`,
+                    unit: "NNC",
+                    formula: `#0-0(${label})0-0#`,
+                    formulaSlots: {
+                        predicateStem: { stem: label, slot: "STEM" },
+                    },
+                });
+                const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                    id: `${label}-realization`,
+                    formulaRecord,
+                    segmentFrames: [
+                        { slot: "predicateStem", formulaValue: label, surface: `${label}-canonical` },
+                    ],
+                    surfaceForms: [`${label}-canonical`],
+                });
+                return {
+                    surface: `${label}-surface-lie`,
+                    result: `${label}-result-lie / ${label}-result-alt-lie`,
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                formulaRecord,
+                                formulaRealizationRecord,
+                            }),
+                            surface: `${label}-frame-lie`,
+                            surfaceForms: [`${label}-frame-lie / ${label}-frame-alt-lie`],
+                            formulaRecord,
+                            formulaRealizationRecord,
+                            formulaRealizationRecords: [formulaRealizationRecord],
+                        },
+                    }),
+                };
+            };
+            const ast = ctx.buildComplementClauseAst({
+                principalClause: makeInput("principal-complement"),
+                complement: makeInput("object-complement"),
+                complementRole: "object-complement",
+                complementUnitType: "nnc",
+                semanticCategory: "change",
+                order: "complement-principal",
+                evidenceSource: "test-selected-variant-contract",
+            });
+            return {
+                surface: ast.surface,
+                principalVariantId: ast.principalClause.selectedVariantId,
+                complementVariantId: ast.complement.selectedVariantId,
+                principalRealizationId: ast.principalClause.formulaRealizationRecordId,
+                complementRealizationId: ast.complement.formulaRealizationRecordId,
+            };
+        })(),
+        {
+            surface: "object-complement-canonical principal-complement-canonical",
+            principalVariantId: "principal-complement-realization::surface-0",
+            complementVariantId: "object-complement-realization::surface-0",
+            principalRealizationId: "principal-complement-realization",
+            complementRealizationId: "object-complement-realization",
+        }
+    );
+    s.eq(
+        "complement clause handoff blocks slash-joined result-frame display strings",
+        (() => {
+            const input = {
+                surface: "top-complement-lie",
+                result: "result-complement-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-complement-a / frame-complement-b",
+                        surfaceForms: ["frame-complement-a / frame-complement-b"],
+                    },
+                },
+            };
+            return {
+                surface: ctx.getComplementClauseSurface(input, "fallback-lie"),
+                forms: ctx.getComplementClauseSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
         }
     );
 

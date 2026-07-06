@@ -25,7 +25,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const FREQUENTATIVE_ANTI_CONFLATION_RULES = Object.freeze(["frequentative boundary metadata is not generation", "generic reduplication is not a frequentative derivation engine", "preterit reduplication diagnostics are not frequentative evidence", "ordinary NNC distributive reduplication is not VNC frequentative derivation", "patientive/adjectival reduplication is not VNC frequentative derivation", "Andrews frequentative categories are architecture, not Nawat/Pipil form authority"]);
+    const FREQUENTATIVE_ANTI_CONFLATION_RULES = Object.freeze(["frequentative boundary metadata is not generation", "generic reduplication is not a frequentative derivation engine", "preterit reduplication diagnostics are not frequentative evidence", "ordinary NNC distributive reduplication is not VNC frequentative derivation", "patientive/adjectival reduplication is not VNC frequentative derivation", "Andrews frequentative categories are architecture, not Nawat/Pipil orthography authority"]);
     const FREQUENTATIVE_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "sourceStem",
       asks: "Which VNC stem is the source of the frequentative candidate?"
@@ -37,7 +37,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       asks: "Does reduplication target the stem, object pronoun, source prefix, nonactive stem, or an unknown position?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided evidence supports the form?"
+      asks: "Which Andrews source gate or structured route licenses the frequentative form?"
     })]);
     const LESSON27_FREQUENTATIVE_VALIDATION_REFS = Object.freeze(["src/tests/frequentative.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON27_FREQUENTATIVE_PDF_REFS = Object.freeze(["Andrews Lesson 27.1", "Andrews Lesson 27.2", "Andrews Lesson 27.3", "Andrews Lesson 27.4", "Andrews Lesson 27.5", "Andrews Lesson 27.6"]);
@@ -147,7 +147,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       directiveEs: "La forma con vocal corta y cierre glotal suele marcar intensidad con actos separados.",
       engineSurface: "ordinary frequentative candidate classification",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson27-ordinary-long-vowel",
       andrewsSection: "27.2.2",
@@ -155,7 +155,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       directiveEs: "La forma con vocal larga suele marcar continuidad uniforme o repeticion conectada.",
       engineSurface: "ordinary frequentative candidate classification",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson27-ordinary-short-vowel",
       andrewsSection: "27.2.3",
@@ -163,7 +163,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       directiveEs: "La forma con vocal corta es menos usada; fuentes con i de apoyo y reduplicacion recursiva necesitan diagnostico.",
       engineSurface: "ordinary frequentative candidate classification",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson27-tla-reduplication",
       andrewsSection: "27.3.1",
@@ -203,7 +203,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       directiveEs: "A veces solo sobreviven las formas frecuentativas y la vocal fusionada del stock queda larga.",
       engineSurface: "destockal frequentative classifier",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson27-tza-applicative-force",
       andrewsSection: "27.4.4",
@@ -227,7 +227,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       directiveEs: "Algunos intransitivos destockales frecuentativos tienen causativo tipo 2, pero no es frecuente.",
       engineSurface: "destockal causative classifier",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson27-uncertain-ca",
       andrewsSection: "27.5.1",
@@ -267,7 +267,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON27_FREQUENTATIVE_VALIDATION_REFS)
       }));
     }
@@ -297,6 +297,30 @@ export function createFrequentativeApi(targetObject = globalThis) {
     function normalizeFrequentativeFalsePositiveSource(value = "") {
       return normalizeFrequentativeEnum(value, Object.values(FREQUENTATIVE_FALSE_POSITIVE_SOURCE), FREQUENTATIVE_FALSE_POSITIVE_SOURCE.unknown);
     }
+    function normalizeFrequentativeCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews frequentative candidate formula",
+        slot: "frequentative-stem"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function hasFrequentativeAndrewsSourceGate({
+      sourceGate = "",
+      structuredSource = false
+    } = {}) {
+      return structuredSource === true || Boolean(String(sourceGate || "").trim());
+    }
     function getFrequentativeAntiConflationRules() {
       return Array.from(FREQUENTATIVE_ANTI_CONFLATION_RULES);
     }
@@ -315,7 +339,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
         structuralSource: "Andrews Lesson 27",
         pdfRefs: Array.from(LESSON27_FREQUENTATIVE_PDF_REFS),
         subsectionInventory,
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getFrequentativeStructuralQuestions(),
@@ -349,7 +373,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
       const destockalFrame = cloneFrequentativeLessonRecord(LESSON27_DESTOCKAL_FREQUENTATIVE_FRAME);
       const uncertainFrame = cloneFrequentativeLessonRecord(LESSON27_UNCERTAIN_FREQUENTATIVE_FRAME);
       const nonactiveFrame = cloneFrequentativeLessonRecord(LESSON27_NONACTIVE_FREQUENTATIVE_FRAME);
-      const remainingGaps = ["No confirmed Nawat/Pipil frequentative fixture inventory licenses finite frequentative output.", "Ordinary frequentative prefix-shape selection is not rule-complete and often lexical, idiomatic, recursive, or based on unattested sources.", "Object-pronoun, destockal, uncertain, and nonactive frequentative formations are only classified; they are not generation routes.", "Frequentative causative/applicative ambiguity, nonactive impersonal use, and Andrews Classical examples remain diagnostic until Nawat evidence and Appendix-style validation exist."];
+      const remainingGaps = ["No complete Andrews frequentative source model licenses full finite frequentative output yet.", "Ordinary frequentative prefix-shape selection is not rule-complete and often lexical, idiomatic, recursive, or based on unattested sources.", "Object-pronoun, destockal, uncertain, and nonactive frequentative formations are only classified; they are not generation routes.", "Frequentative causative/applicative ambiguity, nonactive impersonal use, and Andrews Classical examples remain diagnostic until orthography-bridge and Appendix-style validation exist."];
       const frame = {
         kind: "lesson-27-frequentative-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -422,7 +446,7 @@ export function createFrequentativeApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["frequentative-diagnostic-only", "frequentative-needs-nawat-evidence"]
+        diagnostics: ["frequentative-diagnostic-only", "frequentative-source-gated"]
       });
     }
     function classifyFrequentativeCandidate({
@@ -431,12 +455,20 @@ export function createFrequentativeApi(targetObject = globalThis) {
       frequentativeType = "",
       reduplicationTarget = "",
       evidenceSource = "",
+      sourceGate = "",
+      structuredSource = false,
       falsePositiveSource = ""
     } = {}) {
       const normalizedType = normalizeFrequentativeType(frequentativeType);
       const normalizedTarget = normalizeFrequentativeReplicationTarget(reduplicationTarget);
       const normalizedFalsePositive = normalizeFrequentativeFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const sourceSurface = normalizeFrequentativeCandidateSurface(candidate);
+      const hasSourceGate = hasFrequentativeAndrewsSourceGate({
+        sourceGate,
+        structuredSource
+      });
+      const canGenerate = Boolean(sourceSurface && hasSourceGate && normalizedType !== FREQUENTATIVE_TYPE.unknown && normalizedTarget !== FREQUENTATIVE_REPLICATION_TARGET.unknown && normalizedFalsePositive === FREQUENTATIVE_FALSE_POSITIVE_SOURCE.unknown);
       const classification = {
         kind: "frequentative-candidate-classification",
         version: FREQUENTATIVE_BOUNDARY_VERSION,
@@ -445,28 +477,44 @@ export function createFrequentativeApi(targetObject = globalThis) {
         frequentativeType: normalizedType,
         reduplicationTarget: normalizedTarget,
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "frequentative-needs-validation" : "frequentative-needs-nawat-evidence", normalizedFalsePositive !== FREQUENTATIVE_FALSE_POSITIVE_SOURCE.unknown ? "frequentative-false-positive-source" : "frequentative-unconfirmed"],
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        diagnostics: [canGenerate ? "frequentative-andrews-source-generated" : hasEvidence ? "frequentative-needs-validation" : "frequentative-source-gate-required", normalizedFalsePositive !== FREQUENTATIVE_FALSE_POSITIVE_SOURCE.unknown ? "frequentative-false-positive-source" : canGenerate ? "frequentative-structured-source" : "frequentative-unconfirmed"],
         boundary: buildFrequentativeBoundaryMetadata()
       };
       return attachFrequentativeGrammarContract(classification, {
         metadataKind: "frequentative-candidate-classification",
-        routeStage: "classify-candidate",
+        routeStage: canGenerate ? "generate-structured-frequentative" : "classify-candidate",
         sourceInput: classification.sourceStem || classification.candidate,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms
+        },
         diagnostics: classification.diagnostics,
         stemFrame: {
           stemKind: "frequentative-candidate",
           sourceStem: classification.sourceStem,
-          targetStem: classification.candidate,
+          targetStem: classification.surface || classification.candidate,
           reduplicationTarget: normalizedTarget,
-          frequentativeType: normalizedType
+          frequentativeType: normalizedType,
+          sourceGate: classification.sourceGate
         },
         targetContract: {
           metadataKind: "frequentative-candidate-classification",
-          generationAllowed: false,
+          generationAllowed: canGenerate,
           frequentativeType: normalizedType,
           reduplicationTarget: normalizedTarget
         }
@@ -575,6 +623,8 @@ export function createFrequentativeApi(targetObject = globalThis) {
     api.normalizeFrequentativeType = normalizeFrequentativeType;
     api.normalizeFrequentativeReplicationTarget = normalizeFrequentativeReplicationTarget;
     api.normalizeFrequentativeFalsePositiveSource = normalizeFrequentativeFalsePositiveSource;
+    api.normalizeFrequentativeCandidateSurface = normalizeFrequentativeCandidateSurface;
+    api.hasFrequentativeAndrewsSourceGate = hasFrequentativeAndrewsSourceGate;
     api.getFrequentativeAntiConflationRules = getFrequentativeAntiConflationRules;
     api.getFrequentativeStructuralQuestions = getFrequentativeStructuralQuestions;
     api.buildFrequentativeBoundaryMetadata = buildFrequentativeBoundaryMetadata;

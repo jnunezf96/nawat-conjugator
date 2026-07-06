@@ -94,6 +94,12 @@ function getMorphologyApplicationSurfaceForms(result = null, fallbackSurface = "
         ? grammarFrame.resultFrame
         : null;
     const hasResultFrame = Boolean(frameResult);
+    const canonicalForms = typeof getGrammarResultFrameCanonicalSurfaceForms === "function"
+        ? getGrammarResultFrameCanonicalSurfaceForms(frameResult)
+        : [];
+    if (canonicalForms.length) {
+        return canonicalForms;
+    }
     const forms = [];
     if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -103,7 +109,8 @@ function getMorphologyApplicationSurfaceForms(result = null, fallbackSurface = "
     }
     if (hasResultFrame) {
         return forms
-            .flatMap((entry) => splitMorphologyApplicationSurfaceText(entry))
+            .map((entry) => normalizeMorphologyApplicationSurfaceValue(entry))
+            .filter((entry) => entry && !entry.includes("/"))
             .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
@@ -298,7 +305,7 @@ function attachMorphologyApplicationGrammarContract(result = null, {
                 surface,
                 surfaceForms,
                 soundSpellingFrames,
-                spellingAuthority: "Nawat/Pipil evidence",
+                spellingAuthority: "Nawat/Pipil orthography bridge",
                 noClassicalSurfaceImport: true,
             },
             morphBoundaryFrame: {
@@ -839,6 +846,8 @@ function applyMorphologyRules({
     routeFrame = null,
     valenceFrameFixed = null,
     sourceValenceFrameFixed = null,
+    sourceSubjectFrame = null,
+    sourceSubjectPossessorOperationFrame = null,
 }) {
     subjectPrefix = typeof subjectPrefix === "string" ? subjectPrefix : "";
     objectPrefix = typeof objectPrefix === "string" ? objectPrefix : "";
@@ -1193,6 +1202,7 @@ function applyMorphologyRules({
                     rawAnalysisVerb: derivedStem,
                     exactBaseVerb: derivedStem,
                     sourceBase: derivedStem,
+                    predicateNominalSourceStemResolved: true,
                     canonical: {
                         ...(candidateMeta.canonical && typeof candidateMeta.canonical === "object"
                             ? candidateMeta.canonical
@@ -1237,6 +1247,10 @@ function applyMorphologyRules({
             instrumentivoImperfectActiveAbsolutiveException: nominalResult.instrumentivoImperfectActiveAbsolutiveException || null,
             instrumentivoSourceSubjectPossessor: nominalResult.instrumentivoSourceSubjectPossessor || null,
             actionNounSourceSubjectPossessor: nominalResult.actionNounSourceSubjectPossessor || null,
+            formulaDisplayStem: primaryEntry.formulaDisplayStem || "",
+            absolutiveConnectorFamily: primaryEntry.absolutiveConnectorFamily || "",
+            absolutiveConnectorSelector: primaryEntry.absolutiveConnectorSelector || "",
+            absolutiveConnectorInput: primaryEntry.absolutiveConnectorInput || "",
         };
         alternateForms.length = 0;
         alternateEntries.forEach((entry) => {
@@ -2009,6 +2023,15 @@ function applyMorphologyRules({
         alternateForms.length = 0;
     }
     const hasDerivedMuPrefix = Boolean(hasSuffixSeparator || hasCompoundMarker || hasSlashMarker || directionalInputPrefix);
+    const derivedMuStemInteractionSourceFrame = buildDerivedMuStemInteractionSourceFrame({
+        obj1: objectPrefix,
+        tronco: verb,
+        alternateForms,
+        enable: hasDerivedMuPrefix,
+    });
+    const derivedMuStemInteractionOperationFrame = buildDerivedMuStemInteractionOperationFrame(
+        derivedMuStemInteractionSourceFrame
+    );
     ({
         obj1: objectPrefix,
         tronco: verb,
@@ -2017,6 +2040,8 @@ function applyMorphologyRules({
         tronco: verb,
         alternateForms,
         enable: hasDerivedMuPrefix,
+        sourceFrame: derivedMuStemInteractionSourceFrame,
+        operationFrame: derivedMuStemInteractionOperationFrame,
     }));
     if (isPotencialActiveProfile) {
         const potentialForms = buildPotencialActiveForms({
@@ -2094,6 +2119,40 @@ function applyMorphologyRules({
         const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta({
             preferCurrentDerivedStem: combinedMode === "nonactive",
         });
+        const implicitActionNounSourceSubjectPossessor = actionNounStemUse === "general-use"
+            && !possessivePrefix;
+        const resolvedSourceSubjectFrame = implicitActionNounSourceSubjectPossessor
+            ? (
+                sourceSubjectFrame && typeof sourceSubjectFrame === "object"
+                    ? sourceSubjectFrame
+                    : (
+                        typeof buildAndrewsSourceSubjectFrame === "function"
+                            ? buildAndrewsSourceSubjectFrame({
+                                subjectPrefix: baseSubjectPrefix,
+                                subjectSuffix: baseSubjectSuffix,
+                                sourceUnit: "CNV",
+                                sourceTense: combinedMode === "nonactive" ? "distant-past-passive" : "distant-past-active",
+                            })
+                            : null
+                    )
+            )
+            : sourceSubjectFrame;
+        const resolvedSourceSubjectPossessorOperationFrame = implicitActionNounSourceSubjectPossessor
+            ? (
+                sourceSubjectPossessorOperationFrame && typeof sourceSubjectPossessorOperationFrame === "object"
+                    ? sourceSubjectPossessorOperationFrame
+                    : (
+                        typeof buildSourceSubjectPossessorOperationFrame === "function"
+                            ? buildSourceSubjectPossessorOperationFrame({
+                                sourceSubjectFrame: resolvedSourceSubjectFrame,
+                                nominalKind: "calificativo-instrumentivo",
+                                operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+                                andrewsRef: combinedMode === "nonactive" ? "Andrews 36.10" : "Andrews 36.11",
+                            })
+                            : null
+                    )
+            )
+            : sourceSubjectPossessorOperationFrame;
         const calificativoResult = getCalificativoInstrumentivoResult({
             rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
             verbMeta: nominalVerbMeta,
@@ -2111,6 +2170,8 @@ function applyMorphologyRules({
             routeFrame,
             valenceFrameFixed,
             sourceValenceFrameFixed,
+            sourceSubjectFrame: resolvedSourceSubjectFrame,
+            sourceSubjectPossessorOperationFrame: resolvedSourceSubjectPossessorOperationFrame,
         });
         if (calificativoResult?.valencyObjectSlotGate?.status === "blocked") {
             return returnMorphologyValencyGateBlocked(calificativoResult.valencyObjectSlotGate);
@@ -2127,6 +2188,40 @@ function applyMorphologyRules({
         const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
         const resolvedInstrumentivoMode = instrumentivoMode
             || (possessivePrefix === "" ? INSTRUMENTIVO_MODE.absolutivo : INSTRUMENTIVO_MODE.posesivo);
+        const implicitInstrumentivoSourceSubjectPossessor = resolvedInstrumentivoMode === INSTRUMENTIVO_MODE.posesivo
+            && !possessivePrefix;
+        const resolvedInstrumentivoSourceSubjectFrame = implicitInstrumentivoSourceSubjectPossessor
+            ? (
+                sourceSubjectFrame && typeof sourceSubjectFrame === "object"
+                    ? sourceSubjectFrame
+                    : (
+                        typeof buildAndrewsSourceSubjectFrame === "function"
+                            ? buildAndrewsSourceSubjectFrame({
+                                subjectPrefix: baseSubjectPrefix,
+                                subjectSuffix: baseSubjectSuffix,
+                                sourceUnit: "CNV",
+                                sourceTense: "imperfect-active",
+                            })
+                            : null
+                    )
+            )
+            : sourceSubjectFrame;
+        const resolvedInstrumentivoSourceSubjectPossessorOperationFrame = implicitInstrumentivoSourceSubjectPossessor
+            ? (
+                sourceSubjectPossessorOperationFrame && typeof sourceSubjectPossessorOperationFrame === "object"
+                    ? sourceSubjectPossessorOperationFrame
+                    : (
+                        typeof buildSourceSubjectPossessorOperationFrame === "function"
+                            ? buildSourceSubjectPossessorOperationFrame({
+                                sourceSubjectFrame: resolvedInstrumentivoSourceSubjectFrame,
+                                nominalKind: "instrumentivo",
+                                operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+                                andrewsRef: "Andrews 36.6",
+                            })
+                            : null
+                    )
+            )
+            : sourceSubjectPossessorOperationFrame;
         const instrumentivoResult = getInstrumentivoResult({
             rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
             verbMeta: nominalVerbMeta,
@@ -2143,6 +2238,8 @@ function applyMorphologyRules({
             routeFrame,
             valenceFrameFixed,
             sourceValenceFrameFixed,
+            sourceSubjectFrame: resolvedInstrumentivoSourceSubjectFrame,
+            sourceSubjectPossessorOperationFrame: resolvedInstrumentivoSourceSubjectPossessorOperationFrame,
         });
         if (instrumentivoResult?.valencyObjectSlotGate?.status === "blocked") {
             return returnMorphologyValencyGateBlocked(instrumentivoResult.valencyObjectSlotGate);
@@ -2161,6 +2258,13 @@ function applyMorphologyRules({
         });
         const resolvedPredicateNominalSourceTense = predicateNominalSourceTense
             || getPredicateNominalSourceTenseForTarget(tense);
+        const predicateNominalConnectorOperationFrame = typeof buildPredicateNominalConnectorOperationFrame === "function"
+            ? buildPredicateNominalConnectorOperationFrame({
+                sourceTense: resolvedPredicateNominalSourceTense,
+                nominalKind: tense,
+                nominalConnector: subjectSuffix || "t",
+            })
+            : null;
         const predicateNominalResult = getPredicateNominalResult({
             rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
             verbMeta: nominalVerbMeta,
@@ -2179,6 +2283,7 @@ function applyMorphologyRules({
             routeFrame,
             valenceFrameFixed,
             sourceValenceFrameFixed,
+            predicateNominalConnectorOperationFrame,
         });
         if (predicateNominalResult?.valencyObjectSlotGate?.status === "blocked") {
             return returnMorphologyValencyGateBlocked(predicateNominalResult.valencyObjectSlotGate);

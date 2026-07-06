@@ -4,6 +4,9 @@ Source digests:
 
 - `docs/ANDREWS_PDF_DIGEST.md`
 - `docs/ANDREWS_SECTION_DIGEST.md`
+- `docs/ANDREWS_FORMULA_INVENTORY.md`
+- `docs/ANDREWS_FORMULA_OCCURRENCES.md`
+- `docs/ANDREWS_FORMULA_VISUAL_AUDIT.md`
 
 Purpose: extract the smallest complete layer stack that can cover every Andrews lesson/section without turning the app into one engine or one control per lesson.
 
@@ -15,15 +18,15 @@ Purpose: extract the smallest complete layer stack that can cover every Andrews 
 
 Role: decide what may govern a rule, spelling, fixture, or diagnostic.
 
-- Andrews PDF: supreme grammar architecture authority for categories, slot order, dependencies, boundaries, source/target routes, derivational operations, and generation gates.
-- Nawat/Pipil evidence: spelling realization and already-scoped preterit indicative surfaces only; it may record lexical evidence, but it does not authorize preterit-derived grammar or unsupported derivational routes.
+- Andrews PDF: supreme grammar architecture and grammar-logic authority for categories, slot order, dependencies, boundaries, source/target routes, derivational operations, and generation gates.
+- Nawat/Pipil evidence: lexical/spelling evidence only; it may record known forms, but it does not decide whether Andrews-licensed grammar logic can generate.
 - Repo/user data: current implementation evidence, explicit user-provided Nawat forms, and known pending gaps.
 - Digest files: navigation and memory indexes only; they never replace direct PDF verification.
 
 Engine contract:
 
 - Every generated or routed output needs `authority`, `sourceEvidence`, and `evidenceStatus`.
-- Any generated preterit-derived route must carry Andrews PDF authority; Nawat/Pipil evidence alone can never upgrade it from diagnostic or blocked to generated.
+- Any generated route must carry Andrews PDF authority; Nawat/Pipil evidence alone can never upgrade it from diagnostic or blocked to generated, and lack of Nawat/Pipil evidence alone can never downgrade Andrews-licensed logic.
 - Unsupported paths are retained as diagnostics, not silently generated.
 
 UI contract:
@@ -35,7 +38,7 @@ UI contract:
 Role: convert grammar-rule spellings into Nawat/Pipil spelling surfaces only after the rule layer is known.
 
 - Classical rule spellings such as `z/liz`, `hui`, `hua`, `lo-hua`, `o-a`, `i-hui`, `c`, and `x` are structural inputs.
-- Nawat/Pipil surfaces come through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` and Nawat evidence.
+- Nawat/Pipil surfaces come through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` after Andrews logic licenses the route.
 - Phonology, assimilation, elision, vowel length, glottal stop, and Appendix F spelling conventions are diagnostic unless the app has confirmed output data.
 
 Engine contract:
@@ -93,6 +96,7 @@ Engine contract:
 
 - Store formulas as structured slots and boundaries, not as display strings.
 - Keep predicate material inside its boundary; keep connectors and subject/object material outside unless Andrews says otherwise.
+- Use `docs/ANDREWS_FORMULA_INVENTORY.md` as the curated formula-template index, `docs/ANDREWS_FORMULA_OCCURRENCES.md` as the exhaustive occurrence lookup, and `docs/ANDREWS_FORMULA_VISUAL_AUDIT.md` for OCR-risk formula rows before implementing or changing a formula slot.
 
 UI contract:
 

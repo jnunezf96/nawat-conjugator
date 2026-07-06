@@ -2,7 +2,7 @@
 // Lessons 49-50 adverbial-adjunction boundary metadata. This keeps current
 // word-level adverbio, NNC, VNC, relational, and place/gentilic outputs
 // separate from confirmed clause-level adjoined-unit modeling until
-// Nawat/Pipil evidence supports it.
+// Andrews source logic plus the orthography bridge supports it.
 
 "use strict";
 
@@ -85,8 +85,8 @@ const ADVERBIAL_ADJUNCTION_ANTI_CONFLATION_RULES = Object.freeze([
     "adverbial nuclear-clause metadata is not recursive adverbial adjunction",
     "relational and place/gentilic boundary metadata are not adjoined-clause evidence",
     "single generated NNC or VNC words do not prove adjoined-unit relations",
-    "translations for time, place, manner, purpose, reason, or condition are not Nawat/Pipil clause evidence",
-    "Andrews adverbial-adjunction categories are architecture, not Nawat/Pipil form authority",
+    "translations for time, place, manner, purpose, reason, or condition are not orthography-bridge clause evidence",
+    "Andrews adverbial-adjunction categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const ADVERBIAL_ADJUNCTION_STRUCTURAL_QUESTIONS = Object.freeze([
@@ -112,7 +112,7 @@ const ADVERBIAL_ADJUNCTION_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided clause evidence supports adverbial adjunction?",
+        asks: "What Andrews source model or user-provided clause context supports adverbial adjunction?",
     }),
 ]);
 
@@ -390,8 +390,8 @@ function buildLesson49AdverbialAdjunctionPursuitFrame() {
     const collocationAppositionPrincipalFrame = cloneAdverbialAdjunctionLessonRecord(LESSON49_COLLOCATION_APPOSITION_PRINCIPAL_FRAME);
     const remainingGaps = [
         "Current Lesson 49 support records Andrews' adverbial-modification part-one architecture as diagnostics and supplied-surface AST frames; it does not implement static adverbial-adjunction data, recursive parsing, or surface generation.",
-        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Parser/search detection, multiple-nucleus resolution, compared-manner ambiguity, interrogative principal-clause analysis, intensifier routing, lexicalized collocation inventory, apposition fixtures, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.",
+        "Parser/search detection, multiple-nucleus resolution, compared-manner ambiguity, interrogative principal-clause analysis, intensifier routing, lexicalized collocation inventory, apposition fixtures, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-49-adverbial-adjunction-pursuit-frame",
@@ -456,7 +456,7 @@ function buildLesson49AdverbialAdjunctionPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 49.1-49.10",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil adjoined-clause evidence",
+            spellingAuthority: "Nawat/Pipil adjoined-clause orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
@@ -486,7 +486,7 @@ function buildLesson49AdverbialAdjunctionPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["adverbial-adjunction-lesson-49-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
+        diagnostics: ["adverbial-adjunction-lesson-49-diagnostic-partial", "adverbial-adjunction-source-gated"],
     });
 }
 
@@ -679,7 +679,7 @@ const LESSON50_ADVERBIAL_ADJUNCTION_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson50-open-condition-nnc", andrewsSection: "50.7.1.a", category: "open-condition-nnc", directiveEs: "En condiciones abiertas, el centro de la unidad adyacente puede ser CNN; el tiempo lo decide la CNV principal.", engineSurface: "diagnostic condition frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson50-open-condition-vnc", andrewsSection: "50.7.1.b", category: "open-condition-vnc", directiveEs: "En condiciones abiertas, el centro puede ser CNV optativa o indicativa; presente indicativo puede tener valor pasado.", engineSurface: "diagnostic condition frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson50-hypothetical-condition", andrewsSection: "50.7.2", category: "hypothetical-condition", directiveEs: "La condicion hipotetica usa optativo pasado y una principal con compuesto de embed futuro; el prefijo antecesivo debe tratarse como regla de alcance.", engineSurface: "diagnostic condition frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson50-concession", andrewsSection: "50.8", category: "concession", directiveEs: "La concesion usa familias de in tla nel, in ma nel, ma zo y colocaciones relacionadas; son diagnosticas hasta tener evidencia Nawat.", engineSurface: "diagnostic concession frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
+    Object.freeze({ id: "lesson50-concession", andrewsSection: "50.8", category: "concession", directiveEs: "La concesion usa familias de in tla nel, in ma nel, ma zo y colocaciones relacionadas; son diagnosticas hasta tener fuente Andrews concreta y puente ortografico.", engineSurface: "diagnostic concession frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson50-consequence", andrewsSection: "50.9", category: "consequence", directiveEs: "La consecuencia contiene iuh adverbializado con valor de resultado.", engineSurface: "diagnostic consequence frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson50-proviso", andrewsSection: "50.10", category: "proviso", directiveEs: "La provision contiene ahzo negativizado con valor de en caso de que.", engineSurface: "diagnostic proviso frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson50-reason", andrewsSection: "50.11", category: "reason", directiveEs: "Ca introduce una clausula principal explicativa; no significa porque y no es conjuncion.", engineSurface: "diagnostic reason frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
@@ -705,8 +705,8 @@ function buildLesson50AdverbialAdjunctionPursuitFrame() {
     const consequenceProvisoReasonFrame = cloneAdverbialAdjunctionLessonRecord(LESSON50_CONSEQUENCE_PROVISO_REASON_FRAME);
     const remainingGaps = [
         "Current Lesson 50 support records Andrews' nonadverbialized adjoined-clause architecture as diagnostics and relation contracts; it does not implement static adjoined-clause data, parser/search detection, or surface generation.",
-        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Time/place/manner fixture analysis, consideration versus included-referent supplementation, purpose/conjunction ambiguity, open and hypothetical condition parsing, concession collocation inventory, consequence/proviso/reason detection, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical collocation examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.",
+        "Time/place/manner fixture analysis, consideration versus included-referent supplementation, purpose/conjunction ambiguity, open and hypothetical condition parsing, concession collocation inventory, consequence/proviso/reason detection, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-50-adverbial-adjunction-pursuit-frame",
@@ -773,7 +773,7 @@ function buildLesson50AdverbialAdjunctionPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 50.1-50.11",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil adjoined-clause evidence",
+            spellingAuthority: "Nawat/Pipil adjoined-clause orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
@@ -804,7 +804,7 @@ function buildLesson50AdverbialAdjunctionPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["adverbial-adjunction-lesson-50-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
+        diagnostics: ["adverbial-adjunction-lesson-50-diagnostic-partial", "adverbial-adjunction-source-gated"],
     });
 }
 
@@ -815,7 +815,7 @@ function buildAdverbialAdjunctionBoundaryMetadata() {
         lessons: [49, 50],
         status: "partial",
         structuralSource: "Andrews Lessons 49-50",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getAdverbialAdjunctionStructuralQuestions(),
@@ -859,6 +859,65 @@ function splitAdverbialAdjunctionSurfaceText(value = "") {
         .filter((entry) => entry && entry !== "—");
 }
 
+function getAdverbialAdjunctionCanonicalRealizationSurfaceForms(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return records
+        .filter((record) => record && typeof record === "object" && record.kind === "grammar-formula-realization-record")
+        .flatMap((record) => [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ])
+        .map((entry) => String(entry || "").trim())
+        .filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+}
+
+function getAdverbialAdjunctionSelectedRealizationVariant(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const grammarFrame = getAdverbialAdjunctionResultFrame(input);
+    const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+    if (!resultFrame) {
+        return null;
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+            continue;
+        }
+        const surfaces = [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ]
+            .map((entry) => String(entry || "").trim())
+            .filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+            continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+            kind: "grammar-formula-realization-selected-variant",
+            selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+            selectedVariantIndex,
+            formulaRealizationRecordId,
+            formulaRecordId,
+            unit: String(record.unit || resultFrame.formulaRecord?.unit || ""),
+        };
+    }
+    return null;
+}
+
 function getAdverbialAdjunctionResultFrame(input = null) {
     const candidates = [
         input?.grammarFrame,
@@ -890,6 +949,10 @@ function getAdverbialAdjunctionSurfaceForms(input = null) {
         ? grammarFrame.resultFrame
         : null;
     const hasResultFrame = Boolean(frameResult);
+    const canonicalForms = getAdverbialAdjunctionCanonicalRealizationSurfaceForms(frameResult);
+    if (canonicalForms.length) {
+        return canonicalForms;
+    }
     const forms = [];
     if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -899,7 +962,8 @@ function getAdverbialAdjunctionSurfaceForms(input = null) {
     }
     if (hasResultFrame) {
         return forms
-            .flatMap((entry) => splitAdverbialAdjunctionSurfaceText(entry))
+            .map((entry) => String(entry || "").trim())
+            .filter((entry) => entry && entry !== "—" && !entry.includes("/"))
             .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
@@ -944,10 +1008,17 @@ function getAdverbialAdjunctionFormulaEcho(input = null) {
 
 function buildAdverbialAdjunctionClauseNode(input = "", role = "unknown", fallbackSurface = "") {
     const surface = getAdverbialAdjunctionSurface(input, fallbackSurface);
+    const selectedVariant = getAdverbialAdjunctionSelectedRealizationVariant(input);
     return {
         kind: "adverbial-adjunction-clause-node",
         role: String(role || "unknown"),
         surface,
+        ...(selectedVariant ? {
+            selectedVariant,
+            selectedVariantId: selectedVariant.selectedVariantId,
+            formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+            formulaRecordId: selectedVariant.formulaRecordId,
+        } : {}),
         clauseKind: typeof input === "object" && input
             ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown")
             : "unknown",
@@ -1102,7 +1173,7 @@ function buildAdverbialAdjunctionAst({
         diagnostics.push("adverbial-adjunction-ca-is-not-conjunction");
     }
     if (!String(evidenceSource || "").trim()) {
-        diagnostics.push("adverbial-adjunction-needs-nawat-clause-evidence");
+        diagnostics.push("adverbial-adjunction-source-gated");
     }
     const supported = Boolean(
         principalNode.surface
@@ -1211,7 +1282,7 @@ function classifyAdverbialAdjunctionCandidate({
         confirmed: false,
         generationAllowed: false,
         diagnostics: [
-            hasEvidence ? "adverbial-adjunction-needs-validation" : "adverbial-adjunction-needs-nawat-clause-evidence",
+            hasEvidence ? "adverbial-adjunction-needs-validation" : "adverbial-adjunction-source-gated",
             normalizedRelation !== ADVERBIAL_ADJUNCTION_RELATION.unknown
                 ? "adverbial-adjunction-relation-recognized"
                 : "adverbial-adjunction-relation-unconfirmed",

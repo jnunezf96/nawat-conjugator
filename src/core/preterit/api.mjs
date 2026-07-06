@@ -251,7 +251,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
           surface,
           surfaceForms: forms,
           soundSpellingFrames,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {

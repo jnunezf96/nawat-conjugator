@@ -16,7 +16,7 @@ const ANDREWS_TRAJECTORY_REDIRECT_ACTIONS = Object.freeze([
     "diagnostic-only",
     "block-generation",
     "refactor-engine",
-    "needs-nawat-evidence",
+    "source-gated",
 ]);
 
 const ANDREWS_PLAN_PURSUIT_AIM_STATUSES = Object.freeze([
@@ -13421,7 +13421,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 2.1-2.16"],
         directive: "Usa Andrews Lección 2 para las categorías clásicas de sonido y escritura, y luego enruta las superficies por el puente ortográfico Nawat/Pipil antes de cualquier realización Nawat.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
         orthographyStatus: "orthography-bridge-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/orthography.test.js"],
@@ -13457,7 +13457,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
                 feedbackRefs: ["src/tests/orthography.test.js", "docs/GRAMMAR_SPEC.md"],
             },
         ],
-        remainingGap: "Siguen bloqueadas, solo diagnósticas o pendientes de evidencia Nawat: longitud vocálica, acento/prosodia, consonantes largas, alternancia glotal y elecciones ortográficas sensibles a evidencia.",
+        remainingGap: "Siguen bloqueadas, solo diagnósticas o pendientes de evidencia ortografica y fuente Andrews concreta: longitud vocálica, acento/prosodia, consonantes largas, alternancia glotal y elecciones ortográficas sensibles a evidencia.",
     },
     3: {
         pdfRefs: ["Andrews Lesson 3"],
@@ -13605,7 +13605,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "implemented-audited",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/vnc.test.js", "src/tests/agreement.test.js", "src/tests/combo_validation.test.js"],
         plannedArrows: [
             {
@@ -13661,7 +13661,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "implemented-audited",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/vnc.test.js", "src/tests/preterit.test.js"],
         plannedArrows: [
             {
@@ -13771,9 +13771,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 11.1-11.6"],
         directive: "Usa Andrews Lección 11 para dirigir la taxonomía irregular de cláusula verbal: irregularidad de tronco perfectivo, dislocación entre forma de tiempo y significado, paradigmas defectivos, supleción y límites idiomáticos; mantener las superficies Nawat/Pipil sujetas a evidencia.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/irregulars.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13801,7 +13801,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "reframe-metadata",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13829,7 +13829,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "reframe-metadata",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13857,7 +13857,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "reframe-metadata",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13885,7 +13885,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13913,7 +13913,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13969,7 +13969,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/sentence.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -13997,7 +13997,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/sentence.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14025,7 +14025,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "implemented-audited",
         redirectAction: "keep",
         evidenceStatus: "direct-pdf-with-nawat-realization",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/derivation.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14053,7 +14053,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/vnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14081,7 +14081,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/vnc.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14109,7 +14109,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/agreement.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14137,7 +14137,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/derivation.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14165,7 +14165,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/derivation.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14193,7 +14193,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/derivation.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14217,11 +14217,11 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
     },
     27: {
         pdfRefs: ["Andrews Lesson 27.1-27.6"],
-        directive: "Usa Andrews Lección 27 para dirigir la arquitectura frecuentativa: formas ordinarias de prefijo reduplicativo, reduplicación de pronombre objeto, frecuentativos desacervales, formaciones frecuentativas inciertas, frecuentativos no activos y separación estricta de ayudantes genéricos de reduplicación hasta que evidencia Nawat/Pipil autorice salida.",
+        directive: "Usa Andrews Lección 27 para dirigir la arquitectura frecuentativa: formas ordinarias de prefijo reduplicativo, reduplicación de pronombre objeto, frecuentativos desacervales, formaciones frecuentativas inciertas, frecuentativos no activos y separación estricta de ayudantes genéricos de reduplicación hasta que fuente Andrews concreta y puente ortografico autorice salida.",
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/frequentative.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14249,7 +14249,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/parsing.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14277,7 +14277,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/purposive.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14305,7 +14305,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "refactor-engine",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/parsing.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14333,7 +14333,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_compound.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14361,7 +14361,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_compound.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14389,7 +14389,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/honorific_pejorative.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14417,7 +14417,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         implementationState: "partial",
         redirectAction: "block-generation",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_numerals.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14443,9 +14443,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 35.1-35.12"],
         directive: "Usa Andrews Lección 35 para dirigir la arquitectura de nominalización agentiva de pretérito: conversión estructural de cláusula nuclear verbal a cláusula nuclear nominal, troncos agentivos de pretérito de uso restringido y general, estados absolutivo y posesivo, alternancias de posición de número, incrustaciones compuestas, formaciones de anciana/anciano, matrices de posesión y posesión abundante, límites de traducción y roles de objeto/adverbial incrustados desde cláusula verbal.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_nominalization.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14471,9 +14471,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 36.1-36.12"],
         directive: "Usa Andrews Lección 36 para dirigir la arquitectura de cláusulas verbales nominalizadas más allá de la Lección 35: reanálisis agentivo de presente habitual y nominalización plena, patientivos de presente habitual, instrumentivos, cláusulas nominales agentivas de presente y futuro, cláusulas nominales de acción pasiva y activa, troncos de acción de uso restringido/general y contrastes entre acción activa y agentivo de pretérito.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_nominalization.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14499,9 +14499,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 37.1-37.9"],
         directive: "Usa Andrews Lección 37 para dirigir la arquitectura de troncos nominales deverbales: derivación desde núcleo verbal frente a reanálisis de nominalización, acción activa z/liz, valores de traducción de liz, valores de paciente potencial, nombres de acción impersonal, incrustaciones compuestas, contraste acción activa/pasiva, usos de suplemento de varios núcleos, familias de fuente patientiva y compuertas de fuente patientiva pasiva.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_nominalization.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14527,9 +14527,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 38.1-38.2"],
         directive: "Usa Andrews Lección 38 para dirigir la arquitectura de tronco nominal patientivo impersonal: fuente de núcleo verbal impersonal, familias de fuente intransitiva, ne reflexivo de línea desviada, tla proyectivo no humano, enrutamiento pasivo impersonalizado humano te-a-tla, contraste humano/no humano, traslape de traducción con nombres de acción activa y límites de patientivo compuesto.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_nominalization.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14555,9 +14555,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 39.1-39.9"],
         directive: "Usa Andrews Lección 39 para dirigir operaciones patientivas más allá de fuentes pasivas e impersonales: patientivos perfectivos e imperfectivos, patientivos de propiedad característica con matriz yo, patientivos de raíz/acervo, derivación patientiva múltiple, troncos nominales patientivos como incrustaciones compuestas, complementos incorporados, objetos incorporados e incrustaciones de propiedad característica.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_nominalization.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14583,9 +14583,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 40.1-40.12"],
         directive: "Usa Andrews Lección 40 para dirigir la arquitectura de función adjetival nominal: adjetivo como función sintáctica, cláusulas nominales adjetivales excepcionales, traducción predicativa nominal/verbal, troncos nominales derivados, predicados verbales nominalizados, predicados agentivos habituales y patientivos, comportamiento de clase agentiva de pretérito, pretérito obsoleto raíz-más-ya, pares y tríos sinónimos y oraciones predicado-adjetivo.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_adjectival.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14611,9 +14611,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 41.1-41.4"],
         directive: "Usa Andrews Lección 41 para dirigir la arquitectura de intensificación adjetival nominal y fuente compuesta: troncos intensificados por reduplicación, matrices pah/cal/tzon/afectivas, intensificación por metáfora y símil, troncos verbales compuestos con incrustaciones nominales, troncos verbales denominales desde troncos nominales compuestos y troncos nominales adjetivales incrustados en cláusulas nominales de tronco compuesto.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_adjectival.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14661,7 +14661,7 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
                 feedbackRefs: ["src/tests/modification.test.js", "docs/GRAMMAR_SPEC.md"],
             },
         ],
-        remainingGap: "Siguen parciales o pendientes de evidencia: sintaxis de modificación de varios núcleos, patrones de orden modificador/núcleo, resolución de ambigüedad de suplementación, selección de matriz en núcleo compuesto, ambigüedad de modificador verbal transitivo, comportamiento de núcleo pronominal/cuantitativo/numeral, comportamiento de núcleo nominal de medida, recursión, estructuras de modificación incorporada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y evidencia Nawat/Pipil confirmada.",
+        remainingGap: "Siguen parciales o pendientes de evidencia: sintaxis de modificación de varios núcleos, patrones de orden modificador/núcleo, resolución de ambigüedad de suplementación, selección de matriz en núcleo compuesto, ambigüedad de modificador verbal transitivo, comportamiento de núcleo pronominal/cuantitativo/numeral, comportamiento de núcleo nominal de medida, recursión, estructuras de modificación incorporada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y fuente Andrews concreta y puente ortografico confirmado.",
     },
     43: {
         pdfRefs: ["Andrews Lesson 43.1-43.9"],
@@ -14689,15 +14689,15 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
                 feedbackRefs: ["src/tests/modification.test.js", "docs/GRAMMAR_SPEC.md"],
             },
         ],
-        remainingGap: "Siguen parciales o diagnósticos: análisis de modificador no antepuesto, resolución de elemento suplementario distante, cooperación antepuesta/no antepuesta con el mismo núcleo, discontinuidad con núcleos topicalizados o modificadores desplazados, ambigüedad de núcleo interrogativo ac/tleh y advertencias internas de unidad, núcleos oc ce, violaciones de referente compartido, modismos uno-de/ninguno-de, modificadores de vínculo masculino, modificadores de pareja nombrada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y evidencia Nawat/Pipil confirmada.",
+        remainingGap: "Siguen parciales o diagnósticos: análisis de modificador no antepuesto, resolución de elemento suplementario distante, cooperación antepuesta/no antepuesta con el mismo núcleo, discontinuidad con núcleos topicalizados o modificadores desplazados, ambigüedad de núcleo interrogativo ac/tleh y advertencias internas de unidad, núcleos oc ce, violaciones de referente compartido, modismos uno-de/ninguno-de, modificadores de vínculo masculino, modificadores de pareja nombrada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y fuente Andrews concreta y puente ortografico confirmado.",
     },
     44: {
         pdfRefs: ["Andrews Lesson 44.1-44.9"],
         directive: "Usa Andrews Lección 44 para dirigir la arquitectura de cláusulas nucleares adverbiales: pronombres de sujeto adverbializados, adverbialización de primer y segundo grado, cláusulas nucleares verbales y nominales adverbializadas, cláusulas nominales que parecen partículas, otros adverbiales de estado absolutivo, adverbiales agentivos de pretérito, adverbiales de estado posesivo y modificadores adverbiales incorporados.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/adverbial.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14723,9 +14723,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 45.1-45.4"],
         directive: "Usa Andrews Lección 45 para dirigir la primera parte de la arquitectura de cláusulas nominales relacionales: sin preposiciones ni posposiciones, troncos nominales relacionales como troncos nominales, significados relacionales de alta generalidad, cuatro opciones de uso relacional, cinco agrupaciones de opciones, troncos solo de opción uno, límites de poseedor suplementario y comportamiento de ic como medio/propósito/razón/tiempo/uso especial.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_relational.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14751,9 +14751,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 46.1-46.15"],
         directive: "Usa Andrews Lección 46 para dirigir la segunda parte de la arquitectura de cláusulas nominales relacionales: troncos matriz solo de opción dos, locativos con n, incrustaciones ca+n, correspondencias de estado fuente imperfectivo y perfectivo, troncos locativos/direccionales/frecuenciales, advertencias de co/c de parte corporal, inferencia contextual de oración y bloqueo continuo de superficies Nawat/Pipil sin evidencia.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_relational.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14779,9 +14779,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 47.1-47.5"],
         directive: "Usa Andrews Lección 47 para dirigir la tercera parte de la arquitectura de cláusulas nominales relacionales: grupos relacionales de opción uno/dos, opción uno/tres y opción uno/dos/tres; cláusulas nominales de entidad asociada; reemplazo silencioso de co/c; cláusulas nominales de pertinencia; y bloqueo de superficies Nawat/Pipil guiadas por traducción o sin evidencia.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_relational.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14807,9 +14807,9 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
         pdfRefs: ["Andrews Lesson 48.1-48.13"],
         directive: "Usa Andrews Lección 48 para dirigir la arquitectura de nombres de lugar y gentilicios nominales: referencia única de nombre de lugar adverbializado, siete grupos de nombres de lugar, cuatro rutas de formación gentilicia, ambigüedad ortográfica, incorporación, uso gentilicio adjetival, colectividad, extensiones de profesión/título y bloqueo de superficies Nawat/Pipil guiadas por traducción o sin evidencia.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/nnc_place_gentilic.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14973,11 +14973,11 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
     },
     54: {
         pdfRefs: ["Andrews Lesson 54.1-54.6"],
-        directive: "Usa Andrews Lección 54 para dirigir la primera parte de la arquitectura de troncos verbales denominales: formación de tronco nominal a tronco verbal, ti/hui/ya/a/hua incoativos/estativos, ti con poseedor incluido, ti posesivo, límites de ti-lia, ti-a y t-ia, con evidencia Nawat/Pipil controlando las superficies.",
+        directive: "Usa Andrews Lección 54 para dirigir la primera parte de la arquitectura de troncos verbales denominales: formación de tronco nominal a tronco verbal, ti/hui/ya/a/hua incoativos/estativos, ti con poseedor incluido, ti posesivo, límites de ti-lia, ti-a y t-ia, con Andrews controlando la ruta y el puente ortografico realizando las superficies.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/state.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -14997,15 +14997,15 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
                 feedbackRefs: ["src/tests/state.test.js", "docs/GRAMMAR_SPEC.md"],
             },
         ],
-        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 54, análisis de estado de fuente, semántica de ti posesivo, ti-a de dos objetos en estado posesivo, inventarios limitados de a/hua, ejemplos estáticos Nawat/Pipil, acciones visibles de interfaz y superficies Nawat/Pipil confirmadas.",
+        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 54, análisis de estado de fuente, semántica de ti posesivo, ti-a de dos objetos en estado posesivo, inventarios limitados de a/hua, ejemplos estáticos Nawat/Pipil, acciones visibles de interfaz y superficies verificacion ortografica confirmadas.",
     },
     55: {
         pdfRefs: ["Andrews Lesson 55.1-55.7"],
-        directive: "Usa Andrews Lección 55 para dirigir la segunda parte de la arquitectura de troncos verbales denominales: tia temporal, tla causativo e intransitivo, o-a intransitivo con contrapartes huia, huia adverbial, o-a/huia de compuesto relacional, i-hui/a-hui hacia o-a e i-a transitivo, con evidencia Nawat/Pipil controlando las superficies.",
+        directive: "Usa Andrews Lección 55 para dirigir la segunda parte de la arquitectura de troncos verbales denominales: tia temporal, tla causativo e intransitivo, o-a intransitivo con contrapartes huia, huia adverbial, o-a/huia de compuesto relacional, i-hui/a-hui hacia o-a e i-a transitivo, con Andrews controlando la ruta y el puente ortografico realizando las superficies.",
         implementationState: "partial",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "orthography-bridge-plus-nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: ["src/tests/registry.test.js", "src/tests/state.test.js", "docs/GRAMMAR_SPEC.md"],
         plannedArrows: [
             {
@@ -15025,11 +15025,11 @@ const ANDREWS_FOUNDATION_TRAJECTORY_OVERRIDES = Object.freeze({
                 feedbackRefs: ["src/tests/state.test.js", "docs/GRAMMAR_SPEC.md"],
             },
         ],
-        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 55, análisis de compuestos temporales, inventarios de tla causativo frente a tla intransitivo, sentidos léxicos de o-a/huia, detección de fuentes adverbiales y relacionales, ejemplos estáticos Nawat/Pipil, acciones visibles de interfaz y superficies Nawat/Pipil confirmadas.",
+        remainingGap: "Siguen parciales o pendientes de evidencia: clasificación completa de fuentes léxicas de la Lección 55, análisis de compuestos temporales, inventarios de tla causativo frente a tla intransitivo, sentidos léxicos de o-a/huia, detección de fuentes adverbiales y relacionales, ejemplos estáticos Nawat/Pipil, acciones visibles de interfaz y superficies verificacion ortografica confirmadas.",
     },
     56: {
         pdfRefs: ["Andrews Lesson 56.1-56.5"],
-        directive: "Usa Andrews Lección 56 para dirigir la arquitectura de cláusulas nominales de nombre personal: predicados de enunciado degradados de dos niveles, separación de sujeto interno/externo, fuentes de cláusula única, fuentes de adjunción, fuentes de conjunción, uso oracional y no generación hasta que exista evidencia Nawat/Pipil confirmada de nombres personales.",
+        directive: "Usa Andrews Lección 56 para dirigir la arquitectura de cláusulas nominales de nombre personal: predicados de enunciado degradados de dos niveles, separación de sujeto interno/externo, fuentes de cláusula única, fuentes de adjunción, fuentes de conjunción, uso oracional y no generacion hasta que exista fuente Andrews concreta y puente ortografico para nombres personales.",
         implementationState: "partial",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
@@ -15140,7 +15140,7 @@ function getAndrewsTrajectoryRedirectAction(lesson) {
     if (/Diagnostic|diagnostic|no confirmed|not modeled|not yet mapped/.test(lesson.notes || "")) {
         return "diagnostic-only";
     }
-    return "needs-nawat-evidence";
+    return "source-gated";
 }
 
 function getAndrewsTrajectoryEvidenceStatus(lesson) {
@@ -15160,7 +15160,7 @@ function getAndrewsTrajectoryOrthographyStatus(lesson) {
     if (lesson.status === "not-mapped" || /no generation|metadata|Diagnostic|syntax|AST|sentence|boundary/.test(lesson.notes || "")) {
         return "not-surface-bearing";
     }
-    return "nawat-evidence-required";
+    return "orthography-bridge-plus-source-gate-required";
 }
 
 function getAndrewsPlanPursuitAimStatus(lesson) {
@@ -15424,7 +15424,7 @@ function getAndrewsLessonSourceGatedRouteSpec(lessonId) {
                 ? "CNN_SOURCE -> CNV(DENOMINAL_VERBSTEM[-ti/-hui/-ya/-a/-hua/-lia])"
                 : "CNN/RELATIONAL_SOURCE -> CNV(DENOMINAL_VERBSTEM[-tia/-tla/-oa/-huia/-i-a])",
             operation: "nounstem-source-to-denominal-verbstem-route-family",
-            requirementIds: ["nounstem-source", "source-evidence-contract", "target-stem-class-contract"],
+            requirementIds: ["nounstem-source", "source-contract", "target-stem-class-contract"],
         };
     }
     return {
@@ -15485,13 +15485,14 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         formula,
         note,
     });
-    const buildAction = (stage, inputFormula, selectablePiece, operation, outputFormula, note) => ({
+    const buildAction = (stage, inputFormula, selectablePiece, operation, outputFormula, note, extra = {}) => ({
         stage,
         inputFormula,
         selectablePiece,
         operation,
         outputFormula,
         note,
+        ...extra,
     });
     const buildConjugatorRun = ({
         id,
@@ -15514,6 +15515,37 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         output,
         note,
     });
+    const getPreviousNonZeroRouteSegment = (formula = "") => {
+        const segments = String(formula || "")
+            .toLowerCase()
+            .replace(/[()#]/g, " ")
+            .split(/[^a-z0-9]+/i)
+            .map((segment) => segment.trim())
+            .filter((segment) => segment && segment !== "0" && segment !== "zero");
+        return segments[segments.length - 1] || "";
+    };
+    const buildAbsolutiveAllomorphFrame = (inputFormula = "", options = {}) => {
+        const previousNonZeroSegment = options.previousNonZeroSegment || getPreviousNonZeroRouteSegment(inputFormula);
+        const previousNonZeroFinal = (previousNonZeroSegment.match(/[a-z]$/i) || [""])[0].toLowerCase();
+        const previousNonZeroFinalKind = previousNonZeroFinal
+            ? (/[aeiou]/i.test(previousNonZeroFinal) ? "vowel" : "consonant")
+            : "";
+        const realizedConnector = previousNonZeroFinalKind === "vowel"
+            ? "t"
+            : (previousNonZeroFinalKind === "consonant" ? "ti" : "");
+        return {
+            kind: "nawat-absolutive-allomorph-frame",
+            operation: "absolutive",
+            connectorFamily: "t/ti",
+            selector: "previous-non-zero-segment",
+            appliesAfter: ["consonant", "vowel"],
+            previousNonZeroSegment,
+            previousNonZeroFinal,
+            previousNonZeroFinalKind,
+            realizedConnector,
+            rule: "t after previous non-zero vowel; ti after previous non-zero consonant",
+        };
+    };
     const buildProfile = (profileKind, steps, options = {}) => ({
         kind: "andrews-route-puzzle-stack-template",
         model: "entrada-formula-salida",
@@ -15550,12 +15582,76 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             [
                 buildStep("#1 entrada", "source", "embedded source", exampleSource, "CNV source stem supplied by the user"),
                 buildStep("#2 formula", "-0", "VNC preterit", preteritCore, "tense layer inside the embedded VNC core"),
-                buildStep("#2 formula", "-ka < (ka)-t", "VNC-NNC conversion", agentiveStem, "preterit-agentive embedded NNC, without standalone -t"),
-                buildStep("#2 formula", "-n < (n)-ti ~ (ni)-t", "relational NNC", locativeStem, "locative relational matrix stem element"),
+                buildStep("#2 formula", "-ka < absolutive t/ti", "VNC-NNC conversion", agentiveStem, "preterit-agentive embedded NNC; one t/ti absolutive operation resolves from the previous non-zero segment"),
+                buildStep("#2 formula", "-n < absolutive t/ti", "relational NNC", locativeStem, "locative relational matrix stem element; the same t/ti operation applies after consonant or vowel"),
                 buildStep("#2 formula", "-0-", "NNC connector", exampleTargetFormula, "outer zero connector/adverbial layer"),
                 buildStep("#3 salida", "surface", "realization", exampleSurface, "formula boundaries and zero markers are not surface letters"),
             ],
             {
+                actions: [
+                    buildAction(
+                        "#2 formula",
+                        exampleSource,
+                        "-0",
+                        "build the preterit predicate layer",
+                        preteritCore,
+                        "Andrews route keeps tense inside the embedded VNC predicate before nominal conversion",
+                        {
+                            sourceEvidence: "user-provided-nawat-letter-source",
+                            routeBoundary: "preterit-predicate",
+                        }
+                    ),
+                    buildAction(
+                        "#2 formula",
+                        preteritCore,
+                        "-ka < absolutive t/ti",
+                        "convert to the general-use preterit-agentive nounstem",
+                        agentiveStem,
+                        "the one absolutive t/ti operation resolves after previous non-zero ka; its standalone connector is not carried into the embedded general-use stem",
+                        {
+                            sourceEvidence: "Andrews 35.5 general-use preterit-agentive",
+                            routeBoundary: "preterit-agentive-general-use-stem",
+                            absolutiveAllomorph: buildAbsolutiveAllomorphFrame("(ka)"),
+                        }
+                    ),
+                    buildAction(
+                        "#2 formula",
+                        agentiveStem,
+                        "-n < absolutive t/ti",
+                        "add the locative relational matrix",
+                        locativeStem,
+                        "46.3.1.a requires this immediate preterit-agentive source before locative -n; absolutive t/ti stays one operation",
+                        {
+                            sourceEvidence: "Andrews 46.3.1.a immediate-source gate",
+                            routeBoundary: "locative-compound-nounstem",
+                            absolutiveAllomorph: buildAbsolutiveAllomorphFrame("(n)"),
+                        }
+                    ),
+                    buildAction(
+                        "#2 formula",
+                        locativeStem,
+                        "-0-",
+                        "select the frequent adverbialized CNN branch",
+                        exampleTargetFormula,
+                        "the normal CNN branch remains possible but needs explicit subject/number selection",
+                        {
+                            sourceEvidence: "Andrews 46.3.1.a adverbialized branch",
+                            routeBoundary: "adverbialized-nominal-nuclear-clause",
+                        }
+                    ),
+                    buildAction(
+                        "#3 salida",
+                        exampleTargetFormula,
+                        "surface",
+                        "realize formula boundaries in Nawat/Pipil spelling",
+                        exampleSurface,
+                        "zero markers and parentheses do not surface as letters",
+                        {
+                            sourceEvidence: "user-provided-nawat-letter-realization",
+                            routeBoundary: "surface-output",
+                        }
+                    ),
+                ],
                 conjugatorRuns: [
                     buildConjugatorRun({
                         id: "predicate-preterit-core",
@@ -15574,10 +15670,10 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                         id: "processed-layer-ka",
                         stage: "#2 formula",
                         activeEntrada: "(ka)",
-                        process: "VNC-NNC conversion: Conjugator processes the verb (ka) as the general-use preterit-agentive nominal layer",
+                        process: "VNC-NNC conversion: Conjugator processes the general-use preterit-agentive matrix with one absolutive t/ti operation",
                         internalPath: [
                             "(ka)",
-                            "(ka)-t",
+                            "absolutive t/ti after previous non-zero ka -> t",
                             "-ka",
                         ],
                         contributes: "processed-layer",
@@ -15588,11 +15684,11 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                     buildConjugatorRun({
                         id: "processed-layer-n",
                         stage: "#2 formula",
-                        activeEntrada: "(ni)",
-                        process: "VNC-NNC conversion: Conjugator processes the verb (ni) as the locative relational layer",
+                        activeEntrada: "(n)",
+                        process: "VNC-NNC conversion: Conjugator processes the locative relational matrix with one absolutive t/ti operation",
                         internalPath: [
-                            "(ni)",
-                            "(n)-ti",
+                            "(n)",
+                            "absolutive t/ti after previous non-zero n -> ti",
                             "-n",
                         ],
                         contributes: "processed-layer",
@@ -15702,7 +15798,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "source gate", "valence/source condition", sourceGate.status || route.requirementIds?.[0] || "causative-source-stem", "the route checks that the source is causative-compatible"),
             buildStep("#2 formula", "causative suffix", "causative layer", "type one -a / type two -tia/-lia/-wia", "causative material is added inside the target verbstem"),
             buildStep("#2 formula", "CNV target", "causative target stem", route.formulaTemplate || "CNV(SOURCE_STEM) -> CNV(CAUSATIVE_STEM)", "target formula records the derived causative verbstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "causative CNV surface", "finite output waits for object/person/tense fillers and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "causative CNV surface", "finite output waits for object/person/tense fillers and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15712,7 +15808,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "source gate", "object/source condition", sourceGate.status || route.requirementIds?.[0] || "applicative-compatible-source-stem", "the route checks object/source compatibility before adding applicative material"),
             buildStep("#2 formula", "applicative suffix", "applicative layer", "-ia / -lia / -wia / -tia", "applicative material is added inside the target verbstem"),
             buildStep("#2 formula", "CNV target", "applicative target stem", route.formulaTemplate || "CNV(SOURCE_STEM) -> CNV(APPLICATIVE_STEM)", "target formula records the derived applicative verbstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "applicative CNV surface", "finite output waits for object/person/tense fillers and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "applicative CNV surface", "finite output waits for object/person/tense fillers and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15722,7 +15818,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "source gate", "frequentative source condition", sourceGate.status || route.requirementIds?.[0] || "frequentative-type-source", "the route checks that the source can be repeated"),
             buildStep("#2 formula", "REDUP", "frequentative layer", "FREQUENTATIVE_STEM[REDUP]", "the frequentative piece is a stem-internal reduplication layer"),
             buildStep("#2 formula", "CNV target", "frequentative target stem", route.formulaTemplate || "CNV(SOURCE_STEM) -> CNV(FREQUENTATIVE_STEM[REDUP])", "target formula records the derived frequentative verbstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "frequentative CNV surface", "finite output waits for person/tense and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "frequentative CNV surface", "finite output waits for person/tense and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15731,7 +15827,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "source with promotable object", route.sourceUnit || "CNV source with promotable object", "user supplies a verbal source whose object can be promoted"),
             buildStep("#2 formula", "object promotion", "passive source condition", sourceGate.status || route.requirementIds?.[0] || "promotable-object-source", "the object role is promoted before passive stem output"),
             buildStep("#2 formula", "passive stem", "passive voice layer", route.formulaTemplate || "CNV(SOURCE_WITH_PROMOTABLE_OBJECT) -> CNV(PASSIVE_SOURCE_STEM)", "target formula records the passive source stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "passive CNV surface", "finite passive output waits for subject/tense and evidence fillers"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "passive CNV surface", "finite passive output waits for subject/tense and source-gate fillers"),
         ]);
     }
 
@@ -15740,7 +15836,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "impersonal-compatible source", route.sourceUnit || "CNV impersonal source", "user supplies a verbal source compatible with impersonal voice"),
             buildStep("#2 formula", "subject gate", "impersonal source condition", sourceGate.status || route.requirementIds?.[0] || "impersonal-compatible-source", "the subject/source compatibility gate is checked first"),
             buildStep("#2 formula", "impersonal stem", "impersonal voice layer", route.formulaTemplate || "CNV(SOURCE_WITH_IMPERSONAL_COMPATIBLE_SUBJECT) -> CNV(IMPERSONAL_SOURCE_STEM)", "target formula records the impersonal source stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "impersonal CNV surface", "finite impersonal output waits for tense and evidence fillers"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "impersonal CNV surface", "finite impersonal output waits for tense and source-gate fillers"),
         ]);
     }
 
@@ -15750,7 +15846,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "active source gate", "nonactive source condition", sourceGate.status || route.requirementIds?.[0] || "active-imperfective-stem-source", "the route checks the active stem before deriving nonactive shape"),
             buildStep("#2 formula", "nonactive suffix", "nonactive layer", "[-lu/-luwa/-u/-uwa/-wa/-walu]", "nonactive material is added inside the target verbstem"),
             buildStep("#2 formula", "CNV target", "nonactive target stem", route.formulaTemplate || "CNV(ACTIVE_IMPERFECTIVE_STEM) -> CNV(NONACTIVE_STEM)", "target formula records the nonactive stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "nonactive CNV surface", "finite output waits for person/tense and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "nonactive CNV surface", "finite output waits for person/tense and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15766,10 +15862,10 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
     if (/perfective|present|past/.test(route.routeKind || "")) {
         return buildProfile("exact-cnv-tense-source-route", [
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "tense-compatible source", route.sourceUnit || "CNV source stem", "user supplies a source compatible with the tense/aspect route"),
-            buildStep("#2 formula", "stem class gate", "tense source condition", sourceGate.status || route.requirementIds?.[0] || "tense-source", "the tense route checks stem class and source evidence"),
+            buildStep("#2 formula", "stem class gate", "tense source condition", sourceGate.status || route.requirementIds?.[0] || "tense-source", "the tense route checks stem class and source gate"),
             buildStep("#2 formula", "tense", "tense/aspect layer", route.routeKind || "tense source", "tense/aspect material belongs to the CNV predicate layer"),
             buildStep("#2 formula", "CNV target", "tense target formula", route.formulaTemplate || route.targetUnit || "CNV target", "target formula records the tense/aspect route"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "surface waits for person/number and Nawat/Pipil spelling evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "surface waits for person/number and Nawat/Pipil spelling bridge"),
         ]);
     }
 
@@ -15777,7 +15873,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         return buildProfile("exact-preterit-agentive-nominalization", [
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "preterit source", route.sourceUnit || "CNV preterit source", "user supplies a preterit VNC core/source"),
             buildStep("#2 formula", "-0", "preterit core", "CNV(PRETERIT_SOURCE_CORE)", "the preterit core is the embedded source layer"),
-            buildStep("#2 formula", "-ka < (ka)-t", "preterit-agentive layer", "CNN(PRETERIT_AGENTIVE_STEM)", "agentive stem layer derives from the preterit source"),
+            buildStep("#2 formula", "-ka < absolutive t/ti", "preterit-agentive layer", "CNN(PRETERIT_AGENTIVE_STEM)", "agentive stem layer derives from the preterit source through one t/ti absolutive operation"),
             buildStep("#2 formula", "CNN target", "nominal target formula", route.formulaTemplate || route.targetUnit || "CNN preterit-agentive stem", "target formula records the preterit-agentive CNN stem/function"),
             buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "preterit-agentive CNN surface", "surface waits for state, number, possessor, or later embedding evidence"),
         ]);
@@ -15788,7 +15884,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNV/ROOT/STOCK", "patientive source", route.sourceUnit || "CNV/root/stock patientive source", "user supplies the source that can receive patientive interpretation"),
             buildStep("#2 formula", "source family gate", "patientive source condition", sourceGate.status || route.requirementIds?.[0] || "patientive-family-source", "the route checks whether the source is CNV, root, stock, or impersonal patientive"),
             buildStep("#2 formula", "patientive layer", "patientive nominal layer", route.formulaTemplate || "CNV/ROOT/STOCK(SOURCE) -> CNN(PATIENTIVE_NOUNSTEM)", "patientive material builds a CNN patientive nounstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "patientive CNN surface", "surface waits for state, number, possessor, or Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "patientive CNN surface", "surface waits for state, number, possessor, or Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15798,7 +15894,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "source core", "deverbal source condition", sourceGate.status || route.requirementIds?.[0] || "deverbal-source-core", "the route works from a source core rather than a finished surface"),
             buildStep("#2 formula", "nominal suffix", "deverbal nominal layer", "[-s/-lis/PATIENTIVE]", "deverbal nominal material builds a CNN nounstem"),
             buildStep("#2 formula", "CNN target", "deverbal target formula", route.formulaTemplate || route.targetUnit || "CNN deverbal nounstem", "target formula records the deverbal nounstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "deverbal CNN surface", "surface waits for state, number, possessor, or evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "deverbal CNN surface", "surface waits for state, number, possessor, or source gates"),
         ]);
     }
 
@@ -15807,7 +15903,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "active-action source", route.sourceUnit || "CNV active-action source", "user supplies the active-action source"),
             buildStep("#2 formula", "active-action core", "source core", route.sourceFormulaType || "CNV(ACTIVE_ACTION_SOURCE)", "the route embeds the active-action source"),
             buildStep("#2 formula", "nominal layer", "active-action nominal layer", route.formulaTemplate || "CNV(ACTIVE_ACTION_SOURCE) -> CNN(ACTIVE_ACTION_NOMINAL_STEM)", "active-action material builds a CNN nominal stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "active-action CNN surface", "surface waits for state, possessor, context, or evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "active-action CNN surface", "surface waits for state, possessor, context, or source gates"),
         ]);
     }
 
@@ -15818,7 +15914,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "CNV(SOURCE_CORE)", "embedded VNC core", "CNV(SOURCE_CORE)", "the verbal source stays visible as the embedded source core"),
             buildStep("#2 formula", "NOMINALIZED_VNC_STEM", "nominalizing stem layer", "CNN(NOMINALIZED_VNC_STEM)", "the nominalizing layer turns the VNC source into a CNN stem"),
             buildStep("#2 formula", "CNN target", "nominal target formula", route.formulaTemplate || "CNV(SOURCE_CORE) -> CNN(NOMINALIZED_VNC_STEM)", "target formula records the nominalized VNC route"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "nominalized VNC CNN surface", "surface waits for state, possessor, number, and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "nominalized VNC CNN surface", "surface waits for state, possessor, number, and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15828,27 +15924,27 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "stock gate", "destockal source condition", sourceGate.status || route.requirementIds?.[0] || "nounstem-source", "the source must satisfy the destockal/denominal source gate"),
             buildStep("#2 formula", "verbalizer", "destockal verbal layer", route.formulaTemplate || "CNN/STOCK(SOURCE) -> CNV(DENOMINAL_VERBSTEM)", "the verbalizer builds a CNV denominal verbstem"),
             buildStep("#2 formula", "target class", "target stem class", route.targetUnit || "CNV denominal verbstem", "target class stays explicit before finite generation"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source gate"),
         ]);
     }
 
     if (/denominal-verbstem-part-one/.test(route.routeKind || "")) {
         return buildProfile("exact-denominal-part-one-route", [
             buildStep("#1 entrada", "CNN source", "nounstem source", route.sourceUnit || "CNN source", "user supplies the nounstem source"),
-            buildStep("#2 formula", "source evidence", "source contract", sourceGate.status || "source-evidence-contract", "source evidence decides which denominal verbalizer can apply"),
+            buildStep("#2 formula", "source gate", "source contract", sourceGate.status || "source-contract", "source gate decides which denominal verbalizer can apply"),
             buildStep("#2 formula", "-ti/-hui/-ya/-a/-hua/-lia", "part-one verbalizer", route.formulaTemplate || "CNN_SOURCE -> CNV(DENOMINAL_VERBSTEM[-ti/-hui/-ya/-a/-hua/-lia])", "the selected verbalizer is added inside the target verbstem"),
             buildStep("#2 formula", "CNV target", "denominal target stem", route.targetUnit || "CNV denominal verbstem", "target stem class and continuation gates remain explicit"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source gate"),
         ]);
     }
 
     if (/denominal-verbstem-part-two/.test(route.routeKind || "")) {
         return buildProfile("exact-denominal-part-two-route", [
-            buildStep("#1 entrada", "CNN/RELATIONAL source", "nounstem/relational source", route.sourceUnit || "CNN/relational source", "user supplies nounstem or relational source evidence"),
-            buildStep("#2 formula", "source evidence", "source contract", sourceGate.status || "source-evidence-contract", "source evidence decides which part-two verbalizer can apply"),
+            buildStep("#1 entrada", "CNN/RELATIONAL source", "nounstem/relational source", route.sourceUnit || "CNN/relational source", "user supplies nounstem or relational source gate"),
+            buildStep("#2 formula", "source gate", "source contract", sourceGate.status || "source-contract", "source gate decides which part-two verbalizer can apply"),
             buildStep("#2 formula", "-tia/-tla/-oa/-huia/-i-a", "part-two verbalizer", route.formulaTemplate || "CNN/RELATIONAL_SOURCE -> CNV(DENOMINAL_VERBSTEM[-tia/-tla/-oa/-huia/-i-a])", "the selected verbalizer is added inside the target verbstem"),
             buildStep("#2 formula", "CNV target", "denominal target stem", route.targetUnit || "CNV denominal verbstem", "target stem class and transitivity gates remain explicit"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "denominal CNV surface", "finite output waits for tense/object/source gate"),
         ]);
     }
 
@@ -15858,7 +15954,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "future embed", "embedded purpose source", "CNV(FUTURE_EMBED)", "the future embed supplies the intended action"),
             buildStep("#2 formula", "directional matrix", "directional/purposive matrix", "DIRECTIONAL_MATRIX", "the matrix creates purposive/directional force"),
             buildStep("#2 formula", "CNV target", "purposive target stem", route.formulaTemplate || "CNV(FUTURE_EMBED)+DIRECTIONAL_MATRIX -> CNV(PURPOSIVE_STEM)", "target formula records the purposive CNV stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "purposive CNV surface", "finite output waits for person, tense, direction, and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "purposive CNV surface", "finite output waits for person, tense, direction, and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15868,7 +15964,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "EMBED", "embedded predicate/source", "EMBED(CNV/CNN)", "the embedded source remains structurally visible"),
             buildStep("#2 formula", "MATRIX", "matrix stem", "MATRIX", "the matrix receives or governs the embed"),
             buildStep("#2 formula", "compound stem", "compound target", route.formulaTemplate || "EMBED(CNV/CNN)+MATRIX -> COMPOUND(CNV/CNN)", "target formula records the compound stem route"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "compound surface", "surface waits for matrix/embed compatibility and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "compound surface", "surface waits for matrix/embed compatibility and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -15878,7 +15974,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "CNN embed", "nominal embed", "CNN(EMBED)", "the nominal embed is kept as a source layer"),
             buildStep("#2 formula", "matrix", "nominal/verbal matrix", "MATRIX", "the matrix determines the compound target category"),
             buildStep("#2 formula", "compound target", "compound formula", route.formulaTemplate || "CNN(EMBED)+MATRIX -> COMPOUND_TARGET", "target formula records the compound nounstem/verbstem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "compound surface", "surface waits for state/class/evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "compound surface", "surface waits for state/class/source gates"),
         ]);
     }
 
@@ -15887,7 +15983,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", "CNV source", "honorific/pejorative source", route.sourceUnit || "CNV source", "user supplies the participant/source being honored or pejorated"),
             buildStep("#2 formula", "participant gate", "honorific/pejorative condition", sourceGate.status || route.requirementIds?.[0] || "honored-or-pejorated-participant-source", "the participant relation selects the honorific or pejorative route"),
             buildStep("#2 formula", "honorific/pejorative layer", "evaluative stem layer", route.formulaTemplate || "CNV(SOURCE_STEM) -> CNV(HONORIFIC_OR_PEJORATIVE_STEM)", "the evaluative layer is added inside the target stem"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "honorific/pejorative surface", "finite output waits for reflexive/object/tense and evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "honorific/pejorative surface", "finite output waits for reflexive/object/tense and source gates"),
         ]);
     }
 
@@ -15896,7 +15992,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", "CNN source", "affective nounstem source", route.sourceUnit || "CNN source", "user supplies the source nounstem and affective context"),
             buildStep("#2 formula", "affective matrix", "affective layer", "AFFECTIVE_MATRIX", "the affective matrix modifies the CNN stem/function"),
             buildStep("#2 formula", "CNN target", "affective target formula", route.formulaTemplate || "CNN(SOURCE_NOUNSTEM)+AFFECTIVE_MATRIX -> CNN(AFFECTIVE_NNC)", "target formula records the affective CNN"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "affective CNN surface", "surface waits for state, reference, and evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "affective CNN surface", "surface waits for state, reference, and source gates"),
         ]);
     }
 
@@ -15905,7 +16001,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", "NUMERAL source", "numeral source", route.sourceUnit || "numeral source", "user supplies the numeral source"),
             buildStep("#2 formula", "numeral stem", "cardinal stem piece", "NUMERAL_SOURCE", "the numeral source becomes the predicate stem/function"),
             buildStep("#2 formula", "CNN target", "cardinal CNN formula", route.formulaTemplate || "NUMERAL_SOURCE -> CNN(ABSOLUTIVE_CARDINAL_NUMERAL_NNC)", "target formula records the cardinal numeral CNN"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "numeral CNN surface", "surface waits for state/reference and evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "numeral CNN surface", "surface waits for state/reference and source gates"),
         ]);
     }
 
@@ -15914,7 +16010,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "MATRIX", "matrix source", route.sourceUnit || "matrix source", "user supplies the matrix source"),
             buildStep("#2 formula", "matrix gate", "matrix condition", sourceGate.status || route.requirementIds?.[0] || "matrix-source", "the route checks matrix compatibility"),
             buildStep("#2 formula", "matrix target", "matrix-composed formula", route.formulaTemplate || "SOURCE+MATRIX -> MATRIX_COMPOSED_ROUTE", "target formula records the matrix-composed route"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "matrix-composed surface", "surface waits for source/matrix evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "matrix-composed surface", "surface waits for source/matrix gates"),
         ]);
     }
 
@@ -15939,17 +16035,17 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#2 formula", "source core", "embedded source core", route.sourceFormulaType || "SOURCE_CORE", "the route works from the source core, not a free surface echo"),
             buildStep("#2 formula", nominalLayer, "nominalizing layer", nominalLayer, "the nominalizing piece builds a CNN stem/function"),
             buildStep("#2 formula", route.targetFormulaType || "CNN", "target nominal formula", route.formulaTemplate || route.targetUnit || "CNN target", "target formula records the nominal stem/function"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN surface", "surface waits for state, possessor, number, or evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN surface", "surface waits for state, possessor, number, or source gates"),
         ]);
     }
 
     if (route.routeFamily === "denominal-lesson") {
         return buildProfile("exact-denominal-route", [
-            buildStep("#1 entrada", "CNN source", "denominal source", route.sourceUnit || "CNN source", "user supplies the nounstem/source evidence"),
-            buildStep("#2 formula", "source evidence", "source contract", sourceGate.status || "source-evidence-contract", "Andrews source evidence must be satisfied before verbalization"),
+            buildStep("#1 entrada", "CNN source", "denominal source", route.sourceUnit || "CNN source", "user supplies the nounstem/source gate"),
+            buildStep("#2 formula", "source gate", "source contract", sourceGate.status || "source-contract", "Andrews source gate must be satisfied before verbalization"),
             buildStep("#2 formula", "verbalizer", "denominal verbalizer", route.formulaTemplate || "CNN_SOURCE -> CNV(DENOMINAL_VERBSTEM)", "the verbalizer is added inside the target verbstem"),
             buildStep("#2 formula", "target class", "target stem class", route.targetUnit || "CNV denominal verbstem", "target stem class and object requirements stay explicit"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "finite CNV output waits for tense/object/source evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "finite CNV output waits for tense/object/source gate"),
         ]);
     }
 
@@ -16000,7 +16096,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNV", "CNV source", route.sourceUnit || "CNV source", "user supplies the verbal source and its role evidence"),
             buildStep("#2 formula", "source role", "voice/valence source piece", route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || route.routeKind || "source role", "the source role controls voice, object, tense, or active/nonactive routing"),
             buildStep("#2 formula", "target CNV", "target verbal formula", route.formulaTemplate || route.targetUnit || "CNV target", "the route builds a target CNV source/formula frame"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "surface waits for finite person, tense, valence, and evidence fillers"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV surface", "surface waits for finite person, tense, valence, and source-gate fillers"),
         ]);
     }
 
@@ -16018,7 +16114,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "source", "embed/source", route.sourceUnit || "compound or special-source route", "user supplies the embedded source or matrix source"),
             buildStep("#2 formula", "embed/matrix boundary", "boundary piece", route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || "matrix-or-context-source", "the boundary identifies how embed and matrix combine"),
             buildStep("#2 formula", "compound target", "derived formula", route.formulaTemplate || route.targetUnit || "derived CNV/CNN route", "the formula builds the compound or special derived target"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "derived surface", "surface waits for the target route and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "derived surface", "surface waits for the target route and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -16028,7 +16124,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#1 entrada", route.sourceFormulaType || "CNN/CNV", "adjectival source", route.sourceUnit || "CNN/CNV adjectival source", "user supplies the source that can function adjectivally"),
                 buildStep("#2 formula", "adjectival function", "function layer", structuralInfo.functionLayer || "ADJECTIVAL_FUNCTION", "the source is routed into adjectival function"),
                 buildStep("#2 formula", "modifier target", "adjectival target formula", route.formulaTemplate || "CNN/CNV(SOURCE) -> ADJECTIVAL_FUNCTION(SOURCE_STEM)", "target formula records the adjectival function frame"),
-                buildStep("#3 salida", "surface", "function output", route.targetUnit || "adjectival function frame", "output waits for head/modifier context or evidence gates"),
+                buildStep("#3 salida", "surface", "function output", route.targetUnit || "adjectival function frame", "output waits for head/modifier context or source gates"),
             ]);
         }
         if (/adverbial/.test(route.routeKind || "")) {
@@ -16036,7 +16132,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#1 entrada", route.sourceFormulaType || "CNV/CNN", "adverbializable source", route.sourceUnit || "CNV/CNN adverbializable source", "user supplies the source that can function adverbially"),
                 buildStep("#2 formula", "adverbial function", "function layer", structuralInfo.functionLayer || "ADVERBIAL_FUNCTION", "the source is routed into adverbial function"),
                 buildStep("#2 formula", "adverbial target", "adverbial target formula", route.formulaTemplate || "CNV/CNN(SOURCE) -> ADVERBIAL_FUNCTION(SOURCE)", "target formula records the adverbial function frame"),
-                buildStep("#3 salida", "surface", "function output", route.targetUnit || "adverbial function frame", "output waits for clause context or evidence gates"),
+                buildStep("#3 salida", "surface", "function output", route.targetUnit || "adverbial function frame", "output waits for clause context or source gates"),
             ]);
         }
         if (/place|gentilic/.test(route.routeKind || "")) {
@@ -16044,7 +16140,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#1 entrada", route.sourceFormulaType || "PLACE_SOURCE", "place/community source", route.sourceUnit || "place or community source", "user supplies place or community evidence"),
                 buildStep("#2 formula", "place/gentilic piece", "place/gentilic layer", route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || "place-or-gentilic-source", "the route chooses place-name or gentilic function"),
                 buildStep("#2 formula", "CNN target", "place/gentilic formula", route.formulaTemplate || route.targetUnit || "CNN place/gentilic target", "target formula records the place-name or gentilic CNN"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "place/gentilic surface", "surface waits for lexical/place evidence"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "place/gentilic surface", "surface waits for lexical/place source gates"),
             ]);
         }
         if (/relational|tli-state/.test(route.routeKind || "")) {
@@ -16052,14 +16148,14 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#1 entrada", route.sourceFormulaType || "CNN/CNV", "relational/function source", route.sourceUnit || "relational function source", "user supplies the source compatible with a relational or state matrix"),
                 buildStep("#2 formula", "matrix/state piece", "relational function layer", structuralInfo.relationalMatrix || "RELATIONAL_OR_STATE_MATRIX", "matrix/state material is added inside the target CNN/function"),
                 buildStep("#2 formula", "target function", "relational target formula", route.formulaTemplate || route.targetUnit || "NNC/function route", "target formula records the relational/state function"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "relational function surface", "surface waits for state, possessor, connector, or evidence gates"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "relational function surface", "surface waits for state, possessor, connector, or source gates"),
             ]);
         }
         return buildProfile("exact-nnc-function-route", [
             buildStep("#1 entrada", route.sourceFormulaType || "CNN/CNV", "function source", route.sourceUnit || "CN/CNV/CNN function source", "user supplies the CNV/CNN/CN source for the function"),
             buildStep("#2 formula", "function piece", "function/matrix layer", structuralInfo.relationalMatrix || structuralInfo.functionLayer || route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || route.routeKind, "the function piece turns the source into an adjectival, adverbial, relational, place, or gentilic frame"),
             buildStep("#2 formula", "target function", "target formula", route.formulaTemplate || route.targetUnit || "NNC/function route", "target formula records whether this is CNN, modifier, adverbial, or other function output"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "NNC/function surface", "surface waits for state, connector, context, or evidence gates"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "NNC/function surface", "surface waits for state, connector, context, or source gates"),
         ]);
     }
 
@@ -16068,7 +16164,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "CNN/CNV", "relational source", route.sourceUnit || "relational source", "user supplies the locus/source compatible with a relational matrix"),
             buildStep("#2 formula", "matrix", "relational matrix", structuralInfo.relationalMatrix || route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || "RELATIONAL_MATRIX", "the relational matrix is added inside the CNN stem/function"),
             buildStep("#2 formula", "CNN target", "relational target", route.formulaTemplate || route.targetUnit || "CNN relational target", "target formula records the relational CNN build"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "relational surface", "surface waits for possessor, state, connector, and Nawat/Pipil evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "relational surface", "surface waits for possessor, state, connector, and Nawat/Pipil orthography bridge"),
         ]);
     }
 
@@ -16122,13 +16218,13 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#2 formula", "class gate", "verbstem class condition", sourceGate.status || "verbcore-source", "the route checks the source before assigning verbstem class"),
                 buildStep("#2 formula", "A/B/C/D", "verbstem class layer", "CLASSIFIED_VERBSTEM(A/B/C/D)", "the verbcore is classified by Andrews verbstem class"),
                 buildStep("#2 formula", "CNV target", "classified CNV route", route.formulaTemplate || "VERBCORE_SOURCE -> CLASSIFIED_VERBSTEM(A/B/C/D)", "target formula records the classified verbstem route"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV route", "finite output waits for person, tense, and evidence fillers"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV route", "finite output waits for person, tense, and source-gate fillers"),
             ]);
         }
         if (route.routeKind === "nounstem-class") {
             return buildProfile("exact-nounstem-class-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "NOUNSTEM", "nounstem source", route.sourceUnit || "CNN predicate source", "user supplies the nounstem source"),
-                buildStep("#2 formula", "class gate", "nounstem class condition", sourceGate.status || "nounstem-class-source", "the route checks nounstem class/source evidence"),
+                buildStep("#2 formula", "class gate", "nounstem class condition", sourceGate.status || "nounstem-class-source", "the route checks nounstem class/source gate"),
                 buildStep("#2 formula", "CLASS/NUMBER/STATE", "nounstem class layer", "CNN_STEM(CLASS/NUMBER/STATE)", "class, number, and state belong to the nounstem/CNN stem frame"),
                 buildStep("#2 formula", "CNN target", "classified CNN route", route.formulaTemplate || "NOUNSTEM_SOURCE -> CNN_STEM(CLASS/NUMBER/STATE)", "target formula records the classified nounstem route"),
                 buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN formula route", "surface waits for subject/reference and state realization"),
@@ -16137,10 +16233,10 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         if (route.routeKind === "pronominal-source-route" || route.routeKind === "pronominal-nnc") {
             return buildProfile("exact-pronominal-cnn-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "PRONOMINAL", "pronominal source", route.sourceUnit || "pronominal source", "user supplies the pronominal source"),
-                buildStep("#2 formula", "source gate", "pronominal condition", sourceGate.status || "pronominal-source", "the route checks pronominal source evidence"),
+                buildStep("#2 formula", "source gate", "pronominal condition", sourceGate.status || "pronominal-source", "the route checks pronominal source gate"),
                 buildStep("#2 formula", "PRONOMINAL_SOURCE", "pronominal stem layer", "CNN(PRONOMINAL_ABSOLUTIVE_NNC)", "the pronominal source becomes the CNN predicate stem"),
                 buildStep("#2 formula", "absolutive CNN", "CNN target formula", route.formulaTemplate || "PRONOMINAL_SOURCE -> CNN(PRONOMINAL_ABSOLUTIVE_NNC)", "target formula records the pronominal absolutive CNN"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN pronominal route", "surface waits for state/reference and Nawat/Pipil evidence"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN pronominal route", "surface waits for state/reference and Nawat/Pipil orthography bridge"),
             ]);
         }
         if (route.routeKind === "formula-subposition-source-route") {
@@ -16154,7 +16250,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         }
         if (route.routeKind === "subject-slot-source-route") {
             return buildProfile("exact-subject-slot-route", [
-                buildStep("#1 entrada", route.sourceFormulaType || "CN", "subject source", route.sourceUnit || "subject slot source", "user supplies subject and predicate source evidence"),
+                buildStep("#1 entrada", route.sourceFormulaType || "CN", "subject source", route.sourceUnit || "subject slot source", "user supplies subject and predicate source gate"),
                 buildStep("#2 formula", "SUBJECT_SOURCE", "subject connector source", "SUBJECT_SOURCE", "the subject source fills the connector outside the predicate"),
                 buildStep("#2 formula", "PREDICATE_SOURCE", "predicate source", "PREDICATE_SOURCE", "the predicate source supplies the parenthesized stem"),
                 buildStep("#2 formula", "#pers1-pers2(STEM)...#", "CN formula shell", route.formulaTemplate || "SUBJECT_SOURCE+PREDICATE_SOURCE -> #pers1-pers2(STEM)...#", "target formula records the CNV/CNN participant shell"),
@@ -16167,7 +16263,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#2 formula", "CNV(SOURCE_STEM)", "predicate core", "CNV(SOURCE_STEM)", "the source stem remains inside the CNV predicate layer"),
                 buildStep("#2 formula", "TENSE_SOURCE", "tense layer", "tense", "the tense source fills the CNV tense slot"),
                 buildStep("#2 formula", "#pers1-...(STEM)tense-num1#", "tensed CNV shell", route.formulaTemplate || "CNV(SOURCE_STEM)+TENSE_SOURCE -> #pers1-...(STEM)tense-num1#", "target formula records the tensed CNV shell"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV tense formula route", "surface waits for person, number, and Nawat/Pipil evidence"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNV tense formula route", "surface waits for person, number, and Nawat/Pipil orthography bridge"),
             ]);
         }
         if (route.routeKind === "prefix-slot-source-route") {
@@ -16185,13 +16281,13 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#2 formula", "SOURCE_STEM", "stem piece", "SOURCE_STEM", "the source stem is preserved before suffixing"),
                 buildStep("#2 formula", "SUFFIX_SOURCE", "suffix piece", "SUFFIX_SOURCE", "the suffix source is added after the stem source"),
                 buildStep("#2 formula", "SUFFIXED_ROUTE", "suffixed route", route.formulaTemplate || "SOURCE_STEM+SUFFIX_SOURCE -> SUFFIXED_ROUTE", "target formula records the suffixed stem or inflection route"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "suffixed route", "surface waits for the derived route and evidence gates"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "suffixed route", "surface waits for the derived route and source gates"),
             ]);
         }
         if (route.routeKind === "root-source-route") {
             return buildProfile("exact-root-to-stem-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "ROOT", "root source", route.sourceUnit || "root source", "user supplies the root source"),
-                buildStep("#2 formula", "root gate", "root source condition", sourceGate.status || "root-source", "the route checks root-source evidence"),
+                buildStep("#2 formula", "root gate", "root source condition", sourceGate.status || "root-source", "the route checks root-source gate"),
                 buildStep("#2 formula", "STEM_SOURCE", "stem source layer", route.formulaTemplate || "ROOT_SOURCE -> STEM_SOURCE", "the root is promoted to a stem source"),
                 buildStep("#3 salida", "surface", "stem output gate", route.targetUnit || "stem route", "surface waits for a later CNV/CNN route to use the stem"),
             ]);
@@ -16201,7 +16297,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
                 buildStep("#1 entrada", route.sourceFormulaType || "CNV", "irregular CNV source", route.sourceUnit || "CNV source", "user supplies the irregular CNV source"),
                 buildStep("#2 formula", "irregular gate", "irregular stem condition", sourceGate.status || "irregular-stem-source", "the route checks that the source is an irregular stem route"),
                 buildStep("#2 formula", "IRREGULAR_CNV_SOURCE", "irregular stem layer", route.formulaTemplate || "IRREGULAR_CNV_SOURCE -> IRREGULAR_VNC_ROUTE", "target formula records the irregular CNV route"),
-                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "irregular VNC route", "finite surface waits for person, tense, and evidence fillers"),
+                buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "irregular VNC route", "finite surface waits for person, tense, and source-gate fillers"),
             ]);
         }
         if (route.routeKind === "expanded-vnc-sentence") {
@@ -16216,7 +16312,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         if (route.routeKind === "optative-source-route" || route.routeKind === "optative-sentence") {
             return buildProfile("exact-optative-sentence-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "CNV", "optative CNV source", route.sourceUnit || "optative CNV source", "user supplies the CNV source compatible with optative force"),
-                buildStep("#2 formula", "optative gate", "optative condition", sourceGate.status || "optative-vnc-source", "the route checks optative source evidence"),
+                buildStep("#2 formula", "optative gate", "optative condition", sourceGate.status || "optative-vnc-source", "the route checks optative source gate"),
                 buildStep("#2 formula", "OPTATIVE_CNV_SOURCE", "optative CNV layer", "OPTATIVE_CNV_SOURCE", "the CNV source is routed into wish/command force"),
                 buildStep("#2 formula", "WISH_OR_COMMAND_SENTENCE", "optative sentence formula", route.formulaTemplate || "OPTATIVE_CNV_SOURCE -> WISH_OR_COMMAND_SENTENCE", "target formula records the optative sentence"),
                 buildStep("#3 salida", "surface", "sentence output gate", route.targetUnit || "wish or command sentence", "surface waits for concrete optative morphology and context"),
@@ -16225,7 +16321,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         if (route.routeKind === "admonitive-sentence") {
             return buildProfile("exact-admonitive-sentence-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "CNV", "admonitive CNV source", route.sourceUnit || "CNV source", "user supplies the CNV source compatible with admonitive force"),
-                buildStep("#2 formula", "admonitive gate", "admonitive condition", sourceGate.status || "admonitive-vnc-source", "the route checks admonitive source evidence"),
+                buildStep("#2 formula", "admonitive gate", "admonitive condition", sourceGate.status || "admonitive-vnc-source", "the route checks admonitive source gate"),
                 buildStep("#2 formula", "ADMONITIVE_CNV_SOURCE", "admonitive CNV layer", "ADMONITIVE_CNV_SOURCE", "the CNV source is routed into admonition force"),
                 buildStep("#2 formula", "ADMONITION_SENTENCE", "admonitive sentence formula", route.formulaTemplate || "ADMONITIVE_CNV_SOURCE -> ADMONITION_SENTENCE", "target formula records the admonitive sentence"),
                 buildStep("#3 salida", "surface", "sentence output gate", route.targetUnit || "admonition sentence", "surface waits for concrete admonitive morphology and context"),
@@ -16251,7 +16347,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
         if (route.routeKind === "possessive-source-route" || route.routeKind === "possessive-peculiarities") {
             return buildProfile("exact-possessive-source-route", [
                 buildStep("#1 entrada", route.sourceFormulaType || "CNN", "possessive CNN source", route.sourceUnit || "possessive CNN source", "user supplies the possessive CNN source"),
-                buildStep("#2 formula", "possession gate", "possessive source condition", sourceGate.status || "possessive-state-source", "the route checks natural/possessive source evidence"),
+                buildStep("#2 formula", "possession gate", "possessive source condition", sourceGate.status || "possessive-state-source", "the route checks natural/possessive source gate"),
                 buildStep("#2 formula", "POSSESSIVE_CNN_SOURCE", "possessive stem layer", "POSSESSIVE_CNN_SOURCE", "possessive material belongs inside the CNN predicate source"),
                 buildStep("#2 formula", "POSSESSIVE_NNC_ROUTE", "possessive CNN target", route.formulaTemplate || "POSSESSIVE_CNN_SOURCE -> POSSESSIVE_NNC_ROUTE", "target formula records the possessive NNC route"),
                 buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "CNN possessive route", "surface waits for possessor, state, and reference fillers"),
@@ -16261,7 +16357,7 @@ function buildAndrewsRoutePuzzleStackTemplate(route = {}) {
             buildStep("#1 entrada", route.sourceFormulaType || "source", "foundation source", route.sourceUnit || "foundation source", "user supplies the basic CNV/CNN/source slot evidence"),
             buildStep("#2 formula", "foundation piece", "slot/category piece", route.requirementIds?.[0] || sourceGate.requirementIds?.[0] || route.routeKind, "the route adds the Andrews category, slot, state, class, or supplement relation"),
             buildStep("#2 formula", "target formula", "formula target", route.formulaTemplate || route.targetUnit || "foundation target", "target formula records the foundation generation shape"),
-            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "foundation output", "surface waits for concrete fillers and route evidence"),
+            buildStep("#3 salida", "surface", "realization gate", route.targetUnit || "foundation output", "surface waits for concrete fillers and route source gates"),
         ]);
     }
 
@@ -17822,7 +17918,7 @@ const LESSON_REGISTRY_BASE = [
         status: "partially-implemented",
         engineDependencies: ["core/clause", "core/clause/modification"],
         exampleVerbs: [],
-        notes: "Existen metadatos diagnósticos de modificación adjetival para Andrews 42.1-42.10, y el AST actual compone superficies Nawat provistas para órdenes seleccionados de modificador/núcleo, pero siguen parciales o diagnósticos: sintaxis de varios núcleos, resolución de ambigüedad de suplementación, selección de matriz en núcleo compuesto, ambigüedad de modificador verbal transitivo, comportamiento de núcleo pronominal/cuantitativo/numeral, comportamiento de núcleo nominal de medida, recursión, estructuras de modificación incorporada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y evidencia Nawat/Pipil confirmada",
+        notes: "Existen metadatos diagnósticos de modificación adjetival para Andrews 42.1-42.10, y el AST actual compone superficies Nawat provistas para órdenes seleccionados de modificador/núcleo, pero siguen parciales o diagnósticos: sintaxis de varios núcleos, resolución de ambigüedad de suplementación, selección de matriz en núcleo compuesto, ambigüedad de modificador verbal transitivo, comportamiento de núcleo pronominal/cuantitativo/numeral, comportamiento de núcleo nominal de medida, recursión, estructuras de modificación incorporada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y fuente Andrews concreta y puente ortografico confirmado",
     },
     {
         id: 43,
@@ -17830,7 +17926,7 @@ const LESSON_REGISTRY_BASE = [
         status: "partially-implemented",
         engineDependencies: ["core/clause", "core/clause/modification"],
         exampleVerbs: [],
-        notes: "Existen metadatos diagnósticos de modificación adjetival para Andrews 43.1-43.9, y el AST actual puede marcar orden discontinuo en superficies Nawat provistas, pero siguen parciales o diagnósticos: análisis de modificador no antepuesto, cooperación con el mismo núcleo, ambigüedad de núcleo interrogativo, núcleos oc ce, violaciones de referente compartido, modismos uno-de/ninguno-de, modificadores de vínculo masculino, modificadores de pareja nombrada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y evidencia Nawat/Pipil confirmada",
+        notes: "Existen metadatos diagnósticos de modificación adjetival para Andrews 43.1-43.9, y el AST actual puede marcar orden discontinuo en superficies Nawat provistas, pero siguen parciales o diagnósticos: análisis de modificador no antepuesto, cooperación con el mismo núcleo, ambigüedad de núcleo interrogativo, núcleos oc ce, violaciones de referente compartido, modismos uno-de/ninguno-de, modificadores de vínculo masculino, modificadores de pareja nombrada, detección de analizador/búsqueda, ejemplos de cláusula con respaldo estático y fuente Andrews concreta y puente ortografico confirmado",
     },
     {
         id: 44,

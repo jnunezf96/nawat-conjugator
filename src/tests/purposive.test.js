@@ -18,13 +18,17 @@ function run(ctx) {
             typeof ctx.getPurposiveDirectionalAntiConflationRules,
             typeof ctx.getLesson29PurposiveSubsectionInventory,
             typeof ctx.buildLesson29PurposivePursuitFrame,
+            typeof ctx.getPurposiveMatrixShape,
+            typeof ctx.buildPurposiveDirectionalSourceFrame,
+            typeof ctx.buildPurposiveDirectionalOperationFrame,
+            typeof ctx.buildAndrewsPurposiveDirectionalVnc,
         ],
-        ["function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildPurposiveDirectionalBoundaryMetadata();
     s.eq(
-        "purposive/directional boundary is explicit and non-generative",
+        "purposive/directional boundary is explicit and Andrews source-gated",
         {
             kind: boundary.kind,
             lesson: boundary.lesson,
@@ -66,7 +70,7 @@ function run(ctx) {
             ],
             boundaries: {
                 hasDirectionalPrefixMechanics: true,
-                hasPurposiveGeneration: false,
+                hasPurposiveGeneration: true,
                 hasConfirmedPurposiveFixtureData: false,
                 hasLesson29PursuitFrame: true,
                 changesDirectionalGeneration: false,
@@ -104,11 +108,232 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "purposive-directional-needs-nawat-evidence",
+                "purposive-directional-source-gate-required",
                 "directional-prefix-recognized",
                 "purposive-directional-unconfirmed",
             ],
             boundary,
+        }
+    );
+    s.eq(
+        "purposive candidate strings are diagnostic only and cannot authorize generation",
+        (() => {
+            const classification = ctx.classifyPurposiveDirectionalCandidate({
+                sourceStem: "chiwa",
+                candidate: "chiwa-t-i-hui",
+                relation: "purposive-directional",
+            });
+            return {
+                kind: classification.kind,
+                relation: classification.relation,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface || "",
+                surfaceForms: classification.surfaceForms || [],
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                resultSurface: classification.frames.resultFrame.surface || "",
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+            };
+        })(),
+        {
+            kind: "purposive-directional-candidate-classification",
+            relation: "purposive-directional",
+            generationAllowed: false,
+            surface: "",
+            surfaceForms: [],
+            diagnostics: [
+                "purposive-directional-candidate-diagnostic-only",
+                "directional-prefix-unconfirmed",
+                "purposive-directional-unconfirmed",
+            ],
+            routeStage: "classify-candidate",
+            frameGenerationAllowed: false,
+            resultSurface: "",
+            orthographyStatus: "source-gated",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+        }
+    );
+    s.eq(
+        "Andrews purposive matrix shapes generate across direction mood and tense",
+        [
+            ctx.getPurposiveMatrixShape({ direction: "outbound", mood: "indicative", tense: "nonpast", number: "singular" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "outbound", mood: "indicative", tense: "nonpast", number: "plural" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "outbound", mood: "indicative", tense: "past" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "outbound", mood: "optative", tense: "nonpast" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "inbound", mood: "indicative", tense: "nonfuture" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "inbound", mood: "indicative", tense: "future", number: "plural" }).matrixShape,
+            ctx.getPurposiveMatrixShape({ direction: "inbound", mood: "optative", tense: "nonpast" }).matrixShape,
+        ],
+        ["t-i-uh", "t-i-hui", "t-o", "t-i", "c-o", "qu-i-hui", "qu-i"]
+    );
+    s.eq(
+        "Andrews purposive generator builds target stem from typed operation frame",
+        (() => {
+            const sourceFrame = ctx.buildPurposiveDirectionalSourceFrame({ embedStem: "chiwa" });
+            const operationFrame = ctx.buildPurposiveDirectionalOperationFrame({
+                sourceFrame,
+                direction: "outbound",
+                mood: "indicative",
+                tense: "nonpast",
+                number: "plural",
+                personPrefix: "ti-0",
+            });
+            const generated = ctx.buildAndrewsPurposiveDirectionalVnc({ operationFrame });
+            return {
+                kind: generated.kind,
+                operationFrameKind: generated.operationFrame.kind,
+                targetStemClassical: generated.targetStemClassical,
+                targetStem: generated.targetStem,
+                structuralFormula: generated.structuralFormula,
+                generationAllowed: generated.generationAllowed,
+                formulaSlots: generated.formulaSlots,
+                routeStage: generated.frames.routeContract.routeStage,
+                orthographyStatus: generated.frames.orthographyFrame.orthographyStatus,
+                finiteSurfaceExpansionAllowed: generated.frames.routeContract.targetContract.finiteSurfaceExpansionAllowed,
+            };
+        })(),
+        {
+            kind: "purposive-directional-andrews-generation",
+            operationFrameKind: "andrews-purposive-directional-operation-frame",
+            targetStemClassical: "chiwa-□-t-i-hui",
+            targetStem: "chiwatiwi",
+            structuralFormula: "#ti-0(chiwa-□-t-i-hui)0+0-h#",
+            generationAllowed: true,
+            formulaSlots: {
+                pers: "ti-0",
+                objectPrefix: "",
+                embedStem: "chiwa",
+                silentFutureTenseMorph: "□",
+                matrixDirectionalMorph: "t",
+                matrixBaseStem: "i-hui",
+                matrixShape: "t-i-hui",
+                tense: "0",
+                num1: "0",
+                num2: "h",
+            },
+            routeStage: "generate-andrews-purposive-paradigm",
+            orthographyStatus: "orthography-bridge-realized",
+            finiteSurfaceExpansionAllowed: false,
+        }
+    );
+    s.eq(
+        "old string-only Andrews purposive API blocks without typed operation frame",
+        (() => {
+            const generated = ctx.buildAndrewsPurposiveDirectionalVnc({
+                sourceStem: "chiwa",
+                direction: "outbound",
+                mood: "indicative",
+                tense: "nonpast",
+                number: "plural",
+                personPrefix: "ti-0",
+            });
+            return {
+                generationAllowed: generated.generationAllowed,
+                diagnostic: generated.diagnostics[0],
+                routeStage: generated.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            generationAllowed: false,
+            diagnostic: "purposive-directional-missing-typed-operation-frame",
+            routeStage: "block-unsupported-purposive-paradigm",
+        }
+    );
+    s.eq(
+        "Andrews purposive generator blocks contradictory typed target frame",
+        (() => {
+            const sourceFrame = ctx.buildPurposiveDirectionalSourceFrame({ embedStem: "chiwa" });
+            const operationFrame = ctx.buildPurposiveDirectionalOperationFrame({
+                sourceFrame,
+                direction: "outbound",
+                mood: "indicative",
+                tense: "nonpast",
+                number: "plural",
+                personPrefix: "ti-0",
+            });
+            const generated = ctx.buildAndrewsPurposiveDirectionalVnc({
+                operationFrame: {
+                    ...operationFrame,
+                    targetFrame: {
+                        ...operationFrame.targetFrame,
+                        targetStemClassical: "poisoned-□-t-i-hui",
+                    },
+                },
+            });
+            return {
+                generationAllowed: generated.generationAllowed,
+                diagnostic: generated.diagnostics[0],
+                routeStage: generated.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            generationAllowed: false,
+            diagnostic: "purposive-directional-contradictory-typed-operation-frame",
+            routeStage: "block-contradictory-purposive-frame",
+        }
+    );
+    s.eq(
+        "poisoning legacy purposive string normalizer does not affect typed operation output",
+        (() => {
+            const originalNormalizer = ctx.normalizePurposiveDirectionalCandidateSurface;
+            try {
+                ctx.normalizePurposiveDirectionalCandidateSurface = () => "poisoned";
+                const sourceFrame = ctx.buildPurposiveDirectionalSourceFrame({ embedStem: "chiwa" });
+                const operationFrame = ctx.buildPurposiveDirectionalOperationFrame({
+                    sourceFrame,
+                    direction: "outbound",
+                    mood: "indicative",
+                    tense: "nonpast",
+                    number: "plural",
+                    personPrefix: "ti-0",
+                });
+                return ctx.buildAndrewsPurposiveDirectionalVnc({ operationFrame }).targetStem;
+            } finally {
+                ctx.normalizePurposiveDirectionalCandidateSurface = originalNormalizer;
+            }
+        })(),
+        "chiwatiwi"
+    );
+    s.eq(
+        "purposive classifier generates from Andrews slots when candidate is omitted",
+        (() => {
+            const sourceFrame = ctx.buildPurposiveDirectionalSourceFrame({ embedStem: "chiwa" });
+            const classification = ctx.classifyPurposiveDirectionalCandidate({
+                sourceFrame,
+                relation: "purposive-directional",
+                direction: "inbound",
+                mood: "indicative",
+                tense: "future",
+                number: "singular",
+                objectPrefix: "te",
+                personPrefix: "ni-0",
+            });
+            return {
+                candidate: classification.candidate,
+                surface: classification.surface,
+                structuralFormula: classification.structuralFormula,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                andrewsParadigmGenerated: classification.frames.routeContract.targetContract.andrewsParadigmGenerated,
+                sourceSurface: classification.frames.orthographyFrame.sourceSurface,
+            };
+        })(),
+        {
+            candidate: "chiwa-□-qu-i-uh",
+            surface: "chiwakiw",
+            structuralFormula: "#ni-0+te(chiwa-□-qu-i-uh)0+0-0#",
+            diagnostics: [
+                "purposive-directional-andrews-paradigm-generated",
+                "directional-prefix-unconfirmed",
+                "purposive-directional-structured-source",
+            ],
+            routeStage: "generate-structured-purposive",
+            frameGenerationAllowed: true,
+            andrewsParadigmGenerated: true,
+            sourceSurface: "chiwa-□-qu-i-uh",
         }
     );
 
@@ -133,9 +358,9 @@ function run(ctx) {
             "directional prefix mechanics are not purposive VNC generation",
             "bracketed directional parser syntax is not purposive evidence",
             "composer directional controls are not confirmed purposive forms",
-            "purpose translations are not Nawat/Pipil fixture evidence",
+            "purpose translations are not Andrews source gates",
             "compound parsing is not purposive VNC generation",
-            "Andrews purposive categories are architecture, not Nawat/Pipil form authority",
+            "Andrews purposive categories are architecture, not Classical surface authority",
         ]
     );
     s.no("purposive/directional boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -224,6 +449,24 @@ function run(ctx) {
         }
     );
     s.eq(
+        "lesson 29 pursuit frame records Andrews paradigm generation boundary",
+        lesson29Frame.currentEngineBoundary,
+        {
+            directionalPrefixMechanicsImplemented: true,
+            boundaryMetadataImplemented: true,
+            candidateClassifierImplemented: true,
+            falsePositiveClassifierImplemented: true,
+            purposiveGenerationImplemented: true,
+            confirmedPurposiveFixtureData: false,
+            outboundParadigmGenerationImplemented: true,
+            inboundParadigmGenerationImplemented: true,
+            nonactiveEmbedGenerationImplemented: false,
+            compoundStemmedEmbedGenerationImplemented: false,
+            externalDirectionalPurposiveGenerationImplemented: false,
+            finiteOutputExpansionAllowed: false,
+        }
+    );
+    s.eq(
         "lesson 29 pursuit frame has LCM redirect contract",
         {
             routeFamily: lesson29Frame.frames.routeContract.routeFamily,
@@ -241,7 +484,7 @@ function run(ctx) {
             generationAllowed: false,
             unitKind: "purposive-vnc-boundary",
             targetGenerationAllowed: false,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-required",
             stemKind: "purposive-compound-verbstem",
             optativeTenseSystem: "nonpast only",
         }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta
       name="description"
-      content="Conjugador de cláusulas nucleares nawat guiado por Andrews: entrada, fórmula y salida para cláusula verbal, cláusula nominal y partículas."
+      content="Aplicación gramatical nawat/pipil guiada por fórmulas Andrews: entrada, fórmula, ruta, diagnóstico y salida para cláusulas nucleares."
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="google-site-verification" content="LL2yyM2UK6odSdrPJpP9-oPnpchig_vsaSKO-UAvV40" />
@@ -17,14 +17,14 @@
       href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="style.css?v=20260620-map-track-bed-001" />
+    <link rel="stylesheet" href="style.css?v=20260624-andrews-operational-layer-003" />
     <!-- Phase 1 baseline: keep this ordered script manifest stable while the parallel ESM bootstrap is introduced. -->
     <script src="src/core/concepts/concepts.js?v=20260606-concepts-001" defer></script>
     <script src="src/core/particles/particles.js?v=20260616-particle-ui-groups-001" defer></script>
     <script src="src/core/sentence/sentence.js?v=20260606-sentence-layer-001" defer></script>
-    <script src="src/core/grammar/frame.js?v=20260608-grammar-frame-001" defer></script>
+    <script src="src/core/grammar/frame.js?v=20260624-andrews-logic-002" defer></script>
     <script src="src/core/orthography/orthography.js?v=20260616-particle-ui-groups-001" defer></script>
-    <script src="src/core/clause/clause.js?v=20260620-pass-source-layer-001" defer></script>
+    <script src="src/core/clause/clause.js?v=20260621-predicate-nominal-tti-001" defer></script>
     <script src="src/core/clause/modification/modification.js?v=20260606-modification-boundary-001" defer></script>
     <script src="src/core/clause/adverbial/adverbial.js?v=20260606-adverbial-boundary-001" defer></script>
     <script src="src/core/clause/adjunction/adjunction.js?v=20260606-adjunction-boundary-001" defer></script>
@@ -43,23 +43,23 @@
     <script src="src/core/output/provenance.js?v=20260403-import-isolate-004" defer></script>
     <script src="src/core/generation/morphology_support.js?v=20260403-import-isolate-013" defer></script>
     <script src="src/core/parsing/parsing.js?v=20260402-phase4-002" defer></script>
-    <script src="src/core/vnc/allomorphy.js?v=20260602-vs-patientivo-001" defer></script>
+    <script src="src/core/vnc/allomorphy.js?v=20260621-predicate-nominal-source-tenses-001" defer></script>
     <script src="src/core/vnc/purposive/purposive.js?v=20260606-purposive-boundary-001" defer></script>
     <script src="src/core/vnc/honorific_pejorative/honorific_pejorative.js?v=20260606-honorific-pejorative-boundary-001" defer></script>
     <script src="src/core/derivation/source_model.js?v=20260607-preterit-agentive-continuation-001" defer></script>
     <script src="src/core/derivation/forward_runtime.js?v=20260403-import-isolate-006" defer></script>
     <script src="src/core/derivation/nonactive.js?v=20260403-import-isolate-010" defer></script>
     <script src="src/core/derivation/frequentative/frequentative.js?v=20260606-frequentative-boundary-001" defer></script>
-    <script src="src/core/generation/valency.js?v=20260403-import-isolate-011" defer></script>
+    <script src="src/core/generation/valency.js?v=20260623-andrews-logic-001" defer></script>
     <script src="src/core/generation/request.js?v=20260403-import-isolate-008" defer></script>
-    <script src="src/core/generation/morphology_engine.js?v=20260404-tronco-lvv-ua-004" defer></script>
+    <script src="src/core/generation/morphology_engine.js?v=20260621-predicate-nominal-tti-001" defer></script>
     <script src="src/core/generation/runtime_support.js?v=20260403-import-isolate-007" defer></script>
-    <script src="src/core/generation/engine.js?v=20260619-route-record-actions-001" defer></script>
-    <script src="src/core/nnc/nnc.js?v=20260617-vnc-formula-slots-001" defer></script>
+    <script src="src/core/generation/engine.js?v=20260624-andrews-logic-authority-001" defer></script>
+    <script src="src/core/nnc/nnc.js?v=20260623-andrews-logic-001" defer></script>
     <script src="src/core/nnc/compound/compound.js?v=20260606-nnc-compound-boundary-001" defer></script>
     <script src="src/core/nnc/adjectival/adjectival.js?v=20260617-vnc-formula-slots-001" defer></script>
-    <script src="src/core/nnc/nominalization/nominalization.js?v=20260606-nnc-nominalization-boundary-001" defer></script>
-    <script src="src/core/nnc/numerals/numerals.js?v=20260606-nnc-numeral-boundary-001" defer></script>
+    <script src="src/core/nnc/nominalization/nominalization.js?v=20260624-andrews-operational-layer-003" defer></script>
+    <script src="src/core/nnc/numerals/numerals.js?v=20260623-nnc-numeral-basic-cardinal-001" defer></script>
     <script src="src/core/nnc/relational/relational.js?v=20260606-nnc-relational-boundary-001" defer></script>
     <script src="src/core/nnc/place_gentilic/place_gentilic.js?v=20260606-nnc-place-gentilic-boundary-001" defer></script>
     <script src="src/core/nnc/names/names.js?v=20260606-nnc-names-boundary-001" defer></script>
@@ -68,23 +68,23 @@
     <script src="src/core/preterit/engine.js?v=20260402-regex-core-262" defer></script>
     <script src="src/core/preterit/api.js?v=20260403-import-isolate-002" defer></script>
     <script src="src/ui/i18n/i18n.js?v=20260530-source-scope-004" defer></script>
-    <script src="src/ui/panels/panels.js?v=20260620-map-track-bed-001" defer></script>
+    <script src="src/ui/panels/panels.js?v=20260624-andrews-operational-layer-003" defer></script>
     <script src="src/ui/export/export.js?v=20260618-slot-strip-export-001" defer></script>
-    <script src="src/ui/state.js?v=20260618-andrews-tense-blocks-001" defer></script>
-    <script src="src/ui/rendering/rendering.js?v=20260620-platform-path-001" defer></script>
-    <script src="src/ui/composer/composer.js?v=20260619-slot-entry-buttons-003" defer></script>
+    <script src="src/ui/state.js?v=20260624-andrews-route-perception-003" defer></script>
+    <script src="src/ui/rendering/rendering.js?v=20260627-dev-hooks-path-001" defer></script>
+    <script src="src/ui/composer/composer.js?v=20260624-andrews-route-perception-004" defer></script>
     <script src="script.js?v=20260604-prelocative-entry-003" defer></script>
-    <script src="src/lessons/registry.js?v=20260402-phase7-001" defer></script>
+    <script src="src/lessons/registry.js?v=20260621-absolutive-allomorph-001" defer></script>
     <script src="src/appendices/registry.js?v=20260402-phase7-001" defer></script>
     <script src="src/ui/curriculum/curriculum.js?v=20260606-curriculum-index-001" defer></script>
     <script src="src/ui/events.js?v=20260620-route-board-auto-001" defer></script>
-    <title>Conjugador de cláusulas nucleares nawat</title>
+    <title>Gramática nawat/pipil Andrews</title>
   </head>
   <body>
     <main class="app-shell">
       <div class="form-container-clause hero-panel hero-panel--entrada" id="container-header">
         <div class="hero-copy hero-copy--entrada">
-          <h1 id="app-title" data-ui-label-key="app-title">Conjugador de cláusulas nucleares nawat</h1>
+          <h1 id="app-title" data-ui-label-key="app-title">Gramática nawat/pipil Andrews</h1>
         </div>
         <div class="hero-controls">
           <div class="ui-scale-control">
@@ -160,6 +160,14 @@
         data-andrews-boundary="#...#"
         data-andrews-not-word="true"
       >
+        <section
+          class="formula-workbench"
+          id="formula-workbench"
+          aria-label="Explorador de fórmulas Andrews"
+          data-andrews-component="formula-workbench"
+          data-andrews-formula-role="structured-formula-atlas"
+          data-andrews-layer="formula-slots-routes-diagnostics"
+        ></section>
         <div
           class="panel-grid"
           aria-label="Banco de cláusulas nucleares Andrews"
@@ -279,32 +287,41 @@
                         type="button"
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="general"
+                        data-source-formula-type="CNV"
+                        data-target-formula-type="CNV"
                         aria-pressed="true"
                         aria-label="Tablero de cláusula verbal"
                         title="Cláusula verbal"
                       >
-                        Verbal
+                        <span class="verb-entry-board-tabs__main">Verbal</span>
+                        <span class="verb-entry-board-tabs__route">tipo CNV</span>
                       </button>
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
                         data-ordinary-nnc-mode="true"
+                        data-source-formula-type="CNN"
+                        data-target-formula-type="CNN"
                         id="verb-entry-board-ordinary-nnc"
                         aria-pressed="false"
                         aria-label="Tablero de cláusula nominal"
                         title="Cláusula nominal"
                       >
-                        Nominal
+                        <span class="verb-entry-board-tabs__main">Nominal</span>
+                        <span class="verb-entry-board-tabs__route">tipo CNN</span>
                       </button>
                       <button
                         type="button"
                         class="verb-entry-board-tabs__button"
                         data-composer-entry-board="noun-to-verb"
+                        data-source-formula-type="CNN"
+                        data-target-formula-type="CNV"
                         aria-pressed="false"
                         aria-label="Tablero de verbalización nominal"
                         title="Verbalización nominal"
                       >
-                        Verbalizar
+                        <span class="verb-entry-board-tabs__main">Verbalizar</span>
+                        <span class="verb-entry-board-tabs__route">CNN → CNV</span>
                       </button>
                     </div>
                   </div>
@@ -1172,7 +1189,9 @@
                     data-mode-system="unit"
                     aria-pressed="true"
                   >
-                    Verbal
+                    <span class="calc-operator-chip__main">Verbal</span>
+                    <span class="calc-operator-chip__unit">CNV salida</span>
+                    <span class="calc-operator-chip__route">CNV → CNV · CNN → CNV</span>
                   </button>
                   <button
                     type="button"
@@ -1181,8 +1200,14 @@
                     data-mode-system="unit"
                     aria-pressed="false"
                   >
-                    Nominal
+                    <span class="calc-operator-chip__main">Nominal</span>
+                    <span class="calc-operator-chip__unit">CNN salida</span>
+                    <span class="calc-operator-chip__route">CNV → CNN · CNN → CNN</span>
                   </button>
+                </div>
+                <div class="calc-unit-route-strip" aria-label="Ruta mixta Andrews">
+                  <span class="calc-unit-route-strip__label">Mixta</span>
+                  <span class="calc-unit-route-strip__route">CNV/CNN → CNV/CNN</span>
                 </div>
               </section>
               <section

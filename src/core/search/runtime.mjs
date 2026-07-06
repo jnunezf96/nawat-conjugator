@@ -13,7 +13,7 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
       const raw = String(rawValue || "");
       const movingTargetParsed = targetObject.parseMovingTargetRegexInput(raw);
       if (movingTargetParsed.isValid) {
-        const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInput(movingTargetParsed.coreText || ""));
+        const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInputFromSourceFrame(movingTargetParsed.coreText || ""));
         const adjacentIntransitiveEmbed = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? targetObject.getMovingTargetAdjacentEmbedParts(inline.base || movingTargetParsed.coreText || "") : null;
         const movingTargetDashPrefix = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? "" : "-";
         return {
@@ -33,7 +33,7 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
           isRegexEnvelope: true
         };
       }
-      const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInput(raw));
+      const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInputFromSourceFrame(raw));
       return {
         raw,
         hasQuery: false,

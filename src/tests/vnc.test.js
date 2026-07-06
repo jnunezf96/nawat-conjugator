@@ -56,6 +56,563 @@ function run(ctx) {
             canonicalExecutorCallsOldName: false,
         }
     );
+    s.eq(
+        "adjectival NNC function override reads structured element contract before DOM dataset strings",
+        (() => {
+            if (
+                typeof ctx.resolveAdjectivalNncFunctionOverrideFromInput !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+            ) {
+                return { runtime: "vnc-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "adjectival-entry-formula",
+                unit: "NNC",
+                formula: "#0-0(kal)0-0#",
+                formulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "kal", surface: "kal" },
+                    num1Num2: { slot: "num1-num2", connector: "", nounClass: "zero" },
+                },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "adjectival-entry-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "kal", surface: "canonical-entry" },
+                ],
+                surfaceForms: ["canonical-entry"],
+            });
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: {
+                    ...ctx.buildGrammarResultFrame({
+                        ok: true,
+                        formulaRecord,
+                        formulaRealizationRecord: realizationRecord,
+                    }),
+                    surface: "frame-entry-lie",
+                    surfaceForms: ["frame-entry-lie / frame-entry-alt-lie"],
+                    formulaRecord,
+                    formulaRecords: [formulaRecord],
+                    formulaRealizationRecord: realizationRecord,
+                    formulaRealizationRecords: [realizationRecord],
+                },
+                routeContract: {
+                    routeFamily: "adjectival-nnc",
+                    routeStage: "entry-handoff",
+                    generationAllowed: true,
+                },
+                morphBoundaryFrame: {
+                    formulaSlots: formulaRecord.formulaSlots,
+                    formulaEcho: "#BAD-FORMULA#",
+                },
+            });
+            const structuredControl = {
+                value: "input-value-lie",
+                dataset: {
+                    adjectivalNncFunctionSurface: "dataset-entry-lie",
+                    adjectivalNncFormulaEcho: "#BAD-DATASET#",
+                    adjectivalNncFormation: "ordinary-absolutive",
+                    adjectivalNncFunctionContract: JSON.stringify({
+                        surface: "dataset-contract-lie",
+                        grammarFrame: {
+                            resultFrame: {
+                                surface: "dataset-contract-frame-lie",
+                                surfaceForms: ["dataset-contract-frame-lie"],
+                            },
+                        },
+                    }),
+                },
+                __adjectivalNncFunctionEntryContract: {
+                    source: "adjectival-nnc-function-entry",
+                    surface: "contract-entry-lie",
+                    formation: "ordinary-absolutive",
+                    requiresCanonicalFormulaRecords: true,
+                    grammarFrame,
+                    frames: grammarFrame,
+                    sourceFormulaSlots: formulaRecord.formulaSlots,
+                    formulaEcho: "#BAD-CONTRACT-FORMULA#",
+                    sourceFormulaEcho: "#BAD-CONTRACT-SOURCE#",
+                    sourceSelectedVariant: {
+                        kind: "grammar-formula-realization-selected-variant",
+                        variantId: "source-record#variant:1",
+                        formulaRealizationRecordId: "source-record",
+                        formulaRecordId: "source-formula",
+                        surface: "source-canonical-entry",
+                    },
+                    targetSelectedVariant: {
+                        kind: "grammar-formula-realization-selected-variant",
+                        variantId: "adjectival-entry-realization#variant:0",
+                        formulaRealizationRecordId: "adjectival-entry-realization",
+                        formulaRecordId: "adjectival-entry-formula",
+                        surface: "selected-variant-surface-lie",
+                    },
+                    sourceContinuationFrame: {
+                        kind: "generated-output-typed-continuation-frame",
+                        role: "source",
+                        unit: "NNC",
+                        formulaRecord,
+                        formulaRealizationRecord: realizationRecord,
+                    },
+                    targetContinuationFrame: {
+                        kind: "generated-output-typed-continuation-frame",
+                        role: "target",
+                        unit: "NNC",
+                        formulaRecord,
+                        formulaRealizationRecord: realizationRecord,
+                    },
+                },
+            };
+            const staleDatasetOnlyControl = {
+                value: "dataset-entry-lie",
+                dataset: {
+                    adjectivalNncFunctionSurface: "dataset-entry-lie",
+                    adjectivalNncFormation: "ordinary-absolutive",
+                    adjectivalNncFormulaEcho: "#BAD-DATASET#",
+                    adjectivalNncFunctionContract: JSON.stringify({
+                        surface: "dataset-entry-lie",
+                    }),
+                },
+            };
+            const structuredOverride = ctx.resolveAdjectivalNncFunctionOverrideFromInput(structuredControl);
+            const staleOverride = ctx.resolveAdjectivalNncFunctionOverrideFromInput(staleDatasetOnlyControl);
+            return {
+                structuredTronco: structuredOverride?.posicionesFormula?.tronco || "",
+                structuredStem: structuredOverride?.adjectivalNnc?.stem || "",
+                formulaEcho: structuredOverride?.adjectivalNnc?.formulaEcho || "",
+                sourceFormulaEcho: structuredOverride?.adjectivalNnc?.sourceFormulaEcho || "",
+                sourceSelectedVariantId: structuredOverride?.adjectivalNnc?.sourceSelectedVariantId || "",
+                targetSelectedVariantId: structuredOverride?.adjectivalNnc?.targetSelectedVariantId || "",
+                formulaRealizationRecordId: structuredOverride?.adjectivalNnc?.formulaRealizationRecordId || "",
+                formulaRecordId: structuredOverride?.adjectivalNnc?.formulaRecordId || "",
+                hasEntryContract: structuredOverride?.adjectivalNnc?.entryRouteContract?.source === "adjectival-nnc-function-entry",
+                staleDatasetOnlyBlocked: staleOverride === null,
+            };
+        })(),
+        typeof ctx.resolveAdjectivalNncFunctionOverrideFromInput === "function"
+            ? {
+                structuredTronco: "canonical-entry",
+                structuredStem: "",
+                formulaEcho: "",
+                sourceFormulaEcho: "",
+                sourceSelectedVariantId: "source-record#variant:1",
+                targetSelectedVariantId: "adjectival-entry-realization#variant:0",
+                formulaRealizationRecordId: "adjectival-entry-realization",
+                formulaRecordId: "adjectival-entry-formula",
+                hasEntryContract: true,
+                staleDatasetOnlyBlocked: true,
+            }
+            : { runtime: "vnc-runtime-not-loaded" }
+    );
+    s.eq(
+        "adjectival ordinary-absolutive override blocks string-only structured route payloads",
+        (() => {
+            if (typeof ctx.executeGenerateWordRequest !== "function") {
+                return { runtime: "generation-runtime-not-loaded" };
+            }
+            const routed = ctx.executeGenerateWordRequest({
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "string-route-lie",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "adjectival-nnc",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        adjectivalNnc: {
+                            enabled: true,
+                            formation: "ordinary-absolutive",
+                            requiresStructuredContinuation: true,
+                            stem: "string-stem-lie",
+                            surface: "string-surface-lie",
+                            state: "absolutive",
+                        },
+                    },
+                },
+            });
+            return {
+                supported: routed.supported === true,
+                result: routed.result || "",
+                diagnostics: (routed.diagnostics || []).map((entry) => entry.id || entry).filter(Boolean),
+                usedStringLie: [routed.result, routed.stem, ...(routed.surfaceForms || [])]
+                    .some((entry) => String(entry || "").includes("lie")),
+            };
+        })(),
+        {
+            supported: false,
+            result: "",
+            diagnostics: ["adjectival-nnc-structured-continuation-source-frame-required"],
+            usedStringLie: false,
+        }
+    );
+    s.eq(
+        "adjectival ordinary-absolutive structured route runs without stem surface or tronco authority",
+        (() => {
+            if (
+                typeof ctx.executeGenerateWordRequest !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildStructuredOrdinaryAdjectivalNncFunctionOutput !== "function"
+            ) {
+                return { runtime: "generation-runtime-not-loaded" };
+            }
+            const formulaSlots = {
+                pers1Pers2: {
+                    role: "subject-person",
+                    slot: "pers1-pers2",
+                    prefix: "",
+                    suffix: "",
+                    displayPrefix: "Ø",
+                    displaySuffix: "Ø",
+                    label: "3sg",
+                },
+                predicateStem: {
+                    role: "predicate",
+                    slot: "STEM",
+                    stem: "shuchi",
+                    surface: "shuchi",
+                    state: "absolutive",
+                },
+                num1Num2: {
+                    role: "subject-number-connector",
+                    slot: "num1-num2",
+                    connector: "t",
+                    surface: "t",
+                    nounClass: "t",
+                    referenceNumber: "singular",
+                    pluralType: "auto",
+                },
+            };
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "structured-ordinary-adjectival-source-formula",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots,
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "structured-ordinary-adjectival-source-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "pers1-pers2", formulaValue: "Ø-Ø", surface: "" },
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["shuchit"],
+            });
+            const sourceContinuationFrame = {
+                kind: "generated-output-typed-continuation-frame",
+                role: "source",
+                unit: "NNC",
+                formulaRecord,
+                formulaRealizationRecord,
+                formulaSlots,
+            };
+            const operationContract = ctx.buildStructuredOrdinaryAdjectivalNncFunctionOutput({
+                sourceContinuationFrame,
+                sourceFormulaSlots: formulaSlots,
+                state: "absolutive",
+                role: "modifier-candidate",
+            });
+            const targetFormulaRecord = operationContract?.grammarFrame?.resultFrame?.formulaRecord || null;
+            const targetFormulaRealizationRecord = operationContract?.grammarFrame?.resultFrame?.formulaRealizationRecord || null;
+            const targetContinuationFrame = targetFormulaRecord && targetFormulaRealizationRecord ? {
+                kind: "generated-output-typed-continuation-frame",
+                role: "target",
+                unit: "NNC",
+                formulaRecord: targetFormulaRecord,
+                formulaRealizationRecord: targetFormulaRealizationRecord,
+                formulaSlots,
+            } : null;
+            const originalGenerateOrdinaryNncParadigm = ctx.generateOrdinaryNncParadigm;
+            let legacyGeneratorCalled = false;
+            if (typeof originalGenerateOrdinaryNncParadigm === "function") {
+                ctx.generateOrdinaryNncParadigm = () => {
+                    legacyGeneratorCalled = true;
+                    throw new Error("legacy ordinary NNC generator poisoned");
+                };
+            }
+            try {
+                const routed = ctx.executeGenerateWordRequest({
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "tronco-lie",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "adjectival-nnc",
+                    },
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.adjetivo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                            adjectivalNnc: {
+                                enabled: true,
+                                formation: "ordinary-absolutive",
+                                requiresStructuredContinuation: true,
+                                stem: "stem-lie",
+                                surface: "surface-lie",
+                                sourceFormulaSlots: formulaSlots,
+                                sourceContinuationFrame,
+                                targetContinuationFrame,
+                                state: "absolutive",
+                            },
+                        },
+                    },
+                });
+                const operationFrame = routed.grammarFrame?.resultFrame?.formulaRecord?.operationFrames?.[0] || null;
+                return {
+                    supported: routed.supported === true,
+                    result: routed.result || "",
+                    formula: routed.grammarFrame?.resultFrame?.formulaRecord?.formula || "",
+                    operationId: operationFrame?.operationId || "",
+                    consumesRenderedInput: operationFrame?.consumesRenderedInput,
+                    routeStage: routed.grammarFrame?.routeContract?.routeStage || "",
+                    legacyGeneratorCalled,
+                    usedStringLie: [routed.result, routed.stem, ...(routed.surfaceForms || [])]
+                        .some((entry) => String(entry || "").includes("lie")),
+                };
+            } finally {
+                if (typeof originalGenerateOrdinaryNncParadigm === "function") {
+                    ctx.generateOrdinaryNncParadigm = originalGenerateOrdinaryNncParadigm;
+                }
+            }
+        })(),
+        {
+            supported: true,
+            result: "shuchit",
+            formula: "#Ø-Ø(shuchi)t#",
+            operationId: "andrews-40-ordinary-nnc-adjectival-function",
+            consumesRenderedInput: false,
+            routeStage: "execute",
+            legacyGeneratorCalled: false,
+            usedStringLie: false,
+        }
+    );
+    s.eq(
+        "adjectival ordinary-absolutive structured route blocks target frame missing operation frame",
+        (() => {
+            if (
+                typeof ctx.executeGenerateWordRequest !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+            ) {
+                return { runtime: "generation-runtime-not-loaded" };
+            }
+            const sourceSlots = {
+                predicateStem: { role: "predicate", slot: "STEM", stem: "shuchi", surface: "shuchi" },
+                num1Num2: { role: "subject-number-connector", slot: "num1-num2", connector: "t", surface: "t", nounClass: "t" },
+            };
+            const sourceFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "structured-ordinary-adjectival-missing-operation-source",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots: sourceSlots,
+            });
+            const sourceRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "structured-ordinary-adjectival-missing-operation-source-realization",
+                formulaRecord: sourceFormulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["shuchit"],
+            });
+            const targetFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "structured-ordinary-adjectival-missing-operation-target",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots: sourceSlots,
+            });
+            const targetRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "structured-ordinary-adjectival-missing-operation-target-realization",
+                formulaRecord: targetFormulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["shuchit"],
+            });
+            const routed = ctx.executeGenerateWordRequest({
+                posicionesFormula: {
+                    tronco: "shuchi",
+                    tiempo: "adjectival-nnc",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        adjectivalNnc: {
+                            enabled: true,
+                            formation: "ordinary-absolutive",
+                            requiresStructuredContinuation: true,
+                            stem: "shuchi",
+                            surface: "shuchit",
+                            sourceFormulaSlots: sourceSlots,
+                            sourceContinuationFrame: {
+                                kind: "generated-output-typed-continuation-frame",
+                                formulaRecord: sourceFormulaRecord,
+                                formulaRealizationRecord: sourceRealizationRecord,
+                                formulaSlots: sourceSlots,
+                            },
+                            targetContinuationFrame: {
+                                kind: "generated-output-typed-continuation-frame",
+                                formulaRecord: targetFormulaRecord,
+                                formulaRealizationRecord: targetRealizationRecord,
+                                formulaSlots: sourceSlots,
+                            },
+                            state: "absolutive",
+                        },
+                    },
+                },
+            });
+            return {
+                supported: routed.supported === true,
+                result: routed.result || "",
+                diagnostics: (routed.diagnostics || []).map((entry) => entry.id || entry).filter(Boolean),
+                usedSurfaceLie: [routed.result, routed.stem, ...(routed.surfaceForms || [])]
+                    .some((entry) => String(entry || "").includes("shuchit")),
+            };
+        })(),
+        {
+            supported: false,
+            result: "",
+            diagnostics: ["adjectival-nnc-structured-operation-frame-required"],
+            usedSurfaceLie: false,
+        }
+    );
+    s.eq(
+        "adjectival ordinary-absolutive structured route blocks contradictory target frame",
+        (() => {
+            if (
+                typeof ctx.executeGenerateWordRequest !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+            ) {
+                return { runtime: "generation-runtime-not-loaded" };
+            }
+            const sourceSlots = {
+                predicateStem: { role: "predicate", slot: "STEM", stem: "shuchi", surface: "shuchi" },
+                num1Num2: { role: "subject-number-connector", slot: "num1-num2", connector: "t", surface: "t", nounClass: "t" },
+            };
+            const sourceFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "structured-ordinary-adjectival-contradiction-source",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots: sourceSlots,
+            });
+            const sourceRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "structured-ordinary-adjectival-contradiction-source-realization",
+                formulaRecord: sourceFormulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["shuchit"],
+            });
+            const operationFrame = {
+                kind: "andrews-typed-operation-frame",
+                operationId: "andrews-40-ordinary-nnc-adjectival-function",
+                family: "adjectival-nnc",
+                routeFamily: "adjectival-nnc",
+                routeStage: "execute-typed-operation-frame",
+                andrewsSection: "Andrews 40.1",
+                sourceFrameKind: "generated-output-typed-continuation-frame",
+                sourceFormulaRecordId: "structured-ordinary-adjectival-contradiction-source",
+                sourceUnit: "NNC",
+                targetUnit: "NNC",
+                operationApplied: "use-ordinary-nnc-as-adjectival-function",
+                sourceFormulaSlots: sourceSlots,
+                requestedPredicateState: "absolutive",
+                requiredPredicateState: "absolutive",
+                role: "modifier-candidate",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
+                outputPolicy: "formula-slots-plus-source-frame-authorize-adjectival-function",
+            };
+            const targetFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "structured-ordinary-adjectival-contradiction-target",
+                unit: "NNC",
+                formula: "#Ø-Ø(kal)t#",
+                formulaSlots: sourceSlots,
+                operationFrames: [operationFrame],
+            });
+            const targetRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "structured-ordinary-adjectival-contradiction-target-realization",
+                formulaRecord: targetFormulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "kal", surface: "kal" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["kalt"],
+            });
+            const routed = ctx.executeGenerateWordRequest({
+                posicionesFormula: {
+                    tronco: "plausible-display-lie",
+                    tiempo: "adjectival-nnc",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                        adjectivalNnc: {
+                            enabled: true,
+                            formation: "ordinary-absolutive",
+                            requiresStructuredContinuation: true,
+                            stem: "shuchi",
+                            surface: "shuchit",
+                            sourceFormulaSlots: sourceSlots,
+                            sourceContinuationFrame: {
+                                kind: "generated-output-typed-continuation-frame",
+                                formulaRecord: sourceFormulaRecord,
+                                formulaRealizationRecord: sourceRealizationRecord,
+                                formulaSlots: sourceSlots,
+                            },
+                            targetContinuationFrame: {
+                                kind: "generated-output-typed-continuation-frame",
+                                formulaRecord: targetFormulaRecord,
+                                formulaRealizationRecord: targetRealizationRecord,
+                                formulaSlots: sourceSlots,
+                            },
+                            state: "absolutive",
+                        },
+                    },
+                },
+            });
+            return {
+                supported: routed.supported === true,
+                result: routed.result || "",
+                diagnostics: (routed.diagnostics || []).map((entry) => entry.id || entry).filter(Boolean),
+                usedSurfaceLie: [routed.result, routed.stem, ...(routed.surfaceForms || [])]
+                    .some((entry) => String(entry || "").includes("shuchit")),
+            };
+        })(),
+        {
+            supported: false,
+            result: "",
+            diagnostics: ["adjectival-nnc-contradictory-target-frame"],
+            usedSurfaceLie: false,
+        }
+    );
     const lesson5Pursuit = ctx.buildVncLesson5PursuitFrame();
     s.eq(
         "Lesson 5 pursuit frame audits all intransitive CNV subsections",
@@ -326,6 +883,780 @@ function run(ctx) {
             reflexiveBehavior: "same-person specific objects are redirected to dyadic mainline mu by reflexive slot logic",
         }
     );
+    s.eq(
+        "VNC valence workbench preserves Andrews slots and separates Nawat realization",
+        (() => {
+            const intransitive = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "nemi" });
+            const monadic = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "ta-ijpiya" });
+            const monadicTe = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "te-chiwa" });
+            const monadicNe = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "ne-chiwa" });
+            const dyadic = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "ki-piya" });
+            const fusedDyadicForm = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "kipiya" });
+            const preteritDyadicForm = ctx.buildVncValenceFormulaWorkbenchSlice({ inputValue: "kipishki" });
+            const blocked = ctx.buildVncValenceFormulaWorkbenchSlice({
+                inputValue: "chiwa",
+                valenceKind: "blocked",
+                valence: "nech",
+            });
+            const ordinary = ctx.buildOrdinaryNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            const possessive = ctx.buildPossessiveStateNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            const monadicValence = monadic.parsedSlots.find((slot) => slot.key === "valence");
+            const monadicTense = monadic.parsedSlots.find((slot) => slot.key === "tensePosition");
+            const monadicNumber = monadic.parsedSlots.find((slot) => slot.key === "num1Num2");
+            const dyadicValence = dyadic.parsedSlots.find((slot) => slot.key === "valence");
+            const examples = Object.fromEntries(monadic.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                surface: example.surface,
+                valenceKind: example.formulaSlots.valence.valenceKind,
+                valenceStructural: example.formulaSlots.valence.structuralDisplay,
+                valenceNawat: example.formulaSlots.valence.nawatDisplay,
+                tenseOwner: example.formulaSlots.tensePosition.owner,
+                numberOwner: example.formulaSlots.num1Num2.owner,
+            }]));
+            return {
+                families: monadic.formulaFamilies.map((family) => [family.id, family.formula]),
+                intransitive: {
+                    formula: intransitive.formula,
+                    structuralFormulaEcho: intransitive.structuralFormulaEcho,
+                    nawatFormulaEcho: intransitive.nawatFormulaEcho,
+                    compactFormulaEcho: intransitive.compactFormulaEcho,
+                    status: intransitive.generation.status,
+                    surface: intransitive.generation.surface,
+                },
+                monadic: {
+                    formula: monadic.formula,
+                    structuralFormulaEcho: monadic.structuralFormulaEcho,
+                    nawatFormulaEcho: monadic.nawatFormulaEcho,
+                    compactFormulaEcho: monadic.compactFormulaEcho,
+                    status: monadic.generation.status,
+                    surface: monadic.generation.surface,
+                },
+                andrewsLogicMonadic: {
+                    teFormula: monadicTe.structuralFormulaEcho,
+                    teStatus: monadicTe.generation.status,
+                    teSurface: monadicTe.generation.surface,
+                    teLogicSurface: monadicTe.generation.andrewsLogicSurface,
+                    teGenerationGate: monadicTe.generation.generationGate,
+                    neFormula: monadicNe.structuralFormulaEcho,
+                    neStatus: monadicNe.generation.status,
+                    neSurface: monadicNe.generation.surface,
+                    neLogicSurface: monadicNe.generation.andrewsLogicSurface,
+                },
+                dyadic: {
+                    formula: dyadic.formula,
+                    structuralFormulaEcho: dyadic.structuralFormulaEcho,
+                    nawatFormulaEcho: dyadic.nawatFormulaEcho,
+                    compactFormulaEcho: dyadic.compactFormulaEcho,
+                    status: dyadic.generation.status,
+                    surface: dyadic.generation.surface,
+                    fusedFormNawatFormulaEcho: fusedDyadicForm.nawatFormulaEcho,
+                    preteritFormStructuralFormulaEcho: preteritDyadicForm.structuralFormulaEcho,
+                },
+                blocked: {
+                    status: blocked.generation.status,
+                    allowed: blocked.generation.allowed,
+                    structuralFormulaEcho: blocked.structuralFormulaEcho,
+                    diagnosticIds: blocked.diagnostics.map((diagnostic) => diagnostic.id),
+                },
+                monadicValence: {
+                    token: monadicValence.token,
+                    role: monadicValence.role,
+                    owner: monadicValence.owner,
+                    path: monadicValence.path,
+                    structuralValue: monadicValence.structuralValue,
+                    nawatValue: monadicValence.nawatValue,
+                    compactValue: monadicValence.compactValue,
+                    blocked: monadicValence.blockedInterpretations,
+                },
+                dyadicValence: {
+                    token: dyadicValence.token,
+                    role: dyadicValence.role,
+                    owner: dyadicValence.owner,
+                    structuralValue: dyadicValence.structuralValue,
+                    nawatValue: dyadicValence.nawatValue,
+                    compactValue: dyadicValence.compactValue,
+                },
+                tenseSlot: {
+                    role: monadicTense.role,
+                    owner: monadicTense.owner,
+                    path: monadicTense.path,
+                    structuralValue: monadicTense.structuralValue,
+                    nawatValue: monadicTense.nawatValue,
+                    compactValue: monadicTense.compactValue,
+                    vncOnly: monadicTense.modelFields.some((field) => field.label === "VNC-only" && field.value === "true"),
+                },
+                numberSlot: {
+                    role: monadicNumber.role,
+                    owner: monadicNumber.owner,
+                    path: monadicNumber.path,
+                    structuralValue: monadicNumber.structuralValue,
+                    nawatValue: monadicNumber.nawatValue,
+                    compactValue: monadicNumber.compactValue,
+                    blocked: monadicNumber.blockedInterpretations,
+                },
+                nncTenseFree: {
+                    ordinaryHasTensePosition: ordinary.hasTensePosition,
+                    ordinaryHasTenseSlot: ordinary.parsedSlots.some((slot) => slot.key === "tensePosition"),
+                    possessiveHasTensePosition: possessive.hasTensePosition,
+                    possessiveHasTenseSlot: possessive.parsedSlots.some((slot) => slot.key === "tensePosition"),
+                },
+                realizationBoundary: monadic.realizationBoundary,
+                examples,
+            };
+        })(),
+        {
+            families: [
+                ["intransitive-vnc", "#pers1-pers2(STEM)tns+num1-num2#"],
+                ["monadic-transitive-vnc", "#pers1-pers2+va(STEM)tns+num1-num2#"],
+                ["dyadic-transitive-vnc", "#pers1-pers2+va1-va2(STEM)tns+num1-num2#"],
+            ],
+            intransitive: {
+                formula: "#pers1-pers2(STEM)tns+num1-num2#",
+                structuralFormulaEcho: "#Ø-Ø(nemi)0+qui-0#",
+                nawatFormulaEcho: "#Ø-Ø(nemi)Ø+ki-0 ~ k-0#",
+                compactFormulaEcho: "#Ø-Ø(nemi)Ø+ki/k#",
+                status: "generated-scoped",
+                surface: "nenki / nemik",
+            },
+            monadic: {
+                formula: "#pers1-pers2+va(STEM)tns+num1-num2#",
+                structuralFormulaEcho: "#Ø-Ø+tla(ijpiya)0+qui-0#",
+                nawatFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki-0 ~ k-0#",
+                compactFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki/k#",
+                status: "generated-scoped",
+                surface: "taijpishki / taijpiyak / taijpik",
+            },
+            andrewsLogicMonadic: {
+                teFormula: "#Ø-Ø+te(chiwa)0+0-0#",
+                teStatus: "andrews-logic-generated",
+                teSurface: "techiwa",
+                teLogicSurface: "techiwa",
+                    teGenerationGate: "andrews-licensed-route-plus-required-source-context",
+                neFormula: "#Ø-Ø+ne(chiwa)0+0-0#",
+                neStatus: "andrews-logic-generated",
+                neSurface: "nechiwa",
+                neLogicSurface: "nechiwa",
+            },
+            dyadic: {
+                formula: "#pers1-pers2+va1-va2(STEM)tns+num1-num2#",
+                structuralFormulaEcho: "#Ø-Ø+c-0/qu-0/qui-0(piya)0+qui-0#",
+                nawatFormulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0 ~ k-0#",
+                compactFormulaEcho: "#Ø-Ø+ki(piya)Ø+ki/k#",
+                status: "generated-scoped",
+                surface: "kipishki / kipiyak",
+                fusedFormNawatFormulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0 ~ k-0#",
+                preteritFormStructuralFormulaEcho: "#Ø-Ø+c-0/qu-0/qui-0(piya)0+qui-0#",
+            },
+            blocked: {
+                status: "unsupported",
+                allowed: false,
+                structuralFormulaEcho: "#Ø-Ø+n-ech(chiwa)0+0-0#",
+                diagnosticIds: [
+                    "formula-slot-va1-va2-not-stem",
+                    "formula-slot-va1-va2-not-tense",
+                    "formula-slot-tns-not-subject-number-connector",
+                    "formula-slot-num1-num2-not-tense",
+                    "formula-slot-st1-st2-not-tense",
+                    "vnc-valence-object-combination-blocked",
+                    "vnc-valence-classical-spelling-structural-only",
+                ],
+            },
+            monadicValence: {
+                token: "va",
+                role: "monadic-valence",
+                owner: "predicate",
+                path: "predicate.valence.va1-va2",
+                structuralValue: "tla",
+                nawatValue: "ta",
+                compactValue: "ta",
+                blocked: ["stem", "subject-connector", "subject-number-connector", "tense"],
+            },
+            dyadicValence: {
+                token: "va1-va2",
+                role: "dyadic-valence",
+                owner: "predicate",
+                structuralValue: "c-0/qu-0/qui-0",
+                nawatValue: "ki-0",
+                compactValue: "ki",
+            },
+            tenseSlot: {
+                role: "tense",
+                owner: "predicate",
+                path: "predicate.tense",
+                structuralValue: "0",
+                nawatValue: "Ø",
+                compactValue: "Ø",
+                vncOnly: true,
+            },
+            numberSlot: {
+                role: "subject-number-connector",
+                owner: "subject",
+                path: "subject.num1-num2",
+                structuralValue: "qui-0",
+                nawatValue: "ki-0 ~ k-0",
+                compactValue: "ki/k",
+                blocked: ["tense", "stem-suffix", "object-valence", "predicate-state"],
+            },
+            nncTenseFree: {
+                ordinaryHasTensePosition: false,
+                ordinaryHasTenseSlot: false,
+                possessiveHasTensePosition: false,
+                possessiveHasTenseSlot: false,
+            },
+            realizationBoundary: {
+                structuralFormulaEcho: "#Ø-Ø+tla(ijpiya)0+qui-0#",
+                nawatFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki-0 ~ k-0#",
+                compactFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki/k#",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: ["tla", "c-0/qu-0/qui-0", "qu-im"],
+                nawatAuthority: "Nawat/Pipil orthography bridge; examples illustrate spelling only and do not gate grammar logic",
+                logicAuthority: "Andrews PDF",
+                generationGate: "andrews-licensed-route-plus-required-source-context",
+            },
+            examples: {
+                "intransitive-nemi": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "#Ø-Ø(nemi)0+qui-0#",
+                    nawatFormulaEcho: "#Ø-Ø(nemi)Ø+ki-0 ~ k-0#",
+                    compactFormulaEcho: "#Ø-Ø(nemi)Ø+ki/k#",
+                    surface: "nenki / nemik",
+                    valenceKind: "intransitive",
+                    valenceStructural: "",
+                    valenceNawat: "",
+                    tenseOwner: "predicate",
+                    numberOwner: "subject",
+                },
+                "monadic-ta-ijpiya": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "#Ø-Ø+tla(ijpiya)0+qui-0#",
+                    nawatFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki-0 ~ k-0#",
+                    compactFormulaEcho: "#Ø-Ø+ta(ijpiya)Ø+ki/k#",
+                    surface: "taijpishki / taijpiyak / taijpik",
+                    valenceKind: "monadic",
+                    valenceStructural: "tla",
+                    valenceNawat: "ta",
+                    tenseOwner: "predicate",
+                    numberOwner: "subject",
+                },
+                "dyadic-ki-piya": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "#Ø-Ø+c-0/qu-0/qui-0(piya)0+qui-0#",
+                    nawatFormulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0 ~ k-0#",
+                    compactFormulaEcho: "#Ø-Ø+ki(piya)Ø+ki/k#",
+                    surface: "kipishki / kipiyak",
+                    valenceKind: "dyadic",
+                    valenceStructural: "c-0/qu-0/qui-0",
+                    valenceNawat: "ki-0",
+                    tenseOwner: "predicate",
+                    numberOwner: "subject",
+                },
+                "blocked-same-person-nech": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "#Ø-Ø+n-ech(chiwa)0+qui-0#",
+                    nawatFormulaEcho: "#Ø-Ø+n-ech(chiwa)Ø+ki-0 ~ k-0#",
+                    compactFormulaEcho: "#Ø-Ø+nech(chiwa)Ø+ki/k#",
+                    surface: "",
+                    valenceKind: "dyadic",
+                    valenceStructural: "n-ech",
+                    valenceNawat: "n-ech",
+                    tenseOwner: "predicate",
+                    numberOwner: "subject",
+                },
+            },
+        }
+    );
+    s.eq(
+        "VNC valence Andrews-logic surface realization requires typed source and operation frames",
+        (() => {
+            const formulaSlots = ctx.buildVncValenceFormulaSlots({
+                stem: "chiwa",
+                kind: "monadic",
+                valence: "te",
+                numberConnector: "zero",
+            });
+            const sourceFrame = ctx.buildVncValenceAndrewsLogicSurfaceSourceFrame({ formulaSlots });
+            const operationFrame = ctx.buildVncValenceAndrewsLogicSurfaceOperationFrame(sourceFrame);
+            const changedFormulaSlots = ctx.buildVncValenceFormulaSlots({
+                stem: "poison",
+                kind: "dyadic",
+                valence: "ki",
+                numberConnector: "preterit3sg",
+            });
+            const otherFormulaSlots = ctx.buildVncValenceFormulaSlots({
+                stem: "naka",
+                kind: "monadic",
+                valence: "ta",
+                numberConnector: "zero",
+            });
+            const otherSourceFrame = ctx.buildVncValenceAndrewsLogicSurfaceSourceFrame({
+                formulaSlots: otherFormulaSlots,
+            });
+            const oldNormalizer = ctx.normalizeVncValenceFormulaSurfacePart;
+            ctx.normalizeVncValenceFormulaSurfacePart = () => "poison";
+            const poisonedNormalizerOutput = ctx.getVncValenceAndrewsLogicSurfaceForSlots(changedFormulaSlots, {
+                sourceFrame,
+                operationFrame,
+            });
+            ctx.normalizeVncValenceFormulaSurfacePart = oldNormalizer;
+            return {
+                helperTypes: [
+                    typeof ctx.buildVncValenceAndrewsLogicSurfaceSourceFrame,
+                    typeof ctx.buildVncValenceAndrewsLogicSurfaceOperationFrame,
+                    typeof ctx.getVncValenceAndrewsLogicSurfaceFrameMismatch,
+                ],
+                sourceFrameKind: sourceFrame?.kind || "",
+                operationId: operationFrame?.operationId || "",
+                targetSegmentSurfaces: operationFrame?.targetSegmentFrames.map((frame) => [frame.slot, frame.surface]) || [],
+                authorized: ctx.getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots, {
+                    sourceFrame,
+                    operationFrame,
+                }),
+                stringOnly: ctx.getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots),
+                missingOperation: ctx.getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots, {
+                    sourceFrame,
+                }),
+                contradictorySource: ctx.getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots, {
+                    sourceFrame: otherSourceFrame,
+                    operationFrame,
+                }),
+                contradictoryTarget: ctx.getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots, {
+                    sourceFrame,
+                    operationFrame: {
+                        ...operationFrame,
+                        targetSurface: "poison",
+                    },
+                }),
+                changedFormulaSlotsOutput: ctx.getVncValenceAndrewsLogicSurfaceForSlots(changedFormulaSlots, {
+                    sourceFrame,
+                    operationFrame,
+                }),
+                poisonedNormalizerOutput,
+                workbenchOperationId: ctx.buildVncValenceFormulaWorkbenchSlice({
+                    inputValue: "te-chiwa",
+                }).generation.andrewsLogicSurfaceOperationFrame?.operationId || "",
+            };
+        })(),
+        {
+            helperTypes: ["function", "function", "function"],
+            sourceFrameKind: "vnc-valence-andrews-logic-surface-source-frame",
+            operationId: "andrews-vnc-valence-slot-surface-realization",
+            targetSegmentSurfaces: [
+                ["pers1-pers2", ""],
+                ["va1-va2", "te"],
+                ["STEM", "chiwa"],
+                ["tns", ""],
+                ["num1-num2", ""],
+            ],
+            authorized: "techiwa",
+            stringOnly: "",
+            missingOperation: "",
+            contradictorySource: "",
+            contradictoryTarget: "",
+            changedFormulaSlotsOutput: "techiwa",
+            poisonedNormalizerOutput: "techiwa",
+            workbenchOperationId: "andrews-vnc-valence-slot-surface-realization",
+        }
+    );
+    s.eq(
+        "VNC valence workbench selection consumes typed source frames instead of direct input strings",
+        (() => {
+            const sourceFrame = ctx.buildVncValenceWorkbenchSourceFrame({
+                inputValue: "ki-piya",
+            });
+            const oldNormalize = ctx.normalizeVncValenceWorkbenchStem;
+            const oldInfer = ctx.inferVncValenceWorkbenchSelection;
+            ctx.normalizeVncValenceWorkbenchStem = () => "poison";
+            ctx.inferVncValenceWorkbenchSelection = () => ({ kind: "monadic", valence: "te" });
+            const poisonedWorkbench = ctx.buildVncValenceFormulaWorkbenchSlice({
+                inputValue: "ki-piya",
+            });
+            ctx.normalizeVncValenceWorkbenchStem = oldNormalize;
+            ctx.inferVncValenceWorkbenchSelection = oldInfer;
+            return {
+                helperTypes: [
+                    typeof ctx.buildVncValenceWorkbenchSourceFrame,
+                    typeof ctx.isVncValenceWorkbenchSourceFrame,
+                ],
+                sourceFrame: {
+                    kind: sourceFrame.kind,
+                    predicateStem: sourceFrame.predicateStem,
+                    selectionKind: sourceFrame.selectionKind,
+                    valenceKey: sourceFrame.valenceKey,
+                    consumesRenderedInput: sourceFrame.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: sourceFrame.displayStringsAuthorizeGrammar,
+                },
+                directNormalize: ctx.normalizeVncValenceWorkbenchStem("ki-piya"),
+                directInfer: ctx.inferVncValenceWorkbenchSelection("ki-piya"),
+                framedNormalize: ctx.normalizeVncValenceWorkbenchStem("poison", { sourceFrame }),
+                framedInfer: (() => {
+                    const selection = ctx.inferVncValenceWorkbenchSelection("poison", {
+                        valenceKind: "monadic",
+                        valence: "te",
+                        sourceFrame,
+                    });
+                    return {
+                        kind: selection.kind,
+                        valence: selection.valence,
+                        sourceFrameKind: selection.sourceFrame?.kind || "",
+                    };
+                })(),
+                poisonedWorkbench: {
+                    stem: poisonedWorkbench.sourceFrame?.predicateStem || "",
+                    valenceKind: poisonedWorkbench.sourceFrame?.selectionKind || "",
+                    valence: poisonedWorkbench.sourceFrame?.valenceKey || "",
+                    formula: poisonedWorkbench.structuralFormulaEcho,
+                    surface: poisonedWorkbench.generation.surface,
+                },
+            };
+        })(),
+        {
+            helperTypes: ["function", "function"],
+            sourceFrame: {
+                kind: "vnc-valence-workbench-source-frame",
+                predicateStem: "piya",
+                selectionKind: "dyadic",
+                valenceKey: "ki",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
+            },
+            directNormalize: "",
+            directInfer: {
+                kind: "blocked",
+                valence: "",
+                diagnosticId: "vnc-valence-workbench-source-frame-required",
+            },
+            framedNormalize: "piya",
+            framedInfer: {
+                kind: "dyadic",
+                valence: "ki",
+                sourceFrameKind: "vnc-valence-workbench-source-frame",
+            },
+            poisonedWorkbench: {
+                stem: "piya",
+                valenceKind: "dyadic",
+                valence: "ki",
+                formula: "#Ø-Ø+c-0/qu-0/qui-0(piya)0+qui-0#",
+                surface: "kipishki / kipiyak",
+            },
+        }
+    );
+    s.eq(
+        "VNC shell workbench is the default interactive formula slice and keeps tns VNC-only",
+        (() => {
+            const slice = ctx.buildVncShellFormulaWorkbenchSlice({ inputValue: "" });
+            const model = ctx.getAndrewsFormulaWorkbenchModel({ activeId: "vnc-shell", inputValue: "" });
+            const tenseSlot = slice.parsedSlots.find((slot) => slot.key === "tensePosition");
+            const numberSlot = slice.parsedSlots.find((slot) => slot.key === "num1Num2");
+            const valenceSlot = slice.parsedSlots.find((slot) => slot.key === "valence");
+            const ordinary = ctx.buildOrdinaryNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            const possessive = ctx.buildPossessiveStateNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                kind: slice.kind,
+                formula: slice.formula,
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                sourceMaterial: slice.sourceMaterial,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                    routeFamily: slice.generation.routeFamily,
+                },
+                valenceSlot: {
+                    status: valenceSlot.status,
+                    structuralValue: valenceSlot.structuralValue,
+                },
+                tenseSlot: {
+                    role: tenseSlot.role,
+                    owner: tenseSlot.owner,
+                    path: tenseSlot.path,
+                    structuralValue: tenseSlot.structuralValue,
+                    nawatValue: tenseSlot.nawatValue,
+                    compactValue: tenseSlot.compactValue,
+                },
+                numberSlot: {
+                    role: numberSlot.role,
+                    owner: numberSlot.owner,
+                    path: numberSlot.path,
+                    structuralValue: numberSlot.structuralValue,
+                    nawatValue: numberSlot.nawatValue,
+                    compactValue: numberSlot.compactValue,
+                },
+                nncTenseFree: {
+                    ordinaryHasTensePosition: ordinary.hasTensePosition,
+                    ordinaryHasTenseSlot: ordinary.parsedSlots.some((slot) => slot.key === "tensePosition"),
+                    possessiveHasTensePosition: possessive.hasTensePosition,
+                    possessiveHasTenseSlot: possessive.parsedSlots.some((slot) => slot.key === "tensePosition"),
+                },
+                realizationBoundary: slice.realizationBoundary,
+                diagnosticIds: slice.diagnostics.map((diagnostic) => diagnostic.id),
+            };
+        })(),
+        {
+            modelActiveId: "vnc-shell",
+            modelSliceKind: "vnc-shell-formula-workbench-slice",
+            kind: "vnc-shell-formula-workbench-slice",
+            formula: "#pers1-pers2(STEM)tns+num1-num2#",
+            structuralFormulaEcho: "#Ø-Ø(nemi)0+qui-0#",
+            nawatFormulaEcho: "#Ø-Ø(nemi)Ø+ki-0 ~ k-0#",
+            compactFormulaEcho: "#Ø-Ø(nemi)Ø+ki/k#",
+            sourceMaterial: {
+                rawInput: "",
+                stem: "nemi",
+                inputKind: "vnc-shell",
+                placeholder: "nemi",
+                inputLabel: "Predicado verbal CNV",
+                sourceKind: "default-intransitive-example",
+            },
+            generation: {
+                status: "generated-scoped",
+                allowed: true,
+                surface: "nenki / nemik",
+                routeFamily: "vnc-shell",
+            },
+            valenceSlot: {
+                status: "omitted",
+                structuralValue: "",
+            },
+            tenseSlot: {
+                role: "tense",
+                owner: "predicate",
+                path: "predicate.tense",
+                structuralValue: "0",
+                nawatValue: "Ø",
+                compactValue: "Ø",
+            },
+            numberSlot: {
+                role: "subject-number-connector",
+                owner: "subject",
+                path: "subject.num1-num2",
+                structuralValue: "qui-0",
+                nawatValue: "ki-0 ~ k-0",
+                compactValue: "ki/k",
+            },
+            nncTenseFree: {
+                ordinaryHasTensePosition: false,
+                ordinaryHasTenseSlot: false,
+                possessiveHasTensePosition: false,
+                possessiveHasTenseSlot: false,
+            },
+            realizationBoundary: {
+                structuralFormulaEcho: "#Ø-Ø(nemi)0+qui-0#",
+                nawatFormulaEcho: "#Ø-Ø(nemi)Ø+ki-0 ~ k-0#",
+                compactFormulaEcho: "#Ø-Ø(nemi)Ø+ki/k#",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: ["tns", "qui-0", "Ø-Ø"],
+                nawatAuthority: "la ortografia Nawat/Pipil realiza la logica CNV autorizada por Andrews; tns no existe en formulas CNN",
+                logicAuthority: "Andrews PDF",
+                generationGate: "andrews-licensed-route-plus-required-source-context",
+            },
+            diagnosticIds: [
+                "formula-slot-va1-va2-not-stem",
+                "formula-slot-va1-va2-not-tense",
+                "formula-slot-tns-not-subject-number-connector",
+                "formula-slot-num1-num2-not-tense",
+                "formula-slot-st1-st2-not-tense",
+                "vnc-valence-classical-spelling-structural-only",
+                "vnc-shell-tense-slot-is-vnc-only",
+            ],
+        }
+    );
+    s.eq(
+        "Subject/number connector workbench preserves dyads across NNC and VNC shells",
+        (() => {
+            const slice = ctx.buildSubjectNumberConnectorFormulaWorkbenchSlice({ inputValue: "kal" });
+            const numberSlot = slice.parsedSlots.find((slot) => slot.key === "num1Num2");
+            const subjectSlot = slice.parsedSlots.find((slot) => slot.key === "pers1Pers2");
+            const examples = Object.fromEntries(slice.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                surface: example.surface,
+                connectorStructural: example.connectorStructural,
+                connectorNawat: example.connectorNawat,
+                connectorCompact: example.connectorCompact,
+                numberOwner: example.numberOwner,
+                stateOwner: example.stateOwner || "",
+                valenceOwner: example.valenceOwner || "",
+                valenceNawat: example.valenceNawat || "",
+                tenseOwner: example.tenseOwner || "",
+                hasTensePosition: example.hasTensePosition,
+            }]));
+            return {
+                kind: slice.kind,
+                formulaSchemaId: slice.formulaSchemaId,
+                formulaSlotSource: slice.formulaSlotSource,
+                formulaFamilies: slice.formulaFamilies.map((family) => [family.id, family.formula]),
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                },
+                subjectSlot: {
+                    role: subjectSlot.role,
+                    owner: subjectSlot.owner,
+                    structuralValue: subjectSlot.structuralValue,
+                    blocked: subjectSlot.blockedInterpretations,
+                },
+                numberSlot: {
+                    role: numberSlot.role,
+                    owner: numberSlot.owner,
+                    path: numberSlot.path,
+                    structuralValue: numberSlot.structuralValue,
+                    nawatValue: numberSlot.nawatValue,
+                    compactValue: numberSlot.compactValue,
+                    blocked: numberSlot.blockedInterpretations,
+                },
+                diagnostics: slice.diagnostics.map((diagnostic) => diagnostic.id),
+                realizationBoundary: slice.realizationBoundary,
+                examples,
+            };
+        })(),
+        {
+            kind: "subject-number-connector-formula-workbench-slice",
+            formulaSchemaId: "subject-number-connectors",
+            formulaSlotSource: "andrews-formula-slot-schema",
+            formulaFamilies: [
+                ["ordinary-nnc-subject-number", "#pers1-pers2(STEM)num1-num2#"],
+                ["possessive-nnc-subject-number", "#pers1-pers2+st1-st2(STEM)num1-num2#"],
+                ["vnc-subject-number", "#pers1-pers2+va1-va2(STEM)tns+num1-num2#"],
+            ],
+            structuralFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+            nawatFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+            compactFormulaEcho: "#Ø-Ø(kal)Ø#",
+            generation: {
+                status: "generated",
+                allowed: true,
+                surface: "kal",
+            },
+            subjectSlot: {
+                role: "subject-person",
+                owner: "subject",
+                structuralValue: "Ø-Ø",
+                blocked: ["predicate-state", "tense", "object-valence"],
+            },
+            numberSlot: {
+                role: "subject-number-connector",
+                owner: "subject",
+                path: "subject.num1-num2",
+                structuralValue: "Ø-Ø",
+                nawatValue: "Ø-Ø",
+                compactValue: "Ø",
+                blocked: ["tense", "stem-suffix", "nounstem", "object-valence", "predicate-state"],
+            },
+            diagnostics: [
+                "formula-slot-num1-num2-not-tense",
+                "formula-slot-num1-num2-not-stem-suffix",
+                "formula-slot-num1-num2-not-object-valence",
+                "formula-slot-num1-num2-not-predicate-state",
+                "formula-slot-tns-not-subject-number-connector",
+                "subject-number-connectors-preserve-dyads",
+            ],
+            realizationBoundary: {
+                structuralFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                nawatFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                compactFormulaEcho: "#Ø-Ø(kal)Ø#",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: ["m-eh", "qui-0", "Ø-Ø"],
+                nawatAuthority: "Nawat/Pipil connector realization: m-et for animate count plural and ki-0 ~ k-0 for scoped VNC preterit number",
+            },
+            examples: {
+                "ordinary-zero-common": {
+                    status: "generated",
+                    structuralFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                    nawatFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                    compactFormulaEcho: "#Ø-Ø(kal)Ø#",
+                    surface: "kal",
+                    connectorStructural: "Ø-Ø",
+                    connectorNawat: "Ø-Ø",
+                    connectorCompact: "Ø",
+                    numberOwner: "subject",
+                    stateOwner: "",
+                    valenceOwner: "",
+                    valenceNawat: "",
+                    tenseOwner: "",
+                    hasTensePosition: false,
+                },
+                "ordinary-animate-count": {
+                    status: "generated",
+                    structuralFormulaEcho: "#Ø-Ø(mistun)m-eh#",
+                    nawatFormulaEcho: "#Ø-Ø(mistun)m-et#",
+                    compactFormulaEcho: "#Ø-Ø(mistun)met#",
+                    surface: "mistunmet",
+                    connectorStructural: "m-eh",
+                    connectorNawat: "m-et",
+                    connectorCompact: "met",
+                    numberOwner: "subject",
+                    stateOwner: "",
+                    valenceOwner: "",
+                    valenceNawat: "",
+                    tenseOwner: "",
+                    hasTensePosition: false,
+                },
+                "possessive-specific-1sg-nu-kal": {
+                    status: "generated",
+                    structuralFormulaEcho: "#Ø-Ø+n-o(kal)Ø-Ø#",
+                    nawatFormulaEcho: "#Ø-Ø+n-u(kal)Ø-Ø#",
+                    compactFormulaEcho: "#Ø-Ø+nu(kal)Ø#",
+                    surface: "nukal",
+                    connectorStructural: "Ø-Ø",
+                    connectorNawat: "Ø-Ø",
+                    connectorCompact: "Ø",
+                    numberOwner: "subject",
+                    stateOwner: "predicate",
+                    valenceOwner: "",
+                    valenceNawat: "",
+                    tenseOwner: "",
+                    hasTensePosition: false,
+                },
+                "vnc-preterit-ki-piya": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "#Ø-Ø+c-0/qu-0/qui-0(piya)0+qui-0#",
+                    nawatFormulaEcho: "#Ø-Ø+ki-0(piya)Ø+ki-0 ~ k-0#",
+                    compactFormulaEcho: "#Ø-Ø+ki(piya)Ø+ki/k#",
+                    surface: "kipishki / kipiyak",
+                    connectorStructural: "qui-0",
+                    connectorNawat: "ki-0 ~ k-0",
+                    connectorCompact: "ki/k",
+                    numberOwner: "subject",
+                    stateOwner: "",
+                    valenceOwner: "predicate",
+                    valenceNawat: "ki-0",
+                    tenseOwner: "predicate",
+                    hasTensePosition: true,
+                },
+                "blocked-num1-num2-as-tense": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "#pers1-pers2(STEM)num1-num2#",
+                    nawatFormulaEcho: "",
+                    compactFormulaEcho: "num1-num2 != tns",
+                    surface: "",
+                    connectorStructural: "num1-num2",
+                    connectorNawat: "",
+                    connectorCompact: "",
+                    numberOwner: "subject",
+                    stateOwner: "",
+                    valenceOwner: "",
+                    valenceNawat: "",
+                    tenseOwner: "",
+                    hasTensePosition: false,
+                },
+            },
+        }
+    );
     const lesson6ProbeText = [
         ...lesson6Pursuit.plannedArrows.map((arrow) => arrow.aim),
         ...lesson6Pursuit.firedArrows.map((arrow) => arrow.correction),
@@ -454,6 +1785,9 @@ function run(ctx) {
         "Lesson 7 CNV formula path uses one aspect resolver for imperfective and perfective slots",
         {
             unifiedResolver: typeof ctx.getCnvFormulaLesson7SurfaceSlots,
+            sourceFrameBuilder: typeof ctx.buildCnvFormulaLesson7SurfaceSlotsSourceFrame,
+            operationFrameBuilder: typeof ctx.buildCnvFormulaLesson7SurfaceSlotsOperationFrame,
+            frameMismatch: typeof ctx.getCnvFormulaLesson7SurfaceSlotsFrameMismatch,
             oldPreteritResolver: typeof ctx.getCnvFormulaPreteritFoldedSurfaceSlots,
             oldPerfectiveResolver: typeof ctx.getCnvFormulaClassPerfectiveSurfaceSlots,
             oldSuffixResolver: typeof ctx.getCnvFormulaSuffixSurfaceSlots,
@@ -463,12 +1797,93 @@ function run(ctx) {
         },
         {
             unifiedResolver: "function",
+            sourceFrameBuilder: "function",
+            operationFrameBuilder: "function",
+            frameMismatch: "function",
             oldPreteritResolver: "undefined",
             oldPerfectiveResolver: "undefined",
             oldSuffixResolver: "undefined",
             oldWholeResolver: "undefined",
             buildRecordCallsUnifiedResolver: true,
             buildRecordCallsOldResolvers: false,
+        }
+    );
+    s.eq(
+        "Lesson 7 CNV formula surface-slot resolver is gated by typed source and operation frames",
+        (() => {
+            const formulaSlots = {
+                pers1Pers2: { displayPrefix: "Ø", displayCase: "Ø" },
+                obj1: { displayPrefix: "ki-0" },
+                reflexivo: { displayPrefix: "Ø" },
+                predicateStem: { displayStem: "piya" },
+                tensePosition: { displayMorph: "Ø", tenseValue: "preterito" },
+                num1Num2: { displayConnector: "ki-0" },
+            };
+            const segments = [
+                { role: "obj1", slot: "obj1", value: "ki" },
+                { role: "tronco", slot: "tronco", value: "pishki" },
+            ];
+            const sourceFrame = ctx.buildCnvFormulaLesson7SurfaceSlotsSourceFrame({
+                formulaSlots,
+                surface: "kipishki",
+                segments,
+            });
+            const operationFrame = ctx.buildCnvFormulaLesson7SurfaceSlotsOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildCnvFormulaLesson7SurfaceSlotsSourceFrame({
+                formulaSlots,
+                surface: "kipiyak",
+                segments: [
+                    { role: "obj1", slot: "obj1", value: "ki" },
+                    { role: "tronco", slot: "tronco", value: "piyak" },
+                ],
+            });
+            const summarize = (slots) => slots ? {
+                base: slots.base || "",
+                num1: slots.num1 || "",
+                num2: slots.num2 || "",
+            } : null;
+            return {
+                sourceFrameKind: sourceFrame?.kind || "",
+                operationId: operationFrame?.operationId || "",
+                authorized: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(formulaSlots, "kipishki", segments, {
+                    sourceFrame,
+                    operationFrame,
+                })),
+                stringOnly: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(formulaSlots, "kipishki", segments)),
+                changedStrings: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(
+                    { predicateStem: { displayStem: "poison" } },
+                    "poison",
+                    [{ role: "tronco", slot: "tronco", value: "poison" }],
+                    { sourceFrame, operationFrame }
+                )),
+                missingOperation: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(formulaSlots, "kipishki", segments, {
+                    sourceFrame,
+                })),
+                contradictorySource: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(formulaSlots, "kipishki", segments, {
+                    sourceFrame: otherSourceFrame,
+                    operationFrame,
+                })),
+                contradictoryTarget: summarize(ctx.getCnvFormulaLesson7SurfaceSlots(formulaSlots, "kipishki", segments, {
+                    sourceFrame,
+                    operationFrame: {
+                        ...operationFrame,
+                        targetSurfaceSlots: {
+                            ...operationFrame.targetSurfaceSlots,
+                            base: "poison",
+                        },
+                    },
+                })),
+            };
+        })(),
+        {
+            sourceFrameKind: "cnv-formula-lesson-7-surface-slots-source-frame",
+            operationId: "cnv-formula-lesson-7-surface-slot-realization",
+            authorized: { base: "pish", num1: "ki", num2: "0" },
+            stringOnly: null,
+            changedStrings: { base: "pish", num1: "ki", num2: "0" },
+            missingOperation: null,
+            contradictorySource: null,
+            contradictoryTarget: null,
         }
     );
     const muBeforeIAllomorphy = ctx.applyObj1Allomorphy({
@@ -494,11 +1909,68 @@ function run(ctx) {
         optionalSupportiveLetter: "i",
         hasNonspecificValence: true,
     });
+    const typedNonspecificSourceFrame = ctx.buildNonspecificObjectAllomorphySourceFrame({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+    });
+    const typedNonspecificOperationFrame = ctx.buildNonspecificObjectAllomorphyOperationFrame(
+        typedNonspecificSourceFrame
+    );
+    const typedNonspecificAllomorphy = ctx.applyNonspecificObjectAllomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+        sourceFrame: typedNonspecificSourceFrame,
+        operationFrame: typedNonspecificOperationFrame,
+    });
+    const directNonspecificAllomorphy = ctx.applyNonspecificObjectAllomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+    });
+    const missingNonspecificOperation = ctx.applyNonspecificObjectAllomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+        sourceFrame: typedNonspecificSourceFrame,
+    });
+    const changedNonspecificRequest = ctx.applyNonspecificObjectAllomorphy({
+        verb: "poison",
+        analysisVerb: "poison",
+        obj1: "mu",
+        sourceFrame: typedNonspecificSourceFrame,
+        operationFrame: typedNonspecificOperationFrame,
+    });
+    const contradictoryNonspecificSource = ctx.applyNonspecificObjectAllomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+        sourceFrame: {
+            ...typedNonspecificSourceFrame,
+            sourceSignature: "poison",
+        },
+        operationFrame: typedNonspecificOperationFrame,
+    });
+    const contradictoryNonspecificTarget = ctx.applyNonspecificObjectAllomorphy({
+        verb: "altia",
+        analysisVerb: "altia",
+        obj1: "mu",
+        sourceFrame: typedNonspecificSourceFrame,
+        operationFrame: {
+            ...typedNonspecificOperationFrame,
+            targetFrame: {
+                ...typedNonspecificOperationFrame.targetFrame,
+                obj1: "poison",
+            },
+        },
+    });
     s.eq(
         "obj1 allomorphy exposes Lesson 2 frame for mu before vowel-contact boundary",
         {
             obj1: muBeforeIAllomorphy.obj1,
             morphologyObj1: muBeforeIAllomorphy.morphologyObj1,
+            operationId: muBeforeIAllomorphy.nonspecificAllomorphyOperationFrame?.operationId || "",
             frames: muBeforeIAllomorphy.soundSpellingFrames.map((frame) => ({
                 ruleId: frame.ruleId,
                 source: frame.sourceSurface,
@@ -511,6 +1983,7 @@ function run(ctx) {
         {
             obj1: "m",
             morphologyObj1: "m",
+            operationId: "andrews-nonspecific-object-allomorphy-realization",
             frames: [{
                 ruleId: "obj1-mu-before-vowel-m",
                 source: "mu",
@@ -519,6 +1992,45 @@ function run(ctx) {
                 sourceSegment: "mu",
                 targetSegment: "m",
             }],
+        }
+    );
+    s.eq(
+        "nonspecific object allomorphy consumes typed operation frames instead of direct strings",
+        {
+            helperTypes: [
+                typeof ctx.buildNonspecificObjectAllomorphySourceFrame,
+                typeof ctx.buildNonspecificObjectAllomorphyOperationFrame,
+                typeof ctx.getNonspecificObjectAllomorphyFrameMismatch,
+            ],
+            typed: {
+                obj1: typedNonspecificAllomorphy.obj1,
+                verb: typedNonspecificAllomorphy.verb,
+                operationId: typedNonspecificOperationFrame.operationId,
+            },
+            direct: {
+                blocked: directNonspecificAllomorphy.blocked,
+                obj1: directNonspecificAllomorphy.obj1,
+            },
+            missingOperation: missingNonspecificOperation.blocked,
+            changedRequest: changedNonspecificRequest.blocked,
+            contradictorySource: contradictoryNonspecificSource.blocked,
+            contradictoryTarget: contradictoryNonspecificTarget.blocked,
+        },
+        {
+            helperTypes: ["function", "function", "function"],
+            typed: {
+                obj1: "m",
+                verb: "altia",
+                operationId: "andrews-nonspecific-object-allomorphy-realization",
+            },
+            direct: {
+                blocked: true,
+                obj1: "",
+            },
+            missingOperation: true,
+            changedRequest: true,
+            contradictorySource: true,
+            contradictoryTarget: true,
         }
     );
     s.eq(
@@ -1734,6 +3246,139 @@ function run(ctx) {
             },
         ]
     );
+    const finiteCnvSurfaceFormulaAudit = (() => {
+        const tenses = [
+            "presente",
+            "presente-habitual",
+            "imperfecto",
+            "futuro",
+            "preterito",
+            "pasado-remoto",
+            "optativo",
+        ];
+        const sourceStems = [
+            { stem: "nemi", obj1: "" },
+            { stem: "maka", obj1: "ki" },
+            { stem: "mati", obj1: "ki" },
+            { stem: "piki", obj1: "ki" },
+            { stem: "tacha", obj1: "ki" },
+            { stem: "paya", obj1: "ki" },
+            { stem: "ajsi", obj1: "" },
+            { stem: "chuka", obj1: "" },
+            { stem: "teomati", obj1: "ta" },
+        ];
+        const subjects = [
+            { label: "1sg", pers1: "ni", pers2: "" },
+            { label: "3sg", pers1: "", pers2: "" },
+            { label: "1pl", pers1: "ti", pers2: "t" },
+            { label: "2pl", pers1: "an", pers2: "t" },
+        ];
+        const modes = [
+            { label: "active", override: {}, obj1: null },
+            { label: "nonactive", override: { derivationMode: ctx.DERIVATION_MODE.nonactive }, obj1: null },
+            { label: "reflexive", override: {}, obj1: "mu" },
+        ];
+        const normalizeSurfaceForms = (forms = []) => [...new Set((Array.isArray(forms) ? forms : [])
+            .flatMap((entry) => String(entry || "").split(/\s*\/\s*/))
+            .map((entry) => entry.trim())
+            .filter(Boolean))];
+        const rows = [];
+        tenses.forEach((tense) => {
+            sourceStems.forEach((sourceStem) => {
+                subjects.forEach((subject) => {
+                    modes.forEach((mode) => {
+                        const output = ctx.generateWord({
+                            silent: true,
+                            skipValidation: true,
+                            override: {
+                                tenseMode: ctx.TENSE_MODE.verbo,
+                                ...mode.override,
+                            },
+                            posicionesFormula: {
+                                pers1: subject.pers1,
+                                obj1: mode.obj1 === null ? sourceStem.obj1 : mode.obj1,
+                                tronco: sourceStem.stem,
+                                pers2: subject.pers2,
+                                num2: subject.pers2,
+                                tiempo: tense,
+                            },
+                        });
+                        const surfacePath = output.cnvFormulaSurfacePath || null;
+                        const surfaces = normalizeSurfaceForms(output.surfaceForms);
+                        if (!surfacePath || !surfaces.length) {
+                            return;
+                        }
+                        const formulaPairs = Array.isArray(surfacePath.formulaSurfacePairs)
+                            ? surfacePath.formulaSurfacePairs
+                            : [];
+                        rows.push({
+                            label: [sourceStem.stem, tense, subject.label, mode.label].join("|"),
+                            surfaces,
+                            pairSurfaces: formulaPairs.map((entry) => String(entry?.surface || "").trim()).filter(Boolean),
+                            targetFormulaEchoes: formulaPairs.map((entry) => String(entry?.targetFormulaEcho || "").trim()).filter(Boolean),
+                            sourceToTargetFormulaEchoes: formulaPairs.map((entry) => String(entry?.sourceToTargetFormulaEcho || "").trim()).filter(Boolean),
+                        });
+                    });
+                });
+            });
+        });
+        const mismatches = rows
+            .map((row) => {
+                const missing = row.surfaces.filter((surface) => !row.pairSurfaces.includes(surface));
+                const extra = row.pairSurfaces.filter((surface) => !row.surfaces.includes(surface));
+                const repeatedSurfaces = row.pairSurfaces.filter((surface, index) => row.pairSurfaces.indexOf(surface) !== index);
+                const repeatedFormulas = row.targetFormulaEchoes.length > 1
+                    ? row.targetFormulaEchoes.filter((formula, index) => row.targetFormulaEchoes.indexOf(formula) !== index)
+                    : [];
+                const incompletePairCount = row.pairSurfaces.length !== row.targetFormulaEchoes.length
+                    || row.pairSurfaces.length !== row.sourceToTargetFormulaEchoes.length;
+                return {
+                    label: row.label,
+                    missing,
+                    extra,
+                    repeatedSurfaces,
+                    repeatedFormulas,
+                    incompletePairCount,
+                    surfaceCount: row.surfaces.length,
+                    pairCount: row.pairSurfaces.length,
+                };
+            })
+            .filter((row) => row.missing.length
+                || row.extra.length
+                || row.repeatedSurfaces.length
+                || row.repeatedFormulas.length
+                || row.incompletePairCount
+                || row.surfaceCount !== row.pairCount);
+        return {
+            rowCount: rows.length,
+            surfaceCount: rows.reduce((sum, row) => sum + row.surfaces.length, 0),
+            multiSurfaceRows: rows.filter((row) => row.surfaces.length > 1).length,
+            samplePairs: rows
+                .filter((row) => row.label === "maka|preterito|3sg|active")
+                .flatMap((row) => row.pairSurfaces.map((surface, index) => `${surface}=>${row.targetFormulaEchoes[index]}`)),
+            mismatches,
+        };
+    })();
+    s.eq(
+        "finite Andrews CNV generated Nawat outputs have one formula pair per surface across tenses and derivation modes",
+        {
+            samplePairs: finiteCnvSurfaceFormulaAudit.samplePairs,
+            mismatches: finiteCnvSurfaceFormulaAudit.mismatches,
+        },
+        {
+            samplePairs: [
+                "kimak=>#Ø-Ø+ki-0(mak)Ø+0-0#",
+                "kimakak=>#Ø-Ø+ki-0(maka)Ø+k-0#",
+            ],
+            mismatches: [],
+        }
+    );
+    s.ok(
+        "finite Andrews CNV surface/formula audit covers a broad generated set",
+        finiteCnvSurfaceFormulaAudit.rowCount >= 700
+            && finiteCnvSurfaceFormulaAudit.surfaceCount >= 1200
+            && finiteCnvSurfaceFormulaAudit.multiSurfaceRows >= 250
+    );
     s.eq(
         "CNV formula path keeps neki preterit stem variant as stem, not connector-stripped ne",
         (() => {
@@ -1859,7 +3504,7 @@ function run(ctx) {
         ]
     );
     s.eq(
-        "CNV formula path and surface-producing path agree for ilpia perfective object contact",
+        "CNV formula path and surface-producing path agree for Andrews-licensed ilpia perfective object contact",
         (() => {
             const buildProbe = (tiempo) => ctx.executeGenerateWordRequest({
                 options: {
@@ -1927,7 +3572,6 @@ function run(ctx) {
             };
             return [
                 summarize("preterito"),
-                summarize("perfecto"),
                 summarize("pasado-remoto"),
             ];
         })(),
@@ -1938,13 +3582,6 @@ function run(ctx) {
                 formula: "#Ø-Ø+k-0(ilpij)Ø+Ø-Ø#",
                 cnvPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "Ø", num1: "Ø", num2: "Ø" },
                 surfaceProducingPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "Ø", num1: "Ø", num2: "Ø" },
-            },
-            {
-                tiempo: "perfecto",
-                result: "kilpijtuk",
-                formula: "#Ø-Ø+k-0(ilpij)tuk+Ø-Ø#",
-                cnvPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "tuk", num1: "Ø", num2: "Ø" },
-                surfaceProducingPath: { va1: "k-0", va2: "0", base: "ilpij", tns: "tuk", num1: "Ø", num2: "Ø" },
             },
             {
                 tiempo: "pasado-remoto",
@@ -2132,19 +3769,13 @@ function run(ctx) {
         ]
     );
     s.eq(
-        "CNV formula path keeps transitive ijkali external slots out of every perfective-family base",
+        "CNV formula path keeps transitive ijkali external slots out of every Andrews-licensed perfective-family base",
         (() => {
-            const tenses = ["preterito", "pasado-remoto", "perfecto", "pluscuamperfecto", "condicional-perfecto"];
+            const tenses = ["preterito", "pasado-remoto"];
             const subjects = [["ni", ""], ["ti", ""], ["", ""], ["ti", "t"], ["an", "t"], ["", "t"]];
             const expectedTenseMorph = {
                 preterito: "Ø",
                 "pasado-remoto": "ka",
-                perfecto: {
-                    singular: "tuk",
-                    plural: "tiwi",
-                },
-                pluscuamperfecto: "tuya",
-                "condicional-perfecto": "tuskia",
             };
             const issues = [];
             const formulas = [];
@@ -2211,8 +3842,8 @@ function run(ctx) {
             };
         })(),
         {
-            checked: 30,
-            uniqueFormulaCount: 30,
+            checked: 12,
+            uniqueFormulaCount: 12,
             issues: [],
             issueCount: 0,
         }
@@ -2229,12 +3860,8 @@ function run(ctx) {
                 "imperfecto",
                 "futuro",
                 "preterito",
-                "perfecto",
                 "pasado-remoto",
-                "condicional",
                 "optativo",
-                "pluscuamperfecto",
-                "condicional-perfecto",
             ];
             const bySlot = (paths = []) => Object.fromEntries(
                 paths.map((entry) => [entry.formulaSlotKey || entry.surfaceSlot, entry])
@@ -2335,7 +3962,7 @@ function run(ctx) {
             }))));
             return { generated, issues: issues.slice(0, 10), issueCount: issues.length };
         })(),
-        { generated: 5544, issues: [], issueCount: 0 }
+        { generated: 3528, issues: [], issueCount: 0 }
     );
     s.eq(
         "CNV formula path strips copied valence residue from piya preterit base",
@@ -2766,6 +4393,61 @@ function run(ctx) {
                 reflexivo: "",
                 tiempo: "presente",
             },
+        }
+    );
+    s.eq(
+        "nuclear clause surface helpers read canonical realization before split result strings",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "nuclear-clause-surface-helper-formula",
+                unit: "CNV",
+                formula: "#ni-0+ki-0(maka)0+0-0#",
+                formulaSlots: {
+                    pers1Pers2: { prefix: "ni", suffix: "" },
+                    obj1: { prefix: "ki", suffix: "" },
+                    predicateStem: { stem: "maka" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "nuclear-clause-surface-helper-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "pers1Pers2", formulaValue: "ni-0", surface: "ni" },
+                    { slot: "obj1", formulaValue: "ki-0", surface: "ki" },
+                    { slot: "predicateStem", formulaValue: "maka", surface: "maka" },
+                ],
+                surfaceForms: ["canonical-nikmaka"],
+            });
+            const result = {
+                result: "result-lie-a / result-lie-b",
+                surface: "surface-lie",
+                surfaceForms: ["top-lie-a / top-lie-b"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie-a / frame-lie-b"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            };
+            return {
+                forms: ctx.normalizeGrammarFrameSurfaceForms(result),
+                frameSurface: ctx.resolveNuclearClauseSurfaceResultFrameSurface(result),
+                contractSurface: ctx.resolveNuclearClauseSurfaceContractSurface(result),
+            };
+        })(),
+        {
+            forms: ["canonical-nikmaka"],
+            frameSurface: "canonical-nikmaka",
+            contractSurface: "canonical-nikmaka",
         }
     );
 
@@ -3733,7 +5415,7 @@ function run(ctx) {
         const buildFormulaProbe = (
             tiempo,
             derivationMode = ctx.DERIVATION_MODE.active,
-            { pers1 = "", pers2 = "t" } = {}
+            { pers1 = "", pers2 = "t", derivationType = ctx.DERIVATION_TYPE.direct } = {}
         ) => ctx.executeGenerateWordRequest({
             options: {
                 silent: true,
@@ -3741,6 +5423,7 @@ function run(ctx) {
                 override: {
                     tenseMode: ctx.TENSE_MODE.verbo,
                     derivationMode,
+                    derivationType,
                     voiceMode: derivationMode === ctx.DERIVATION_MODE.nonactive ? ctx.VOICE_MODE.passive : ctx.VOICE_MODE.active,
                     tiempo,
                     posicionesFormula: {
@@ -3882,37 +5565,122 @@ function run(ctx) {
                 ["presente sg", formulaSummary(buildFormulaProbe("presente", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "" }))],
                 ["presente pl", formulaSummary(buildFormulaProbe("presente", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["presente habitual pl", formulaSummary(buildFormulaProbe("presente-habitual", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
-                ["presente desiderativo pl", formulaSummary(buildFormulaProbe("presente-desiderativo", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["imperfecto pl", formulaSummary(buildFormulaProbe("imperfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["futuro pl", formulaSummary(buildFormulaProbe("futuro", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["preterito pl", formulaSummary(buildFormulaProbe("preterito", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["pasado remoto pl", formulaSummary(buildFormulaProbe("pasado-remoto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
-                ["condicional pl", formulaSummary(buildFormulaProbe("condicional", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
                 ["optativo no pasado 1pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "ti", pers2: "t" }))],
                 ["optativo no pasado 2pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "an", pers2: "t" }))],
                 ["optativo no pasado 3pl", formulaSummary(buildFormulaProbe("optativo", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
-                ["perfecto sg", formulaSummary(buildFormulaProbe("perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "" }))],
-                ["perfecto pl", formulaSummary(buildFormulaProbe("perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
-                ["pluscuamperfecto pl", formulaSummary(buildFormulaProbe("pluscuamperfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
-                ["condicional perfecto pl", formulaSummary(buildFormulaProbe("condicional-perfecto", ctx.DERIVATION_MODE.active, { pers1: "", pers2: "t" }))],
             ],
             [
                 ["presente sg", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+Ø-Ø#", tenseLabel: "indicativo presente", compatibilityLabel: "presente", morph: "Ø", mood: "indicative", andrewsTense: "present", connector: "Ø-Ø", num1: "", num2: "" }],
                 ["presente pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+Ø-t#", tenseLabel: "indicativo presente", compatibilityLabel: "presente", morph: "Ø", mood: "indicative", andrewsTense: "present", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
                 ["presente habitual pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ni+Ø-t#", tenseLabel: "indicativo presente habitual", compatibilityLabel: "presente-habitual", morph: "ni", mood: "indicative", andrewsTense: "customary-present", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
-                ["presente desiderativo pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)sneki+Ø-t#", tenseLabel: "desiderativo presente", compatibilityLabel: "presente-desiderativo", morph: "sneki", mood: "desiderative", andrewsTense: "present-desiderative", connector: "Ø-t", num1: "", num2: "t" }],
                 ["imperfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ya+Ø-t#", tenseLabel: "indicativo imperfecto", compatibilityLabel: "imperfecto", morph: "ya", mood: "indicative", andrewsTense: "imperfect", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
                 ["futuro pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)s+k-et#", tenseLabel: "indicativo futuro", compatibilityLabel: "futuro", morph: "s", mood: "indicative", andrewsTense: "future", connector: "k-et", num1: "k", num2: "et", ...futurePreteritOptions }],
                 ["preterito pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+k-et#", tenseLabel: "indicativo pretérito", compatibilityLabel: "preterito", morph: "Ø", mood: "indicative", andrewsTense: "preterit", connector: "k-et", num1: "k", num2: "et", ...futurePreteritOptions }],
                 ["pasado remoto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)ka+Ø-t#", tenseLabel: "indicativo pasado remoto", compatibilityLabel: "pasado-remoto", morph: "ka", mood: "indicative", andrewsTense: "distant-past", connector: "Ø-t", num1: "", num2: "t", ...mainIndicativeOptions }],
-                ["condicional pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)skia+Ø-t#", tenseLabel: "condicional", compatibilityLabel: "condicional", morph: "skia", mood: "conditional", andrewsTense: "conditional", connector: "Ø-t", num1: "", num2: "t" }],
                 ["optativo no pasado 1pl", { ...vncFormulaAuthorityBase, formula: "#ti-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
                 ["optativo no pasado 2pl", { ...vncFormulaAuthorityBase, formula: "#shi-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
                 ["optativo no pasado 3pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)Ø+k-an#", tenseLabel: "optativo no pasado", compatibilityLabel: "optativo", morph: "Ø", mood: "optative", andrewsTense: "nonpast", connector: "k-an", num1: "k", num2: "an", ...optativeOptions }],
-                ["perfecto sg", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuk+Ø-Ø#", tenseLabel: "perfecto", compatibilityLabel: "perfecto", morph: "tuk", mood: "perfect", andrewsTense: "perfect", connector: "Ø-Ø", num1: "", num2: "" }],
-                ["perfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tiwi+Ø-t#", tenseLabel: "perfecto", compatibilityLabel: "perfecto", morph: "tiwi", mood: "perfect", andrewsTense: "perfect", connector: "Ø-t", num1: "", num2: "t" }],
-                ["pluscuamperfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuya+Ø-t#", tenseLabel: "pluscuamperfecto", compatibilityLabel: "pluscuamperfecto", morph: "tuya", mood: "pluperfect", andrewsTense: "pluperfect", connector: "Ø-t", num1: "", num2: "t" }],
-                ["condicional perfecto pl", { ...vncFormulaAuthorityBase, formula: "#Ø-Ø(miki)tuskia+Ø-t#", tenseLabel: "condicional perfecto", compatibilityLabel: "condicional-perfecto", morph: "tuskia", mood: "conditional-perfect", andrewsTense: "conditional-perfect", connector: "Ø-t", num1: "", num2: "t" }],
+            ]
+        );
+        const blockedExtensionSummary = (tiempo, derivationMode = ctx.DERIVATION_MODE.active, derivationType = ctx.DERIVATION_TYPE.direct) => {
+            const result = buildFormulaProbe(tiempo, derivationMode, {
+                pers1: "",
+                pers2: "t",
+                derivationType,
+            });
+            return {
+                tiempo,
+                derivationMode,
+                derivationType,
+                result: result.result,
+                surfaceForms: result.surfaceForms || [],
+                generationAllowed: result.grammarFrame?.routeContract?.generationAllowed,
+                routeStage: result.grammarFrame?.routeContract?.routeStage || "",
+                authority: result.andrewsCnvTenseLogicAuthorityFrame?.scope || "",
+                gate: result.andrewsCnvTenseLogicGenerationGate?.generationGate || "",
+                formulaEcho: result.nuclearClauseShell?.formulaEcho || "",
+                diagnostic: result.diagnostics?.[0]?.id || "",
+            };
+        };
+        s.eq(
+            "CNV generation blocks Nawat/Pipil extension tenses across derivation settings before output",
+            [
+                blockedExtensionSummary("presente-desiderativo"),
+                blockedExtensionSummary("condicional", ctx.DERIVATION_MODE.active, ctx.DERIVATION_TYPE.causative),
+                blockedExtensionSummary("perfecto", ctx.DERIVATION_MODE.active, ctx.DERIVATION_TYPE.applicative),
+                blockedExtensionSummary("pluscuamperfecto", ctx.DERIVATION_MODE.nonactive),
+                blockedExtensionSummary("condicional-perfecto", ctx.DERIVATION_MODE.nonactive, ctx.DERIVATION_TYPE.causative),
+            ],
+            [
+                {
+                    tiempo: "presente-desiderativo",
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    derivationType: ctx.DERIVATION_TYPE.direct,
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeStage: "andrews-cnv-tense-logic-gate",
+                    authority: "nawat-extension",
+                    gate: "not-andrews-grammar-gate",
+                    formulaEcho: "",
+                    diagnostic: "not-andrews-grammar-gate",
+                },
+                {
+                    tiempo: "condicional",
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    derivationType: ctx.DERIVATION_TYPE.causative,
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeStage: "andrews-cnv-tense-logic-gate",
+                    authority: "nawat-extension",
+                    gate: "not-andrews-grammar-gate",
+                    formulaEcho: "",
+                    diagnostic: "not-andrews-grammar-gate",
+                },
+                {
+                    tiempo: "perfecto",
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    derivationType: ctx.DERIVATION_TYPE.applicative,
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeStage: "andrews-cnv-tense-logic-gate",
+                    authority: "nawat-extension",
+                    gate: "not-andrews-grammar-gate",
+                    formulaEcho: "",
+                    diagnostic: "not-andrews-grammar-gate",
+                },
+                {
+                    tiempo: "pluscuamperfecto",
+                    derivationMode: ctx.DERIVATION_MODE.nonactive,
+                    derivationType: ctx.DERIVATION_TYPE.direct,
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeStage: "andrews-cnv-tense-logic-gate",
+                    authority: "nawat-extension",
+                    gate: "not-andrews-grammar-gate",
+                    formulaEcho: "",
+                    diagnostic: "not-andrews-grammar-gate",
+                },
+                {
+                    tiempo: "condicional-perfecto",
+                    derivationMode: ctx.DERIVATION_MODE.nonactive,
+                    derivationType: ctx.DERIVATION_TYPE.causative,
+                    result: "—",
+                    surfaceForms: [],
+                    generationAllowed: false,
+                    routeStage: "andrews-cnv-tense-logic-gate",
+                    authority: "nawat-extension",
+                    gate: "not-andrews-grammar-gate",
+                    formulaEcho: "",
+                    diagnostic: "not-andrews-grammar-gate",
+                },
             ]
         );
         const optativeConnectorProbe = (subjectPrefix, numberConnector) => {
@@ -4284,6 +6052,277 @@ function run(ctx) {
                     visibleFormulaObject: "m-u",
                 },
             ]
+        );
+        s.eq(
+            "Lesson 6 direct Nawat dyad split requires typed source and operation frames",
+            (() => {
+                const sourceFrame = ctx.buildLesson6DirectNawatDyadSourceFrame({
+                    directDyad: "m-etz-in",
+                    sourcePrefix: "metzin",
+                    surfaceScopedPrefix: "metzin",
+                    stem: "miki",
+                });
+                const operationFrame = ctx.buildLesson6DirectNawatDyadOperationFrame(sourceFrame);
+                const otherSourceFrame = ctx.buildLesson6DirectNawatDyadSourceFrame({
+                    directDyad: "k-0",
+                    sourcePrefix: "k",
+                    surfaceScopedPrefix: "k",
+                    stem: "miki",
+                });
+                const oldSplit = ctx.splitLesson6DirectNawatDyad;
+                ctx.splitLesson6DirectNawatDyad = () => ({ va1: "poison", va2: "poison" });
+                const generated = ctx.getLesson6DirectNawatObjectDyadFrame("metzin", { stem: "miki" });
+                ctx.splitLesson6DirectNawatDyad = oldSplit;
+                const summarize = (frame) => ({
+                    va1: frame.va1 || "",
+                    va2: frame.va2 || "",
+                    functionalVa1: frame.functionalVa1 || "",
+                    functionalVa2: frame.functionalVa2 || "",
+                    val1Features: frame.val1Features || null,
+                    val2Features: frame.val2Features || null,
+                    linearPieces: frame.linearPieces || null,
+                    diagnosticId: frame.diagnosticId || "",
+                });
+                return {
+                    helperTypes: [
+                        typeof ctx.buildLesson6DirectNawatDyadSourceFrame,
+                        typeof ctx.buildLesson6DirectNawatDyadOperationFrame,
+                        typeof ctx.getLesson6DirectNawatDyadFrameMismatch,
+                    ],
+                    sourceFrameKind: sourceFrame?.kind || "",
+                    operationId: operationFrame?.operationId || "",
+                    directStringOnly: summarize(ctx.splitLesson6DirectNawatDyad("m-etz-in")),
+                    authorized: summarize(ctx.splitLesson6DirectNawatDyad("m-etz-in", {
+                        sourceFrame,
+                        operationFrame,
+                    })),
+                    changedString: summarize(ctx.splitLesson6DirectNawatDyad("poison-poison", {
+                        sourceFrame,
+                        operationFrame,
+                    })),
+                    missingOperation: summarize(ctx.splitLesson6DirectNawatDyad("m-etz-in", {
+                        sourceFrame,
+                    })),
+                    contradictorySource: summarize(ctx.splitLesson6DirectNawatDyad("m-etz-in", {
+                        sourceFrame: otherSourceFrame,
+                        operationFrame,
+                    })),
+                    contradictoryTarget: summarize(ctx.splitLesson6DirectNawatDyad("m-etz-in", {
+                        sourceFrame,
+                        operationFrame: {
+                            ...operationFrame,
+                            targetDyadFrame: {
+                                ...operationFrame.targetDyadFrame,
+                                va1: "poison",
+                            },
+                        },
+                    })),
+                    generated: {
+                        visibleFormulaPrefix: generated?.visibleFormulaPrefix || "",
+                        va1: generated?.va1 || "",
+                        va2: generated?.va2 || "",
+                        operationId: generated?.operationFrame?.operationId || "",
+                        sourceFrameKind: generated?.sourceFrame?.kind || "",
+                    },
+                };
+            })(),
+            {
+                helperTypes: ["function", "function", "function"],
+                sourceFrameKind: "lesson-6-direct-nawat-dyad-source-frame",
+                operationId: "andrews-6-direct-nawat-dyad-split",
+                directStringOnly: {
+                    va1: "",
+                    va2: "",
+                    functionalVa1: "",
+                    functionalVa2: "",
+                    val1Features: null,
+                    val2Features: null,
+                    linearPieces: null,
+                    diagnosticId: "lesson-6-direct-dyad-source-frame-required",
+                },
+                authorized: {
+                    va1: "m",
+                    va2: "etz-in",
+                    functionalVa1: "m-in",
+                    functionalVa2: "etz",
+                    val1Features: { person: "m", number: "in" },
+                    val2Features: { objective: "etz" },
+                    linearPieces: ["m", "etz", "in"],
+                    diagnosticId: "",
+                },
+                changedString: {
+                    va1: "m",
+                    va2: "etz-in",
+                    functionalVa1: "m-in",
+                    functionalVa2: "etz",
+                    val1Features: { person: "m", number: "in" },
+                    val2Features: { objective: "etz" },
+                    linearPieces: ["m", "etz", "in"],
+                    diagnosticId: "",
+                },
+                missingOperation: {
+                    va1: "",
+                    va2: "",
+                    functionalVa1: "",
+                    functionalVa2: "",
+                    val1Features: null,
+                    val2Features: null,
+                    linearPieces: null,
+                    diagnosticId: "lesson-6-direct-dyad-operation-frame-required",
+                },
+                contradictorySource: {
+                    va1: "",
+                    va2: "",
+                    functionalVa1: "",
+                    functionalVa2: "",
+                    val1Features: null,
+                    val2Features: null,
+                    linearPieces: null,
+                    diagnosticId: "lesson-6-direct-dyad-contradictory-source-frame",
+                },
+                contradictoryTarget: {
+                    va1: "",
+                    va2: "",
+                    functionalVa1: "",
+                    functionalVa2: "",
+                    val1Features: null,
+                    val2Features: null,
+                    linearPieces: null,
+                    diagnosticId: "lesson-6-direct-dyad-contradictory-target-frame",
+                },
+                generated: {
+                    visibleFormulaPrefix: "m-etz-in",
+                    va1: "m",
+                    va2: "etz-in",
+                    operationId: "andrews-6-direct-nawat-dyad-split",
+                    sourceFrameKind: "lesson-6-direct-nawat-dyad-source-frame",
+                },
+            }
+        );
+        s.eq(
+            "Generated class perfective formula profile consumes typed frames instead of reverse-matching surfaces",
+            (() => {
+                const sourceFrame = ctx.buildGeneratedClassPerfectiveFormulaSourceFrame({
+                    tense: "preterito",
+                    subjectPrefix: "ni",
+                    objectPrefix: "ki",
+                    sourceSubjectSuffix: "",
+                    sourceStem: "piya",
+                });
+                const operationFrame = ctx.buildGeneratedClassPerfectiveFormulaOperationFrame(sourceFrame);
+                const otherSourceFrame = ctx.buildGeneratedClassPerfectiveFormulaSourceFrame({
+                    tense: "preterito",
+                    subjectPrefix: "",
+                    objectPrefix: "ta",
+                    sourceSubjectSuffix: "",
+                    sourceStem: "mati",
+                });
+                const oldSurfaceCore = ctx.getGeneratedClassPerfectiveSurfaceCore;
+                ctx.getGeneratedClassPerfectiveSurfaceCore = () => "poison";
+                const poisoned = ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                    tense: "preterito",
+                    surfaceForms: ["poison"],
+                    subjectPrefix: "poison",
+                    objectPrefix: "poison",
+                    sourceStem: "poison",
+                    sourceFrame,
+                    operationFrame,
+                });
+                ctx.getGeneratedClassPerfectiveSurfaceCore = oldSurfaceCore;
+                const summarize = (profile) => profile ? {
+                    base: profile.base || "",
+                    objectPrefix: profile.objectPrefix || "",
+                    formulaObject: profile.formulaObject || "",
+                    objectSurface: profile.objectSurface || "",
+                    operationId: profile.operationFrame?.operationId || "",
+                    sourceFrameKind: profile.sourceFrame?.kind || "",
+                } : null;
+                return {
+                    helperTypes: [
+                        typeof ctx.buildGeneratedClassPerfectiveFormulaSourceFrame,
+                        typeof ctx.buildGeneratedClassPerfectiveFormulaOperationFrame,
+                        typeof ctx.getGeneratedClassPerfectiveFormulaFrameMismatch,
+                    ],
+                    sourceFrameKind: sourceFrame?.kind || "",
+                    operationId: operationFrame?.operationId || "",
+                    authorized: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        tense: "preterito",
+                        surfaceForms: ["nikpiyak"],
+                        subjectPrefix: "ni",
+                        objectPrefix: "ki",
+                        sourceStem: "piya",
+                        sourceFrame,
+                        operationFrame,
+                    })),
+                    stringOnly: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        tense: "preterito",
+                        surfaceForms: ["nikpiyak"],
+                        subjectPrefix: "ni",
+                        objectPrefix: "ki",
+                        sourceStem: "piya",
+                    })),
+                    changedStrings: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        tense: "pasado-remoto",
+                        surfaceForms: ["poison"],
+                        subjectPrefix: "poison",
+                        objectPrefix: "poison",
+                        sourceStem: "poison",
+                        sourceFrame,
+                        operationFrame,
+                    })),
+                    missingOperation: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        sourceFrame,
+                    })),
+                    contradictorySource: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        sourceFrame: otherSourceFrame,
+                        operationFrame,
+                    })),
+                    contradictoryTarget: summarize(ctx.buildGeneratedClassPerfectiveFormulaProfile({
+                        sourceFrame,
+                        operationFrame: {
+                            ...operationFrame,
+                            targetProfile: {
+                                ...operationFrame.targetProfile,
+                                base: "poison",
+                            },
+                        },
+                    })),
+                    poisoned: summarize(poisoned),
+                };
+            })(),
+            {
+                helperTypes: ["function", "function", "function"],
+                sourceFrameKind: "generated-class-perfective-formula-source-frame",
+                operationId: "generated-class-perfective-formula-profile-realization",
+                authorized: {
+                    base: "piya",
+                    objectPrefix: "k",
+                    formulaObject: "k-0",
+                    objectSurface: "k",
+                    operationId: "generated-class-perfective-formula-profile-realization",
+                    sourceFrameKind: "generated-class-perfective-formula-source-frame",
+                },
+                stringOnly: null,
+                changedStrings: {
+                    base: "piya",
+                    objectPrefix: "k",
+                    formulaObject: "k-0",
+                    objectSurface: "k",
+                    operationId: "generated-class-perfective-formula-profile-realization",
+                    sourceFrameKind: "generated-class-perfective-formula-source-frame",
+                },
+                missingOperation: null,
+                contradictorySource: null,
+                contradictoryTarget: null,
+                poisoned: {
+                    base: "piya",
+                    objectPrefix: "k",
+                    formulaObject: "k-0",
+                    objectSurface: "k",
+                    operationId: "generated-class-perfective-formula-profile-realization",
+                    sourceFrameKind: "generated-class-perfective-formula-source-frame",
+                },
+            }
         );
         s.eq(
             "Lesson 6 governing frame rides with generated CNV object slots",

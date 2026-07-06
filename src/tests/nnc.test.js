@@ -174,14 +174,19 @@ function run(ctx) {
         stateCase = "",
         subjectPrefix = "",
         subjectSuffix = "",
+        derivationMode = ctx.DERIVATION_MODE.active,
+        voiceMode = ctx.VOICE_MODE.active,
+        outputSet = "",
+        lesson32PilChildNncSide = false,
+        formulaSlots = null,
     }) => ({
         options: {
             silent: true,
             skipValidation: false,
             override: {
                 tenseMode: ctx.TENSE_MODE.sustantivo,
-                derivationMode: ctx.DERIVATION_MODE.active,
-                voiceMode: ctx.VOICE_MODE.active,
+                derivationMode,
+                voiceMode,
                 ordinaryNnc: {
                     enabled: true,
                     state,
@@ -192,6 +197,9 @@ function run(ctx) {
                     nounClass,
                     possessionKind,
                     stateCase,
+                    ...(formulaSlots ? { formulaSlots } : {}),
+                    ...(outputSet ? { outputSet } : {}),
+                    ...(lesson32PilChildNncSide === true ? { lesson32PilChildNncSide: true } : {}),
                 },
             },
         },
@@ -209,6 +217,47 @@ function run(ctx) {
             valorTronco: "",
         },
     });
+    const buildActionNounSourceSubjectPossessorFrames = ({
+        subjectPrefix = "",
+        subjectSuffix = "",
+        targetPossessivePrefix = "",
+        sourceTense = "distant-past-active",
+    } = {}) => {
+        const sourceSubjectFrame = ctx.buildAndrewsSourceSubjectFrame({
+            subjectPrefix,
+            subjectSuffix,
+            sourceUnit: "CNV",
+            sourceTense,
+        });
+        const sourceSubjectPossessorOperationFrame = ctx.buildSourceSubjectPossessorOperationFrame({
+            sourceSubjectFrame,
+            targetPossessivePrefix,
+            nominalKind: "calificativo-instrumentivo",
+            operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+            andrewsRef: sourceTense === "distant-past-passive" ? "Andrews 36.10" : "Andrews 36.11",
+        });
+        return { sourceSubjectFrame, sourceSubjectPossessorOperationFrame };
+    };
+    const buildInstrumentivoSourceSubjectPossessorFrames = ({
+        subjectPrefix = "",
+        subjectSuffix = "",
+        targetPossessivePrefix = "",
+    } = {}) => {
+        const sourceSubjectFrame = ctx.buildAndrewsSourceSubjectFrame({
+            subjectPrefix,
+            subjectSuffix,
+            sourceUnit: "CNV",
+            sourceTense: "imperfect-active",
+        });
+        const sourceSubjectPossessorOperationFrame = ctx.buildSourceSubjectPossessorOperationFrame({
+            sourceSubjectFrame,
+            targetPossessivePrefix,
+            nominalKind: "instrumentivo",
+            operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+            andrewsRef: "Andrews 36.6",
+        });
+        return { sourceSubjectFrame, sourceSubjectPossessorOperationFrame };
+    };
 
     s.eq(
         "Lesson 12 absolutive NNC audit API is exposed",
@@ -264,6 +313,7 @@ function run(ctx) {
         num1DoesNotBelongTo: lesson12.subjectPositionFrame.num1Num2Rule.num1DoesNotBelongTo,
         singularDyads: lesson12.subjectPositionFrame.num1Num2Rule.singularCommonDyads,
         pluralDyads: lesson12.subjectPositionFrame.num1Num2Rule.pluralDyads,
+        nawatPluralDyadBridge: lesson12.subjectPositionFrame.num1Num2Rule.nawatPluralDyadBridge,
         pluralNum2Morphs: lesson12.subjectPositionFrame.num1Num2Rule.pluralNum2Morphs,
     }, {
         absentCarriers: ["x", "xi"],
@@ -271,6 +321,14 @@ function run(ctx) {
         num1DoesNotBelongTo: ["predicate-state", "nounstem", "noun suffix"],
         singularDyads: ["tl-0", "tli-0", "li-0", "in-0", "0-0"],
         pluralDyads: ["t-in", "m-eh", "0-h"],
+        nawatPluralDyadBridge: [{
+            classicalDyad: "m-eh",
+            currentNawatDyad: "m-et",
+            num1: "m",
+            classicalNum2: "eh",
+            currentNawatNum2: "et",
+            orthographyRule: "Classical final -h maps to current Nawat/Pipil -t.",
+        }],
         pluralNum2Morphs: ["in", "eh", "h"],
     });
     s.eq("Lesson 12 predicate and animacy frames keep no-tense and reference boundaries", {
@@ -571,7 +629,7 @@ function run(ctx) {
         analogicalPossessor: "tla",
         nuclearPossessorRule: true,
     });
-    s.eq("Lesson 15 natural-possession and sentence frames stay evidence-bound", {
+    s.eq("Lesson 15 natural-possession and sentence frames stay Andrews-source-gated", {
         naturalTypes: lesson15.naturallyPossessedFrame.naturalPossessionTypes.map((entry) => entry.id),
         dictionarySuffixOnlyClass: lesson15.naturallyPossessedFrame.dictionaryAbsolutiveSuffixCanOnlyIdentifyClass,
         metaphorOverride: lesson15.naturallyPossessedFrame.unavailablePossessiveContrast.metaphorCanOverrideRestriction,
@@ -758,6 +816,67 @@ function run(ctx) {
         hasInstrumentivoAuthority: true,
         enumerableContract: false,
     });
+    const typedPredicateNominalConnectorFrame = ctx.buildPredicateNominalConnectorOperationFrame({
+        sourceTense: "futuro",
+        nominalKind: "predicado-nominal",
+        nominalConnector: "t",
+    });
+    const typedFuturePredicateNominal = ctx.getPredicateNominalResult({
+        rawVerb: "(nemi)",
+        verbMeta: nemiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        sourceTense: "futuro",
+        nominalConnector: "t",
+        predicateNominalConnectorOperationFrame: typedPredicateNominalConnectorFrame,
+    });
+    const legacyStringFuturePredicateNominal = ctx.getPredicateNominalResult({
+        rawVerb: "(nemi)",
+        verbMeta: nemiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        sourceTense: "futuro",
+        nominalConnector: "t",
+    });
+    const contradictoryFuturePredicateNominal = ctx.getPredicateNominalResult({
+        rawVerb: "(nemi)",
+        verbMeta: nemiMeta,
+        subjectPrefix: "",
+        subjectSuffix: "",
+        objectPrefix: "",
+        sourceTense: "futuro",
+        nominalConnector: "t",
+        predicateNominalConnectorOperationFrame: ctx.buildPredicateNominalConnectorOperationFrame({
+            sourceTense: "imperfecto",
+            nominalKind: "predicado-nominal",
+            nominalConnector: "t",
+        }),
+    });
+    s.eq(
+        "predicate-nominal t/ti connector consumes the typed Andrews operation frame instead of string API",
+        {
+            typedResult: typedFuturePredicateNominal.result || "",
+            typedConnector: typedFuturePredicateNominal.num1Num2?.displaySurface || "",
+            typedSelector: typedFuturePredicateNominal.predicateNominalSource?.connectorSelector || "",
+            displayInput: typedFuturePredicateNominal.entries?.[0]?.metadata?.absolutiveConnectorInput || "",
+            operationKind: typedFuturePredicateNominal.predicateNominalConnectorOperationFrame?.kind || "",
+            legacyBlocked: legacyStringFuturePredicateNominal.diagnostics?.[0]?.id || "",
+            legacyHelperBlocked: ctx.resolvePredicateNominalAbsolutiveTtiConnector("nemi-s", "t"),
+            contradictoryBlocked: contradictoryFuturePredicateNominal.diagnostics?.[0]?.id || "",
+        },
+        {
+            typedResult: "nemisti",
+            typedConnector: "ti",
+            typedSelector: "typed-predicate-stem-frame-previous-non-zero-segment",
+            displayInput: "",
+            operationKind: "andrews-predicate-nominal-connector-operation-frame",
+            legacyBlocked: "predicado-nominal-absolutive-connector-missing-operation-frame",
+            legacyHelperBlocked: "",
+            contradictoryBlocked: "predicado-nominal-absolutive-connector-contradictory-source-frame",
+        }
+    );
     const instrumentivoReflexiveEntradaParsed = ctx.parseMovingTargetRegexInput("(a)+mu-(ish-cuepa)");
     const sparseInstrumentivoReflexiveEntrada = ctx.buildEntradaGrammarObjectFromMovingTargetParsed(
         "(a)+mu-(ish-cuepa)",
@@ -1097,6 +1216,11 @@ function run(ctx) {
         { subjectPrefix: "an", subjectSuffix: "t", result: "anmumikka", possessor: "anmu", grammarSource: "Andrews 36.11" },
         { subjectPrefix: "", subjectSuffix: "t", result: "inmikka", possessor: "in", grammarSource: "Andrews 36.11" },
     ].map((example) => {
+        const frames = buildActionNounSourceSubjectPossessorFrames({
+            subjectPrefix: example.subjectPrefix,
+            subjectSuffix: example.subjectSuffix,
+            targetPossessivePrefix: example.possessor,
+        });
         const result = ctx.getCalificativoInstrumentivoResult({
             rawVerb: "(miki)",
             verbMeta: mikiMeta,
@@ -1105,6 +1229,7 @@ function run(ctx) {
             objectPrefix: "",
             possessivePrefix: "",
             actionNounStemUse: "general-use",
+            ...frames,
         });
         return {
             subject: `${example.subjectPrefix || "Ø"}...${example.subjectSuffix || "Ø"}`,
@@ -1126,6 +1251,75 @@ function run(ctx) {
             { subject: "Ø...t", result: "inmikka", possessorPrefix: "in", grammarSource: "Andrews 36.11", derivedFromSourceSubject: true },
         ]
     );
+    const legacyStringSourceSubjectActionNoun = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "",
+        possessivePrefix: "",
+        actionNounStemUse: "general-use",
+    });
+    const typedActionNounFrames = buildActionNounSourceSubjectPossessorFrames({
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        targetPossessivePrefix: "tu",
+    });
+    const poisonedStringActionNoun = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "ni",
+        subjectSuffix: "",
+        objectPrefix: "",
+        possessivePrefix: "",
+        actionNounStemUse: "general-use",
+        ...typedActionNounFrames,
+    });
+    const missingOperationActionNoun = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "",
+        possessivePrefix: "",
+        actionNounStemUse: "general-use",
+        sourceSubjectFrame: typedActionNounFrames.sourceSubjectFrame,
+    });
+    const contradictoryActionNoun = ctx.getCalificativoInstrumentivoResult({
+        rawVerb: "(miki)",
+        verbMeta: mikiMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "",
+        possessivePrefix: "",
+        actionNounStemUse: "general-use",
+        sourceSubjectFrame: typedActionNounFrames.sourceSubjectFrame,
+        sourceSubjectPossessorOperationFrame: ctx.buildSourceSubjectPossessorOperationFrame({
+            sourceSubjectFrame: typedActionNounFrames.sourceSubjectFrame,
+            targetPossessivePrefix: "nu",
+            nominalKind: "calificativo-instrumentivo",
+            operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+        }),
+    });
+    s.eq(
+        "Andrews 36.11 active-action source-subject possessor consumes typed frames instead of subject strings",
+        {
+            legacyBlocked: legacyStringSourceSubjectActionNoun.diagnostics?.[0]?.id || "",
+            poisonedResult: poisonedStringActionNoun.result || "",
+            poisonedPossessor: poisonedStringActionNoun.actionNounSourceSubjectPossessor?.possessivePrefix || "",
+            operationId: poisonedStringActionNoun.actionNounSourceSubjectPossessor?.operationFrame?.operationId || "",
+            missingOperation: missingOperationActionNoun.diagnostics?.[0]?.id || "",
+            contradictory: contradictoryActionNoun.diagnostics?.[0]?.id || "",
+        },
+        {
+            legacyBlocked: "calificativo-instrumentivo-source-subject-frame-required",
+            poisonedResult: "tumikka",
+            poisonedPossessor: "tu",
+            operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+            missingOperation: "calificativo-instrumentivo-source-subject-typed-operation-frame-required",
+            contradictory: "calificativo-instrumentivo-source-subject-contradictory-frame",
+        }
+    );
     const directGeneralUseActiveActionWithoutMappableSourceSubject = ctx.getCalificativoInstrumentivoResult({
         rawVerb: "(miki)",
         verbMeta: mikiMeta,
@@ -1134,6 +1328,10 @@ function run(ctx) {
         objectPrefix: "",
         possessivePrefix: "",
         actionNounStemUse: "general-use",
+        ...buildActionNounSourceSubjectPossessorFrames({
+            subjectPrefix: "an",
+            subjectSuffix: "",
+        }),
     });
     s.eq(
         "Andrews 36.11 active-action general-use remains possessive-state only when no source-subject possessor is mappable",
@@ -1594,6 +1792,11 @@ function run(ctx) {
         { subjectPrefix: "an", subjectSuffix: "t", form: "anmutapiyaya", possessor: "anmu" },
         { subjectPrefix: "", subjectSuffix: "t", form: "intapiyaya", possessor: "in" },
     ].map((example) => {
+        const frames = buildInstrumentivoSourceSubjectPossessorFrames({
+            subjectPrefix: example.subjectPrefix,
+            subjectSuffix: example.subjectSuffix,
+            targetPossessivePrefix: example.possessor,
+        });
         const result = ctx.getInstrumentivoResult({
             rawVerb: "-(piya)",
             verbMeta: piyaMeta,
@@ -1602,6 +1805,7 @@ function run(ctx) {
             objectPrefix: "ta",
             mode: ctx.INSTRUMENTIVO_MODE.posesivo,
             possessivePrefix: "",
+            ...frames,
         });
         return {
             subject: `${example.subjectPrefix || "Ø"}...${example.subjectSuffix || "Ø"}`,
@@ -1621,6 +1825,75 @@ function run(ctx) {
             { subject: "an...t", result: "anmutapiyaya", possessorPrefix: "anmu", derivedFromSourceSubject: true },
             { subject: "Ø...t", result: "intapiyaya", possessorPrefix: "in", derivedFromSourceSubject: true },
         ]
+    );
+    const legacyStringSourceSubjectInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(piya)",
+        verbMeta: piyaMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "ta",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "",
+    });
+    const typedInstrumentivoFrames = buildInstrumentivoSourceSubjectPossessorFrames({
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        targetPossessivePrefix: "tu",
+    });
+    const poisonedStringInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(piya)",
+        verbMeta: piyaMeta,
+        subjectPrefix: "ni",
+        subjectSuffix: "",
+        objectPrefix: "ta",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "",
+        ...typedInstrumentivoFrames,
+    });
+    const missingOperationInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(piya)",
+        verbMeta: piyaMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "ta",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "",
+        sourceSubjectFrame: typedInstrumentivoFrames.sourceSubjectFrame,
+    });
+    const contradictoryInstrumentivo = ctx.getInstrumentivoResult({
+        rawVerb: "-(piya)",
+        verbMeta: piyaMeta,
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        objectPrefix: "ta",
+        mode: ctx.INSTRUMENTIVO_MODE.posesivo,
+        possessivePrefix: "",
+        sourceSubjectFrame: typedInstrumentivoFrames.sourceSubjectFrame,
+        sourceSubjectPossessorOperationFrame: ctx.buildSourceSubjectPossessorOperationFrame({
+            sourceSubjectFrame: typedInstrumentivoFrames.sourceSubjectFrame,
+            targetPossessivePrefix: "nu",
+            nominalKind: "instrumentivo",
+            operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+        }),
+    });
+    s.eq(
+        "Andrews 36.6 instrumentivo source-subject possessor consumes typed frames instead of subject strings",
+        {
+            legacyBlocked: legacyStringSourceSubjectInstrumentivo.diagnostics?.[0]?.id || "",
+            poisonedResult: poisonedStringInstrumentivo.result || "",
+            poisonedPossessor: poisonedStringInstrumentivo.instrumentivoSourceSubjectPossessor?.possessivePrefix || "",
+            operationId: poisonedStringInstrumentivo.instrumentivoSourceSubjectPossessor?.operationFrame?.operationId || "",
+            missingOperation: missingOperationInstrumentivo.diagnostics?.[0]?.id || "",
+            contradictory: contradictoryInstrumentivo.diagnostics?.[0]?.id || "",
+        },
+        {
+            legacyBlocked: "instrumentivo-source-subject-frame-required",
+            poisonedResult: "tutapiyaya",
+            poisonedPossessor: "tu",
+            operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+            missingOperation: "instrumentivo-source-subject-typed-operation-frame-required",
+            contradictory: "instrumentivo-source-subject-contradictory-frame",
+        }
     );
 
     const unsupportedCalificativo = ctx.getCalificativoInstrumentivoResult({
@@ -1908,10 +2181,13 @@ function run(ctx) {
             displayLabel: generatedKalShell?.displayLabel,
             formula: generatedKalShell?.formula,
             formulaEcho: generatedKalShell?.formulaEcho,
+            fullFormulaEcho: generatedKalShell?.fullFormulaEcho,
+            compactFormulaEcho: generatedKalShell?.compactFormulaEcho,
             hasTensePosition: generatedKalShell?.hasTensePosition,
             generationAllowed: generatedKalShell?.generationAllowed,
             predicateStem: generatedKalShell?.slots?.predicateStem?.stem,
             connector: generatedKalShell?.slots?.num1Num2?.displayConnector,
+            connectorDyad: generatedKalShell?.slots?.num1Num2?.displayDyad,
         },
         {
             kind: "nuclear-clause-shell",
@@ -1922,10 +2198,13 @@ function run(ctx) {
             displayLabel: "cláusula nuclear nominal (CNN)",
             formula: "#pers1-pers2(STEM)num1-num2#",
             formulaEcho: "#Ø-Ø(kal)Ø#",
+            fullFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+            compactFormulaEcho: "#Ø-Ø(kal)Ø#",
             hasTensePosition: false,
             generationAllowed: false,
             predicateStem: "kal",
             connector: "Ø",
+            connectorDyad: "Ø-Ø",
         }
     );
     const buildOrdinaryNncGenerateWordRequest = typeof ctx.buildOrdinaryNncGenerateWordRequest === "function"
@@ -2122,8 +2401,2193 @@ function run(ctx) {
         s.eq(label, summarizeGeneratedOrdinaryNnc(ctx.executeGenerateWordRequest(request)), expected);
     });
 
+    const summarizeLesson32PilChildNncSideOrdinaryOutput = (result) => {
+        const firstEntry = result?.lesson32PilChildNncSideGeneration?.entries?.[0] || null;
+        const firstSlots = firstEntry?.formulaSlots || {};
+        const formulaPairs = Array.isArray(result?.formulaSurfacePairs) ? result.formulaSurfacePairs : [];
+        return {
+            generationRoute: result?.generationRoute || "",
+            subGenerationRoute: result?.subGenerationRoute || "",
+            outputSet: result?.outputSet || "",
+            supported: result?.supported === true,
+            result: result?.result || "",
+            surfaceForms: result?.surfaceForms || [],
+            stem: result?.stem || "",
+            state: result?.state || "",
+            stateSet: result?.stateSet || [],
+            nounClass: result?.nounClass || "",
+            animacy: result?.animacy || "",
+            number: result?.number || "",
+            pluralType: result?.pluralType || "",
+            modeScope: result?.modeScope || [],
+            requestedDerivationMode: result?.requestedDerivationMode || "",
+            requestedVoiceMode: result?.requestedVoiceMode || "",
+            hasTensePosition: result?.hasTensePosition === true,
+            formulaCount: result?.structuralFormulas?.length || 0,
+            firstFormula: result?.structuralFormulas?.[0] || "",
+            lastFormula: result?.structuralFormulas?.[result.structuralFormulas.length - 1] || "",
+            pairCount: formulaPairs.length,
+            firstPair: formulaPairs[0]
+                ? `${formulaPairs[0].surface}=>${formulaPairs[0].targetFormulaEcho}`
+                : "",
+            lastPair: formulaPairs[formulaPairs.length - 1]
+                ? `${formulaPairs[formulaPairs.length - 1].surface}=>${formulaPairs[formulaPairs.length - 1].targetFormulaEcho}`
+                : "",
+            slotOwners: {
+                possessiveState: firstSlots.possessiveState?.belongsTo || "",
+                predicateInsideParentheses: firstSlots.predicateStem?.insideParentheses === true,
+                connector: firstSlots.num1Num2?.belongsTo || "",
+                connectorOutsideParentheses: firstSlots.num1Num2?.outsideParentheses === true,
+                connectorNotTense: firstSlots.num1Num2?.notTense === true,
+            },
+            diagnostics: result?.diagnostics || [],
+            diagnosticIds: result?.diagnosticIds || [],
+            grammarRouteFamily: result?.grammarFrame?.routeContract?.routeFamily || "",
+            grammarDerivationMode: result?.grammarFrame?.inflectionFrame?.derivationMode || "",
+            grammarVoiceMode: result?.grammarFrame?.inflectionFrame?.voiceMode || "",
+        };
+    };
+    const expectedLesson32PilChildSurfaces = [
+        "annupilwan",
+        "nupilwantzitzinwan",
+        "nupilwantzitzin",
+        "inpijpilwantzitzin",
+        "pipiltin",
+        "ukichpipiltin",
+        "siwapipiltin",
+        "tipiltzinti",
+        "piltunti",
+    ];
+    s.eq(
+        "ordinary CNN output-set route generates Andrews p294 pil NNC-side rows for active and no-active contexts",
+        [
+            {
+                label: "active",
+                request: buildSilentOrdinaryNncRequest({
+                    stem: "pil",
+                    outputSet: "lesson32-pil-child-nnc-side",
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    voiceMode: ctx.VOICE_MODE.active,
+                }),
+            },
+            {
+                label: "nonactive",
+                request: buildSilentOrdinaryNncRequest({
+                    stem: "pil",
+                    outputSet: "lesson32-pil-child-nnc-side",
+                    derivationMode: ctx.DERIVATION_MODE.nonactive,
+                    voiceMode: ctx.VOICE_MODE.passive,
+                }),
+            },
+        ].map((entry) => ({
+            label: entry.label,
+            ...summarizeLesson32PilChildNncSideOrdinaryOutput(ctx.executeGenerateWordRequest(entry.request)),
+        })),
+        [
+            {
+                label: "active",
+                generationRoute: "ordinary-nnc",
+                subGenerationRoute: "lesson-32-pil-child-nnc-side",
+                outputSet: "lesson32-pil-child-nnc-side",
+                supported: true,
+                result: expectedLesson32PilChildSurfaces.join(" / "),
+                surfaceForms: expectedLesson32PilChildSurfaces,
+                stem: "pil",
+                state: "mixed",
+                stateSet: ["possessive", "absolutive"],
+                nounClass: "mixed",
+                animacy: "animate",
+                number: "mixed",
+                pluralType: "lesson32-p294",
+                modeScope: ["active", "nonactive"],
+                requestedDerivationMode: ctx.DERIVATION_MODE.active,
+                requestedVoiceMode: ctx.VOICE_MODE.active,
+                hasTensePosition: false,
+                formulaCount: 9,
+                firstFormula: "#an-0+n-o(pil)hu-an#",
+                lastFormula: "#0-0(pil-ton)tli-0#",
+                pairCount: 9,
+                firstPair: "annupilwan=>#an-0+n-o(pil)hu-an#",
+                lastPair: "piltunti=>#0-0(pil-ton)tli-0#",
+                slotOwners: {
+                    possessiveState: "predicate",
+                    predicateInsideParentheses: true,
+                    connector: "subject",
+                    connectorOutsideParentheses: true,
+                    connectorNotTense: true,
+                },
+                diagnostics: [],
+                diagnosticIds: [
+                    "lesson-32-pil-child-nnc-side-output-set",
+                    "nnc-side-generation-scoped-to-andrews-p294",
+                    "ordinary-nnc-generation-gate-unchanged",
+                ],
+                grammarRouteFamily: "ordinary-nnc",
+                grammarDerivationMode: ctx.DERIVATION_MODE.active,
+                grammarVoiceMode: ctx.VOICE_MODE.active,
+            },
+            {
+                label: "nonactive",
+                generationRoute: "ordinary-nnc",
+                subGenerationRoute: "lesson-32-pil-child-nnc-side",
+                outputSet: "lesson32-pil-child-nnc-side",
+                supported: true,
+                result: expectedLesson32PilChildSurfaces.join(" / "),
+                surfaceForms: expectedLesson32PilChildSurfaces,
+                stem: "pil",
+                state: "mixed",
+                stateSet: ["possessive", "absolutive"],
+                nounClass: "mixed",
+                animacy: "animate",
+                number: "mixed",
+                pluralType: "lesson32-p294",
+                modeScope: ["active", "nonactive"],
+                requestedDerivationMode: ctx.DERIVATION_MODE.nonactive,
+                requestedVoiceMode: ctx.VOICE_MODE.passive,
+                hasTensePosition: false,
+                formulaCount: 9,
+                firstFormula: "#an-0+n-o(pil)hu-an#",
+                lastFormula: "#0-0(pil-ton)tli-0#",
+                pairCount: 9,
+                firstPair: "annupilwan=>#an-0+n-o(pil)hu-an#",
+                lastPair: "piltunti=>#0-0(pil-ton)tli-0#",
+                slotOwners: {
+                    possessiveState: "predicate",
+                    predicateInsideParentheses: true,
+                    connector: "subject",
+                    connectorOutsideParentheses: true,
+                    connectorNotTense: true,
+                },
+                diagnostics: [],
+                diagnosticIds: [
+                    "lesson-32-pil-child-nnc-side-output-set",
+                    "nnc-side-generation-scoped-to-andrews-p294",
+                    "ordinary-nnc-generation-gate-unchanged",
+                ],
+                grammarRouteFamily: "ordinary-nnc",
+                grammarDerivationMode: ctx.DERIVATION_MODE.nonactive,
+                grammarVoiceMode: ctx.VOICE_MODE.passive,
+            },
+        ]
+    );
+
+    const lesson32AuthorityProbe = ctx.executeGenerateWordRequest(buildSilentOrdinaryNncRequest({
+        stem: "pil",
+        outputSet: "lesson32-pil-child-nnc-side",
+        derivationMode: ctx.DERIVATION_MODE.active,
+        voiceMode: ctx.VOICE_MODE.active,
+    }));
+    const lesson32Pairs = lesson32AuthorityProbe.formulaSurfacePairs || [];
+    const lesson32SourceFrame = lesson32AuthorityProbe.lesson32PilChildNncSideResultTextSourceFrame;
+    const lesson32OperationFrame = lesson32AuthorityProbe.lesson32PilChildNncSideResultTextOperationFrame;
+    const poisonLesson32PairDisplays = (pair) => {
+        const poisoned = {
+            ...pair,
+            surface: "poison-surface",
+            result: "poison-result",
+            surfaceForms: ["poison-surface-form"],
+            formulaEcho: "#poison(formula)#",
+        };
+        Object.defineProperty(poisoned, "formulaRealizationRecord", {
+            enumerable: false,
+            value: pair.formulaRealizationRecord,
+        });
+        Object.defineProperty(poisoned, "formulaRecord", {
+            enumerable: false,
+            value: pair.formulaRecord,
+        });
+        return poisoned;
+    };
+    const poisonedLesson32Pairs = lesson32Pairs.map(poisonLesson32PairDisplays);
+    const poisonedLesson32SourceFrame = ctx.buildLesson32PilChildNncSideResultTextSourceFrame({
+        formulaSurfacePairs: poisonedLesson32Pairs,
+    });
+    const poisonedLesson32OperationFrame = ctx.buildLesson32PilChildNncSideResultTextOperationFrame(poisonedLesson32SourceFrame);
+    const contradictoryLesson32OperationFrame = {
+        ...poisonedLesson32OperationFrame,
+        targetFrame: {
+            ...poisonedLesson32OperationFrame.targetFrame,
+            resultText: "poison-result",
+        },
+    };
+    s.eq(
+        "lesson 32 pil child NNC-side result text is authorized by realization segment frames, not display strings",
+        {
+            directNoFrame: ctx.buildLesson32PilChildNncSideResultText(lesson32Pairs),
+            missingSourceFrame: ctx.buildLesson32PilChildNncSideResultText(lesson32Pairs, {
+                operationFrame: lesson32OperationFrame,
+            }),
+            missingOperationFrame: ctx.buildLesson32PilChildNncSideResultText(lesson32Pairs, {
+                sourceFrame: lesson32SourceFrame,
+            }),
+            missingTargetFrame: ctx.buildLesson32PilChildNncSideResultText(poisonedLesson32Pairs, {
+                sourceFrame: poisonedLesson32SourceFrame,
+                operationFrame: {
+                    ...poisonedLesson32OperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            contradictoryTargetFrame: ctx.buildLesson32PilChildNncSideResultText(poisonedLesson32Pairs, {
+                sourceFrame: poisonedLesson32SourceFrame,
+                operationFrame: contradictoryLesson32OperationFrame,
+            }),
+            poisonedDisplayResult: ctx.buildLesson32PilChildNncSideResultText(poisonedLesson32Pairs, {
+                sourceFrame: poisonedLesson32SourceFrame,
+                operationFrame: poisonedLesson32OperationFrame,
+            }),
+            sourceFrameDisplayAuthority: poisonedLesson32SourceFrame.displayStringsAuthorizeGrammar,
+            sourceFrameConsumesRenderedInput: poisonedLesson32SourceFrame.consumesRenderedInput,
+            outputResult: lesson32AuthorityProbe.result,
+            outputSourceFrameKind: lesson32SourceFrame?.kind || "",
+            outputOperationId: lesson32OperationFrame?.operationId || "",
+        },
+        {
+            directNoFrame: "",
+            missingSourceFrame: "",
+            missingOperationFrame: "",
+            missingTargetFrame: "",
+            contradictoryTargetFrame: "",
+            poisonedDisplayResult: expectedLesson32PilChildSurfaces.join(" / "),
+            sourceFrameDisplayAuthority: false,
+            sourceFrameConsumesRenderedInput: false,
+            outputResult: expectedLesson32PilChildSurfaces.join(" / "),
+            outputSourceFrameKind: "lesson-32-pil-child-nnc-side-result-text-source-frame",
+            outputOperationId: "lesson-32-pil-child-nnc-side-result-text-render",
+        }
+    );
+
     s.eq("ordinary NNC direct helper is exported", typeof ctx.generateOrdinaryNncParadigm, "function");
     s.eq("ordinary NNC formula echo helper is exported", typeof ctx.buildOrdinaryNncFormulaEchoFromSlots, "function");
+    const ordinaryNncResultTextProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "kal",
+        state: "absolutive",
+        subject: { subjectPrefix: "", subjectSuffix: "" },
+        number: "singular",
+    });
+    const ordinaryNncResultTextPairs = ordinaryNncResultTextProbe.formulaSurfacePairs || [];
+    const ordinaryNncResultTextSourceFrame = ordinaryNncResultTextProbe.ordinaryNncResultTextSourceFrame;
+    const ordinaryNncResultTextOperationFrame = ordinaryNncResultTextProbe.ordinaryNncResultTextOperationFrame;
+    const poisonOrdinaryNncPairDisplays = (pair) => {
+        const poisoned = {
+            ...pair,
+            surface: "poison-surface",
+            result: "poison-result",
+            surfaceForms: ["poison-surface-form"],
+            formulaEcho: "#poison(formula)#",
+        };
+        Object.defineProperty(poisoned, "formulaRealizationRecord", {
+            enumerable: false,
+            value: pair.formulaRealizationRecord,
+        });
+        Object.defineProperty(poisoned, "formulaRecord", {
+            enumerable: false,
+            value: pair.formulaRecord,
+        });
+        return poisoned;
+    };
+    const poisonedOrdinaryNncResultTextPairs = ordinaryNncResultTextPairs.map(poisonOrdinaryNncPairDisplays);
+    const poisonedOrdinaryNncResultTextSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: poisonedOrdinaryNncResultTextPairs,
+    });
+    const poisonedOrdinaryNncResultTextOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        poisonedOrdinaryNncResultTextSourceFrame
+    );
+    const staleRealizationOrdinaryNncPair = {
+        ...ordinaryNncResultTextPairs[0],
+    };
+    Object.defineProperty(staleRealizationOrdinaryNncPair, "formulaRealizationRecord", {
+        enumerable: false,
+        value: {
+            ...ordinaryNncResultTextPairs[0].formulaRealizationRecord,
+            surface: "poison-surface",
+            surfaceForms: ["poison-surface"],
+        },
+    });
+    Object.defineProperty(staleRealizationOrdinaryNncPair, "formulaRecord", {
+        enumerable: false,
+        value: ordinaryNncResultTextPairs[0].formulaRecord,
+    });
+    const staleRealizationOrdinaryNncSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: [staleRealizationOrdinaryNncPair],
+    });
+    const staleRealizationOrdinaryNncOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        staleRealizationOrdinaryNncSourceFrame
+    );
+    const contradictoryOrdinaryNncResultTextOperationFrame = {
+        ...poisonedOrdinaryNncResultTextOperationFrame,
+        targetFrame: {
+            ...poisonedOrdinaryNncResultTextOperationFrame.targetFrame,
+            resultText: "poison-result",
+        },
+    };
+    s.eq(
+        "ordinary NNC singular result text is authorized by realization segment frames, not display strings",
+        {
+            directNoFrame: ctx.buildOrdinaryNncResultText(ordinaryNncResultTextPairs),
+            missingSourceFrame: ctx.buildOrdinaryNncResultText(ordinaryNncResultTextPairs, {
+                operationFrame: ordinaryNncResultTextOperationFrame,
+            }),
+            missingOperationFrame: ctx.buildOrdinaryNncResultText(ordinaryNncResultTextPairs, {
+                sourceFrame: ordinaryNncResultTextSourceFrame,
+            }),
+            missingTargetFrame: ctx.buildOrdinaryNncResultText(poisonedOrdinaryNncResultTextPairs, {
+                sourceFrame: poisonedOrdinaryNncResultTextSourceFrame,
+                operationFrame: {
+                    ...poisonedOrdinaryNncResultTextOperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            contradictoryTargetFrame: ctx.buildOrdinaryNncResultText(poisonedOrdinaryNncResultTextPairs, {
+                sourceFrame: poisonedOrdinaryNncResultTextSourceFrame,
+                operationFrame: contradictoryOrdinaryNncResultTextOperationFrame,
+            }),
+            staleRealizationFrame: ctx.buildOrdinaryNncResultText([staleRealizationOrdinaryNncPair], {
+                sourceFrame: staleRealizationOrdinaryNncSourceFrame,
+                operationFrame: staleRealizationOrdinaryNncOperationFrame,
+            }),
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(poisonedOrdinaryNncResultTextPairs, {
+                sourceFrame: poisonedOrdinaryNncResultTextSourceFrame,
+                operationFrame: poisonedOrdinaryNncResultTextOperationFrame,
+            }),
+            outputResult: ordinaryNncResultTextProbe.result,
+            sourceFrameKind: ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncResultTextSourceFrame?.supported === true,
+            staleSourceFrameSupported: staleRealizationOrdinaryNncSourceFrame?.supported === true,
+            sourceFrameDisplayAuthority: ordinaryNncResultTextSourceFrame?.displayStringsAuthorizeGrammar,
+            sourceFrameConsumesRenderedInput: ordinaryNncResultTextSourceFrame?.consumesRenderedInput,
+        },
+        {
+            directNoFrame: "",
+            missingSourceFrame: "",
+            missingOperationFrame: "",
+            missingTargetFrame: "",
+            contradictoryTargetFrame: "",
+            staleRealizationFrame: "",
+            poisonedDisplayResult: "kal",
+            outputResult: "kal",
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            staleSourceFrameSupported: false,
+            sourceFrameDisplayAuthority: false,
+            sourceFrameConsumesRenderedInput: false,
+        }
+    );
+    const absolutiveSingularFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "shuchi",
+        state: "absolutive",
+        number: "singular",
+        nounClass: "t",
+    });
+    const ordinaryNncAbsolutiveSingularProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: absolutiveSingularFormulaSlots,
+        state: "absolutive",
+        subject: { subjectPrefix: "", subjectSuffix: "" },
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const ordinaryNncAbsolutiveSingularPairs = ordinaryNncAbsolutiveSingularProbe.formulaSurfacePairs || [];
+    const ordinaryNncAbsolutiveSingularPoisonedPairs = ordinaryNncAbsolutiveSingularPairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncAbsolutiveSingularPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncAbsolutiveSingularPoisonedPairs,
+    });
+    const ordinaryNncAbsolutiveSingularPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncAbsolutiveSingularPoisonedSourceFrame
+    );
+    const absolutiveSingularSourceFrame = ctx.buildOrdinaryNncAbsolutiveSingularSourceFrame({
+        sourceStem: "shuchi",
+        nounClass: "t",
+        state: "absolutive",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const absolutiveSingularOperationFrame = ctx.buildOrdinaryNncAbsolutiveSingularOperationFrame(
+        absolutiveSingularSourceFrame
+    );
+    const contradictoryAbsolutiveSingularOperationFrame = {
+        ...absolutiveSingularOperationFrame,
+        targetFrame: {
+            ...absolutiveSingularOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const missingTargetAbsolutiveSingularOperationFrame = {
+        ...absolutiveSingularOperationFrame,
+        targetFrame: null,
+    };
+    const oldAbsolutiveSingularFixtures = ctx.ORDINARY_NNC_FIXTURES;
+    const oldAbsolutiveSingularSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldAbsolutiveSingularFixtures.map((fixture) => (
+        fixture.id === "shuchi"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    absolutive: {
+                        ...fixture.states.absolutive,
+                        numberForms: {
+                            ...fixture.states.absolutive.numberForms,
+                            singular: {
+                                ...fixture.states.absolutive.numberForms.singular,
+                                surfaceForms: ["poison-static-surface"],
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.buildOrdinaryNncSurfaceChainResult = () => ({
+        surface: "poison-chain-surface",
+        surfaceForms: ["poison-chain-surface"],
+        soundSpellingFrames: [],
+    });
+    const poisonedAbsolutiveSingularSurfaceFormsProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: absolutiveSingularFormulaSlots,
+        state: "absolutive",
+        subject: { subjectPrefix: "", subjectSuffix: "" },
+        number: "singular",
+        animacy: "inanimate",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldAbsolutiveSingularFixtures;
+    ctx.buildOrdinaryNncSurfaceChainResult = oldAbsolutiveSingularSurfaceChainBuilder;
+    s.eq(
+        "ordinary NNC absolutive singular consumes formula stem and noun-class frames instead of fixture surfaceForms",
+        {
+            outputResult: ordinaryNncAbsolutiveSingularProbe.result,
+            outputSurfaceForms: ordinaryNncAbsolutiveSingularProbe.surfaceForms,
+            outputStem: ordinaryNncAbsolutiveSingularProbe.stem,
+            sourceFrameKind: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.kind || "",
+            operationId: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularOperationFrames?.[0]?.operationId || "",
+            sourceStem: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.sourceStem || "",
+            nounClass: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.nounClass || "",
+            nounClassSurface: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.nounClassSurface || "",
+            resultTextSourceFrameKind: ordinaryNncAbsolutiveSingularProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            resultTextOperationId: ordinaryNncAbsolutiveSingularProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceStemIsGeneratedDisplay: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.sourceStemIsGeneratedDisplay,
+            consumesRenderedInput: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.consumesRenderedInput,
+            displayAuthority: ordinaryNncAbsolutiveSingularProbe.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncAbsolutiveSingularPoisonedPairs, {
+                sourceFrame: ordinaryNncAbsolutiveSingularPoisonedSourceFrame,
+                operationFrame: ordinaryNncAbsolutiveSingularPoisonedOperationFrame,
+            }),
+            poisonedStaticSurfaceFormsResult: poisonedAbsolutiveSingularSurfaceFormsProbe.result,
+            directMissingSourceFrame: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                operationFrame: absolutiveSingularOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                sourceFrame: absolutiveSingularSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                sourceFrame: absolutiveSingularSourceFrame,
+                operationFrame: missingTargetAbsolutiveSingularOperationFrame,
+            }),
+            missingStructuredSourceBlocks: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                sourceFrame: ctx.buildOrdinaryNncAbsolutiveSingularSourceFrame({
+                    sourceStem: "",
+                    nounClass: "t",
+                    state: "absolutive",
+                    number: "singular",
+                    animacy: "inanimate",
+                }),
+                operationFrame: ctx.buildOrdinaryNncAbsolutiveSingularOperationFrame(ctx.buildOrdinaryNncAbsolutiveSingularSourceFrame({
+                    sourceStem: "",
+                    nounClass: "t",
+                    state: "absolutive",
+                    number: "singular",
+                    animacy: "inanimate",
+                })),
+            }),
+            contradictoryTarget: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                sourceFrame: absolutiveSingularSourceFrame,
+                operationFrame: contradictoryAbsolutiveSingularOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+                sourceFrame: absolutiveSingularSourceFrame,
+                operationFrame: absolutiveSingularOperationFrame,
+            }),
+        },
+        {
+            outputResult: "shuchit",
+            outputSurfaceForms: ["shuchit"],
+            outputStem: "shuchi",
+            sourceFrameKind: "ordinary-nnc-absolutive-singular-source-frame",
+            operationId: "ordinary-nnc-absolutive-singular-realization",
+            sourceStem: "shuchi",
+            nounClass: "t",
+            nounClassSurface: "t",
+            resultTextSourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            resultTextOperationId: "ordinary-nnc-result-text-render",
+            sourceStemIsGeneratedDisplay: false,
+            consumesRenderedInput: false,
+            displayAuthority: false,
+            poisonedDisplayResult: "shuchit",
+            poisonedStaticSurfaceFormsResult: "shuchit",
+            directMissingSourceFrame: "",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            missingStructuredSourceBlocks: "",
+            contradictoryTarget: "",
+            framedTarget: "shuchit",
+        }
+    );
+    const ordinaryNncCountPluralResultTextProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "xilun",
+        state: "absolutive",
+        number: "plural",
+        animacy: "animate",
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+    });
+    const ordinaryNncCountPluralPairs = ordinaryNncCountPluralResultTextProbe.formulaSurfacePairs || [];
+    const ordinaryNncCountPluralPoisonedPairs = ordinaryNncCountPluralPairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncCountPluralPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncCountPluralPoisonedPairs,
+    });
+    const ordinaryNncCountPluralPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncCountPluralPoisonedSourceFrame
+    );
+    const animateCountPluralSourceFrame = ctx.buildOrdinaryNncAnimateCountPluralSourceFrame({
+        sourceStem: "xilun",
+        sourceSurface: "xilun",
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+        state: "absolutive",
+        animacy: "animate",
+        pluralType: "count",
+    });
+    const animateCountPluralOperationFrame = ctx.buildOrdinaryNncAnimateCountPluralOperationFrame(
+        animateCountPluralSourceFrame
+    );
+    const contradictoryAnimateCountPluralOperationFrame = {
+        ...animateCountPluralOperationFrame,
+        targetFrame: {
+            ...animateCountPluralOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldSubjectPrefixResult = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-surface",
+        soundSpellingFrames: [],
+    });
+    const monkeypatchedCountPluralResultTextProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "xilun",
+        state: "absolutive",
+        number: "plural",
+        animacy: "animate",
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+    });
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldSubjectPrefixResult;
+    s.eq(
+        "ordinary NNC animate count-plural output consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncCountPluralResultTextProbe.result,
+            outputSurfaceForms: ordinaryNncCountPluralResultTextProbe.surfaceForms,
+            sourceFrameKind: ordinaryNncCountPluralResultTextProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncCountPluralResultTextProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncCountPluralResultTextProbe.ordinaryNncResultTextSourceFrame?.supported === true,
+            countPluralSourceFrameKind: ordinaryNncCountPluralResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            countPluralOperationId: ordinaryNncCountPluralResultTextProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            countPluralSourceSurfaceIsGeneratedDisplay: ordinaryNncCountPluralResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurfaceIsGeneratedDisplay,
+            countPluralSourceFrameConsumesRenderedInput: ordinaryNncCountPluralResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            countPluralSourceFrameDisplayAuthority: ordinaryNncCountPluralResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncCountPluralPoisonedPairs, {
+                sourceFrame: ordinaryNncCountPluralPoisonedSourceFrame,
+                operationFrame: ordinaryNncCountPluralPoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAnimateCountPluralSurfaceFromFrame({
+                sourceFrame: animateCountPluralSourceFrame,
+            }),
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateCountPluralSurfaceFromFrame({
+                sourceFrame: animateCountPluralSourceFrame,
+                operationFrame: contradictoryAnimateCountPluralOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimateCountPluralSurfaceFromFrame({
+                sourceFrame: animateCountPluralSourceFrame,
+                operationFrame: animateCountPluralOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedCountPluralResultTextProbe.result,
+        },
+        {
+            outputResult: "tixilunmet",
+            outputSurfaceForms: ["tixilunmet"],
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            countPluralSourceFrameKind: "ordinary-nnc-animate-count-plural-source-frame",
+            countPluralOperationId: "ordinary-nnc-animate-count-plural-realization",
+            countPluralSourceSurfaceIsGeneratedDisplay: false,
+            countPluralSourceFrameConsumesRenderedInput: false,
+            countPluralSourceFrameDisplayAuthority: false,
+            poisonedDisplayResult: "tixilunmet",
+            directMissingOperation: "",
+            contradictoryTarget: "",
+            framedTarget: "tixilunmet",
+            monkeypatchedResult: "tixilunmet",
+        }
+    );
+    const ordinaryNncPossessiveCountPluralProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "mistun",
+        state: "possessive",
+        possessor: "nu",
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+        number: "plural",
+        pluralType: "count",
+        animacy: "animate",
+    });
+    const ordinaryNncPossessiveCountPluralPairs = ordinaryNncPossessiveCountPluralProbe.formulaSurfacePairs || [];
+    const ordinaryNncPossessiveCountPluralPoisonedPairs = ordinaryNncPossessiveCountPluralPairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncPossessiveCountPluralPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncPossessiveCountPluralPoisonedPairs,
+    });
+    const ordinaryNncPossessiveCountPluralPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncPossessiveCountPluralPoisonedSourceFrame
+    );
+    const possessiveCountPluralSourceFrame = ctx.buildOrdinaryNncAnimatePossessiveCountPluralSourceFrame({
+        sourceStem: "mistun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+        state: "possessive",
+        animacy: "animate",
+        pluralType: "count",
+    });
+    const possessiveCountPluralOperationFrame = ctx.buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame(
+        possessiveCountPluralSourceFrame
+    );
+    const contradictoryPossessiveCountPluralOperationFrame = {
+        ...possessiveCountPluralOperationFrame,
+        targetFrame: {
+            ...possessiveCountPluralOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldPossessiveCountPluralSubjectPrefix = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-surface",
+        soundSpellingFrames: [],
+    });
+    const monkeypatchedPossessiveCountPlural = ctx.generateOrdinaryNncParadigm({
+        stem: "mistun",
+        state: "possessive",
+        possessor: "nu",
+        subject: {
+            subjectPrefix: "ti",
+            subjectSuffix: "t",
+            personSubKey: "1pl",
+            number: "plural",
+        },
+        number: "plural",
+        pluralType: "count",
+        animacy: "animate",
+    });
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldPossessiveCountPluralSubjectPrefix;
+    s.eq(
+        "ordinary NNC animate possessive count plural consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncPossessiveCountPluralProbe.result,
+            outputSurfaceForms: ordinaryNncPossessiveCountPluralProbe.surfaceForms,
+            resultSourceFrameKind: ordinaryNncPossessiveCountPluralProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            resultOperationId: ordinaryNncPossessiveCountPluralProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            possessiveCountSourceFrameKind: ordinaryNncPossessiveCountPluralProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            possessiveCountOperationId: ordinaryNncPossessiveCountPluralProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            possessiveCountSourceStemIsGeneratedDisplay: ordinaryNncPossessiveCountPluralProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStemIsGeneratedDisplay,
+            possessiveCountConsumesRenderedInput: ordinaryNncPossessiveCountPluralProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            possessiveCountDisplayAuthority: ordinaryNncPossessiveCountPluralProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncPossessiveCountPluralPoisonedPairs, {
+                sourceFrame: ordinaryNncPossessiveCountPluralPoisonedSourceFrame,
+                operationFrame: ordinaryNncPossessiveCountPluralPoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame({
+                sourceFrame: possessiveCountPluralSourceFrame,
+            }),
+            oldStringApiBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "numistun",
+                { subjectPrefix: "ti", subjectSuffix: "t" },
+                "possessive",
+                "animate"
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame({
+                sourceFrame: possessiveCountPluralSourceFrame,
+                operationFrame: contradictoryPossessiveCountPluralOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame({
+                sourceFrame: possessiveCountPluralSourceFrame,
+                operationFrame: possessiveCountPluralOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedPossessiveCountPlural.result,
+        },
+        {
+            outputResult: "tinumistun",
+            outputSurfaceForms: ["tinumistun"],
+            resultSourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            resultOperationId: "ordinary-nnc-result-text-render",
+            possessiveCountSourceFrameKind: "ordinary-nnc-animate-possessive-count-plural-source-frame",
+            possessiveCountOperationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+            possessiveCountSourceStemIsGeneratedDisplay: false,
+            possessiveCountConsumesRenderedInput: false,
+            possessiveCountDisplayAuthority: false,
+            poisonedDisplayResult: "tinumistun",
+            directMissingOperation: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "tinumistun",
+            monkeypatchedResult: "tinumistun",
+        }
+    );
+    const ordinaryNncDistributiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "xilun",
+        state: "absolutive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "zero",
+    });
+    const ordinaryNncDistributiveResultTextProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: ordinaryNncDistributiveFormulaSlots,
+        state: "absolutive",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    const ordinaryNncDistributivePairs = ordinaryNncDistributiveResultTextProbe.formulaSurfacePairs || [];
+    const ordinaryNncDistributivePoisonedPairs = ordinaryNncDistributivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncDistributivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncDistributivePoisonedPairs,
+    });
+    const ordinaryNncDistributivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncDistributivePoisonedSourceFrame
+    );
+    const distributivePriorSourceFrame = ctx.buildOrdinaryNncAbsolutiveSingularSourceFrame({
+        sourceStem: "xilun",
+        nounClass: "zero",
+        state: "absolutive",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const distributivePriorOperationFrame = ctx.buildOrdinaryNncAbsolutiveSingularOperationFrame(
+        distributivePriorSourceFrame
+    );
+    const distributiveStringOnlySourceFrame = ctx.buildOrdinaryNncDistributiveReduplicationSourceFrame({
+        sourceSurface: "xilun",
+        state: "absolutive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const distributiveMissingPriorOperationSourceFrame = ctx.buildOrdinaryNncDistributiveReduplicationSourceFrame({
+        sourceSurface: "xilun",
+        priorSourceFrame: distributivePriorSourceFrame,
+        state: "absolutive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const distributiveContradictoryPriorSourceFrame = ctx.buildOrdinaryNncDistributiveReduplicationSourceFrame({
+        sourceSurface: "poison-source-surface",
+        priorSourceFrame: distributivePriorSourceFrame,
+        priorOperationFrame: distributivePriorOperationFrame,
+        state: "absolutive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const distributiveSourceFrame = ctx.buildOrdinaryNncDistributiveReduplicationSourceFrame({
+        sourceSurface: "xilun",
+        priorSourceFrame: distributivePriorSourceFrame,
+        priorOperationFrame: distributivePriorOperationFrame,
+        state: "absolutive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const distributiveOperationFrame = ctx.buildOrdinaryNncDistributiveReduplicationOperationFrame(distributiveSourceFrame);
+    const contradictoryDistributiveOperationFrame = {
+        ...distributiveOperationFrame,
+        targetFrame: {
+            ...distributiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldReduplicatedSurfaceBuilder = ctx.buildOrdinaryNncReduplicatedSurface;
+    ctx.buildOrdinaryNncReduplicatedSurface = () => "poison-surface";
+    const monkeypatchedDistributive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: ordinaryNncDistributiveFormulaSlots,
+        state: "absolutive",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    ctx.buildOrdinaryNncReduplicatedSurface = oldReduplicatedSurfaceBuilder;
+    s.eq(
+        "ordinary NNC distributive plural reduplication consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncDistributiveResultTextProbe.result,
+            outputSurfaceForms: ordinaryNncDistributiveResultTextProbe.surfaceForms,
+            outputStem: ordinaryNncDistributiveResultTextProbe.stem,
+            sourceFrameKind: ordinaryNncDistributiveResultTextProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncDistributiveResultTextProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncDistributiveResultTextProbe.ordinaryNncResultTextSourceFrame?.supported === true,
+            derivedSourceFrameKind: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            derivedOperationId: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            derivedSourceSurface: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurface || "",
+            derivedSourceStem: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStem || "",
+            derivedNounClass: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.nounClass || "",
+            derivedSourceSurfaceRole: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurfaceRole || "",
+            derivedPriorSourceFrameKind: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.priorSourceFrameKind || "",
+            derivedPriorOperationId: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.priorOperationId || "",
+            derivedPriorTargetSurface: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.priorOperationTargetSurface || "",
+            derivedSourceSurfaceIsGeneratedDisplay: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurfaceIsGeneratedDisplay,
+            derivedSourceFrameConsumesRenderedInput: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            derivedSourceFrameDisplayAuthority: ordinaryNncDistributiveResultTextProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncDistributivePoisonedPairs, {
+                sourceFrame: ordinaryNncDistributivePoisonedSourceFrame,
+                operationFrame: ordinaryNncDistributivePoisonedOperationFrame,
+            }),
+            directStringOnlySourceSupported: distributiveStringOnlySourceFrame.supported === true,
+            directStringOnlySourceTarget: ctx.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+                sourceFrame: distributiveStringOnlySourceFrame,
+                operationFrame: ctx.buildOrdinaryNncDistributiveReduplicationOperationFrame(distributiveStringOnlySourceFrame),
+            }),
+            missingPriorOperationSupported: distributiveMissingPriorOperationSourceFrame.supported === true,
+            contradictoryPriorSupported: distributiveContradictoryPriorSourceFrame.supported === true,
+            directMissingOperation: ctx.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+                sourceFrame: distributiveSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+                sourceFrame: distributiveSourceFrame,
+                operationFrame: {
+                    ...distributiveOperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncReduplicatedSurface("xilun"),
+            contradictoryTarget: ctx.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+                sourceFrame: distributiveSourceFrame,
+                operationFrame: contradictoryDistributiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+                sourceFrame: distributiveSourceFrame,
+                operationFrame: distributiveOperationFrame,
+            }),
+            sourceFrameConsumesRenderedInput: distributiveSourceFrame.consumesRenderedInput,
+            sourceFrameDisplayAuthority: distributiveSourceFrame.displayStringsAuthorizeGrammar,
+            monkeypatchedResult: monkeypatchedDistributive.result,
+        },
+        {
+            outputResult: "xijxilun",
+            outputSurfaceForms: ["xijxilun"],
+            outputStem: "xilun",
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            derivedSourceFrameKind: "ordinary-nnc-distributive-reduplication-source-frame",
+            derivedOperationId: "ordinary-nnc-distributive-reduplication",
+            derivedSourceSurface: "xilun",
+            derivedSourceStem: "xilun",
+            derivedNounClass: "zero",
+            derivedSourceSurfaceRole: "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+            derivedPriorSourceFrameKind: "ordinary-nnc-absolutive-singular-source-frame",
+            derivedPriorOperationId: "ordinary-nnc-absolutive-singular-realization",
+            derivedPriorTargetSurface: "xilun",
+            derivedSourceSurfaceIsGeneratedDisplay: false,
+            derivedSourceFrameConsumesRenderedInput: false,
+            derivedSourceFrameDisplayAuthority: false,
+            poisonedDisplayResult: "xijxilun",
+            directStringOnlySourceSupported: false,
+            directStringOnlySourceTarget: "",
+            missingPriorOperationSupported: false,
+            contradictoryPriorSupported: false,
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "xijxilun",
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            monkeypatchedResult: "xijxilun",
+        }
+    );
+    const animateDistributiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "tapiyal",
+        state: "absolutive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "zero",
+        subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+    });
+    const ordinaryNncAnimateDistributiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animateDistributiveFormulaSlots,
+        state: "absolutive",
+        subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    const ordinaryNncAnimateDistributivePairs = ordinaryNncAnimateDistributiveProbe.formulaSurfacePairs || [];
+    const ordinaryNncAnimateDistributivePoisonedPairs = ordinaryNncAnimateDistributivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncAnimateDistributivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncAnimateDistributivePoisonedPairs,
+    });
+    const ordinaryNncAnimateDistributivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncAnimateDistributivePoisonedSourceFrame
+    );
+    const animateDistributiveSourceFrame = ctx.buildOrdinaryNncAnimateDistributiveSourceFrame({
+        sourceStem: "tapiyal",
+        subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+        state: "absolutive",
+        animacy: "animate",
+        pluralType: "distributive",
+    });
+    const animateDistributiveOperationFrame = ctx.buildOrdinaryNncAnimateDistributiveOperationFrame(
+        animateDistributiveSourceFrame
+    );
+    const contradictoryAnimateDistributiveOperationFrame = {
+        ...animateDistributiveOperationFrame,
+        targetFrame: {
+            ...animateDistributiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldReduplicatedSurfaceBuilderForAnimate = ctx.buildOrdinaryNncReduplicatedSurface;
+    ctx.buildOrdinaryNncReduplicatedSurface = () => "poison-surface";
+    const monkeypatchedAnimateDistributive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animateDistributiveFormulaSlots,
+        state: "absolutive",
+        subject: { subjectPrefix: "ti", subjectSuffix: "t" },
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    ctx.buildOrdinaryNncReduplicatedSurface = oldReduplicatedSurfaceBuilderForAnimate;
+    s.eq(
+        "ordinary NNC animate distributive plural consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncAnimateDistributiveProbe.result,
+            outputSurfaceForms: ordinaryNncAnimateDistributiveProbe.surfaceForms,
+            outputStem: ordinaryNncAnimateDistributiveProbe.stem,
+            sourceFrameKind: ordinaryNncAnimateDistributiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncAnimateDistributiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncAnimateDistributiveProbe.ordinaryNncResultTextSourceFrame?.supported === true,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncAnimateDistributivePoisonedPairs, {
+                sourceFrame: ordinaryNncAnimateDistributivePoisonedSourceFrame,
+                operationFrame: ordinaryNncAnimateDistributivePoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAnimateDistributiveSurfaceFromFrame({
+                sourceFrame: animateDistributiveSourceFrame,
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncReduplicatedSurface("tapiyal"),
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateDistributiveSurfaceFromFrame({
+                sourceFrame: animateDistributiveSourceFrame,
+                operationFrame: contradictoryAnimateDistributiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimateDistributiveSurfaceFromFrame({
+                sourceFrame: animateDistributiveSourceFrame,
+                operationFrame: animateDistributiveOperationFrame,
+            }),
+            sourceFrameConsumesRenderedInput: animateDistributiveSourceFrame.consumesRenderedInput,
+            sourceFrameDisplayAuthority: animateDistributiveSourceFrame.displayStringsAuthorizeGrammar,
+            monkeypatchedResult: monkeypatchedAnimateDistributive.result,
+        },
+        {
+            outputResult: "titajtapiyalmet",
+            outputSurfaceForms: ["titajtapiyalmet"],
+            outputStem: "tapiyal",
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            poisonedDisplayResult: "titajtapiyalmet",
+            directMissingOperation: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "titajtapiyalmet",
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            monkeypatchedResult: "titajtapiyalmet",
+        }
+    );
+    const possessiveDistributiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "tapiyal",
+        state: "possessive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "zero",
+    });
+    const ordinaryNncPossessiveDistributiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "tu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    const ordinaryNncPossessiveDistributivePairs = ordinaryNncPossessiveDistributiveProbe.formulaSurfacePairs || [];
+    const ordinaryNncPossessiveDistributivePoisonedPairs = ordinaryNncPossessiveDistributivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncPossessiveDistributivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncPossessiveDistributivePoisonedPairs,
+    });
+    const ordinaryNncPossessiveDistributivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncPossessiveDistributivePoisonedSourceFrame
+    );
+    const possessiveDistributiveSourceFrame = ctx.buildOrdinaryNncPossessiveDistributiveSourceFrame({
+        sourceStem: "tapiyal",
+        possessor: ctx.resolveOrdinaryNncPossessor("tu"),
+        state: "possessive",
+        animacy: "animate",
+        pluralType: "distributive",
+    });
+    const possessiveDistributiveOperationFrame = ctx.buildOrdinaryNncPossessiveDistributiveOperationFrame(
+        possessiveDistributiveSourceFrame
+    );
+    const contradictoryPossessiveDistributiveOperationFrame = {
+        ...possessiveDistributiveOperationFrame,
+        targetFrame: {
+            ...possessiveDistributiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldPossessiveDistributiveBuilder = ctx.buildOrdinaryNncPossessiveDistributiveSurface;
+    ctx.buildOrdinaryNncPossessiveDistributiveSurface = () => "poison-surface";
+    const monkeypatchedPossessiveDistributive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "tu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    ctx.buildOrdinaryNncPossessiveDistributiveSurface = oldPossessiveDistributiveBuilder;
+    s.eq(
+        "ordinary NNC possessive distributive plural consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncPossessiveDistributiveProbe.result,
+            outputSurfaceForms: ordinaryNncPossessiveDistributiveProbe.surfaceForms,
+            outputStem: ordinaryNncPossessiveDistributiveProbe.stem,
+            sourceFrameKind: ordinaryNncPossessiveDistributiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncPossessiveDistributiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncPossessiveDistributiveProbe.ordinaryNncResultTextSourceFrame?.supported === true,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncPossessiveDistributivePoisonedPairs, {
+                sourceFrame: ordinaryNncPossessiveDistributivePoisonedSourceFrame,
+                operationFrame: ordinaryNncPossessiveDistributivePoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSourceFrame,
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncPossessiveDistributiveSurface("tutapiyalwan", ctx.resolveOrdinaryNncPossessor("tu")),
+            contradictoryTarget: ctx.buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSourceFrame,
+                operationFrame: contradictoryPossessiveDistributiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSourceFrame,
+                operationFrame: possessiveDistributiveOperationFrame,
+            }),
+            sourceFrameConsumesRenderedInput: possessiveDistributiveSourceFrame.consumesRenderedInput,
+            sourceFrameDisplayAuthority: possessiveDistributiveSourceFrame.displayStringsAuthorizeGrammar,
+            monkeypatchedResult: monkeypatchedPossessiveDistributive.result,
+        },
+        {
+            outputResult: "tutajtapiyalwan",
+            outputSurfaceForms: ["tutajtapiyalwan"],
+            outputStem: "tapiyal",
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            poisonedDisplayResult: "tutajtapiyalwan",
+            directMissingOperation: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "tutajtapiyalwan",
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            monkeypatchedResult: "tutajtapiyalwan",
+        }
+    );
+    const possessiveDistributiveSubject = {
+        subjectPrefix: "ti",
+        subjectSuffix: "t",
+        personSubKey: "1pl",
+        number: "plural",
+    };
+    const ordinaryNncPossessiveDistributiveSubjectProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "tu",
+        subject: possessiveDistributiveSubject,
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    const ordinaryNncPossessiveDistributiveSubjectPairs = ordinaryNncPossessiveDistributiveSubjectProbe.formulaSurfacePairs || [];
+    const ordinaryNncPossessiveDistributiveSubjectPoisonedPairs = ordinaryNncPossessiveDistributiveSubjectPairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncPossessiveDistributiveSubjectPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncPossessiveDistributiveSubjectPoisonedPairs,
+    });
+    const ordinaryNncPossessiveDistributiveSubjectPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncPossessiveDistributiveSubjectPoisonedSourceFrame
+    );
+    const possessiveDistributiveSubjectSourceFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+        sourceStem: "tapiyal",
+        sourceSurface: possessiveDistributiveOperationFrame.targetFrame.surface,
+        sourceSurfaceRole: "ordinary-nnc-prior-typed-derived-source-form",
+        priorSourceFrame: possessiveDistributiveSourceFrame,
+        priorOperationFrame: possessiveDistributiveOperationFrame,
+        subject: possessiveDistributiveSubject,
+        state: "possessive",
+        animacy: "animate",
+    });
+    const possessiveDistributiveSubjectOperationFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixOperationFrame(
+        possessiveDistributiveSubjectSourceFrame
+    );
+    const contradictoryPossessiveDistributiveSubjectOperationFrame = {
+        ...possessiveDistributiveSubjectOperationFrame,
+        targetFrame: {
+            ...possessiveDistributiveSubjectOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldPossessiveDistributiveSubjectPrefixBuilder = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-subject-surface",
+        soundSpellingFrames: [],
+    });
+    const monkeypatchedPossessiveDistributiveSubject = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "tu",
+        subject: possessiveDistributiveSubject,
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldPossessiveDistributiveSubjectPrefixBuilder;
+    s.eq(
+        "ordinary NNC possessive distributive subject prefix consumes prior typed frames",
+        {
+            outputResult: ordinaryNncPossessiveDistributiveSubjectProbe.result,
+            outputSurfaceForms: ordinaryNncPossessiveDistributiveSubjectProbe.surfaceForms,
+            derivedSourceFrameKind: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            derivedOperationId: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            priorOperationId: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.priorOperationId || "",
+            sourceSurfaceRole: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurfaceRole || "",
+            sourceSurfaceIsGeneratedDisplay: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.sourceSurfaceIsGeneratedDisplay,
+            consumesRenderedInput: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            displayAuthority: ordinaryNncPossessiveDistributiveSubjectProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncPossessiveDistributiveSubjectPoisonedPairs, {
+                sourceFrame: ordinaryNncPossessiveDistributiveSubjectPoisonedSourceFrame,
+                operationFrame: ordinaryNncPossessiveDistributiveSubjectPoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSubjectSourceFrame,
+            }),
+            oldStringApiBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "tutajtapiyalwan",
+                possessiveDistributiveSubject,
+                "possessive",
+                "animate"
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSubjectSourceFrame,
+                operationFrame: contradictoryPossessiveDistributiveSubjectOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: possessiveDistributiveSubjectSourceFrame,
+                operationFrame: possessiveDistributiveSubjectOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedPossessiveDistributiveSubject.result,
+        },
+        {
+            outputResult: "titutajtapiyalwan",
+            outputSurfaceForms: ["titutajtapiyalwan"],
+            derivedSourceFrameKind: "ordinary-nnc-animate-subject-prefix-source-frame",
+            derivedOperationId: "ordinary-nnc-animate-subject-prefix-realization",
+            priorOperationId: "ordinary-nnc-possessive-distributive-realization",
+            sourceSurfaceRole: "ordinary-nnc-prior-typed-derived-source-form",
+            sourceSurfaceIsGeneratedDisplay: false,
+            consumesRenderedInput: false,
+            displayAuthority: false,
+            poisonedDisplayResult: "titutajtapiyalwan",
+            directMissingOperation: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "titutajtapiyalwan",
+            monkeypatchedResult: "titutajtapiyalwan",
+        }
+    );
+    const possessiveSingularPossessorPluralFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "mistun",
+        state: "possessive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "zero",
+    });
+    const ordinaryNncPossessiveSingularPossessorPluralProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveSingularPossessorPluralFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    const ordinaryNncPossessiveSingularPossessorPluralPairs = ordinaryNncPossessiveSingularPossessorPluralProbe.formulaSurfacePairs || [];
+    const ordinaryNncPossessiveSingularPossessorPluralPoisonedPairs = ordinaryNncPossessiveSingularPossessorPluralPairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncPossessiveSingularPossessorPluralPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncPossessiveSingularPossessorPluralPoisonedPairs,
+    });
+    const ordinaryNncPossessiveSingularPossessorPluralPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncPossessiveSingularPossessorPluralPoisonedSourceFrame
+    );
+    const singularPossessorPriorSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: "mistun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "animate",
+    });
+    const singularPossessorPriorOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(
+        singularPossessorPriorSourceFrame
+    );
+    const singularPossessorPluralIdentitySourceFrame = ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame({
+        sourceStem: "mistun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        state: "possessive",
+        animacy: "animate",
+        pluralType: "distributive",
+        priorSourceFrame: singularPossessorPriorSourceFrame,
+        priorOperationFrame: singularPossessorPriorOperationFrame,
+    });
+    const singularPossessorPluralIdentityOperationFrame = ctx.buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame(
+        singularPossessorPluralIdentitySourceFrame
+    );
+    const singularPossessorMissingPriorSourceFrame = ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame({
+        sourceStem: "mistun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        state: "possessive",
+        animacy: "animate",
+        pluralType: "distributive",
+        priorSourceFrame: singularPossessorPriorSourceFrame,
+    });
+    const singularPossessorContradictoryPriorSourceFrame = ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame({
+        sourceStem: "mistun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        state: "possessive",
+        animacy: "animate",
+        pluralType: "distributive",
+        priorSourceFrame: singularPossessorPriorSourceFrame,
+        priorOperationFrame: {
+            ...singularPossessorPriorOperationFrame,
+            targetFrame: {
+                ...singularPossessorPriorOperationFrame.targetFrame,
+                surface: "poison-surface",
+            },
+        },
+    });
+    const contradictorySingularPossessorIdentityOperationFrame = {
+        ...singularPossessorPluralIdentityOperationFrame,
+        targetFrame: {
+            ...singularPossessorPluralIdentityOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldAnimatePossessivePluralBuilder = ctx.buildOrdinaryNncAnimatePossessivePluralForms;
+    ctx.buildOrdinaryNncAnimatePossessivePluralForms = () => ["poison-surface"];
+    const monkeypatchedPossessiveSingularPossessorPlural = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: possessiveSingularPossessorPluralFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "animate",
+    });
+    ctx.buildOrdinaryNncAnimatePossessivePluralForms = oldAnimatePossessivePluralBuilder;
+    s.eq(
+        "ordinary NNC animate possessive singular-possessor plural consumes prior typed possessive frames",
+        {
+            outputResult: ordinaryNncPossessiveSingularPossessorPluralProbe.result,
+            outputSurfaceForms: ordinaryNncPossessiveSingularPossessorPluralProbe.surfaceForms,
+            outputStem: ordinaryNncPossessiveSingularPossessorPluralProbe.stem,
+            derivedSourceFrameKind: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            derivedOperationId: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            priorOperationId: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.priorOperationId || "",
+            priorTargetSurface: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.priorOperationTargetSurface || "",
+            sourceStemIsGeneratedDisplay: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStemIsGeneratedDisplay,
+            consumesRenderedInput: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            displayAuthority: ordinaryNncPossessiveSingularPossessorPluralProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncPossessiveSingularPossessorPluralPoisonedPairs, {
+                sourceFrame: ordinaryNncPossessiveSingularPossessorPluralPoisonedSourceFrame,
+                operationFrame: ordinaryNncPossessiveSingularPossessorPluralPoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+                sourceFrame: singularPossessorPluralIdentitySourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+                sourceFrame: singularPossessorPluralIdentitySourceFrame,
+                operationFrame: {
+                    ...singularPossessorPluralIdentityOperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            missingPriorOperationSupported: singularPossessorMissingPriorSourceFrame.supported === true,
+            contradictoryPriorSupported: singularPossessorContradictoryPriorSourceFrame.supported === true,
+            oldStringApiBlocked: ctx.buildOrdinaryNncAnimatePossessivePluralForms(["numistun"], {
+                possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+                pluralType: "distributive",
+            }),
+            contradictoryTarget: ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+                sourceFrame: singularPossessorPluralIdentitySourceFrame,
+                operationFrame: contradictorySingularPossessorIdentityOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+                sourceFrame: singularPossessorPluralIdentitySourceFrame,
+                operationFrame: singularPossessorPluralIdentityOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedPossessiveSingularPossessorPlural.result,
+        },
+        {
+            outputResult: "numistun",
+            outputSurfaceForms: ["numistun"],
+            outputStem: "mistun",
+            derivedSourceFrameKind: "ordinary-nnc-animate-possessive-plural-identity-source-frame",
+            derivedOperationId: "ordinary-nnc-animate-possessive-plural-identity",
+            priorOperationId: "ordinary-nnc-open-stem-possessive-realization",
+            priorTargetSurface: "numistun",
+            sourceStemIsGeneratedDisplay: false,
+            consumesRenderedInput: false,
+            displayAuthority: false,
+            poisonedDisplayResult: "numistun",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            missingPriorOperationSupported: false,
+            contradictoryPriorSupported: false,
+            oldStringApiBlocked: [],
+            contradictoryTarget: "",
+            framedTarget: "numistun",
+            monkeypatchedResult: "numistun",
+        }
+    );
+    const nonanimatePossessiveDistributiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "kal",
+        state: "possessive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "zero",
+    });
+    const ordinaryNncNonanimatePossessiveDistributiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: nonanimatePossessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    const ordinaryNncNonanimatePossessiveDistributivePairs = ordinaryNncNonanimatePossessiveDistributiveProbe.formulaSurfacePairs || [];
+    const ordinaryNncNonanimatePossessiveDistributivePoisonedPairs = ordinaryNncNonanimatePossessiveDistributivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncNonanimatePossessiveDistributivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncNonanimatePossessiveDistributivePoisonedPairs,
+    });
+    const ordinaryNncNonanimatePossessiveDistributivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncNonanimatePossessiveDistributivePoisonedSourceFrame
+    );
+    const nonanimatePossessiveDistributiveSourceFrame = ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame({
+        sourceStem: "kal",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        state: "possessive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const nonanimatePossessiveDistributiveOperationFrame = ctx.buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame(
+        nonanimatePossessiveDistributiveSourceFrame
+    );
+    const contradictoryNonanimatePossessiveDistributiveOperationFrame = {
+        ...nonanimatePossessiveDistributiveOperationFrame,
+        targetFrame: {
+            ...nonanimatePossessiveDistributiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldPossessiveDistributiveResultBuilder = ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult;
+    const oldPossessiveDistributiveSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = () => ({
+        surface: "poison-surface",
+        soundSpellingFrames: [],
+    });
+    ctx.buildOrdinaryNncSurfaceChainResult = () => ({
+        surface: "poison-chain-surface",
+        soundSpellingFrames: [],
+    });
+    const monkeypatchedNonanimatePossessiveDistributive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: nonanimatePossessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = oldPossessiveDistributiveResultBuilder;
+    ctx.buildOrdinaryNncSurfaceChainResult = oldPossessiveDistributiveSurfaceChainBuilder;
+    s.eq(
+        "ordinary NNC nonanimate possessive distributive plural consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncNonanimatePossessiveDistributiveProbe.result,
+            outputSurfaceForms: ordinaryNncNonanimatePossessiveDistributiveProbe.surfaceForms,
+            outputStem: ordinaryNncNonanimatePossessiveDistributiveProbe.stem,
+            resultSourceFrameKind: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            resultOperationId: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            possessiveDistributiveSourceFrameKind: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            possessiveDistributiveOperationId: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            possessiveDistributiveSourceStemIsGeneratedDisplay: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStemIsGeneratedDisplay,
+            possessiveDistributiveConsumesRenderedInput: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            possessiveDistributiveDisplayAuthority: ordinaryNncNonanimatePossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncNonanimatePossessiveDistributivePoisonedPairs, {
+                sourceFrame: ordinaryNncNonanimatePossessiveDistributivePoisonedSourceFrame,
+                operationFrame: ordinaryNncNonanimatePossessiveDistributivePoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonanimatePossessiveDistributiveSourceFrame,
+            }),
+            directMissingSource: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                operationFrame: nonanimatePossessiveDistributiveOperationFrame,
+            }),
+            directMissingTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonanimatePossessiveDistributiveSourceFrame,
+                operationFrame: {
+                    ...nonanimatePossessiveDistributiveOperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult(
+                "nukal",
+                ctx.resolveOrdinaryNncPossessor("nu")
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonanimatePossessiveDistributiveSourceFrame,
+                operationFrame: contradictoryNonanimatePossessiveDistributiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonanimatePossessiveDistributiveSourceFrame,
+                operationFrame: nonanimatePossessiveDistributiveOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedNonanimatePossessiveDistributive.result,
+        },
+        {
+            outputResult: "nukajkal",
+            outputSurfaceForms: ["nukajkal"],
+            outputStem: "kal",
+            resultSourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            resultOperationId: "ordinary-nnc-result-text-render",
+            possessiveDistributiveSourceFrameKind: "ordinary-nnc-nonanimate-possessive-distributive-source-frame",
+            possessiveDistributiveOperationId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+            possessiveDistributiveSourceStemIsGeneratedDisplay: false,
+            possessiveDistributiveConsumesRenderedInput: false,
+            possessiveDistributiveDisplayAuthority: false,
+            poisonedDisplayResult: "nukajkal",
+            directMissingOperation: "",
+            directMissingSource: "",
+            directMissingTarget: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "nukajkal",
+            monkeypatchedResult: "nukajkal",
+        }
+    );
+    const nonzeroPossessiveDistributiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "shuchi",
+        state: "possessive",
+        number: "plural",
+        pluralType: "distributive",
+        nounClass: "t",
+    });
+    const ordinaryNncNonzeroPossessiveDistributiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: nonzeroPossessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    const ordinaryNncNonzeroPossessiveDistributivePairs = ordinaryNncNonzeroPossessiveDistributiveProbe.formulaSurfacePairs || [];
+    const ordinaryNncNonzeroPossessiveDistributivePoisonedPairs = ordinaryNncNonzeroPossessiveDistributivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncNonzeroPossessiveDistributivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncNonzeroPossessiveDistributivePoisonedPairs,
+    });
+    const ordinaryNncNonzeroPossessiveDistributivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncNonzeroPossessiveDistributivePoisonedSourceFrame
+    );
+    const nonzeroPossessiveDistributiveSourceFrame = ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame({
+        sourceStem: "shuchiw",
+        formulaStem: "shuchi",
+        sourceStemEvidence: "static-nnc-structured-possessive-stem",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        state: "possessive",
+        animacy: "inanimate",
+        pluralType: "distributive",
+    });
+    const nonzeroPossessiveDistributiveOperationFrame = ctx.buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame(
+        nonzeroPossessiveDistributiveSourceFrame
+    );
+    const contradictoryNonzeroPossessiveDistributiveOperationFrame = {
+        ...nonzeroPossessiveDistributiveOperationFrame,
+        targetFrame: {
+            ...nonzeroPossessiveDistributiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldNonzeroPossessiveDistributiveResultBuilder = ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult;
+    const oldNonzeroPossessiveDistributiveSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+    const oldOrdinaryNncFixturesForNonzeroPossessive = ctx.ORDINARY_NNC_FIXTURES;
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = () => ({
+        surface: "poison-surface",
+        soundSpellingFrames: [],
+    });
+    ctx.buildOrdinaryNncSurfaceChainResult = () => ({
+        surface: "poison-chain-surface",
+        soundSpellingFrames: [],
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldOrdinaryNncFixturesForNonzeroPossessive.map((fixture) => (
+        fixture.id === "shuchi"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    possessive: {
+                        ...fixture.states.possessive,
+                        numberFormsByPossessor: {
+                            ...fixture.states.possessive.numberFormsByPossessor,
+                            singular: {
+                                ...fixture.states.possessive.numberFormsByPossessor.singular,
+                                nu: {
+                                    ...fixture.states.possessive.numberFormsByPossessor.singular.nu,
+                                    surfaceForms: ["poison-singular-display"],
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    const monkeypatchedNonzeroPossessiveDistributive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: nonzeroPossessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = oldNonzeroPossessiveDistributiveResultBuilder;
+    ctx.buildOrdinaryNncSurfaceChainResult = oldNonzeroPossessiveDistributiveSurfaceChainBuilder;
+    ctx.ORDINARY_NNC_FIXTURES = oldOrdinaryNncFixturesForNonzeroPossessive;
+    s.eq(
+        "ordinary NNC nonzero possessive distributive plural consumes structured possessive stem frames",
+        {
+            outputResult: ordinaryNncNonzeroPossessiveDistributiveProbe.result,
+            outputSurfaceForms: ordinaryNncNonzeroPossessiveDistributiveProbe.surfaceForms,
+            outputStem: ordinaryNncNonzeroPossessiveDistributiveProbe.stem,
+            possessiveDistributiveSourceFrameKind: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.kind || "",
+            possessiveDistributiveOperationId: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralOperationFrame?.operationId || "",
+            possessiveDistributiveSourceStem: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStem || "",
+            possessiveDistributiveFormulaStem: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.formulaStem || "",
+            possessiveDistributiveSourceStemEvidence: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStemEvidence || "",
+            possessiveDistributiveSourceStemIsGeneratedDisplay: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.sourceStemIsGeneratedDisplay,
+            possessiveDistributiveConsumesRenderedInput: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.consumesRenderedInput,
+            possessiveDistributiveDisplayAuthority: ordinaryNncNonzeroPossessiveDistributiveProbe.ordinaryNncDerivedPluralSourceFrame?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncNonzeroPossessiveDistributivePoisonedPairs, {
+                sourceFrame: ordinaryNncNonzeroPossessiveDistributivePoisonedSourceFrame,
+                operationFrame: ordinaryNncNonzeroPossessiveDistributivePoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonzeroPossessiveDistributiveSourceFrame,
+            }),
+            directMissingSource: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                operationFrame: nonzeroPossessiveDistributiveOperationFrame,
+            }),
+            directMissingTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonzeroPossessiveDistributiveSourceFrame,
+                operationFrame: {
+                    ...nonzeroPossessiveDistributiveOperationFrame,
+                    targetFrame: null,
+                },
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult(
+                "nushuchiw",
+                ctx.resolveOrdinaryNncPossessor("nu")
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonzeroPossessiveDistributiveSourceFrame,
+                operationFrame: contradictoryNonzeroPossessiveDistributiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+                sourceFrame: nonzeroPossessiveDistributiveSourceFrame,
+                operationFrame: nonzeroPossessiveDistributiveOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedNonzeroPossessiveDistributive.result,
+        },
+        {
+            outputResult: "nushujshuchiw",
+            outputSurfaceForms: ["nushujshuchiw"],
+            outputStem: "shuchi",
+            possessiveDistributiveSourceFrameKind: "ordinary-nnc-nonanimate-possessive-distributive-source-frame",
+            possessiveDistributiveOperationId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+            possessiveDistributiveSourceStem: "shuchiw",
+            possessiveDistributiveFormulaStem: "shuchi",
+            possessiveDistributiveSourceStemEvidence: "static-nnc-structured-possessive-stem",
+            possessiveDistributiveSourceStemIsGeneratedDisplay: false,
+            possessiveDistributiveConsumesRenderedInput: false,
+            possessiveDistributiveDisplayAuthority: false,
+            poisonedDisplayResult: "nushujshuchiw",
+            directMissingOperation: "",
+            directMissingSource: "",
+            directMissingTarget: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "nushujshuchiw",
+            monkeypatchedResult: "nushujshuchiw",
+        }
+    );
+    const oldOrdinaryNncFixturesForMissingPossessiveStem = ctx.ORDINARY_NNC_FIXTURES;
+    const oldPossessiveDistributiveBuilderForMissingPossessiveStem = ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldOrdinaryNncFixturesForMissingPossessiveStem.map((fixture) => (
+        fixture.id === "shuchi"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    possessive: {
+                        ...fixture.states.possessive,
+                        numberFormsByPossessor: {
+                            ...fixture.states.possessive.numberFormsByPossessor,
+                            singular: {
+                                ...fixture.states.possessive.numberFormsByPossessor.singular,
+                                nu: {
+                                    surfaceForms: ["nushuchiw"],
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = () => ({
+        surface: "poison-legacy-distributive",
+        soundSpellingFrames: [],
+    });
+    const missingPossessiveStemDistributiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: nonzeroPossessiveDistributiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "plural",
+        pluralType: "distributive",
+        animacy: "inanimate",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldOrdinaryNncFixturesForMissingPossessiveStem;
+    ctx.buildOrdinaryNncPossessiveDistributiveSurfaceResult = oldPossessiveDistributiveBuilderForMissingPossessiveStem;
+    s.eq(
+        "ordinary NNC nonzero possessive distributive blocks without structured possessive stem",
+        {
+            supported: missingPossessiveStemDistributiveProbe.supported,
+            result: missingPossessiveStemDistributiveProbe.result,
+            surfaceForms: missingPossessiveStemDistributiveProbe.surfaceForms,
+            diagnosticId: missingPossessiveStemDistributiveProbe.diagnostics?.[0]?.id || "",
+            derivedPluralSourceFrame: missingPossessiveStemDistributiveProbe.ordinaryNncDerivedPluralSourceFrame || null,
+            derivedPluralOperationFrame: missingPossessiveStemDistributiveProbe.ordinaryNncDerivedPluralOperationFrame || null,
+        },
+        {
+            supported: false,
+            result: "",
+            surfaceForms: [],
+            diagnosticId: "ordinary-nnc-unsupported-number",
+            derivedPluralSourceFrame: null,
+            derivedPluralOperationFrame: null,
+        }
+    );
+    const openStemPossessiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "xilun",
+        state: "possessive",
+        number: "singular",
+        nounClass: "zero",
+    });
+    const ordinaryNncOpenStemPossessiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: openStemPossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const ordinaryNncOpenStemPossessivePairs = ordinaryNncOpenStemPossessiveProbe.formulaSurfacePairs || [];
+    const ordinaryNncOpenStemPossessivePoisonedPairs = ordinaryNncOpenStemPossessivePairs.map(poisonOrdinaryNncPairDisplays);
+    const ordinaryNncOpenStemPossessivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: ordinaryNncOpenStemPossessivePoisonedPairs,
+    });
+    const ordinaryNncOpenStemPossessivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        ordinaryNncOpenStemPossessivePoisonedSourceFrame
+    );
+    const openStemPossessiveSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: "xilun",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "inanimate",
+    });
+    const openStemPossessiveOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(
+        openStemPossessiveSourceFrame
+    );
+    const contradictoryOpenStemPossessiveOperationFrame = {
+        ...openStemPossessiveOperationFrame,
+        targetFrame: {
+            ...openStemPossessiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldOpenStemPossessiveBuilder = ctx.buildOrdinaryNncOpenStemPossessiveSurface;
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = () => "poison-surface";
+    const monkeypatchedOpenStemPossessive = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: openStemPossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = oldOpenStemPossessiveBuilder;
+    s.eq(
+        "ordinary NNC open-stem possessive singular consumes typed source and operation frames",
+        {
+            outputResult: ordinaryNncOpenStemPossessiveProbe.result,
+            outputSurfaceForms: ordinaryNncOpenStemPossessiveProbe.surfaceForms,
+            outputStem: ordinaryNncOpenStemPossessiveProbe.stem,
+            sourceFrameKind: ordinaryNncOpenStemPossessiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            operationId: ordinaryNncOpenStemPossessiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceFrameSupported: ordinaryNncOpenStemPossessiveProbe.ordinaryNncResultTextSourceFrame?.supported === true,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(ordinaryNncOpenStemPossessivePoisonedPairs, {
+                sourceFrame: ordinaryNncOpenStemPossessivePoisonedSourceFrame,
+                operationFrame: ordinaryNncOpenStemPossessivePoisonedOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: openStemPossessiveSourceFrame,
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncOpenStemPossessiveSurface("xilun", "nu", "inanimate"),
+            contradictoryTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: openStemPossessiveSourceFrame,
+                operationFrame: contradictoryOpenStemPossessiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: openStemPossessiveSourceFrame,
+                operationFrame: openStemPossessiveOperationFrame,
+            }),
+            sourceFrameConsumesRenderedInput: openStemPossessiveSourceFrame.consumesRenderedInput,
+            sourceFrameDisplayAuthority: openStemPossessiveSourceFrame.displayStringsAuthorizeGrammar,
+            monkeypatchedResult: monkeypatchedOpenStemPossessive.result,
+        },
+        {
+            outputResult: "nuxilun",
+            outputSurfaceForms: ["nuxilun"],
+            outputStem: "xilun",
+            sourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            operationId: "ordinary-nnc-result-text-render",
+            sourceFrameSupported: true,
+            poisonedDisplayResult: "nuxilun",
+            directMissingOperation: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "nuxilun",
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            monkeypatchedResult: "nuxilun",
+        }
+    );
+    const structuredFixturePossessiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "shuchi",
+        state: "possessive",
+        number: "singular",
+        nounClass: "t",
+    });
+    const structuredFixturePossessiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: structuredFixturePossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const structuredFixturePossessivePairs = structuredFixturePossessiveProbe.formulaSurfacePairs || [];
+    const structuredFixturePossessivePoisonedPairs = structuredFixturePossessivePairs.map(poisonOrdinaryNncPairDisplays);
+    const structuredFixturePossessivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: structuredFixturePossessivePoisonedPairs,
+    });
+    const structuredFixturePossessivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        structuredFixturePossessivePoisonedSourceFrame
+    );
+    const structuredFixturePossessiveSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: "shuchiw",
+        formulaStem: "shuchi",
+        sourceStemEvidence: "static-nnc-structured-possessive-stem",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "inanimate",
+    });
+    const structuredFixturePossessiveOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(
+        structuredFixturePossessiveSourceFrame
+    );
+    const contradictoryStructuredFixturePossessiveOperationFrame = {
+        ...structuredFixturePossessiveOperationFrame,
+        targetFrame: {
+            ...structuredFixturePossessiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const missingTargetStructuredFixturePossessiveOperationFrame = {
+        ...structuredFixturePossessiveOperationFrame,
+        targetFrame: null,
+    };
+    const structuredFixtureDisplayPoisonResults = ctx.buildOrdinaryNncStructuredPossessiveSurfaceResults({
+        fixture: { stem: "shuchi" },
+        stateCell: {
+            possessiveStem: "shuchiw",
+            surfaceForms: ["poison-static-surface"],
+        },
+        state: "possessive",
+        number: "singular",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "inanimate",
+    });
+    const missingStructuredPossessiveStemResults = ctx.buildOrdinaryNncStructuredPossessiveSurfaceResults({
+        fixture: { stem: "shuchi" },
+        stateCell: {
+            surfaceForms: ["nushuchiw"],
+        },
+        state: "possessive",
+        number: "singular",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "inanimate",
+    });
+    const oldStructuredFixtureFixtures = ctx.ORDINARY_NNC_FIXTURES;
+    const oldStructuredFixtureOpenStemBuilder = ctx.buildOrdinaryNncOpenStemPossessiveSurface;
+    const oldStructuredFixtureSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldStructuredFixtureFixtures.map((fixture) => (
+        fixture.id === "shuchi"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    possessive: {
+                        ...fixture.states.possessive,
+                        numberFormsByPossessor: {
+                            ...fixture.states.possessive.numberFormsByPossessor,
+                            singular: {
+                                ...fixture.states.possessive.numberFormsByPossessor.singular,
+                                nu: {
+                                    ...fixture.states.possessive.numberFormsByPossessor.singular.nu,
+                                    surfaceForms: ["poison-static-surface"],
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = () => "poison-open-stem-string-surface";
+    ctx.buildOrdinaryNncSurfaceChainResult = () => ({
+        surface: "poison-chain-surface",
+        surfaceForms: ["poison-chain-surface"],
+        soundSpellingFrames: [],
+    });
+    const poisonedStaticSurfaceFormsProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: structuredFixturePossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldStructuredFixtureFixtures;
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = oldStructuredFixtureOpenStemBuilder;
+    ctx.buildOrdinaryNncSurfaceChainResult = oldStructuredFixtureSurfaceChainBuilder;
+    s.eq(
+        "ordinary NNC structured fixture possessive stem, not surfaceForms, authorizes possessive singular",
+        {
+            outputResult: structuredFixturePossessiveProbe.result,
+            outputSurfaceForms: structuredFixturePossessiveProbe.surfaceForms,
+            outputStem: structuredFixturePossessiveProbe.stem,
+            sourceFrameKind: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.kind || "",
+            operationId: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveOperationFrames?.[0]?.operationId || "",
+            sourceStem: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStem || "",
+            formulaStem: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.formulaStem || "",
+            sourceStemEvidence: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStemEvidence || "",
+            resultTextSourceFrameKind: structuredFixturePossessiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            resultTextOperationId: structuredFixturePossessiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceStemIsGeneratedDisplay: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStemIsGeneratedDisplay,
+            consumesRenderedInput: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.consumesRenderedInput,
+            displayAuthority: structuredFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(structuredFixturePossessivePoisonedPairs, {
+                sourceFrame: structuredFixturePossessivePoisonedSourceFrame,
+                operationFrame: structuredFixturePossessivePoisonedOperationFrame,
+            }),
+            poisonedStaticSurfaceFormsResult: poisonedStaticSurfaceFormsProbe.result,
+            directHelperIgnoresSurfaceForms: structuredFixtureDisplayPoisonResults.map((entry) => entry.surface),
+            missingStructuredPossessiveStemBlocks: missingStructuredPossessiveStemResults.map((entry) => entry.surface),
+            directMissingSourceFrame: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                operationFrame: structuredFixturePossessiveOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: structuredFixturePossessiveSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: structuredFixturePossessiveSourceFrame,
+                operationFrame: missingTargetStructuredFixturePossessiveOperationFrame,
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncOpenStemPossessiveSurface("shuchiw", "nu", "inanimate"),
+            contradictoryTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: structuredFixturePossessiveSourceFrame,
+                operationFrame: contradictoryStructuredFixturePossessiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: structuredFixturePossessiveSourceFrame,
+                operationFrame: structuredFixturePossessiveOperationFrame,
+            }),
+        },
+        {
+            outputResult: "nushuchiw",
+            outputSurfaceForms: ["nushuchiw"],
+            outputStem: "shuchi",
+            sourceFrameKind: "ordinary-nnc-open-stem-possessive-source-frame",
+            operationId: "ordinary-nnc-open-stem-possessive-realization",
+            sourceStem: "shuchiw",
+            formulaStem: "shuchi",
+            sourceStemEvidence: "static-nnc-structured-possessive-stem",
+            resultTextSourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            resultTextOperationId: "ordinary-nnc-result-text-render",
+            sourceStemIsGeneratedDisplay: false,
+            consumesRenderedInput: false,
+            displayAuthority: false,
+            poisonedDisplayResult: "nushuchiw",
+            poisonedStaticSurfaceFormsResult: "nushuchiw",
+            directHelperIgnoresSurfaceForms: ["nushuchiw"],
+            missingStructuredPossessiveStemBlocks: [],
+            directMissingSourceFrame: "",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "nushuchiw",
+        }
+    );
+    const zeroClassFixturePossessiveFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "kal",
+        state: "possessive",
+        number: "singular",
+        nounClass: "zero",
+    });
+    const zeroClassFixturePossessiveProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: zeroClassFixturePossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    const zeroClassFixturePossessivePairs = zeroClassFixturePossessiveProbe.formulaSurfacePairs || [];
+    const zeroClassFixturePossessivePoisonedPairs = zeroClassFixturePossessivePairs.map(poisonOrdinaryNncPairDisplays);
+    const zeroClassFixturePossessivePoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: zeroClassFixturePossessivePoisonedPairs,
+    });
+    const zeroClassFixturePossessivePoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        zeroClassFixturePossessivePoisonedSourceFrame
+    );
+    const zeroClassFixturePossessiveSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: "kal",
+        formulaStem: "kal",
+        sourceStemEvidence: "ordinary-nnc-zero-class-formula-stem",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "inanimate",
+    });
+    const zeroClassFixturePossessiveOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(
+        zeroClassFixturePossessiveSourceFrame
+    );
+    const contradictoryZeroClassFixturePossessiveOperationFrame = {
+        ...zeroClassFixturePossessiveOperationFrame,
+        targetFrame: {
+            ...zeroClassFixturePossessiveOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const missingTargetZeroClassFixturePossessiveOperationFrame = {
+        ...zeroClassFixturePossessiveOperationFrame,
+        targetFrame: null,
+    };
+    const zeroClassFixtureDisplayPoisonResults = ctx.buildOrdinaryNncStructuredPossessiveSurfaceResults({
+        fixture: {
+            stem: "kal",
+            nounClass: "zero",
+        },
+        stateCell: {
+            surfaceForms: ["poison-static-surface"],
+        },
+        state: "possessive",
+        number: "singular",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        nounClass: "zero",
+        animacy: "inanimate",
+    });
+    const missingZeroClassFixtureStemResults = ctx.buildOrdinaryNncStructuredPossessiveSurfaceResults({
+        fixture: {
+            stem: "",
+            nounClass: "zero",
+        },
+        stateCell: {
+            surfaceForms: ["nukal"],
+        },
+        state: "possessive",
+        number: "singular",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        nounClass: "zero",
+        animacy: "inanimate",
+    });
+    const oldZeroClassFixtureFixtures = ctx.ORDINARY_NNC_FIXTURES;
+    const oldZeroClassFixtureOpenStemBuilder = ctx.buildOrdinaryNncOpenStemPossessiveSurface;
+    const oldZeroClassFixtureSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldZeroClassFixtureFixtures.map((fixture) => (
+        fixture.id === "kal"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    possessive: {
+                        ...fixture.states.possessive,
+                        numberFormsByPossessor: {
+                            ...fixture.states.possessive.numberFormsByPossessor,
+                            singular: {
+                                ...fixture.states.possessive.numberFormsByPossessor.singular,
+                                nu: {
+                                    ...fixture.states.possessive.numberFormsByPossessor.singular.nu,
+                                    surfaceForms: ["poison-static-surface"],
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = () => "poison-open-stem-string-surface";
+    ctx.buildOrdinaryNncSurfaceChainResult = () => ({
+        surface: "poison-chain-surface",
+        surfaceForms: ["poison-chain-surface"],
+        soundSpellingFrames: [],
+    });
+    const poisonedZeroClassStaticSurfaceFormsProbe = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: zeroClassFixturePossessiveFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        number: "singular",
+        animacy: "inanimate",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldZeroClassFixtureFixtures;
+    ctx.buildOrdinaryNncOpenStemPossessiveSurface = oldZeroClassFixtureOpenStemBuilder;
+    ctx.buildOrdinaryNncSurfaceChainResult = oldZeroClassFixtureSurfaceChainBuilder;
+    s.eq(
+        "ordinary NNC zero-class fixture possessive singular consumes formula stem instead of surfaceForms",
+        {
+            outputResult: zeroClassFixturePossessiveProbe.result,
+            outputSurfaceForms: zeroClassFixturePossessiveProbe.surfaceForms,
+            outputStem: zeroClassFixturePossessiveProbe.stem,
+            sourceFrameKind: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.kind || "",
+            operationId: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveOperationFrames?.[0]?.operationId || "",
+            sourceStem: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStem || "",
+            formulaStem: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.formulaStem || "",
+            sourceStemEvidence: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStemEvidence || "",
+            resultTextSourceFrameKind: zeroClassFixturePossessiveProbe.ordinaryNncResultTextSourceFrame?.kind || "",
+            resultTextOperationId: zeroClassFixturePossessiveProbe.ordinaryNncResultTextOperationFrame?.operationId || "",
+            sourceStemIsGeneratedDisplay: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.sourceStemIsGeneratedDisplay,
+            consumesRenderedInput: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.consumesRenderedInput,
+            displayAuthority: zeroClassFixturePossessiveProbe.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(zeroClassFixturePossessivePoisonedPairs, {
+                sourceFrame: zeroClassFixturePossessivePoisonedSourceFrame,
+                operationFrame: zeroClassFixturePossessivePoisonedOperationFrame,
+            }),
+            poisonedStaticSurfaceFormsResult: poisonedZeroClassStaticSurfaceFormsProbe.result,
+            directHelperIgnoresSurfaceForms: zeroClassFixtureDisplayPoisonResults.map((entry) => entry.surface),
+            missingFormulaSourceStemBlocks: missingZeroClassFixtureStemResults.map((entry) => entry.surface),
+            directMissingSourceFrame: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                operationFrame: zeroClassFixturePossessiveOperationFrame,
+            }),
+            directMissingOperation: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: zeroClassFixturePossessiveSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: zeroClassFixturePossessiveSourceFrame,
+                operationFrame: missingTargetZeroClassFixturePossessiveOperationFrame,
+            }),
+            oldStringApiBlocked: ctx.buildOrdinaryNncOpenStemPossessiveSurface("kal", "nu", "inanimate"),
+            contradictoryTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: zeroClassFixturePossessiveSourceFrame,
+                operationFrame: contradictoryZeroClassFixturePossessiveOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                sourceFrame: zeroClassFixturePossessiveSourceFrame,
+                operationFrame: zeroClassFixturePossessiveOperationFrame,
+            }),
+        },
+        {
+            outputResult: "nukal",
+            outputSurfaceForms: ["nukal"],
+            outputStem: "kal",
+            sourceFrameKind: "ordinary-nnc-open-stem-possessive-source-frame",
+            operationId: "ordinary-nnc-open-stem-possessive-realization",
+            sourceStem: "kal",
+            formulaStem: "kal",
+            sourceStemEvidence: "ordinary-nnc-zero-class-formula-stem",
+            resultTextSourceFrameKind: "ordinary-nnc-result-text-source-frame",
+            resultTextOperationId: "ordinary-nnc-result-text-render",
+            sourceStemIsGeneratedDisplay: false,
+            consumesRenderedInput: false,
+            displayAuthority: false,
+            poisonedDisplayResult: "nukal",
+            poisonedStaticSurfaceFormsResult: "nukal",
+            directHelperIgnoresSurfaceForms: ["nukal"],
+            missingFormulaSourceStemBlocks: [],
+            directMissingSourceFrame: "",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            oldStringApiBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "nukal",
+        }
+    );
     s.eq("ordinary NNC clause helper aliases are exported", [
         typeof ctx.generateOrdinaryNncClause,
         typeof ctx.generateOrdinaryNncClauseSet,
@@ -2143,6 +4607,9 @@ function run(ctx) {
     s.eq("ordinary NNC direct helper exposes output kind", kalAbsolutive.outputKind, "nominal-nuclear-clause");
     s.eq("ordinary NNC direct helper exposes clause frame", kalAbsolutive.clauseFrame, {
         kind: "nominal-nuclear-clause",
+        formulaSchemaId: "ordinary-nnc-shell",
+        formulaSchemaVersion: 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
         formula: "#pers1-pers2(STEM)num1-num2#",
         formulaSlots: {
             pers1Pers2: {
@@ -2166,6 +4633,14 @@ function run(ctx) {
                 nounClass: "zero",
                 connector: "Ø",
                 surface: "",
+                compactDisplay: "Ø",
+                compactSurface: "",
+                num1: "",
+                num2: "",
+                displayNum1: "Ø",
+                displayNum2: "Ø",
+                displayDyad: "Ø-Ø",
+                dyadSource: "singular-common-class-connector",
                 label: "subject number connector",
                 belongsTo: "subject",
                 referenceNumber: "singular",
@@ -2173,6 +4648,8 @@ function run(ctx) {
             },
         },
         formulaEcho: "#Ø-Ø(kal)Ø#",
+        fullFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+        compactFormulaEcho: "#Ø-Ø(kal)Ø#",
         predicateFormula: "(kal)",
         hasTensePosition: false,
         tense: null,
@@ -2184,17 +4661,30 @@ function run(ctx) {
             personSubKey: "3sg",
             numberConnector: {
                 role: "subject-number-connector",
+                formulaSchemaId: "ordinary-nnc-shell",
+                formulaSlot: "num1-num2",
                 slot: "subject.num1-num2",
                 belongsTo: "subject",
                 nounStemClass: "zero",
                 classLabel: "Ø",
                 surface: "",
                 displaySurface: "Ø",
+                compactDisplay: "Ø",
+                compactSurface: "",
+                num1: "",
+                num2: "",
+                displayNum1: "Ø",
+                displayNum2: "Ø",
+                displayDyad: "Ø-Ø",
+                dyadSource: "singular-common-class-connector",
                 predicateState: "absolutive",
                 referenceNumber: "singular",
                 pluralType: "",
+                blockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
                 notNounSuffix: true,
+                notStemSuffix: true,
                 notStatePosition: true,
+                notTense: true,
             },
         },
         predicate: {
@@ -2233,6 +4723,136 @@ function run(ctx) {
         surfaceStrategy: "plain",
     });
     s.eq(
+        "ordinary NNC direct helper exposes one formula pair per generated surface",
+        kalAbsolutive.formulaSurfacePairs,
+        [
+            {
+                surface: "kal",
+                targetFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                sourceToTargetFormulaEcho: "NNC(kal) -> #Ø-Ø(kal)Ø-Ø#",
+            },
+        ]
+    );
+    const ordinaryNncSurfaceFormulaAudit = (() => {
+        const stems = [
+            { stem: "kal" },
+            { stem: "shuchit" },
+            { stem: "mistun", animacy: "animate" },
+            { stem: "xilun" },
+            { stem: "tukayit" },
+            { stem: "machiyut" },
+            { stem: "majmachiyut" },
+        ];
+        const states = [
+            { state: "absolutive", possessors: [null] },
+            { state: "possessive", possessors: ["nu", "mu", "i", "tu", "anmu", "in"] },
+        ];
+        const numbers = [
+            { number: "singular", pluralType: "" },
+            { number: "plural", pluralType: "count" },
+            { number: "plural", pluralType: "distributive" },
+        ];
+        const subjects = [
+            null,
+            { subjectPrefix: "ti", subjectSuffix: "t", personSubKey: "1pl" },
+        ];
+        const normalizeSurfaceForms = (forms = []) => [...new Set((Array.isArray(forms) ? forms : [])
+            .flatMap((entry) => String(entry || "").split(/\s*\/\s*/))
+            .map((entry) => entry.trim())
+            .filter(Boolean))];
+        const rows = [];
+        stems.forEach((stem) => {
+            states.forEach((stateSpec) => {
+                stateSpec.possessors.forEach((possessor) => {
+                    numbers.forEach((numberSpec) => {
+                        subjects.forEach((subject) => {
+                            const output = ctx.generateOrdinaryNncParadigm({
+                                ...stem,
+                                state: stateSpec.state,
+                                possessor,
+                                subject,
+                                number: numberSpec.number,
+                                pluralType: numberSpec.pluralType,
+                            });
+                            const surfaces = normalizeSurfaceForms(output.surfaceForms);
+                            if (!output.supported || !surfaces.length) {
+                                return;
+                            }
+                            const formulaPairs = Array.isArray(output.formulaSurfacePairs)
+                                ? output.formulaSurfacePairs
+                                : [];
+                            rows.push({
+                                label: [
+                                    stem.stem,
+                                    stateSpec.state,
+                                    possessor || "no-possessor",
+                                    numberSpec.number,
+                                    numberSpec.pluralType || "plain",
+                                    subject?.personSubKey || "3sg",
+                                ].join("|"),
+                                surfaces,
+                                pairSurfaces: formulaPairs.map((entry) => String(entry?.surface || "").trim()).filter(Boolean),
+                                targetFormulaEchoes: formulaPairs.map((entry) => String(entry?.targetFormulaEcho || "").trim()).filter(Boolean),
+                                sourceToTargetFormulaEchoes: formulaPairs.map((entry) => String(entry?.sourceToTargetFormulaEcho || "").trim()).filter(Boolean),
+                            });
+                        });
+                    });
+                });
+            });
+        });
+        const mismatches = rows
+            .map((row) => {
+                const missing = row.surfaces.filter((surface) => !row.pairSurfaces.includes(surface));
+                const extra = row.pairSurfaces.filter((surface) => !row.surfaces.includes(surface));
+                const repeatedSurfaces = row.pairSurfaces.filter((surface, index) => row.pairSurfaces.indexOf(surface) !== index);
+                const incompletePairCount = row.pairSurfaces.length !== row.targetFormulaEchoes.length
+                    || row.pairSurfaces.length !== row.sourceToTargetFormulaEchoes.length;
+                return {
+                    label: row.label,
+                    missing,
+                    extra,
+                    repeatedSurfaces,
+                    incompletePairCount,
+                    surfaceCount: row.surfaces.length,
+                    pairCount: row.pairSurfaces.length,
+                };
+            })
+            .filter((row) => row.missing.length
+                || row.extra.length
+                || row.repeatedSurfaces.length
+                || row.incompletePairCount
+                || row.surfaceCount !== row.pairCount);
+        return {
+            rowCount: rows.length,
+            surfaceCount: rows.reduce((sum, row) => sum + row.surfaces.length, 0),
+            countPluralPair: rows
+                .filter((row) => row.label === "mistun|absolutive|no-possessor|plural|count|3sg")
+                .flatMap((row) => row.pairSurfaces.map((surface, index) => `${surface}=>${row.targetFormulaEchoes[index]}`)),
+            possessivePair: rows
+                .filter((row) => row.label === "kal|possessive|nu|singular|plain|3sg")
+                .flatMap((row) => row.pairSurfaces.map((surface, index) => `${surface}=>${row.targetFormulaEchoes[index]}`)),
+            mismatches,
+        };
+    })();
+    s.eq(
+        "ordinary NNC generated Nawat outputs have one formula pair per surface across state and number",
+        {
+            countPluralPair: ordinaryNncSurfaceFormulaAudit.countPluralPair,
+            possessivePair: ordinaryNncSurfaceFormulaAudit.possessivePair,
+            mismatches: ordinaryNncSurfaceFormulaAudit.mismatches,
+        },
+        {
+            countPluralPair: ["mistunmet=>#Ø-Ø(mistun)m-et#"],
+            possessivePair: ["nukal=>#Ø-Ø(kal)Ø-Ø#"],
+            mismatches: [],
+        }
+    );
+    s.ok(
+        "ordinary NNC surface/formula audit covers a broad generated set",
+        ordinaryNncSurfaceFormulaAudit.rowCount >= 50
+            && ordinaryNncSurfaceFormulaAudit.surfaceCount >= 50
+    );
+    s.eq(
         "ordinary NNC clause frame records visible class as subject-number connector metadata",
         ctx.generateOrdinaryNncParadigm({
             stem: "xilun",
@@ -2242,17 +4862,30 @@ function run(ctx) {
         }).clauseFrame.subject.numberConnector,
         {
             role: "subject-number-connector",
+            formulaSchemaId: "ordinary-nnc-shell",
+            formulaSlot: "num1-num2",
             slot: "subject.num1-num2",
             belongsTo: "subject",
             nounStemClass: "ti",
             classLabel: "ti",
             surface: "ti",
             displaySurface: "ti",
+            compactDisplay: "ti",
+            compactSurface: "ti",
+            num1: "ti",
+            num2: "",
+            displayNum1: "ti",
+            displayNum2: "Ø",
+            displayDyad: "ti-Ø",
+            dyadSource: "singular-common-class-connector",
             predicateState: "absolutive",
             referenceNumber: "singular",
             pluralType: "",
+            blockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
             notNounSuffix: true,
+            notStemSuffix: true,
             notStatePosition: true,
+            notTense: true,
         }
     );
     s.eq(
@@ -2303,6 +4936,14 @@ function run(ctx) {
                     nounClass: "zero",
                     connector: "Ø",
                     surface: "",
+                    compactDisplay: "Ø",
+                    compactSurface: "",
+                    num1: "",
+                    num2: "",
+                    displayNum1: "Ø",
+                    displayNum2: "Ø",
+                    displayDyad: "Ø-Ø",
+                    dyadSource: "singular-common-class-connector",
                     label: "subject number connector",
                     belongsTo: "subject",
                     referenceNumber: "singular",
@@ -2334,6 +4975,14 @@ function run(ctx) {
                     nounClass: "t",
                     connector: "t",
                     surface: "t",
+                    compactDisplay: "t",
+                    compactSurface: "t",
+                    num1: "t",
+                    num2: "",
+                    displayNum1: "t",
+                    displayNum2: "Ø",
+                    displayDyad: "t-Ø",
+                    dyadSource: "singular-common-class-connector",
                     label: "subject number connector",
                     belongsTo: "subject",
                     referenceNumber: "singular",
@@ -2341,6 +4990,451 @@ function run(ctx) {
                 },
             },
             tEcho: "#Ø-Ø(siwa)t#",
+        }
+    );
+    s.eq(
+        "ordinary NNC generation reads the shared Andrews formula slot schema",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({
+                stem: "kal",
+                state: "absolutive",
+                number: "singular",
+            });
+            const connector = result.clauseFrame.subject.numberConnector;
+            return {
+                clauseFormulaSchemaId: result.clauseFrame.formulaSchemaId,
+                clauseFormulaSlotSource: result.clauseFrame.formulaSlotSource,
+                clauseFormula: result.clauseFrame.formula,
+                schemaFormula: ctx.renderAndrewsFormulaTemplate(result.clauseFrame.formulaSchemaId),
+                connectorFormulaSchemaId: connector.formulaSchemaId,
+                connectorFormulaSlot: connector.formulaSlot,
+                connectorSlotPath: connector.slot,
+                connectorBelongsTo: connector.belongsTo,
+                connectorBlockedInterpretations: connector.blockedInterpretations,
+                connectorNotTense: connector.notTense,
+                connectorNotStemSuffix: connector.notStemSuffix,
+                blockedTenseDiagnosticId: ctx.diagnoseAndrewsFormulaSlotInterpretation(
+                    result.clauseFrame.formulaSchemaId,
+                    connector.formulaSlot,
+                    "tense"
+                ).diagnostic.id,
+            };
+        })(),
+        {
+            clauseFormulaSchemaId: "ordinary-nnc-shell",
+            clauseFormulaSlotSource: "andrews-formula-slot-schema",
+            clauseFormula: "#pers1-pers2(STEM)num1-num2#",
+            schemaFormula: "#pers1-pers2(STEM)num1-num2#",
+            connectorFormulaSchemaId: "ordinary-nnc-shell",
+            connectorFormulaSlot: "num1-num2",
+            connectorSlotPath: "subject.num1-num2",
+            connectorBelongsTo: "subject",
+            connectorBlockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
+            connectorNotTense: true,
+            connectorNotStemSuffix: true,
+            blockedTenseDiagnosticId: "formula-slot-num1-num2-not-tense",
+        }
+    );
+    s.eq(
+        "ordinary NNC formula workbench slice is generated and blocked through schema contract",
+        (() => {
+            const generated = ctx.buildOrdinaryNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            const blocked = ctx.buildOrdinaryNncFormulaWorkbenchSlice({ inputValue: "" });
+            const predicateSlot = generated.parsedSlots.find((slot) => slot.key === "predicateStem");
+            const connectorSlot = generated.parsedSlots.find((slot) => slot.key === "num1Num2");
+            return {
+                generatedSchemaId: generated.formulaSchemaId,
+                generatedSlotSource: generated.formulaSlotSource,
+                generatedFormula: generated.formula,
+                generatedFormulaEcho: generated.formulaEcho,
+                generatedFullFormulaEcho: generated.fullFormulaEcho,
+                generatedCompactFormulaEcho: generated.compactFormulaEcho,
+                generatedAllowed: generated.generation.allowed,
+                generatedStatus: generated.generation.status,
+                generatedFormulaAuthorityAllowed: generated.generation.formulaAuthorityAllowed,
+                generatedFormulaAuthorityGate: generated.generation.formulaAuthorityGate,
+                generatedLogicAuthority: generated.generation.logicAuthority,
+                generatedOrthographyAuthority: generated.generation.orthographyAuthority,
+                generatedSpellingEvidenceRole: generated.generation.spellingEvidenceRole,
+                generatedClassicalSurfaceImport: generated.generation.classicalSurfaceImport,
+                generatedSurface: generated.generation.surface,
+                sourceRequirementValue: generated.satisfiedRequirements[0].value,
+                predicateSlotRenderedValue: predicateSlot.renderedValue,
+                predicateSlotBoundary: predicateSlot.boundary,
+                connectorSlotOwner: connectorSlot.owner,
+                connectorSlotPath: connectorSlot.path,
+                connectorSlotValue: connectorSlot.value,
+                connectorSlotCompactValue: connectorSlot.compactValue,
+                connectorSlotRenderedValue: connectorSlot.renderedValue,
+                connectorSlotCompactRenderedValue: connectorSlot.compactRenderedValue,
+                connectorBlockedInterpretations: connectorSlot.blockedInterpretations,
+                examples: generated.examples.map((example) => ({
+                    id: example.id,
+                    status: example.status,
+                    nounClass: example.nounClass,
+                    number: example.number,
+                    pluralType: example.pluralType,
+                    connectorDyad: example.connectorDyad,
+                    fullFormulaEcho: example.fullFormulaEcho,
+                    compactFormulaEcho: example.compactFormulaEcho,
+                    surface: example.surface,
+                })),
+                blockedStatus: blocked.generation.status,
+                blockedAllowed: blocked.generation.allowed,
+                blockedFormulaAuthorityAllowed: blocked.generation.formulaAuthorityAllowed,
+                blockedFormulaAuthorityGate: blocked.generation.formulaAuthorityGate,
+                blockedFormulaAuthorityReasons: blocked.generation.formulaAuthorityBlockedReasons,
+                blockedDiagnosticId: blocked.diagnostics[0].id,
+            };
+        })(),
+        {
+            generatedSchemaId: "ordinary-nnc-shell",
+            generatedSlotSource: "andrews-formula-slot-schema",
+            generatedFormula: "#pers1-pers2(STEM)num1-num2#",
+            generatedFormulaEcho: "#Ø-Ø(kal)Ø#",
+            generatedFullFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+            generatedCompactFormulaEcho: "#Ø-Ø(kal)Ø#",
+            generatedAllowed: true,
+            generatedStatus: "generated",
+            generatedFormulaAuthorityAllowed: true,
+            generatedFormulaAuthorityGate: "andrews-formula-authorized-generation",
+            generatedLogicAuthority: "Andrews PDF",
+            generatedOrthographyAuthority: "Nawat/Pipil orthography bridge",
+            generatedSpellingEvidenceRole: "spelling-realization-only",
+            generatedClassicalSurfaceImport: "blocked",
+            generatedSurface: "kal",
+            sourceRequirementValue: "kal",
+            predicateSlotRenderedValue: "(kal)",
+            predicateSlotBoundary: "inside-parentheses",
+            connectorSlotOwner: "subject",
+            connectorSlotPath: "subject.num1-num2",
+            connectorSlotValue: "Ø-Ø",
+            connectorSlotCompactValue: "Ø",
+            connectorSlotRenderedValue: "Ø-Ø",
+            connectorSlotCompactRenderedValue: "Ø",
+            connectorBlockedInterpretations: ["tense", "stem-suffix", "nounstem", "predicate-state"],
+            examples: [
+                {
+                    id: "zero-common-kal",
+                    status: "generated",
+                    nounClass: "zero",
+                    number: "singular",
+                    pluralType: "",
+                    connectorDyad: "Ø-Ø",
+                    fullFormulaEcho: "#Ø-Ø(kal)Ø-Ø#",
+                    compactFormulaEcho: "#Ø-Ø(kal)Ø#",
+                    surface: "kal",
+                },
+                {
+                    id: "t-class-siwa",
+                    status: "generated",
+                    nounClass: "t",
+                    number: "singular",
+                    pluralType: "",
+                    connectorDyad: "t-Ø",
+                    fullFormulaEcho: "#Ø-Ø(siwa)t-Ø#",
+                    compactFormulaEcho: "#Ø-Ø(siwa)t#",
+                    surface: "siwat",
+                },
+                {
+                    id: "ti-class-xilun",
+                    status: "generated",
+                    nounClass: "ti",
+                    number: "singular",
+                    pluralType: "",
+                    connectorDyad: "ti-Ø",
+                    fullFormulaEcho: "#Ø-Ø(xilun)ti-Ø#",
+                    compactFormulaEcho: "#Ø-Ø(xilun)ti#",
+                    surface: "xilunti",
+                },
+                {
+                    id: "in-class-tekpan",
+                    status: "generated",
+                    nounClass: "in",
+                    number: "singular",
+                    pluralType: "",
+                    connectorDyad: "in-Ø",
+                    fullFormulaEcho: "#Ø-Ø(tekpan)in-Ø#",
+                    compactFormulaEcho: "#Ø-Ø(tekpan)in#",
+                    surface: "tekpanin",
+                },
+                {
+                    id: "animate-count-mistun",
+                    status: "generated",
+                    nounClass: "zero",
+                    number: "plural",
+                    pluralType: "count",
+                    connectorDyad: "m-et",
+                    fullFormulaEcho: "#Ø-Ø(mistun)m-et#",
+                    compactFormulaEcho: "#Ø-Ø(mistun)met#",
+                    surface: "mistunmet",
+                },
+            ],
+            blockedStatus: "blocked",
+            blockedAllowed: false,
+            blockedFormulaAuthorityAllowed: false,
+            blockedFormulaAuthorityGate: "andrews-formula-generation-blocked",
+            blockedFormulaAuthorityReasons: ["formula-source-requirement-missing"],
+            blockedDiagnosticId: "ordinary-nnc-missing-predicate-stem",
+        }
+    );
+    s.eq(
+        "possessive-state NNC formula workbench separates Andrews structure from Nawat realization",
+        (() => {
+            const generated = ctx.buildPossessiveStateNncFormulaWorkbenchSlice({ inputValue: "kal" });
+            const blocked = ctx.buildPossessiveStateNncFormulaWorkbenchSlice({ inputValue: "" });
+            const stateSlot = generated.parsedSlots.find((slot) => slot.key === "possessiveState");
+            const connectorSlot = generated.parsedSlots.find((slot) => slot.key === "num1Num2");
+            const specific = generated.examples.find((example) => example.id === "specific-1sg-nu-kal");
+            const monadic = generated.examples.find((example) => example.id === "monadic-human-te-kal");
+            return {
+                schemaId: generated.formulaSchemaId,
+                slotSource: generated.formulaSlotSource,
+                families: generated.formulaFamilies.map((family) => [family.id, family.formula]),
+                structuralFormulaEcho: generated.structuralFormulaEcho,
+                nawatFormulaEcho: generated.nawatFormulaEcho,
+                compactFormulaEcho: generated.compactFormulaEcho,
+                surface: generated.generation.surface,
+                generationStatus: generated.generation.status,
+                stateSlot: {
+                    token: stateSlot.token,
+                    role: stateSlot.role,
+                    owner: stateSlot.owner,
+                    path: stateSlot.path,
+                    structuralValue: stateSlot.structuralValue,
+                    nawatValue: stateSlot.nawatValue,
+                    compactValue: stateSlot.compactValue,
+                    blocked: stateSlot.blockedInterpretations,
+                },
+                connectorSlot: {
+                    role: connectorSlot.role,
+                    owner: connectorSlot.owner,
+                    path: connectorSlot.path,
+                    value: connectorSlot.value,
+                    compactValue: connectorSlot.compactValue,
+                    blocked: connectorSlot.blockedInterpretations,
+                },
+                realizationBoundary: generated.realizationBoundary,
+                specific: {
+                    status: specific.status,
+                    statePosition: specific.statePosition,
+                    possessorKind: specific.possessorKind,
+                    structuralFormulaEcho: specific.structuralFormulaEcho,
+                    nawatFormulaEcho: specific.nawatFormulaEcho,
+                    compactFormulaEcho: specific.compactFormulaEcho,
+                    surface: specific.surface,
+                    possessorStructural: specific.formulaSlots.possessiveState.andrewsStructural,
+                    possessorNawat: specific.formulaSlots.possessiveState.nawatRealization,
+                },
+                monadic: {
+                    status: monadic.status,
+                    statePosition: monadic.statePosition,
+                    possessorKind: monadic.possessorKind,
+                    formulaTemplate: monadic.formulaTemplate,
+                    structuralFormulaEcho: monadic.structuralFormulaEcho,
+                    nawatFormulaEcho: monadic.nawatFormulaEcho,
+                    surface: monadic.surface,
+                    sourceFrameKind: monadic.sourceFrame?.kind || "",
+                    operationId: monadic.operationFrame?.operationId || "",
+                    diagnosticCount: monadic.diagnostics.length,
+                },
+                blockedStatus: blocked.generation.status,
+                blockedDiagnosticId: blocked.diagnostics[0].id,
+            };
+        })(),
+        {
+            schemaId: "possessive-state-nnc",
+            slotSource: "andrews-formula-slot-schema",
+            families: [
+                ["monadic-possessive-state", "#pers1-pers2+st(STEM)num1-num2#"],
+                ["dyadic-possessive-state", "#pers1-pers2+st1-st2(STEM)num1-num2#"],
+            ],
+            structuralFormulaEcho: "#Ø-Ø+n-o(kal)Ø-Ø#",
+            nawatFormulaEcho: "#Ø-Ø+n-u(kal)Ø-Ø#",
+            compactFormulaEcho: "#Ø-Ø+nu(kal)Ø#",
+            surface: "nukal",
+            generationStatus: "generated",
+            stateSlot: {
+                token: "st1-st2",
+                role: "possessive-state",
+                owner: "predicate",
+                path: "predicate.state.st1-st2",
+                structuralValue: "n-o",
+                nawatValue: "n-u",
+                compactValue: "nu",
+                blocked: ["subject-connector", "tense"],
+            },
+            connectorSlot: {
+                role: "subject-number-connector",
+                owner: "subject",
+                path: "subject.num1-num2",
+                value: "Ø-Ø",
+                compactValue: "Ø",
+                blocked: ["tense", "stem-suffix", "nounstem", "predicate-state"],
+            },
+            realizationBoundary: {
+                structuralFormulaEcho: "#Ø-Ø+n-o(kal)Ø-Ø#",
+                nawatFormulaEcho: "#Ø-Ø+n-u(kal)Ø-Ø#",
+                compactFormulaEcho: "#Ø-Ø+nu(kal)Ø#",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: ["hu-an", "uh-0", "hui-0"],
+                nawatAuthority: "Nawat/Pipil orthography bridge; examples illustrate spelling only and do not gate grammar logic",
+            },
+            specific: {
+                status: "generated",
+                statePosition: "dyadic",
+                possessorKind: "specific-dyadic",
+                structuralFormulaEcho: "#Ø-Ø+n-o(kal)Ø-Ø#",
+                nawatFormulaEcho: "#Ø-Ø+n-u(kal)Ø-Ø#",
+                compactFormulaEcho: "#Ø-Ø+nu(kal)Ø#",
+                surface: "nukal",
+                possessorStructural: "n-o",
+                possessorNawat: "n-u",
+            },
+            monadic: {
+                status: "andrews-logic-generated",
+                statePosition: "monadic",
+                possessorKind: "nonspecific-monadic",
+                formulaTemplate: "#pers1-pers2+st(STEM)num1-num2#",
+                structuralFormulaEcho: "#Ø-Ø+te(kal)Ø-Ø#",
+                nawatFormulaEcho: "#Ø-Ø+te(kal)Ø-Ø#",
+                surface: "tekal",
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "possessive-state-nnc-monadic-realization",
+                diagnosticCount: 0,
+            },
+            blockedStatus: "blocked",
+            blockedDiagnosticId: "possessive-nnc-missing-predicate-stem",
+        }
+    );
+    s.eq(
+        "possessive-state monadic example consumes typed frames instead of display strings",
+        (() => {
+            const formulaSlots = ctx.buildPossessiveStateNncFormulaSlots({
+                stem: "kal",
+                possessorKind: "monadic",
+                possessor: "te",
+            });
+            const sourceFrame = ctx.buildPossessiveStateNncMonadicSourceFrame({ formulaSlots });
+            const operationFrame = ctx.buildPossessiveStateNncMonadicOperationFrame(sourceFrame);
+            const summarize = (example) => ({
+                supported: example.supported,
+                surface: example.surface,
+                stem: example.stem,
+                diagnostics: example.diagnostics.map((diagnostic) => diagnostic.id),
+                sourceFrameKind: example.sourceFrame?.kind || "",
+                operationId: example.operationFrame?.operationId || "",
+            });
+            return {
+                helperTypes: [
+                    typeof ctx.buildPossessiveStateNncMonadicSourceFrame,
+                    typeof ctx.buildPossessiveStateNncMonadicOperationFrame,
+                    typeof ctx.getPossessiveStateNncMonadicFrameMismatch,
+                ],
+                stringOnly: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    stem: "kal",
+                    possessorKind: "monadic",
+                    possessor: "te",
+                })),
+                authorized: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    stem: "poison",
+                    possessorKind: "monadic",
+                    possessor: "te",
+                    formulaSlots,
+                    sourceFrame,
+                    operationFrame,
+                })),
+                changedString: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    stem: "changed-display",
+                    possessorKind: "monadic",
+                    possessor: "ne",
+                    formulaSlots,
+                    sourceFrame,
+                    operationFrame,
+                })),
+                missingOperation: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    possessorKind: "monadic",
+                    possessor: "te",
+                    formulaSlots,
+                    sourceFrame,
+                    operationFrame: {},
+                })),
+                contradictorySource: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    possessorKind: "monadic",
+                    possessor: "te",
+                    formulaSlots,
+                    sourceFrame: {
+                        ...sourceFrame,
+                        sourceSignature: "poison",
+                    },
+                    operationFrame,
+                })),
+                contradictoryTarget: summarize(ctx.buildPossessiveStateNncFormulaWorkbenchExample({
+                    possessorKind: "monadic",
+                    possessor: "te",
+                    formulaSlots,
+                    sourceFrame,
+                    operationFrame: {
+                        ...operationFrame,
+                        targetFrame: {
+                            ...operationFrame.targetFrame,
+                            surface: "poison",
+                        },
+                    },
+                })),
+            };
+        })(),
+        {
+            helperTypes: ["function", "function", "function"],
+            stringOnly: {
+                supported: false,
+                surface: "",
+                stem: "kal",
+                diagnostics: ["possessive-state-nnc-monadic-missing-source-frame"],
+                sourceFrameKind: "",
+                operationId: "",
+            },
+            authorized: {
+                supported: true,
+                surface: "tekal",
+                stem: "kal",
+                diagnostics: [],
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "possessive-state-nnc-monadic-realization",
+            },
+            changedString: {
+                supported: true,
+                surface: "tekal",
+                stem: "kal",
+                diagnostics: [],
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "possessive-state-nnc-monadic-realization",
+            },
+            missingOperation: {
+                supported: false,
+                surface: "",
+                stem: "kal",
+                diagnostics: ["possessive-state-nnc-monadic-missing-operation-frame"],
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "",
+            },
+            contradictorySource: {
+                supported: false,
+                surface: "",
+                stem: "kal",
+                diagnostics: ["possessive-state-nnc-monadic-contradictory-frame"],
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "possessive-state-nnc-monadic-realization",
+            },
+            contradictoryTarget: {
+                supported: false,
+                surface: "",
+                stem: "kal",
+                diagnostics: ["possessive-state-nnc-monadic-contradictory-frame"],
+                sourceFrameKind: "possessive-state-nnc-monadic-source-frame",
+                operationId: "possessive-state-nnc-monadic-realization",
+            },
         }
     );
     s.eq(
@@ -2731,7 +5825,7 @@ function run(ctx) {
         "ordinary NNC tapiyal generation is open-stem dynamic, not fixture-backed",
         (() => {
             const result = ctx.generateOrdinaryNncParadigm({
-                stem: "(tapiyal)",
+                stem: "tapiyal",
                 state: "absolutive",
                 animacy: "animate",
                 subject: { subjectPrefix: "ni", subjectSuffix: "" },
@@ -2978,27 +6072,142 @@ function run(ctx) {
         ]
     );
     s.eq(
-        "ordinary NNC analogue input parses connector outside the predicate stem",
-        ["(siwa)t", "(xilun)ti", "(tekpan)in", "(kal)"].map((stem) => {
-            const result = ctx.generateOrdinaryNncParadigm({
-                stem,
+        "ordinary NNC live route blocks legacy formula strings from deciding grammar",
+        (() => {
+            const blocked = ctx.generateOrdinaryNncParadigm({
+                stem: "(siwa)t",
                 state: "absolutive",
                 number: "singular",
             });
+            const authorizedSlots = ctx.buildOrdinaryNncFormulaSlots({
+                stem: "siwa",
+                state: "absolutive",
+                number: "singular",
+                nounClass: "t",
+            });
+            const authorized = ctx.generateOrdinaryNncParadigm({
+                stem: "(siwa)t",
+                state: "absolutive",
+                number: "singular",
+                formulaSlots: authorizedSlots,
+            });
+            const poisonedSlots = ctx.buildOrdinaryNncFormulaSlots({
+                stem: "kal",
+                state: "absolutive",
+                number: "singular",
+                nounClass: "zero",
+            });
+            const poisoned = ctx.generateOrdinaryNncParadigm({
+                stem: "(siwa)t",
+                state: "absolutive",
+                number: "singular",
+                formulaSlots: poisonedSlots,
+            });
+            const blockedParse = ctx.parseOrdinaryNncPredicateFormulaInput("(siwa)t");
+            const diagnosticOnlyParse = ctx.parseOrdinaryNncPredicateFormulaInput("(siwa)t", { diagnosticOnly: true });
+            const setFromFormulaString = ctx.generateOrdinaryNncParadigmSet({
+                stem: "(siwa)t",
+                states: ["absolutive"],
+                numbers: ["singular"],
+            });
+            const setFromBareFormulaString = ctx.generateOrdinaryNncParadigmSet({
+                stem: "(kal)",
+                states: ["absolutive"],
+                numbers: ["singular"],
+            });
+            const fixtureFromFormulaString = ctx.resolveOrdinaryNncFixture({ stem: "(siwa)t" });
+            const fixtureFromBareFormulaString = ctx.resolveOrdinaryNncFixture({ stem: "(kal)" });
             return {
-                input: stem,
-                nounClass: result.nounClass,
-                stem: result.stem,
-                result: result.result,
-                predicateFormula: result.predicateFormula,
+                blockedParse,
+                diagnosticOnlyParse,
+                setFromFormulaString: {
+                    supported: setFromFormulaString.supported,
+                    stem: setFromFormulaString.stem,
+                    entryCount: Array.isArray(setFromFormulaString.entries) ? setFromFormulaString.entries.length : 0,
+                },
+                setFromBareFormulaString: {
+                    supported: setFromBareFormulaString.supported,
+                    stem: setFromBareFormulaString.stem,
+                    entryCount: Array.isArray(setFromBareFormulaString.entries) ? setFromBareFormulaString.entries.length : 0,
+                },
+                fixtureFromFormulaString,
+                fixtureFromBareFormulaString,
+                blocked: {
+                    supported: blocked.supported,
+                    result: blocked.result,
+                    stem: blocked.stem,
+                    nounClass: blocked.nounClass,
+                    diagnostic: blocked.diagnostics[0]?.id,
+                },
+                authorized: {
+                    supported: authorized.supported,
+                    result: authorized.result,
+                    stem: authorized.stem,
+                    nounClass: authorized.nounClass,
+                    formulaEcho: authorized.clauseFrame.formulaEcho,
+                },
+                poisoned: {
+                    supported: poisoned.supported,
+                    result: poisoned.result,
+                    stem: poisoned.stem,
+                    nounClass: poisoned.nounClass,
+                    diagnostic: poisoned.diagnostics[0]?.id,
+                    formulaEcho: poisoned.clauseFrame.formulaEcho,
+                },
             };
-        }),
-        [
-            { input: "(siwa)t", nounClass: "t", stem: "siwa", result: "siwat", predicateFormula: "(siwa)t" },
-            { input: "(xilun)ti", nounClass: "ti", stem: "xilun", result: "xilunti", predicateFormula: "(xilun)ti" },
-            { input: "(tekpan)in", nounClass: "in", stem: "tekpan", result: "tekpanin", predicateFormula: "(tekpan)in" },
-            { input: "(kal)", nounClass: "zero", stem: "kal", result: "kal", predicateFormula: "(kal)" },
-        ]
+        })(),
+        {
+            blockedParse: {
+                status: "blocked",
+                diagnosticId: "ordinary-nnc-predicate-formula-string-diagnostic-only",
+                authorization: "blocked",
+                boundaries: {
+                    noStemInference: true,
+                    noNounClassInference: true,
+                    noGenerationAuthority: true,
+                },
+            },
+            diagnosticOnlyParse: {
+                stem: "siwa",
+                nounClass: "t",
+                connectorSurface: "t",
+                predicateFormula: "(siwa)t",
+            },
+            setFromFormulaString: {
+                supported: false,
+                stem: "",
+                entryCount: 0,
+            },
+            setFromBareFormulaString: {
+                supported: false,
+                stem: "",
+                entryCount: 0,
+            },
+            fixtureFromFormulaString: null,
+            fixtureFromBareFormulaString: null,
+            blocked: {
+                supported: false,
+                result: "",
+                stem: "siwa",
+                nounClass: "t",
+                diagnostic: "ordinary-nnc-legacy-formula-string-blocked",
+            },
+            authorized: {
+                supported: true,
+                result: "siwat",
+                stem: "siwa",
+                nounClass: "t",
+                formulaEcho: "#Ø-Ø(siwa)t#",
+            },
+            poisoned: {
+                supported: false,
+                result: "",
+                stem: "kal",
+                nounClass: "zero",
+                diagnostic: "ordinary-nnc-legacy-formula-string-conflicts-with-slots",
+                formulaEcho: "#Ø-Ø(kal)Ø#",
+            },
+        }
     );
     s.eq(
         "ordinary NNC rejects class/stem shape mismatches",
@@ -3049,7 +6258,7 @@ function run(ctx) {
                 result: "",
                 stem: "naka",
                 nounClass: "ti",
-                diagnostic: "ordinary-nnc-class-stem-incompatible",
+                diagnostic: "ordinary-nnc-legacy-formula-string-blocked",
                 formulaEcho: "#Ø-Ø(naka)ti#",
             },
             {
@@ -3143,6 +6352,420 @@ function run(ctx) {
         ],
         ["inhawat", "nishkat", "anhawatmet"]
     );
+    const animateSubjectPrefixSourceFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+        sourceStem: "ishkat",
+        sourceSurface: "ishkat",
+        subject: { subjectPrefix: "ni", subjectSuffix: "" },
+        state: "absolutive",
+        animacy: "animate",
+    });
+    const animateSubjectPrefixOperationFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixOperationFrame(
+        animateSubjectPrefixSourceFrame
+    );
+    const contradictoryAnimateSubjectPrefixOperationFrame = {
+        ...animateSubjectPrefixOperationFrame,
+        targetFrame: {
+            ...animateSubjectPrefixOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const oldAnimateSubjectPrefixHelper = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-surface",
+        soundSpellingFrames: [],
+    });
+    const monkeypatchedAnimateSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "ishkat",
+        state: "absolutive",
+        animacy: "animate",
+        subject: { subjectPrefix: "ni", subjectSuffix: "" },
+        number: "singular",
+    });
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldAnimateSubjectPrefixHelper;
+    const typedAnimateSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "ishkat",
+        state: "absolutive",
+        animacy: "animate",
+        subject: { subjectPrefix: "ni", subjectSuffix: "" },
+        number: "singular",
+    });
+    s.eq(
+        "ordinary NNC animate singular subject prefix consumes typed source and operation frames",
+        {
+            outputResult: typedAnimateSubjectPrefix.result,
+            subjectSourceFrameKind: typedAnimateSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.kind || "",
+            subjectOperationId: typedAnimateSubjectPrefix.ordinaryNncSubjectPrefixOperationFrames?.[0]?.operationId || "",
+            sourceSurfaceIsGeneratedDisplay: typedAnimateSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.sourceSurfaceIsGeneratedDisplay,
+            sourceFrameConsumesRenderedInput: typedAnimateSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.consumesRenderedInput,
+            sourceFrameDisplayAuthority: typedAnimateSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            directMissingOperation: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateSubjectPrefixSourceFrame,
+            }),
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateSubjectPrefixSourceFrame,
+                operationFrame: contradictoryAnimateSubjectPrefixOperationFrame,
+            }),
+            oldStringApiBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "ishkat",
+                { subjectPrefix: "ni", subjectSuffix: "" },
+                "absolutive",
+                "animate"
+            ).surface,
+            framedTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateSubjectPrefixSourceFrame,
+                operationFrame: animateSubjectPrefixOperationFrame,
+            }),
+            monkeypatchedResult: monkeypatchedAnimateSubjectPrefix.result,
+        },
+        {
+            outputResult: "nishkat",
+            subjectSourceFrameKind: "ordinary-nnc-animate-subject-prefix-source-frame",
+            subjectOperationId: "ordinary-nnc-animate-subject-prefix-realization",
+            sourceSurfaceIsGeneratedDisplay: false,
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            directMissingOperation: "",
+            contradictoryTarget: "",
+            oldStringApiBlocked: "",
+            framedTarget: "nishkat",
+            monkeypatchedResult: "nishkat",
+        }
+    );
+    const animateSubjectFixtureFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "mistun",
+        state: "absolutive",
+        number: "singular",
+        nounClass: "zero",
+    });
+    const animateSubjectFixtureSubject = {
+        subjectPrefix: "ti",
+        subjectSuffix: "",
+        personSubKey: "2sg",
+        number: "singular",
+    };
+    const typedAnimateFixtureSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animateSubjectFixtureFormulaSlots,
+        state: "absolutive",
+        animacy: "animate",
+        subject: animateSubjectFixtureSubject,
+        number: "singular",
+    });
+    const animateFixtureSubjectPrefixPairs = typedAnimateFixtureSubjectPrefix.formulaSurfacePairs || [];
+    const animateFixtureSubjectPrefixPoisonedPairs = animateFixtureSubjectPrefixPairs.map(poisonOrdinaryNncPairDisplays);
+    const animateFixtureSubjectPrefixPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: animateFixtureSubjectPrefixPoisonedPairs,
+    });
+    const animateFixtureSubjectPrefixPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        animateFixtureSubjectPrefixPoisonedSourceFrame
+    );
+    const animateFixtureAbsolutiveSourceFrame = ctx.buildOrdinaryNncAbsolutiveSingularSourceFrame({
+        sourceStem: "mistun",
+        nounClass: "zero",
+        state: "absolutive",
+        number: "singular",
+        animacy: "animate",
+    });
+    const animateFixtureAbsolutiveOperationFrame = ctx.buildOrdinaryNncAbsolutiveSingularOperationFrame(
+        animateFixtureAbsolutiveSourceFrame
+    );
+    const animateFixtureSubjectPrefixSourceFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+        sourceStem: "mistun",
+        sourceSurface: animateFixtureAbsolutiveOperationFrame.targetFrame.surface,
+        sourceSurfaceRole: "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+        priorSourceFrame: animateFixtureAbsolutiveSourceFrame,
+        priorOperationFrame: animateFixtureAbsolutiveOperationFrame,
+        subject: animateSubjectFixtureSubject,
+        state: "absolutive",
+        animacy: "animate",
+    });
+    const animateFixtureSubjectPrefixOperationFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixOperationFrame(
+        animateFixtureSubjectPrefixSourceFrame
+    );
+    const contradictoryAnimateFixtureSubjectPrefixOperationFrame = {
+        ...animateFixtureSubjectPrefixOperationFrame,
+        targetFrame: {
+            ...animateFixtureSubjectPrefixOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const missingTargetAnimateFixtureSubjectPrefixOperationFrame = {
+        ...animateFixtureSubjectPrefixOperationFrame,
+        targetFrame: null,
+    };
+    const oldAnimateFixtureSubjectFixtures = ctx.ORDINARY_NNC_FIXTURES;
+    const oldAnimateFixtureSubjectPrefixHelper = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldAnimateFixtureSubjectFixtures.map((fixture) => (
+        fixture.id === "mistun"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    absolutive: {
+                        ...fixture.states.absolutive,
+                        numberForms: {
+                            ...fixture.states.absolutive.numberForms,
+                            singular: {
+                                ...fixture.states.absolutive.numberForms.singular,
+                                surfaceForms: ["poison-static-surface"],
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-subject-prefix-surface",
+        soundSpellingFrames: [],
+    });
+    const poisonedAnimateFixtureSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animateSubjectFixtureFormulaSlots,
+        state: "absolutive",
+        animacy: "animate",
+        subject: animateSubjectFixtureSubject,
+        number: "singular",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldAnimateFixtureSubjectFixtures;
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldAnimateFixtureSubjectPrefixHelper;
+    s.eq(
+        "ordinary NNC animate fixture singular subject prefix consumes prior typed absolutive frame",
+        {
+            outputResult: typedAnimateFixtureSubjectPrefix.result,
+            outputSurfaceForms: typedAnimateFixtureSubjectPrefix.surfaceForms,
+            absolutiveSourceFrameKind: typedAnimateFixtureSubjectPrefix.ordinaryNncAbsolutiveSingularSourceFrames?.[0]?.kind || "",
+            absolutiveOperationId: typedAnimateFixtureSubjectPrefix.ordinaryNncAbsolutiveSingularOperationFrames?.[0]?.operationId || "",
+            subjectSourceFrameKind: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.kind || "",
+            subjectOperationId: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixOperationFrames?.[0]?.operationId || "",
+            priorOperationId: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.priorOperationId || "",
+            sourceSurfaceRole: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.sourceSurfaceRole || "",
+            sourceSurfaceIsGeneratedDisplay: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.sourceSurfaceIsGeneratedDisplay,
+            sourceFrameConsumesRenderedInput: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.consumesRenderedInput,
+            sourceFrameDisplayAuthority: typedAnimateFixtureSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(animateFixtureSubjectPrefixPoisonedPairs, {
+                sourceFrame: animateFixtureSubjectPrefixPoisonedSourceFrame,
+                operationFrame: animateFixtureSubjectPrefixPoisonedOperationFrame,
+            }),
+            poisonedStaticSurfaceFormsAndMonkeypatchResult: poisonedAnimateFixtureSubjectPrefix.result,
+            directMissingOperation: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateFixtureSubjectPrefixSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateFixtureSubjectPrefixSourceFrame,
+                operationFrame: missingTargetAnimateFixtureSubjectPrefixOperationFrame,
+            }),
+            oldStringApiBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "mistun",
+                animateSubjectFixtureSubject,
+                "absolutive",
+                "animate"
+            ).surface,
+            oldStringApiAllowBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "mistun",
+                animateSubjectFixtureSubject,
+                "absolutive",
+                "animate",
+                { allowLegacyStringSubjectPrefix: true }
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateFixtureSubjectPrefixSourceFrame,
+                operationFrame: contradictoryAnimateFixtureSubjectPrefixOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animateFixtureSubjectPrefixSourceFrame,
+                operationFrame: animateFixtureSubjectPrefixOperationFrame,
+            }),
+        },
+        {
+            outputResult: "timistun",
+            outputSurfaceForms: ["timistun"],
+            absolutiveSourceFrameKind: "ordinary-nnc-absolutive-singular-source-frame",
+            absolutiveOperationId: "ordinary-nnc-absolutive-singular-realization",
+            subjectSourceFrameKind: "ordinary-nnc-animate-subject-prefix-source-frame",
+            subjectOperationId: "ordinary-nnc-animate-subject-prefix-realization",
+            priorOperationId: "ordinary-nnc-absolutive-singular-realization",
+            sourceSurfaceRole: "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+            sourceSurfaceIsGeneratedDisplay: false,
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            poisonedDisplayResult: "timistun",
+            poisonedStaticSurfaceFormsAndMonkeypatchResult: "timistun",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            oldStringApiBlocked: "",
+            oldStringApiAllowBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "timistun",
+        }
+    );
+    const animatePossessiveSubjectFormulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+        stem: "mistun",
+        state: "possessive",
+        number: "singular",
+        nounClass: "zero",
+    });
+    const typedAnimatePossessiveSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animatePossessiveSubjectFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        animacy: "animate",
+        subject: animateSubjectFixtureSubject,
+        number: "singular",
+    });
+    const animatePossessiveSubjectPrefixPairs = typedAnimatePossessiveSubjectPrefix.formulaSurfacePairs || [];
+    const animatePossessiveSubjectPrefixPoisonedPairs = animatePossessiveSubjectPrefixPairs.map(poisonOrdinaryNncPairDisplays);
+    const animatePossessiveSubjectPrefixPoisonedSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: animatePossessiveSubjectPrefixPoisonedPairs,
+    });
+    const animatePossessiveSubjectPrefixPoisonedOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(
+        animatePossessiveSubjectPrefixPoisonedSourceFrame
+    );
+    const animatePossessivePriorSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: "mistun",
+        formulaStem: "mistun",
+        sourceStemEvidence: "ordinary-nnc-zero-class-formula-stem",
+        possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+        animacy: "animate",
+    });
+    const animatePossessivePriorOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(
+        animatePossessivePriorSourceFrame
+    );
+    const animatePossessiveSubjectPrefixSourceFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+        sourceStem: "mistun",
+        sourceSurface: animatePossessivePriorOperationFrame.targetFrame.surface,
+        sourceSurfaceRole: "ordinary-nnc-prior-typed-possessive-singular-source-form",
+        priorSourceFrame: animatePossessivePriorSourceFrame,
+        priorOperationFrame: animatePossessivePriorOperationFrame,
+        subject: animateSubjectFixtureSubject,
+        state: "possessive",
+        animacy: "animate",
+    });
+    const animatePossessiveSubjectPrefixOperationFrame = ctx.buildOrdinaryNncAnimateSubjectPrefixOperationFrame(
+        animatePossessiveSubjectPrefixSourceFrame
+    );
+    const contradictoryAnimatePossessiveSubjectPrefixOperationFrame = {
+        ...animatePossessiveSubjectPrefixOperationFrame,
+        targetFrame: {
+            ...animatePossessiveSubjectPrefixOperationFrame.targetFrame,
+            surface: "poison-surface",
+        },
+    };
+    const missingTargetAnimatePossessiveSubjectPrefixOperationFrame = {
+        ...animatePossessiveSubjectPrefixOperationFrame,
+        targetFrame: null,
+    };
+    const oldAnimatePossessiveSubjectFixtures = ctx.ORDINARY_NNC_FIXTURES;
+    const oldAnimatePossessiveSubjectPrefixHelper = ctx.applyOrdinaryNncSubjectPrefixResult;
+    ctx.ORDINARY_NNC_FIXTURES = oldAnimatePossessiveSubjectFixtures.map((fixture) => (
+        fixture.id === "mistun"
+            ? {
+                ...fixture,
+                states: {
+                    ...fixture.states,
+                    possessive: {
+                        ...fixture.states.possessive,
+                        numberFormsByPossessor: {
+                            ...fixture.states.possessive.numberFormsByPossessor,
+                            singular: {
+                                ...fixture.states.possessive.numberFormsByPossessor.singular,
+                                nu: {
+                                    ...fixture.states.possessive.numberFormsByPossessor.singular.nu,
+                                    surfaceForms: ["poison-static-possessive-surface"],
+                                },
+                            },
+                        },
+                    },
+                },
+            }
+            : fixture
+    ));
+    ctx.applyOrdinaryNncSubjectPrefixResult = () => ({
+        surface: "poison-subject-prefix-surface",
+        soundSpellingFrames: [],
+    });
+    const poisonedAnimatePossessiveSubjectPrefix = ctx.generateOrdinaryNncParadigm({
+        stem: "poison-display-stem",
+        formulaSlots: animatePossessiveSubjectFormulaSlots,
+        state: "possessive",
+        possessor: "nu",
+        animacy: "animate",
+        subject: animateSubjectFixtureSubject,
+        number: "singular",
+    });
+    ctx.ORDINARY_NNC_FIXTURES = oldAnimatePossessiveSubjectFixtures;
+    ctx.applyOrdinaryNncSubjectPrefixResult = oldAnimatePossessiveSubjectPrefixHelper;
+    s.eq(
+        "ordinary NNC animate fixture possessive subject prefix consumes prior typed possessive frame",
+        {
+            outputResult: typedAnimatePossessiveSubjectPrefix.result,
+            outputSurfaceForms: typedAnimatePossessiveSubjectPrefix.surfaceForms,
+            possessiveSourceFrameKind: typedAnimatePossessiveSubjectPrefix.ordinaryNncStructuredPossessiveSourceFrames?.[0]?.kind || "",
+            possessiveOperationId: typedAnimatePossessiveSubjectPrefix.ordinaryNncStructuredPossessiveOperationFrames?.[0]?.operationId || "",
+            subjectSourceFrameKind: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.kind || "",
+            subjectOperationId: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixOperationFrames?.[0]?.operationId || "",
+            priorOperationId: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.priorOperationId || "",
+            sourceSurfaceRole: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.sourceSurfaceRole || "",
+            sourceSurfaceIsGeneratedDisplay: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.sourceSurfaceIsGeneratedDisplay,
+            sourceFrameConsumesRenderedInput: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.consumesRenderedInput,
+            sourceFrameDisplayAuthority: typedAnimatePossessiveSubjectPrefix.ordinaryNncSubjectPrefixSourceFrames?.[0]?.displayStringsAuthorizeGrammar,
+            poisonedDisplayResult: ctx.buildOrdinaryNncResultText(animatePossessiveSubjectPrefixPoisonedPairs, {
+                sourceFrame: animatePossessiveSubjectPrefixPoisonedSourceFrame,
+                operationFrame: animatePossessiveSubjectPrefixPoisonedOperationFrame,
+            }),
+            poisonedStaticSurfaceFormsAndMonkeypatchResult: poisonedAnimatePossessiveSubjectPrefix.result,
+            directMissingOperation: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animatePossessiveSubjectPrefixSourceFrame,
+            }),
+            directMissingTargetFrame: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animatePossessiveSubjectPrefixSourceFrame,
+                operationFrame: missingTargetAnimatePossessiveSubjectPrefixOperationFrame,
+            }),
+            oldStringApiBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "numistun",
+                animateSubjectFixtureSubject,
+                "possessive",
+                "animate"
+            ).surface,
+            oldStringApiAllowBlocked: ctx.applyOrdinaryNncSubjectPrefixResult(
+                "numistun",
+                animateSubjectFixtureSubject,
+                "possessive",
+                "animate",
+                { allowLegacyStringSubjectPrefix: true }
+            ).surface,
+            contradictoryTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animatePossessiveSubjectPrefixSourceFrame,
+                operationFrame: contradictoryAnimatePossessiveSubjectPrefixOperationFrame,
+            }),
+            framedTarget: ctx.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+                sourceFrame: animatePossessiveSubjectPrefixSourceFrame,
+                operationFrame: animatePossessiveSubjectPrefixOperationFrame,
+            }),
+        },
+        {
+            outputResult: "tinumistun",
+            outputSurfaceForms: ["tinumistun"],
+            possessiveSourceFrameKind: "ordinary-nnc-open-stem-possessive-source-frame",
+            possessiveOperationId: "ordinary-nnc-open-stem-possessive-realization",
+            subjectSourceFrameKind: "ordinary-nnc-animate-subject-prefix-source-frame",
+            subjectOperationId: "ordinary-nnc-animate-subject-prefix-realization",
+            priorOperationId: "ordinary-nnc-open-stem-possessive-realization",
+            sourceSurfaceRole: "ordinary-nnc-prior-typed-possessive-singular-source-form",
+            sourceSurfaceIsGeneratedDisplay: false,
+            sourceFrameConsumesRenderedInput: false,
+            sourceFrameDisplayAuthority: false,
+            poisonedDisplayResult: "tinumistun",
+            poisonedStaticSurfaceFormsAndMonkeypatchResult: "tinumistun",
+            directMissingOperation: "",
+            directMissingTargetFrame: "",
+            oldStringApiBlocked: "",
+            oldStringApiAllowBlocked: "",
+            contradictoryTarget: "",
+            framedTarget: "tinumistun",
+        }
+    );
     s.eq(
         "ordinary NNC onset changes expose Lesson 2 frames without changing surfaces",
         (() => {
@@ -3202,19 +6825,101 @@ function run(ctx) {
     s.eq(
         "Andrews 39.3.4 organic possession builds a real Nawat -yu possessive NNC",
         (() => {
-            const direct = ctx.generateOrdinaryNncParadigm({
+            const formulaSlots = ctx.buildOrdinaryNncFormulaSlots({
+                stem: "naka",
+                nounClass: "t",
+                state: "possessive",
+                number: "singular",
+            });
+            const stringOnly = ctx.generateOrdinaryNncParadigm({
                 stem: "naka",
                 state: "possessive",
                 possessor: "nu",
                 possessionKind: "organic",
             });
-            const generated = ctx.executeGenerateWordRequest(buildSilentOrdinaryNncRequest({
-                stem: "naka",
+            const direct = ctx.generateOrdinaryNncParadigm({
+                stem: "poison",
                 state: "possessive",
                 possessor: "nu",
                 possessionKind: "organic",
+                formulaSlots,
+            });
+            const sourceFrame = ctx.buildOrdinaryNncOrganicPossessionSourceFrame({
+                formulaSlots,
+                possessor: { prefix: "nu" },
+                possessionKind: "organic",
+            });
+            const surfaceSourceFrame = ctx.buildOrdinaryNncOpenStemPossessiveSourceFrame({
+                sourceStem: "nakayu",
+                possessor: ctx.resolveOrdinaryNncPossessor("nu"),
+                animacy: "inanimate",
+            });
+            const surfaceOperationFrame = ctx.buildOrdinaryNncOpenStemPossessiveOperationFrame(surfaceSourceFrame);
+            const contradictorySurfaceOperationFrame = {
+                ...surfaceOperationFrame,
+                targetFrame: {
+                    ...surfaceOperationFrame.targetFrame,
+                    surface: "poison-surface",
+                },
+            };
+            const missingOperationStem = ctx.buildOrdinaryNncOrganicPossessionStem("poison", {
+                sourceFrame,
+            });
+            const oldOrganicStemBuilder = ctx.buildOrdinaryNncOrganicPossessionStem;
+            const oldSurfaceChainBuilder = ctx.buildOrdinaryNncSurfaceChainResult;
+            ctx.buildOrdinaryNncOrganicPossessionStem = () => "poison";
+            ctx.buildOrdinaryNncSurfaceChainResult = () => ({ surface: "poison-surface", surfaceForms: ["poison-surface"] });
+            const poisoned = ctx.generateOrdinaryNncParadigm({
+                stem: "poison",
+                state: "possessive",
+                possessor: "nu",
+                possessionKind: "organic",
+                formulaSlots,
+            });
+            ctx.buildOrdinaryNncOrganicPossessionStem = oldOrganicStemBuilder;
+            ctx.buildOrdinaryNncSurfaceChainResult = oldSurfaceChainBuilder;
+            const poisonedPairs = direct.formulaSurfacePairs.map(poisonOrdinaryNncPairDisplays);
+            const poisonedResultTextSourceFrame = ctx.buildOrdinaryNncResultTextSourceFrame({
+                formulaSurfacePairs: poisonedPairs,
+            });
+            const poisonedResultTextOperationFrame = ctx.buildOrdinaryNncResultTextOperationFrame(poisonedResultTextSourceFrame);
+            const generated = ctx.executeGenerateWordRequest(buildSilentOrdinaryNncRequest({
+                stem: "poison",
+                state: "possessive",
+                possessor: "nu",
+                possessionKind: "organic",
+                formulaSlots,
             }));
+            const frameSummary = (frame) => frame ? {
+                version: frame.version,
+                outputKind: frame.outputKind,
+                lessonRef: frame.lessonRef,
+                stateCase: frame.stateCase,
+                possessionKind: frame.possessionKind,
+                sourceStem: frame.sourceStem,
+                matrixStem: frame.matrixStem,
+                classicalAnalogue: frame.classicalAnalogue,
+                nawatMatrix: frame.nawatMatrix,
+                predicateStem: frame.predicateStem,
+                requiredState: frame.requiredState,
+                possessorPrefix: frame.possessorPrefix,
+                semanticRelation: frame.semanticRelation,
+                spellingAuthority: frame.spellingAuthority,
+                grammarAuthority: frame.grammarAuthority,
+                sourceFrameKind: frame.sourceFrame?.kind || "",
+                operationId: frame.operationFrame?.operationId || "",
+            } : null;
             return {
+                helperTypes: [
+                    typeof ctx.buildOrdinaryNncOrganicPossessionSourceFrame,
+                    typeof ctx.buildOrdinaryNncOrganicPossessionOperationFrame,
+                    typeof ctx.getOrdinaryNncOrganicPossessionFrameMismatch,
+                ],
+                stringOnly: {
+                    supported: stringOnly.supported,
+                    diagnostic: stringOnly.diagnostics[0]?.id || "",
+                },
+                missingOperationStem,
                 direct: {
                     supported: direct.supported,
                     result: direct.result,
@@ -3223,18 +6928,50 @@ function run(ctx) {
                     nounClass: direct.nounClass,
                     possessionKind: direct.possessionKind,
                     source: direct.source,
-                    frame: direct.organicPossessionFrame,
+                    frame: frameSummary(direct.organicPossessionFrame),
+                    sourceFrameKind: direct.organicPossessionSourceFrame?.kind || "",
+                    operationId: direct.organicPossessionOperationFrame?.operationId || "",
+                    surfaceSourceFrameKind: direct.organicSurfaceSourceFrame?.kind || "",
+                    surfaceOperationId: direct.organicSurfaceOperationFrame?.operationId || "",
+                    poisonedDisplayResult: ctx.buildOrdinaryNncResultText(poisonedPairs, {
+                        sourceFrame: poisonedResultTextSourceFrame,
+                        operationFrame: poisonedResultTextOperationFrame,
+                    }),
+                    surfaceMissingOperation: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                        sourceFrame: surfaceSourceFrame,
+                    }),
+                    surfaceContradictoryTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                        sourceFrame: surfaceSourceFrame,
+                        operationFrame: contradictorySurfaceOperationFrame,
+                    }),
+                    surfaceFramedTarget: ctx.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+                        sourceFrame: surfaceSourceFrame,
+                        operationFrame: surfaceOperationFrame,
+                    }),
+                    oldSurfaceApiBlocked: ctx.buildOrdinaryNncOpenStemPossessiveSurface("nakayu", "nu", "inanimate"),
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(direct.nncBasic.formulaSlots),
+                },
+                poisoned: {
+                    supported: poisoned.supported,
+                    result: poisoned.result,
+                    stem: poisoned.stem,
+                    sourceStem: poisoned.sourceStem,
                 },
                 generated: {
                     result: generated.result,
                     surfaceForms: generated.surfaceForms,
                     generationRoute: generated.generationRoute,
-                    frame: generated.organicPossessionFrame,
+                    frame: frameSummary(generated.organicPossessionFrame),
                 },
             };
         })(),
         {
+            helperTypes: ["function", "function", "function"],
+            stringOnly: {
+                supported: false,
+                diagnostic: "ordinary-nnc-organic-possession-missing-source-frame",
+            },
+            missingOperationStem: "",
             direct: {
                 supported: true,
                 result: "nunakayu",
@@ -3264,8 +7001,25 @@ function run(ctx) {
                     semanticRelation: "integral-part-to-whole",
                     spellingAuthority: "Nawat/Pipil orthography",
                     grammarAuthority: "Andrews PDF",
+                    sourceFrameKind: "ordinary-nnc-organic-possession-source-frame",
+                    operationId: "ordinary-nnc-organic-possession-yu-realization",
                 },
+                sourceFrameKind: "ordinary-nnc-organic-possession-source-frame",
+                operationId: "ordinary-nnc-organic-possession-yu-realization",
+                surfaceSourceFrameKind: "ordinary-nnc-open-stem-possessive-source-frame",
+                surfaceOperationId: "ordinary-nnc-open-stem-possessive-realization",
+                poisonedDisplayResult: "nunakayu",
+                surfaceMissingOperation: "",
+                surfaceContradictoryTarget: "",
+                surfaceFramedTarget: "nunakayu",
+                oldSurfaceApiBlocked: "",
                 formulaEcho: "#Ø-Ø(nakayu)t#",
+            },
+            poisoned: {
+                supported: true,
+                result: "nunakayu",
+                stem: "nakayu",
+                sourceStem: "naka",
             },
             generated: {
                 result: "nunakayu",
@@ -3287,30 +7041,60 @@ function run(ctx) {
                     semanticRelation: "integral-part-to-whole",
                     spellingAuthority: "Nawat/Pipil orthography",
                     grammarAuthority: "Andrews PDF",
+                    sourceFrameKind: "ordinary-nnc-organic-possession-source-frame",
+                    operationId: "ordinary-nnc-organic-possession-yu-realization",
                 },
             },
         }
     );
     s.eq(
         "Andrews 39.3.4 organic possession rejects absolutive and missing-possessor requests",
-        [
-            ctx.generateOrdinaryNncParadigm({
+        (() => {
+            const formulaSlots = ctx.buildOrdinaryNncFormulaSlots({
                 stem: "naka",
-                state: "absolutive",
-                possessionKind: "organic",
-            }),
-            ctx.generateOrdinaryNncParadigm({
-                stem: "naka",
+                nounClass: "t",
                 state: "possessive",
+                number: "singular",
+            });
+            const sourceFrame = ctx.buildOrdinaryNncOrganicPossessionSourceFrame({
+                formulaSlots,
+                possessor: { prefix: "nu" },
                 possessionKind: "organic",
-            }),
-        ].map((result) => ({
-            supported: result.supported,
-            stem: result.stem,
-            possessionKind: result.possessionKind,
-            sourceStem: result.source?.sourceStem,
-            diagnostic: result.diagnostics[0]?.id,
-        })),
+            });
+            const operationFrame = ctx.buildOrdinaryNncOrganicPossessionOperationFrame(sourceFrame);
+            return [
+                ctx.generateOrdinaryNncParadigm({
+                    stem: "poison",
+                    state: "absolutive",
+                    possessionKind: "organic",
+                    formulaSlots,
+                }),
+                ctx.generateOrdinaryNncParadigm({
+                    stem: "poison",
+                    state: "possessive",
+                    possessionKind: "organic",
+                    formulaSlots,
+                }),
+                ctx.generateOrdinaryNncParadigm({
+                    stem: "poison",
+                    state: "possessive",
+                    possessor: "nu",
+                    possessionKind: "organic",
+                    formulaSlots,
+                    organicPossessionSourceFrame: {
+                        ...sourceFrame,
+                        sourceSignature: "poison",
+                    },
+                    organicPossessionOperationFrame: operationFrame,
+                }),
+            ].map((result) => ({
+                supported: result.supported,
+                stem: result.stem,
+                possessionKind: result.possessionKind,
+                sourceStem: result.source?.sourceStem,
+                diagnostic: result.diagnostics[0]?.id,
+            }));
+        })(),
         [
             {
                 supported: false,
@@ -3325,6 +7109,13 @@ function run(ctx) {
                 possessionKind: "organic",
                 sourceStem: "naka",
                 diagnostic: "ordinary-nnc-organic-possession-requires-possessor",
+            },
+            {
+                supported: false,
+                stem: "naka",
+                possessionKind: "organic",
+                sourceStem: "naka",
+                diagnostic: "ordinary-nnc-organic-possession-contradictory-frame",
             },
         ]
     );
@@ -3565,7 +7356,11 @@ function run(ctx) {
                 derivedFromSlots: {
                     formulaSlot: animatePlural.nncBasic.formulaSlots.num1Num2.slot,
                     categoryConnectorSlot: animatePlural.nncBasic.categoryProfile.reference.connectorSlot,
+                    num1: animatePlural.nncBasic.formulaSlots.num1Num2.num1,
+                    num2: animatePlural.nncBasic.formulaSlots.num1Num2.num2,
+                    connectorDyad: animatePlural.nncBasic.formulaSlots.num1Num2.displayDyad,
                     formulaEcho: ctx.buildOrdinaryNncFormulaEchoFromSlots(animatePlural.nncBasic.formulaSlots),
+                    fullFormulaEcho: ctx.buildOrdinaryNncExpandedFormulaEchoFromSlots(animatePlural.nncBasic.formulaSlots),
                 },
             };
         })(),
@@ -3707,7 +7502,11 @@ function run(ctx) {
             derivedFromSlots: {
                 formulaSlot: "num1-num2",
                 categoryConnectorSlot: "num1-num2",
-                formulaEcho: "#Ø-Ø(mistun)Ø#",
+                num1: "m",
+                num2: "et",
+                connectorDyad: "m-et",
+                formulaEcho: "#Ø-Ø(mistun)met#",
+                fullFormulaEcho: "#Ø-Ø(mistun)m-et#",
             },
         }
     );

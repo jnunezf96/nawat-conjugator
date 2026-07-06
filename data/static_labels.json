@@ -1,6 +1,6 @@
 {
   "uiLabels": {
-    "app-title": { "labelEs": "Conjugador de cláusulas nucleares nawat", "labelNa": "Conjugador de cláusulas nucleares nawat" },
+    "app-title": { "labelEs": "Gramática nawat/pipil Andrews", "labelNa": "Gramática nawat/pipil Andrews" },
     "panel-stack-tab-inputs": { "labelEs": "Entrada", "labelNa": "Entrada" },
     "panel-stack-tab-formula": { "labelEs": "Fórmula", "labelNa": "Fórmula" },
     "panel-stack-tab-output": { "labelEs": "Salida", "labelNa": "Salida" },
@@ -185,6 +185,7 @@
     "predicado-nominal": { "labelEs": "predicado nominal", "labelNa": "tachiwal tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "calificativo/instrumentivo", "labelNa": "tachiwkayut" },
     "locativo-temporal": { "labelEs": "locativo/temporal", "labelNa": "tachiwaluyan" },
+    "locativo-agentivo-preterito": { "labelEs": "locativo agentivo pretérito", "labelNa": "tachiwkakan" },
     "presente-habitual": { "labelEs": "presente habitual", "labelNa": "ipan muchiwani" },
     "presente-desiderativo": { "labelEs": "presente desiderativo", "labelNa": "ipan muchiwasneki" },
     "imperfecto": { "labelEs": "pretérito imperfecto", "labelNa": "ipan muchiwaya" },
@@ -229,7 +230,8 @@
     "instrumentivo": { "labelEs": "medio o herramienta de la acción (sustantivo derivado de base no activa + presente habitual -ni, o de base activa + imperfecto -ya)", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
     "predicado-nominal": { "labelEs": "NNC derivada desde un predicado CNV; conserva la marca de tiempo fuente dentro del tronco nominal", "labelNa": "CNN kisa ipan CNV tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado (sustantivo derivado del pasado remoto -ka + -yut/posesivo)", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
-    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción (sustantivo derivado del imperfecto -ya + -n en base activa/no activa)", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }
+    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción (sustantivo derivado del imperfecto -ya + -n en base activa/no activa)", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" },
+    "locativo-agentivo-preterito": { "labelEs": "Andrews 46.3.1.a: locativo/adverbial desde un tronco agentivo pretérito de uso general; la ruta conserva cada IF → THEN del stack", "labelNa": "Andrews 46.3.1.a: kajkan kisa ipan tachiwki ipan muchiwki" }
   },
   "preteritoClassDetailByKey": {
     "A": {

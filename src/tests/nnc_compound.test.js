@@ -16,17 +16,25 @@ function run(ctx) {
             typeof ctx.classifyCompoundNncAffectiveCandidate,
             typeof ctx.classifyCompoundNncAffectiveFalsePositive,
             typeof ctx.getCompoundNncAntiConflationRules,
+            typeof ctx.buildCompoundNncAffectiveSourceFrame,
+            typeof ctx.buildCompoundNncAffectiveOperationFrame,
+            typeof ctx.getCompoundNncAffectiveOperationFrameMismatch,
             typeof ctx.buildLesson31CompoundNounstemPursuitFrame,
             typeof ctx.getLesson31CompoundNounstemSubsectionInventory,
             typeof ctx.buildLesson32AffectiveNncPursuitFrame,
             typeof ctx.getLesson32AffectiveNncSubsectionInventory,
+            typeof ctx.getLesson32PilChildNncSideRows,
+            typeof ctx.buildLesson32PilChildNncSideSourceFrame,
+            typeof ctx.buildLesson32PilChildNncSideOperationFrame,
+            typeof ctx.generateLesson32PilChildNncSideOutput,
+            typeof ctx.generateLesson32PilChildNncSideOutputs,
         ],
-        ["function", "function", "function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildCompoundNncAffectiveBoundaryMetadata();
     s.eq(
-        "compound/affective NNC boundary is explicit and non-generative",
+        "compound/affective NNC boundary is explicit and Andrews source-gated",
         {
             kind: boundary.kind,
             lessons: boundary.lessons,
@@ -44,8 +52,10 @@ function run(ctx) {
             confirmedExamples: [],
             boundaries: {
                 hasVncCompoundParserMetadata: true,
-                hasCompoundNncGeneration: false,
-                hasAffectiveNncGeneration: false,
+                hasCompoundNncGeneration: true,
+                hasAffectiveNncGeneration: true,
+                hasGeneralAffectiveNncGeneration: false,
+                hasPilChildNncSideGeneration: true,
                 hasStaticAffectiveData: false,
                 treatsVncCompoundAstAsNncEvidence: false,
                 changesOrdinaryNncGeneration: false,
@@ -87,11 +97,361 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "compound-nnc-needs-nawat-evidence",
+                "compound-nnc-source-gate-required",
                 "vnc-compound-ast-not-nnc-evidence",
                 "compound-nnc-false-positive-source",
             ],
             boundary,
+        }
+    );
+    s.eq(
+        "structured compound NNC source generates through Andrews slot order and orthography bridge",
+        (() => {
+            const sourceFrame = ctx.buildCompoundNncAffectiveSourceFrame({
+                candidate: "NNC(kal)+NNC(tan)",
+                headStem: "tan",
+                embeddedStem: "kal",
+                compoundKind: "compound-nounstem",
+            });
+            const operationFrame = ctx.buildCompoundNncAffectiveOperationFrame(sourceFrame);
+            const classification = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "poison",
+                headStem: "poison",
+                embeddedStem: "poison",
+                compoundKind: "compound-nounstem",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                kind: classification.kind,
+                compoundKind: classification.compoundKind,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                surfaceForms: classification.surfaceForms,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                resultSurface: classification.frames.resultFrame.surface,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                formulaSlots: {
+                    embedded: classification.formulaSlots.embeddedStem.surface,
+                    head: classification.formulaSlots.headStem.surface,
+                },
+                operationId: classification.operationFrame.operationId,
+                stemFrame: {
+                    matrix: classification.frames.stemFrame.matrix,
+                    embed: classification.frames.stemFrame.embed,
+                    embedBeforeMatrix: classification.frames.stemFrame.embedBeforeMatrix,
+                    matrixGovernsCompoundNounstemClass: classification.frames.stemFrame.matrixGovernsCompoundNounstemClass,
+                },
+            };
+        })(),
+        {
+            kind: "compound-nnc-affective-candidate-classification",
+            compoundKind: "compound-nounstem",
+            generationAllowed: true,
+            surface: "kaltan",
+            surfaceForms: ["kaltan"],
+            diagnostics: [
+                "compound-nnc-andrews-source-generated",
+                "compound-nnc-no-compound-ast",
+                "compound-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-compound",
+            frameGenerationAllowed: true,
+            resultSurface: "kaltan",
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            formulaSlots: {
+                embedded: "kal",
+                head: "tan",
+            },
+            operationId: "andrews-31-compound-nounstem-source-realization",
+            stemFrame: {
+                matrix: "tan",
+                embed: "kal",
+                embedBeforeMatrix: true,
+                matrixGovernsCompoundNounstemClass: true,
+            },
+        }
+    );
+    s.eq(
+        "structured compound NNC candidate blocks string-only and contradictory generation",
+        (() => {
+            const sourceFrame = ctx.buildCompoundNncAffectiveSourceFrame({
+                candidate: "NNC(kal)+NNC(tan)",
+                headStem: "tan",
+                embeddedStem: "kal",
+                compoundKind: "compound-nounstem",
+            });
+            const operationFrame = ctx.buildCompoundNncAffectiveOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildCompoundNncAffectiveSourceFrame({
+                candidate: "NNC(shuchi)+NNC(kwi)",
+                headStem: "kwi",
+                embeddedStem: "shuchi",
+                compoundKind: "compound-nounstem",
+            });
+            const otherOperationFrame = ctx.buildCompoundNncAffectiveOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizeCompoundNncSurfacePart;
+            if (typeof ctx.normalizeCompoundNncSurfacePart === "function") {
+                ctx.normalizeCompoundNncSurfacePart = () => "poison";
+            }
+            const poisoned = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "poison",
+                headStem: "poison",
+                embeddedStem: "poison",
+                compoundKind: "compound-nounstem",
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizeCompoundNncSurfacePart = originalNormalizer;
+            }
+            const stringOnly = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "NNC(kal)+NNC(tan)",
+                headStem: "tan",
+                embeddedStem: "kal",
+                compoundKind: "compound-nounstem",
+            });
+            const missingOperation = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "NNC(kal)+NNC(tan)",
+                headStem: "tan",
+                embeddedStem: "kal",
+                compoundKind: "compound-nounstem",
+                sourceFrame,
+            });
+            const contradictory = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "NNC(kal)+NNC(tan)",
+                headStem: "tan",
+                embeddedStem: "kal",
+                compoundKind: "compound-nounstem",
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyCompoundNncAffectiveCandidate({
+                candidate: "changed",
+                headStem: "changed",
+                embeddedStem: "changed",
+                compoundKind: "compound-nounstem",
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    matrix: poisoned.frames.stemFrame.matrix,
+                    embed: poisoned.frames.stemFrame.embed,
+                    resultSurface: poisoned.frames.resultFrame.surface,
+                },
+                stringOnly: {
+                    generationAllowed: stringOnly.generationAllowed,
+                    diagnostics: stringOnly.diagnostics,
+                    surface: stringOnly.surface || "",
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    matrix: changedStrings.frames.stemFrame.matrix,
+                    embed: changedStrings.frames.stemFrame.embed,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "kaltan",
+                matrix: "tan",
+                embed: "kal",
+                resultSurface: "kaltan",
+            },
+            stringOnly: {
+                generationAllowed: false,
+                diagnostics: [
+                    "compound-nnc-affective-source-frame-required",
+                    "compound-nnc-no-compound-ast",
+                    "compound-nnc-unconfirmed",
+                ],
+                surface: "",
+            },
+            missingOperation: [
+                "compound-nnc-affective-operation-frame-required",
+                "compound-nnc-no-compound-ast",
+                "compound-nnc-unconfirmed",
+            ],
+            contradictory: [
+                "compound-nnc-affective-contradictory-source-frame",
+                "compound-nnc-no-compound-ast",
+                "compound-nnc-unconfirmed",
+            ],
+            changedStrings: {
+                surface: "kaltan",
+                matrix: "tan",
+                embed: "kal",
+            },
+        }
+    );
+    s.eq(
+        "Lesson 32 p294 pil NNC-side rows generate slot-aware output",
+        (() => {
+            const generated = ctx.generateLesson32PilChildNncSideOutputs();
+            const first = generated.entries[0];
+            const fourth = generated.entries[3];
+            const last = generated.entries[8];
+            return {
+                rowCount: generated.rowCount,
+                generationAllowed: generated.generationAllowed,
+                routeStage: generated.frames.routeContract.routeStage,
+                surfaces: generated.entries.map((entry) => entry.surface),
+                formulas: generated.entries.map((entry) => entry.structuralFormula),
+                firstSlots: {
+                    subject: first.formulaSlots.pers1Pers2.surface,
+                    stateOwner: first.formulaSlots.possessiveState.owner,
+                    stateSurface: first.formulaSlots.possessiveState.surface,
+                    predicateInside: first.formulaSlots.predicateStem.insideParentheses,
+                    connectorOwner: first.formulaSlots.num1Num2.owner,
+                    connectorSurface: first.formulaSlots.num1Num2.surface,
+                    connectorNotTense: first.formulaSlots.num1Num2.notTense,
+                },
+                fourthSlots: {
+                    stateStructural: fourth.formulaSlots.possessiveState.structural,
+                    stateSurface: fourth.formulaSlots.possessiveState.surface,
+                    predicateSurface: fourth.formulaSlots.predicateStem.surface,
+                    connectorSurface: fourth.formulaSlots.num1Num2.surface,
+                },
+                lastSlots: {
+                    predicateSurface: last.formulaSlots.predicateStem.surface,
+                    connectorSurface: last.formulaSlots.num1Num2.surface,
+                    formulaFamily: last.frames.nuclearClauseFrame.formulaFamily,
+                },
+                allNoTense: generated.entries.every((entry) => entry.frames.nuclearClauseFrame.hasTensePosition === false),
+                ordinaryGateUnchanged: generated.frames.routeContract.targetContract.noOrdinaryNncGenerationGateChange,
+            };
+        })(),
+        {
+            rowCount: 9,
+            generationAllowed: true,
+            routeStage: "generate-lesson-32-pil-child-nnc-side-set",
+            surfaces: [
+                "annupilwan",
+                "nupilwantzitzinwan",
+                "nupilwantzitzin",
+                "inpijpilwantzitzin",
+                "pipiltin",
+                "ukichpipiltin",
+                "siwapipiltin",
+                "tipiltzinti",
+                "piltunti",
+            ],
+            formulas: [
+                "#an-0+n-o(pil)hu-an#",
+                "#0-0+n-o(pil-hu-an-tzi-tzin)hu-an#",
+                "#0-0+n-o(pil-hu-an-tzi-tzin)0-[sq0]#",
+                "#0-0+i-m(pih-pil-hu-an-tzi-tzin)0-[sq0]#",
+                "#0-0(pi-pil)t-in#",
+                "#0-0(oquich-pi-pil)t-in#",
+                "#0-0(cihua-pi-pil)t-in#",
+                "#ti-0(pil-tzin)tli-0#",
+                "#0-0(pil-ton)tli-0#",
+            ],
+            firstSlots: {
+                subject: "an",
+                stateOwner: "predicate",
+                stateSurface: "nu",
+                predicateInside: true,
+                connectorOwner: "subject",
+                connectorSurface: "wan",
+                connectorNotTense: true,
+            },
+            fourthSlots: {
+                stateStructural: "i-m",
+                stateSurface: "in",
+                predicateSurface: "pijpilwantzitzin",
+                connectorSurface: "",
+            },
+            lastSlots: {
+                predicateSurface: "piltun",
+                connectorSurface: "ti",
+                formulaFamily: "absolutive-state NNC",
+            },
+            allNoTense: true,
+            ordinaryGateUnchanged: true,
+        }
+    );
+    s.eq(
+        "Lesson 32 p294 pil NNC-side row consumes typed source and operation frames instead of row strings",
+        (() => {
+            const rows = ctx.getLesson32PilChildNncSideRows();
+            const firstSourceFrame = ctx.buildLesson32PilChildNncSideSourceFrame(rows[0]);
+            const firstOperationFrame = ctx.buildLesson32PilChildNncSideOperationFrame(firstSourceFrame);
+            const otherSourceFrame = ctx.buildLesson32PilChildNncSideSourceFrame(rows[3]);
+            const otherOperationFrame = ctx.buildLesson32PilChildNncSideOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizeCompoundNncSurfacePart;
+            if (typeof ctx.normalizeCompoundNncSurfacePart === "function") {
+                ctx.normalizeCompoundNncSurfacePart = () => "poison";
+            }
+            const poisoned = ctx.generateLesson32PilChildNncSideOutput({
+                id: "poison-row",
+                formula: "#poison(formula)#",
+                predicateStem: "poison",
+                state: "absolutive",
+            }, {
+                sourceFrame: firstSourceFrame,
+                operationFrame: firstOperationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizeCompoundNncSurfacePart = originalNormalizer;
+            }
+            const stringOnly = ctx.generateLesson32PilChildNncSideOutput(rows[0].id);
+            const missingOperation = ctx.generateLesson32PilChildNncSideOutput(rows[0], {
+                sourceFrame: firstSourceFrame,
+            });
+            const contradictory = ctx.generateLesson32PilChildNncSideOutput(rows[0], {
+                sourceFrame: firstSourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.generateLesson32PilChildNncSideOutput({
+                ...rows[0],
+                formula: "#changed(formula)#",
+                predicateStem: "changed",
+            }, {
+                sourceFrame: firstSourceFrame,
+                operationFrame: firstOperationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    formula: poisoned.structuralFormula,
+                    sourceStem: poisoned.frames.stemFrame.sourceStem,
+                    targetStem: poisoned.frames.stemFrame.targetStem,
+                    operationId: poisoned.operationFrame?.operationId || "",
+                },
+                stringOnly: stringOnly.diagnostics,
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    formula: changedStrings.structuralFormula,
+                    sourceStem: changedStrings.frames.stemFrame.sourceStem,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "annupilwan",
+                formula: "#an-0+n-o(pil)hu-an#",
+                sourceStem: "pil",
+                targetStem: "pil",
+                operationId: "andrews-32-6-pil-child-nnc-side-row-realization",
+            },
+            stringOnly: ["lesson-32-pil-child-nnc-side-source-frame-required"],
+            missingOperation: ["lesson-32-pil-child-nnc-side-operation-frame-required"],
+            contradictory: ["lesson-32-pil-child-nnc-side-contradictory-source-frame"],
+            changedStrings: {
+                surface: "annupilwan",
+                formula: "#an-0+n-o(pil)hu-an#",
+                sourceStem: "pil",
+            },
         }
     );
     s.eq(
@@ -120,7 +480,7 @@ function run(ctx) {
             routeStage: "classify-boundary",
             generationAllowed: false,
             stemKind: "compound-nounstem-candidate",
-            diagnosticId: "compound-nnc-needs-nawat-evidence",
+            diagnosticId: "compound-nnc-source-gate-required",
             enumerableGrammarFrame: false,
         }
     );
@@ -149,7 +509,7 @@ function run(ctx) {
             "ordinary NNC fixtures are not affective NNC fixtures",
             "open-stem ordinary NNC previews are not compound NNC evidence",
             "parser punctuation is not a compound NNC schema",
-            "Andrews compound/affective categories are architecture, not Nawat/Pipil form authority",
+            "Andrews compound/affective categories are architecture, not Classical surface authority",
         ]
     );
     s.no("compound/affective boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -287,7 +647,7 @@ function run(ctx) {
                 objectSlotOwnershipAbsentByNncStateFrame: true,
                 functionUseOwnsObjectSlots: false,
                 sourceRouteFrameRequired: true,
-                generationStatus: "diagnostic-only-nawat-evidence-required",
+                generationStatus: "andrews-logic-generated",
             },
         }
     );
@@ -312,7 +672,7 @@ function run(ctx) {
             generationAllowed: false,
             unitKind: "compound-nounstem-boundary",
             targetGenerationAllowed: false,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-required",
             stemKind: "compound-nounstem",
             sourceFormula: "NNC + NNC = compound NNC",
             resultClauseKind: "compound NNC",
@@ -414,7 +774,7 @@ function run(ctx) {
             generationAllowed: false,
             unitKind: "affective-nnc-boundary",
             targetGenerationAllowed: false,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-required",
             stemKind: "compound-affective-nounstem",
             zeroClassMatrices: ["pil", "pol"],
             affectiveSites: ["nounstem", "subject-pronoun"],

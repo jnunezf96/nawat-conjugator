@@ -8,7 +8,7 @@ export function createConceptsApi(targetObject = globalThis) {
       hierarchy: "hierarchy",
       boundary: "boundary"
     });
-    const CONCEPT_ANTI_CONFLATION_RULES = Object.freeze(["concept glossary is not generation", "notation token is not Nawat/Pipil surface evidence", "Andrews formula notation is an engine contract, not surface text", "lesson heading is not an engine boundary", "VNC/NNC category label is not a complete sentence model", "Andrews terminology is architecture, not Nawat/Pipil form authority"]);
+    const CONCEPT_ANTI_CONFLATION_RULES = Object.freeze(["concept glossary is not generation", "notation token is not orthography-bridge surface evidence", "Andrews formula notation is an engine contract, not surface text", "lesson heading is not an engine boundary", "VNC/NNC category label is not a complete sentence model", "Andrews terminology is architecture, not Nawat/Pipil orthography authority"]);
     const NUCLEAR_CLAUSE_TERMINOLOGY = Object.freeze({
       nc: Object.freeze({
         english: "nuclear clause",
@@ -359,7 +359,7 @@ export function createConceptsApi(targetObject = globalThis) {
         canonicalLabel: concept.abbreviation || concept.label,
         source: {
           structuralSource: "Andrews Lesson 1",
-          targetAuthority: "Nawat/Pipil repo data and user-provided forms"
+          targetAuthority: "Andrews source model plus orthography-bridge user-provided forms"
         },
         generationAllowed: false
       };
@@ -394,7 +394,7 @@ export function createConceptsApi(targetObject = globalThis) {
         kind: "concept-registry",
         version: CONCEPT_REGISTRY_VERSION,
         structuralSource: "Andrews Lesson 1",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         concepts,
         generationAllowed: false,
         antiConflationRules: getConceptAntiConflationRules()

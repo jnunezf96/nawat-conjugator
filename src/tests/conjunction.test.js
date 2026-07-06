@@ -65,7 +65,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized conjunction relation remains unconfirmed without Nawat clause evidence",
+        "recognized conjunction relation remains unconfirmed without Andrews clause-source context",
         ctx.classifyConjunctionClauseCandidate({
             conjuncts: ["left", "right"],
             marker: "translation",
@@ -87,7 +87,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "conjunction-clause-needs-nawat-clause-evidence",
+                "conjunction-clause-source-gated",
                 "conjunction-clause-relation-recognized",
                 "conjunction-clause-unit-recognized",
                 "conjunction-clause-false-positive-source",
@@ -118,9 +118,9 @@ function run(ctx) {
             "conjunction boundary metadata is not generation",
             "parser separators and slash variants are not conjunction AST evidence",
             "CSV alternants are not clause-level conjunction evidence",
-            "particle or translation labels are not Nawat/Pipil conjunction evidence",
+            "particle or translation labels are not orthography-bridge conjunction evidence",
             "single generated words do not prove marked, unmarked, correlative, or parallel conjunction",
-            "Andrews conjunction categories are architecture, not Nawat/Pipil form authority",
+            "Andrews conjunction categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("conjunction boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -249,7 +249,7 @@ function run(ctx) {
             grammarRouteStage: "audit-lesson-52",
             diagnosticIds: [
                 "conjunction-clause-lesson-52-diagnostic-partial",
-                "conjunction-clause-needs-nawat-clause-evidence",
+                "conjunction-clause-source-gated",
             ],
         }
     );
@@ -319,13 +319,13 @@ function run(ctx) {
         (() => {
             const leftFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-left / frame-left-alt"],
+                    surfaceForms: ["frame-left", "frame-left-alt"],
                     outputKind: "vnc",
                 }),
             });
             const rightFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-right / frame-right-alt"],
+                    surfaceForms: ["frame-right", "frame-right-alt"],
                     outputKind: "vnc",
                 }),
             });
@@ -369,6 +369,120 @@ function run(ctx) {
             rightForms: ["frame-right", "frame-right-alt"],
             ok: true,
             routeStage: "compose-ast",
+        }
+    );
+    s.eq(
+        "conjunction AST reads canonical realization before split display surfaces",
+        (() => {
+            const leftFormula = ctx.buildGrammarFormulaRecord({
+                id: "conjunction-left-formula",
+                unit: "CNV",
+                formula: "#0-0(left)0+0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "left", slot: "STEM" },
+                },
+            });
+            const rightFormula = ctx.buildGrammarFormulaRecord({
+                id: "conjunction-right-formula",
+                unit: "CNV",
+                formula: "#0-0(right)0+0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "right", slot: "STEM" },
+                },
+            });
+            const leftRealization = ctx.buildGrammarFormulaRealizationRecord({
+                id: "conjunction-left-realization",
+                formulaRecord: leftFormula,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "left", surface: "canonical-left" },
+                ],
+                surfaceForms: ["canonical-left"],
+            });
+            const rightRealization = ctx.buildGrammarFormulaRealizationRecord({
+                id: "conjunction-right-realization",
+                formulaRecord: rightFormula,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "right", surface: "canonical-right" },
+                ],
+                surfaceForms: ["canonical-right"],
+            });
+            const makeInput = (formulaRecord, formulaRealizationRecord, label) => ({
+                result: `${label}-result-lie / ${label}-result-alt-lie`,
+                surface: `${label}-surface-lie`,
+                surfaceForms: [`${label}-top-lie / ${label}-top-alt-lie`],
+                surfaceDisplay: `${label}-display-lie`,
+                word: `${label}-word-lie`,
+                frames: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: `${label}-frame-lie`,
+                        surfaceForms: [`${label}-frame-lie / ${label}-frame-alt-lie`],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            });
+            const leftInput = makeInput(leftFormula, leftRealization, "left");
+            const rightInput = makeInput(rightFormula, rightRealization, "right");
+            const ast = ctx.buildConjunctionClauseAst({
+                conjuncts: [leftInput, rightInput],
+                conjunctionRelation: "unmarked",
+                coordinationType: "additive",
+                unitType: "clause",
+                level: "principal",
+                evidenceSource: "test-canonical-realization-contract",
+            });
+            return {
+                surface: ast.surface,
+                conjunctSurfaces: ast.conjuncts.map((node) => node.surface),
+                conjunctVariantIds: ast.conjuncts.map((node) => node.selectedVariantId),
+                conjunctRealizationIds: ast.conjuncts.map((node) => node.formulaRealizationRecordId),
+                leftForms: ctx.getConjunctionClauseSurfaceForms(leftInput),
+                rightForms: ctx.getConjunctionClauseSurfaceForms(rightInput),
+                ok: ast.ok,
+                routeStage: ast.frames?.routeContract?.routeStage || "",
+            };
+        })(),
+        {
+            surface: "canonical-left canonical-right",
+            conjunctSurfaces: ["canonical-left", "canonical-right"],
+            conjunctVariantIds: ["conjunction-left-realization::surface-0", "conjunction-right-realization::surface-0"],
+            conjunctRealizationIds: ["conjunction-left-realization", "conjunction-right-realization"],
+            leftForms: ["canonical-left"],
+            rightForms: ["canonical-right"],
+            ok: true,
+            routeStage: "compose-ast",
+        }
+    );
+    s.eq(
+        "conjunction handoff blocks slash-joined result-frame display strings",
+        (() => {
+            const input = {
+                surface: "top-conjunction-lie",
+                result: "result-conjunction-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-conjunction-a / frame-conjunction-b",
+                        surfaceForms: ["frame-conjunction-a / frame-conjunction-b"],
+                    },
+                },
+            };
+            return {
+                surface: ctx.getConjunctionClauseSurface(input, "fallback-lie"),
+                forms: ctx.getConjunctionClauseSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
         }
     );
     s.eq(

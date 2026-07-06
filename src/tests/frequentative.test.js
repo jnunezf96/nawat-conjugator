@@ -99,14 +99,59 @@ function run(ctx) {
             frequentativeType: "ordinary",
             reduplicationTarget: "stem",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "unknown",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "frequentative-needs-nawat-evidence",
+                "frequentative-source-gate-required",
                 "frequentative-unconfirmed",
             ],
             boundary,
+        }
+    );
+
+    s.eq(
+        "structured Andrews frequentative candidate generates through orthography bridge",
+        (() => {
+            const classification = ctx.classifyFrequentativeCandidate({
+                sourceStem: "nemi",
+                candidate: "ne-nemi",
+                frequentativeType: "ordinary",
+                reduplicationTarget: "stem",
+                sourceGate: "Andrews 27.2 ordinary frequentative source",
+                structuredSource: true,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "nenemi",
+            diagnostics: [
+                "frequentative-andrews-source-generated",
+                "frequentative-structured-source",
+            ],
+            routeStage: "generate-structured-frequentative",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "nenemi",
         }
     );
 
@@ -133,7 +178,7 @@ function run(ctx) {
             "preterit reduplication diagnostics are not frequentative evidence",
             "ordinary NNC distributive reduplication is not VNC frequentative derivation",
             "patientive/adjectival reduplication is not VNC frequentative derivation",
-            "Andrews frequentative categories are architecture, not Nawat/Pipil form authority",
+            "Andrews frequentative categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     const lesson27Frame = ctx.buildLesson27FrequentativePursuitFrame();

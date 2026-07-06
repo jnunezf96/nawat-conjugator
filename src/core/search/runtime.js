@@ -13,7 +13,7 @@ function getRawInputTiCausativeMetadata(rawValue = "") {
     const movingTargetParsed = parseMovingTargetRegexInput(raw);
     if (movingTargetParsed.isValid) {
         const inline = parseInlineTiCausativeClassFromBase(
-            collapseSerialStemDashInput(movingTargetParsed.coreText || "")
+            collapseSerialStemDashInputFromSourceFrame(movingTargetParsed.coreText || "")
         );
         const adjacentIntransitiveEmbed = movingTargetParsed.transitivity === COMPOSER_TRANSITIVITY.intransitive
             ? getMovingTargetAdjacentEmbedParts(inline.base || movingTargetParsed.coreText || "")
@@ -40,7 +40,7 @@ function getRawInputTiCausativeMetadata(rawValue = "") {
             isRegexEnvelope: true,
         };
     }
-    const inline = parseInlineTiCausativeClassFromBase(collapseSerialStemDashInput(raw));
+    const inline = parseInlineTiCausativeClassFromBase(collapseSerialStemDashInputFromSourceFrame(raw));
     return {
         raw,
         hasQuery: false,

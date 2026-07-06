@@ -59,7 +59,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const COMPLEMENT_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze(["complement-clause boundary metadata is not generation", "object controls and subject labels are not complement-clause evidence", "ordinary VNC or NNC output is not a complement AST", "nominalizationProfile is not a clause-level complement relation", "single generated words do not prove object, subject, or adverbial complements", "Andrews complementation categories are architecture, not Nawat/Pipil form authority"]);
+    const COMPLEMENT_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze(["complement-clause boundary metadata is not generation", "object controls and subject labels are not complement-clause evidence", "ordinary VNC or NNC output is not a complement AST", "nominalizationProfile is not a clause-level complement relation", "single generated words do not prove object, subject, or adverbial complements", "Andrews complementation categories are architecture, not Nawat/Pipil orthography authority"]);
     const COMPLEMENT_CLAUSE_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "principalClause",
       asks: "Which Nawat/Pipil principal clause hosts the complement?"
@@ -77,7 +77,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
       asks: "What marking, order, valency, or shared-argument evidence supports complement status?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided clause evidence supports complementation?"
+      asks: "What Andrews source model or user-provided clause context supports complementation?"
     })]);
     function normalizeComplementClauseEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
@@ -449,7 +449,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
       const objectComplementFrame = cloneComplementClauseLessonRecord(LESSON51_OBJECT_COMPLEMENT_FRAME);
       const subjectComplementFrame = cloneComplementClauseLessonRecord(LESSON51_SUBJECT_COMPLEMENT_FRAME);
       const adverbialComplementFrame = cloneComplementClauseLessonRecord(LESSON51_ADVERBIAL_COMPLEMENT_FRAME);
-      const remainingGaps = ["Current Lesson 51 support records Andrews' complementation architecture as diagnostics and supplied-surface AST frames; it does not implement static complement data, complement parser/search detection, or surface generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 51 support records Andrews' complementation architecture as diagnostics and supplied-surface AST frames; it does not implement static complement data, complement parser/search detection, or surface generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.", "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-51-complement-clause-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -506,7 +506,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 51.1-51.4",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil complement-clause evidence",
+          spellingAuthority: "Nawat/Pipil complement-clause orthography bridge",
           noClassicalSurfaceImport: true,
           slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
           orthographyStatus: "not-surface-bearing"
@@ -535,7 +535,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"]
+        diagnostics: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-source-gated"]
       });
     }
     function buildComplementClauseBoundaryMetadata() {
@@ -545,7 +545,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         lesson: 51,
         status: "partial",
         structuralSource: "Andrews Lesson 51",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getComplementClauseStructuralQuestions(),
@@ -582,6 +582,45 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
     function splitComplementClauseSurfaceText(value = "") {
       return String(value || "").split(/\s*\/\s*/g).map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—");
     }
+    function getComplementClauseCanonicalRealizationSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record").flatMap(record => [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""]).map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+    }
+    function getComplementClauseSelectedRealizationVariant(input = null) {
+      if (!input || typeof input !== "object") {
+        return null;
+      }
+      const grammarFrame = getComplementClauseResultFrame(input);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      if (!resultFrame) {
+        return null;
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+          continue;
+        }
+        const surfaces = [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""].map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+          continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+          kind: "grammar-formula-realization-selected-variant",
+          selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+          selectedVariantIndex,
+          formulaRealizationRecordId,
+          formulaRecordId,
+          unit: String(record.unit || resultFrame.formulaRecord?.unit || "")
+        };
+      }
+      return null;
+    }
     function getComplementClauseResultFrame(input = null) {
       return (input?.grammarFrame && typeof input.grammarFrame === "object" ? input.grammarFrame : null) || (input?.frames && typeof input.frames === "object" ? input.frames : null);
     }
@@ -595,6 +634,10 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
       const grammarFrame = getComplementClauseResultFrame(input);
       const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(frameResult);
+      const canonicalForms = getComplementClauseCanonicalRealizationSurfaceForms(frameResult);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -603,7 +646,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         forms.push(frameResult.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitComplementClauseSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—" && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
         forms.push(...input.surfaceForms);
@@ -624,10 +667,17 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
     }
     function buildComplementClauseNode(input = "", role = "unknown", fallbackSurface = "") {
       const surface = getComplementClauseSurface(input, fallbackSurface);
+      const selectedVariant = getComplementClauseSelectedRealizationVariant(input);
       return {
         kind: "complement-clause-node",
         role: String(role || "unknown"),
         surface,
+        ...(selectedVariant ? {
+          selectedVariant,
+          selectedVariantId: selectedVariant.selectedVariantId,
+          formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+          formulaRecordId: selectedVariant.formulaRecordId
+        } : {}),
         clauseKind: typeof input === "object" && input ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown") : "unknown",
         formulaEcho: typeof input === "object" && input ? String(input.formulaEcho || input.nuclearClauseShell?.formulaEcho || input.nncBasic?.formulaEcho || "") : "",
         preservesSurface: true
@@ -764,7 +814,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         diagnostics.push("subject-complement-requires-subject-pronoun-link");
       }
       if (!String(evidenceSource || "").trim()) {
-        diagnostics.push("complement-clause-needs-nawat-clause-evidence");
+        diagnostics.push("complement-clause-source-gated");
       }
       const supported = Boolean(principalNode.surface && complementNode.surface && normalizedRole !== COMPLEMENT_CLAUSE_ROLE.unknown && normalizedUnit !== COMPLEMENT_CLAUSE_UNIT.unknown && normalizedCategory !== COMPLEMENT_CLAUSE_SEMANTIC_CATEGORY.unknown && normalizedOrder !== COMPLEMENT_CLAUSE_ORDER.unknown && !diagnostics.includes("object-complement-requires-object-pronoun-link") && !diagnostics.includes("subject-complement-requires-subject-pronoun-link"));
       const surfaceSequence = supported ? buildComplementClauseSurfaceSequence({
@@ -842,7 +892,7 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
         falsePositiveSource: normalizedFalsePositive,
         confirmed: false,
         generationAllowed: false,
-        diagnostics: [hasEvidence ? "complement-clause-needs-validation" : "complement-clause-needs-nawat-clause-evidence", normalizedRole !== COMPLEMENT_CLAUSE_ROLE.unknown ? "complement-clause-role-recognized" : "complement-clause-role-unconfirmed", normalizedUnit !== COMPLEMENT_CLAUSE_UNIT.unknown ? "complement-clause-unit-recognized" : "complement-clause-unit-unconfirmed", normalizedFalsePositive !== COMPLEMENT_CLAUSE_FALSE_POSITIVE_SOURCE.unknown ? "complement-clause-false-positive-source" : "complement-clause-unconfirmed"],
+        diagnostics: [hasEvidence ? "complement-clause-needs-validation" : "complement-clause-source-gated", normalizedRole !== COMPLEMENT_CLAUSE_ROLE.unknown ? "complement-clause-role-recognized" : "complement-clause-role-unconfirmed", normalizedUnit !== COMPLEMENT_CLAUSE_UNIT.unknown ? "complement-clause-unit-recognized" : "complement-clause-unit-unconfirmed", normalizedFalsePositive !== COMPLEMENT_CLAUSE_FALSE_POSITIVE_SOURCE.unknown ? "complement-clause-false-positive-source" : "complement-clause-unconfirmed"],
         boundary: buildComplementClauseBoundaryMetadata()
       };
     }
@@ -957,6 +1007,8 @@ export function createComplementClauseGlobals(targetObject = globalThis) {
     api.buildComplementClauseBoundaryMetadata = buildComplementClauseBoundaryMetadata;
     api.getComplementClauseSurface = getComplementClauseSurface;
     api.splitComplementClauseSurfaceText = splitComplementClauseSurfaceText;
+    api.getComplementClauseCanonicalRealizationSurfaceForms = getComplementClauseCanonicalRealizationSurfaceForms;
+    api.getComplementClauseSelectedRealizationVariant = getComplementClauseSelectedRealizationVariant;
     api.getComplementClauseResultFrame = getComplementClauseResultFrame;
     api.getComplementClauseSurfaceForms = getComplementClauseSurfaceForms;
     api.buildComplementClauseNode = buildComplementClauseNode;

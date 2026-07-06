@@ -42,19 +42,19 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const ADVERBIAL_NUCLEAR_ANTI_CONFLATION_RULES = Object.freeze(["adverbial nuclear-clause boundary metadata is not generation", "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms", "configured adverbio word output is not a full Lesson 44 engine", "adverb translations are not Nawat/Pipil adverbial-clause evidence", "particle-looking labels are not particle or adverbial NNC fixture evidence", "ordinary NNC/VNC outputs are not clause-level adverbialization evidence", "Andrews adverbial categories are architecture, not Nawat/Pipil form authority"]);
+    const ADVERBIAL_NUCLEAR_ANTI_CONFLATION_RULES = Object.freeze(["adverbial nuclear-clause boundary metadata is not generation", "adverbialNuclearClauseFrame describes existing generated output; it does not create new Nawat word forms", "configured adverbio word output is not a full Lesson 44 engine", "adverb translations are not orthography-bridge adverbial-clause evidence", "particle-looking labels are not particle or adverbial NNC fixture evidence", "ordinary NNC/VNC outputs are not clause-level adverbialization evidence", "Andrews adverbial categories are architecture, not Nawat/Pipil orthography authority"]);
     const ADVERBIAL_NUCLEAR_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "source",
-      asks: "Which Nawat/Pipil VNC, NNC, particle-looking form, or clause is the source?"
+      asks: "Which Andrews VNC, NNC, particle-looking form, or clause licenses the source?"
     }), Object.freeze({
       field: "adverbialKind",
       asks: "Is the candidate VNC-adverbial, NNC-adverbial, particle-looking NNC, possessive-state NNC, manner surface, or unknown?"
     }), Object.freeze({
       field: "adverbialDegree",
-      asks: "What evidence supports first-degree, second-degree, lexicalized, or other adverbialization status?"
+      asks: "Which Andrews status supports first-degree, second-degree, lexicalized, or other adverbialization?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided clause/form evidence supports adverbial status?"
+      asks: "Which Andrews source gate or structured route licenses adverbial status?"
     })]);
     function normalizeAdverbialNuclearEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
@@ -74,6 +74,30 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
     }
     function normalizeAdverbialNuclearFalsePositiveSource(value = "") {
       return normalizeAdverbialNuclearEnum(value, Object.values(ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE), ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE.unknown);
+    }
+    function normalizeAdverbialNuclearCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews adverbial nuclear candidate formula",
+        slot: "adverbial-nuclear"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function hasAdverbialNuclearAndrewsSourceGate({
+      sourceGate = "",
+      structuredSource = false
+    } = {}) {
+      return structuredSource === true || Boolean(String(sourceGate || "").trim());
     }
     function getKnownConfiguredAdverbioTensesForAdverbialBoundary() {
       return ["pasado-remoto-adverbio-activo"];
@@ -241,7 +265,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Los modificadores adverbiales no-particula son CNV/CNN o unidades concatenadas adjuntas; las unidades adjuntas se difieren a 49-50.",
       engineSurface: "diagnostic boundary plus configured adverbio frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-adverbialized-subject-pronoun",
       andrewsSection: "44.1 transformation",
@@ -249,7 +273,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "La adverbializacion asigna un pronombre sujeto adverbializado al predicado; el significado del tronco limita el dominio posible.",
       engineSurface: "adverbialized subject pronoun frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-adverbialization-degrees",
       andrewsSection: "44.2",
@@ -273,7 +297,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Solo pocas CNV permiten adverbializacion y la mayoria esta lexicalizada.",
       engineSurface: "diagnostic VNC inventory frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-iuh-izqui-warning",
       andrewsSection: "44.3 iuh/iz note",
@@ -289,7 +313,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "La CNN de primer grado puede ser ambigua entre predicado ecuativo y predicado adverbial.",
       engineSurface: "diagnostic NNC degree frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-adverbialized-nnc-second-degree",
       andrewsSection: "44.4.2",
@@ -297,7 +321,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "La CNN absolutiva de segundo grado usa forma distintiva del sujeto y elimina la ambiguedad.",
       engineSurface: "diagnostic NNC degree frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-distributive-affinity-adverbials",
       andrewsSection: "44.4 note",
@@ -305,7 +329,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Las CNN adverbializadas pueden formarse sobre troncos distributivos/varietales y de afinidad si el significado lo permite.",
       engineSurface: "diagnostic stem-family frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-particle-looking-nncs",
       andrewsSection: "44.5",
@@ -337,7 +361,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Otras CNN absolutivas adverbializadas se organizan por tiempo, lugar y manera/grado.",
       engineSurface: "diagnostic absolutive NNC inventory frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-eh-stress-collocations",
       andrewsSection: "44.6 eh collocations",
@@ -353,7 +377,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "El tronco de uso general del agentivo preterito produce adverbios de manera: como quien ha hecho o llegado a ser algo.",
       engineSurface: "diagnostic preterit-agentive adverbial frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-preterit-agentive-source-variants",
       andrewsSection: "44.7 variants",
@@ -361,7 +385,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Pueden intervenir fuentes obsoletas, root-plus-ya, tronco pleno, irregularidad, fuentes transitivas y reflexivos de linea auxiliar o principal.",
       engineSurface: "diagnostic preterit-agentive adverbial frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-possessive-state-adverbial-nncs",
       andrewsSection: "44.8",
@@ -369,7 +393,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Las CNN posesivas adverbializadas son de primer grado; la mayoria corresponde a 45-47 y los casos raros quedan diagnosticos.",
       engineSurface: "diagnostic possessive-state adverbial frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson44-incorporated-adverbial-modifiers",
       andrewsSection: "44.9",
@@ -377,7 +401,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       directiveEs: "Al incorporarse el predicado de una CNN absolutiva a una CNV compuesta, se descarta el sujeto y desaparece la diferencia de grados.",
       engineSurface: "diagnostic incorporated-adverbial frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     })]);
     function cloneAdverbialNuclearLessonRecord(record) {
       if (!record || typeof record !== "object") {
@@ -393,7 +417,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON44_ADVERBIAL_NUCLEAR_VALIDATION_REFS)
       }));
     }
@@ -408,7 +432,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       const preteritAgentiveAdverbialNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_PRETERIT_AGENTIVE_ADVERBIAL_NNC_FRAME);
       const possessiveStateAdverbialNncFrame = cloneAdverbialNuclearLessonRecord(LESSON44_POSSESSIVE_STATE_ADVERBIAL_NNC_FRAME);
       const incorporatedAdverbialModifierFrame = cloneAdverbialNuclearLessonRecord(LESSON44_INCORPORATED_ADVERBIAL_MODIFIER_FRAME);
-      const remainingGaps = ["Current Lesson 44 support records Andrews' adverbial nuclear-clause architecture as diagnostics and preserves the existing configured adverbio route; it does not implement a full adverbial VNC/NNC generator.", "Second-degree absolutive NNC adverbialization, particle-looking NNCs, other absolutive-state adverbials, preterit-agentive adverbial NNCs, possessive-state adverbials, and incorporated adverbial modifiers remain inventory/diagnostic frames.", "Classical example spellings from Andrews are not imported as Nawat/Pipil fixtures; confirmed Nawat/Pipil examples are required before static data, parser/search detection, acciones de interfaz, or generation routing can expand."];
+      const remainingGaps = ["Current Lesson 44 support records Andrews' adverbial nuclear-clause architecture as diagnostics and preserves the existing configured adverbio route; it does not implement a full adverbial VNC/NNC generator.", "Second-degree absolutive NNC adverbialization, particle-looking NNCs, other absolutive-state adverbials, preterit-agentive adverbial NNCs, possessive-state adverbials, and incorporated adverbial modifiers remain inventory/diagnostic frames.", "Classical example spellings from Andrews are not imported as Nawat/Pipil fixtures; Andrews source models plus orthography-bridge fixtures are required before static data, parser/search detection, acciones de interfaz, or generation routing can expand."];
       const frame = {
         kind: "lesson-44-adverbial-nuclear-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -473,9 +497,9 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 44.1-44.9",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil adverbial evidence",
+          spellingAuthority: "Nawat/Pipil adverbial orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-plus-source-gate-required"
         },
         morphBoundaryFrame: {
           overviewFrame,
@@ -508,7 +532,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-needs-nawat-evidence"]
+        diagnostics: ["adverbial-nuclear-lesson-44-diagnostic-partial", "adverbial-nuclear-source-gated"]
       });
     }
     function normalizeAdverbialNuclearSurfaceValue(value = "") {
@@ -517,6 +541,51 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
     }
     function splitAdverbialNuclearSurfaceText(value = "") {
       return String(value || "").split(/\s*\/\s*/g).map(entry => normalizeAdverbialNuclearSurfaceValue(entry)).filter(Boolean);
+    }
+    function getAdverbialNuclearCanonicalRealizationSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record").flatMap(record => [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""]).map(entry => normalizeAdverbialNuclearSurfaceValue(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getAdverbialNuclearSelectedRealizationVariant({
+      grammarFrame = null,
+      frames = null,
+      result = null,
+      output = null
+    } = {}) {
+      const resultFrame = getAdverbialNuclearResultFrame({
+        grammarFrame,
+        frames,
+        result,
+        output
+      });
+      if (!resultFrame) {
+        return null;
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+          continue;
+        }
+        const surfaces = [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""].map(entry => normalizeAdverbialNuclearSurfaceValue(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+          continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+          kind: "grammar-formula-realization-selected-variant",
+          selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+          selectedVariantIndex,
+          formulaRealizationRecordId,
+          formulaRecordId,
+          unit: String(record.unit || resultFrame.formulaRecord?.unit || "")
+        };
+      }
+      return null;
     }
     function getAdverbialNuclearGrammarFrame(frameLike = null) {
       if (!frameLike || typeof frameLike !== "object") {
@@ -548,6 +617,10 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         output
       });
       const hasResultFrame = Boolean(frameResult);
+      const canonicalForms = getAdverbialNuclearCanonicalRealizationSurfaceForms(frameResult);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -556,7 +629,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         forms.push(frameResult.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitAdverbialNuclearSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => normalizeAdverbialNuclearSurfaceValue(entry)).filter(entry => entry && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(surfaceForms)) {
         forms.push(...surfaceForms);
@@ -610,7 +683,7 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         lesson: 44,
         status: "partial",
         structuralSource: "Andrews Lesson 44",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         generationAllowed: false,
         confirmedExamples: [],
         knownConfiguredAdverbioTenses: getKnownConfiguredAdverbioTensesForAdverbialBoundary(),
@@ -692,6 +765,12 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         grammarFrame,
         frames
       });
+      const selectedVariant = getAdverbialNuclearSelectedRealizationVariant({
+        grammarFrame,
+        frames,
+        result,
+        output
+      });
       const sourceText = getAdverbialNuclearContractSourceText({
         source,
         sourceStem,
@@ -755,6 +834,12 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         },
         output: {
           surfaceForms: forms,
+          ...(selectedVariant ? {
+            selectedVariant,
+            selectedVariantId: selectedVariant.selectedVariantId,
+            formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+            formulaRecordId: selectedVariant.formulaRecordId
+          } : {}),
           preservesGeneratedSurface: true
         },
         generationContract: {
@@ -784,6 +869,8 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       adverbialKind = "",
       adverbialDegree = "",
       evidenceSource = "",
+      sourceGate = "",
+      structuredSource = false,
       falsePositiveSource = ""
     } = {}) {
       const normalizedKind = normalizeAdverbialNuclearKind(adverbialKind);
@@ -791,6 +878,12 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
       const normalizedTense = String(tense || "").trim();
       const hasKnownConfiguredAdverbioTense = getKnownConfiguredAdverbioTensesForAdverbialBoundary().includes(normalizedTense);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const sourceSurface = normalizeAdverbialNuclearCandidateSurface(candidate);
+      const hasSourceGate = hasAdverbialNuclearAndrewsSourceGate({
+        sourceGate,
+        structuredSource
+      });
+      const canGenerate = Boolean(sourceSurface && hasSourceGate && normalizedKind !== ADVERBIAL_NUCLEAR_KIND.unknown && normalizedFalsePositive === ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE.unknown);
       const classification = {
         kind: "adverbial-nuclear-candidate-classification",
         version: ADVERBIAL_NUCLEAR_BOUNDARY_VERSION,
@@ -801,17 +894,38 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
         adverbialKind: normalizedKind,
         adverbialDegree: String(adverbialDegree || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "adverbial-nuclear-needs-validation" : "adverbial-nuclear-needs-nawat-evidence", hasKnownConfiguredAdverbioTense ? "configured-adverbio-surface-recognized" : "configured-adverbio-surface-unconfirmed", normalizedFalsePositive !== ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE.unknown ? "adverbial-nuclear-false-positive-source" : "adverbial-nuclear-unconfirmed"],
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        diagnostics: [canGenerate ? "adverbial-nuclear-andrews-source-generated" : hasEvidence ? "adverbial-nuclear-needs-validation" : "adverbial-nuclear-source-gate-required", hasKnownConfiguredAdverbioTense ? "configured-adverbio-surface-recognized" : "configured-adverbio-surface-unconfirmed", normalizedFalsePositive !== ADVERBIAL_NUCLEAR_FALSE_POSITIVE_SOURCE.unknown ? "adverbial-nuclear-false-positive-source" : canGenerate ? "adverbial-nuclear-structured-source" : "adverbial-nuclear-unconfirmed"],
         boundary: buildAdverbialNuclearBoundaryMetadata()
       };
       return attachAdverbialNuclearGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-adverbial-nuclear" : "classify-boundary",
         sourceInput: classification.source || classification.candidate,
-        supported: false,
-        morphBoundaryFrame: classification.boundary
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms
+        },
+        morphBoundaryFrame: classification.boundary,
+        nuclearClauseFrame: {
+          source: classification.source,
+          adverbialKind: classification.adverbialKind,
+          adverbialDegree: classification.adverbialDegree,
+          sourceGate: classification.sourceGate
+        }
       });
     }
     function classifyAdverbialNuclearFalsePositive(source = "") {
@@ -881,6 +995,8 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
     api.normalizeAdverbialNuclearDomain = normalizeAdverbialNuclearDomain;
     api.normalizeAdverbialNuclearSourceClauseKind = normalizeAdverbialNuclearSourceClauseKind;
     api.normalizeAdverbialNuclearFalsePositiveSource = normalizeAdverbialNuclearFalsePositiveSource;
+    api.normalizeAdverbialNuclearCandidateSurface = normalizeAdverbialNuclearCandidateSurface;
+    api.hasAdverbialNuclearAndrewsSourceGate = hasAdverbialNuclearAndrewsSourceGate;
     api.getKnownConfiguredAdverbioTensesForAdverbialBoundary = getKnownConfiguredAdverbioTensesForAdverbialBoundary;
     api.getAdverbialNuclearAntiConflationRules = getAdverbialNuclearAntiConflationRules;
     api.getAdverbialNuclearStructuralQuestions = getAdverbialNuclearStructuralQuestions;
@@ -950,6 +1066,8 @@ export function createAdverbialNuclearApi(targetObject = globalThis) {
     api.buildLesson44AdverbialNuclearPursuitFrame = buildLesson44AdverbialNuclearPursuitFrame;
     api.normalizeAdverbialNuclearSurfaceValue = normalizeAdverbialNuclearSurfaceValue;
     api.splitAdverbialNuclearSurfaceText = splitAdverbialNuclearSurfaceText;
+    api.getAdverbialNuclearCanonicalRealizationSurfaceForms = getAdverbialNuclearCanonicalRealizationSurfaceForms;
+    api.getAdverbialNuclearSelectedRealizationVariant = getAdverbialNuclearSelectedRealizationVariant;
     api.getAdverbialNuclearGrammarFrame = getAdverbialNuclearGrammarFrame;
     api.getAdverbialNuclearResultFrame = getAdverbialNuclearResultFrame;
     api.getAdverbialNuclearContractSurfaceForms = getAdverbialNuclearContractSurfaceForms;

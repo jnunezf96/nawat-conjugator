@@ -24,16 +24,16 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const PERSONAL_NAME_NNC_ANTI_CONFLATION_RULES = Object.freeze(["personal-name NNC boundary metadata is not generation", "ordinary NNC fixtures or open-stem previews are not personal-name fixture evidence", "capitalization labels and proper-name translations are not Nawat/Pipil name evidence", "place/gentilic, adjunction, or conjunction boundary metadata is not personal-name NNC evidence", "calendar roadmap text is not personal-name NNC data", "Andrews personal-name categories are architecture, not Nawat/Pipil form authority"]);
+    const PERSONAL_NAME_NNC_ANTI_CONFLATION_RULES = Object.freeze(["personal-name NNC boundary metadata is not generation", "ordinary NNC fixtures or open-stem previews are not personal-name fixture evidence", "capitalization labels and proper-name translations are not orthography-bridge name evidence", "place/gentilic, adjunction, or conjunction boundary metadata is not personal-name NNC evidence", "calendar roadmap text is not personal-name NNC data", "Andrews personal-name categories are architecture, not Nawat/Pipil orthography authority"]);
     const PERSONAL_NAME_NNC_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "nameSource",
-      asks: "Which Nawat/Pipil personal-name NNC form is evidenced?"
+      asks: "Which Andrews personal-name NNC form is licensed before Nawat/Pipil orthography realizes it?"
     }), Object.freeze({
       field: "sourceClauseType",
       asks: "Is the name sourced from a single clause, adjunction, conjunction, calendar naming, or unknown?"
     }), Object.freeze({
       field: "outerSubject",
-      asks: "Which outer personal-name NNC subject pronoun is evidenced, and is its number dyad 0-0?"
+      asks: "Which Andrews outer personal-name NNC subject pronoun is licensed, and is its number dyad 0-0?"
     }), Object.freeze({
       field: "innerSubjectBarrier",
       asks: "Which inner subject pronoun blocks the outer subject from controlling the inner predicate?"
@@ -42,7 +42,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
       asks: "Which downgraded statement, nominalized VNC, NNC, adjunction, or conjunction is the inner predicate?"
     }), Object.freeze({
       field: "clauseSource",
-      asks: "Which Nawat/Pipil clause source supports the name?"
+      asks: "Which Andrews clause source supports the name?"
     }), Object.freeze({
       field: "adjunctionSource",
       asks: "Which adjoined-unit source supports the name, if any?"
@@ -51,7 +51,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
       asks: "Which conjunction source supports the name, if any?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided evidence supports personal-name status?"
+      asks: "Which Andrews source gate or structured route licenses personal-name status?"
     })]);
     const LESSON56_PERSONAL_NAME_NNC_PDF_REFS = Object.freeze(["Andrews Lesson 56.1", "Andrews Lesson 56.2", "Andrews Lesson 56.3", "Andrews Lesson 56.4", "Andrews Lesson 56.5"]);
     const LESSON56_PERSONAL_NAME_NNC_VALIDATION_REFS = Object.freeze(["src/tests/nnc_names.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
@@ -106,6 +106,146 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
     function normalizePersonalNameNncFalsePositiveSource(value = "") {
       return normalizePersonalNameNncEnum(value, Object.values(PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE), PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown);
     }
+    function normalizePersonalNameNncCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews personal-name NNC candidate formula",
+        slot: "personal-name-nnc"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function hasPersonalNameNncAndrewsSourceGate({
+      sourceGate = "",
+      structuredSource = false
+    } = {}) {
+      return structuredSource === true || Boolean(String(sourceGate || "").trim());
+    }
+    function buildPersonalNameNncSourceFrame({
+      candidate = "",
+      nameSource = "",
+      personalNameKind = "",
+      sourceClauseType = "",
+      clauseSource = "",
+      adjunctionSource = "",
+      conjunctionSource = "",
+      evidenceSource = "",
+      sourceGate = "",
+      targetFormulaSlots = null,
+      targetSegmentFrames = []
+    } = {}) {
+      const normalizedKind = normalizePersonalNameNncKind(personalNameKind || sourceClauseType);
+      if (normalizedKind === PERSONAL_NAME_NNC_KIND.unknown) {
+        return null;
+      }
+      const segments = Array.isArray(targetSegmentFrames) ? targetSegmentFrames.map(segment => {
+        const surface = String(segment?.surface || "").trim();
+        if (!surface || /[A-Z_]/.test(surface)) {
+          return null;
+        }
+        return Object.freeze({
+          slot: String(segment?.slot || ""),
+          role: String(segment?.role || ""),
+          formulaValue: String(segment?.formulaValue || ""),
+          sourceStem: String(segment?.sourceStem || ""),
+          surface,
+          orthographyBridge: "Nawat/Pipil orthography bridge"
+        });
+      }).filter(Boolean) : [];
+      if (!segments.length) {
+        return null;
+      }
+      const targetSurface = segments.map(segment => segment.surface).join("");
+      if (!targetSurface) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "personal-name-nnc-source-frame",
+        version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
+        routeFamily: "personal-name-nnc",
+        personalNameKind: normalizedKind,
+        sourceClauseType: String(sourceClauseType || ""),
+        candidate: String(candidate || ""),
+        nameSource: String(nameSource || ""),
+        clauseSource: String(clauseSource || ""),
+        adjunctionSource: String(adjunctionSource || ""),
+        conjunctionSource: String(conjunctionSource || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        targetFormulaSlots,
+        targetSegmentFrames: Object.freeze(segments),
+        targetSurface,
+        authority: "Andrews Lesson 56 personal-name NNC source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildPersonalNameNncOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "personal-name-nnc-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-56-personal-name-nnc-realization",
+        routeFamily: "personal-name-nnc",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-personal-name-nnc-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourcePersonalNameKind: sourceFrame.personalNameKind,
+        sourceClauseType: sourceFrame.sourceClauseType,
+        sourceNameSource: sourceFrame.nameSource,
+        targetFormulaSlots: sourceFrame.targetFormulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPersonalNameNncOperationFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "personal-name-nnc-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-56-personal-name-nnc-realization" || operationFrame.routeFamily !== "personal-name-nnc" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind || String(operationFrame.sourcePersonalNameKind || "") !== String(sourceFrame.personalNameKind || "") || String(operationFrame.sourceClauseType || "") !== String(sourceFrame.sourceClauseType || "") || String(operationFrame.sourceNameSource || "") !== String(sourceFrame.nameSource || "")) {
+        return "contradictory-source-frame";
+      }
+      const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+      }
+      const targetSurface = targetSegmentFrames.map(segment => String(segment?.surface || "")).join("");
+      if (targetSurface !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "")) {
+        return "contradictory-target-frame";
+      }
+      if (sourceFrame.targetFormulaSlots && operationFrame.targetFormulaSlots !== sourceFrame.targetFormulaSlots) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getPersonalNameNncBlockedDiagnostic({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const mismatch = getPersonalNameNncOperationFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      return mismatch ? `personal-name-nnc-${mismatch}` : "";
+    }
     function getPersonalNameNncAntiConflationRules() {
       return Array.from(PERSONAL_NAME_NNC_ANTI_CONFLATION_RULES);
     }
@@ -141,7 +281,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         status: "partial",
         structuralSource: "Andrews Lesson 56 and Appendix E",
         pdfRefs: Array.from(LESSON56_PERSONAL_NAME_NNC_PDF_REFS),
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews Lesson 56 with Nawat/Pipil orthographic realization",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getPersonalNameNncStructuralQuestions(),
@@ -177,11 +317,25 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
       adjunctionSource = "",
       conjunctionSource = "",
       evidenceSource = "",
-      falsePositiveSource = ""
+      sourceGate = "",
+      structuredSource = false,
+      falsePositiveSource = "",
+      sourceFrame = null,
+      operationFrame = null
     } = {}) {
       const normalizedKind = normalizePersonalNameNncKind(personalNameKind || sourceClauseType);
       const normalizedFalsePositive = normalizePersonalNameNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+      const requiresTypedOperation = normalizedKind !== PERSONAL_NAME_NNC_KIND.unknown && normalizedFalsePositive === PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown;
+      const blockedDiagnostic = requiresTypedOperation ? getPersonalNameNncBlockedDiagnostic({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      }) : "";
+      const sourceSurface = blockedDiagnostic ? "" : String(operationFrame?.targetSurface || "");
+      const canGenerate = Boolean(sourceSurface && !blockedDiagnostic && normalizedKind !== PERSONAL_NAME_NNC_KIND.unknown && normalizedFalsePositive === PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown);
+      const targetFormulaSlots = canGenerate ? operationFrame.targetFormulaSlots : null;
+      const targetSegmentFrames = canGenerate && Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
       const classification = {
         kind: "personal-name-nnc-candidate-classification",
         version: PERSONAL_NAME_NNC_BOUNDARY_VERSION,
@@ -193,21 +347,65 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         adjunctionSource: String(adjunctionSource || ""),
         conjunctionSource: String(conjunctionSource || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "personal-name-nnc-needs-validation" : "personal-name-nnc-needs-nawat-evidence", normalizedKind !== PERSONAL_NAME_NNC_KIND.unknown ? "personal-name-nnc-kind-recognized" : "personal-name-nnc-kind-unconfirmed", normalizedFalsePositive !== PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown ? "personal-name-nnc-false-positive-source" : "personal-name-nnc-unconfirmed"],
+        ...(resolvedSourceFrame ? {
+          sourceFrame: resolvedSourceFrame
+        } : {}),
+        ...(operationFrame ? {
+          operationFrame
+        } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(canGenerate ? {
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames
+        } : {}),
+        diagnostics: [canGenerate ? "personal-name-nnc-andrews-source-generated" : blockedDiagnostic || (hasEvidence ? "personal-name-nnc-needs-validation" : "personal-name-nnc-source-gate-required"), normalizedKind !== PERSONAL_NAME_NNC_KIND.unknown ? "personal-name-nnc-kind-recognized" : "personal-name-nnc-kind-unconfirmed", normalizedFalsePositive !== PERSONAL_NAME_NNC_FALSE_POSITIVE_SOURCE.unknown ? "personal-name-nnc-false-positive-source" : canGenerate ? "personal-name-nnc-structured-source" : "personal-name-nnc-unconfirmed"],
         boundary: buildPersonalNameNncBoundaryMetadata()
       };
       return attachPersonalNameNncGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-personal-name-nnc" : "classify-boundary",
         sourceInput: classification.candidate || classification.nameSource,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
         morphBoundaryFrame: classification.boundary,
         stemFrame: {
           stemKind: "personal-name-source-candidate",
           sourceStem: classification.nameSource,
-          sourceKind: classification.personalNameKind
+          sourceKind: classification.personalNameKind,
+          sourceGate: classification.sourceGate,
+          targetStem: classification.surface,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
+        nuclearClauseFrame: canGenerate ? {
+          formulaFamily: "personal-name NNC",
+          personalNameKind: normalizedKind,
+          sourceClauseType: classification.sourceClauseType,
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames
+        } : null,
+        targetContract: {
+          metadataKind: "personal-name-nnc-candidate-classification",
+          generationAllowed: canGenerate,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false
         }
       });
     }
@@ -224,7 +422,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         stepNumber: 56,
         aimStatus: "shooting",
         pdfRefs: Array.from(LESSON56_PERSONAL_NAME_NNC_PDF_REFS),
-        directive: "Use Andrews Lesson 56 to direct personal-name NNC architecture: two-tier downgraded statement predicates, inner/outer subject separation, single-clause sources, adjunction sources, conjunction sources, sentence use, and non-generation until confirmed Nawat/Pipil personal-name evidence exists.",
+        directive: "Use Andrews Lesson 56 to direct personal-name NNC architecture: two-tier downgraded statement predicates, inner/outer subject separation, single-clause sources, adjunction sources, conjunction sources, sentence use, and non-generation until Andrews personal-name source parsing plus the orthography bridge exists.",
         redirectAction: "diagnostic-only",
         evidenceStatus: "direct-pdf-partial",
         orthographyStatus: "not-surface-bearing",
@@ -246,7 +444,7 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
         hitCount: 1,
         missCount: 0,
         closestPass: false,
-        remainingGap: "Full Lesson 56 personal-name source parsing, confirmed Nawat/Pipil personal-name examples, static names/calendar data, sentence-use ASTs, vocative diagnostics, god-name downgrade routing, place-name embed routing, parser/search detection, acciones visibles de interfaz, and slot-scoped visible spelling verification remain partial or evidence-needed.",
+        remainingGap: "Full Lesson 56 personal-name source parsing, Andrews personal-name source examples plus the orthography bridge, static names/calendar data, sentence-use ASTs, vocative diagnostics, god-name downgrade routing, place-name embed routing, parser/search detection, acciones visibles de interfaz, and slot-scoped visible spelling verification remain partial or evidence-needed.",
         subsectionInventory,
         coverage: {
           subsectionCount: subsectionInventory.length,
@@ -327,6 +525,12 @@ export function createPersonalNameNncApi(targetObject = globalThis) {
     api.normalizePersonalNameNncEnum = normalizePersonalNameNncEnum;
     api.normalizePersonalNameNncKind = normalizePersonalNameNncKind;
     api.normalizePersonalNameNncFalsePositiveSource = normalizePersonalNameNncFalsePositiveSource;
+    api.normalizePersonalNameNncCandidateSurface = normalizePersonalNameNncCandidateSurface;
+    api.hasPersonalNameNncAndrewsSourceGate = hasPersonalNameNncAndrewsSourceGate;
+    api.buildPersonalNameNncSourceFrame = buildPersonalNameNncSourceFrame;
+    api.buildPersonalNameNncOperationFrame = buildPersonalNameNncOperationFrame;
+    api.getPersonalNameNncOperationFrameMismatch = getPersonalNameNncOperationFrameMismatch;
+    api.getPersonalNameNncBlockedDiagnostic = getPersonalNameNncBlockedDiagnostic;
     api.getPersonalNameNncAntiConflationRules = getPersonalNameNncAntiConflationRules;
     api.getPersonalNameNncStructuralQuestions = getPersonalNameNncStructuralQuestions;
     api.getLesson56PersonalNameNncSubsectionInventory = getLesson56PersonalNameNncSubsectionInventory;

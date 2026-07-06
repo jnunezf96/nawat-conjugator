@@ -39,10 +39,10 @@ const SENTENCE_MOOD_SCOPE = Object.freeze({
 const SENTENCE_LAYER_ANTI_CONFLATION_RULES = Object.freeze([
     "sentence layer metadata is not generation",
     "finite optative/admonitive form is not full sentence mood semantics",
-    "negation/question/emphasis labels are not Nawat/Pipil particle evidence",
+    "negation/question/emphasis labels are not orthography-bridge particle evidence",
     "VNC output is not a complete sentence",
     "topic and supplementation require separate clause metadata",
-    "Andrews sentence categories are architecture, not Nawat/Pipil form authority",
+    "Andrews sentence categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const SENTENCE_LESSON8_VALIDATION_REFS = Object.freeze([
@@ -108,7 +108,7 @@ const SENTENCE_LESSON8_EXPANDED_VNC_FRAME = Object.freeze({
             caTrigger: Object.freeze(["ma", "tla"]),
         }),
     ]),
-    nawatOrthographyPolicy: "Classical carriers are Andrews structural evidence only; Nawat/Pipil surfaces require repo or user evidence before generation.",
+    nawatOrthographyPolicy: "Classical carriers are Andrews structural evidence only; Nawat/Pipil surfaces require the orthography bridge plus explicit source context before generation.",
 });
 
 const SENTENCE_LESSON8_BASIC_SENTENCE_FRAME = Object.freeze({
@@ -168,7 +168,7 @@ const SENTENCE_LESSON8_TRANSFORM_FRAME = Object.freeze({
         "negative sentence generation",
         "emphatic sentence generation",
         "yes/no question sentence generation",
-        "confirmed Nawat/Pipil particle realization for Lesson 8 transforms",
+        "orthography-bridge particle realization for Lesson 8 transforms",
     ]),
 });
 
@@ -237,7 +237,7 @@ const SENTENCE_LESSON8_SUBSECTION_INVENTORY = Object.freeze([
 
 const SENTENCE_LESSON8_REMAINING_GAPS = Object.freeze([
     "No sentence generator models full Lesson 8 assertion, negative, emphatic, or yes/no question surfaces.",
-    "Lesson 8 particles and prefixal carriers remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement.",
+    "Lesson 8 particles and prefixal carriers remain Andrews structural evidence until Andrews source models plus orthography-bridge fixtures license spelling and placement.",
     "Directional/locative CNV prefixes are not yet integrated as generative CNV slot controls with Nawat/Pipil surface validation.",
 ]);
 
@@ -290,7 +290,7 @@ const SENTENCE_LESSON9_OPTATIVE_VNC_FRAME = Object.freeze({
             id: "plural-nonpast-optative-number",
             appliesTo: "all-nonpast-optative-plural-subjects",
             andrewsDyad: "c-an",
-            nawatEvidenceRequired: true,
+            orthographyBridgeRequired: true,
         }),
         Object.freeze({
             id: "class-c-nonpast-optative-stem",
@@ -301,7 +301,7 @@ const SENTENCE_LESSON9_OPTATIVE_VNC_FRAME = Object.freeze({
             id: "class-d-nonpast-optative-stem",
             appliesTo: "Class D verbstems",
             rule: "short-vowel-before-silent-morphs-and-long-vowel-before-sounded-morphs",
-            nawatEvidenceRequired: true,
+            orthographyBridgeRequired: true,
         }),
     ]),
     surfaceIdentityPolicy: "When optative and indicative VNCs have the same shape, syntax and introductory particles distinguish the optative.",
@@ -470,7 +470,7 @@ const SENTENCE_LESSON9_SUBSECTION_INVENTORY = Object.freeze([
 const SENTENCE_LESSON9_REMAINING_GAPS = Object.freeze([
     "No sentence generator composes ma/tla wish, command, exhortation, or negative-wish surfaces.",
     "The finite optativo key is canonical, but sentence-level optative/command UI semantics remain diagnostic until Andrews-directed sentence generation is implemented.",
-    "Lesson 9 particles, intensifiers, and negative-prefix placements remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement.",
+    "Lesson 9 particles, intensifiers, and negative-prefix placements remain Andrews structural evidence until Andrews source models plus orthography-bridge fixtures license spelling and placement.",
 ]);
 
 const SENTENCE_LESSON10_VALIDATION_REFS = Object.freeze([
@@ -650,7 +650,7 @@ const SENTENCE_LESSON10_SUBSECTION_INVENTORY = Object.freeze([
 const SENTENCE_LESSON10_REMAINING_GAPS = Object.freeze([
     "No sentence generator composes affirmative or negative admonition surfaces.",
     "The finite optativo key is canonical, but sentence-level admonitive and optative functions remain diagnostic until Andrews-directed sentence generation is implemented.",
-    "Lesson 10 ma/nen/ah# placement and class-specific admonitive surfaces remain Andrews structural evidence until confirmed Nawat/Pipil examples license spelling and placement.",
+    "Lesson 10 ma/nen/ah# placement and class-specific admonitive surfaces remain Andrews structural evidence until Andrews source models plus orthography-bridge fixtures license spelling and placement.",
 ]);
 
 const SENTENCE_LESSON17_VALIDATION_REFS = Object.freeze([
@@ -808,7 +808,7 @@ const SENTENCE_LESSON17_SUBSECTION_INVENTORY = Object.freeze([
 
 const SENTENCE_LESSON17_REMAINING_GAPS = Object.freeze([
     "Supplementation is not yet an executable clause/sentence AST over generated Nawat/Pipil surfaces.",
-    "Shared-referent subject, object, and possessor examples require confirmed Nawat/Pipil clause evidence before generation or UI controls.",
+    "Shared-referent subject, object, and possessor examples require Andrews clause-source model plus orthography bridge before generation or UI controls.",
     "Topicalization, recursive supplementation, third-person ambiguity, and information-question transforms remain diagnostic metadata.",
     "Included-referent supplementation is deferred to Andrews Lesson 19.",
 ]);
@@ -1089,8 +1089,8 @@ const SENTENCE_LESSON18_SUBSECTION_INVENTORY = Object.freeze([
 const SENTENCE_LESSON18_REMAINING_GAPS = Object.freeze([
     "Lesson 18 supplementation is not yet an executable sentence AST over generated Nawat/Pipil surfaces.",
     "Integrated o# movement, marked in adjunction, discontinuity, proxy-principal deletion, and free constituent order need a distance-aware clause/sentence parser before generation.",
-    "Short personal-pronominal NNCs, named-partner supplements, male-bonding supplements, agreement mismatches, and silent object heads require confirmed Nawat/Pipil evidence before UI controls or output.",
-    "Real vocative formation needs Nawat/Pipil evidence for particle/prosody spelling behavior before any surface generation.",
+    "Short personal-pronominal NNCs, named-partner supplements, male-bonding supplements, agreement mismatches, and silent object heads require Andrews source models plus orthography-bridge support before UI controls or output.",
+    "Real vocative formation needs orthography-bridge support for particle/prosody spelling behavior before any surface generation.",
 ]);
 
 const SENTENCE_LESSON19_VALIDATION_REFS = Object.freeze([
@@ -1262,7 +1262,7 @@ const SENTENCE_LESSON19_SUBSECTION_INVENTORY = Object.freeze([
 
 const SENTENCE_LESSON19_REMAINING_GAPS = Object.freeze([
     "Lesson 19 VNC supplementation and included-referent supplementation are not executable sentence ASTs over generated Nawat/Pipil surfaces.",
-    "Pronominal plural formations, fused spelling warnings, and noncontiguous ac structures require confirmed Nawat/Pipil evidence and a safe pronominal route contract.",
+    "Pronominal plural formations, fused spelling warnings, and noncontiguous ac structures require Andrews source models plus orthography-bridge support and a safe pronominal route contract.",
     "Direct/indirect speech, reported questions, reported commands, wishing/needing/perception/knowing/affect complements, rumored report, and deleted saying principals require speech/complement AST support before generation.",
     "English infinitive translations and rhetorical weighting must remain diagnostics, not generation rules.",
 ]);
@@ -1646,7 +1646,7 @@ function getSentenceLesson17SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(SENTENCE_LESSON17_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no genera suplementacion, topicos ni preguntas informativas sin AST y evidencia Nawat/Pipil",
+        generationPolicy: "diagnostico; no genera suplementacion, topicos ni preguntas informativas sin AST y fuente Andrews concreta y puente ortografico",
     }));
 }
 
@@ -1787,7 +1787,7 @@ function getSentenceLesson18SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(SENTENCE_LESSON18_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no genera integracion, marcas, discontinuidad, vocativos ni orden libre sin AST y evidencia Nawat/Pipil",
+        generationPolicy: "diagnostico; no genera integracion, marcas, discontinuidad, vocativos ni orden libre sin AST y fuente Andrews concreta y puente ortografico",
     }));
 }
 
@@ -1890,7 +1890,7 @@ function buildSentenceLesson18PursuitFrame() {
             generationAllowed: false,
             closestPass: false,
             requiresSentenceAst: true,
-            requiresNawatEvidence: true,
+            requiresAndrewsSourceGate: true,
         },
     });
 }
@@ -1924,7 +1924,7 @@ function getSentenceLesson19SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(SENTENCE_LESSON19_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no genera CNV suplementarias, referente incluido, reporte, cita ni traducciones infinitivas sin AST y evidencia Nawat/Pipil",
+        generationPolicy: "diagnostico; no genera CNV suplementarias, referente incluido, reporte, cita ni traducciones infinitivas sin AST y fuente Andrews concreta y puente ortografico",
     }));
 }
 
@@ -2014,7 +2014,7 @@ function buildSentenceLesson19PursuitFrame() {
             generationAllowed: false,
             closestPass: false,
             requiresSentenceAst: true,
-            requiresNawatEvidence: true,
+            requiresAndrewsSourceGate: true,
         },
     });
 }
@@ -2056,7 +2056,7 @@ function buildSentenceLayerMetadata({
         kind: "sentence-layer-metadata",
         version: SENTENCE_LAYER_VERSION,
         structuralSource: "Andrews Lessons 8-10",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         source,
         finiteTenseValue: String(finiteTenseValue || ""),
         clauseKind: String(resolvedClauseKind || "unknown"),
@@ -2093,7 +2093,7 @@ function buildSentenceLayerMetadata({
         },
         diagnostics: [
             "sentence-layer-diagnostic-only",
-            "sentence-layer-needs-confirmed-nawat-evidence",
+            "sentence-layer-source-gated",
         ],
         antiConflationRules: getSentenceLayerAntiConflationRules(),
     };

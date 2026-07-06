@@ -18,13 +18,17 @@ function run(ctx) {
             typeof ctx.getHonorificPejorativeAntiConflationRules,
             typeof ctx.buildLesson33HonorificPejorativePursuitFrame,
             typeof ctx.getLesson33HonorificPejorativeSubsectionInventory,
+            typeof ctx.getHonorificPejorativePreteritEmbedMatrix,
+            typeof ctx.buildHonorificPejorativePreteritEmbedSourceFrame,
+            typeof ctx.buildHonorificPejorativePreteritEmbedOperationFrame,
+            typeof ctx.buildAndrewsHonorificPejorativePreteritEmbedVnc,
         ],
-        ["function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildHonorificPejorativeBoundaryMetadata();
     s.eq(
-        "honorific/pejorative VNC boundary is explicit and non-generative",
+        "honorific/pejorative VNC boundary is explicit and scoped",
         {
             kind: boundary.kind,
             lesson: boundary.lesson,
@@ -42,8 +46,9 @@ function run(ctx) {
             confirmedExamples: [],
             boundaries: {
                 hasVncGeneration: true,
-                hasHonorificGeneration: false,
-                hasPejorativeGeneration: false,
+                hasHonorificGeneration: true,
+                hasPejorativeGeneration: true,
+                hasPreteritEmbedGeneration: true,
                 hasConfirmedFixtureData: false,
                 changesCausativeGeneration: false,
                 changesApplicativeGeneration: false,
@@ -61,7 +66,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized honorific category remains unconfirmed without Nawat evidence",
+        "recognized honorific category remains blocked without Andrews source gate",
         ctx.classifyHonorificPejorativeCandidate({
             sourceStem: "palehuia",
             candidate: "polite translation label",
@@ -76,15 +81,258 @@ function run(ctx) {
             polarity: "honorific",
             morphologicalStrategy: "",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "polite-translation",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "honorific-pejorative-needs-nawat-evidence",
+                "honorific-pejorative-source-gate-required",
                 "honorific-pejorative-category-recognized",
                 "honorific-pejorative-false-positive-source",
             ],
             boundary,
+        }
+    );
+
+    s.eq(
+        "honorific candidate strings are diagnostic only even with old source-gate flags",
+        (() => {
+            const classification = ctx.classifyHonorificPejorativeCandidate({
+                sourceStem: "palehuia",
+                candidate: "m-o-palehui-lia",
+                polarity: "honorific",
+                morphologicalStrategy: "honorific-via-applicative-reflexive",
+                sourceGate: "Andrews 33.3 intransitive applicative honorific route",
+                structuredSource: true,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                surfaceForms: classification.surfaceForms,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+                evidenceSource: classification.frames.participantFrame.evidenceSource,
+            };
+        })(),
+        {
+            confirmed: false,
+            supported: false,
+            generationAllowed: false,
+            surface: "",
+            surfaceForms: [],
+            diagnostics: [
+                "honorific-pejorative-candidate-diagnostic-only",
+                "honorific-pejorative-category-recognized",
+                "honorific-pejorative-unconfirmed",
+            ],
+            routeStage: "classify-candidate",
+            frameGenerationAllowed: false,
+            orthographyStatus: "orthography-bridge-required",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "m-o-palehui-lia",
+            evidenceSource: "Andrews 33.3 intransitive applicative honorific route",
+        }
+    );
+
+    s.eq(
+        "Andrews preterit-embed matrices generate honorific and pejorative target stems",
+        [
+            ctx.getHonorificPejorativePreteritEmbedMatrix("honorific"),
+            ctx.getHonorificPejorativePreteritEmbedMatrix("pejorative"),
+        ].map((entry) => ({
+            polarity: entry.polarity,
+            matrixStem: entry.matrixStem,
+            matrixSource: entry.matrixSource,
+            andrewsSection: entry.andrewsSection,
+        })),
+        [
+            {
+                polarity: "honorific",
+                matrixStem: "tzin-o-a",
+                matrixSource: "tla-(tzin-o-a)",
+                andrewsSection: "33.7",
+            },
+            {
+                polarity: "pejorative",
+                matrixStem: "pol-o-a",
+                matrixSource: "tla-(pol-o-a)",
+                andrewsSection: "33.9",
+            },
+        ]
+    );
+    s.eq(
+        "Andrews honorific preterit embed generates from typed operation frame",
+        (() => {
+            const sourceFrame = ctx.buildHonorificPejorativePreteritEmbedSourceFrame({
+                preteritEmbedStem: "tlal-i-h-0",
+            });
+            const operationFrame = ctx.buildHonorificPejorativePreteritEmbedOperationFrame({
+                sourceFrame,
+                objectPrefix: "m-o",
+                personPrefix: "ti-0",
+                polarity: "honorific",
+            });
+            const generated = ctx.buildAndrewsHonorificPejorativePreteritEmbedVnc({ operationFrame });
+            return {
+                kind: generated.kind,
+                operationFrameKind: generated.operationFrame.kind,
+                targetStemClassical: generated.targetStemClassical,
+                targetStem: generated.targetStem,
+                structuralFormula: generated.structuralFormula,
+                generationAllowed: generated.generationAllowed,
+                formulaSlots: generated.formulaSlots,
+                diagnostics: generated.diagnostics,
+                routeStage: generated.frames.routeContract.routeStage,
+                finiteSurfaceExpansionAllowed: generated.frames.routeContract.targetContract.finiteSurfaceExpansionAllowed,
+            };
+        })(),
+        {
+            kind: "honorific-pejorative-preterit-embed-generation",
+            operationFrameKind: "andrews-honorific-pejorative-preterit-embed-operation-frame",
+            targetStemClassical: "tlal-i-h-0-tzin-o-a",
+            targetStem: "talijtzinua",
+            structuralFormula: "#ti-0+m-o(tlal-i-h-0-tzin-o-a)0+0-0#",
+            generationAllowed: true,
+            formulaSlots: {
+                pers: "ti-0",
+                objectPrefix: "m-o",
+                preteritEmbedStem: "tlal-i-h-0",
+                matrixStem: "tzin-o-a",
+                matrixSource: "tla-(tzin-o-a)",
+                tenseMorph: "0",
+                num1: "0",
+                num2: "0",
+            },
+            diagnostics: [
+                "honorific-preterit-embed-andrews-generated",
+                "preterit-predicate-replaces-matrix-specific-object",
+                "orthography-bridge-realized",
+            ],
+            routeStage: "generate-preterit-embed-honorific-pejorative",
+            finiteSurfaceExpansionAllowed: false,
+        }
+    );
+    s.eq(
+        "old string-only honorific preterit embed API blocks without typed operation frame",
+        (() => {
+            const generated = ctx.buildAndrewsHonorificPejorativePreteritEmbedVnc({
+                preteritEmbedStem: "tlal-i-h-0",
+                objectPrefix: "m-o",
+                personPrefix: "ti-0",
+                polarity: "honorific",
+            });
+            return {
+                generationAllowed: generated.generationAllowed,
+                diagnostic: generated.diagnostics[0],
+                routeStage: generated.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            generationAllowed: false,
+            diagnostic: "honorific-pejorative-preterit-embed-missing-typed-operation-frame",
+            routeStage: "block-preterit-embed-generation",
+        }
+    );
+    s.eq(
+        "honorific preterit embed blocks contradictory typed target frame",
+        (() => {
+            const sourceFrame = ctx.buildHonorificPejorativePreteritEmbedSourceFrame({
+                preteritEmbedStem: "tlal-i-h-0",
+            });
+            const operationFrame = ctx.buildHonorificPejorativePreteritEmbedOperationFrame({
+                sourceFrame,
+                objectPrefix: "m-o",
+                personPrefix: "ti-0",
+                polarity: "honorific",
+            });
+            const generated = ctx.buildAndrewsHonorificPejorativePreteritEmbedVnc({
+                operationFrame: {
+                    ...operationFrame,
+                    targetFrame: {
+                        ...operationFrame.targetFrame,
+                        targetStemClassical: "poisoned-tzin-o-a",
+                    },
+                },
+            });
+            return {
+                generationAllowed: generated.generationAllowed,
+                diagnostic: generated.diagnostics[0],
+                routeStage: generated.frames.routeContract.routeStage,
+            };
+        })(),
+        {
+            generationAllowed: false,
+            diagnostic: "honorific-pejorative-preterit-embed-contradictory-typed-operation-frame",
+            routeStage: "block-contradictory-preterit-embed-frame",
+        }
+    );
+    s.eq(
+        "poisoning legacy honorific string normalizer does not affect typed operation output",
+        (() => {
+            const originalNormalizer = ctx.normalizeHonorificPejorativeCandidateSurface;
+            try {
+                ctx.normalizeHonorificPejorativeCandidateSurface = () => "poisoned";
+                const sourceFrame = ctx.buildHonorificPejorativePreteritEmbedSourceFrame({
+                    preteritEmbedStem: "tlal-i-h-0",
+                });
+                const operationFrame = ctx.buildHonorificPejorativePreteritEmbedOperationFrame({
+                    sourceFrame,
+                    objectPrefix: "m-o",
+                    personPrefix: "ti-0",
+                    polarity: "honorific",
+                });
+                return ctx.buildAndrewsHonorificPejorativePreteritEmbedVnc({ operationFrame }).targetStem;
+            } finally {
+                ctx.normalizeHonorificPejorativeCandidateSurface = originalNormalizer;
+            }
+        })(),
+        "talijtzinua"
+    );
+    s.eq(
+        "honorific/pejorative classifier generates pejorative preterit embed when candidate is omitted",
+        (() => {
+            const sourceFrame = ctx.buildHonorificPejorativePreteritEmbedSourceFrame({
+                preteritEmbedStem: "chiuh-0",
+            });
+            const classification = ctx.classifyHonorificPejorativeCandidate({
+                sourceFrame,
+                polarity: "pejorative",
+                objectPrefix: "c-0",
+                personPrefix: "ni-0",
+            });
+            return {
+                candidate: classification.candidate,
+                surface: classification.surface,
+                structuralFormula: classification.structuralFormula,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                preteritEmbedGenerated: classification.frames.routeContract.targetContract.preteritEmbedGenerated,
+                sourceSurface: classification.frames.orthographyFrame.sourceSurface,
+            };
+        })(),
+        {
+            candidate: "chiuh-0-pol-o-a",
+            surface: "chiwpulua",
+            structuralFormula: "#ni-0+c-0(chiuh-0-pol-o-a)0+0-0#",
+            diagnostics: [
+                "pejorative-preterit-embed-andrews-generated",
+                "honorific-pejorative-category-recognized",
+                "honorific-pejorative-structured-source",
+            ],
+            routeStage: "generate-structured-honorific-pejorative",
+            frameGenerationAllowed: true,
+            preteritEmbedGenerated: true,
+            sourceSurface: "chiuh-0-pol-o-a",
         }
     );
 
@@ -108,11 +356,11 @@ function run(ctx) {
         ctx.getHonorificPejorativeAntiConflationRules(),
         [
             "honorific/pejorative boundary metadata is not generation",
-            "polite or insulting translation labels are not Nawat/Pipil fixture evidence",
+            "polite or insulting translation labels are not orthography-bridge fixture evidence",
             "ordinary causative/applicative derivation is not honorific or pejorative VNC generation",
             "nonactive/passive/impersonal derivation is not honorific or pejorative VNC generation",
             "person or agreement labels are not honorific or pejorative VNC evidence",
-            "Andrews honorific/pejorative categories are architecture, not Nawat/Pipil form authority",
+            "Andrews honorific/pejorative categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("honorific/pejorative boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -216,7 +464,7 @@ function run(ctx) {
             reflexiveMatrix: "tla-(tzin-o-a)",
             reflexiveClasses: ["A", "B", "C", "D"],
             reverentialStrategy: "double honorific construction",
-            pejorativeMatrix: "ta-(pul-u-a)",
+            pejorativeMatrix: "tla-(pol-o-a)",
             pejorativeSources: ["intransitive VNC", "projective-object VNC", "reflexive-object VNC"],
             selfPejorativePermitted: true,
             compoundSharedObjectMatrix: true,
@@ -241,7 +489,7 @@ function run(ctx) {
             generationAllowed: false,
             unitKind: "honorific-pejorative-vnc-boundary",
             targetGenerationAllowed: false,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
             stemKind: "honorific-pejorative-vnc",
             pejorativeMeaning: "contempt or scorn",
             honoredEntityMayBeSubjectOrObject: true,

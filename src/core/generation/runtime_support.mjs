@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/generation/runtime_support.js.
 
-export function createGenerationRuntimeSupportGlobals(targetObject = globalThis) {
+export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
     const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";
     const GENERATE_RUNTIME_ROUTE_FAMILY = "nuclear-clause-surface";
     function normalizeGenerateRuntimeTenseValue(tenseValue = "") {
@@ -107,6 +107,10 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       const grammarFrame = getGenerateRuntimeResultFrame(result);
       const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(resultFrame);
+      const canonicalForms = typeof targetObject.getGrammarResultFrameCanonicalSurfaceForms === "function" ? targetObject.getGrammarResultFrameCanonicalSurfaceForms(resultFrame) : [];
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(resultFrame?.surfaceForms)) {
         forms.push(...resultFrame.surfaceForms);
@@ -115,7 +119,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         forms.push(resultFrame.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitGenerateRuntimeContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => normalizeGenerateRuntimeContractSurface(entry)).filter(entry => entry && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
         forms.push(...result.surfaceForms);
@@ -133,7 +137,8 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
       const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(resultFrame);
       const surfaceForms = getGenerateRuntimeSurfaceForms(result);
-      const rawSurface = surfaceForms[0] || resultFrame?.surface || (!hasResultFrame ? result?.surface || result?.result : "") || "";
+      const frameSurface = normalizeGenerateRuntimeContractSurface(resultFrame?.surface || "");
+      const rawSurface = surfaceForms[0] || (frameSurface && !frameSurface.includes("/") ? frameSurface : "") || (!hasResultFrame ? result?.surface || result?.result : "") || "";
       return normalizeGenerateRuntimeContractSurface(rawSurface);
     }
     function attachGenerateRuntimeBlockedContract(result = null, {
@@ -186,7 +191,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
         orthographyFrame: {
           surface: normalizedSurface,
           surfaceForms: normalizedSurfaceForms,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
@@ -648,7 +653,7 @@ export function createGenerationRuntimeSupportGlobals(targetObject = globalThis)
 }
 
 export function installGenerationRuntimeSupportGlobals(targetObject = globalThis) {
-    const api = createGenerationRuntimeSupportGlobals(targetObject);
+    const api = createGenerationRuntimeSupportApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

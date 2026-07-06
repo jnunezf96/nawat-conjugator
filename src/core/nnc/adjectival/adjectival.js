@@ -1,7 +1,7 @@
 // core/nnc/adjectival/adjectival.js
 // Lessons 40-41 adjectival NNC function boundary metadata. This keeps current
 // adjetivo generated surfaces and predicate-function labels separate from
-// confirmed adjectival NNC paradigms or clause-level modification ASTs.
+// Andrews source-gated adjectival NNC routes or clause-level modification ASTs.
 
 "use strict";
 
@@ -119,11 +119,11 @@ const ADJECTIVAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "adjectivalRole",
-        asks: "Is there confirmed clause evidence for modifier/head behavior, or only an adjective-like word output?",
+        asks: "Does Andrews license adjectival function, modifier/head behavior, or only an adjective-like word output?",
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided evidence supports adjectival function beyond route output?",
+        asks: "Which Andrews source gate or structured route licenses adjectival function before Nawat/Pipil orthography realizes it?",
     }),
 ]);
 
@@ -394,35 +394,35 @@ const LESSON40_PREDICATE_ADJECTIVE_SENTENCE_FRAME = Object.freeze({
 });
 
 const LESSON40_ADJECTIVAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson40-adjectival-nuclear-clause", andrewsSection: "40.1", category: "adjectival-nnc-function", directiveEs: "Adjetivo es funcion sintactica; la CNN adjetiva modifica otra CNN y normalmente exige estado absolutivo.", engineSurface: "partial opt-in adjectival NNC output plus boundary metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-adjectival-nuclear-clause", andrewsSection: "40.1", category: "adjectival-nnc-function", directiveEs: "Adjetivo es funcion sintactica; la CNN adjetiva modifica otra CNN y normalmente exige estado absolutivo.", engineSurface: "partial opt-in adjectival NNC output plus boundary metadata", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson40-exceptional-adjectival-nncs", andrewsSection: "40.2", category: "exceptional-adjectival-nnc", directiveEs: "Las CNN adjetivas excepcionales tienen paradigmas peculiares; no se generan como reglas ordinarias sin evidencia.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson40-huei", andrewsSection: "40.2.1", category: "huei-pronominal-like", directiveEs: "El tipo wey tiene comportamiento parecido a pronombre y alternancias de numero que no deben aplanarse.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson40-nepapan", andrewsSection: "40.2.2", category: "nepapan-relational-source", directiveEs: "Nepapan viene de fuente relacional y posesiva reciproca; no es solo una etiqueta de adjetivo.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson40-possessor-included", andrewsSection: "40.2.3", category: "possessor-included-adjectival", directiveEs: "Ce-l y el incluyen poseedor dentro del tronco pero siguen con sujeto 3a y no son estado posesivo normal.", engineSurface: "diagnostic exceptional adjectival frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson40-nnc-vnc-adjective", andrewsSection: "40.3", category: "nnc-vnc-adjective-function", directiveEs: "Casi cualquier CNN absolutiva y cualquier CNV pueden funcionar adjetivamente; la estructura de modificacion queda diferida.", engineSurface: "partial ordinary NNC/VNC adjectival routes", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-nnc-predicate-adjective", andrewsSection: "40.3.1", category: "nnc-predicate-adjective", directiveEs: "Solo el predicado de la CNN se traduce como adjetivo; la CNN completa mantiene su arquitectura.", engineSurface: "partial ordinary NNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-vnc-predicate-adjective", andrewsSection: "40.3.2", category: "vnc-predicate-adjective", directiveEs: "Solo el predicado de la CNV se traduce como adjetivo; no se convierte automaticamente en tronco nominal.", engineSurface: "partial VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-derived-nounstems", andrewsSection: "40.4", category: "derived-nounstem-adjective", directiveEs: "Patientivos y potenciales-paciente pueden traducirse adjetivamente, pero la forma estricta sigue siendo sustantiva.", engineSurface: "partial patientive/nominalized VNC adjectival routes", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-patientive-adjective", andrewsSection: "40.4.1", category: "patientive-adjective", directiveEs: "El patientivo nombra una entidad por proceso, impacto o estado resultante; la glosa adjetiva es libre.", engineSurface: "partial patientive adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-potential-patient-adjective", andrewsSection: "40.4.2", category: "potential-patient-adjective", directiveEs: "El potencial-paciente con z/liz puede glosarse como adjetivo; la negacion puede estar dentro o fuera del tronco.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-nominalized-vnc-adjective", andrewsSection: "40.5", category: "nominalized-vnc-adjective", directiveEs: "Los predicados de CNV nominalizadas pueden glosarse como adjetivos; el analisis nominalizado se conserva por incrustacion afectiva.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-customary-agentive", andrewsSection: "40.6", category: "customary-present-agentive-adjective", directiveEs: "El agentivo presente habitual activo puede funcionar adjetivamente; compuestos con t pueden reanalizarse.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-customary-patientive", andrewsSection: "40.7", category: "customary-present-patientive-adjective", directiveEs: "El patientivo presente habitual pasivo puede funcionar adjetivamente y puede coincidir o diferir del potencial-paciente.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-preterit-agentive-adjective", andrewsSection: "40.8", category: "preterit-agentive-adjective", directiveEs: "El agentivo preterito puede funcionar adjetivamente, sobre todo desde fuentes intransitivas.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-class-a", andrewsSection: "40.8.1", category: "class-a-preterit-agentive-adjective", directiveEs: "La clase A incluye pasivos y denominales ti frecuentes; las glosas de cualidad pueden ocultar estructura.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-class-b", andrewsSection: "40.8.2", category: "class-b-preterit-agentive-adjective", directiveEs: "La clase B suele usar qui-0 o 0-0 en numero singular/comun y tambien acepta fuentes transitivas.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-class-c", andrewsSection: "40.8.3", category: "class-c-preterit-agentive-adjective", directiveEs: "La clase C usa 0-0 en singular/comun y normalmente tiene fuente transitiva.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-class-d", andrewsSection: "40.8.4", category: "class-d-preterit-agentive-adjective", directiveEs: "La clase D usa 0-0 en singular/comun y no debe mezclarse con otras clases.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-compound-preterit-agentive", andrewsSection: "40.8.5", category: "compound-preterit-agentive-adjective", directiveEs: "Un predicado de CNN compuesta tambien puede traducirse adjetivamente.", engineSurface: "partial compound source metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-unused-source-ownerhood", andrewsSection: "40.8.6", category: "unused-source-ownerhood-adjective", directiveEs: "Algunas fuentes ya no se usan; formas de posesion e/yo-a/wa pueden glosarse como adjetivos.", engineSurface: "diagnostic ownerhood adjective frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-obsolete-preterit-root-ya", andrewsSection: "40.9", category: "obsolete-preterit-root-ya-adjective", directiveEs: "Los intransitivos raiz+ya pueden formar adjetivos desde un preterito obsoleto sobre la raiz sola.", engineSurface: "partial root-plus-ya adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-nnc-vnc-adjective", andrewsSection: "40.3", category: "nnc-vnc-adjective-function", directiveEs: "Casi cualquier CNN absolutiva y cualquier CNV pueden funcionar adjetivamente; la estructura de modificacion queda diferida.", engineSurface: "partial ordinary NNC/VNC adjectival routes", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-nnc-predicate-adjective", andrewsSection: "40.3.1", category: "nnc-predicate-adjective", directiveEs: "Solo el predicado de la CNN se traduce como adjetivo; la CNN completa mantiene su arquitectura.", engineSurface: "partial ordinary NNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-vnc-predicate-adjective", andrewsSection: "40.3.2", category: "vnc-predicate-adjective", directiveEs: "Solo el predicado de la CNV se traduce como adjetivo; no se convierte automaticamente en tronco nominal.", engineSurface: "partial VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-derived-nounstems", andrewsSection: "40.4", category: "derived-nounstem-adjective", directiveEs: "Patientivos y potenciales-paciente pueden traducirse adjetivamente, pero la forma estricta sigue siendo sustantiva.", engineSurface: "partial patientive/nominalized VNC adjectival routes", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-patientive-adjective", andrewsSection: "40.4.1", category: "patientive-adjective", directiveEs: "El patientivo nombra una entidad por proceso, impacto o estado resultante; la glosa adjetiva es libre.", engineSurface: "partial patientive adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-potential-patient-adjective", andrewsSection: "40.4.2", category: "potential-patient-adjective", directiveEs: "El potencial-paciente con z/liz puede glosarse como adjetivo; la negacion puede estar dentro o fuera del tronco.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-nominalized-vnc-adjective", andrewsSection: "40.5", category: "nominalized-vnc-adjective", directiveEs: "Los predicados de CNV nominalizadas pueden glosarse como adjetivos; el analisis nominalizado se conserva por incrustacion afectiva.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-customary-agentive", andrewsSection: "40.6", category: "customary-present-agentive-adjective", directiveEs: "El agentivo presente habitual activo puede funcionar adjetivamente; compuestos con t pueden reanalizarse.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-customary-patientive", andrewsSection: "40.7", category: "customary-present-patientive-adjective", directiveEs: "El patientivo presente habitual pasivo puede funcionar adjetivamente y puede coincidir o diferir del potencial-paciente.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-preterit-agentive-adjective", andrewsSection: "40.8", category: "preterit-agentive-adjective", directiveEs: "El agentivo preterito puede funcionar adjetivamente, sobre todo desde fuentes intransitivas.", engineSurface: "partial nominalized VNC adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-class-a", andrewsSection: "40.8.1", category: "class-a-preterit-agentive-adjective", directiveEs: "La clase A incluye pasivos y denominales ti frecuentes; las glosas de cualidad pueden ocultar estructura.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-class-b", andrewsSection: "40.8.2", category: "class-b-preterit-agentive-adjective", directiveEs: "La clase B suele usar qui-0 o 0-0 en numero singular/comun y tambien acepta fuentes transitivas.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-class-c", andrewsSection: "40.8.3", category: "class-c-preterit-agentive-adjective", directiveEs: "La clase C usa 0-0 en singular/comun y normalmente tiene fuente transitiva.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-class-d", andrewsSection: "40.8.4", category: "class-d-preterit-agentive-adjective", directiveEs: "La clase D usa 0-0 en singular/comun y no debe mezclarse con otras clases.", engineSurface: "diagnostic class frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-compound-preterit-agentive", andrewsSection: "40.8.5", category: "compound-preterit-agentive-adjective", directiveEs: "Un predicado de CNN compuesta tambien puede traducirse adjetivamente.", engineSurface: "partial compound source metadata", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-unused-source-ownerhood", andrewsSection: "40.8.6", category: "unused-source-ownerhood-adjective", directiveEs: "Algunas fuentes ya no se usan; formas de posesion e/yo-a/wa pueden glosarse como adjetivos.", engineSurface: "diagnostic ownerhood adjective frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-obsolete-preterit-root-ya", andrewsSection: "40.9", category: "obsolete-preterit-root-ya-adjective", directiveEs: "Los intransitivos raiz+ya pueden formar adjetivos desde un preterito obsoleto sobre la raiz sola.", engineSurface: "partial root-plus-ya adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson40-hueiya-exception", andrewsSection: "40.9.1", category: "hueiya-exception", directiveEs: "Weya usa la base parecida a pronombre y distingue honor metaforico de longitud; no se inventa un preterito obsoleto.", engineSurface: "diagnostic root-plus-ya exception", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson40-tlaocoya-exception", andrewsSection: "40.9.2", category: "tlaocoya-exception", directiveEs: "Tlaocoya solo usa el tronco de clase B documentado para esta funcion.", engineSurface: "diagnostic root-plus-ya exception", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson40-synonymous-pairs", andrewsSection: "40.10", category: "synonymous-pairs", directiveEs: "Los pares sinonimos vienen de una raiz comun; no se generan hermanos sin evidencia Nawat.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-ni-hui-pairs", andrewsSection: "40.10.1", category: "ni-hui-ctiya-pairs", directiveEs: "Destockales ni y raramente hui tienen sinonimos c-tiya segun reglas 40.8.2 y 40.9.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-hua-pairs", andrewsSection: "40.10.2", category: "hua-ctiya-pairs", directiveEs: "Destockales wa tienen sinonimos c-tiya desde nounstems 39.4.2.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-ihui-ahui-pairs", andrewsSection: "40.10.3", category: "ihui-ahui-tiya-pairs", directiveEs: "Destockales iwi/awi tienen sinonimos tiya desde nounstems 39.4.3.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson40-synonymous-triplets", andrewsSection: "40.11", category: "synonymous-triplets", directiveEs: "Los tripletes agregan un miembro z-tiya; diferencias de traduccion no autorizan generacion automatica.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson40-synonymous-pairs", andrewsSection: "40.10", category: "synonymous-pairs", directiveEs: "Los pares sinonimos vienen de una raiz comun; no se generan hermanos sin fuente Andrews concreta y puente ortografico.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-ni-hui-pairs", andrewsSection: "40.10.1", category: "ni-hui-ctiya-pairs", directiveEs: "Destockales ni y raramente hui tienen sinonimos c-tiya segun reglas 40.8.2 y 40.9.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-hua-pairs", andrewsSection: "40.10.2", category: "hua-ctiya-pairs", directiveEs: "Destockales wa tienen sinonimos c-tiya desde nounstems 39.4.2.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-ihui-ahui-pairs", andrewsSection: "40.10.3", category: "ihui-ahui-tiya-pairs", directiveEs: "Destockales iwi/awi tienen sinonimos tiya desde nounstems 39.4.3.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson40-synonymous-triplets", andrewsSection: "40.11", category: "synonymous-triplets", directiveEs: "Los tripletes agregan un miembro z-tiya; diferencias de traduccion no autorizan generacion automatica.", engineSurface: "diagnostic synonym-set frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson40-predicate-adjective-sentence", andrewsSection: "40.12", category: "predicate-adjective-sentence", directiveEs: "La CNN traducible como adjetivo puede ser clausula principal en construccion multinuclear; esto es sintaxis, no palabra nueva.", engineSurface: "diagnostic sentence-layer frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
 ]);
 
@@ -485,7 +485,7 @@ function buildLesson41CompoundSourceRouteFrame({
     sourceExternalObjectSlots = [],
     remainingExternalObjectSlots = [],
     valenceDelta = {},
-    generationStatus = "diagnostic-only-nawat-evidence-required",
+    generationStatus = "diagnostic-only-source-gated",
 } = {}) {
     const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
     const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
@@ -542,7 +542,7 @@ function getLesson40AdjectivalNncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON40_ADJECTIVAL_NNC_VALIDATION_REFS),
     }));
 }
@@ -577,7 +577,7 @@ function buildLesson40AdjectivalNncPursuitFrame() {
         "Current Lesson 40 adjectival NNC support is partial and does not exhaust exceptional adjectival NNCs, all NNC/VNC adjectival functions, all derived nounstem adjective paths, all nominalized VNC adjective paths, synonym sets, or predicate-adjective sentences.",
         "Exceptional adjectival NNCs, possessor-included stems, class-specific preterit-agentive adjective behavior, root-plus-ya exceptions, and source-synonym sets remain diagnostic or evidence-needed.",
         "Predicate-adjective sentence syntax and Lessons 42-43 modifier/head AST behavior remain outside word generation.",
-        "Finite output expansion must stay tied to Andrews section evidence and confirmed Nawat/Pipil spelling evidence.",
+        "Finite output expansion must stay tied to Andrews section evidence and orthography-bridge spelling support.",
     ];
     const frame = {
         kind: "lesson-40-adjectival-nnc-pursuit-frame",
@@ -628,7 +628,7 @@ function buildLesson40AdjectivalNncPursuitFrame() {
             predicateAdjectiveSentenceGenerationImplemented: false,
             modificationAstDeferredToLessons42_43: true,
             fullLesson40GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -646,9 +646,9 @@ function buildLesson40AdjectivalNncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 40.1-40.12",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
             displaySeedsAdaptedToNawat: Object.freeze(["wey", "weya"]),
         },
         morphBoundaryFrame: {
@@ -690,7 +690,7 @@ function buildLesson40AdjectivalNncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["adjectival-nnc-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+        diagnostics: ["adjectival-nnc-diagnostic-partial", "adjectival-nnc-source-gated"],
     });
 }
 
@@ -869,8 +869,8 @@ const LESSON41_ADJECTIVAL_EMBED_COMPOUND_NNC_FRAME = Object.freeze({
 });
 
 const LESSON41_ADJECTIVAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson41-intensified-adjectival-nncs", andrewsSection: "41.1", category: "intensified-adjectival-nnc", directiveEs: "La intensificacion adjetiva tiene varias fuentes; no se reduce a una sola ruta de reduplicacion.", engineSurface: "partial intensified adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson41-reduplicative-intensification", andrewsSection: "41.1.1", category: "reduplicative-intensification", directiveEs: "Si el tronco adjetivo viene de fuente verbal o deverbal, puede intensificarse con reduplicacion de 27.2.2, no con la nominal de 14.3.", engineSurface: "partial intensified route from generated formula slots", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-intensified-adjectival-nncs", andrewsSection: "41.1", category: "intensified-adjectival-nnc", directiveEs: "La intensificacion adjetiva tiene varias fuentes; no se reduce a una sola ruta de reduplicacion.", engineSurface: "partial intensified adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson41-reduplicative-intensification", andrewsSection: "41.1.1", category: "reduplicative-intensification", directiveEs: "Si el tronco adjetivo viene de fuente verbal o deverbal, puede intensificarse con reduplicacion de 27.2.2, no con la nominal de 14.3.", engineSurface: "partial intensified route from generated formula slots", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson41-pah-matrix", andrewsSection: "41.1.2", category: "pah-matrix-intensification", directiveEs: "La matriz pah-ti-c expresa potencia y el incrustado aporta forma o respecto; las subclases quedan separadas.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-pah-adjective-stem-embed", andrewsSection: "41.1.2.a", category: "pah-adjective-stem-embed", directiveEs: "El incrustado puede ser un nounstem que forma adjetivo ti-c, incluidos patientivos destockales.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-pah-root-plus-ya-embed", andrewsSection: "41.1.2.b", category: "pah-root-plus-ya-embed", directiveEs: "El incrustado puede ser la raiz de un agentivo preterito de fuente raiz+ya.", engineSurface: "diagnostic matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
@@ -882,15 +882,15 @@ const LESSON41_ADJECTIVAL_NNC_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson41-pol-increase", andrewsSection: "41.1.4.a", category: "pol-increase", directiveEs: "Pol aumenta la intensidad y puede llevar prefijo reduplicativo.", engineSurface: "diagnostic affective matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-pil-ton-tzin-decrease", andrewsSection: "41.1.4.b", category: "pil-ton-tzin-decrease", directiveEs: "Pil, ton y tzin disminuyen la intensidad; ton puede mostrar tli inesperado.", engineSurface: "diagnostic affective matrix frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-metaphor-simile", andrewsSection: "41.1.5", category: "metaphor-simile-intensification", directiveEs: "La intensidad tambien puede venir de metafora o simil; intensificadores sintacticos quedan para 49.6.", engineSurface: "diagnostic intensification frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson41-compound-verbstem-nominal-embed", andrewsSection: "41.2", category: "compound-verbstem-nominal-embed", directiveEs: "Un compuesto verbal con incrustado nominal puede reanalizar o derivar su matriz como nounstem y funcionar adjetivamente.", engineSurface: "partial compound-source adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson41-incorporated-adverb-source", andrewsSection: "41.2.1", category: "incorporated-adverb-source", directiveEs: "Los compuestos con adverbio incorporado son la fuente mas frecuente y tienen dos construcciones.", engineSurface: "partial compound-source adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson41-incorporated-adverb-30-7-12", andrewsSection: "41.2.1.a", category: "lesson30-7-12-adverb-source", directiveEs: "El adverbio incorporado puede expresar medio, instrumento, lugar, tiempo, duracion, causa, proposito, modo o modo comparado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-compound-verbstem-nominal-embed", andrewsSection: "41.2", category: "compound-verbstem-nominal-embed", directiveEs: "Un compuesto verbal con incrustado nominal puede reanalizar o derivar su matriz como nounstem y funcionar adjetivamente.", engineSurface: "partial compound-source adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson41-incorporated-adverb-source", andrewsSection: "41.2.1", category: "incorporated-adverb-source", directiveEs: "Los compuestos con adverbio incorporado son la fuente mas frecuente y tienen dos construcciones.", engineSurface: "partial compound-source adjectival route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson41-incorporated-adverb-30-7-12", andrewsSection: "41.2.1.a", category: "lesson30-7-12-adverb-source", directiveEs: "El adverbio incorporado puede expresar medio, instrumento, lugar, tiempo, duracion, causa, proposito, modo o modo comparado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson41-incorporated-adverb-30-14", andrewsSection: "41.2.1.b", category: "lesson30-14-supplementation-source", directiveEs: "La fuente tambien puede venir de suplementacion con sujeto suplementario en CNN posesiva.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-different-entity-subtype", andrewsSection: "41.2.1.b.i", category: "different-entity-subtype", directiveEs: "Un subtipo tiene incrustado de entidad distinta; el sujeto puede ser animado o no animado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson41-same-entity-subtype", andrewsSection: "41.2.1.b.ii", category: "same-entity-subtype", directiveEs: "Otro subtipo tiene incrustado de la misma entidad; el sujeto es no animado y el ingles invierte gobernador y gobernado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson41-incorporated-complement-source", andrewsSection: "41.2.2", category: "incorporated-complement-source", directiveEs: "Solo pocas CNN muestran la fuente de compuesto con complemento incorporado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson41-incorporated-object-source", andrewsSection: "41.2.3", category: "incorporated-object-source", directiveEs: "La fuente de objeto incorporado exige conocer el compuesto subyacente; la morfologia sola no distingue patientivo impersonal y pasivo.", engineSurface: "partial compound-source/patientive metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson41-denominal-compound-nounstem", andrewsSection: "41.3", category: "denominal-compound-nounstem", directiveEs: "Un nounstem compuesto puede formar un verbstem con ti y luego un agentivo preterito adjetival.", engineSurface: "partial denominal-compound adjectival route", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson41-incorporated-complement-source", andrewsSection: "41.2.2", category: "incorporated-complement-source", directiveEs: "Solo pocas CNN muestran la fuente de compuesto con complemento incorporado.", engineSurface: "diagnostic source frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson41-incorporated-object-source", andrewsSection: "41.2.3", category: "incorporated-object-source", directiveEs: "La fuente de objeto incorporado exige conocer el compuesto subyacente; la morfologia sola no distingue patientivo impersonal y pasivo.", engineSurface: "partial compound-source/patientive metadata", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson41-denominal-compound-nounstem", andrewsSection: "41.3", category: "denominal-compound-nounstem", directiveEs: "Un nounstem compuesto puede formar un verbstem con ti y luego un agentivo preterito adjetival.", engineSurface: "partial denominal-compound adjectival route", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson41-adjectival-embed-compound-nnc", andrewsSection: "41.4", category: "adjectival-embed-compound-nnc", directiveEs: "Un nounstem adjetival puede incrustarse como modificador de la matriz; los agentivos preteritos usan forma general y los numerales tambien pueden incrustarse.", engineSurface: "diagnostic compound NNC embed frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
 ]);
 
@@ -899,7 +899,7 @@ function getLesson41AdjectivalNncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON41_ADJECTIVAL_NNC_VALIDATION_REFS),
     }));
 }
@@ -963,7 +963,7 @@ function buildLesson41AdjectivalNncPursuitFrame() {
     const remainingGaps = [
         "Current Lesson 41 adjectival NNC support is partial and does not exhaust intensified-stem families, pah/cal/tzon/affective matrix intensification, metaphor or simile intensification, all compound-verbstem source subtypes, or adjectival nounstems embedded in compound-stemmed NNCs.",
         "The current intensified route only works from generated formula slots and does not implement every Andrews matrix, internal expansion, sound-symbolic, affective, metaphorical, or syntactic-intensifier path.",
-        "Compound-source and denominal-compound routes preserve generated Nawat surfaces only when source frames are present; full source disambiguation and Nawat/Pipil examples remain evidence-needed.",
+        "Compound-source and denominal-compound routes preserve generated Nawat surfaces only when source frames are present; full source disambiguation and orthography-bridge examples remain evidence-needed.",
         "Adjectival embeds in compound-stemmed NNCs and Lessons 42-43 modifier/head syntax remain outside current word generation.",
     ];
     const frame = {
@@ -1007,7 +1007,7 @@ function buildLesson41AdjectivalNncPursuitFrame() {
             syntacticIntensifierGenerationImplemented: false,
             fullLesson41GenerationImplemented: false,
             modifierHeadAstDeferredToLessons42_43: true,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -1025,10 +1025,10 @@ function buildLesson41AdjectivalNncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 41.1-41.4",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
-            matrixSpellingsNeedNawatEvidence: Object.freeze(["pah", "cal", "tzon", "pol", "pil", "ton", "tzin"]),
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
+            matrixSpellingsNeedOrthographyBridge: Object.freeze(["pah", "cal", "tzon", "pol", "pil", "ton", "tzin"]),
         },
         morphBoundaryFrame: {
             intensifiedAdjectivalNncFrame,
@@ -1063,7 +1063,7 @@ function buildLesson41AdjectivalNncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["adjectival-nnc-lesson-41-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+        diagnostics: ["adjectival-nnc-lesson-41-diagnostic-partial", "adjectival-nnc-source-gated"],
     });
 }
 
@@ -1086,6 +1086,176 @@ function normalizeAdjectivalNncFalsePositiveSource(value = "") {
         Object.values(ADJECTIVAL_NNC_FALSE_POSITIVE_SOURCE),
         ADJECTIVAL_NNC_FALSE_POSITIVE_SOURCE.unknown
     );
+}
+
+function normalizeAdjectivalNncCandidateSurface(value = "") {
+    const raw = String(value || "").trim();
+    if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+    }
+    const source = raw
+        .replace(/\[[^\]]+\]/g, "")
+        .replace(/[Øø]/g, "")
+        .replace(/\b0\b/g, "")
+        .replace(/[#+(){}\s.-]/g, "")
+        .trim();
+    if (!source || /[A-Z_]/.test(source)) {
+        return "";
+    }
+    const conversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(source, {
+            source: "Andrews adjectival NNC candidate formula",
+            slot: "adjectival-nnc-stem",
+        })
+        : { output: source, diagnostics: [] };
+    return String(conversion?.output || source || "").trim();
+}
+
+function hasAdjectivalNncAndrewsSourceGate({
+    sourceGate = "",
+    structuredSource = false,
+} = {}) {
+    return structuredSource === true || Boolean(String(sourceGate || "").trim());
+}
+
+function buildAdjectivalNncFunctionCandidateSourceFrame({
+    candidate = "",
+    functionKind = "",
+    sourceCategory = "",
+    adjectivalRole = "",
+    evidenceSource = "",
+    sourceGate = "",
+    targetFormulaSlots = null,
+    targetSegmentFrames = [],
+} = {}) {
+    const normalizedFunction = normalizeAdjectivalNncFunction(functionKind);
+    if (normalizedFunction === ADJECTIVAL_NNC_FUNCTION.unknown) {
+        return null;
+    }
+    const segments = Array.isArray(targetSegmentFrames)
+        ? targetSegmentFrames
+            .map((segment) => {
+                const surface = String(segment?.surface || "").trim();
+                if (!surface || /[A-Z_]/.test(surface)) {
+                    return null;
+                }
+                return Object.freeze({
+                    slot: String(segment?.slot || ""),
+                    role: String(segment?.role || ""),
+                    formulaValue: String(segment?.formulaValue || ""),
+                    sourceStem: String(segment?.sourceStem || ""),
+                    surface,
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                });
+            })
+            .filter(Boolean)
+        : [];
+    if (!segments.length) {
+        return null;
+    }
+    const targetSurface = segments.map((segment) => segment.surface).join("");
+    if (!targetSurface) {
+        return null;
+    }
+    return Object.freeze({
+        kind: "adjectival-nnc-function-candidate-source-frame",
+        version: ADJECTIVAL_NNC_BOUNDARY_VERSION,
+        routeFamily: "adjectival-nnc-function-candidate",
+        functionKind: normalizedFunction,
+        sourceCategory: String(sourceCategory || ""),
+        adjectivalRole: String(adjectivalRole || ""),
+        candidate: String(candidate || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        targetFormulaSlots,
+        targetSegmentFrames: Object.freeze(segments),
+        targetSurface,
+        authority: "Andrews Lessons 40-41 adjectival NNC function route",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildAdjectivalNncFunctionCandidateOperationFrame(sourceFrame = null) {
+    if (!sourceFrame || sourceFrame.kind !== "adjectival-nnc-function-candidate-source-frame") {
+        return null;
+    }
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-41-adjectival-function-candidate-realization",
+        routeFamily: "adjectival-nnc-function-candidate",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-adjectival-function-candidate-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceFunctionKind: sourceFrame.functionKind,
+        sourceCategory: sourceFrame.sourceCategory,
+        sourceAdjectivalRole: sourceFrame.adjectivalRole,
+        targetFormulaSlots: sourceFrame.targetFormulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function getAdjectivalNncFunctionCandidateOperationFrameMismatch({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    if (!sourceFrame || sourceFrame.kind !== "adjectival-nnc-function-candidate-source-frame") {
+        return "source-frame-required";
+    }
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-40-41-adjectival-function-candidate-realization"
+        || operationFrame.routeFamily !== "adjectival-nnc-function-candidate"
+        || operationFrame.consumesRenderedInput !== false
+        || operationFrame.displayStringsAuthorizeGrammar !== false
+    ) {
+        return "operation-frame-required";
+    }
+    if (
+        String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind
+        || String(operationFrame.sourceFunctionKind || "") !== String(sourceFrame.functionKind || "")
+        || String(operationFrame.sourceCategory || "") !== String(sourceFrame.sourceCategory || "")
+        || String(operationFrame.sourceAdjectivalRole || "") !== String(sourceFrame.adjectivalRole || "")
+    ) {
+        return "contradictory-source-frame";
+    }
+    const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
+    if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+    }
+    const targetSurface = targetSegmentFrames
+        .map((segment) => String(segment?.surface || ""))
+        .join("");
+    if (
+        targetSurface !== String(sourceFrame.targetSurface || "")
+        || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "")
+    ) {
+        return "contradictory-target-frame";
+    }
+    if (
+        sourceFrame.targetFormulaSlots
+        && operationFrame.targetFormulaSlots !== sourceFrame.targetFormulaSlots
+    ) {
+        return "contradictory-target-frame";
+    }
+    return "";
+}
+
+function getAdjectivalNncFunctionCandidateBlockedDiagnostic({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    const mismatch = getAdjectivalNncFunctionCandidateOperationFrameMismatch({
+        sourceFrame,
+        operationFrame,
+    });
+    return mismatch ? `adjectival-nnc-function-${mismatch}` : "";
 }
 
 function getAdjectivalNncAntiConflationRules() {
@@ -1134,12 +1304,38 @@ function classifyAdjectivalNncFunctionCandidate({
     predicateSurface = "",
     adjectivalRole = "",
     evidenceSource = "",
+    sourceGate = "",
+    structuredSource = false,
     falsePositiveSource = "",
     hasNominalizationProfile = false,
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
     const normalizedFunction = normalizeAdjectivalNncFunction(functionKind);
     const normalizedFalsePositive = normalizeAdjectivalNncFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
+    const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+    const requiresTypedOperation = (
+        normalizedFunction !== ADJECTIVAL_NNC_FUNCTION.unknown
+        && normalizedFalsePositive === ADJECTIVAL_NNC_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const blockedDiagnostic = requiresTypedOperation
+        ? getAdjectivalNncFunctionCandidateBlockedDiagnostic({
+            sourceFrame: resolvedSourceFrame,
+            operationFrame,
+        })
+        : "";
+    const sourceSurface = blockedDiagnostic ? "" : String(operationFrame?.targetSurface || "");
+    const canGenerate = Boolean(
+        sourceSurface
+        && !blockedDiagnostic
+        && normalizedFunction !== ADJECTIVAL_NNC_FUNCTION.unknown
+        && normalizedFalsePositive === ADJECTIVAL_NNC_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const targetFormulaSlots = canGenerate ? operationFrame.targetFormulaSlots : null;
+    const targetSegmentFrames = canGenerate && Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
     return {
         kind: "adjectival-nnc-function-candidate-classification",
         version: ADJECTIVAL_NNC_BOUNDARY_VERSION,
@@ -1149,19 +1345,32 @@ function classifyAdjectivalNncFunctionCandidate({
         predicateSurface: String(predicateSurface || ""),
         adjectivalRole: String(adjectivalRole || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
         hasNominalizationProfile: hasNominalizationProfile === true,
-        confirmed: false,
-        generationAllowed: false,
+        ...(resolvedSourceFrame ? { sourceFrame: resolvedSourceFrame } : {}),
+        ...(operationFrame ? { operationFrame } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(canGenerate ? {
+            formulaSlots: targetFormulaSlots,
+            targetSegmentFrames,
+        } : {}),
         diagnostics: [
-            hasEvidence ? "adjectival-nnc-needs-validation" : "adjectival-nnc-needs-nawat-evidence",
+            canGenerate ? "adjectival-nnc-andrews-source-generated" : (
+                blockedDiagnostic || (hasEvidence ? "adjectival-nnc-needs-validation" : "adjectival-nnc-source-gate-required")
+            ),
             normalizedFunction !== ADJECTIVAL_NNC_FUNCTION.unknown
                 ? "adjectival-nnc-function-recognized"
                 : "adjectival-nnc-function-unconfirmed",
             hasNominalizationProfile ? "nominalization-profile-adjectival-function-is-metadata" : "nominalization-profile-absent",
             normalizedFalsePositive !== ADJECTIVAL_NNC_FALSE_POSITIVE_SOURCE.unknown
                 ? "adjectival-nnc-false-positive-source"
-                : "adjectival-nnc-unconfirmed",
+                : (canGenerate ? "adjectival-nnc-structured-source" : "adjectival-nnc-unconfirmed"),
         ],
         boundary: buildAdjectivalNncFunctionBoundaryMetadata(),
     };
@@ -1407,6 +1616,14 @@ function buildAdjectivalNncGrammarFrame(result = null) {
             blockingDiagnostics: ok ? [] : diagnostics,
         })
         : null;
+    const canonicalFormulaBundle = buildAdjectivalNncCanonicalFormulaRecordBundle({
+        output,
+        functionFrame,
+        routeContract,
+        formulaSlots: sourceFormulaSlots,
+        sourceFormulaEcho,
+        surfaceForms,
+    });
     const resultFrame = typeof buildGrammarResultFrame === "function"
         ? buildGrammarResultFrame({
             ok,
@@ -1415,6 +1632,10 @@ function buildAdjectivalNncGrammarFrame(result = null) {
             outputKind: output.outputKind || "",
             generationRoute: output.generationRoute || "adjectival-nnc",
             sourceInput,
+            formulaRecord: canonicalFormulaBundle.formulaRecord,
+            formulaRecords: canonicalFormulaBundle.formulaRecords,
+            formulaRealizationRecord: canonicalFormulaBundle.formulaRealizationRecord,
+            formulaRealizationRecords: canonicalFormulaBundle.formulaRealizationRecords,
         })
         : null;
     const diagnosticFrame = typeof buildGrammarDiagnosticFrame === "function"
@@ -1443,7 +1664,7 @@ function buildAdjectivalNncGrammarFrame(result = null) {
         orthographyFrame: {
             surface,
             surfaceForms,
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
         },
         morphBoundaryFrame: {
@@ -1498,10 +1719,89 @@ function attachAdjectivalNncGrammarContract(result = null) {
             frames: grammarFrame,
             diagnostics: Array.isArray(output.diagnostics) ? output.diagnostics : [],
         };
+    const formulaSurfaceFields = buildAdjectivalNncFormulaSurfacePairFields({
+        output,
+        resultContract,
+    });
     return {
         ...output,
+        ...formulaSurfaceFields,
         grammarFrame,
         ...resultContract,
+    };
+}
+
+function buildAdjectivalNncFormulaSurfacePairs({
+    output = null,
+    resultContract = null,
+} = {}) {
+    const source = output && typeof output === "object" ? output : {};
+    if (Array.isArray(source.formulaSurfacePairs) && source.formulaSurfacePairs.length) {
+        return Object.freeze(source.formulaSurfacePairs
+            .map((entry) => (entry && typeof entry === "object" ? {
+                surface: String(entry.surface || "").trim(),
+                targetFormulaEcho: String(entry.targetFormulaEcho || "").trim(),
+                sourceToTargetFormulaEcho: String(entry.sourceToTargetFormulaEcho || "").trim(),
+            } : null))
+            .filter((entry) => entry && entry.surface && entry.targetFormulaEcho)
+            .map((entry) => Object.freeze(entry)));
+    }
+    const frame = source.adjectivalNncFunctionFrame && typeof source.adjectivalNncFunctionFrame === "object"
+        ? source.adjectivalNncFunctionFrame
+        : {};
+    const targetFormulaEcho = String(
+        source.formulaEcho
+        || frame.sourceFormulaEcho
+        || source.clauseFrame?.fullFormulaEcho
+        || source.clauseFrame?.formulaEcho
+        || source.nncBasic?.formulaEcho
+        || ""
+    ).trim();
+    if (!targetFormulaEcho) {
+        return Object.freeze([]);
+    }
+    const surfaces = (Array.isArray(resultContract?.surfaceForms) && resultContract.surfaceForms.length
+        ? resultContract.surfaceForms
+        : getAdjectivalNncSurfaceForms(source))
+        .flatMap((entry) => splitAdjectivalNncSurfaceText(entry))
+        .map((entry) => String(entry || "").trim())
+        .filter(Boolean);
+    const sourceStem = String(
+        frame.sourcePredicateStem
+        || source.sourceStem
+        || source.stem
+        || "STEM"
+    ).trim() || "STEM";
+    const seen = new Set();
+    return Object.freeze(surfaces
+        .filter((surface) => {
+            if (seen.has(surface)) {
+                return false;
+            }
+            seen.add(surface);
+            return true;
+        })
+        .map((surface) => Object.freeze({
+            surface,
+            targetFormulaEcho,
+            sourceToTargetFormulaEcho: `ADJ(${sourceStem}) -> ${targetFormulaEcho}`,
+        })));
+}
+
+function buildAdjectivalNncFormulaSurfacePairFields({
+    output = null,
+    resultContract = null,
+} = {}) {
+    const formulaSurfacePairs = buildAdjectivalNncFormulaSurfacePairs({
+        output,
+        resultContract,
+    });
+    return {
+        formulaSurfacePairs,
+        targetFormulaEchoes: formulaSurfacePairs.map((entry) => entry.targetFormulaEcho),
+        sourceToTargetFormulaEcho: formulaSurfacePairs
+            .map((entry) => entry.sourceToTargetFormulaEcho)
+            .join(" | "),
     };
 }
 
@@ -1641,6 +1941,144 @@ function buildAdjectivalNncFormulaEchoFromSlots(formulaSlots = null) {
     return `#${prefix}-${suffix}(${stem})${connectorSurface}#`;
 }
 
+function buildAdjectivalNncFormulaRealizationSegmentFrames(formulaSlots = null) {
+    if (!formulaSlots || typeof formulaSlots !== "object") {
+        return [];
+    }
+    const subject = formulaSlots.pers1Pers2 || {};
+    const predicate = formulaSlots.predicateStem || {};
+    const connector = formulaSlots.num1Num2 || {};
+    return [
+        {
+            slot: "pers1-pers2",
+            role: "subject-person",
+            formulaValue: subject.displayPrefix || subject.displayDyad || subject.prefix || "",
+            surface: subject.prefix || subject.surface || "",
+            orthographyBridge: "Nawat/Pipil orthography bridge",
+        },
+        {
+            slot: "STEM",
+            role: "predicate",
+            formulaValue: predicate.stem || predicate.formulaValue || predicate.structural || "",
+            surface: predicate.surface || predicate.stem || "",
+            orthographyBridge: "Nawat/Pipil orthography bridge",
+        },
+        {
+            slot: "num1-num2",
+            role: "subject-number-connector",
+            formulaValue: connector.displayDyad || connector.connector || connector.structural || "",
+            surface: connector.surface || connector.compactSurface || connector.connector || "",
+            orthographyBridge: "Nawat/Pipil orthography bridge",
+        },
+    ];
+}
+
+function buildAdjectivalNncCanonicalFormulaRecordBundle({
+    output = null,
+    functionFrame = null,
+    routeContract = null,
+    formulaSlots = null,
+    sourceFormulaEcho = "",
+    surfaceForms = [],
+} = {}) {
+    const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+    const formulaText = buildAdjectivalNncFormulaEchoFromSlots(slots);
+    if (!slots || !formulaText || typeof buildGrammarFormulaRecord !== "function") {
+        return {
+            formulaRecord: null,
+            formulaRecords: [],
+            formulaRealizationRecord: null,
+            formulaRealizationRecords: [],
+        };
+    }
+    const source = output && typeof output === "object" ? output : {};
+    const frame = functionFrame && typeof functionFrame === "object" ? functionFrame : {};
+    const sourceFrameId = [
+        "adjectival-nnc-source",
+        frame.sourceClauseKind || source.clauseKind || "nnc",
+        slots.predicateStem?.stem || source.stem || "stem",
+    ].map((entry) => String(entry || "").trim()).filter(Boolean).join(":");
+    const defaultOperationFrame = {
+        operationId: "andrews-40-adjectival-nnc-function",
+        family: "adjectival-nnc",
+        andrewsSection: frame.lessonRef || "Andrews 40.1",
+        sourceFrameId,
+        routeFamily: "adjectival-nnc",
+        operationApplied: "use-licensed-nnc-as-adjectival-function",
+        requestedPredicateState: frame.requestedPredicateState || source.state || "",
+        requiredPredicateState: frame.requiredPredicateState || "absolutive",
+        sourceClauseKind: frame.sourceClauseKind || source.clauseKind || "",
+        targetOutputKind: source.outputKind || "adjectival-nnc-function",
+    };
+    const operationFrame = Object.freeze(
+        (source.operationFrame && typeof source.operationFrame === "object")
+            ? source.operationFrame
+            : (
+                frame.operationFrame && typeof frame.operationFrame === "object"
+                    ? frame.operationFrame
+                    : defaultOperationFrame
+            )
+    );
+    const formulaRecord = buildGrammarFormulaRecord({
+        id: [
+            "adjectival-nnc",
+            source.outputKind || "function",
+            formulaText,
+        ].map((entry) => String(entry || "").trim()).filter(Boolean).join(":"),
+        unit: "NNC",
+        formula: formulaText,
+        formulaSlots: slots,
+        routeContract,
+        sourceFrame: {
+            id: sourceFrameId,
+            label: String(sourceFormulaEcho || formulaText || "").trim(),
+            formula: formulaText,
+            formulaSlots: slots,
+            sourceClauseKind: frame.sourceClauseKind || source.clauseKind || "",
+            sourceCategory: frame.sourceCategory || "",
+        },
+        operationFrames: [operationFrame],
+        source: "adjectival-nnc-structured-formula-slots",
+    });
+    const segmentFrames = buildAdjectivalNncFormulaRealizationSegmentFrames(slots)
+        .map((segment) => ({
+            ...segment,
+            operationId: operationFrame.operationId,
+            sourceFrameId,
+        }));
+    const segmentSurface = segmentFrames.map((segment) => String(segment?.surface || "").trim()).join("");
+    const seen = new Set();
+    const formulaRealizationRecords = (Array.isArray(surfaceForms) ? surfaceForms : [])
+        .map((surface) => normalizeAdjectivalNncSurfaceValue(surface))
+        .filter((surface) => {
+            if (!surface || seen.has(surface)) {
+                return false;
+            }
+            seen.add(surface);
+            return true;
+        })
+        .map((surface, index) => (
+            typeof buildGrammarFormulaRealizationRecord === "function"
+                ? buildGrammarFormulaRealizationRecord({
+                    id: `${formulaRecord.id}:realization-${index}`,
+                    formulaRecord,
+                    unit: "NNC",
+                    segmentFrames,
+                    surfaceForms: [surface],
+                    deriveSurfaceFromSegments: segmentSurface === surface,
+                    source: "adjectival-nnc-structured-segment-frames",
+                })
+                : null
+        ))
+        .filter(Boolean);
+    return {
+        formulaRecord,
+        formulaRecords: formulaRecord ? [formulaRecord] : [],
+        formulaRealizationRecord: formulaRealizationRecords[0] || null,
+        formulaRealizationRecords,
+    };
+}
+
 function buildRootPlusYaAdjectivalNncFormulaSlots({
     rootPlusYaBase = "",
     subject = null,
@@ -1681,6 +2119,178 @@ function buildRootPlusYaAdjectivalNncFormulaSlots({
     };
 }
 
+function buildRootPlusYaAdjectivalNncSubjectFrame(subject = null) {
+    const slot = subject && typeof subject === "object" ? subject : {};
+    return Object.freeze({
+        kind: "root-plus-ya-adjectival-nnc-subject-frame",
+        subjectPrefix: String(slot.subjectPrefix || ""),
+        subjectSuffix: String(slot.subjectSuffix || ""),
+        personSubKey: String(slot.personSubKey || slot.subjectKey || "3sg"),
+    });
+}
+
+function buildRootPlusYaAdjectivalNncSourceFrame({
+    parsedVerb = null,
+    subject = null,
+    state = "absolutive",
+    role = "predicate-surface",
+} = {}) {
+    if (!parsedVerb || typeof parsedVerb !== "object") {
+        return null;
+    }
+    const requestedState = normalizeAdjectivalNncState(state);
+    const source = resolveRootPlusYaAdjectivalNncSource(parsedVerb);
+    const subjectFrame = buildRootPlusYaAdjectivalNncSubjectFrame(subject);
+    const sourceRawStem = String(parsedVerb.sourceRawVerb || parsedVerb.displayVerb || parsedVerb.verb || "").trim();
+    const rootPlusYaBase = String(source.rootPlusYaBase || "").trim();
+    return Object.freeze({
+        kind: "root-plus-ya-adjectival-nnc-source-frame",
+        version: 1,
+        routeFamily: "adjectival-nnc",
+        routeSubtype: "root-plus-ya-obsolete-preterit",
+        andrewsSection: "Andrews 40.9",
+        sourceRawStem,
+        sourceVerb: String(parsedVerb.verb || ""),
+        analysisVerb: String(parsedVerb.analysisVerb || ""),
+        displayVerb: String(parsedVerb.displayVerb || ""),
+        rootPlusYaBase,
+        sourceFormationSubtype: source.sourceFormationSubtype || "",
+        sourceSupported: source.supported === true,
+        diagnosticId: source.diagnosticId || "",
+        requestedState,
+        role,
+        subjectFrame,
+        sourceFormationFrame: resolveAdjectivalNncSourceFormationFrame({
+            parsedVerb,
+            rootPlusYaBase,
+            sourceFormationSubtype: source.sourceFormationSubtype,
+        }),
+        denominalCompoundSourceFrame: resolveDenominalCompoundAdjectivalNncSourceFrame({
+            parsedVerb,
+            rootPlusYaBase,
+            sourceFormationSubtype: source.sourceFormationSubtype,
+        }),
+        parsedVerbSnapshot: Object.freeze({
+            sourceRawVerb: String(parsedVerb.sourceRawVerb || ""),
+            displayVerb: String(parsedVerb.displayVerb || ""),
+            displayCore: String(parsedVerb.displayCore || ""),
+            verb: String(parsedVerb.verb || ""),
+            analysisVerb: String(parsedVerb.analysisVerb || ""),
+        }),
+        sourceSignature: [
+            sourceRawStem,
+            rootPlusYaBase,
+            source.sourceFormationSubtype || "",
+            requestedState,
+            subjectFrame.subjectPrefix,
+            subjectFrame.subjectSuffix,
+            subjectFrame.personSubKey,
+        ].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildRootPlusYaAdjectivalNncOperationFrame(sourceFrame = null) {
+    if (
+        !sourceFrame
+        || sourceFrame.kind !== "root-plus-ya-adjectival-nnc-source-frame"
+        || sourceFrame.sourceSupported !== true
+        || !sourceFrame.rootPlusYaBase
+    ) {
+        return null;
+    }
+    const subject = sourceFrame.subjectFrame || {};
+    const formulaSlots = buildRootPlusYaAdjectivalNncFormulaSlots({
+        rootPlusYaBase: sourceFrame.rootPlusYaBase,
+        subject: {
+            subjectPrefix: subject.subjectPrefix || "",
+            subjectSuffix: subject.subjectSuffix || "",
+            personSubKey: subject.personSubKey || "3sg",
+        },
+        sourceFormationSubtype: sourceFrame.sourceFormationSubtype,
+    });
+    const connector = resolveAdjectivalNncFormulaSlotText(formulaSlots.num1Num2, ["connector", "surface"]) || "k";
+    const targetSegmentFrames = Object.freeze([
+        Object.freeze({
+            slot: "pers1-pers2",
+            role: "subject-person",
+            surface: subject.subjectPrefix || "",
+        }),
+        Object.freeze({
+            slot: "STEM",
+            role: "predicate",
+            surface: sourceFrame.rootPlusYaBase,
+        }),
+        Object.freeze({
+            slot: "num1-num2",
+            role: "subject-number-connector",
+            surface: connector === "Ø" ? "" : connector,
+        }),
+    ]);
+    const targetSurface = targetSegmentFrames.map((segment) => segment.surface).join("");
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-9-root-plus-ya-adjectival-nnc-realization",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeSubtype: "root-plus-ya-obsolete-preterit",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 40.9",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        sourceRawStem: sourceFrame.sourceRawStem,
+        sourceVerb: sourceFrame.sourceVerb,
+        rootPlusYaBase: sourceFrame.rootPlusYaBase,
+        sourceFormationSubtype: sourceFrame.sourceFormationSubtype,
+        operationApplied: "derive-obsolete-preterit-root-plus-ya-adjectival-nnc-from-source-frame",
+        targetFormulaSlots: formulaSlots,
+        targetSegmentFrames,
+        targetSurface,
+        targetSignature: [
+            sourceFrame.sourceSignature,
+            targetSurface,
+        ].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function isRootPlusYaAdjectivalNncOperationFrame(operationFrame = null, sourceFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    if (
+        !sourceFrame
+        || sourceFrame.kind !== "root-plus-ya-adjectival-nnc-source-frame"
+        || sourceFrame.sourceSupported !== true
+    ) {
+        return false;
+    }
+    const segmentSurface = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames.map((segment) => String(segment?.surface || "")).join("")
+        : "";
+    const targetSlots = operationFrame.targetFormulaSlots && typeof operationFrame.targetFormulaSlots === "object"
+        ? operationFrame.targetFormulaSlots
+        : null;
+    const targetStem = resolveAdjectivalNncFormulaSlotText(targetSlots?.predicateStem, ["stem", "surface"]);
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-40-9-root-plus-ya-adjectival-nnc-realization"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.routeSubtype === "root-plus-ya-obsolete-preterit"
+        && operationFrame.operationApplied === "derive-obsolete-preterit-root-plus-ya-adjectival-nnc-from-source-frame"
+        && operationFrame.sourceFrameKind === sourceFrame.kind
+        && operationFrame.sourceSignature === sourceFrame.sourceSignature
+        && operationFrame.rootPlusYaBase === sourceFrame.rootPlusYaBase
+        && operationFrame.sourceFormationSubtype === sourceFrame.sourceFormationSubtype
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && targetSlots
+        && targetStem === sourceFrame.rootPlusYaBase
+        && segmentSurface
+        && segmentSurface === String(operationFrame.targetSurface || "");
+}
+
 function buildIntensifiedAdjectivalNncFormulaSlots({
     sourceFormulaSlots = null,
     intensifiedStem = "",
@@ -1710,6 +2320,135 @@ function buildIntensifiedAdjectivalNncFormulaSlots({
             ...(sourceSlots.num1Num2 || {}),
         },
     };
+}
+
+function buildIntensifiedAdjectivalStemFromFormulaSlot(predicateSlot = null) {
+    const sourceStem = resolveAdjectivalNncFormulaSlotText(predicateSlot, ["stem", "surface"]);
+    if (!sourceStem) {
+        return "";
+    }
+    const syllables = typeof splitVerbSyllables === "function"
+        ? splitVerbSyllables(sourceStem)
+        : [];
+    const first = syllables?.[0] || null;
+    if (!first || !first.nucleus) {
+        return sourceStem;
+    }
+    return `${first.onset || ""}${first.nucleus || ""}j${sourceStem}`;
+}
+
+function buildIntensifiedAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    sourceFormulaSlots = null,
+    role = "predicate-surface",
+} = {}) {
+    const resolvedSourceFormulaSlots = sourceContinuationFrame?.formulaRecord?.formulaSlots
+        || sourceContinuationFrame?.formulaSlots
+        || sourceFormulaSlots
+        || null;
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const sourcePredicateStem = resolveAdjectivalNncFormulaSlotText(
+        resolvedSourceFormulaSlots?.predicateStem,
+        ["stem", "surface"]
+    );
+    const intensifiedStem = buildIntensifiedAdjectivalStemFromFormulaSlot(resolvedSourceFormulaSlots?.predicateStem);
+    const targetFormulaSlots = intensifiedStem
+        ? buildIntensifiedAdjectivalNncFormulaSlots({
+            sourceFormulaSlots: resolvedSourceFormulaSlots,
+            intensifiedStem,
+        })
+        : null;
+    const targetConnector = resolveAdjectivalNncFormulaSlotText(
+        targetFormulaSlots?.num1Num2,
+        ["connector", "surface"]
+    );
+    const targetSubjectPrefix = String(
+        targetFormulaSlots?.pers1Pers2?.prefix
+        || targetFormulaSlots?.pers1Pers2?.subjectPrefix
+        || ""
+    );
+    const targetSegmentFrames = targetFormulaSlots
+        ? Object.freeze([
+            Object.freeze({
+                slot: "pers1-pers2",
+                role: "subject-person",
+                surface: targetSubjectPrefix,
+            }),
+            Object.freeze({
+                slot: "STEM",
+                role: "predicate",
+                surface: intensifiedStem,
+            }),
+            Object.freeze({
+                slot: "num1-num2",
+                role: "subject-number-connector",
+                surface: targetConnector === "Ø" ? "" : targetConnector,
+            }),
+        ])
+        : Object.freeze([]);
+    const targetSurface = targetSegmentFrames.map((segment) => String(segment?.surface || "")).join("");
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-41-1-intensified-adjectival-reduplication",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 41.1",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: "NNC",
+        operationApplied: "derive-intensified-adjectival-nnc-from-source-formula-frame",
+        reduplicationKind: "adjectival-intensification",
+        sourcePredicateStem,
+        targetPredicateStem: intensifiedStem,
+        sourceFormulaSlots: resolvedSourceFormulaSlots,
+        targetFormulaSlots,
+        targetSegmentFrames,
+        targetSurface,
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "source-formula-frame-plus-andrews-41-1-operation-authorizes-intensified-adjectival-function",
+    });
+}
+
+function isIntensifiedAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    const targetFormulaSlots = operationFrame.targetFormulaSlots && typeof operationFrame.targetFormulaSlots === "object"
+        ? operationFrame.targetFormulaSlots
+        : null;
+    const expectedSourceStem = resolveAdjectivalNncFormulaSlotText(
+        sourceContinuationFrame?.formulaRecord?.formulaSlots?.predicateStem || sourceContinuationFrame?.formulaSlots?.predicateStem,
+        ["stem", "surface"]
+    );
+    const expectedTargetStem = buildIntensifiedAdjectivalStemFromFormulaSlot(
+        sourceContinuationFrame?.formulaRecord?.formulaSlots?.predicateStem || sourceContinuationFrame?.formulaSlots?.predicateStem
+    );
+    const operationTargetStem = String(operationFrame.targetPredicateStem || "").trim();
+    const slotTargetStem = resolveAdjectivalNncFormulaSlotText(targetFormulaSlots?.predicateStem, ["stem", "surface"]);
+    const segmentSurface = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames.map((segment) => String(segment?.surface || "")).join("")
+        : "";
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-41-1-intensified-adjectival-reduplication"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "derive-intensified-adjectival-nnc-from-source-formula-frame"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && targetFormulaSlots
+        && expectedSourceStem
+        && expectedTargetStem
+        && String(operationFrame.sourcePredicateStem || "").trim() === expectedSourceStem
+        && operationTargetStem === expectedTargetStem
+        && slotTargetStem === expectedTargetStem
+        && segmentSurface
+        && segmentSurface === String(operationFrame.targetSurface || "")
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
 }
 
 function resolveAdjectivalNncParsedVerb(rawStem = "") {
@@ -2086,14 +2825,16 @@ function buildRootPlusYaAdjectivalNncFunctionFrame({
     requestedState = "absolutive",
     role = "predicate-surface",
     sourceFormationSubtype = ADJECTIVAL_NNC_SOURCE_FORMATION_SUBTYPE.rootPlusYa,
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
     const formulaEcho = buildAdjectivalNncFormulaEchoFromSlots(formulaSlots);
-    const sourceFormationFrame = resolveAdjectivalNncSourceFormationFrame({
+    const sourceFormationFrame = sourceFrame?.sourceFormationFrame || resolveAdjectivalNncSourceFormationFrame({
         parsedVerb,
         rootPlusYaBase,
         sourceFormationSubtype,
     });
-    const denominalCompoundSourceFrame = resolveDenominalCompoundAdjectivalNncSourceFrame({
+    const denominalCompoundSourceFrame = sourceFrame?.denominalCompoundSourceFrame || resolveDenominalCompoundAdjectivalNncSourceFrame({
         parsedVerb,
         rootPlusYaBase,
         sourceFormationSubtype,
@@ -2117,6 +2858,8 @@ function buildRootPlusYaAdjectivalNncFunctionFrame({
         denominalCompoundSourceFrame,
         sourceFormulaSlots: formulaSlots,
         sourceFormulaEcho: formulaEcho,
+        ...(sourceFrame && typeof sourceFrame === "object" ? { sourceFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         usesObsoletePreteritBase: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -2131,14 +2874,20 @@ function buildRootPlusYaAdjectivalNncUnsupportedOutput({
     parsedVerb = null,
     rootPlusYaBase = "",
     sourceFormationSubtype = "",
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
+    const framedParsedVerb = parsedVerb || sourceFrame?.parsedVerbSnapshot || null;
+    const framedRootPlusYaBase = rootPlusYaBase || sourceFrame?.rootPlusYaBase || framedParsedVerb?.rootPlusYaBasePronounceable || framedParsedVerb?.rootPlusYaBase || "";
     const frame = buildRootPlusYaAdjectivalNncFunctionFrame({
-        parsedVerb,
-        rootPlusYaBase: rootPlusYaBase || parsedVerb?.rootPlusYaBasePronounceable || parsedVerb?.rootPlusYaBase || "",
+        parsedVerb: framedParsedVerb,
+        rootPlusYaBase: framedRootPlusYaBase,
         formulaSlots: null,
         requestedState,
-        sourceFormationSubtype,
+        sourceFormationSubtype: sourceFormationSubtype || sourceFrame?.sourceFormationSubtype || "",
+        sourceFrame,
+        operationFrame,
     });
     return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-root-plus-ya",
@@ -2149,6 +2898,8 @@ function buildRootPlusYaAdjectivalNncUnsupportedOutput({
         stem: String(parsedVerb?.verb || stem || ""),
         state: requestedState,
         generationRoute: "adjectival-nnc",
+        sourceFrame,
+        operationFrame,
         adjectivalNncFunctionFrame: frame,
         rootPlusYaAdjectivalNncFrame: frame,
         denominalCompoundSourceFrame: frame.denominalCompoundSourceFrame || null,
@@ -2158,9 +2909,23 @@ function buildRootPlusYaAdjectivalNncUnsupportedOutput({
 
 function buildAdjectivalNncFunctionFrame({
     sourceNnc = null,
+    sourceFormulaSlots = null,
+    sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     requestedState = "absolutive",
     role = "modifier-candidate",
 } = {}) {
+    const resolvedSourceFormulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object"
+        ? sourceFormulaSlots
+        : (sourceNnc?.nncBasic?.formulaSlots || sourceNnc?.clauseFrame?.formulaSlots || null);
+    const resolvedSourceFormulaEcho = String(
+        sourceFormulaEcho
+        || sourceNnc?.nncBasic?.formulaEcho
+        || sourceNnc?.clauseFrame?.formulaEcho
+        || ""
+    );
     return {
         version: ADJECTIVAL_NNC_GENERATION_VERSION,
         outputKind: "adjectival-nnc-function",
@@ -2173,12 +2938,646 @@ function buildAdjectivalNncFunctionFrame({
         requestedPredicateState: requestedState,
         actualPredicateState: sourceNnc?.state || "",
         sourceClauseKind: sourceNnc?.clauseKind || "",
-        sourceFormulaSlots: sourceNnc?.nncBasic?.formulaSlots || sourceNnc?.clauseFrame?.formulaSlots || null,
-        sourceFormulaEcho: sourceNnc?.nncBasic?.formulaEcho || sourceNnc?.clauseFrame?.formulaEcho || "",
+        sourceFormulaSlots: resolvedSourceFormulaSlots,
+        sourceFormulaEcho: resolvedSourceFormulaEcho,
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
         grammarAuthority: "Andrews PDF",
     };
+}
+
+function isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "generated-output-typed-continuation-frame"
+        && frame.formulaRecord?.kind === "grammar-formula-record"
+        && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record"
+    );
+}
+
+function getStructuredOrdinaryAdjectivalNncSourceFormulaSlots({
+    sourceFormulaSlots = null,
+    sourceContinuationFrame = null,
+} = {}) {
+    if (sourceFormulaSlots && typeof sourceFormulaSlots === "object") {
+        return sourceFormulaSlots;
+    }
+    if (sourceContinuationFrame?.formulaSlots && typeof sourceContinuationFrame.formulaSlots === "object") {
+        return sourceContinuationFrame.formulaSlots;
+    }
+    if (sourceContinuationFrame?.formulaRecord?.formulaSlots && typeof sourceContinuationFrame.formulaRecord.formulaSlots === "object") {
+        return sourceContinuationFrame.formulaRecord.formulaSlots;
+    }
+    return null;
+}
+
+function buildStructuredOrdinaryAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    sourceFormulaSlots = null,
+    requestedState = "absolutive",
+    role = "modifier-candidate",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-ordinary-nnc-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 40.1",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: "NNC",
+        operationApplied: "use-ordinary-nnc-as-adjectival-function",
+        sourceFormulaSlots,
+        requestedPredicateState: requestedState,
+        requiredPredicateState: "absolutive",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "formula-slots-plus-source-frame-authorize-adjectival-function",
+    });
+}
+
+function realizeStructuredOrdinaryAdjectivalNncSurfaceFromSlots(formulaSlots = null) {
+    const segmentFrames = buildAdjectivalNncFormulaRealizationSegmentFrames(formulaSlots);
+    const surface = segmentFrames
+        .map((segment) => {
+            const explicitSurface = normalizeAdjectivalNncSurfaceValue(segment?.surface || "");
+            if (explicitSurface) {
+                return explicitSurface;
+            }
+            const formulaValue = normalizeAdjectivalNncSurfaceValue(segment?.formulaValue || "");
+            if (!formulaValue || formulaValue === "Ø" || formulaValue === "0") {
+                return "";
+            }
+            return typeof convertClassicalLettersToNawat === "function"
+                ? convertClassicalLettersToNawat(formulaValue, {
+                    sourceRole: "andrews-formula-slot-segment",
+                    targetRole: "nawat-pipil-realization-segment",
+                }).output
+                : formulaValue;
+        })
+        .join("");
+    return {
+        surface,
+        segmentFrames,
+    };
+}
+
+function getAdjectivalNncTypedFrameRealizationSurfaces(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return [];
+    }
+    const record = frame.formulaRealizationRecord || {};
+    return [
+        ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+        record.surface || "",
+    ].map((entry) => normalizeAdjectivalNncSurfaceValue(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function getStructuredOrdinaryAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-40-ordinary-nnc-adjectival-function")
+        || null;
+}
+
+function isStructuredOrdinaryAdjectivalNncTargetOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-40-ordinary-nnc-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-ordinary-nnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildVncAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    role = "predicate-surface",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const targetFormulaRecord = targetContinuationFrame?.formulaRecord || sourceFormulaRecord || null;
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-3-vnc-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 40.3",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        targetFrameKind: targetContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        targetFormulaRecordId: String(targetFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "VNC").trim(),
+        targetUnit: String(targetContinuationFrame?.unit || targetFormulaRecord?.unit || "VNC").trim(),
+        operationApplied: "use-vnc-as-adjectival-function",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "source-vnc-formula-realization-authorizes-adjectival-function",
+    });
+}
+
+function getVncAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    if (frame.operationFrame?.operationId === "andrews-40-3-vnc-adjectival-function") {
+        return frame.operationFrame;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-40-3-vnc-adjectival-function")
+        || null;
+}
+
+function isVncAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-40-3-vnc-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-vnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildPatientivoAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    patientivoSource = "",
+    role = "predicate-surface",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const targetFormulaRecord = targetContinuationFrame?.formulaRecord || sourceFormulaRecord || null;
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-4-patientive-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 40.4",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        targetFrameKind: targetContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        targetFormulaRecordId: String(targetFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: String(targetContinuationFrame?.unit || targetFormulaRecord?.unit || "NNC").trim(),
+        patientivoSource: String(patientivoSource || "").trim(),
+        operationApplied: "use-patientive-nnc-as-adjectival-function",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "source-patientive-formula-realization-authorizes-adjectival-function",
+    });
+}
+
+function getPatientivoAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    if (frame.operationFrame?.operationId === "andrews-40-4-patientive-adjectival-function") {
+        return frame.operationFrame;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-40-4-patientive-adjectival-function")
+        || null;
+}
+
+function isPatientivoAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-40-4-patientive-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-patientive-nnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildCompoundSourceAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    sourceCompoundFrame = null,
+    nominalizationKind = "",
+    role = "predicate-surface",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const targetFormulaRecord = targetContinuationFrame?.formulaRecord || sourceFormulaRecord || null;
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-41-2-compound-source-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 41.2",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        targetFrameKind: targetContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        targetFormulaRecordId: String(targetFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: String(targetContinuationFrame?.unit || targetFormulaRecord?.unit || "NNC").trim(),
+        sourceCompoundFrameKind: String(sourceCompoundFrame?.kind || "").trim(),
+        nominalizationKind: normalizeAdjectivalNncText(nominalizationKind) || "adjectival-surface",
+        operationApplied: "use-compound-source-nnc-as-adjectival-function",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "compound-source-formula-realization-authorizes-adjectival-function",
+    });
+}
+
+function getCompoundSourceAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    if (frame.operationFrame?.operationId === "andrews-41-2-compound-source-adjectival-function") {
+        return frame.operationFrame;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-41-2-compound-source-adjectival-function")
+        || null;
+}
+
+function isCompoundSourceAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-41-2-compound-source-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-compound-source-nnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildDenominalCompoundAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    sourceDenominalCompoundFrame = null,
+    role = "predicate-surface",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const targetFormulaRecord = targetContinuationFrame?.formulaRecord || sourceFormulaRecord || null;
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-41-3-denominal-compound-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: "Andrews 41.3",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        targetFrameKind: targetContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        targetFormulaRecordId: String(targetFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: String(targetContinuationFrame?.unit || targetFormulaRecord?.unit || "NNC").trim(),
+        sourceDenominalCompoundFrameKind: String(sourceDenominalCompoundFrame?.kind || "").trim(),
+        nominalizationKind: "preterit-agentive",
+        operationApplied: "use-denominal-compound-nnc-as-adjectival-function",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "denominal-compound-formula-realization-authorizes-adjectival-function",
+    });
+}
+
+function getDenominalCompoundAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    if (frame.operationFrame?.operationId === "andrews-41-3-denominal-compound-adjectival-function") {
+        return frame.operationFrame;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-41-3-denominal-compound-adjectival-function")
+        || null;
+}
+
+function isDenominalCompoundAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-41-3-denominal-compound-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-denominal-compound-nnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildNominalizedVncAdjectivalNncOperationFrame({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    nominalizationKind = "",
+    nominalizationProfile = null,
+    role = "predicate-surface",
+} = {}) {
+    const sourceFormulaRecord = sourceContinuationFrame?.formulaRecord || null;
+    const targetFormulaRecord = targetContinuationFrame?.formulaRecord || sourceFormulaRecord || null;
+    const resolvedNominalizationKind = normalizeAdjectivalNncText(
+        nominalizationKind || nominalizationProfile?.role?.nominalizationKind || ""
+    );
+    const lessonSpec = resolveNominalizedVncAdjectivalLessonSpec(resolvedNominalizationKind) || {};
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-40-5-40-8-nominalized-vnc-adjectival-function",
+        family: "adjectival-nnc",
+        routeFamily: "adjectival-nnc",
+        routeStage: "execute-typed-operation-frame",
+        andrewsSection: lessonSpec.lessonRef || "Andrews 40.5-40.8",
+        sourceFrameKind: sourceContinuationFrame?.kind || "",
+        targetFrameKind: targetContinuationFrame?.kind || "",
+        sourceFormulaRecordId: String(sourceFormulaRecord?.id || "").trim(),
+        targetFormulaRecordId: String(targetFormulaRecord?.id || "").trim(),
+        sourceUnit: String(sourceContinuationFrame?.unit || sourceFormulaRecord?.unit || "NNC").trim(),
+        targetUnit: String(targetContinuationFrame?.unit || targetFormulaRecord?.unit || "NNC").trim(),
+        nominalizationKind: resolvedNominalizationKind,
+        operationApplied: "use-nominalized-vnc-nnc-as-adjectival-function",
+        role,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "nominalized-vnc-formula-realization-authorizes-adjectival-function",
+    });
+}
+
+function getNominalizedVncAdjectivalNncTargetOperationFrame(frame = null) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(frame)) {
+        return null;
+    }
+    if (frame.operationFrame?.operationId === "andrews-40-5-40-8-nominalized-vnc-adjectival-function") {
+        return frame.operationFrame;
+    }
+    const operationFrames = Array.isArray(frame.formulaRecord?.operationFrames)
+        ? frame.formulaRecord.operationFrames
+        : [];
+    return operationFrames
+        .find((operationFrame) => String(operationFrame?.operationId || "").trim() === "andrews-40-5-40-8-nominalized-vnc-adjectival-function")
+        || null;
+}
+
+function isNominalizedVncAdjectivalNncOperationFrame(operationFrame = null, sourceContinuationFrame = null) {
+    if (!operationFrame || typeof operationFrame !== "object") {
+        return false;
+    }
+    const sourceFormulaRecordId = String(sourceContinuationFrame?.formulaRecord?.id || "").trim();
+    const operationSourceFormulaRecordId = String(operationFrame.sourceFormulaRecordId || "").trim();
+    return operationFrame.kind === "andrews-typed-operation-frame"
+        && operationFrame.operationId === "andrews-40-5-40-8-nominalized-vnc-adjectival-function"
+        && operationFrame.routeFamily === "adjectival-nnc"
+        && operationFrame.operationApplied === "use-nominalized-vnc-nnc-as-adjectival-function"
+        && operationFrame.consumesRenderedInput === false
+        && operationFrame.displayStringsAuthorizeGrammar === false
+        && (!sourceFormulaRecordId || operationSourceFormulaRecordId === sourceFormulaRecordId);
+}
+
+function buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+    requestedState = "absolutive",
+    sourceFormulaSlots = null,
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    diagnostic = null,
+    role = "modifier-candidate",
+} = {}) {
+    const diagnostics = diagnostic ? [diagnostic] : [];
+    const frame = buildAdjectivalNncFunctionFrame({
+        sourceFormulaSlots,
+        sourceFormulaEcho: buildAdjectivalNncFormulaEchoFromSlots(sourceFormulaSlots),
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
+        requestedState,
+        role,
+    });
+    return attachAdjectivalNncGrammarContract({
+        outputKind: "adjectival-nnc-function",
+        clauseKind: "nominal-nuclear-clause",
+        supported: false,
+        result: "",
+        surfaceForms: [],
+        stem: "",
+        state: requestedState,
+        generationRoute: "adjectival-nnc",
+        formulaSlots: sourceFormulaSlots,
+        formulaEcho: buildAdjectivalNncFormulaEchoFromSlots(sourceFormulaSlots),
+        operationFrame,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        adjectivalNncFunctionFrame: frame,
+        diagnostics,
+    });
+}
+
+function buildStructuredOrdinaryAdjectivalNncFunctionOutput({
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    sourceFormulaSlots = null,
+    state = "absolutive",
+    role = "modifier-candidate",
+} = {}) {
+    const requestedState = normalizeAdjectivalNncState(state);
+    const resolvedSourceFormulaSlots = getStructuredOrdinaryAdjectivalNncSourceFormulaSlots({
+        sourceFormulaSlots,
+        sourceContinuationFrame,
+    });
+    const operationFrame = buildStructuredOrdinaryAdjectivalNncOperationFrame({
+        sourceContinuationFrame,
+        sourceFormulaSlots: resolvedSourceFormulaSlots,
+        requestedState,
+        role,
+    });
+    if (requestedState !== "absolutive") {
+        return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+            requestedState,
+            sourceFormulaSlots: resolvedSourceFormulaSlots,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            role,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
+                "Structured adjectival NNC function follows Andrews 40.1 and requires absolutive predicate state."
+            ),
+        });
+    }
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
+        return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+            requestedState,
+            sourceFormulaSlots: resolvedSourceFormulaSlots,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            role,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-requires-typed-source-frame",
+                "Structured adjectival NNC function requires a typed source formula frame; rendered words cannot authorize this route."
+            ),
+        });
+    }
+    if (!resolvedSourceFormulaSlots?.predicateStem || !resolvedSourceFormulaSlots?.num1Num2) {
+        return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+            requestedState,
+            sourceFormulaSlots: resolvedSourceFormulaSlots,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            role,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresFormulaSlots,
+                "Structured adjectival NNC function requires ordinary NNC formula slots from the source frame."
+            ),
+        });
+    }
+    const { surface, segmentFrames } = realizeStructuredOrdinaryAdjectivalNncSurfaceFromSlots(resolvedSourceFormulaSlots);
+    if (!surface) {
+        return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+            requestedState,
+            sourceFormulaSlots: resolvedSourceFormulaSlots,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            role,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-structured-realization-empty",
+                "Structured adjectival NNC function could not realize the formula slots through segment frames."
+            ),
+        });
+    }
+    if (targetContinuationFrame) {
+        if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+            return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+                requestedState,
+                sourceFormulaSlots: resolvedSourceFormulaSlots,
+                sourceContinuationFrame,
+                targetContinuationFrame,
+                operationFrame,
+                role,
+                diagnostic: buildAdjectivalNncDiagnostic(
+                    "adjectival-nnc-requires-typed-target-frame",
+                    "Structured adjectival NNC function requires a typed target frame when continuing from a prior generated target."
+                ),
+            });
+        }
+        const targetOperationFrame = getStructuredOrdinaryAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+        if (!isStructuredOrdinaryAdjectivalNncTargetOperationFrame(targetOperationFrame, sourceContinuationFrame)) {
+            return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+                requestedState,
+                sourceFormulaSlots: resolvedSourceFormulaSlots,
+                sourceContinuationFrame,
+                targetContinuationFrame,
+                operationFrame,
+                role,
+                diagnostic: buildAdjectivalNncDiagnostic(
+                    "adjectival-nnc-structured-operation-frame-required",
+                    "Structured adjectival NNC continuation requires the target formula frame to carry the Andrews typed operation frame."
+                ),
+            });
+        }
+        const targetFormula = String(targetContinuationFrame.formulaRecord?.formula || targetContinuationFrame.formulaRecord?.formulaText || "").trim();
+        const sourceFormula = buildAdjectivalNncFormulaEchoFromSlots(resolvedSourceFormulaSlots);
+        const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+        if (targetFormula && sourceFormula && targetFormula !== sourceFormula) {
+            return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+                requestedState,
+                sourceFormulaSlots: resolvedSourceFormulaSlots,
+                sourceContinuationFrame,
+                targetContinuationFrame,
+                operationFrame,
+                role,
+                diagnostic: buildAdjectivalNncDiagnostic(
+                    "adjectival-nnc-contradictory-target-frame",
+                    "Structured adjectival NNC target formula contradicts the source formula slots."
+                ),
+            });
+        }
+        if (targetSurfaces.length && !targetSurfaces.includes(surface)) {
+            return buildStructuredOrdinaryAdjectivalNncUnsupportedOutput({
+                requestedState,
+                sourceFormulaSlots: resolvedSourceFormulaSlots,
+                sourceContinuationFrame,
+                targetContinuationFrame,
+                operationFrame,
+                role,
+                diagnostic: buildAdjectivalNncDiagnostic(
+                    "adjectival-nnc-contradictory-target-frame",
+                    "Structured adjectival NNC target realization contradicts the source formula realization."
+                ),
+            });
+        }
+    }
+    const formulaEcho = buildAdjectivalNncFormulaEchoFromSlots(resolvedSourceFormulaSlots);
+    const frame = buildAdjectivalNncFunctionFrame({
+        sourceFormulaSlots: resolvedSourceFormulaSlots,
+        sourceFormulaEcho: formulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
+        requestedState,
+        role,
+    });
+    return attachAdjectivalNncGrammarContract({
+        outputKind: "adjectival-nnc-function",
+        clauseKind: "nominal-nuclear-clause",
+        supported: true,
+        result: surface,
+        surfaceForms: [surface],
+        stem: resolveAdjectivalNncFormulaSlotText(resolvedSourceFormulaSlots.predicateStem, ["stem", "surface"]),
+        state: "absolutive",
+        generationRoute: "adjectival-nnc",
+        formulaSlots: resolvedSourceFormulaSlots,
+        formulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
+        segmentFrames,
+        adjectivalNncFunctionFrame: frame,
+        diagnostics: [],
+    });
 }
 
 function buildAdjectivalNncUnsupportedOutput({
@@ -2217,6 +3616,9 @@ function buildPatientivoAdjectivalNncFunctionFrame({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     requestedState = "absolutive",
     role = "predicate-surface",
 } = {}) {
@@ -2259,6 +3661,9 @@ function buildPatientivoAdjectivalNncFunctionFrame({
         sourceCombinedMode: resolvedSourceMode,
         sourceFormulaSlots: formulaSlots || null,
         sourceFormulaEcho: String(formulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -2276,6 +3681,9 @@ function buildPatientivoAdjectivalNncUnsupportedOutput({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -2295,6 +3703,9 @@ function buildPatientivoAdjectivalNncUnsupportedOutput({
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             requestedState,
         }),
         diagnostics,
@@ -2310,10 +3721,15 @@ function buildPatientivoAdjectivalNncFunctionOutput({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireStructuredContinuation = true,
     role = "predicate-surface",
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
-    const surface = String(patientivoSurface || "").trim();
+    void requireStructuredContinuation;
+    const requiresStructuredContinuation = true;
     const resolvedPatientivoSource = String(
         patientivoSource
         || nominalizationProfile?.patientiveFamilyProfile?.family
@@ -2322,7 +3738,7 @@ function buildPatientivoAdjectivalNncFunctionOutput({
     ).trim();
     if (requestedState !== "absolutive") {
         return buildPatientivoAdjectivalNncUnsupportedOutput({
-            patientivoSurface: surface,
+            patientivoSurface: String(patientivoSurface || "").trim(),
             patientivoSource: resolvedPatientivoSource,
             sourceTenseValue,
             sourceCombinedMode,
@@ -2330,12 +3746,120 @@ function buildPatientivoAdjectivalNncFunctionOutput({
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
                 "Patientive adjectival NNC generation follows Andrews 40.4 and requires absolutive predicate state."
             ),
         });
     }
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: "",
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-patientive-source-frame-required",
+                "Patientive adjectival function requires a typed source patientive NNC frame; display surface strings cannot authorize Andrews 40.4."
+            ),
+        });
+    }
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: "",
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-patientive-target-frame-required",
+                "Patientive adjectival function requires a typed target patientive NNC frame before continuing into adjectival use."
+            ),
+        });
+    }
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : getPatientivoAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+    if (requiresStructuredContinuation && !isPatientivoAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: "",
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-patientive-structured-operation-frame-required",
+                "Patientive adjectival function requires the typed Andrews 40.4 operation frame; surface strings cannot substitute for it."
+            ),
+        });
+    }
+    const sourceFormula = String(sourceContinuationFrame?.formulaRecord?.formula || sourceContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    const targetFormula = String(targetContinuationFrame?.formulaRecord?.formula || targetContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    if (requiresStructuredContinuation && sourceFormula && targetFormula && sourceFormula !== targetFormula) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: "",
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-patientive-contradictory-target-frame",
+                "Patientive adjectival target formula contradicts the source patientive formula frame."
+            ),
+        });
+    }
+    const sourceSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(sourceContinuationFrame);
+    const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+    if (requiresStructuredContinuation && sourceSurfaces.length && targetSurfaces.length && !sourceSurfaces.includes(targetSurfaces[0])) {
+        return buildPatientivoAdjectivalNncUnsupportedOutput({
+            patientivoSurface: "",
+            patientivoSource: resolvedPatientivoSource,
+            sourceTenseValue,
+            sourceCombinedMode,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-patientive-contradictory-target-frame",
+                "Patientive adjectival target realization contradicts the source patientive realization frame."
+            ),
+        });
+    }
+    const surface = requiresStructuredContinuation
+        ? (targetSurfaces[0] || "")
+        : String(patientivoSurface || "").trim();
     if (!surface) {
         return buildPatientivoAdjectivalNncUnsupportedOutput({
             patientivoSurface: surface,
@@ -2346,6 +3870,9 @@ function buildPatientivoAdjectivalNncFunctionOutput({
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresPatientiveSurface,
                 "Patientive adjectival NNC generation requires a generated patientive noun surface from #3 salida."
@@ -2362,6 +3889,9 @@ function buildPatientivoAdjectivalNncFunctionOutput({
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 "adjectival-nnc-requires-patientive-source",
                 "Patientive adjectival NNC generation requires the generated patientive source family."
@@ -2376,6 +3906,9 @@ function buildPatientivoAdjectivalNncFunctionOutput({
         nominalizationProfile,
         formulaSlots,
         formulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         requestedState,
         role,
     });
@@ -2390,6 +3923,9 @@ function buildPatientivoAdjectivalNncFunctionOutput({
         generationRoute: "adjectival-nnc",
         formulaSlots: formulaSlots || null,
         formulaEcho: String(formulaEcho || ""),
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         patientivoAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -2404,6 +3940,9 @@ function buildVncAdjectivalNncFunctionFrame({
     sourceVoiceMode = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     role = "predicate-surface",
 } = {}) {
     return {
@@ -2428,6 +3967,9 @@ function buildVncAdjectivalNncFunctionFrame({
         sourceVoiceMode: String(sourceVoiceMode || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         doesNotCreateNncStem: true,
@@ -2445,6 +3987,9 @@ function buildVncAdjectivalNncUnsupportedOutput({
     sourceVoiceMode = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -2464,6 +4009,9 @@ function buildVncAdjectivalNncUnsupportedOutput({
             sourceVoiceMode,
             sourceFormulaSlots,
             sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
         }),
         diagnostics,
     });
@@ -2479,9 +4027,114 @@ function buildVncAdjectivalNncFunctionOutput({
     sourceVoiceMode = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireStructuredContinuation = true,
     role = "predicate-surface",
 } = {}) {
-    const resolvedSurface = String(vncSurface || surface || stem || "").trim();
+    void requireStructuredContinuation;
+    const requiresStructuredContinuation = true;
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
+        return buildVncAdjectivalNncUnsupportedOutput({
+            vncSurface: "",
+            sourceVerb,
+            sourceTenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-vnc-source-frame-required",
+                "VNC adjectival function requires a typed source VNC frame; display surface strings cannot authorize Andrews 40.3."
+            ),
+        });
+    }
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+        return buildVncAdjectivalNncUnsupportedOutput({
+            vncSurface: "",
+            sourceVerb,
+            sourceTenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-vnc-target-frame-required",
+                "VNC adjectival function requires a typed target VNC frame before continuing into adjectival use."
+            ),
+        });
+    }
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : getVncAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+    if (requiresStructuredContinuation && !isVncAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildVncAdjectivalNncUnsupportedOutput({
+            vncSurface: "",
+            sourceVerb,
+            sourceTenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-vnc-structured-operation-frame-required",
+                "VNC adjectival function requires the typed Andrews 40.3 operation frame; surface strings cannot substitute for it."
+            ),
+        });
+    }
+    const sourceFormula = String(sourceContinuationFrame?.formulaRecord?.formula || sourceContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    const targetFormula = String(targetContinuationFrame?.formulaRecord?.formula || targetContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    if (requiresStructuredContinuation && sourceFormula && targetFormula && sourceFormula !== targetFormula) {
+        return buildVncAdjectivalNncUnsupportedOutput({
+            vncSurface: "",
+            sourceVerb,
+            sourceTenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-vnc-contradictory-target-frame",
+                "VNC adjectival target formula contradicts the source VNC formula frame."
+            ),
+        });
+    }
+    const sourceSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(sourceContinuationFrame);
+    const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+    if (requiresStructuredContinuation && sourceSurfaces.length && targetSurfaces.length && !sourceSurfaces.includes(targetSurfaces[0])) {
+        return buildVncAdjectivalNncUnsupportedOutput({
+            vncSurface: "",
+            sourceVerb,
+            sourceTenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-vnc-contradictory-target-frame",
+                "VNC adjectival target realization contradicts the source VNC realization frame."
+            ),
+        });
+    }
+    const resolvedSurface = requiresStructuredContinuation
+        ? (targetSurfaces[0] || "")
+        : String(vncSurface || surface || stem || "").trim();
     if (!resolvedSurface) {
         return buildVncAdjectivalNncUnsupportedOutput({
             vncSurface: resolvedSurface,
@@ -2491,6 +4144,9 @@ function buildVncAdjectivalNncFunctionOutput({
             sourceVoiceMode,
             sourceFormulaSlots,
             sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresVncSurface,
                 "VNC adjectival function generation follows Andrews 40.3 and requires a generated VNC surface from #3 salida."
@@ -2505,6 +4161,9 @@ function buildVncAdjectivalNncFunctionOutput({
         sourceVoiceMode,
         sourceFormulaSlots,
         sourceFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         role,
     });
     return attachAdjectivalNncGrammarContract({
@@ -2518,6 +4177,9 @@ function buildVncAdjectivalNncFunctionOutput({
         generationRoute: "adjectival-nnc",
         formulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         formulaEcho: String(sourceFormulaEcho || ""),
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         vncAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -2561,6 +4223,9 @@ function buildCompoundSourceAdjectivalNncFunctionFrame({
     nominalizationKind = "",
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     requestedState = "absolutive",
     role = "predicate-surface",
 } = {}) {
@@ -2584,6 +4249,9 @@ function buildCompoundSourceAdjectivalNncFunctionFrame({
         sourceCompoundFrame: cloneAdjectivalNncCompoundSourceFrame(sourceCompoundFrame),
         sourceFormulaSlots: formulaSlots || null,
         sourceFormulaEcho: String(formulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -2599,6 +4267,9 @@ function buildCompoundSourceAdjectivalNncUnsupportedOutput({
     nominalizationKind = "",
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -2616,6 +4287,9 @@ function buildCompoundSourceAdjectivalNncUnsupportedOutput({
             nominalizationKind,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             requestedState,
         }),
         diagnostics,
@@ -2633,39 +4307,87 @@ function buildCompoundSourceAdjectivalNncFunctionOutput({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireStructuredContinuation = true,
     role = "predicate-surface",
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
-    const resolvedSurface = String(compoundSourceSurface || surface || stem || "").trim();
     const resolvedCompoundFrame = sourceCompoundFrame || compoundFrame || null;
     const resolvedNominalizationKind = nominalizationKind
         || nominalizationProfile?.role?.nominalizationKind
         || "adjectival-surface";
+    void requireStructuredContinuation;
+    const requiresStructuredContinuation = true;
     if (requestedState !== "absolutive") {
         return buildCompoundSourceAdjectivalNncUnsupportedOutput({
-            compoundSourceSurface: resolvedSurface,
+            compoundSourceSurface: String(compoundSourceSurface || surface || stem || "").trim(),
             requestedState,
             sourceCompoundFrame: resolvedCompoundFrame,
             nominalizationKind: resolvedNominalizationKind,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
                 "Compound-source adjectival NNC generation follows Andrews 41.2 and requires absolutive predicate state."
             ),
         });
     }
-    if (!resolvedSurface) {
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
         return buildCompoundSourceAdjectivalNncUnsupportedOutput({
-            compoundSourceSurface: resolvedSurface,
+            compoundSourceSurface: "",
             requestedState,
             sourceCompoundFrame: resolvedCompoundFrame,
             nominalizationKind: resolvedNominalizationKind,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
-                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresCompoundSourceSurface,
-                "Compound-source adjectival NNC generation requires a generated compound-source NNC surface from #3 salida."
+                "adjectival-nnc-compound-source-source-frame-required",
+                "Compound-source adjectival function requires a typed source compound NNC frame; display surface strings cannot authorize Andrews 41.2."
+            ),
+        });
+    }
+    if (requiresStructuredContinuation && !isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+        return buildCompoundSourceAdjectivalNncUnsupportedOutput({
+            compoundSourceSurface: "",
+            requestedState,
+            sourceCompoundFrame: resolvedCompoundFrame,
+            nominalizationKind: resolvedNominalizationKind,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-compound-source-target-frame-required",
+                "Compound-source adjectival function requires a typed target frame before continuing into adjectival use."
+            ),
+        });
+    }
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : getCompoundSourceAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+    if (requiresStructuredContinuation && !isCompoundSourceAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildCompoundSourceAdjectivalNncUnsupportedOutput({
+            compoundSourceSurface: "",
+            requestedState,
+            sourceCompoundFrame: resolvedCompoundFrame,
+            nominalizationKind: resolvedNominalizationKind,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-compound-source-structured-operation-frame-required",
+                "Compound-source adjectival function requires the typed Andrews 41.2 operation frame; surface strings cannot substitute for it."
             ),
         });
     }
@@ -2675,15 +4397,95 @@ function buildCompoundSourceAdjectivalNncFunctionOutput({
         || String(resolvedCompoundFrame.kind || "").trim() !== "compound-frame"
     ) {
         return buildCompoundSourceAdjectivalNncUnsupportedOutput({
-            compoundSourceSurface: resolvedSurface,
+            compoundSourceSurface: requiresStructuredContinuation ? "" : String(compoundSourceSurface || surface || stem || "").trim(),
             requestedState,
             sourceCompoundFrame: resolvedCompoundFrame,
             nominalizationKind: resolvedNominalizationKind,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresCompoundSourceFrame,
                 "Andrews 41.2 compound-source adjectival generation requires a parsed compound verbstem source frame."
+            ),
+        });
+    }
+    const sourceFormula = String(sourceContinuationFrame?.formulaRecord?.formula || sourceContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    const targetFormula = String(targetContinuationFrame?.formulaRecord?.formula || targetContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    if (requiresStructuredContinuation && sourceFormula && targetFormula && sourceFormula !== targetFormula) {
+        return buildCompoundSourceAdjectivalNncUnsupportedOutput({
+            compoundSourceSurface: "",
+            requestedState,
+            sourceCompoundFrame: resolvedCompoundFrame,
+            nominalizationKind: resolvedNominalizationKind,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-compound-source-contradictory-target-frame",
+                "Compound-source adjectival target formula contradicts the source compound formula frame."
+            ),
+        });
+    }
+    const sourceSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(sourceContinuationFrame);
+    const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+    if (requiresStructuredContinuation && sourceSurfaces.length && targetSurfaces.length && !sourceSurfaces.includes(targetSurfaces[0])) {
+        return buildCompoundSourceAdjectivalNncUnsupportedOutput({
+            compoundSourceSurface: "",
+            requestedState,
+            sourceCompoundFrame: resolvedCompoundFrame,
+            nominalizationKind: resolvedNominalizationKind,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-compound-source-contradictory-target-frame",
+                "Compound-source adjectival target realization contradicts the source compound realization frame."
+            ),
+        });
+    }
+    const resolvedSurface = requiresStructuredContinuation
+        ? (targetSurfaces[0] || "")
+        : String(compoundSourceSurface || surface || stem || "").trim();
+    const resolvedFormulaSlots = requiresStructuredContinuation
+        ? (
+            targetContinuationFrame?.formulaRecord?.formulaSlots
+            || targetContinuationFrame?.formulaSlots
+            || sourceContinuationFrame?.formulaRecord?.formulaSlots
+            || sourceContinuationFrame?.formulaSlots
+            || formulaSlots
+            || null
+        )
+        : (formulaSlots || null);
+    const resolvedFormulaEcho = requiresStructuredContinuation
+        ? (
+            targetFormula
+            || sourceFormula
+            || (resolvedFormulaSlots && typeof buildAdjectivalNncFormulaEchoFromSlots === "function"
+                ? buildAdjectivalNncFormulaEchoFromSlots(resolvedFormulaSlots)
+                : "")
+        )
+        : String(formulaEcho || "");
+    if (!resolvedSurface) {
+        return buildCompoundSourceAdjectivalNncUnsupportedOutput({
+            compoundSourceSurface: resolvedSurface,
+            requestedState,
+            sourceCompoundFrame: resolvedCompoundFrame,
+            nominalizationKind: resolvedNominalizationKind,
+            formulaSlots: resolvedFormulaSlots,
+            formulaEcho: resolvedFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresCompoundSourceSurface,
+                "Compound-source adjectival NNC generation requires a generated compound-source NNC formula realization from #3 salida."
             ),
         });
     }
@@ -2691,8 +4493,11 @@ function buildCompoundSourceAdjectivalNncFunctionOutput({
         compoundSourceSurface: resolvedSurface,
         sourceCompoundFrame: resolvedCompoundFrame,
         nominalizationKind: resolvedNominalizationKind,
-        formulaSlots,
-        formulaEcho,
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         requestedState,
         role,
     });
@@ -2705,8 +4510,11 @@ function buildCompoundSourceAdjectivalNncFunctionOutput({
         stem: resolvedSurface,
         state: "absolutive",
         generationRoute: "adjectival-nnc",
-        formulaSlots: formulaSlots || null,
-        formulaEcho: String(formulaEcho || ""),
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         compoundSourceAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -2759,6 +4567,9 @@ function buildDenominalCompoundAdjectivalNncFunctionFrame({
     sourceDenominalCompoundFrame = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     requestedState = "absolutive",
     role = "predicate-surface",
 } = {}) {
@@ -2787,6 +4598,9 @@ function buildDenominalCompoundAdjectivalNncFunctionFrame({
         sourceDenominalCompoundFrame: cloneAdjectivalNncDenominalCompoundSourceFrame(sourceDenominalCompoundFrame),
         sourceFormulaSlots: formulaSlots || null,
         sourceFormulaEcho: String(formulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -2801,6 +4615,9 @@ function buildDenominalCompoundAdjectivalNncUnsupportedOutput({
     sourceDenominalCompoundFrame = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -2817,6 +4634,9 @@ function buildDenominalCompoundAdjectivalNncUnsupportedOutput({
             sourceDenominalCompoundFrame,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             requestedState,
         }),
         diagnostics,
@@ -2832,34 +4652,79 @@ function buildDenominalCompoundAdjectivalNncFunctionOutput({
     denominalCompoundFrame = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireStructuredContinuation = true,
     role = "predicate-surface",
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
-    const resolvedSurface = String(denominalCompoundSurface || surface || stem || "").trim();
+    void requireStructuredContinuation;
     const resolvedFrame = sourceDenominalCompoundFrame || denominalCompoundFrame || null;
     if (requestedState !== "absolutive") {
         return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
-            denominalCompoundSurface: resolvedSurface,
+            denominalCompoundSurface: String(denominalCompoundSurface || surface || stem || "").trim(),
             requestedState,
             sourceDenominalCompoundFrame: resolvedFrame,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
                 "Denominal-compound adjectival NNC generation follows Andrews 41.3 and requires absolutive predicate state."
             ),
         });
     }
-    if (!resolvedSurface) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
         return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
-            denominalCompoundSurface: resolvedSurface,
+            denominalCompoundSurface: "",
             requestedState,
             sourceDenominalCompoundFrame: resolvedFrame,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
-                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresDenominalCompoundSurface,
-                "Denominal-compound adjectival NNC generation requires a generated preterit-agentive NNC surface from #3 salida."
+                "adjectival-nnc-denominal-compound-source-frame-required",
+                "Denominal-compound adjectival function requires a typed source preterit-agentive NNC frame; display surface strings cannot authorize Andrews 41.3."
+            ),
+        });
+    }
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+        return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
+            denominalCompoundSurface: "",
+            requestedState,
+            sourceDenominalCompoundFrame: resolvedFrame,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-denominal-compound-target-frame-required",
+                "Denominal-compound adjectival function requires a typed target frame before continuing into adjectival use."
+            ),
+        });
+    }
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : getDenominalCompoundAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+    if (!isDenominalCompoundAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
+            denominalCompoundSurface: "",
+            requestedState,
+            sourceDenominalCompoundFrame: resolvedFrame,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-denominal-compound-structured-operation-frame-required",
+                "Denominal-compound adjectival function requires the typed Andrews 41.3 operation frame; surface strings cannot substitute for it."
             ),
         });
     }
@@ -2869,22 +4734,92 @@ function buildDenominalCompoundAdjectivalNncFunctionOutput({
         || String(resolvedFrame.kind || "").trim() !== "denominal-compound-nounstem-frame"
     ) {
         return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
-            denominalCompoundSurface: resolvedSurface,
+            denominalCompoundSurface: "",
             requestedState,
             sourceDenominalCompoundFrame: resolvedFrame,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresDenominalCompoundFrame,
                 "Andrews 41.3 denominal-compound adjectival generation requires a parsed compound nounstem source frame."
             ),
         });
     }
+    const sourceFormula = String(sourceContinuationFrame?.formulaRecord?.formula || sourceContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    const targetFormula = String(targetContinuationFrame?.formulaRecord?.formula || targetContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    if (sourceFormula && targetFormula && sourceFormula !== targetFormula) {
+        return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
+            denominalCompoundSurface: "",
+            requestedState,
+            sourceDenominalCompoundFrame: resolvedFrame,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-denominal-compound-contradictory-target-frame",
+                "Denominal-compound adjectival target formula contradicts the source denominal compound formula frame."
+            ),
+        });
+    }
+    const sourceSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(sourceContinuationFrame);
+    const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+    if (sourceSurfaces.length && targetSurfaces.length && !sourceSurfaces.includes(targetSurfaces[0])) {
+        return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
+            denominalCompoundSurface: "",
+            requestedState,
+            sourceDenominalCompoundFrame: resolvedFrame,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-denominal-compound-contradictory-target-frame",
+                "Denominal-compound adjectival target realization contradicts the source denominal compound realization frame."
+            ),
+        });
+    }
+    const resolvedSurface = targetSurfaces[0] || "";
+    const resolvedFormulaSlots = targetContinuationFrame?.formulaRecord?.formulaSlots
+        || targetContinuationFrame?.formulaSlots
+        || sourceContinuationFrame?.formulaRecord?.formulaSlots
+        || sourceContinuationFrame?.formulaSlots
+        || formulaSlots
+        || null;
+    const resolvedFormulaEcho = targetFormula
+        || sourceFormula
+        || (resolvedFormulaSlots && typeof buildAdjectivalNncFormulaEchoFromSlots === "function"
+            ? buildAdjectivalNncFormulaEchoFromSlots(resolvedFormulaSlots)
+            : "");
+    if (!resolvedSurface) {
+        return buildDenominalCompoundAdjectivalNncUnsupportedOutput({
+            denominalCompoundSurface: resolvedSurface,
+            requestedState,
+            sourceDenominalCompoundFrame: resolvedFrame,
+            formulaSlots: resolvedFormulaSlots,
+            formulaEcho: resolvedFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresDenominalCompoundSurface,
+                "Denominal-compound adjectival NNC generation requires a generated preterit-agentive NNC formula realization from #3 salida."
+            ),
+        });
+    }
     const frame = buildDenominalCompoundAdjectivalNncFunctionFrame({
         denominalCompoundSurface: resolvedSurface,
         sourceDenominalCompoundFrame: resolvedFrame,
-        formulaSlots,
-        formulaEcho,
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         requestedState,
         role,
     });
@@ -2897,8 +4832,11 @@ function buildDenominalCompoundAdjectivalNncFunctionOutput({
         stem: resolvedSurface,
         state: "absolutive",
         generationRoute: "adjectival-nnc",
-        formulaSlots: formulaSlots || null,
-        formulaEcho: String(formulaEcho || ""),
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         denominalCompoundAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -2912,6 +4850,9 @@ function buildIntensifiedAdjectivalNncFunctionFrame({
     formulaSlots = null,
     formulaEcho = "",
     intensifiedStem = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     role = "predicate-surface",
 } = {}) {
     const sourcePredicateStem = resolveAdjectivalNncFormulaSlotText(
@@ -2936,6 +4877,9 @@ function buildIntensifiedAdjectivalNncFunctionFrame({
         baseFormulaEcho: String(sourceFormulaEcho || ""),
         sourceFormulaSlots: formulaSlots || null,
         sourceFormulaEcho: String(formulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         reduplicationKind: "adjectival-intensification",
         reusesFrequentativeEngine: false,
         generatedSurfacePreserved: false,
@@ -2949,6 +4893,9 @@ function buildIntensifiedAdjectivalNncUnsupportedOutput({
     sourceSurface = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     diagnostic = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
@@ -2965,7 +4912,13 @@ function buildIntensifiedAdjectivalNncUnsupportedOutput({
             sourceSurface,
             sourceFormulaSlots,
             sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
         }),
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
         diagnostics,
     });
 }
@@ -2977,9 +4930,16 @@ function buildIntensifiedAdjectivalNncOutput({
     formulaSlots = null,
     sourceFormulaEcho = "",
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     role = "predicate-surface",
 } = {}) {
-    const sourceSlots = sourceFormulaSlots || formulaSlots || null;
+    const sourceSlots = sourceContinuationFrame?.formulaRecord?.formulaSlots
+        || sourceContinuationFrame?.formulaSlots
+        || sourceFormulaSlots
+        || formulaSlots
+        || null;
     const sourceEcho = sourceFormulaEcho || formulaEcho || "";
     const predicateStem = resolveAdjectivalNncFormulaSlotText(
         sourceSlots?.predicateStem,
@@ -2989,27 +4949,55 @@ function buildIntensifiedAdjectivalNncOutput({
         sourceSlots?.num1Num2,
         ["connector", "surface"]
     );
-    if (!predicateStem || !sourceSlots?.num1Num2) {
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : null;
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
         return buildIntensifiedAdjectivalNncUnsupportedOutput({
-            sourceSurface: String(sourceSurface || surface || "").trim(),
+            sourceSurface: "",
             sourceFormulaSlots: sourceSlots,
             sourceFormulaEcho: sourceEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-intensified-source-frame-required",
+                "Intensified adjectival function requires a typed source formula frame; rendered source strings cannot authorize Andrews 41.1."
+            ),
+        });
+    }
+    if (!predicateStem || !sourceSlots?.num1Num2) {
+        return buildIntensifiedAdjectivalNncUnsupportedOutput({
+            sourceSurface: "",
+            sourceFormulaSlots: sourceSlots,
+            sourceFormulaEcho: sourceEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresFormulaSlots,
                 "Andrews 41.1 adjectival intensification requires generated NNC formula slots from #3 salida."
             ),
         });
     }
-    const intensifiedStem = typeof buildOrdinaryNncReduplicatedSurface === "function"
-        ? buildOrdinaryNncReduplicatedSurface(predicateStem)
-        : `${predicateStem.slice(0, 1)}j${predicateStem}`;
-    const intensifiedFormulaSlots = buildIntensifiedAdjectivalNncFormulaSlots({
-        sourceFormulaSlots: sourceSlots,
-        intensifiedStem,
-    });
+    if (!isIntensifiedAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildIntensifiedAdjectivalNncUnsupportedOutput({
+            sourceSurface: "",
+            sourceFormulaSlots: sourceSlots,
+            sourceFormulaEcho: sourceEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-intensified-operation-frame-required",
+                "Intensified adjectival function requires the typed Andrews 41.1 operation frame; surface strings cannot substitute for it."
+            ),
+        });
+    }
+    const intensifiedFormulaSlots = resolvedOperationFrame.targetFormulaSlots;
+    const intensifiedStem = String(resolvedOperationFrame.targetPredicateStem || "").trim();
     const intensifiedFormulaEcho = buildAdjectivalNncFormulaEchoFromSlots(intensifiedFormulaSlots);
-    const subjectPrefix = String(sourceSlots?.pers1Pers2?.prefix || sourceSlots?.pers1Pers2?.subjectPrefix || "");
-    const result = `${subjectPrefix}${intensifiedStem}${connector === "Ø" ? "" : connector}`;
+    const result = String(resolvedOperationFrame.targetSurface || "");
     const frame = buildIntensifiedAdjectivalNncFunctionFrame({
         sourceSurface: String(sourceSurface || surface || "").trim(),
         sourceFormulaSlots: sourceSlots,
@@ -3017,6 +5005,9 @@ function buildIntensifiedAdjectivalNncOutput({
         formulaSlots: intensifiedFormulaSlots,
         formulaEcho: intensifiedFormulaEcho,
         intensifiedStem,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         role,
     });
     return attachAdjectivalNncGrammarContract({
@@ -3030,6 +5021,9 @@ function buildIntensifiedAdjectivalNncOutput({
         generationRoute: "adjectival-nnc",
         formulaSlots: intensifiedFormulaSlots,
         formulaEcho: intensifiedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         intensifiedAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -3046,6 +5040,9 @@ function buildNominalizedVncAdjectivalNncFunctionFrame({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
     requestedState = "absolutive",
     role = "predicate-surface",
 } = {}) {
@@ -3072,6 +5069,9 @@ function buildNominalizedVncAdjectivalNncFunctionFrame({
         sourceCombinedMode: String(source.sourceCombinedMode || "").trim(),
         sourceFormulaSlots: formulaSlots || null,
         sourceFormulaEcho: String(formulaEcho || ""),
+        ...(sourceContinuationFrame && typeof sourceContinuationFrame === "object" ? { sourceContinuationFrame } : {}),
+        ...(targetContinuationFrame && typeof targetContinuationFrame === "object" ? { targetContinuationFrame } : {}),
+        ...(operationFrame && typeof operationFrame === "object" ? { operationFrame } : {}),
         generatedSurfacePreserved: true,
         hasModificationAst: false,
         spellingAuthority: "Nawat/Pipil orthography",
@@ -3086,6 +5086,9 @@ function buildNominalizedVncAdjectivalNncUnsupportedOutput({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
 } = {}) {
     const diagnostics = diagnostic ? [diagnostic] : [];
     return attachAdjectivalNncGrammarContract({
@@ -3102,6 +5105,9 @@ function buildNominalizedVncAdjectivalNncUnsupportedOutput({
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             requestedState,
         }),
         diagnostics,
@@ -3114,56 +5120,171 @@ function buildNominalizedVncAdjectivalNncFunctionOutput({
     nominalizationProfile = null,
     formulaSlots = null,
     formulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireStructuredContinuation = true,
     role = "predicate-surface",
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
-    const surface = String(nominalizedSurface || "").trim();
+    void requireStructuredContinuation;
     const nominalizationKind = normalizeAdjectivalNncText(nominalizationProfile?.role?.nominalizationKind || "");
     const lessonSpec = resolveNominalizedVncAdjectivalLessonSpec(nominalizationKind);
     if (requestedState !== "absolutive") {
         return buildNominalizedVncAdjectivalNncUnsupportedOutput({
-            nominalizedSurface: surface,
+            nominalizedSurface: String(nominalizedSurface || "").trim(),
             requestedState,
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
                 "Nominalized VNC adjectival NNC generation follows Andrews 40.5-40.8 and requires absolutive predicate state."
             ),
         });
     }
-    if (!surface) {
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(sourceContinuationFrame)) {
         return buildNominalizedVncAdjectivalNncUnsupportedOutput({
-            nominalizedSurface: surface,
+            nominalizedSurface: "",
             requestedState,
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
-                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresNominalizedVncSurface,
-                "Nominalized VNC adjectival NNC generation requires a generated NNC surface from #3 salida."
+                "adjectival-nnc-nominalized-vnc-source-frame-required",
+                "Nominalized VNC adjectival function requires a typed source nominalized NNC frame; display surface strings cannot authorize Andrews 40.5-40.8."
+            ),
+        });
+    }
+    if (!isAdjectivalNncGeneratedOutputTypedContinuationFrame(targetContinuationFrame)) {
+        return buildNominalizedVncAdjectivalNncUnsupportedOutput({
+            nominalizedSurface: "",
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-nominalized-vnc-target-frame-required",
+                "Nominalized VNC adjectival function requires a typed target frame before continuing into adjectival use."
+            ),
+        });
+    }
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : getNominalizedVncAdjectivalNncTargetOperationFrame(targetContinuationFrame);
+    if (!isNominalizedVncAdjectivalNncOperationFrame(resolvedOperationFrame, sourceContinuationFrame)) {
+        return buildNominalizedVncAdjectivalNncUnsupportedOutput({
+            nominalizedSurface: "",
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-nominalized-vnc-structured-operation-frame-required",
+                "Nominalized VNC adjectival function requires the typed Andrews 40.5-40.8 operation frame; surface strings cannot substitute for it."
             ),
         });
     }
     if (!lessonSpec) {
         return buildNominalizedVncAdjectivalNncUnsupportedOutput({
-            nominalizedSurface: surface,
+            nominalizedSurface: "",
             requestedState,
             nominalizationProfile,
             formulaSlots,
             formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.unsupportedNominalizedVncKind,
                 "This generated nominalized VNC kind is not yet mapped to an Andrews 40.5-40.8 adjectival-function contract."
             ),
         });
     }
+    const sourceFormula = String(sourceContinuationFrame?.formulaRecord?.formula || sourceContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    const targetFormula = String(targetContinuationFrame?.formulaRecord?.formula || targetContinuationFrame?.formulaRecord?.formulaText || "").trim();
+    if (sourceFormula && targetFormula && sourceFormula !== targetFormula) {
+        return buildNominalizedVncAdjectivalNncUnsupportedOutput({
+            nominalizedSurface: "",
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-nominalized-vnc-contradictory-target-frame",
+                "Nominalized VNC adjectival target formula contradicts the source nominalized VNC formula frame."
+            ),
+        });
+    }
+    const sourceSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(sourceContinuationFrame);
+    const targetSurfaces = getAdjectivalNncTypedFrameRealizationSurfaces(targetContinuationFrame);
+    if (sourceSurfaces.length && targetSurfaces.length && !sourceSurfaces.includes(targetSurfaces[0])) {
+        return buildNominalizedVncAdjectivalNncUnsupportedOutput({
+            nominalizedSurface: "",
+            requestedState,
+            nominalizationProfile,
+            formulaSlots,
+            formulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-nominalized-vnc-contradictory-target-frame",
+                "Nominalized VNC adjectival target realization contradicts the source nominalized VNC realization frame."
+            ),
+        });
+    }
+    const surface = targetSurfaces[0] || "";
+    const resolvedFormulaSlots = targetContinuationFrame?.formulaRecord?.formulaSlots
+        || targetContinuationFrame?.formulaSlots
+        || sourceContinuationFrame?.formulaRecord?.formulaSlots
+        || sourceContinuationFrame?.formulaSlots
+        || formulaSlots
+        || null;
+    const resolvedFormulaEcho = targetFormula
+        || sourceFormula
+        || (resolvedFormulaSlots && typeof buildAdjectivalNncFormulaEchoFromSlots === "function"
+            ? buildAdjectivalNncFormulaEchoFromSlots(resolvedFormulaSlots)
+            : "");
+    if (!surface) {
+        return buildNominalizedVncAdjectivalNncUnsupportedOutput({
+            nominalizedSurface: surface,
+            requestedState,
+            nominalizationProfile,
+            formulaSlots: resolvedFormulaSlots,
+            formulaEcho: resolvedFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresNominalizedVncSurface,
+                "Nominalized VNC adjectival NNC generation requires a generated NNC formula realization from #3 salida."
+            ),
+        });
+    }
     const frame = buildNominalizedVncAdjectivalNncFunctionFrame({
         nominalizedSurface: surface,
         nominalizationProfile,
-        formulaSlots,
-        formulaEcho,
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         requestedState,
         role,
     });
@@ -3176,8 +5297,11 @@ function buildNominalizedVncAdjectivalNncFunctionOutput({
         stem: surface,
         state: "absolutive",
         generationRoute: "adjectival-nnc",
-        formulaSlots: formulaSlots || null,
-        formulaEcho: String(formulaEcho || ""),
+        formulaSlots: resolvedFormulaSlots,
+        formulaEcho: resolvedFormulaEcho,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         nominalizedVncAdjectivalNncFunctionFrame: frame,
         diagnostics: [],
@@ -3250,25 +5374,54 @@ function generateRootPlusYaAdjectivalNncOutput({
     stem = "",
     state = "absolutive",
     subject = null,
+    sourceFrame = null,
+    operationFrame = null,
     role = "predicate-surface",
 } = {}) {
     const requestedState = normalizeAdjectivalNncState(state);
-    const parsedVerb = resolveAdjectivalNncParsedVerb(stem);
+    const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object"
+        ? sourceFrame
+        : null;
+    const resolvedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : null;
+    const parsedVerb = resolvedSourceFrame?.parsedVerbSnapshot || null;
+    if (
+        !resolvedSourceFrame
+        || resolvedSourceFrame.kind !== "root-plus-ya-adjectival-nnc-source-frame"
+        || resolvedSourceFrame.displayStringsAuthorizeGrammar !== false
+        || resolvedSourceFrame.consumesRenderedInput !== false
+    ) {
+        return buildRootPlusYaAdjectivalNncUnsupportedOutput({
+            stem,
+            requestedState,
+            parsedVerb,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-root-plus-ya-source-frame-required",
+                "Root-plus-ya adjectival NNC generation requires a typed Andrews 40.9 source frame; rendered stem strings cannot authorize this route."
+            ),
+        });
+    }
     if (requestedState !== "absolutive") {
         return buildRootPlusYaAdjectivalNncUnsupportedOutput({
             stem,
             requestedState,
             parsedVerb,
+            rootPlusYaBase: resolvedSourceFrame.rootPlusYaBase,
+            sourceFormationSubtype: resolvedSourceFrame.sourceFormationSubtype,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresAbsolutiveState,
                 "Root-plus-ya adjectival NNC generation follows Andrews 40.9 and requires absolutive predicate state."
             ),
         });
     }
-    const source = resolveRootPlusYaAdjectivalNncSource(parsedVerb);
-    const rootPlusYaBase = source.rootPlusYaBase;
-    if (!source.supported || !rootPlusYaBase) {
-        const diagnosticId = source.diagnosticId || ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresRootPlusYa;
+    const rootPlusYaBase = resolvedSourceFrame.rootPlusYaBase;
+    if (resolvedSourceFrame.sourceSupported !== true || !rootPlusYaBase) {
+        const diagnosticId = resolvedSourceFrame.diagnosticId || ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresRootPlusYa;
         const messageById = {
             [ADJECTIVAL_NNC_DIAGNOSTIC_IDS.rootPlusYaException]: "Andrews 40.9 excludes the hue-i-ya/weya path from the obsolete-preterit adjectival route.",
             [ADJECTIVAL_NNC_DIAGNOSTIC_IDS.segmentedRootPlusYaUnsupported]: "Segmented slash sources require a denominal tiya source before using the Andrews 40.9 adjectival route.",
@@ -3279,29 +5432,42 @@ function generateRootPlusYaAdjectivalNncOutput({
             requestedState,
             parsedVerb,
             rootPlusYaBase,
-            sourceFormationSubtype: source.sourceFormationSubtype,
+            sourceFormationSubtype: resolvedSourceFrame.sourceFormationSubtype,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame: resolvedOperationFrame,
             diagnostic: buildAdjectivalNncDiagnostic(
                 diagnosticId,
                 messageById[diagnosticId] || messageById[ADJECTIVAL_NNC_DIAGNOSTIC_IDS.requiresRootPlusYa]
             ),
         });
     }
-    const subjectSlot = subject && typeof subject === "object" ? subject : {};
-    const formulaSlots = buildRootPlusYaAdjectivalNncFormulaSlots({
-        rootPlusYaBase,
-        subject: subjectSlot,
-        sourceFormationSubtype: source.sourceFormationSubtype,
-    });
+    if (!isRootPlusYaAdjectivalNncOperationFrame(resolvedOperationFrame, resolvedSourceFrame)) {
+        return buildRootPlusYaAdjectivalNncUnsupportedOutput({
+            stem,
+            requestedState,
+            parsedVerb,
+            rootPlusYaBase,
+            sourceFormationSubtype: resolvedSourceFrame.sourceFormationSubtype,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame: resolvedOperationFrame,
+            diagnostic: buildAdjectivalNncDiagnostic(
+                "adjectival-nnc-root-plus-ya-operation-frame-required",
+                "Root-plus-ya adjectival NNC generation requires the typed Andrews 40.9 operation frame; formula/display strings cannot substitute for it."
+            ),
+        });
+    }
+    const formulaSlots = resolvedOperationFrame.targetFormulaSlots;
     const formulaEcho = buildAdjectivalNncFormulaEchoFromSlots(formulaSlots);
-    const subjectPrefix = String(subjectSlot.subjectPrefix || "");
-    const result = `${subjectPrefix}${rootPlusYaBase}k`;
+    const result = String(resolvedOperationFrame.targetSurface || "");
     const frame = buildRootPlusYaAdjectivalNncFunctionFrame({
         parsedVerb,
         rootPlusYaBase,
         formulaSlots,
         requestedState,
         role,
-        sourceFormationSubtype: source.sourceFormationSubtype,
+        sourceFormationSubtype: resolvedSourceFrame.sourceFormationSubtype,
+        sourceFrame: resolvedSourceFrame,
+        operationFrame: resolvedOperationFrame,
     });
     return attachAdjectivalNncGrammarContract({
         outputKind: "adjectival-nnc-root-plus-ya",
@@ -3314,6 +5480,8 @@ function generateRootPlusYaAdjectivalNncOutput({
         generationRoute: "adjectival-nnc",
         formulaSlots,
         formulaEcho,
+        sourceFrame: resolvedSourceFrame,
+        operationFrame: resolvedOperationFrame,
         adjectivalNncFunctionFrame: frame,
         rootPlusYaAdjectivalNncFrame: frame,
         denominalCompoundSourceFrame: frame.denominalCompoundSourceFrame || null,

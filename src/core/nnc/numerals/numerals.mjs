@@ -10,6 +10,35 @@ export function createNumeralNncApi(targetObject = globalThis) {
       numberLexeme: "number-lexeme",
       unknown: "unknown"
     });
+    const BASIC_CARDINAL_NUMERAL_NNC_STEMS = Object.freeze([Object.freeze({
+      value: 1,
+      id: "one",
+      andrewsSection: "34.3",
+      classicalStem: "ce",
+      structuralStem: "ce",
+      formula: "#0-0(ce)0-0#"
+    }), Object.freeze({
+      value: 2,
+      id: "two",
+      andrewsSection: "34.4",
+      classicalStem: "ome",
+      structuralStem: "ome",
+      formula: "#0-0(ome)0-0#"
+    }), Object.freeze({
+      value: 3,
+      id: "three",
+      andrewsSection: "34.4",
+      classicalStem: "eyi",
+      structuralStem: "eyi",
+      formula: "#0-0(eyi)0-0#"
+    }), Object.freeze({
+      value: 4,
+      id: "four",
+      andrewsSection: "34.4",
+      classicalStem: "nahui",
+      structuralStem: "nahui",
+      formula: "#0-0(nahui)0-0#"
+    })]);
     const NUMERAL_NNC_FALSE_POSITIVE_SOURCE = Object.freeze({
       ordinaryNncOpenStem: "ordinary-nnc-open-stem",
       ordinaryNncFixture: "ordinary-nnc-fixture",
@@ -20,10 +49,10 @@ export function createNumeralNncApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const NUMERAL_NNC_ANTI_CONFLATION_RULES = Object.freeze(["numeral NNC boundary metadata is not generation", "ordinary NNC open-stem output is not numeral NNC fixture evidence", "UI number labels are not Nawat/Pipil numeral data", "Appendix D headings are not fixture cells", "English or Spanish number translations are not Nawat/Pipil form evidence", "Andrews numeral categories are architecture, not Nawat/Pipil form authority"]);
+    const NUMERAL_NNC_ANTI_CONFLATION_RULES = Object.freeze(["numeral NNC boundary metadata is not generation", "ordinary NNC open-stem output is not numeral NNC fixture evidence", "UI number labels are not orthography-bridge numeral data", "Appendix D headings are not fixture cells", "English or Spanish number translations are not orthography-bridge form evidence", "Andrews numeral categories are architecture, not Nawat/Pipil orthography authority"]);
     const NUMERAL_NNC_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "numeralBase",
-      asks: "Which Nawat/Pipil numeral base or number lexeme is evidenced?"
+      asks: "Which Andrews numeral base or number lexeme is licensed before Nawat/Pipil orthography realizes it?"
     }), Object.freeze({
       field: "numeralKind",
       asks: "Is the candidate cardinal, ordinal, vigesimal, numeral-NNC, number lexeme, or unknown?"
@@ -32,7 +61,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       asks: "How does the numeral participate in an NNC rather than an ordinary nounstem preview?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided data supports the numeral form?"
+      asks: "Which Andrews source gate or structured route licenses the numeral form?"
     })]);
     const LESSON34_CARDINAL_NUMERAL_NNC_VALIDATION_REFS = Object.freeze(["src/tests/nnc_numerals.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON34_CARDINAL_NUMERAL_NNC_PDF_REFS = Object.freeze(["Andrews Lesson 34.1", "Andrews Lesson 34.2", "Andrews Lesson 34.3", "Andrews Lesson 34.4", "Andrews Lesson 34.5", "Andrews Lesson 34.6", "Andrews Lesson 34.7", "Andrews Lesson 34.8", "Andrews Lesson 34.9", "Andrews Lesson 34.10", "Andrews Lesson 34.11", "Andrews Lesson 34.12", "Andrews Lesson 34.13", "Andrews Lesson 34.14", "Andrews Lesson 34.15", "Andrews Lesson 34.16"]);
@@ -222,7 +251,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Uno usa tronco nominal cem/ce, plural m-eh, incrustacion en compuestos y lecturas adverbiales incorporadas.",
       engineSurface: "diagnostic one-stem frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-two-three-four",
       andrewsSection: "34.4",
@@ -230,7 +259,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Dos, tres y cuatro son pronominales; el conteo ordinario pluraliza el tronco con n y usa dyadas plurales especificas.",
       engineSurface: "diagnostic two-three-four frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-five",
       andrewsSection: "34.5",
@@ -238,7 +267,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Cinco tiene tronco nominal y seis a nueve se forman como cinco mas uno a cuatro con el incrustado especial chicua/chic.",
       engineSurface: "diagnostic five frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-ten-fifteen",
       andrewsSection: "34.6",
@@ -246,7 +275,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Diez y quince son troncos nominales con plural animado t-in; las formas posesivas de total son excepcionales y no regla ordinaria.",
       engineSurface: "diagnostic ten/fifteen frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-high-orders",
       andrewsSection: "34.7",
@@ -254,7 +283,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Multiplos de veinte, cuatrocientos y ocho mil son compuestos con matriz pohua-l, tzon o xiquipil y un incrustado de uno a diecinueve.",
       engineSurface: "diagnostic high-order frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-conjoined-numerals",
       andrewsSection: "34.8",
@@ -270,7 +299,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "La serie te cuenta cosas redondas o abultadas y libros; el conjuncionado derecho omite la matriz clasificadora.",
       engineSurface: "diagnostic rock classifier frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-row-set",
       andrewsSection: "34.10",
@@ -278,7 +307,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "La serie pan cuenta filas de cosas o personas y tambien omite la matriz clasificadora en el conjuncionado derecho.",
       engineSurface: "diagnostic row classifier frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-thing-set",
       andrewsSection: "34.11",
@@ -286,7 +315,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "La serie tlaman cuenta cosas plegadas o apiladas; el total usa solo sujeto plural.",
       engineSurface: "diagnostic thing classifier frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-maize-cob-set",
       andrewsSection: "34.12",
@@ -294,7 +323,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "La serie olo cuenta cosas redondeadas u oblongas solo hasta diecinueve; de veinte a treinta y nueve usa tlamic.",
       engineSurface: "diagnostic maize-cob classifier frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-special-twenty-sets",
       andrewsSection: "34.13",
@@ -302,7 +331,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       directiveEs: "Hay series especiales por veintenas con matrices tecpan, ipil y quimil para clases concretas de entidades.",
       engineSurface: "diagnostic special-twenty classifier frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson34-reduplication",
       andrewsSection: "34.14",
@@ -342,7 +371,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON34_CARDINAL_NUMERAL_NNC_VALIDATION_REFS)
       }));
     }
@@ -355,7 +384,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
       const classifierSetFrame = cloneNumeralNncLessonRecord(LESSON34_CLASSIFIER_SET_FRAME);
       const reduplicationFrame = cloneNumeralNncLessonRecord(LESSON34_REDUPLICATION_FRAME);
       const modifierMeasureFrame = cloneNumeralNncLessonRecord(LESSON34_MODIFIER_MEASURE_FRAME);
-      const remainingGaps = ["Current numeral-NNC metadata is not cardinal numeral generation.", "Basic numerals, gross counts, high-order compounds, conjoined numerals, classifier sets, reduplication, approximation, and measure formations remain diagnostic.", "Exceptional gross-count possessive-state formations are documented but do not license ordinary possessive numeral generation.", "Confirmed Nawat/Pipil numeral-NNC forms, classifier inventories, and number-lexeme data remain evidence-needed."];
+      const remainingGaps = ["Basic simple-count cardinal one-through-four target stems now generate from Andrews slots; the rest of the numeral system remains diagnostic.", "Gross counts, high-order compounds, conjoined numerals, classifier sets, reduplication, approximation, and measure formations remain diagnostic.", "Exceptional gross-count possessive-state formations are documented but do not license ordinary possessive numeral generation.", "Extended Andrews numeral-NNC route contracts, classifier inventories, and number-lexeme data remain source-gated."];
       const frame = {
         kind: "lesson-34-cardinal-numeral-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -372,7 +401,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-34-cardinal-numeral-nnc-audit",
           result: "hit",
-          correction: "Lesson 34 now records Andrews cardinal-numeral NNC architecture, vigesimal orders, absolutive-state formula boundary, simple and gross counts, basic stems, high-order compounds, conjoined numerals, classifier sets, reduplication, approximation, and measures while keeping generation blocked.",
+          correction: "Lesson 34 now records Andrews cardinal-numeral NNC architecture, vigesimal orders, absolutive-state formula boundary, simple and gross counts, basic stems, high-order compounds, conjoined numerals, classifier sets, reduplication, approximation, and measures while generating scoped simple-count one-through-four target stems.",
           andrewsRefs: Array.from(LESSON34_CARDINAL_NUMERAL_NNC_PDF_REFS),
           feedbackRefs: Array.from(LESSON34_CARDINAL_NUMERAL_NNC_VALIDATION_REFS)
         }],
@@ -387,7 +416,8 @@ export function createNumeralNncApi(targetObject = globalThis) {
         currentEngineBoundary: {
           numeralNncBoundaryMetadataImplemented: true,
           ordinaryNncGenerationPreserved: true,
-          cardinalNumeralGenerationImplemented: false,
+          cardinalNumeralGenerationImplemented: true,
+          basicSimpleCountOneThroughFourGenerationImplemented: true,
           grossCountGenerationImplemented: false,
           highOrderCompoundGenerationImplemented: false,
           conjoinedNumeralGenerationImplemented: false,
@@ -412,9 +442,9 @@ export function createNumeralNncApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 34.1-34.16",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-plus-source-gate-required"
         },
         morphBoundaryFrame: {
           numeralSystemFrame,
@@ -444,7 +474,7 @@ export function createNumeralNncApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["cardinal-numeral-nnc-diagnostic-only", "cardinal-numeral-nnc-needs-nawat-evidence"]
+        diagnostics: ["cardinal-numeral-nnc-diagnostic-only", "cardinal-numeral-nnc-source-gated"]
       });
     }
     function normalizeNumeralNncEnum(value = "", allowedValues = [], fallback = "unknown") {
@@ -456,6 +486,334 @@ export function createNumeralNncApi(targetObject = globalThis) {
     }
     function normalizeNumeralNncFalsePositiveSource(value = "") {
       return normalizeNumeralNncEnum(value, Object.values(NUMERAL_NNC_FALSE_POSITIVE_SOURCE), NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown);
+    }
+    function normalizeNumeralNncCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews numeral NNC candidate formula",
+        slot: "numeral-nounstem"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function getBasicCardinalNumeralNncStem(value = "") {
+      const normalized = String(value || "").trim().toLowerCase();
+      const numericValue = Number.parseInt(normalized, 10);
+      return BASIC_CARDINAL_NUMERAL_NNC_STEMS.find(entry => entry.id === normalized || entry.classicalStem === normalized || entry.structuralStem === normalized || entry.value === numericValue) || null;
+    }
+    function getBasicCardinalNumeralNncStemInventory() {
+      return BASIC_CARDINAL_NUMERAL_NNC_STEMS.map(entry => ({
+        ...entry
+      }));
+    }
+    function buildBasicCardinalNumeralNncFormulaSlots({
+      stem = null,
+      personPrefix = "0-0",
+      num1 = "0",
+      num2 = "0",
+      stemSurface = ""
+    } = {}) {
+      const persSlot = String(personPrefix || "0-0").trim() || "0-0";
+      const num1Slot = String(num1 || "0").trim() || "0";
+      const num2Slot = String(num2 || "0").trim() || "0";
+      return Object.freeze({
+        pers1Pers2: Object.freeze({
+          role: "subject-person",
+          slot: "pers1-pers2",
+          structural: persSlot,
+          surface: persSlot === "0-0" ? "" : normalizeNumeralNncCandidateSurface(persSlot),
+          owner: "subject"
+        }),
+        numeralStem: Object.freeze({
+          role: "predicate",
+          slot: "STEM",
+          structural: stem?.structuralStem || "",
+          classicalStem: stem?.classicalStem || "",
+          stem: stem?.structuralStem || "",
+          surface: stemSurface,
+          insideParentheses: true
+        }),
+        num1Num2: Object.freeze({
+          role: "subject-number-connector",
+          slot: "num1-num2",
+          structural: `${num1Slot}-${num2Slot}`,
+          surface: num1Slot === "0" && num2Slot === "0" ? "" : normalizeNumeralNncCandidateSurface(`${num1Slot}-${num2Slot}`),
+          owner: "subject",
+          outsideParentheses: true,
+          notTense: true
+        })
+      });
+    }
+    function buildBasicCardinalNumeralNncSourceFrame({
+      value = "",
+      numeralBase = "",
+      personPrefix = "0-0",
+      tenseMorph = "0",
+      num1 = "0",
+      num2 = "0"
+    } = {}) {
+      const stem = getBasicCardinalNumeralNncStem(value || numeralBase);
+      const tenseSlot = String(tenseMorph || "0").trim() || "0";
+      if (!stem || tenseSlot !== "0") {
+        return null;
+      }
+      const persSlot = String(personPrefix || "0-0").trim() || "0-0";
+      const num1Slot = String(num1 || "0").trim() || "0";
+      const num2Slot = String(num2 || "0").trim() || "0";
+      const stemSurface = normalizeNumeralNncCandidateSurface(stem.structuralStem);
+      if (!stemSurface) {
+        return null;
+      }
+      const formulaSlots = buildBasicCardinalNumeralNncFormulaSlots({
+        stem,
+        personPrefix: persSlot,
+        num1: num1Slot,
+        num2: num2Slot,
+        stemSurface
+      });
+      const targetSegmentFrames = Object.freeze([Object.freeze({
+        slot: "pers1-pers2",
+        role: "subject-person",
+        formulaValue: formulaSlots.pers1Pers2.structural,
+        surface: formulaSlots.pers1Pers2.surface,
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }), Object.freeze({
+        slot: "STEM",
+        role: "predicate",
+        formulaValue: formulaSlots.numeralStem.structural,
+        sourceStem: stem.classicalStem,
+        surface: formulaSlots.numeralStem.surface,
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }), Object.freeze({
+        slot: "num1-num2",
+        role: "subject-number-connector",
+        formulaValue: formulaSlots.num1Num2.structural,
+        surface: formulaSlots.num1Num2.surface,
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      })]);
+      return Object.freeze({
+        kind: "basic-cardinal-numeral-nnc-source-frame",
+        version: NUMERAL_NNC_BOUNDARY_VERSION,
+        routeFamily: "basic-cardinal-numeral-nnc",
+        value: stem.value,
+        numeralId: stem.id,
+        andrewsSection: stem.andrewsSection,
+        classicalStem: stem.classicalStem,
+        structuralStem: stem.structuralStem,
+        structuralFormula: `#${persSlot}(${stem.structuralStem})${num1Slot}-${num2Slot}#`,
+        formulaSlots,
+        targetSegmentFrames,
+        targetSurface: targetSegmentFrames.map(segment => String(segment.surface || "")).join(""),
+        targetStem: stemSurface,
+        tenseSlotAllowed: false,
+        ordinaryPossessiveStateLicensed: false,
+        authority: "Andrews Lesson 34 basic cardinal numeral NNC source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildBasicCardinalNumeralNncOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "basic-cardinal-numeral-nnc-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-34-basic-cardinal-numeral-nnc-realization",
+        routeFamily: "basic-cardinal-numeral-nnc",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-basic-cardinal-numeral-nnc-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceValue: sourceFrame.value,
+        sourceNumeralId: sourceFrame.numeralId,
+        sourceStructuralFormula: sourceFrame.structuralFormula,
+        sourceStructuralStem: sourceFrame.structuralStem,
+        targetFormulaSlots: sourceFrame.formulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        targetStem: sourceFrame.targetStem,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getBasicCardinalNumeralNncOperationFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "basic-cardinal-numeral-nnc-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-34-basic-cardinal-numeral-nnc-realization" || operationFrame.routeFamily !== "basic-cardinal-numeral-nnc" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind || Number(operationFrame.sourceValue) !== Number(sourceFrame.value) || String(operationFrame.sourceNumeralId || "") !== String(sourceFrame.numeralId || "") || String(operationFrame.sourceStructuralFormula || "") !== String(sourceFrame.structuralFormula || "") || String(operationFrame.sourceStructuralStem || "") !== String(sourceFrame.structuralStem || "")) {
+        return "contradictory-source-frame";
+      }
+      const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+      }
+      const targetSurface = targetSegmentFrames.map(segment => String(segment?.surface || "")).join("");
+      if (targetSurface !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetStem || "") !== String(sourceFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      if (operationFrame.targetFormulaSlots !== sourceFrame.formulaSlots) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getBasicCardinalNumeralNncBlockedDiagnostic({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const mismatch = getBasicCardinalNumeralNncOperationFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      return mismatch ? `basic-cardinal-numeral-nnc-${mismatch}` : "";
+    }
+    function buildAndrewsBasicCardinalNumeralNnc({
+      value = "",
+      numeralBase = "",
+      personPrefix = "0-0",
+      tenseMorph = "0",
+      num1 = "0",
+      num2 = "0",
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+      const blockedDiagnostic = getBasicCardinalNumeralNncBlockedDiagnostic({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      });
+      if (blockedDiagnostic) {
+        const blocked = {
+          kind: "basic-cardinal-numeral-nnc-generation",
+          version: NUMERAL_NNC_BOUNDARY_VERSION,
+          value: String(value || numeralBase || resolvedSourceFrame?.value || ""),
+          sourceFrame: resolvedSourceFrame,
+          operationFrame,
+          generationAllowed: false,
+          diagnostics: [blockedDiagnostic]
+        };
+        return attachNumeralNncGrammarContract(blocked, {
+          metadataKind: "basic-cardinal-numeral-nnc-generation",
+          routeStage: "block-basic-cardinal-numeral",
+          sourceInput: blocked.value,
+          supported: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const tenseSlot = String(tenseMorph || "0").trim() || "0";
+      if (tenseSlot !== "0") {
+        const blocked = {
+          kind: "basic-cardinal-numeral-nnc-generation",
+          version: NUMERAL_NNC_BOUNDARY_VERSION,
+          value: String(value || numeralBase || resolvedSourceFrame?.value || ""),
+          sourceFrame: resolvedSourceFrame,
+          operationFrame,
+          generationAllowed: false,
+          diagnostics: ["basic-cardinal-numeral-nnc-has-no-tense-slot"]
+        };
+        return attachNumeralNncGrammarContract(blocked, {
+          metadataKind: "basic-cardinal-numeral-nnc-generation",
+          routeStage: "block-basic-cardinal-numeral",
+          sourceInput: blocked.value,
+          supported: false,
+          diagnostics: blocked.diagnostics,
+          nuclearClauseFrame: {
+            formulaFamily: "CNN absolutiva",
+            cardinalNumeralNncsUseAbsolutiveStateFormula: true,
+            ordinaryPossessiveStateLicensed: false,
+            tenseSlotAllowed: false
+          }
+        });
+      }
+      const source = resolvedSourceFrame;
+      const surface = String(operationFrame.targetSurface || "");
+      const formulaSlots = operationFrame.targetFormulaSlots;
+      const generated = {
+        kind: "basic-cardinal-numeral-nnc-generation",
+        version: NUMERAL_NNC_BOUNDARY_VERSION,
+        value: source.value,
+        numeralId: source.numeralId,
+        numeralBase: source.classicalStem,
+        structuralStem: source.structuralStem,
+        targetStemClassical: source.structuralStem,
+        targetStem: source.targetStem,
+        structuralFormula: source.structuralFormula,
+        surface,
+        surfaceForms: surface ? [surface] : [],
+        generationAllowed: Boolean(surface),
+        andrewsSection: source.andrewsSection,
+        sourceFrame: source,
+        operationFrame,
+        formulaSlots,
+        targetSegmentFrames: operationFrame.targetSegmentFrames,
+        diagnostics: ["basic-cardinal-numeral-nnc-andrews-generated", "cardinal-numeral-nnc-absolutive-state", "orthography-bridge-realized"]
+      };
+      return attachNumeralNncGrammarContract(generated, {
+        metadataKind: "basic-cardinal-numeral-nnc-generation",
+        unitKind: "cardinal-numeral-nnc",
+        routeStage: "generate-basic-cardinal-numeral-nnc",
+        sourceInput: String(value || numeralBase || source.value),
+        generationAllowed: generated.generationAllowed,
+        supported: generated.generationAllowed,
+        surface,
+        surfaceForms: generated.surfaceForms,
+        diagnostics: generated.diagnostics,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "orthography-bridge-realized",
+          sourceSurface: source.structuralStem,
+          surface,
+          surfaceForms: generated.surfaceForms,
+          sourceFrame: source,
+          operationFrame
+        },
+        stemFrame: {
+          stemKind: "basic-cardinal-numeral-nounstem",
+          sourceStem: source.classicalStem,
+          targetStem: source.structuralStem,
+          realizedTargetStem: source.targetStem,
+          sourceFrame: source,
+          operationFrame
+        },
+        nuclearClauseFrame: {
+          formulaFamily: "CNN absolutiva",
+          structuralFormula: source.structuralFormula,
+          formulaSlots: generated.formulaSlots,
+          cardinalNumeralNncsUseAbsolutiveStateFormula: true,
+          ordinaryPossessiveStateLicensed: false,
+          tenseSlotAllowed: false,
+          targetSegmentFrames: operationFrame.targetSegmentFrames
+        },
+        targetContract: {
+          metadataKind: "basic-cardinal-numeral-nnc-generation",
+          generationAllowed: generated.generationAllowed,
+          andrewsSection: source.andrewsSection,
+          basicCardinalGenerated: true,
+          finiteSurfaceExpansionAllowed: false,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false
+        }
+      });
+    }
+    function hasNumeralNncAndrewsSourceGate({
+      sourceGate = "",
+      structuredSource = false
+    } = {}) {
+      return structuredSource === true || Boolean(String(sourceGate || "").trim());
     }
     function getNumeralNncAntiConflationRules() {
       return Array.from(NUMERAL_NNC_ANTI_CONFLATION_RULES);
@@ -484,13 +842,14 @@ export function createNumeralNncApi(targetObject = globalThis) {
         appendices: ["D"],
         status: "partial",
         structuralSource: "Andrews Lesson 34 and Appendix D",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews numeral rules with Nawat/Pipil orthographic realization",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getNumeralNncStructuralQuestions(),
         boundaries: {
           hasOrdinaryNncGeneration: true,
-          hasNumeralNncGeneration: false,
+          hasNumeralNncGeneration: true,
+          hasBasicCardinalGeneration: true,
           hasStaticNumberData: false,
           hasConfirmedFixtureData: false,
           changesOrdinaryNncGeneration: false,
@@ -510,32 +869,97 @@ export function createNumeralNncApi(targetObject = globalThis) {
       numeralKind = "",
       nncRole = "",
       evidenceSource = "",
+      sourceGate = "",
+      structuredSource = false,
       falsePositiveSource = "",
-      sourceKind = ""
+      sourceKind = "",
+      sourceFrame = null,
+      operationFrame = null
     } = {}) {
       const normalizedKind = normalizeNumeralNncKind(numeralKind);
       const normalizedFalsePositive = normalizeNumeralNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+      const mayGenerate = (normalizedKind === NUMERAL_NNC_KIND.cardinal || normalizedKind === NUMERAL_NNC_KIND.numeralNnc) && normalizedFalsePositive === NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown;
+      const blockedDiagnostic = mayGenerate ? getBasicCardinalNumeralNncBlockedDiagnostic({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      }) : "";
+      const andrewsGeneration = !blockedDiagnostic && mayGenerate ? buildAndrewsBasicCardinalNumeralNnc({
+        value: numeralBase,
+        numeralBase,
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      }) : null;
+      const generatedCandidate = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.targetStemClassical : "";
+      const sourceSurface = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.surface : "";
+      const canGenerate = Boolean(sourceSurface && andrewsGeneration?.generationAllowed === true && normalizedKind !== NUMERAL_NNC_KIND.unknown && normalizedFalsePositive === NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown);
       const classification = {
         kind: "numeral-nnc-candidate-classification",
         version: NUMERAL_NNC_BOUNDARY_VERSION,
-        candidate: String(candidate || ""),
+        candidate: String(candidate || generatedCandidate || ""),
         numeralBase: String(numeralBase || ""),
         numeralKind: normalizedKind,
         nncRole: String(nncRole || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
         sourceKind: String(sourceKind || ""),
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "numeral-nnc-needs-validation" : "numeral-nnc-needs-nawat-evidence", normalizedKind !== NUMERAL_NNC_KIND.unknown ? "numeral-nnc-category-recognized" : "numeral-nnc-category-unconfirmed", normalizedFalsePositive !== NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown ? "numeral-nnc-false-positive-source" : "numeral-nnc-unconfirmed"],
+        ...(resolvedSourceFrame ? {
+          sourceFrame: resolvedSourceFrame
+        } : {}),
+        ...(operationFrame ? {
+          operationFrame
+        } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(andrewsGeneration?.generationAllowed === true ? {
+          andrewsGeneration,
+          structuralFormula: andrewsGeneration.structuralFormula,
+          formulaSlots: andrewsGeneration.formulaSlots
+        } : {}),
+        diagnostics: [andrewsGeneration?.generationAllowed === true ? "basic-cardinal-numeral-nnc-andrews-generated" : canGenerate ? "numeral-nnc-andrews-source-generated" : blockedDiagnostic || (hasEvidence ? "numeral-nnc-needs-validation" : "numeral-nnc-source-gate-required"), normalizedKind !== NUMERAL_NNC_KIND.unknown ? "numeral-nnc-category-recognized" : "numeral-nnc-category-unconfirmed", normalizedFalsePositive !== NUMERAL_NNC_FALSE_POSITIVE_SOURCE.unknown ? "numeral-nnc-false-positive-source" : canGenerate ? "numeral-nnc-structured-source" : "numeral-nnc-unconfirmed"],
         boundary: buildNumeralNncBoundaryMetadata()
       };
       return attachNumeralNncGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-numeral-nnc" : "classify-boundary",
         sourceInput: classification.candidate || classification.numeralBase,
-        supported: false,
-        morphBoundaryFrame: classification.boundary
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          sourceSurface: andrewsGeneration?.targetStemClassical || classification.candidate,
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
+        morphBoundaryFrame: classification.boundary,
+        stemFrame: {
+          stemKind: "numeral-nounstem-candidate",
+          sourceStem: classification.numeralBase,
+          targetStem: andrewsGeneration?.targetStemClassical || classification.candidate || classification.numeralBase,
+          realizedTargetStem: classification.surface,
+          sourceGate: classification.sourceGate,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
+        nuclearClauseFrame: andrewsGeneration?.frames?.nuclearClauseFrame || undefined,
+        targetContract: {
+          metadataKind: "numeral-nnc-candidate-classification",
+          generationAllowed: canGenerate,
+          basicCardinalGenerated: andrewsGeneration?.generationAllowed === true,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false
+        }
       });
     }
     function classifyNumeralNncFalsePositive(source = "") {
@@ -567,6 +991,11 @@ export function createNumeralNncApi(targetObject = globalThis) {
         configurable: true,
         enumerable: true,
         get() { return NUMERAL_NNC_KIND; },
+    });
+    Object.defineProperty(api, "BASIC_CARDINAL_NUMERAL_NNC_STEMS", {
+        configurable: true,
+        enumerable: true,
+        get() { return BASIC_CARDINAL_NUMERAL_NNC_STEMS; },
     });
     Object.defineProperty(api, "NUMERAL_NNC_FALSE_POSITIVE_SOURCE", {
         configurable: true,
@@ -639,6 +1068,16 @@ export function createNumeralNncApi(targetObject = globalThis) {
     api.normalizeNumeralNncEnum = normalizeNumeralNncEnum;
     api.normalizeNumeralNncKind = normalizeNumeralNncKind;
     api.normalizeNumeralNncFalsePositiveSource = normalizeNumeralNncFalsePositiveSource;
+    api.normalizeNumeralNncCandidateSurface = normalizeNumeralNncCandidateSurface;
+    api.getBasicCardinalNumeralNncStem = getBasicCardinalNumeralNncStem;
+    api.getBasicCardinalNumeralNncStemInventory = getBasicCardinalNumeralNncStemInventory;
+    api.buildBasicCardinalNumeralNncFormulaSlots = buildBasicCardinalNumeralNncFormulaSlots;
+    api.buildBasicCardinalNumeralNncSourceFrame = buildBasicCardinalNumeralNncSourceFrame;
+    api.buildBasicCardinalNumeralNncOperationFrame = buildBasicCardinalNumeralNncOperationFrame;
+    api.getBasicCardinalNumeralNncOperationFrameMismatch = getBasicCardinalNumeralNncOperationFrameMismatch;
+    api.getBasicCardinalNumeralNncBlockedDiagnostic = getBasicCardinalNumeralNncBlockedDiagnostic;
+    api.buildAndrewsBasicCardinalNumeralNnc = buildAndrewsBasicCardinalNumeralNnc;
+    api.hasNumeralNncAndrewsSourceGate = hasNumeralNncAndrewsSourceGate;
     api.getNumeralNncAntiConflationRules = getNumeralNncAntiConflationRules;
     api.getNumeralNncStructuralQuestions = getNumeralNncStructuralQuestions;
     api.attachNumeralNncGrammarContract = attachNumeralNncGrammarContract;

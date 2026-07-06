@@ -70,7 +70,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized adverbial relation remains unconfirmed without Nawat clause evidence",
+        "recognized adverbial relation remains unconfirmed without Andrews clause-source context",
         ctx.classifyAdverbialAdjunctionCandidate({
             principalClause: "unknown",
             adjoinedUnit: "translation label",
@@ -92,7 +92,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "adverbial-adjunction-needs-nawat-clause-evidence",
+                "adverbial-adjunction-source-gated",
                 "adverbial-adjunction-relation-recognized",
                 "adverbial-adjunction-unit-recognized",
                 "adverbial-adjunction-false-positive-source",
@@ -125,8 +125,8 @@ function run(ctx) {
             "adverbial nuclear-clause metadata is not recursive adverbial adjunction",
             "relational and place/gentilic boundary metadata are not adjoined-clause evidence",
             "single generated NNC or VNC words do not prove adjoined-unit relations",
-            "translations for time, place, manner, purpose, reason, or condition are not Nawat/Pipil clause evidence",
-            "Andrews adverbial-adjunction categories are architecture, not Nawat/Pipil form authority",
+            "translations for time, place, manner, purpose, reason, or condition are not orthography-bridge clause evidence",
+            "Andrews adverbial-adjunction categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("adverbial adjunction boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -248,7 +248,7 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-49",
-            diagnosticIds: ["adverbial-adjunction-lesson-49-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
+            diagnosticIds: ["adverbial-adjunction-lesson-49-diagnostic-partial", "adverbial-adjunction-source-gated"],
         }
     );
 
@@ -382,7 +382,7 @@ function run(ctx) {
             },
             orthographySlotScoped: true,
             grammarRouteStage: "audit-lesson-50",
-            diagnosticIds: ["adverbial-adjunction-lesson-50-diagnostic-partial", "adverbial-adjunction-needs-nawat-clause-evidence"],
+            diagnosticIds: ["adverbial-adjunction-lesson-50-diagnostic-partial", "adverbial-adjunction-source-gated"],
         }
     );
 
@@ -447,13 +447,13 @@ function run(ctx) {
         (() => {
             const principalFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-principal / frame-principal-alt"],
+                    surfaceForms: ["frame-principal", "frame-principal-alt"],
                     outputKind: "vnc",
                 }),
             });
             const adjoinedFrame = ctx.buildGrammarFrame({
                 resultFrame: ctx.buildGrammarResultFrame({
-                    surfaceForms: ["frame-adjoined / frame-adjoined-alt"],
+                    surfaceForms: ["frame-adjoined", "frame-adjoined-alt"],
                     outputKind: "nnc",
                 }),
             });
@@ -621,14 +621,14 @@ function run(ctx) {
 	            const principalFrame = ctx.buildGrammarFrame({
 	                resultFrame: ctx.buildGrammarResultFrame({
 	                    surface: "frame-output-principal-surface",
-	                    surfaceForms: ["frame-output-principal-a / frame-output-principal-b"],
+	                    surfaceForms: ["frame-output-principal-a", "frame-output-principal-b"],
 	                    outputKind: "vnc",
 	                }),
 	            });
 	            const adjoinedFrame = ctx.buildGrammarFrame({
 	                resultFrame: ctx.buildGrammarResultFrame({
 	                    surface: "frame-output-adjoined-surface",
-	                    surfaceForms: ["frame-output-adjoined-a / frame-output-adjoined-b"],
+	                    surfaceForms: ["frame-output-adjoined-a", "frame-output-adjoined-b"],
 	                    outputKind: "nnc",
 	                }),
 	            });
@@ -833,8 +833,144 @@ function run(ctx) {
             surface: "",
             diagnostics: [
                 "adverbial-adjunction-requires-principal-clause-surface",
-                "adverbial-adjunction-needs-nawat-clause-evidence",
+                "adverbial-adjunction-source-gated",
             ],
+        }
+    );
+    s.eq(
+        "adverbial adjunction handoff reads canonical realization before split display surfaces",
+        (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "adjunction-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical-adjunction)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical-adjunction", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "adjunction-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical-adjunction", surface: "canonical-adjunction" },
+                ],
+                surfaceForms: ["canonical-adjunction"],
+            });
+            const input = {
+                surface: "top-lie / top-alt-lie",
+                result: "result-lie / result-alt-lie",
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord,
+                        }),
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie / frame-alt-lie"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord,
+                        formulaRealizationRecords: [formulaRealizationRecord],
+                    },
+                }),
+            };
+            return {
+                surface: ctx.getAdverbialAdjunctionSurface(input, "fallback-lie"),
+                forms: ctx.getAdverbialAdjunctionSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "canonical-adjunction",
+            forms: ["canonical-adjunction"],
+        }
+    );
+    s.eq(
+        "adverbial adjunction AST carries canonical selected variant ids instead of display surfaces",
+        (() => {
+            const makeInput = (label) => {
+                const formulaRecord = ctx.buildGrammarFormulaRecord({
+                    id: `${label}-formula`,
+                    unit: "NNC",
+                    formula: `#0-0(${label})0-0#`,
+                    formulaSlots: {
+                        predicateStem: { stem: label, slot: "STEM" },
+                    },
+                });
+                const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                    id: `${label}-realization`,
+                    formulaRecord,
+                    segmentFrames: [
+                        { slot: "predicateStem", formulaValue: label, surface: `${label}-canonical` },
+                    ],
+                    surfaceForms: [`${label}-canonical`],
+                });
+                return {
+                    surface: `${label}-surface-lie`,
+                    result: `${label}-result-lie / ${label}-result-alt-lie`,
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                formulaRecord,
+                                formulaRealizationRecord,
+                            }),
+                            surface: `${label}-frame-lie`,
+                            surfaceForms: [`${label}-frame-lie / ${label}-frame-alt-lie`],
+                            formulaRecord,
+                            formulaRealizationRecord,
+                            formulaRealizationRecords: [formulaRealizationRecord],
+                        },
+                    }),
+                };
+            };
+            const ast = ctx.buildAdverbialAdjunctionAst({
+                principalClause: makeInput("principal-adjunction"),
+                adjoinedUnit: makeInput("adjoined-adjunction"),
+                semanticRelation: "place",
+                adjoinedUnitType: "nnc",
+                order: "modifier-head",
+                evidenceSource: "test-selected-variant-contract",
+            });
+            return {
+                surface: ast.surface,
+                principalVariantId: ast.principalClause.selectedVariantId,
+                adjoinedVariantId: ast.adjoinedUnit.selectedVariantId,
+                principalRealizationId: ast.principalClause.formulaRealizationRecordId,
+                adjoinedRealizationId: ast.adjoinedUnit.formulaRealizationRecordId,
+            };
+        })(),
+        {
+            surface: "adjoined-adjunction-canonical principal-adjunction-canonical",
+            principalVariantId: "principal-adjunction-realization::surface-0",
+            adjoinedVariantId: "adjoined-adjunction-realization::surface-0",
+            principalRealizationId: "principal-adjunction-realization",
+            adjoinedRealizationId: "adjoined-adjunction-realization",
+        }
+    );
+    s.eq(
+        "adverbial adjunction handoff blocks slash-joined result-frame display strings",
+        (() => {
+            const input = {
+                surface: "top-adjunction-lie",
+                result: "result-adjunction-lie",
+                grammarFrame: {
+                    resultFrame: {
+                        kind: "grammar-result-frame",
+                        ok: true,
+                        surface: "frame-adjunction-a / frame-adjunction-b",
+                        surfaceForms: ["frame-adjunction-a / frame-adjunction-b"],
+                    },
+                },
+            };
+            return {
+                surface: ctx.getAdverbialAdjunctionSurface(input, "fallback-lie"),
+                forms: ctx.getAdverbialAdjunctionSurfaceForms(input),
+            };
+        })(),
+        {
+            surface: "",
+            forms: [],
         }
     );
 

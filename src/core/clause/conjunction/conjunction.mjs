@@ -65,13 +65,13 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const CONJUNCTION_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze(["conjunction boundary metadata is not generation", "parser separators and slash variants are not conjunction AST evidence", "CSV alternants are not clause-level conjunction evidence", "particle or translation labels are not Nawat/Pipil conjunction evidence", "single generated words do not prove marked, unmarked, correlative, or parallel conjunction", "Andrews conjunction categories are architecture, not Nawat/Pipil form authority"]);
+    const CONJUNCTION_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze(["conjunction boundary metadata is not generation", "parser separators and slash variants are not conjunction AST evidence", "CSV alternants are not clause-level conjunction evidence", "particle or translation labels are not orthography-bridge conjunction evidence", "single generated words do not prove marked, unmarked, correlative, or parallel conjunction", "Andrews conjunction categories are architecture, not Nawat/Pipil orthography authority"]);
     const CONJUNCTION_CLAUSE_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "conjuncts",
       asks: "Which Nawat/Pipil words, NNCs, VNCs, clauses, or sentences are conjoined?"
     }), Object.freeze({
       field: "marker",
-      asks: "What Nawat/Pipil marker or lack of marker is evidenced?"
+      asks: "What Andrews marker model or orthographic absence is evidenced?"
     }), Object.freeze({
       field: "conjunctionRelation",
       asks: "Is the relation marked, unmarked, correlative, parallel, lexicalized, or unknown?"
@@ -83,7 +83,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
       asks: "What evidence supports parallel structure or lexical innovation by conjunction?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided clause evidence supports conjunction?"
+      asks: "What Andrews source model or user-provided clause context supports conjunction?"
     })]);
     function normalizeConjunctionClauseEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
@@ -536,7 +536,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
       const correlativeFrame = cloneConjunctionClauseLessonRecord(LESSON52_CORRELATIVE_CONJUNCTION_FRAME);
       const lexicalInnovationFrame = cloneConjunctionClauseLessonRecord(LESSON52_LEXICAL_INNOVATION_FRAME);
       const parallelStructureFrame = cloneConjunctionClauseLessonRecord(LESSON52_PARALLEL_STRUCTURE_FRAME);
-      const remainingGaps = ["Current Lesson 52 support records Andrews' conjunction architecture as diagnostics and supplied-surface AST frames; it does not implement static conjunction data, parser/search detection, or automatic relation inference.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Unmarked relation inference, auh/orthography decisions, adverbial-modifier-vs-conjunctor detection, correlative pairing, biclausalism/triclausalism classification, parallel-structure parsing, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 52 support records Andrews' conjunction architecture as diagnostics and supplied-surface AST frames; it does not implement static conjunction data, parser/search detection, or automatic relation inference.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.", "Unmarked relation inference, auh/orthography decisions, adverbial-modifier-vs-conjunctor detection, correlative pairing, biclausalism/triclausalism classification, parallel-structure parsing, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-52-conjunction-clause-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -597,7 +597,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 52.1-52.7",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil conjunction-clause evidence",
+          spellingAuthority: "Nawat/Pipil conjunction-clause orthography bridge",
           noClassicalSurfaceImport: true,
           slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
           orthographyStatus: "not-surface-bearing"
@@ -631,7 +631,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["conjunction-clause-lesson-52-diagnostic-partial", "conjunction-clause-needs-nawat-clause-evidence"]
+        diagnostics: ["conjunction-clause-lesson-52-diagnostic-partial", "conjunction-clause-source-gated"]
       });
     }
     function buildConjunctionClauseBoundaryMetadata() {
@@ -641,7 +641,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         lesson: 52,
         status: "partial",
         structuralSource: "Andrews Lesson 52",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getConjunctionClauseStructuralQuestions(),
@@ -676,6 +676,45 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
     function splitConjunctionClauseSurfaceText(value = "") {
       return String(value || "").split(/\s*\/\s*/g).map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—");
     }
+    function getConjunctionClauseCanonicalRealizationSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record").flatMap(record => [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""]).map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+    }
+    function getConjunctionClauseSelectedRealizationVariant(input = null) {
+      if (!input || typeof input !== "object") {
+        return null;
+      }
+      const grammarFrame = getConjunctionClauseResultFrame(input);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      if (!resultFrame) {
+        return null;
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+          continue;
+        }
+        const surfaces = [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""].map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+          continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+          kind: "grammar-formula-realization-selected-variant",
+          selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+          selectedVariantIndex,
+          formulaRealizationRecordId,
+          formulaRecordId,
+          unit: String(record.unit || resultFrame.formulaRecord?.unit || "")
+        };
+      }
+      return null;
+    }
     function getConjunctionClauseResultFrame(input = null) {
       return (input?.grammarFrame && typeof input.grammarFrame === "object" ? input.grammarFrame : null) || (input?.frames && typeof input.frames === "object" ? input.frames : null);
     }
@@ -689,6 +728,10 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
       const grammarFrame = getConjunctionClauseResultFrame(input);
       const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(frameResult);
+      const canonicalForms = getConjunctionClauseCanonicalRealizationSurfaceForms(frameResult);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -697,7 +740,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         forms.push(frameResult.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitConjunctionClauseSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—" && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
         forms.push(...input.surfaceForms);
@@ -718,10 +761,17 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
     }
     function buildConjunctionClauseNode(input = "", index = 0, unitType = CONJUNCTION_CLAUSE_UNIT.unknown) {
       const surface = getConjunctionClauseSurface(input);
+      const selectedVariant = getConjunctionClauseSelectedRealizationVariant(input);
       return {
         kind: "conjunction-clause-node",
         index,
         surface,
+        ...(selectedVariant ? {
+          selectedVariant,
+          selectedVariantId: selectedVariant.selectedVariantId,
+          formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+          formulaRecordId: selectedVariant.formulaRecordId
+        } : {}),
         unitType: normalizeConjunctionClauseUnit(typeof input === "object" && input ? input.unitType || input.clauseKind || unitType : unitType),
         clauseKind: typeof input === "object" && input ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown") : "unknown",
         preservesSurface: true
@@ -818,7 +868,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         diagnostics.push("rightward-adverbial-modifier-is-not-conjunctor");
       }
       if (!String(evidenceSource || "").trim()) {
-        diagnostics.push("conjunction-clause-needs-nawat-clause-evidence");
+        diagnostics.push("conjunction-clause-source-gated");
       }
       const supported = Boolean(conjunctNodes.filter(node => node.surface).length >= 2 && normalizedRelation !== CONJUNCTION_CLAUSE_RELATION.unknown && normalizedCoordination !== CONJUNCTION_CLAUSE_COORDINATION_TYPE.unknown && normalizedUnit !== CONJUNCTION_CLAUSE_UNIT.unknown && normalizedLevel !== CONJUNCTION_CLAUSE_LEVEL.unknown && !diagnostics.includes("marked-conjunction-requires-structural-conjunctor") && !diagnostics.includes("unmarked-conjunction-should-not-use-structural-conjunctor") && !diagnostics.includes("adversative-conjunction-requires-two-conjuncts") && !diagnostics.includes("lexical-conjoined-nnc-requires-shared-referent"));
       const surfaceSequence = supported ? buildConjunctionSurfaceSequence(conjunctNodes, marker, normalizedMarking) : [];
@@ -904,7 +954,7 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
         falsePositiveSource: normalizedFalsePositive,
         confirmed: false,
         generationAllowed: false,
-        diagnostics: [hasEvidence ? "conjunction-clause-needs-validation" : "conjunction-clause-needs-nawat-clause-evidence", normalizedRelation !== CONJUNCTION_CLAUSE_RELATION.unknown ? "conjunction-clause-relation-recognized" : "conjunction-clause-relation-unconfirmed", normalizedUnit !== CONJUNCTION_CLAUSE_UNIT.unknown ? "conjunction-clause-unit-recognized" : "conjunction-clause-unit-unconfirmed", normalizedFalsePositive !== CONJUNCTION_CLAUSE_FALSE_POSITIVE_SOURCE.unknown ? "conjunction-clause-false-positive-source" : "conjunction-clause-unconfirmed"],
+        diagnostics: [hasEvidence ? "conjunction-clause-needs-validation" : "conjunction-clause-source-gated", normalizedRelation !== CONJUNCTION_CLAUSE_RELATION.unknown ? "conjunction-clause-relation-recognized" : "conjunction-clause-relation-unconfirmed", normalizedUnit !== CONJUNCTION_CLAUSE_UNIT.unknown ? "conjunction-clause-unit-recognized" : "conjunction-clause-unit-unconfirmed", normalizedFalsePositive !== CONJUNCTION_CLAUSE_FALSE_POSITIVE_SOURCE.unknown ? "conjunction-clause-false-positive-source" : "conjunction-clause-unconfirmed"],
         boundary: buildConjunctionClauseBoundaryMetadata()
       };
     }
@@ -1046,6 +1096,8 @@ export function createConjunctionClauseGlobals(targetObject = globalThis) {
     api.buildConjunctionClauseBoundaryMetadata = buildConjunctionClauseBoundaryMetadata;
     api.getConjunctionClauseSurface = getConjunctionClauseSurface;
     api.splitConjunctionClauseSurfaceText = splitConjunctionClauseSurfaceText;
+    api.getConjunctionClauseCanonicalRealizationSurfaceForms = getConjunctionClauseCanonicalRealizationSurfaceForms;
+    api.getConjunctionClauseSelectedRealizationVariant = getConjunctionClauseSelectedRealizationVariant;
     api.getConjunctionClauseResultFrame = getConjunctionClauseResultFrame;
     api.getConjunctionClauseSurfaceForms = getConjunctionClauseSurfaceForms;
     api.buildConjunctionClauseNode = buildConjunctionClauseNode;

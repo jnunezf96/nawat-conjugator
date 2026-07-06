@@ -1,7 +1,7 @@
 // core/clause/complement/complement.js
 // Lesson 51 complementation boundary metadata. This keeps current word-level
 // VNC/NNC outputs, object controls, and nominalization metadata separate from
-// confirmed clause-level complement structures until Nawat/Pipil evidence
+// confirmed clause-level complement structures until Andrews source logic plus the orthography bridge
 // supports them.
 
 "use strict";
@@ -77,7 +77,7 @@ const COMPLEMENT_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze([
     "ordinary VNC or NNC output is not a complement AST",
     "nominalizationProfile is not a clause-level complement relation",
     "single generated words do not prove object, subject, or adverbial complements",
-    "Andrews complementation categories are architecture, not Nawat/Pipil form authority",
+    "Andrews complementation categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const COMPLEMENT_CLAUSE_STRUCTURAL_QUESTIONS = Object.freeze([
@@ -103,7 +103,7 @@ const COMPLEMENT_CLAUSE_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided clause evidence supports complementation?",
+        asks: "What Andrews source model or user-provided clause context supports complementation?",
     }),
 ]);
 
@@ -403,8 +403,8 @@ function buildLesson51ComplementClausePursuitFrame() {
     const adverbialComplementFrame = cloneComplementClauseLessonRecord(LESSON51_ADVERBIAL_COMPLEMENT_FRAME);
     const remainingGaps = [
         "Current Lesson 51 support records Andrews' complementation architecture as diagnostics and supplied-surface AST frames; it does not implement static complement data, complement parser/search detection, or surface generation.",
-        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.",
-        "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, acciones de interfaz, and confirmed Nawat/Pipil examples remain partial or evidence-needed.",
+        "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.",
+        "Object-complement verbstem inventories, subject-complement state parsing, adverbial-complement stem-family routing, relational lexicalized vocabulary, passive transform detection, acciones de interfaz, and Andrews source models plus orthography-bridge fixtures remain partial or evidence-needed.",
     ];
     const frame = {
         kind: "lesson-51-complement-clause-pursuit-frame",
@@ -466,7 +466,7 @@ function buildLesson51ComplementClausePursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 51.1-51.4",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil complement-clause evidence",
+            spellingAuthority: "Nawat/Pipil complement-clause orthography bridge",
             noClassicalSurfaceImport: true,
             slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
             orthographyStatus: "not-surface-bearing",
@@ -495,7 +495,7 @@ function buildLesson51ComplementClausePursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-needs-nawat-clause-evidence"],
+        diagnostics: ["complement-clause-lesson-51-diagnostic-partial", "complement-clause-source-gated"],
     });
 }
 
@@ -506,7 +506,7 @@ function buildComplementClauseBoundaryMetadata() {
         lesson: 51,
         status: "partial",
         structuralSource: "Andrews Lesson 51",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getComplementClauseStructuralQuestions(),
@@ -549,6 +549,65 @@ function splitComplementClauseSurfaceText(value = "") {
         .filter((entry) => entry && entry !== "—");
 }
 
+function getComplementClauseCanonicalRealizationSurfaceForms(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return records
+        .filter((record) => record && typeof record === "object" && record.kind === "grammar-formula-realization-record")
+        .flatMap((record) => [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ])
+        .map((entry) => String(entry || "").trim())
+        .filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+}
+
+function getComplementClauseSelectedRealizationVariant(input = null) {
+    if (!input || typeof input !== "object") {
+        return null;
+    }
+    const grammarFrame = getComplementClauseResultFrame(input);
+    const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object"
+        ? grammarFrame.resultFrame
+        : null;
+    if (!resultFrame) {
+        return null;
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+            continue;
+        }
+        const surfaces = [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ]
+            .map((entry) => String(entry || "").trim())
+            .filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+            continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+            kind: "grammar-formula-realization-selected-variant",
+            selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+            selectedVariantIndex,
+            formulaRealizationRecordId,
+            formulaRecordId,
+            unit: String(record.unit || resultFrame.formulaRecord?.unit || ""),
+        };
+    }
+    return null;
+}
+
 function getComplementClauseResultFrame(input = null) {
     return (
         (input?.grammarFrame && typeof input.grammarFrame === "object" ? input.grammarFrame : null)
@@ -568,6 +627,10 @@ function getComplementClauseSurfaceForms(input = null) {
         ? grammarFrame.resultFrame
         : null;
     const hasResultFrame = Boolean(frameResult);
+    const canonicalForms = getComplementClauseCanonicalRealizationSurfaceForms(frameResult);
+    if (canonicalForms.length) {
+        return canonicalForms;
+    }
     const forms = [];
     if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -577,7 +640,8 @@ function getComplementClauseSurfaceForms(input = null) {
     }
     if (hasResultFrame) {
         return forms
-            .flatMap((entry) => splitComplementClauseSurfaceText(entry))
+            .map((entry) => String(entry || "").trim())
+            .filter((entry) => entry && entry !== "—" && !entry.includes("/"))
             .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
@@ -602,10 +666,17 @@ function getComplementClauseSurfaceForms(input = null) {
 
 function buildComplementClauseNode(input = "", role = "unknown", fallbackSurface = "") {
     const surface = getComplementClauseSurface(input, fallbackSurface);
+    const selectedVariant = getComplementClauseSelectedRealizationVariant(input);
     return {
         kind: "complement-clause-node",
         role: String(role || "unknown"),
         surface,
+        ...(selectedVariant ? {
+            selectedVariant,
+            selectedVariantId: selectedVariant.selectedVariantId,
+            formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+            formulaRecordId: selectedVariant.formulaRecordId,
+        } : {}),
         clauseKind: typeof input === "object" && input
             ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown")
             : "unknown",
@@ -768,7 +839,7 @@ function buildComplementClauseAst({
         diagnostics.push("subject-complement-requires-subject-pronoun-link");
     }
     if (!String(evidenceSource || "").trim()) {
-        diagnostics.push("complement-clause-needs-nawat-clause-evidence");
+        diagnostics.push("complement-clause-source-gated");
     }
     const supported = Boolean(
         principalNode.surface
@@ -859,7 +930,7 @@ function classifyComplementClauseCandidate({
         confirmed: false,
         generationAllowed: false,
         diagnostics: [
-            hasEvidence ? "complement-clause-needs-validation" : "complement-clause-needs-nawat-clause-evidence",
+            hasEvidence ? "complement-clause-needs-validation" : "complement-clause-source-gated",
             normalizedRole !== COMPLEMENT_CLAUSE_ROLE.unknown
                 ? "complement-clause-role-recognized"
                 : "complement-clause-role-unconfirmed",

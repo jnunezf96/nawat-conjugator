@@ -73,6 +73,174 @@ function run(ctx) {
     s.ok("isRecognized: nemi is valid", ctx.isRecognizedCurrentRegexValue("nemi"));
     s.no("isRecognized: empty is invalid", ctx.isRecognizedCurrentRegexValue(""));
     s.no("isRecognized: whitespace-only is invalid", ctx.isRecognizedCurrentRegexValue("   "));
+    s.eq(
+        "compound marker constants consume structured token classes instead of regex strings",
+        (() => {
+            const oldMarker = ctx.COMPOUND_MARKER_RE;
+            const oldSplit = ctx.COMPOUND_MARKER_SPLIT_RE;
+            const oldAllowed = ctx.COMPOUND_ALLOWED_RE;
+            try {
+                ctx.applyStaticConstants({
+                    compoundTokenClasses: {
+                        letterRanges: [{ from: "a", to: "z" }],
+                        markerTokens: ["@"],
+                        splitTokens: ["@"],
+                    },
+                });
+                const structured = {
+                    marker: "x@y".replace(ctx.COMPOUND_MARKER_RE, ""),
+                    split: "x@y".split(ctx.COMPOUND_MARKER_SPLIT_RE),
+                    allowed: "x!@y".replace(ctx.COMPOUND_ALLOWED_RE, ""),
+                };
+                ctx.applyStaticConstants({
+                    compoundMarkerRe: { pattern: "x", flags: "g" },
+                    compoundMarkerSplitRe: { pattern: "x" },
+                    compoundAllowedRe: { pattern: "x", flags: "g" },
+                });
+                const poisonedLegacyRegex = {
+                    marker: "x@y".replace(ctx.COMPOUND_MARKER_RE, ""),
+                    split: "x@y".split(ctx.COMPOUND_MARKER_SPLIT_RE),
+                    allowed: "x!@y".replace(ctx.COMPOUND_ALLOWED_RE, ""),
+                };
+                return { structured, poisonedLegacyRegex };
+            } finally {
+                ctx.COMPOUND_MARKER_RE = oldMarker;
+                ctx.COMPOUND_MARKER_SPLIT_RE = oldSplit;
+                ctx.COMPOUND_ALLOWED_RE = oldAllowed;
+            }
+        })(),
+        {
+            structured: {
+                marker: "xy",
+                split: ["x", "y"],
+                allowed: "x@y",
+            },
+            poisonedLegacyRegex: {
+                marker: "xy",
+                split: ["x", "y"],
+                allowed: "x@y",
+            },
+        }
+    );
+
+    const shorthandSourceFrame = ctx.buildCurrentRegexShorthandSourceFrame("nemi");
+    const shorthandOperationFrame = ctx.buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame);
+    s.eq("current regex shorthand route requires source and operation frames", {
+        directOldApi: ctx.getCurrentRegexShorthandParseInput("nemi"),
+        framedApi: ctx.getCurrentRegexShorthandParseInput("nemi", shorthandOperationFrame),
+        sourceKind: shorthandSourceFrame.kind,
+        sourceLayer: shorthandSourceFrame.sourceLayer,
+        targetKind: shorthandOperationFrame.targetFrame.kind,
+        operationKind: shorthandOperationFrame.kind,
+        operationStatus: shorthandOperationFrame.status,
+        parsedVerb: ctx.parseVerbInput("nemi").verb,
+        parsedDisplay: ctx.parseVerbInput("nemi").displayVerb,
+        parsedSourceFrame: ctx.parseVerbInput("nemi").currentRegexShorthandSourceFrame?.kind || "",
+        parsedOperationFrame: ctx.parseVerbInput("nemi").currentRegexShorthandOperationFrame?.kind || "",
+        canonicalOperationFrame: ctx.parseVerbInput("nemi").canonical.currentRegexShorthandOperationFrame?.kind || "",
+    }, {
+        directOldApi: "",
+        framedApi: "(nemi)",
+        sourceKind: "current-regex-shorthand-source-frame",
+        sourceLayer: "original-current-regex-input",
+        targetKind: "current-regex-shorthand-target-frame",
+        operationKind: "andrews-current-regex-shorthand-operation-frame",
+        operationStatus: "authorized",
+        parsedVerb: "nemi",
+        parsedDisplay: "nemi",
+        parsedSourceFrame: "current-regex-shorthand-source-frame",
+        parsedOperationFrame: "andrews-current-regex-shorthand-operation-frame",
+        canonicalOperationFrame: "andrews-current-regex-shorthand-operation-frame",
+    });
+    s.eq("current regex shorthand blocks slash-boundary shorthand from source frame", {
+        blockReason: ctx.buildCurrentRegexShorthandSourceFrame("ta/nemi").blockReason,
+        framedResult: ctx.getCurrentRegexShorthandParseInputFromSourceFrame("ta/nemi"),
+    }, {
+        blockReason: "boundary-present",
+        framedResult: "",
+    });
+    s.eq("current regex shorthand hostile frames cannot authorize target", {
+        missingOperation: ctx.getCurrentRegexShorthandParseInput("nemi"),
+        changedSource: ctx.getCurrentRegexShorthandParseInput("paka", shorthandOperationFrame),
+        contradictoryTarget: ctx.buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame, {
+            kind: "current-regex-shorthand-target-frame",
+            regexInput: "(paka)",
+        }).blockReason,
+        missingTarget: ctx.buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame, {
+            kind: "not-a-target-frame",
+            regexInput: "(nemi)",
+        }).blockReason,
+        displayPoisoned: ctx.getCurrentRegexShorthandParseInput("nemi", {
+            ...shorthandOperationFrame,
+            sourceFrame: {
+                ...shorthandOperationFrame.sourceFrame,
+                stem: "paka",
+                surface: "-(paka)",
+                result: "-(paka)",
+                formulaEcho: "#bad#",
+            },
+            stem: "paka",
+            surface: "-(paka)",
+            result: "-(paka)",
+            formulaEcho: "#bad#",
+        }),
+    }, {
+        missingOperation: "",
+        changedSource: "",
+        contradictoryTarget: "contradictory-target-frame",
+        missingTarget: "missing-target-frame",
+        displayPoisoned: "(nemi)",
+    });
+
+    const disambiguationSourceFrame = ctx.buildVerbDisambiguationSourceFrame(
+        "taketza",
+        ctx.parseVerbInput("taketza")
+    );
+    const disambiguationOperationFrame = ctx.buildVerbDisambiguationOperationFrame(disambiguationSourceFrame, {
+        isTransitive: false,
+    });
+    const disambiguationPayload = ctx.buildVerbDisambiguationCandidates("taketza");
+    s.eq("verb disambiguation candidate generation uses typed source and operation frames", {
+        sourceKind: disambiguationPayload.sourceFrame?.kind || "",
+        sourceLayer: disambiguationPayload.sourceFrame?.sourceLayer || "",
+        sourceCore: disambiguationPayload.sourceFrame?.sourceCore || "",
+        operationKind: disambiguationPayload.operationFrame?.kind || "",
+        operationStatus: disambiguationPayload.operationFrame?.status || "",
+        candidateKinds: (disambiguationPayload.operationFrame?.candidateFrames || []).map((frame) => frame.candidateKind),
+        suggestions: disambiguationPayload.suggestions.map((entry) => entry.value),
+    }, {
+        sourceKind: "verb-disambiguation-source-frame",
+        sourceLayer: "current-regex-parse-structure",
+        sourceCore: "taketza",
+        operationKind: "andrews-verb-disambiguation-operation-frame",
+        operationStatus: "authorized",
+        candidateKinds: ["affix-boundary", "affix-boundary", "prefix-boundary"],
+        suggestions: ["ta-ketza", "t-aketza"],
+    });
+    s.eq("verb disambiguation hostile frames cannot authorize candidates", {
+        directExecutorMissingOperation: ctx.buildVerbDisambiguationCandidatesFromOperationFrame("taketza").blockReason,
+        changedSource: ctx.buildVerbDisambiguationCandidatesFromOperationFrame("paka", disambiguationOperationFrame).blockReason,
+        displayPoisonedSuggestions: ctx.buildVerbDisambiguationCandidatesFromOperationFrame("taketza", {
+            ...disambiguationOperationFrame,
+            sourceFrame: {
+                ...disambiguationOperationFrame.sourceFrame,
+                stem: "paka",
+                surface: "paka",
+                result: "paka",
+                formulaEcho: "#bad#",
+            },
+            stem: "paka",
+            surface: "paka",
+            result: "paka",
+            formulaEcho: "#bad#",
+        }).suggestions.map((entry) => entry.value),
+        slashDisplayBlock: ctx.buildVerbDisambiguationCandidates("ta/nemi").blockReason,
+    }, {
+        directExecutorMissingOperation: "missing-operation-frame",
+        changedSource: "contradictory-source-frame",
+        displayPoisonedSuggestions: ["ta-ketza", "t-aketza"],
+        slashDisplayBlock: "missing-structured-source-core",
+    });
 
     // applyObj2ToObj1Chain — composes obj2 onto the obj1 chain
     s.eq("obj2 chain: ni + ch = nich", ctx.applyObj2ToObj1Chain("ni", "ch"), "nich");
@@ -195,6 +363,84 @@ function run(ctx) {
     const adjacentCompound = ctx.parseVerbInput("-(ish-kwi)");
     s.eq("compoundAst: adjacent core embed role", adjacentCompound.compoundAst.embeds.map((entry) => entry.role), ["adjacent-core-embed"]);
     s.eq("compoundAst: adjacent core embed matrix", adjacentCompound.compoundAst.matrix.stem, "kwi");
+
+    const embeddedSlashCompound = ctx.parseVerbInput("-(ish/kwi)");
+    s.eq("embedded slash object slot route uses typed source and operation frames", {
+        verb: embeddedSlashCompound.verb,
+        matrix: embeddedSlashCompound.exactBaseVerb,
+        embeddedValenceCount: embeddedSlashCompound.embeddedValenceCount,
+        availableObjectSlots: ctx.getAvailableObjectSlots(embeddedSlashCompound),
+        directOldApi: ctx.getEmbeddedSlashTransitiveObjSlotCount("-(ish/kwi)"),
+        framedApi: ctx.getEmbeddedSlashTransitiveObjSlotCount(
+            "-(ish/kwi)",
+            embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame
+        ),
+        sourceKind: embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame?.kind || "",
+        sourceLayer: embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame?.sourceLayer || "",
+        sourceCoreText: embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame?.sourceCoreText || "",
+        tokenStream: (embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame?.sourceTokenStream || []).map((entry) => ({
+            role: entry.role,
+            value: entry.value,
+            ownsObjectSlot: entry.ownsObjectSlot === true,
+        })),
+        operationKind: embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame?.kind || "",
+        operationStatus: embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame?.status || "",
+    }, {
+        verb: "ishkwi",
+        matrix: "kwi",
+        embeddedValenceCount: 1,
+        availableObjectSlots: 0,
+        directOldApi: null,
+        framedApi: 1,
+        sourceKind: "embedded-slash-object-slot-source-frame",
+        sourceLayer: "original-current-regex-core-boundary",
+        sourceCoreText: "ish/kwi",
+        tokenStream: [
+            { role: "adjacent-core-embed", value: "ish", ownsObjectSlot: true },
+            { role: "matrix", value: "kwi", ownsObjectSlot: false },
+        ],
+        operationKind: "andrews-embedded-slash-object-slot-operation-frame",
+        operationStatus: "authorized",
+    });
+    s.eq("embedded slash object slot hostile frames block", {
+        missingOperation: ctx.getEmbeddedSlashTransitiveObjSlotCount("-(ish/kwi)"),
+        changedSource: ctx.getEmbeddedSlashTransitiveObjSlotCount(
+            "-(a/kwi)",
+            embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame
+        ),
+        contradictoryTarget: ctx.buildEmbeddedSlashObjectSlotOperationFrame(
+            embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame,
+            {
+                kind: "embedded-slash-object-slot-count-target-frame",
+                objectSlotCount: 2,
+                embeddedValenceCount: 2,
+            }
+        ).blockReason,
+        valenceLeftBoundary: ctx.buildEmbeddedSlashObjectSlotSourceFrame(
+            "-(ta/kwi)",
+            ctx.parseMovingTargetRegexInput("-(ta/kwi)")
+        ).blockReason,
+        displayPoisoned: ctx.getEmbeddedSlashTransitiveObjSlotCount("-(ish/kwi)", {
+            ...embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame,
+            sourceFrame: {
+                ...embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame.sourceFrame,
+                stem: "paka",
+                surface: "-(paka)",
+                result: "-(paka)",
+                formulaEcho: "#bad#",
+            },
+            stem: "paka",
+            surface: "-(paka)",
+            result: "-(paka)",
+            formulaEcho: "#bad#",
+        }),
+    }, {
+        missingOperation: null,
+        changedSource: null,
+        contradictoryTarget: "contradictory-target-frame",
+        valenceLeftBoundary: "valence-left-boundary",
+        displayPoisoned: 1,
+    });
 
     const lexicalCompound = ctx.parseVerbInput("(shuchi)-(kwi)");
     s.eq("compoundAst: outer lexical embed role", lexicalCompound.compoundAst.embeds.map((entry) => entry.role), ["outer-lexical"]);
@@ -676,7 +922,7 @@ function run(ctx) {
         generationAllowed: false,
         unitKind: "compound-verbstem-boundary",
         targetGenerationAllowed: false,
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         stemKind: "compound-verbstem",
         intransitiveMatrixCount: 15,
     });
@@ -793,7 +1039,7 @@ function run(ctx) {
         generationAllowed: false,
         unitKind: "compound-verbstem-boundary",
         targetGenerationAllowed: false,
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         stemKind: "compound-verbstem-with-nominal-embed",
         sourceFormula: "NNC + VNC = compound VNC",
         compoundKind: "NNC+VNC compound VNC",

@@ -112,11 +112,63 @@ function run(ctx) {
     s.eq("getSuppletiveYawiYuVariant", ctx.getSuppletiveYawiYuVariant(), "yu");
     s.eq("getSuppletiveYawiCausativeActive", ctx.getSuppletiveYawiCausativeActive(), "wika");
 
+    const yawiStemSet = ctx.buildSuppletiveYawiStemSet();
+    s.eq("Yawi suppletive preterit frame uses explicit stemSpec", {
+        imperfective: yawiStemSet.imperfective,
+        classDVariants: yawiStemSet.variantsByClass.get("D"),
+    }, {
+        imperfective: { verb: "ya", analysisVerb: "ya" },
+        classDVariants: [{ base: "yaj", suffix: "ki" }],
+    });
+    s.eq("Yawi missing suppletive stem frames block", {
+        error: ctx.buildSuppletiveYawiStemSetFromFrames(null).error,
+        diagnostic: ctx.buildSuppletiveYawiStemSetFromFrames(null).diagnostics?.[0]?.id || "",
+    }, {
+        error: true,
+        diagnostic: "current-suppletive-yawi-missing-stem-set-frame",
+    });
+    s.eq("Yawi contradictory suppletive preterit frame blocks", {
+        error: ctx.buildSuppletiveYawiStemSetFromFrames({
+            imperfective: ctx.getCurrentSuppletiveStemFrame("yawi", "imperfective"),
+            preteritVariants: [{
+                kind: "lesson-11-current-suppletive-preterit-variant-frame",
+                paradigmId: "yawi",
+                pretClass: "D",
+                base: "poison",
+                suffix: "ki",
+            }],
+        }).error,
+        diagnostic: ctx.buildSuppletiveYawiStemSetFromFrames({
+            imperfective: ctx.getCurrentSuppletiveStemFrame("yawi", "imperfective"),
+            preteritVariants: [{
+                kind: "lesson-11-current-suppletive-preterit-variant-frame",
+                paradigmId: "yawi",
+                pretClass: "D",
+                base: "poison",
+                suffix: "ki",
+            }],
+        }).diagnostics?.[0]?.id || "",
+    }, {
+        error: true,
+        diagnostic: "current-suppletive-contradictory-preterit-variant-frame",
+    });
+    const originalYawiImperfective = ctx.SUPPLETIVE_YAWI_IMPERFECTIVE;
+    ctx.SUPPLETIVE_YAWI_IMPERFECTIVE = "poison";
+    const poisonedYawiStemSet = ctx.buildSuppletiveYawiStemSet();
+    s.eq("Yawi old imperfective string global cannot build preterit base", {
+        imperfective: ctx.getSuppletiveYawiImperfective(),
+        classDVariants: poisonedYawiStemSet.variantsByClass.get("D"),
+    }, {
+        imperfective: "ya",
+        classDVariants: [{ base: "yaj", suffix: "ki" }],
+    });
+    ctx.SUPPLETIVE_YAWI_IMPERFECTIVE = originalYawiImperfective;
+
     const yawiExpectedForms = [
         ["preterito", "", ["yajki"]],
         ["preterito", "t", ["yajket"]],
-        ["perfecto", "", ["yajtuk"]],
-        ["perfecto", "t", ["yajtiwit"]],
+        ["perfecto", "", []],
+        ["perfecto", "t", []],
     ];
     yawiExpectedForms.forEach(([tense, subjectSuffix, expected]) => {
         const output = ctx.generateWord({
@@ -139,6 +191,76 @@ function run(ctx) {
 
     // Weya suppletive stem getter
     s.eq("getSuppletiveWeyaCanonical", ctx.getSuppletiveWeyaCanonical(), "weyya");
+    s.eq("Weya suppletive stem inventory exposes root and canonical as records", {
+        root: ctx.getCurrentSuppletiveStemFrame("weya", "rootPlusYaBase"),
+        canonical: ctx.getCurrentSuppletiveStemFrame("weya", "canonical"),
+    }, {
+        root: {
+            kind: "lesson-11-current-suppletive-stem-frame",
+            paradigmId: "weya",
+            stemSlot: "root-plus-ya-base",
+            surfaceStem: "wey",
+        },
+        canonical: {
+            kind: "lesson-11-current-suppletive-stem-frame",
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya",
+        },
+    });
+    s.eq("Weya missing suppletive stem frame blocks", {
+        error: ctx.realizeCurrentSuppletiveStemFrame(null, {
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya",
+        }).error,
+        diagnostic: ctx.realizeCurrentSuppletiveStemFrame(null, {
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya",
+        }).diagnostics?.[0]?.id || "",
+    }, {
+        error: true,
+        diagnostic: "current-suppletive-missing-stem-frame",
+    });
+    s.eq("Weya contradictory suppletive stem frame blocks", {
+        error: ctx.realizeCurrentSuppletiveStemFrame({
+            kind: "lesson-11-current-suppletive-stem-frame",
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "poison",
+        }, {
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya",
+        }).error,
+        diagnostic: ctx.realizeCurrentSuppletiveStemFrame({
+            kind: "lesson-11-current-suppletive-stem-frame",
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "poison",
+        }, {
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya",
+        }).diagnostics?.[0]?.id || "",
+    }, {
+        error: true,
+        diagnostic: "current-suppletive-contradictory-stem-frame",
+    });
+    const originalWeyaRoot = ctx.SUPPLETIVE_WEYA_ROOT;
+    const originalWeyaCanonical = ctx.SUPPLETIVE_WEYA_CANONICAL;
+    ctx.SUPPLETIVE_WEYA_ROOT = "poison";
+    ctx.SUPPLETIVE_WEYA_CANONICAL = "";
+    s.eq("Weya old root/canonical string globals cannot synthesize canonical", {
+        root: ctx.getSuppletiveWeyaRootPlusYaBase(),
+        canonical: ctx.getSuppletiveWeyaCanonical(),
+    }, {
+        root: "wey",
+        canonical: "weyya",
+    });
+    ctx.SUPPLETIVE_WEYA_ROOT = originalWeyaRoot;
+    ctx.SUPPLETIVE_WEYA_CANONICAL = originalWeyaCanonical;
 
     ["weya", "weiya", "weyya"].forEach((verb) => {
         const parsed = ctx.parseVerbInput(verb);
@@ -153,8 +275,8 @@ function run(ctx) {
     const weyaExpectedForms = [
         ["preterito", "", ["weyki", "weyyak"]],
         ["preterito", "t", ["weyket", "weyyaket"]],
-        ["perfecto", "", ["weytuk", "weyyatuk"]],
-        ["perfecto", "t", ["weytiwit", "weyyatiwit"]],
+        ["perfecto", "", []],
+        ["perfecto", "t", []],
     ];
     ["weya", "weiya", "weyya"].forEach((verb) => {
         weyaExpectedForms.forEach(([tense, subjectSuffix, expected]) => {
@@ -227,14 +349,14 @@ function run(ctx) {
         ["preterito", "t", ["katet"]],
         ["pasado-remoto", "", ["katka"]],
         ["pasado-remoto", "t", ["katkat"]],
-        ["perfecto", "", ["yetuk"]],
-        ["perfecto", "t", ["yetiwit"]],
-        ["pluscuamperfecto", "", ["yetuya"]],
-        ["pluscuamperfecto", "t", ["yetuyat"]],
+        ["perfecto", "", []],
+        ["perfecto", "t", []],
+        ["pluscuamperfecto", "", []],
+        ["pluscuamperfecto", "t", []],
         ["futuro", "", ["yes"]],
         ["futuro", "t", ["yesket"]],
-        ["condicional", "", ["yeskia"]],
-        ["condicional", "t", ["yeskiat"]],
+        ["condicional", "", []],
+        ["condicional", "t", []],
         ["optativo", "", ["ma ye"]],
         ["optativo", "t", ["ma yekan"]],
     ];
@@ -299,7 +421,7 @@ function run(ctx) {
         });
     });
 
-    const witziDefectiveActiveTenses = ["presente", "perfecto", "futuro", "optativo"];
+    const witziDefectiveActiveTenses = ["presente", "futuro", "optativo"];
     ["witzi", "wi", "witz"].forEach((verb) => {
         witziDefectiveActiveTenses.forEach((tense) => {
             const output = ctx.generateWord({
@@ -317,6 +439,29 @@ function run(ctx) {
                 },
             });
             s.eq(`Witzi active defective block: ${verb} ${tense}`, output.error, "Solo pretérito y pasado remoto.");
+        });
+    });
+    ["witzi", "wi", "witz"].forEach((verb) => {
+        const output = ctx.generateWord({
+            silent: true,
+            override: {
+            },
+            posicionesFormula: {
+                pers1: "",
+                obj1: "",
+                tronco: verb,
+                pers2: "",
+                num2: "",
+                poseedor: "",
+                tiempo: "perfecto",
+            },
+        });
+        s.eq(`Witzi active Andrews gate block: ${verb} perfecto`, {
+            error: output.error,
+            diagnostic: output.diagnostics?.[0]?.id || "",
+        }, {
+            error: true,
+            diagnostic: "not-andrews-grammar-gate",
         });
     });
 
@@ -374,7 +519,7 @@ function run(ctx) {
         s.eq(`Witzi nonactive forced imperfective core: ${verb}`, output.surfaceForms, ["wiluwatzi"]);
     });
 
-    const witziDefectiveNonactiveTenses = ["presente", "perfecto", "futuro"];
+    const witziDefectiveNonactiveTenses = ["presente", "futuro"];
     ["witzi", "wi", "witz"].forEach((verb) => {
         witziDefectiveNonactiveTenses.forEach((tense) => {
             const output = ctx.generateWord({
@@ -393,6 +538,30 @@ function run(ctx) {
                 },
             });
             s.eq(`Witzi nonactive defective block: ${verb} ${tense}`, output.error, "Solo pretérito y pasado remoto.");
+        });
+    });
+    ["witzi", "wi", "witz"].forEach((verb) => {
+        const output = ctx.generateWord({
+            silent: true,
+            override: {
+                derivationMode: ctx.DERIVATION_MODE.nonactive,
+            },
+            posicionesFormula: {
+                pers1: "",
+                obj1: "",
+                tronco: verb,
+                pers2: "",
+                num2: "",
+                poseedor: "",
+                tiempo: "perfecto",
+            },
+        });
+        s.eq(`Witzi nonactive Andrews gate block: ${verb} perfecto`, {
+            error: output.error,
+            diagnostic: output.diagnostics?.[0]?.id || "",
+        }, {
+            error: true,
+            diagnostic: "not-andrews-grammar-gate",
         });
     });
 

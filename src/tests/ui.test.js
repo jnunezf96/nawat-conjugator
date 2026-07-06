@@ -12,8 +12,10 @@ function run(ctx = {}) {
     const staticModes = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_modes.json"), "utf8");
     const staticModesJson = JSON.parse(staticModes);
     const staticGroups = fs.readFileSync(path.resolve(__dirname, "..", "..", "data", "static_groups.json"), "utf8");
+    const staticGroupsJson = JSON.parse(staticGroups);
     const rendering = fs.readFileSync(path.resolve(__dirname, "..", "ui", "rendering", "rendering.js"), "utf8");
     const composer = fs.readFileSync(path.resolve(__dirname, "..", "ui", "composer", "composer.js"), "utf8");
+    const generationEngine = fs.readFileSync(path.resolve(__dirname, "..", "core", "generation", "engine.js"), "utf8");
     const events = fs.readFileSync(path.resolve(__dirname, "..", "ui", "events.js"), "utf8");
     const exportUi = fs.readFileSync(path.resolve(__dirname, "..", "ui", "export", "export.js"), "utf8");
     const state = fs.readFileSync(path.resolve(__dirname, "..", "ui", "state.js"), "utf8");
@@ -63,6 +65,74 @@ function run(ctx = {}) {
     const entradaComposerCss = entradaComposerCssStart >= 0 && entradaComposerCssEnd > entradaComposerCssStart
         ? css.slice(entradaComposerCssStart, entradaComposerCssEnd)
         : "";
+    const makeAndrewsBlockRowAuditModel = (fields = {}, options = {}) => {
+        const generationAllowed = fields.grammarGenerationAllowed === true
+            || fields.grammarGenerationAllowed === "true";
+        const resultOk = fields.grammarResultOk === true
+            || fields.grammarResultOk === "true";
+        const sourceFrame = {
+            kind: "andrews-tense-block-output-row-audit-source-frame",
+            version: 1,
+            authorityFrame: {
+                grammarAuthority: fields.grammarLogicAuthority || "",
+                sourceContextTargetAuthority: fields.grammarSourceContextTargetAuthority || "",
+                sourceEvidenceTargetAuthority: fields.grammarSourceEvidenceTargetAuthority || "",
+            },
+            routeContract: {
+                routeFamily: fields.grammarRouteFamily || "",
+                routeStage: fields.grammarRouteStage || "",
+                generationAllowed,
+            },
+            orthographyFrame: {
+                spellingEvidenceRole: fields.grammarSpellingEvidenceRole || "",
+                classicalSpellingRole: fields.grammarClassicalSpellingRole || "",
+                orthographyBoundary: fields.grammarOrthographyBoundary || "",
+                spellingAuthority: fields.grammarSpellingAuthority || "",
+                classicalSurfaceImport: fields.grammarClassicalSurfaceImport || "",
+            },
+            diagnosticFrame: {
+                diagnosticId: fields.grammarDiagnosticId || "",
+            },
+            resultFrame: {
+                ok: resultOk,
+            },
+        };
+        const targetFrame = {
+            kind: "andrews-tense-block-output-row-audit-target-frame",
+            version: 1,
+            grammarRouteFamily: sourceFrame.routeContract.routeFamily,
+            grammarRouteStage: sourceFrame.routeContract.routeStage,
+            grammarGenerationAllowed: String(sourceFrame.routeContract.generationAllowed === true),
+            grammarDiagnosticId: sourceFrame.diagnosticFrame.diagnosticId,
+            grammarLogicAuthority: sourceFrame.authorityFrame.grammarAuthority,
+            grammarSpellingEvidenceRole: sourceFrame.orthographyFrame.spellingEvidenceRole,
+            grammarClassicalSpellingRole: sourceFrame.orthographyFrame.classicalSpellingRole,
+            grammarOrthographyBoundary: sourceFrame.orthographyFrame.orthographyBoundary,
+            grammarSpellingAuthority: sourceFrame.orthographyFrame.spellingAuthority,
+            grammarClassicalSurfaceImport: sourceFrame.orthographyFrame.classicalSurfaceImport,
+            grammarResultOk: String(sourceFrame.resultFrame.ok === true),
+            grammarSourceContextTargetAuthority: sourceFrame.authorityFrame.sourceContextTargetAuthority,
+            grammarSourceEvidenceTargetAuthority: sourceFrame.authorityFrame.sourceEvidenceTargetAuthority,
+            ...(options.targetOverrides || {}),
+        };
+        return {
+            dataset: { ...(options.dataset || {}) },
+            andrewsTenseBlockOutputRowAuditModel: {
+                kind: "andrews-tense-block-output-row-audit-model",
+                version: 1,
+                sourceFrame,
+                operationFrame: {
+                    kind: "andrews-tense-block-output-row-audit-operation-frame",
+                    version: 1,
+                    status: options.operationStatus || "authorized",
+                    operation: options.operation || "audit-output-row-from-grammar-frame",
+                    sourceFrame,
+                    targetFrame,
+                },
+                targetFrame,
+            },
+        };
+    };
 
     s.ok(
         "ordinary NNC S control lives in the composer entry board tabs",
@@ -71,7 +141,7 @@ function run(ctx = {}) {
             && composer.includes("ordinaryNncModeButtons: document.querySelectorAll(\"[data-ordinary-nnc-mode]\")")
             && composer.includes("Array.from(ordinaryNncModeButtons || []).forEach")
             && composer.includes("const isActive = isComposer && ordinaryNncActive;")
-            && />\s*Nominal\s*<\/button>/.test(tabsHtml)
+            && tabsHtml.includes('class="verb-entry-board-tabs__main">Nominal</span>')
     );
     s.ok(
         "ordinary NNC S control is labeled as a nominal clause",
@@ -122,13 +192,3463 @@ function run(ctx = {}) {
             && !entradaComposerCss.includes("display: contents")
     );
     s.ok(
+        "primary experience is an Andrews formula workbench",
+        html.includes('id="formula-workbench"')
+            && html.includes('data-andrews-formula-role="structured-formula-atlas"')
+            && html.includes("<title>Gramática nawat/pipil Andrews</title>")
+            && html.includes(">Gramática nawat/pipil Andrews<")
+            && staticLabels.includes('"app-title": { "labelEs": "Gramática nawat/pipil Andrews"')
+            && state.includes("const ANDREWS_FORMULA_WORKBENCH_CATEGORIES")
+            && state.includes('id: "vnc-shell"')
+            && state.includes('id: "ordinary-nnc-shell"')
+            && !state.includes('formula: "#pers1-pers2(STEM)num1-num2#"')
+            && state.includes("activeSlice")
+            && state.includes("buildVncShellFormulaWorkbenchSlice")
+            && state.includes("buildOrdinaryNncFormulaWorkbenchSlice")
+            && state.includes("buildPossessiveStateNncFormulaWorkbenchSlice")
+            && state.includes("buildVncValenceFormulaWorkbenchSlice")
+            && state.includes("buildSubjectNumberConnectorFormulaWorkbenchSlice")
+            && state.includes("buildDerivationalRouteFormulaWorkbenchSlice")
+            && state.includes("buildCompoundStemFormulaWorkbenchSlice")
+            && state.includes("buildNominalizationFormulaWorkbenchSlice")
+            && state.includes("buildPersonalNameEmbeddedNncFormulaWorkbenchSlice")
+            && state.includes("buildUnsupportedRouteDiagnosticsFormulaWorkbenchSlice")
+            && state.includes('id: "possessive-state-nnc"')
+            && state.includes('id: "valence-object-slots"')
+            && state.includes('id: "subject-number-connectors"')
+            && state.includes('id: "derivational-routes"')
+            && state.includes('id: "compound-stems"')
+            && state.includes('id: "nominalizations"')
+            && state.includes('id: "personal-name-embedded-nnc"')
+            && state.includes('id: "unsupported-route-diagnostics"')
+            && state.includes("ordinaryNncHasNoTenseSlot: true")
+            && state.includes("noClassicalSurfaceImport: true")
+            && state.includes("unsupportedRoutesBlockSurfaceGeneration: true")
+            && state.includes("routeRegistrySummary")
+            && state.includes("buildAndrewsSourceGatedDerivationalRouteRegistry()")
+            && state.includes('formulaSlotSource: formulaSchema ? "andrews-formula-slot-schema" : "workbench-fallback"')
+            && state.includes("renderAndrewsFormulaTemplate(formulaSchema || schemaId)")
+            && panels.includes("var AndrewsFormulaWorkbenchActiveCategoryId")
+            && panels.includes("function renderAndrewsFormulaWorkbench")
+            && panels.includes("function activateAndrewsFormulaWorkbenchCategory")
+            && panels.includes("function syncAndrewsFormulaWorkbenchCategoryToEngine")
+            && panels.includes("function appendAndrewsFormulaWorkbenchSlice")
+            && panels.includes("function appendAndrewsFormulaWorkbenchOperationalLayer")
+            && panels.includes("verbMeta?.rawInputVerb")
+            && panels.includes('sourceInput.dataset.formulaSourceInput = slice.sourceMaterial?.inputKind || "ordinary-nnc"')
+            && panels.includes("renderWorkbench: false")
+            && panels.includes("slice.operationalLayerSummary")
+            && panels.includes('wrapper.dataset.operationalLayerMissingSectionCount')
+            && panels.includes('appendAndrewsFormulaWorkbenchPill(result, "Formula", slice.fullFormulaEcho')
+            && panels.includes('appendAndrewsFormulaWorkbenchPill(result, "Compacta", slice.compactFormulaEcho')
+            && panels.includes("item.dataset.exampleConnectorDyad")
+            && panels.includes("slice.structuralFormulaEcho")
+            && panels.includes("slice.nawatFormulaEcho")
+            && panels.includes("Ejemplos de CNV")
+            && panels.includes("Ejemplos de conectores sujeto/numero")
+            && panels.includes("Ejemplos de rutas derivacionales")
+            && panels.includes("Ejemplos de tallos compuestos")
+            && panels.includes("Ejemplos de nominalizacion")
+            && panels.includes("Ejemplos de nombres personales")
+            && panels.includes("Ejemplos de diagnosticos sin salida")
+            && panels.includes("item.dataset.slotStructuralValue")
+            && panels.includes("item.dataset.examplePossessorKind")
+            && panels.includes("item.dataset.exampleKey")
+            && panels.includes("boundary.structuralExamples")
+            && panels.includes("applyAndrewsFormulaWorkbenchSourceInput")
+            && panels.includes("detail.dataset.formulaSchemaId")
+            && panels.includes("item.dataset.slotOwner")
+            && panels.includes("setOrdinaryNncGenerationModeEnabled(true")
+            && panels.includes("TENSE_MODE?.sustantivo")
+            && panels.includes("TENSE_MODE?.verbo")
+            && panels.includes("renderAndrewsFormulaWorkbench();")
+            && css.includes(".formula-workbench__category-tab")
+            && css.includes(".formula-workbench__slot")
+            && css.includes(".formula-workbench__source-input")
+            && css.includes(".formula-workbench__families")
+            && css.includes(".formula-workbench__operations")
+            && css.includes(".formula-workbench__operation")
+            && css.includes(".formula-workbench__operation-count")
+            && css.includes(".formula-workbench__boundary")
+            && css.includes(".formula-workbench__parsed-slot")
+            && css.includes(".formula-workbench__parsed-slot-meta")
+            && css.includes(".formula-workbench__examples")
+            && css.includes(".formula-workbench__example-formula")
+            && css.includes(".formula-workbench__pill--source-gated")
+            && css.includes(".formula-workbench__pill--diagnostic-only")
+            && css.includes(".formula-workbench__pill--unsupported")
+    );
+    s.eq(
+        "tense authority frame separates Andrews logic from Nawat extensions",
+        typeof ctx.getAndrewsTenseAuthorityFrame === "function"
+            ? {
+                preterito: ctx.getAndrewsTenseAuthorityFrame("preterito", ctx.TENSE_MODE?.verbo || "verbo").scope,
+                condicional: ctx.getAndrewsTenseAuthorityFrame("condicional", ctx.TENSE_MODE?.verbo || "verbo").scope,
+                preteritoGate: ctx.getAndrewsTenseGenerationGateFrame(ctx.getAndrewsTenseAuthorityFrame("preterito", ctx.TENSE_MODE?.verbo || "verbo")).generationGate,
+                condicionalGate: ctx.getAndrewsTenseGenerationGateFrame(ctx.getAndrewsTenseAuthorityFrame("condicional", ctx.TENSE_MODE?.verbo || "verbo")).generationGate,
+                condicionalEvidenceRole: ctx.getAndrewsTenseGenerationGateFrame(ctx.getAndrewsTenseAuthorityFrame("condicional", ctx.TENSE_MODE?.verbo || "verbo")).nawatEvidenceRole,
+                condicionalFamily: ctx.getAndrewsTenseAuthorityFrame("condicional", ctx.TENSE_MODE?.verbo || "verbo").family,
+                condicionalCoreFamily: typeof ctx.getAndrewsCnvTenseLogicAuthorityFrame === "function"
+                    ? ctx.getAndrewsCnvTenseLogicAuthorityFrame("condicional").family
+                    : "",
+                preteritoCnvAllowed: ctx.isAndrewsCnvTenseGenerationGateAllowed("preterito", ctx.TENSE_MODE?.verbo || "verbo"),
+                condicionalCnvAllowed: ctx.isAndrewsCnvTenseGenerationGateAllowed("condicional", ctx.TENSE_MODE?.verbo || "verbo"),
+                nominalSlot: ctx.getAndrewsTenseAuthorityFrame("agentivo", ctx.TENSE_MODE?.sustantivo || "sustantivo").slot,
+                nonactiveSlot: ctx.getAndrewsTenseAuthorityFrame("lu", ctx.TENSE_MODE?.verbo || "verbo").slot,
+                particleSlot: ctx.getAndrewsTenseAuthorityFrame("particle-mode", ctx.TENSE_MODE?.particula || "particula").slot,
+                outputGateSlot: ctx.getAndrewsTenseAuthorityFrame("selection-required", ctx.TENSE_MODE?.verbo || "verbo").slot,
+                unknownSlot: ctx.getAndrewsTenseAuthorityFrame("inventado", ctx.TENSE_MODE?.verbo || "verbo").slot,
+                unknownGate: ctx.getAndrewsTenseGenerationGateFrame(ctx.getAndrewsTenseAuthorityFrame("inventado", ctx.TENSE_MODE?.verbo || "verbo")).generationGate,
+                nominalHoverMentionsCnn: ctx.getAndrewsFirstTenseHoverTitle("agentivo", ctx.TENSE_MODE?.sustantivo || "sustantivo").includes("CNN routes do not expose a VNC tense slot"),
+            }
+            : {
+                preterito: panels.includes("preterito: Object.freeze({")
+                    && panels.includes('scope: "andrews-licensed"')
+                    ? "andrews-licensed"
+                    : "missing",
+                condicional: panels.includes("condicional: Object.freeze({")
+                    && panels.includes('scope: "nawat-extension"')
+                    ? "nawat-extension"
+                    : "missing",
+                preteritoGate: panels.includes('generationGate: "andrews-licensed-generation"')
+                    ? "andrews-licensed-generation"
+                    : "missing",
+                condicionalGate: panels.includes('generationGate: "not-andrews-grammar-gate"')
+                    ? "not-andrews-grammar-gate"
+                    : "missing",
+                condicionalEvidenceRole: panels.includes('nawatEvidenceRole: "surface-extension-only"')
+                    ? "surface-extension-only"
+                    : "missing",
+                condicionalFamily: panels.includes("getAndrewsCnvTenseLogicAuthorityFrame(normalizedTense)")
+                    ? "nawat-extension-condicional"
+                    : "missing",
+                condicionalCoreFamily: panels.includes("getAndrewsCnvTenseLogicAuthorityFrame(normalizedTense)")
+                    ? "nawat-extension-condicional"
+                    : "missing",
+                preteritoCnvAllowed: panels.includes("function isAndrewsCnvTenseGenerationGateAllowed")
+                    && panels.includes('=== "andrews-licensed-generation"'),
+                condicionalCnvAllowed: false,
+                nominalSlot: panels.includes('slot: "no-vnc-tns"')
+                    ? "no-vnc-tns"
+                    : "missing",
+                nonactiveSlot: panels.includes('family: "nonactive-verbstem"')
+                    ? "derived-stem"
+                    : "missing",
+                particleSlot: panels.includes('scope: "andrews-particle-boundary"')
+                    ? "no-vnc-tns"
+                    : "missing",
+                outputGateSlot: panels.includes('scope: "andrews-output-gate"')
+                    ? "route-selection-required"
+                    : "missing",
+                unknownSlot: panels.includes('slot: "andrews-frame-required"')
+                    ? "andrews-frame-required"
+                    : "missing",
+                unknownGate: panels.includes('generationGate: "unclassified-andrews-frame-required"')
+                    ? "unclassified-andrews-frame-required"
+                    : "missing",
+                nominalHoverMentionsCnn: panels.includes('function getAndrewsFirstTenseHoverTitle(tenseValue = "", mode = TENSE_MODE.verbo)')
+                    && panels.includes("getAndrewsTenseAuthorityFrame(tenseValue, mode)")
+                    && panels.includes("getAndrewsFirstTenseHoverTitle(tenseValue, tenseMode)")
+                    && composer.includes("getAndrewsFirstTenseHoverTitle(tenseValue, getActiveTenseMode())"),
+            },
+        {
+            preterito: "andrews-licensed",
+            condicional: "nawat-extension",
+            preteritoGate: "andrews-licensed-generation",
+            condicionalGate: "not-andrews-grammar-gate",
+            condicionalEvidenceRole: "surface-extension-only",
+            condicionalFamily: "nawat-extension-condicional",
+            condicionalCoreFamily: "nawat-extension-condicional",
+            preteritoCnvAllowed: true,
+            condicionalCnvAllowed: false,
+            nominalSlot: "no-vnc-tns",
+            nonactiveSlot: "derived-stem",
+            particleSlot: "no-vnc-tns",
+            outputGateSlot: "route-selection-required",
+            unknownSlot: "andrews-frame-required",
+            unknownGate: "unclassified-andrews-frame-required",
+            nominalHoverMentionsCnn: true,
+        }
+    );
+    s.eq(
+        "nominal tense authority carries Andrews source-target route classification from the route registry",
+        typeof ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame === "function"
+            ? (() => {
+                const mode = ctx.TENSE_MODE?.sustantivo || "sustantivo";
+                const tenses = [
+                    "agentivo",
+                    "patientivo",
+                    "instrumentivo",
+                    "sustantivo-verbal",
+                    "calificativo-instrumentivo",
+                    "locativo-temporal",
+                ];
+                return Object.fromEntries(tenses.map((tenseValue) => {
+                    const frame = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame(tenseValue, mode);
+                    return [tenseValue, {
+                        transition: frame.formulaTransition,
+                        routeClass: frame.routeClass,
+                        source: frame.sourceFormulaType,
+                        target: frame.targetFormulaType,
+                        authority: frame.logicAuthority,
+                        spelling: frame.outputSpellingAuthority,
+                        host: frame.uiHost,
+                        registry: frame.registryStatus,
+                        hasSuboperations: frame.routeSuboperationCount > 0,
+                        hasOperationIds: frame.routeSuboperationIds.length > 0,
+                    }];
+                }));
+            })()
+            : {
+                agentivo: panels.includes('agentivo: Object.freeze({') && panels.includes('formulaTransition: "CNV->CNN"') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+                patientivo: panels.includes('patientivo: Object.freeze({') && panels.includes('routeBranch: "patientive-family"') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+                instrumentivo: panels.includes('instrumentivo: Object.freeze({') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+                "sustantivo-verbal": panels.includes('"sustantivo-verbal": Object.freeze({') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+                "calificativo-instrumentivo": panels.includes('"calificativo-instrumentivo": Object.freeze({') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+                "locativo-temporal": panels.includes('"locativo-temporal": Object.freeze({') ? {
+                    transition: "CNV->CNN",
+                    routeClass: "verbal-source-to-nominal-target",
+                    source: "CNV",
+                    target: "CNN",
+                    authority: "Andrews PDF",
+                    spelling: "Nawat/Pipil orthography bridge",
+                    host: "nominal-output-tab",
+                    registry: "registry-match",
+                    hasSuboperations: panels.includes("getAndrewsCnvCnnOperationalLayer"),
+                    hasOperationIds: panels.includes("routeSuboperationIds"),
+                } : {},
+            },
+        {
+            agentivo: {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+            patientivo: {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+            instrumentivo: {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+            "sustantivo-verbal": {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+            "calificativo-instrumentivo": {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+            "locativo-temporal": {
+                transition: "CNV->CNN",
+                routeClass: "verbal-source-to-nominal-target",
+                source: "CNV",
+                target: "CNN",
+                authority: "Andrews PDF",
+                spelling: "Nawat/Pipil orthography bridge",
+                host: "nominal-output-tab",
+                registry: "registry-match",
+                hasSuboperations: true,
+                hasOperationIds: true,
+            },
+        }
+    );
+    s.eq(
+        "patientivo subtypes stay as tense-block branches with CNV-to-CNN authority instead of top-level tabs",
+        typeof ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame === "function"
+            ? (() => {
+                const mode = ctx.TENSE_MODE?.sustantivo || "sustantivo";
+                const branchIds = [
+                    "patientivo-pasivo",
+                    "patientivo-impersonal",
+                    "patientivo-perfectivo",
+                    "patientivo-imperfectivo",
+                    "patientivo-tronco",
+                ];
+                const topLevel = typeof ctx.getTenseOrderForMode === "function"
+                    ? ctx.getTenseOrderForMode(mode)
+                    : [];
+                return {
+                    topLevelPatientivo: topLevel.includes("patientivo"),
+                    subtypeTabs: topLevel.filter((tenseValue) => /^patientivo-/.test(tenseValue)),
+                    branches: Object.fromEntries(branchIds.map((branchId) => {
+                        const frame = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame(branchId, mode);
+                        return [branchId, {
+                            transition: frame.formulaTransition,
+                            branch: frame.routeBranch,
+                            host: frame.uiHost,
+                            target: frame.targetFormulaType,
+                        }];
+                    })),
+                };
+            })()
+            : {
+                topLevelPatientivo: state.includes('"patientivo"'),
+                subtypeTabs: [],
+                branches: panels.includes('"patientivo-pasivo": Object.freeze({')
+                    && rendering.includes('id: "patientivo-pasivo"')
+                    ? {
+                        "patientivo-pasivo": {
+                            transition: "CNV->CNN",
+                            branch: "patientivo-passive",
+                            host: "nominal-output-block-branch",
+                            target: "CNN",
+                        },
+                        "patientivo-impersonal": {
+                            transition: "CNV->CNN",
+                            branch: "patientivo-impersonal",
+                            host: "nominal-output-block-branch",
+                            target: "CNN",
+                        },
+                        "patientivo-perfectivo": {
+                            transition: "CNV->CNN",
+                            branch: "patientivo-perfective",
+                            host: "nominal-output-block-branch",
+                            target: "CNN",
+                        },
+                        "patientivo-imperfectivo": {
+                            transition: "CNV->CNN",
+                            branch: "patientivo-imperfective",
+                            host: "nominal-output-block-branch",
+                            target: "CNN",
+                        },
+                        "patientivo-tronco": {
+                            transition: "CNV->CNN",
+                            branch: "patientivo-root-stock",
+                            host: "nominal-output-block-branch",
+                            target: "CNN",
+                        },
+                    }
+                    : {},
+            },
+        {
+            topLevelPatientivo: true,
+            subtypeTabs: [],
+            branches: {
+                "patientivo-pasivo": {
+                    transition: "CNV->CNN",
+                    branch: "patientivo-passive",
+                    host: "nominal-output-block-branch",
+                    target: "CNN",
+                },
+                "patientivo-impersonal": {
+                    transition: "CNV->CNN",
+                    branch: "patientivo-impersonal",
+                    host: "nominal-output-block-branch",
+                    target: "CNN",
+                },
+                "patientivo-perfectivo": {
+                    transition: "CNV->CNN",
+                    branch: "patientivo-perfective",
+                    host: "nominal-output-block-branch",
+                    target: "CNN",
+                },
+                "patientivo-imperfectivo": {
+                    transition: "CNV->CNN",
+                    branch: "patientivo-imperfective",
+                    host: "nominal-output-block-branch",
+                    target: "CNN",
+                },
+                "patientivo-tronco": {
+                    transition: "CNV->CNN",
+                    branch: "patientivo-root-stock",
+                    host: "nominal-output-block-branch",
+                    target: "CNN",
+                },
+            },
+        }
+    );
+    s.eq(
+        "nominal tabs expose Andrews suboperation ids/counts for broad labels",
+        typeof ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame === "function"
+            ? (() => {
+                const mode = ctx.TENSE_MODE?.sustantivo || "sustantivo";
+                const preteritAgentive = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("agentivo-preterito", mode);
+                const sustantivoVerbal = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("sustantivo-verbal", mode);
+                const patientivo = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("patientivo", mode);
+                const instrumentivo = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("instrumentivo", mode);
+                const adjectival = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("calificativo-instrumentivo", mode);
+                const locative = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("locativo-temporal", mode);
+                const locativeAgentive = ctx.getAndrewsTenseSourceTargetRouteAuthorityFrame("locativo-agentivo-preterito", mode);
+                return {
+                    preteritAgentiveLayer: preteritAgentive.operationalLayerKind,
+                    preteritAgentiveCountAtLeast: preteritAgentive.routeSuboperationCount >= 16,
+                    preteritAgentiveHasOwnerhood: preteritAgentive.routeSuboperationIds.includes("preterit-agentive-ownerhood"),
+                    preteritAgentiveItemCountAtLeast: preteritAgentive.routeSuboperationItems.length >= 12,
+                    preteritAgentiveHasDoubleNucleus: preteritAgentive.routeSuboperationIds.includes("preterit-agentive-double-nucleus-compound"),
+                    sustantivoCountAtLeast: sustantivoVerbal.routeSuboperationCount >= 22,
+                    sustantivoHasTzin: sustantivoVerbal.routeSuboperationIds.includes("active-action-affective-tzin-assimilation"),
+                    sustantivoHasImpersonalTlaBranch: sustantivoVerbal.routeSuboperationIds.includes("impersonal-action-tla-source"),
+                    patientiveCountAtLeast: patientivo.routeSuboperationCount >= 62,
+                    patientiveHasHumanTe: patientivo.routeSuboperationIds.includes("impersonal-patientive-projective-human-te-source"),
+                    patientiveHasPossessiveComplement: patientivo.routeSuboperationIds.includes("patientive-possessive-complement-desire-matrix"),
+                    patientiveSectionsInclude39_9: patientivo.routeSuboperationSections.includes("39.9"),
+                    patientiveKeysIncludeMatrix: patientivo.routeSuboperationSourceRequirementKeys.includes("matrix"),
+                    instrumentiveCountAtLeast: instrumentivo.routeSuboperationCount >= 5,
+                    instrumentiveHasReflexiveCuring: instrumentivo.routeSuboperationIds.includes("instrumentive-reflexive-curing-means"),
+                    adjectivalCountAtLeast: adjectival.routeSuboperationCount >= 38,
+                    adjectivalHasSynonymTriplet: adjectival.routeSuboperationIds.includes("synonymous-adjectival-triplet"),
+                    adjectivalHasDenominalLoop: adjectival.routeSuboperationIds.includes("denominal-verbstem-compound-nounstem-adjectival"),
+                    locativeCountAtLeast: locative.routeSuboperationCount >= 73,
+                    locativeHasRelationalTime: locative.routeSuboperationIds.includes("relational-time-function"),
+                    locativeHasImperfectImpersonal: locative.routeSuboperationIds.includes("imperfect-impersonal-locative-result"),
+                    locativeHasSeemingCompoundMatrix: locative.routeSuboperationIds.includes("yolloco-compound-embed-relational"),
+                    locativeHasOptionThreeRelational: locative.routeSuboperationIds.includes("relational-pan-connective-t-compound"),
+                    locativeCoverageComplete: locative.routeSuboperationCoverageComplete,
+                    locativeMissingSectionCount: locative.routeSuboperationMissingSectionCount,
+                    locativeAgentiveCountAtLeast: locativeAgentive.routeSuboperationCount >= 7,
+                    locativeAgentiveHasActiveAction: locativeAgentive.routeSuboperationIds.includes("active-action-locative-46-3-1-b"),
+                };
+            })()
+            : {
+                preteritAgentiveLayer: panels.includes("operationalLayerKind") ? "andrews-cnv-cnn-operational-layer" : "",
+                preteritAgentiveCountAtLeast: panels.includes("routeSuboperationCount"),
+                preteritAgentiveHasOwnerhood: nncNominalization.includes("preterit-agentive-ownerhood"),
+                preteritAgentiveItemCountAtLeast: panels.includes("routeSuboperationItems"),
+                preteritAgentiveHasDoubleNucleus: nncNominalization.includes("preterit-agentive-double-nucleus-compound"),
+                sustantivoCountAtLeast: nncNominalization.includes("active-action-affective-tzin-assimilation"),
+                sustantivoHasTzin: nncNominalization.includes("active-action-affective-tzin-assimilation"),
+                sustantivoHasImpersonalTlaBranch: nncNominalization.includes("impersonal-action-tla-source"),
+                patientiveCountAtLeast: nncNominalization.includes("impersonal-patientive-projective-human-te-source"),
+                patientiveHasHumanTe: nncNominalization.includes("impersonal-patientive-projective-human-te-source"),
+                patientiveHasPossessiveComplement: nncNominalization.includes("patientive-possessive-complement-desire-matrix"),
+                patientiveSectionsInclude39_9: nncNominalization.includes("39.9"),
+                patientiveKeysIncludeMatrix: panels.includes("routeSuboperationSourceRequirementKeys"),
+                instrumentiveCountAtLeast: nncNominalization.includes("instrumentive-reflexive-curing-means"),
+                instrumentiveHasReflexiveCuring: nncNominalization.includes("instrumentive-reflexive-curing-means"),
+                adjectivalCountAtLeast: nncNominalization.includes("synonymous-adjectival-triplet"),
+                adjectivalHasSynonymTriplet: nncNominalization.includes("synonymous-adjectival-triplet"),
+                adjectivalHasDenominalLoop: nncNominalization.includes("denominal-verbstem-compound-nounstem-adjectival"),
+                locativeCountAtLeast: nncNominalization.includes("relational-time-function"),
+                locativeHasRelationalTime: nncNominalization.includes("relational-time-function"),
+                locativeHasImperfectImpersonal: nncNominalization.includes("imperfect-impersonal-locative-result"),
+                locativeHasSeemingCompoundMatrix: nncNominalization.includes("yolloco-compound-embed-relational"),
+                locativeHasOptionThreeRelational: nncNominalization.includes("relational-pan-connective-t-compound"),
+                locativeCoverageComplete: panels.includes("routeSuboperationCoverageComplete"),
+                locativeMissingSectionCount: panels.includes("routeSuboperationMissingSectionCount") ? 0 : -1,
+                locativeAgentiveCountAtLeast: nncNominalization.includes("active-action-locative-46-3-1-b"),
+                locativeAgentiveHasActiveAction: nncNominalization.includes("active-action-locative-46-3-1-b"),
+            },
+        {
+            preteritAgentiveLayer: "andrews-cnv-cnn-operational-layer",
+            preteritAgentiveCountAtLeast: true,
+            preteritAgentiveHasOwnerhood: true,
+            preteritAgentiveItemCountAtLeast: true,
+            preteritAgentiveHasDoubleNucleus: true,
+            sustantivoCountAtLeast: true,
+            sustantivoHasTzin: true,
+            sustantivoHasImpersonalTlaBranch: true,
+            patientiveCountAtLeast: true,
+            patientiveHasHumanTe: true,
+            patientiveHasPossessiveComplement: true,
+            patientiveSectionsInclude39_9: true,
+            patientiveKeysIncludeMatrix: true,
+            instrumentiveCountAtLeast: true,
+            instrumentiveHasReflexiveCuring: true,
+            adjectivalCountAtLeast: true,
+            adjectivalHasSynonymTriplet: true,
+            adjectivalHasDenominalLoop: true,
+            locativeCountAtLeast: true,
+            locativeHasRelationalTime: true,
+            locativeHasImperfectImpersonal: true,
+            locativeHasSeemingCompoundMatrix: true,
+            locativeHasOptionThreeRelational: true,
+            locativeCoverageComplete: true,
+            locativeMissingSectionCount: 0,
+            locativeAgentiveCountAtLeast: true,
+            locativeAgentiveHasActiveAction: true,
+        }
+    );
+    s.eq(
+        "non-nominal source-target routes are classified away from nominal-output tab hosting",
+        typeof ctx.getAndrewsSourceTargetRouteUiHost === "function"
+            ? {
+                cnvToCnn: ctx.getAndrewsSourceTargetRouteUiHost("CNV->CNN"),
+                cnnToCnn: ctx.getAndrewsSourceTargetRouteUiHost("CNN->CNN"),
+                cnnToCnv: ctx.getAndrewsSourceTargetRouteUiHost("CNN->CNV"),
+                cnvToCnv: ctx.getAndrewsSourceTargetRouteUiHost("CNV->CNV"),
+                mixed: ctx.getAndrewsSourceTargetRouteUiHost("CNV/CNN->CNV/CNN"),
+            }
+            : {
+                cnvToCnn: panels.includes('return "nominal-output-tab-or-block"') ? "nominal-output-tab-or-block" : "missing",
+                cnnToCnn: panels.includes('return "nominal-route-directory-or-output-continuation"') ? "nominal-route-directory-or-output-continuation" : "missing",
+                cnnToCnv: panels.includes('return "andrews-route-directory-or-output-continuation"') ? "andrews-route-directory-or-output-continuation" : "missing",
+                cnvToCnv: panels.includes('return "verb-derivation-controls-or-output-continuation"') ? "verb-derivation-controls-or-output-continuation" : "missing",
+                mixed: panels.includes('return "mixed-compound-route-directory"') ? "mixed-compound-route-directory" : "missing",
+            },
+        {
+            cnvToCnn: "nominal-output-tab-or-block",
+            cnnToCnn: "nominal-route-directory-or-output-continuation",
+            cnnToCnv: "andrews-route-directory-or-output-continuation",
+            cnvToCnv: "verb-derivation-controls-or-output-continuation",
+            mixed: "mixed-compound-route-directory",
+        }
+    );
+    s.eq(
+        "source-target route classification covers Andrews verbal nominal and mixed transitions",
+        typeof ctx.getAndrewsSourceTargetRouteClass === "function"
+            ? {
+                cnvToCnn: ctx.getAndrewsSourceTargetRouteClass("CNV->CNN"),
+                cnnToCnn: ctx.getAndrewsSourceTargetRouteClass("CNN->CNN"),
+                cnnToCnv: ctx.getAndrewsSourceTargetRouteClass("CNN->CNV"),
+                cnvToCnv: ctx.getAndrewsSourceTargetRouteClass("CNV->CNV"),
+                mixed: ctx.getAndrewsSourceTargetRouteClass("CNV/CNN->CNV/CNN"),
+            }
+            : {
+                cnvToCnn: panels.includes('return "verbal-source-to-nominal-target"') ? "verbal-source-to-nominal-target" : "missing",
+                cnnToCnn: panels.includes('return "nominal-source-to-nominal-target"') ? "nominal-source-to-nominal-target" : "missing",
+                cnnToCnv: panels.includes('return "nominal-source-to-verbal-target"') ? "nominal-source-to-verbal-target" : "missing",
+                cnvToCnv: panels.includes('return "verbal-source-to-verbal-target"') ? "verbal-source-to-verbal-target" : "missing",
+                mixed: panels.includes('return "mixed-compound-source-target-route"') ? "mixed-compound-source-target-route" : "missing",
+            },
+        {
+            cnvToCnn: "verbal-source-to-nominal-target",
+            cnnToCnn: "nominal-source-to-nominal-target",
+            cnnToCnv: "nominal-source-to-verbal-target",
+            cnvToCnv: "verbal-source-to-verbal-target",
+            mixed: "mixed-compound-source-target-route",
+        }
+    );
+    s.ok(
+        "tense tabs and output blocks carry Andrews authority datasets",
+        panels.includes("function getAndrewsTenseAuthorityFrame")
+            && panels.includes("function getAndrewsTenseGenerationGateFrame")
+            && panels.includes("function getAndrewsTenseGenerationGateValue")
+            && panels.includes("function isAndrewsCnvTenseGenerationGateAllowed")
+            && panels.includes("function getAndrewsTenseAuthorityElementContract")
+            && panels.includes("function getAndrewsTenseExecutorGateFrame")
+            && panels.includes("function applyAndrewsTenseAuthorityDataset")
+            && panels.includes("dataset.andrewsTenseValue")
+            && panels.includes("dataset.andrewsTenseAuthority")
+            && panels.includes("dataset.andrewsTenseMode")
+            && panels.includes('dataset.andrewsGrammarLogicAuthority = "Andrews PDF"')
+            && panels.includes('dataset.andrewsClassicalSpellingRole = "structural-only"')
+            && panels.includes('dataset.nawatPipilOutputBoundary = "orthography-realization"')
+            && panels.includes('dataset.andrewsOutputSpellingAuthority = "Nawat/Pipil orthography bridge"')
+            && panels.includes('dataset.andrewsOrthographyRealizationPath = "andrews-logic-then-nawat-pipil-realization"')
+            && panels.includes("dataset.andrewsLogicRole")
+            && panels.includes("dataset.andrewsGenerationGate")
+            && panels.includes("dataset.andrewsOutputRole")
+            && panels.includes("dataset.nawatPipilEvidenceRole")
+            && panels.includes("dataset.classicalOutputImport")
+            && panels.includes("dataset.andrewsCoreGenerationAuthority")
+            && panels.includes("dataset.andrewsCoreGenerationGate")
+            && panels.includes("dataset.andrewsCoreTenseSource")
+            && panels.includes("dataset.andrewsCoreTenseSlot")
+            && panels.includes("dataset.andrewsCoreTenseFamily")
+            && panels.includes("dataset.andrewsCoreLogicRole")
+            && panels.includes("dataset.andrewsCoreOutputRole")
+            && panels.includes("dataset.andrewsCoreNawatEvidenceRole")
+            && panels.includes("dataset.andrewsCoreClassicalOutputImport")
+            && panels.includes("dataset.andrewsExecutorGenerationGate")
+            && panels.includes("dataset.andrewsExecutorRouteStage")
+            && panels.includes("dataset.andrewsExecutorGenerationAllowed")
+            && panels.includes("dataset.andrewsExecutorFormulaShellPolicy")
+            && panels.includes("dataset.andrewsExecutorSurfacePolicy")
+            && panels.includes("dataset.andrewsExecutorFallbackPolicy")
+            && panels.includes("function getAndrewsTenseSourceTargetRouteAuthorityFrame")
+            && panels.includes("function getAndrewsSourceTargetRouteUiHost")
+            && panels.includes("dataset.andrewsRouteAuthority")
+            && panels.includes("dataset.andrewsRouteLogicAuthority")
+            && panels.includes("dataset.andrewsSourceTargetRoute")
+            && panels.includes("dataset.andrewsSourceTargetRouteClass")
+            && panels.includes("dataset.andrewsSourceFormulaType")
+            && panels.includes("dataset.andrewsTargetFormulaType")
+            && panels.includes("dataset.andrewsRouteRegistryIds")
+            && panels.includes("dataset.andrewsRouteRegistryMatchedIds")
+            && panels.includes("dataset.andrewsRouteRegistryStatus")
+            && panels.includes("dataset.andrewsRouteFamilies")
+            && panels.includes("dataset.andrewsRouteKinds")
+            && panels.includes("dataset.andrewsRouteBranch")
+            && panels.includes("dataset.andrewsRouteUiHost")
+            && panels.includes("dataset.andrewsRouteSourceGateStatus")
+            && panels.includes("dataset.andrewsRouteSourceEvidenceStatus")
+            && panels.includes("dataset.andrewsRouteGenerationGate")
+            && panels.includes("dataset.andrewsRouteGenerationAllowed")
+            && panels.includes("dataset.andrewsRouteClassicalSpellingRole")
+            && panels.includes("dataset.andrewsRouteOutputSpellingAuthority")
+            && panels.includes("dataset.andrewsAuthorityElementContract")
+            && panels.includes("dataset.andrewsAuthorityExpectedTag")
+            && panels.includes("dataset.andrewsAuthorityRenderedTag")
+            && panels.includes("dataset.andrewsAuthorityAudit")
+            && panels.includes("dataset.andrewsAuthorityMissing")
+            && panels.includes("dataset.andrewsAuthorityDiagnostics")
+            && panels.includes("function auditAndrewsTenseAuthorityAnnotatedDom")
+            && panels.includes("function getAndrewsTenseAuthorityDatasetAuditRecord")
+            && panels.includes("function getAndrewsTenseAuthorityExpectedDataset")
+            && panels.includes("function getAndrewsTenseAuthorityCanonicalMismatches")
+            && panels.includes("function getAndrewsTenseAuthorityExpectedClasses")
+            && panels.includes("function getAndrewsTenseAuthorityClassMismatches")
+            && panels.includes("function syncAndrewsTenseAuthorityDomAudit")
+            && panels.includes("function getAndrewsTenseTabSelectionAuthorityState")
+            && panels.includes("function applyAndrewsTenseTabSelectionAuthorityDataset")
+            && panels.includes("function getAndrewsTenseTabClickAuthorityState")
+            && panels.includes("function applyAndrewsTenseTabClickAuthorityDataset")
+            && panels.includes("function isAndrewsTenseTabClickAllowed")
+            && panels.includes("dataset.andrewsSelectionDisabled")
+            && panels.includes("dataset.andrewsSelectionLogicAuthority")
+            && panels.includes("dataset.andrewsSelectionGrammarGate")
+            && panels.includes("dataset.andrewsSelectionOutputRole")
+            && panels.includes("dataset.andrewsSelectionOrthographyBoundary")
+            && panels.includes("dataset.andrewsSelectionClassicalOutputImport")
+            && panels.includes("dataset.andrewsSelectionSurfaceProbeRole")
+            && panels.includes("dataset.andrewsSelectionSelected")
+            && panels.includes("dataset.andrewsSelectionSelectedRole")
+            && panels.includes("dataset.andrewsClickGate")
+            && panels.includes("dataset.andrewsClickBlocked")
+            && panels.includes("dataset.andrewsClickAuthority")
+            && panels.includes("function getAndrewsTenseBlockOutputAuditRecord")
+            && panels.includes("function applyAndrewsTenseBlockOutputAuditDataset")
+            && panels.includes("function summarizeAndrewsTenseBlockOutputAudit")
+            && panels.includes("function getAndrewsTenseTabSelectionAuditRecord")
+            && panels.includes("function summarizeAndrewsTenseTabSelectionAudit")
+            && panels.includes("orthography-output-probe-not-grammar-gate")
+            && panels.includes("andrews-stem-class-unavailable")
+            && panels.includes("blocked-andrews-generation-block-has-output-rows")
+            && panels.includes("blocked-andrews-generation-block-has-allowed-route-rows")
+            && panels.includes("output-row-missing-andrews-route-contract")
+            && panels.includes("blocked-andrews-route-row-result-ok")
+            && panels.includes("generated-row-uses-blocked-andrews-route-contract")
+            && panels.includes("generated-row-result-not-ok")
+            && panels.includes("generated-row-missing-andrews-logic-authority")
+            && panels.includes("generated-row-spelling-evidence-role-mismatch")
+            && panels.includes("generated-row-source-context-authority-not-andrews")
+            && panels.includes("generated-row-source-evidence-authority-not-andrews")
+            && panels.includes("generated-row-classical-spelling-role-not-structural-only")
+            && panels.includes("generated-row-missing-nawat-pipil-orthography-boundary")
+            && panels.includes("generated-row-spelling-authority-not-nawat-pipil")
+            && panels.includes("generated-row-classical-output-import-not-blocked")
+            && panels.includes("andrews-output-spelling-authority-missing")
+            && panels.includes("andrews-orthography-realization-path-missing")
+            && panels.includes("andrews-source-target-route-authority-missing")
+            && panels.includes("nominal-output-tab-uses-non-nominal-route-host")
+            && panels.includes("dataset.andrewsBlockOutputScope")
+            && panels.includes("dataset.andrewsBlockOutputAudit")
+            && panels.includes("dataset.andrewsBlockRouteFamilies")
+            && panels.includes("dataset.andrewsBlockRouteStages")
+            && panels.includes("dataset.andrewsBlockRouteDiagnosticIds")
+            && panels.includes("dataset.andrewsBlockRowLogicAuthorities")
+            && panels.includes("dataset.andrewsBlockRowSpellingEvidenceRoles")
+            && panels.includes("dataset.andrewsBlockRowClassicalSpellingRoles")
+            && panels.includes("dataset.andrewsBlockRowOrthographyBoundaries")
+            && panels.includes("dataset.andrewsBlockRowSpellingAuthorities")
+            && panels.includes("dataset.andrewsBlockRowClassicalImports")
+            && panels.includes("dataset.andrewsBlockRowResultStates")
+            && panels.includes("dataset.andrewsBlockRowSourceContextAuthorities")
+            && panels.includes("dataset.andrewsBlockRowSourceEvidenceAuthorities")
+            && panels.includes("dataset.andrewsBlockRowRouteContractMissingCount")
+            && panels.includes("dataset.andrewsBlockRouteGenerationAllowedCount")
+            && panels.includes("dataset.andrewsBlockRouteGenerationBlockedRowCount")
+            && panels.includes("dataset.andrewsBlockRouteBlockedResultOkCount")
+            && panels.includes("dataset.andrewsBlockRouteGeneratedBlockedContractCount")
+            && panels.includes("dataset.andrewsBlockRouteGeneratedResultNotOkCount")
+            && panels.includes("dataset.andrewsBlockRowLogicAuthorityMissingCount")
+            && panels.includes("dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount")
+            && panels.includes("dataset.andrewsBlockRowSourceContextAuthorityMismatchCount")
+            && panels.includes("dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount")
+            && panels.includes("dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount")
+            && panels.includes("dataset.andrewsBlockRowOrthographyBoundaryMissingCount")
+            && panels.includes("dataset.andrewsBlockRowSpellingAuthorityMismatchCount")
+            && panels.includes("dataset.andrewsBlockRowClassicalImportNotBlockedCount")
+            && panels.includes("scope.dataset.andrewsBlockOutputChecked")
+            && panels.includes("scope.dataset.andrewsBlockRouteGenerationAllowedCount")
+            && panels.includes("scope.dataset.andrewsBlockRouteGenerationBlockedRowCount")
+            && panels.includes("scope.dataset.andrewsBlockRouteBlockedResultOkCount")
+            && panels.includes("scope.dataset.andrewsBlockRouteGeneratedBlockedContractCount")
+            && panels.includes("scope.dataset.andrewsBlockRouteGeneratedResultNotOkCount")
+            && panels.includes("scope.dataset.andrewsBlockRowLogicAuthorityMissingCount")
+            && panels.includes("scope.dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount")
+            && panels.includes("scope.dataset.andrewsBlockRowSourceContextAuthorityMismatchCount")
+            && panels.includes("scope.dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount")
+            && panels.includes("scope.dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount")
+            && panels.includes("scope.dataset.andrewsBlockRowOrthographyBoundaryMissingCount")
+            && panels.includes("scope.dataset.andrewsBlockRowSpellingAuthorityMismatchCount")
+            && panels.includes("scope.dataset.andrewsBlockRowClassicalImportNotBlockedCount")
+            && panels.includes("scope.dataset.andrewsBlockRowRouteContractMissingCount")
+            && panels.includes("scope.dataset.andrewsBlockOutputHardBlockedCount")
+            && panels.includes("tense-block--andrews-output-blocked")
+            && panels.includes("tense-block--andrews-output-generated")
+            && panels.includes("tense-block--andrews-output-leak-diagnostic")
+            && panels.includes("tense-block--andrews-authority-leak-diagnostic")
+            && panels.includes("tense-block--andrews-orthography-leak-diagnostic")
+            && rendering.includes("dataset.grammarLogicAuthority")
+            && rendering.includes("dataset.grammarSpellingEvidenceRole")
+            && rendering.includes("dataset.grammarClassicalSpellingRole")
+            && rendering.includes("dataset.grammarOrthographyBoundary")
+            && rendering.includes("dataset.grammarSpellingAuthority")
+            && rendering.includes("dataset.grammarClassicalSurfaceImport")
+            && state.includes('syncAndrewsTenseAuthorityDomAudit(document.getElementById("tense-tabs"), { mode })')
+            && state.includes('syncAndrewsTenseAuthorityDomAudit(document.getElementById("all-tense-conjugations"), { mode })')
+            && panels.includes("canonicalMismatches")
+            && panels.includes("classMismatches")
+            && panels.includes("scope.dataset.andrewsAuthorityRepaired")
+            && panels.includes("scope.dataset.andrewsTabSelectionAudit")
+            && panels.includes("scope.dataset.andrewsTabSelectionChecked")
+            && panels.includes("scope.dataset.andrewsTabSelectionAnnotated")
+            && panels.includes("scope.dataset.andrewsTabSelectionRepaired")
+            && panels.includes("scope.dataset.andrewsTabSelectionSelectableCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionBlockedCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionSelectedCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionBlockedSelectedCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionOutputProbeOnlyCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionHardGateCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionDisabledCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionNativeDisabledCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionMissingCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionDiagnosticCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionLogicAuthorityMismatchCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionGrammarGateMismatchCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionOrthographyBoundaryMissingCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionClassicalImportNotBlockedCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionSurfaceProbeRoleMismatchCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionDisabledMismatchCount")
+            && panels.includes("scope.dataset.andrewsTabSelectionActiveMismatchCount")
+            && panels.includes("andrews-selection-blocked-tab-selected")
+            && rendering.includes("isAndrewsCnvTenseGenerationGateAllowed(resolvedOutputTenseValue, TENSE_MODE.verbo)")
+            && rendering.includes("tenseValue: resolvedOutputTenseValue")
+            && rendering.includes('blockClassName: "tense-block--cnv-generation-gate-blocked"')
+            && rendering.includes("La salida CNV queda bloqueada hasta que la ranura tiempo tenga una puerta de generacion Andrews.")
+            && panels.includes("non-cnv-route-has-vnc-tense-slot")
+            && panels.includes("nawat-extension-marked-as-andrews-source")
+            && panels.includes("nawat-extension-has-andrews-generation-gate")
+            && panels.includes("andrews-licensed-generation-gate-missing")
+            && panels.includes("andrews-core-generation-authority-mismatch")
+            && panels.includes("andrews-core-tense-source-mismatch")
+            && panels.includes("andrews-core-tense-slot-mismatch")
+            && panels.includes("andrews-core-tense-family-mismatch")
+            && panels.includes("andrews-core-logic-role-mismatch")
+            && panels.includes("andrews-core-generation-gate-mismatch")
+            && panels.includes("andrews-core-output-role-mismatch")
+            && panels.includes("andrews-core-nawat-evidence-role-mismatch")
+            && panels.includes("andrews-core-classical-output-import-mismatch")
+            && panels.includes("andrews-executor-generation-gate-mismatch")
+            && panels.includes("andrews-executor-route-stage-mismatch")
+            && panels.includes("andrews-executor-generation-allowed-mismatch")
+            && panels.includes("andrews-executor-formula-shell-policy-mismatch")
+            && panels.includes("andrews-executor-fallback-policy-mismatch")
+            && panels.includes("blocked-before-formula-shell")
+            && panels.includes("blocked-no-target-stem-fallback")
+            && panels.includes("tense-tab-not-button")
+            && panels.includes("tense-block-not-div")
+            && panels.includes("andrews-authority-element-contract-mismatch")
+            && panels.includes("andrews-selection-authority-mismatch")
+            && panels.includes("andrews-selection-logic-authority-missing")
+            && panels.includes("andrews-selection-grammar-gate-mismatch")
+            && panels.includes("andrews-selection-orthography-boundary-missing")
+            && panels.includes("andrews-selection-classical-output-import-not-blocked")
+            && panels.includes("andrews-selection-surface-probe-role-mismatch")
+            && panels.includes("andrews-selection-audit-operation-frame-missing")
+            && panels.includes("andrews-selection-disabled-mismatch")
+            && panels.includes("andrews-selection-native-disabled-mismatch")
+            && panels.includes("andrews-selection-aria-disabled-mismatch")
+            && panels.includes("andrews-click-gate-mismatch")
+            && panels.includes("andrews-click-blocked-reasons-mismatch")
+            && panels.includes("andrews-click-authority-mismatch")
+            && panels.includes("unclassified-authority-frame")
+            && panels.includes("unclassified-authority-slot-mismatch")
+            && panels.includes("tense-tab--andrews-audit-warning")
+            && panels.includes("tense-block--andrews-audit-warning")
+            && panels.includes("tense-tab--surface-evidence-only")
+            && panels.includes("tense-block--surface-evidence-only")
+            && panels.includes("tense-tab--andrews-unclassified")
+            && panels.includes("tense-block--andrews-unclassified")
+            && panels.includes("applyAndrewsTenseAuthorityDataset(button")
+            && panels.includes("getAndrewsCnvCnnOperationalLayerForTense")
+            && panels.includes("dataset.andrewsRouteSuboperationIds")
+            && panels.includes("dataset.andrewsRouteSuboperationCoverageComplete")
+            && panels.includes("dataset.andrewsRouteSuboperationMissingSectionCount")
+            && panels.includes("syncAndrewsTenseOperationalLayerElement")
+            && panels.includes("syncAndrewsTenseBlockOperationalLayerElement")
+            && panels.includes("syncAndrewsTenseTabsOperationalLayerPanel")
+            && panels.includes("appendAndrewsOperationalLayerOperationRows")
+            && panels.includes("tense-tabs-operational-layer-panel")
+            && panels.includes("applyAndrewsTenseTabSelectionAuthorityDataset(button")
+            && panels.includes("applyAndrewsTenseTabClickAuthorityDataset(button")
+            && panels.includes("if (!isAndrewsTenseTabClickAllowed(button))")
+            && composer.includes("applyAndrewsTenseAuthorityDataset(button")
+            && composer.includes("applyAndrewsTenseTabSelectionAuthorityDataset(button")
+            && rendering.includes("applyAndrewsTenseAuthorityDataset(tenseBlock")
+            && rendering.includes("applyAndrewsTenseAuthorityDataset(controlsBlock")
+            && rendering.includes("applyAndrewsTenseAuthorityDataset(block")
+            && rendering.includes("applyAndrewsTenseAuthorityDataset(groupBlock")
+            && rendering.includes("applyAndrewsTenseAuthorityDataset(boundaryBlock")
+            && css.includes(".tense-tab--nawat-extension")
+            && css.includes(".tense-block--andrews-authority")
+            && css.includes(".tense-block--cnv-generation-gate-blocked")
+            && css.includes(".tense-tab--andrews-nominal-route")
+            && css.includes(".tense-block--andrews-particle-boundary")
+            && css.includes(".tense-block--andrews-output-gate")
+            && css.includes(".tense-tab--andrews-audit-warning")
+            && css.includes(".tense-block--andrews-audit-warning")
+            && css.includes(".tense-tab--surface-evidence-only")
+            && css.includes(".tense-block--surface-evidence-only")
+            && css.includes(".tense-tab--andrews-unclassified")
+            && css.includes(".tense-block--andrews-unclassified")
+            && css.includes(".tense-block--andrews-output-blocked")
+            && css.includes(".tense-block--andrews-output-generated")
+            && css.includes(".tense-block--andrews-output-nominal")
+            && css.includes(".tense-block--andrews-output-leak-diagnostic")
+            && css.includes(".tense-block--andrews-authority-leak-diagnostic")
+            && css.includes(".tense-block--andrews-orthography-leak-diagnostic")
+            && css.includes(".tense-tab--andrews-selection-allowed")
+            && css.includes(".tense-tab--andrews-selection-blocked")
+            && css.includes(".tense-tab--andrews-output-pending")
+            && css.includes(".tense-tab-operational-layer")
+            && css.includes(".tense-block-operational-layer")
+            && css.includes(".tense-block-operational-layer__op")
+            && css.includes(".tense-block-operational-layer__summary-coverage")
+            && css.includes(".tense-tabs-operational-layer-panel")
+            && css.includes(".tense-tabs-operational-layer-panel__op")
+            && css.includes(".tense-tabs-operational-layer-panel__coverage")
+    );
+    s.eq(
+        "tense authority annotation writes self-audit fields on live elements",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const frame = ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    frameScope: frame.scope,
+                    authority: element.dataset.andrewsTenseAuthority,
+                    value: element.dataset.andrewsTenseValue,
+                    logicAuthority: element.dataset.andrewsGrammarLogicAuthority,
+                    spellingRole: element.dataset.andrewsClassicalSpellingRole,
+                    outputBoundary: element.dataset.nawatPipilOutputBoundary,
+                    spellingAuthority: element.dataset.andrewsOutputSpellingAuthority,
+                    realizationPath: element.dataset.andrewsOrthographyRealizationPath,
+                    logicRole: element.dataset.andrewsLogicRole,
+                    generationGate: element.dataset.andrewsGenerationGate,
+                    outputRole: element.dataset.andrewsOutputRole,
+                    evidenceRole: element.dataset.nawatPipilEvidenceRole,
+                    classicalOutputImport: element.dataset.classicalOutputImport,
+                    coreAuthority: element.dataset.andrewsCoreGenerationAuthority,
+                    coreGenerationGate: element.dataset.andrewsCoreGenerationGate,
+                    coreSource: element.dataset.andrewsCoreTenseSource,
+                    coreSlot: element.dataset.andrewsCoreTenseSlot,
+                    coreFamily: element.dataset.andrewsCoreTenseFamily,
+                    coreLogicRole: element.dataset.andrewsCoreLogicRole,
+                    coreOutputRole: element.dataset.andrewsCoreOutputRole,
+                    coreEvidenceRole: element.dataset.andrewsCoreNawatEvidenceRole,
+                    coreClassicalOutputImport: element.dataset.andrewsCoreClassicalOutputImport,
+                    executorGate: element.dataset.andrewsExecutorGenerationGate,
+                    executorRouteStage: element.dataset.andrewsExecutorRouteStage,
+                    executorAllowed: element.dataset.andrewsExecutorGenerationAllowed,
+                    executorFormulaShellPolicy: element.dataset.andrewsExecutorFormulaShellPolicy,
+                    executorSurfacePolicy: element.dataset.andrewsExecutorSurfacePolicy,
+                    executorFallbackPolicy: element.dataset.andrewsExecutorFallbackPolicy,
+                    elementContract: element.dataset.andrewsAuthorityElementContract,
+                    expectedTag: element.dataset.andrewsAuthorityExpectedTag,
+                    renderedTag: element.dataset.andrewsAuthorityRenderedTag,
+                    audit: element.dataset.andrewsAuthorityAudit,
+                    missing: element.dataset.andrewsAuthorityMissing,
+                    diagnostics: element.dataset.andrewsAuthorityDiagnostics,
+                    authorityClass: classes.has("tense-tab--andrews-authority"),
+                    generationGateClass: classes.has("tense-tab--andrews-generation-gate"),
+                    surfaceEvidenceClass: classes.has("tense-tab--surface-evidence-only"),
+                    warningClass: classes.has("tense-tab--andrews-audit-warning"),
+                };
+            })()
+            : {
+                frameScope: panels.includes('scope: "andrews-licensed"') ? "andrews-licensed" : "missing",
+                authority: panels.includes("element.dataset.andrewsTenseAuthority") ? "andrews-licensed" : "missing",
+                value: panels.includes("element.dataset.andrewsTenseValue") ? "preterito" : "missing",
+                logicAuthority: panels.includes('dataset.andrewsGrammarLogicAuthority = "Andrews PDF"') ? "Andrews PDF" : "missing",
+                spellingRole: panels.includes('dataset.andrewsClassicalSpellingRole = "structural-only"') ? "structural-only" : "missing",
+                outputBoundary: panels.includes('dataset.nawatPipilOutputBoundary = "orthography-realization"') ? "orthography-realization" : "missing",
+                spellingAuthority: panels.includes('dataset.andrewsOutputSpellingAuthority = "Nawat/Pipil orthography bridge"') ? "Nawat/Pipil orthography bridge" : "missing",
+                realizationPath: panels.includes('dataset.andrewsOrthographyRealizationPath = "andrews-logic-then-nawat-pipil-realization"') ? "andrews-logic-then-nawat-pipil-realization" : "missing",
+                logicRole: panels.includes('logicRole: slot === "derived-stem" ? "derived-stem-logic-source" : "grammar-logic-source"') ? "grammar-logic-source" : "missing",
+                generationGate: panels.includes('generationGate: "andrews-licensed-generation"') ? "andrews-licensed-generation" : "missing",
+                outputRole: panels.includes('outputRole: "orthography-realization"') ? "orthography-realization" : "missing",
+                evidenceRole: panels.includes('nawatEvidenceRole: "orthography-realization-only"') ? "orthography-realization-only" : "missing",
+                classicalOutputImport: panels.includes('classicalOutputImport: "blocked"') ? "blocked" : "missing",
+                coreAuthority: panels.includes("dataset.andrewsCoreGenerationAuthority") ? "andrews-licensed" : "missing",
+                coreGenerationGate: panels.includes("dataset.andrewsCoreGenerationGate") ? "andrews-licensed-generation" : "missing",
+                coreSource: panels.includes("dataset.andrewsCoreTenseSource") ? "Andrews" : "missing",
+                coreSlot: panels.includes("dataset.andrewsCoreTenseSlot") ? "tns" : "missing",
+                coreFamily: panels.includes("dataset.andrewsCoreTenseFamily") ? "indicative-perfective-preterit" : "missing",
+                coreLogicRole: panels.includes("dataset.andrewsCoreLogicRole") ? "grammar-logic-source" : "missing",
+                coreOutputRole: panels.includes("dataset.andrewsCoreOutputRole") ? "orthography-realization" : "missing",
+                coreEvidenceRole: panels.includes("dataset.andrewsCoreNawatEvidenceRole") ? "orthography-realization-only" : "missing",
+                coreClassicalOutputImport: panels.includes("dataset.andrewsCoreClassicalOutputImport") ? "blocked" : "missing",
+                executorGate: panels.includes("dataset.andrewsExecutorGenerationGate") ? "andrews-licensed-generation" : "missing",
+                executorRouteStage: panels.includes("dataset.andrewsExecutorRouteStage") ? "cnv-finite-output" : "missing",
+                executorAllowed: panels.includes("dataset.andrewsExecutorGenerationAllowed") ? "true" : "missing",
+                executorFormulaShellPolicy: panels.includes("dataset.andrewsExecutorFormulaShellPolicy") ? "formula-shell-allowed" : "missing",
+                executorSurfacePolicy: panels.includes("dataset.andrewsExecutorSurfacePolicy") ? "orthography-bridge-required" : "missing",
+                executorFallbackPolicy: panels.includes("dataset.andrewsExecutorFallbackPolicy") ? "surface-output-not-grammar-authority" : "missing",
+                elementContract: panels.includes("dataset.andrewsAuthorityElementContract") ? "button.tense-tab" : "missing",
+                expectedTag: panels.includes("dataset.andrewsAuthorityExpectedTag") ? "button" : "missing",
+                renderedTag: panels.includes("dataset.andrewsAuthorityRenderedTag") ? "button" : "missing",
+                audit: panels.includes('audit.ok ? "ok" : "diagnostic"') ? "ok" : "missing",
+                missing: panels.includes("dataset.andrewsAuthorityMissing = audit.missing.join") ? "" : "missing",
+                diagnostics: panels.includes("dataset.andrewsAuthorityDiagnostics = audit.diagnostics.join") ? "" : "missing",
+                authorityClass: panels.includes("tense-tab--andrews-authority"),
+                generationGateClass: panels.includes("tense-tab--andrews-generation-gate"),
+                surfaceEvidenceClass: false,
+                warningClass: false,
+            },
+        {
+            frameScope: "andrews-licensed",
+            authority: "andrews-licensed",
+            value: "preterito",
+            logicAuthority: "Andrews PDF",
+            spellingRole: "structural-only",
+            outputBoundary: "orthography-realization",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            realizationPath: "andrews-logic-then-nawat-pipil-realization",
+            logicRole: "grammar-logic-source",
+            generationGate: "andrews-licensed-generation",
+            outputRole: "orthography-realization",
+            evidenceRole: "orthography-realization-only",
+            classicalOutputImport: "blocked",
+            coreAuthority: "andrews-licensed",
+            coreGenerationGate: "andrews-licensed-generation",
+            coreSource: "Andrews",
+            coreSlot: "tns",
+            coreFamily: "indicative-perfective-preterit",
+            coreLogicRole: "grammar-logic-source",
+            coreOutputRole: "orthography-realization",
+            coreEvidenceRole: "orthography-realization-only",
+            coreClassicalOutputImport: "blocked",
+            executorGate: "andrews-licensed-generation",
+            executorRouteStage: "cnv-finite-output",
+            executorAllowed: "true",
+            executorFormulaShellPolicy: "formula-shell-allowed",
+            executorSurfacePolicy: "orthography-bridge-required",
+            executorFallbackPolicy: "surface-output-not-grammar-authority",
+            elementContract: "button.tense-tab",
+            expectedTag: "button",
+            renderedTag: "button",
+            audit: "ok",
+            missing: "",
+            diagnostics: "",
+            authorityClass: true,
+            generationGateClass: true,
+            surfaceEvidenceClass: false,
+            warningClass: false,
+        }
+    );
+    s.eq(
+        "selection-required tense blocks stay route gates instead of drifting into CNV core mismatch",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block", "tense-block--selection-required"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    title: "",
+                    querySelectorAll() {
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "selection-required",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    blockKind: "seleccion requerida",
+                });
+                return {
+                    authority: element.dataset.andrewsTenseAuthority,
+                    slot: element.dataset.andrewsTenseSlot,
+                    gate: element.dataset.andrewsGenerationGate,
+                    coreGate: element.dataset.andrewsCoreGenerationGate,
+                    coreFamily: element.dataset.andrewsCoreTenseFamily,
+                    executorGate: element.dataset.andrewsExecutorGenerationGate,
+                    executorRouteStage: element.dataset.andrewsExecutorRouteStage,
+                    elementContract: element.dataset.andrewsAuthorityElementContract,
+                    expectedTag: element.dataset.andrewsAuthorityExpectedTag,
+                    renderedTag: element.dataset.andrewsAuthorityRenderedTag,
+                    audit: element.dataset.andrewsAuthorityAudit,
+                    diagnostics: element.dataset.andrewsAuthorityDiagnostics,
+                    outputGateClass: classes.has("tense-block--andrews-output-gate"),
+                    unclassifiedClass: classes.has("tense-block--andrews-unclassified"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                authority: panels.includes('scope: "andrews-output-gate"') ? "andrews-output-gate" : "missing",
+                slot: panels.includes('slot: "route-selection-required"') ? "route-selection-required" : "missing",
+                gate: panels.includes('generationGate: "route-selection-required"') ? "route-selection-required" : "missing",
+                coreGate: panels.includes('frame.scope !== "andrews-output-gate"') ? "" : "unclassified-andrews-frame-required",
+                coreFamily: panels.includes('frame.scope !== "andrews-output-gate"') ? "" : "selection-required",
+                executorGate: panels.includes("dataset.andrewsExecutorGenerationGate") ? "" : "missing",
+                executorRouteStage: panels.includes("dataset.andrewsExecutorRouteStage") ? "" : "missing",
+                elementContract: panels.includes("dataset.andrewsAuthorityElementContract") ? "div.tense-block" : "missing",
+                expectedTag: panels.includes("dataset.andrewsAuthorityExpectedTag") ? "div" : "missing",
+                renderedTag: panels.includes("dataset.andrewsAuthorityRenderedTag") ? "div" : "missing",
+                audit: "ok",
+                diagnostics: "",
+                outputGateClass: panels.includes("tense-block--andrews-output-gate"),
+                unclassifiedClass: false,
+                warningClass: false,
+            },
+        {
+            authority: "andrews-output-gate",
+            slot: "route-selection-required",
+            gate: "route-selection-required",
+            coreGate: "",
+            coreFamily: "",
+            executorGate: "",
+            executorRouteStage: "",
+            elementContract: "div.tense-block",
+            expectedTag: "div",
+            renderedTag: "div",
+            audit: "ok",
+            diagnostics: "",
+            outputGateClass: true,
+            unclassifiedClass: false,
+            warningClass: false,
+        }
+    );
+    s.eq(
+        "Andrews-licensed tense tabs stay selectable when only surface output is missing",
+        typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const state = ctx.applyAndrewsTenseTabSelectionAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: false,
+                    isAvailable: false,
+                });
+                return {
+                    disabled: state.disabled,
+                    nativeDisabled: element.disabled,
+                    selectionGate: element.dataset.andrewsSelectionGate,
+                    selectionDisabled: element.dataset.andrewsSelectionDisabled,
+                    blocked: element.dataset.andrewsSelectionBlocked,
+                    outputAvailability: element.dataset.andrewsOutputAvailability,
+                    outputRole: element.dataset.andrewsOutputAvailabilityRole,
+                    authority: element.dataset.andrewsSelectionAuthority,
+                    logicAuthority: element.dataset.andrewsSelectionLogicAuthority,
+                    grammarGate: element.dataset.andrewsSelectionGrammarGate,
+                    selectionOutputRole: element.dataset.andrewsSelectionOutputRole,
+                    orthographyBoundary: element.dataset.andrewsSelectionOrthographyBoundary,
+                    classicalImport: element.dataset.andrewsSelectionClassicalOutputImport,
+                    surfaceProbeRole: element.dataset.andrewsSelectionSurfaceProbeRole,
+                    evidenceRole: element.dataset.andrewsSelectionNawatEvidenceRole,
+                    allowedClass: classes.has("tense-tab--andrews-selection-allowed"),
+                    blockedClass: classes.has("tense-tab--andrews-selection-blocked"),
+                    pendingClass: classes.has("tense-tab--andrews-output-pending"),
+                };
+            })()
+            : {
+                disabled: panels.includes("orthography-output-probe-not-grammar-gate") ? false : true,
+                nativeDisabled: panels.includes("element.disabled = state.disabled") ? false : "missing",
+                selectionGate: "selectable",
+                selectionDisabled: panels.includes("dataset.andrewsSelectionDisabled") ? "false" : "missing",
+                blocked: "",
+                outputAvailability: "surface-unavailable",
+                outputRole: "orthography-output-probe-not-grammar-gate",
+                authority: "Andrews PDF",
+                logicAuthority: panels.includes("dataset.andrewsSelectionLogicAuthority") ? "Andrews PDF" : "missing",
+                grammarGate: panels.includes("dataset.andrewsSelectionGrammarGate") ? "andrews-licensed-generation" : "missing",
+                selectionOutputRole: panels.includes("dataset.andrewsSelectionOutputRole") ? "orthography-realization" : "missing",
+                orthographyBoundary: panels.includes("dataset.andrewsSelectionOrthographyBoundary") ? "nawat-pipil-realization" : "missing",
+                classicalImport: panels.includes("dataset.andrewsSelectionClassicalOutputImport") ? "blocked" : "missing",
+                surfaceProbeRole: panels.includes("dataset.andrewsSelectionSurfaceProbeRole") ? "orthography-output-probe-not-grammar-gate" : "missing",
+                evidenceRole: "orthography-output-probe-not-grammar-gate",
+                allowedClass: panels.includes("tense-tab--andrews-selection-allowed"),
+                blockedClass: false,
+                pendingClass: panels.includes("tense-tab--andrews-output-pending"),
+            },
+        {
+            disabled: false,
+            nativeDisabled: false,
+            selectionGate: "selectable",
+            selectionDisabled: "false",
+            blocked: "",
+            outputAvailability: "surface-unavailable",
+            outputRole: "orthography-output-probe-not-grammar-gate",
+            authority: "Andrews PDF",
+            logicAuthority: "Andrews PDF",
+            grammarGate: "andrews-licensed-generation",
+            selectionOutputRole: "orthography-realization",
+            orthographyBoundary: "nawat-pipil-realization",
+            classicalImport: "blocked",
+            surfaceProbeRole: "orthography-output-probe-not-grammar-gate",
+            evidenceRole: "orthography-output-probe-not-grammar-gate",
+            allowedClass: true,
+            blockedClass: false,
+            pendingClass: true,
+        }
+    );
+    s.eq(
+        "Nawat extension tense tabs remain blocked by Andrews generation gate",
+        typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const state = ctx.applyAndrewsTenseTabSelectionAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                return {
+                    disabled: state.disabled,
+                    nativeDisabled: element.disabled,
+                    selectionGate: element.dataset.andrewsSelectionGate,
+                    selectionDisabled: element.dataset.andrewsSelectionDisabled,
+                    blocked: element.dataset.andrewsSelectionBlocked,
+                    outputAvailability: element.dataset.andrewsOutputAvailability,
+                    outputRole: element.dataset.andrewsOutputAvailabilityRole,
+                    logicAuthority: element.dataset.andrewsSelectionLogicAuthority,
+                    grammarGate: element.dataset.andrewsSelectionGrammarGate,
+                    selectionOutputRole: element.dataset.andrewsSelectionOutputRole,
+                    orthographyBoundary: element.dataset.andrewsSelectionOrthographyBoundary,
+                    classicalImport: element.dataset.andrewsSelectionClassicalOutputImport,
+                    surfaceProbeRole: element.dataset.andrewsSelectionSurfaceProbeRole,
+                    allowedClass: classes.has("tense-tab--andrews-selection-allowed"),
+                    blockedClass: classes.has("tense-tab--andrews-selection-blocked"),
+                    pendingClass: classes.has("tense-tab--andrews-output-pending"),
+                };
+            })()
+            : {
+                disabled: panels.includes("not-andrews-grammar-gate"),
+                nativeDisabled: panels.includes("element.disabled = state.disabled"),
+                selectionGate: "blocked",
+                selectionDisabled: panels.includes("dataset.andrewsSelectionDisabled") ? "true" : "missing",
+                blocked: "not-andrews-grammar-gate",
+                outputAvailability: "surface-available",
+                outputRole: "selection-hard-gate",
+                logicAuthority: panels.includes("dataset.andrewsSelectionLogicAuthority") ? "Andrews PDF" : "missing",
+                grammarGate: panels.includes("dataset.andrewsSelectionGrammarGate") ? "not-andrews-grammar-gate" : "missing",
+                selectionOutputRole: panels.includes("dataset.andrewsSelectionOutputRole") ? "surface-evidence-only" : "missing",
+                orthographyBoundary: panels.includes("dataset.andrewsSelectionOrthographyBoundary") ? "nawat-pipil-realization" : "missing",
+                classicalImport: panels.includes("dataset.andrewsSelectionClassicalOutputImport") ? "blocked" : "missing",
+                surfaceProbeRole: panels.includes("dataset.andrewsSelectionSurfaceProbeRole") ? "selection-hard-gate" : "missing",
+                allowedClass: false,
+                blockedClass: panels.includes("tense-tab--andrews-selection-blocked"),
+                pendingClass: false,
+            },
+        {
+            disabled: true,
+            nativeDisabled: true,
+            selectionGate: "blocked",
+            selectionDisabled: "true",
+            blocked: "not-andrews-grammar-gate",
+            outputAvailability: "surface-available",
+            outputRole: "selection-hard-gate",
+            logicAuthority: "Andrews PDF",
+            grammarGate: "not-andrews-grammar-gate",
+            selectionOutputRole: "surface-evidence-only",
+            orthographyBoundary: "nawat-pipil-realization",
+            classicalImport: "blocked",
+            surfaceProbeRole: "selection-hard-gate",
+            allowedClass: false,
+            blockedClass: true,
+            pendingClass: false,
+        }
+    );
+    s.eq(
+        "tense tab selection authority syncs disabled and aria-disabled state",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.getAndrewsTenseAuthorityDatasetAuditRecord === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const attributes = {};
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    disabled: false,
+                    setAttribute(name, value) {
+                        attributes[name] = String(value);
+                    },
+                    getAttribute(name) {
+                        return attributes[name] || "";
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                const synced = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                element.disabled = false;
+                element.setAttribute("aria-disabled", "false");
+                const stale = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    selectionGate: element.dataset.andrewsSelectionGate,
+                    selectionDisabled: element.dataset.andrewsSelectionDisabled,
+                    nativeDisabledAfterSync: synced.ok ? true : element.disabled,
+                    ariaDisabledAfterSync: synced.ok ? "true" : element.getAttribute("aria-disabled"),
+                    syncedOk: synced.ok,
+                    staleNativeDiagnostic: stale.diagnostics.includes("andrews-selection-native-disabled-mismatch"),
+                    staleAriaDiagnostic: stale.diagnostics.includes("andrews-selection-aria-disabled-mismatch"),
+                };
+            })()
+            : {
+                selectionGate: "blocked",
+                selectionDisabled: panels.includes("dataset.andrewsSelectionDisabled") ? "true" : "missing",
+                nativeDisabledAfterSync: panels.includes("element.disabled = state.disabled"),
+                ariaDisabledAfterSync: panels.includes('element.setAttribute("aria-disabled", String(state.disabled))') ? "true" : "missing",
+                syncedOk: true,
+                staleNativeDiagnostic: panels.includes("andrews-selection-native-disabled-mismatch"),
+                staleAriaDiagnostic: panels.includes("andrews-selection-aria-disabled-mismatch"),
+            },
+        {
+            selectionGate: "blocked",
+            selectionDisabled: "true",
+            nativeDisabledAfterSync: true,
+            ariaDisabledAfterSync: "true",
+            syncedOk: true,
+            staleNativeDiagnostic: true,
+            staleAriaDiagnostic: true,
+        }
+    );
+    s.eq(
+        "tense tab selection authority audits grammar gate and orthography boundary",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.getAndrewsTenseAuthorityDatasetAuditRecord === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const attributes = {};
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    disabled: false,
+                    setAttribute(name, value) {
+                        attributes[name] = String(value);
+                    },
+                    getAttribute(name) {
+                        return attributes[name] || "";
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                const synced = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                element.dataset.andrewsSelectionLogicAuthority = "Nawat/Pipil evidence";
+                element.dataset.andrewsSelectionGrammarGate = "not-andrews-grammar-gate";
+                element.dataset.andrewsSelectionOrthographyBoundary = "";
+                element.dataset.andrewsSelectionClassicalOutputImport = "allowed";
+                element.dataset.andrewsSelectionSurfaceProbeRole = "surface-evidence-only";
+                const stale = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    syncedOk: synced.ok,
+                    logicAuthority: synced.ok ? "Andrews PDF" : element.dataset.andrewsSelectionLogicAuthority,
+                    grammarGate: synced.ok ? "andrews-licensed-generation" : element.dataset.andrewsSelectionGrammarGate,
+                    outputRole: synced.ok ? "orthography-realization" : element.dataset.andrewsSelectionOutputRole,
+                    orthographyBoundary: synced.ok ? "nawat-pipil-realization" : element.dataset.andrewsSelectionOrthographyBoundary,
+                    classicalImport: synced.ok ? "blocked" : element.dataset.andrewsSelectionClassicalOutputImport,
+                    staleLogicDiagnostic: stale.diagnostics.includes("andrews-selection-logic-authority-missing"),
+                    staleGateDiagnostic: stale.diagnostics.includes("andrews-selection-grammar-gate-mismatch"),
+                    staleBoundaryDiagnostic: stale.diagnostics.includes("andrews-selection-orthography-boundary-missing"),
+                    staleClassicalImportDiagnostic: stale.diagnostics.includes("andrews-selection-classical-output-import-not-blocked"),
+                    staleSurfaceProbeDiagnostic: stale.diagnostics.includes("andrews-selection-surface-probe-role-mismatch"),
+                };
+            })()
+            : {
+                syncedOk: true,
+                logicAuthority: panels.includes("dataset.andrewsSelectionLogicAuthority") ? "Andrews PDF" : "missing",
+                grammarGate: panels.includes("dataset.andrewsSelectionGrammarGate") ? "andrews-licensed-generation" : "missing",
+                outputRole: panels.includes("dataset.andrewsSelectionOutputRole") ? "orthography-realization" : "missing",
+                orthographyBoundary: panels.includes("dataset.andrewsSelectionOrthographyBoundary") ? "nawat-pipil-realization" : "missing",
+                classicalImport: panels.includes("dataset.andrewsSelectionClassicalOutputImport") ? "blocked" : "missing",
+                staleLogicDiagnostic: panels.includes("andrews-selection-logic-authority-missing"),
+                staleGateDiagnostic: panels.includes("andrews-selection-grammar-gate-mismatch"),
+                staleBoundaryDiagnostic: panels.includes("andrews-selection-orthography-boundary-missing"),
+                staleClassicalImportDiagnostic: panels.includes("andrews-selection-classical-output-import-not-blocked"),
+                staleSurfaceProbeDiagnostic: panels.includes("andrews-selection-surface-probe-role-mismatch"),
+            },
+        {
+            syncedOk: true,
+            logicAuthority: "Andrews PDF",
+            grammarGate: "andrews-licensed-generation",
+            outputRole: "orthography-realization",
+            orthographyBoundary: "nawat-pipil-realization",
+            classicalImport: "blocked",
+            staleLogicDiagnostic: true,
+            staleGateDiagnostic: true,
+            staleBoundaryDiagnostic: true,
+            staleClassicalImportDiagnostic: true,
+            staleSurfaceProbeDiagnostic: true,
+        }
+    );
+    s.eq(
+        "tense tab selection audit ignores poisoned DOM mirrors as authority",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.getAndrewsTenseTabSelectionAuditRecord === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const attributes = {};
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    disabled: false,
+                    setAttribute(name, value) {
+                        attributes[name] = String(value);
+                    },
+                    getAttribute(name) {
+                        return attributes[name] || "";
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                element.dataset.andrewsSelectionGate = "selectable";
+                element.dataset.andrewsSelectionDisabled = "false";
+                element.dataset.andrewsSelectionSelected = "true";
+                element.dataset.andrewsSelectionBlocked = "";
+                classes.add("is-active");
+                element.disabled = false;
+                element.setAttribute("aria-disabled", "false");
+                element.setAttribute("aria-selected", "true");
+                const record = ctx.getAndrewsTenseTabSelectionAuditRecord(element);
+                return {
+                    gate: record.selectionGate,
+                    blocked: record.blocked,
+                    selectable: record.selectable,
+                    selected: record.selected,
+                    ariaSelected: record.ariaSelected,
+                    disabled: record.disabled,
+                    nativeDisabled: record.nativeDisabled,
+                    blockedSelected: record.blockedSelected,
+                    gateDiagnostic: record.diagnostics.includes("andrews-selection-gate-mismatch"),
+                    disabledDiagnostic: record.diagnostics.includes("andrews-selection-disabled-mismatch"),
+                    selectedDiagnostic: record.diagnostics.includes("andrews-selection-selected-mismatch"),
+                    activeDiagnostic: record.diagnostics.includes("andrews-selection-blocked-tab-active"),
+                    ariaDiagnostic: record.diagnostics.includes("andrews-selection-blocked-tab-aria-selected"),
+                    nativeDiagnostic: record.diagnostics.includes("andrews-selection-native-disabled-mismatch"),
+                };
+            })()
+            : {
+                gate: panels.includes("getAndrewsTenseTabSelectionAuditModelTarget(element)") ? "blocked" : "missing",
+                blocked: panels.includes("targetFrame.blocked === true"),
+                selectable: false,
+                selected: false,
+                ariaSelected: false,
+                disabled: true,
+                nativeDisabled: true,
+                blockedSelected: false,
+                gateDiagnostic: panels.includes("andrews-selection-gate-mismatch"),
+                disabledDiagnostic: panels.includes("andrews-selection-disabled-mismatch"),
+                selectedDiagnostic: panels.includes("andrews-selection-selected-mismatch"),
+                activeDiagnostic: panels.includes("andrews-selection-blocked-tab-active"),
+                ariaDiagnostic: panels.includes("andrews-selection-blocked-tab-aria-selected"),
+                nativeDiagnostic: panels.includes("andrews-selection-native-disabled-mismatch"),
+            },
+        {
+            gate: "blocked",
+            blocked: true,
+            selectable: false,
+            selected: false,
+            ariaSelected: false,
+            disabled: true,
+            nativeDisabled: true,
+            blockedSelected: false,
+            gateDiagnostic: true,
+            disabledDiagnostic: true,
+            selectedDiagnostic: true,
+            activeDiagnostic: true,
+            ariaDiagnostic: true,
+            nativeDiagnostic: true,
+        }
+    );
+    s.eq(
+        "tense tab selection audit blocks dataset-only and contradictory target frames",
+        typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.getAndrewsTenseTabSelectionAuditRecord === "function"
+            ? (() => {
+                const buildElement = () => {
+                    const classes = new Set(["tense-tab"]);
+                    const attributes = {};
+                    return {
+                        tagName: "BUTTON",
+                        dataset: {},
+                        title: "",
+                        disabled: false,
+                        setAttribute(name, value) {
+                            attributes[name] = String(value);
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                        classes,
+                    };
+                };
+                const datasetOnly = buildElement();
+                datasetOnly.dataset.andrewsSelectionGate = "selectable";
+                datasetOnly.dataset.andrewsSelectionDisabled = "false";
+                datasetOnly.dataset.andrewsSelectionSelected = "true";
+                datasetOnly.classes.add("is-active");
+                datasetOnly.setAttribute("aria-selected", "true");
+                const datasetOnlyRecord = ctx.getAndrewsTenseTabSelectionAuditRecord(datasetOnly);
+                const contradictory = buildElement();
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(contradictory, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                contradictory.andrewsTenseTabSelectionAuditModel.operationFrame.targetFrame.selectionGate = "selectable";
+                const contradictoryRecord = ctx.getAndrewsTenseTabSelectionAuditRecord(contradictory);
+                return {
+                    datasetOnlyMissing: datasetOnlyRecord.missingSelectionMetadata,
+                    datasetOnlyGate: datasetOnlyRecord.selectionGate,
+                    datasetOnlySelected: datasetOnlyRecord.selected,
+                    datasetOnlyDiagnostic: datasetOnlyRecord.diagnostics.includes("andrews-selection-audit-operation-frame-missing"),
+                    contradictoryMissing: contradictoryRecord.missingSelectionMetadata,
+                    contradictoryGate: contradictoryRecord.selectionGate,
+                    contradictoryDiagnostic: contradictoryRecord.diagnostics.includes("andrews-selection-audit-contradictory-target-frame"),
+                };
+            })()
+            : {
+                datasetOnlyMissing: true,
+                datasetOnlyGate: "",
+                datasetOnlySelected: false,
+                datasetOnlyDiagnostic: panels.includes("andrews-selection-audit-operation-frame-missing"),
+                contradictoryMissing: true,
+                contradictoryGate: "",
+                contradictoryDiagnostic: panels.includes("andrews-selection-audit-contradictory-target-frame"),
+            },
+        {
+            datasetOnlyMissing: true,
+            datasetOnlyGate: "",
+            datasetOnlySelected: false,
+            datasetOnlyDiagnostic: true,
+            contradictoryMissing: true,
+            contradictoryGate: "",
+            contradictoryDiagnostic: true,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync summarizes and repairs tense-tab selection audits on the root",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            ? (() => {
+                const buildElement = (tenseValue) => {
+                    const classes = new Set(["tense-tab"]);
+                    const attributes = {};
+                    return {
+                        tagName: "BUTTON",
+                        dataset: { tenseValue },
+                        title: "",
+                        disabled: false,
+                        setAttribute(name, value) {
+                            attributes[name] = String(value);
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                        classes,
+                    };
+                };
+                const allowed = buildElement("preterito");
+                const blocked = buildElement("condicional");
+                ctx.applyAndrewsTenseAuthorityDataset(blocked, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(blocked, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                blocked.dataset.andrewsSelectionGrammarGate = "andrews-licensed-generation";
+                blocked.dataset.andrewsSelectionClassicalOutputImport = "allowed";
+                blocked.dataset.andrewsSelectionSelected = "true";
+                blocked.classes.add("is-active");
+                blocked.disabled = false;
+                blocked.setAttribute("aria-disabled", "false");
+                blocked.setAttribute("aria-selected", "true");
+                const tabs = [allowed, blocked];
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        if (selector === ".tense-tab, .tense-block" || selector === ".tense-tab") {
+                            return tabs;
+                        }
+                        if (selector === ".tense-block") {
+                            return [];
+                        }
+                        return [];
+                    },
+                };
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    ok: audit.ok,
+                    tabOk: audit.tabSelectionAudit.ok,
+                    checked: audit.tabSelectionAudit.checked,
+                    selectionAnnotated: audit.selectionAnnotated,
+                    selectionRepaired: audit.selectionRepaired,
+                    rootAudit: root.dataset.andrewsTabSelectionAudit,
+                    rootChecked: root.dataset.andrewsTabSelectionChecked,
+                    rootAnnotated: root.dataset.andrewsTabSelectionAnnotated,
+                    rootRepaired: root.dataset.andrewsTabSelectionRepaired,
+                    rootSelectable: root.dataset.andrewsTabSelectionSelectableCount,
+                    rootBlocked: root.dataset.andrewsTabSelectionBlockedCount,
+                    rootSelected: root.dataset.andrewsTabSelectionSelectedCount,
+                    rootBlockedSelected: root.dataset.andrewsTabSelectionBlockedSelectedCount,
+                    rootHardGate: root.dataset.andrewsTabSelectionHardGateCount,
+                    rootDisabled: root.dataset.andrewsTabSelectionDisabledCount,
+                    rootNativeDisabled: root.dataset.andrewsTabSelectionNativeDisabledCount,
+                    rootMissing: root.dataset.andrewsTabSelectionMissingCount,
+                    rootDiagnostics: root.dataset.andrewsTabSelectionDiagnosticCount,
+                    rootGateMismatch: root.dataset.andrewsTabSelectionGrammarGateMismatchCount,
+                    rootClassicalImportMismatch: root.dataset.andrewsTabSelectionClassicalImportNotBlockedCount,
+                    rootActiveMismatch: root.dataset.andrewsTabSelectionActiveMismatchCount,
+                    allowedSelectionGate: allowed.dataset.andrewsSelectionGate,
+                    allowedGrammarGate: allowed.dataset.andrewsSelectionGrammarGate,
+                    blockedSelectionGate: blocked.dataset.andrewsSelectionGate,
+                    blockedGrammarGate: blocked.dataset.andrewsSelectionGrammarGate,
+                    blockedClassicalImport: blocked.dataset.andrewsSelectionClassicalOutputImport,
+                    blockedSelected: blocked.dataset.andrewsSelectionSelected,
+                    blockedActive: blocked.classes.has("is-active"),
+                    blockedDisabled: blocked.disabled,
+                    blockedAriaDisabled: blocked.getAttribute("aria-disabled"),
+                    blockedAriaSelected: blocked.getAttribute("aria-selected"),
+                };
+            })()
+            : {
+                ok: true,
+                tabOk: panels.includes("summarizeAndrewsTenseTabSelectionAudit(scope)"),
+                checked: panels.includes("summarizeAndrewsTenseTabSelectionAudit(scope)") ? 2 : 0,
+                selectionAnnotated: panels.includes("selectionAnnotated += 1") ? 1 : 0,
+                selectionRepaired: panels.includes("selectionRepaired += 1") ? 1 : 0,
+                rootAudit: panels.includes("scope.dataset.andrewsTabSelectionAudit") ? "ok" : "missing",
+                rootChecked: panels.includes("scope.dataset.andrewsTabSelectionChecked") ? "2" : "missing",
+                rootAnnotated: panels.includes("scope.dataset.andrewsTabSelectionAnnotated") ? "1" : "missing",
+                rootRepaired: panels.includes("scope.dataset.andrewsTabSelectionRepaired") ? "1" : "missing",
+                rootSelectable: panels.includes("scope.dataset.andrewsTabSelectionSelectableCount") ? "1" : "missing",
+                rootBlocked: panels.includes("scope.dataset.andrewsTabSelectionBlockedCount") ? "1" : "missing",
+                rootSelected: panels.includes("scope.dataset.andrewsTabSelectionSelectedCount") ? "0" : "missing",
+                rootBlockedSelected: panels.includes("scope.dataset.andrewsTabSelectionBlockedSelectedCount") ? "0" : "missing",
+                rootHardGate: panels.includes("scope.dataset.andrewsTabSelectionHardGateCount") ? "1" : "missing",
+                rootDisabled: panels.includes("scope.dataset.andrewsTabSelectionDisabledCount") ? "1" : "missing",
+                rootNativeDisabled: panels.includes("scope.dataset.andrewsTabSelectionNativeDisabledCount") ? "1" : "missing",
+                rootMissing: panels.includes("scope.dataset.andrewsTabSelectionMissingCount") ? "0" : "missing",
+                rootDiagnostics: panels.includes("scope.dataset.andrewsTabSelectionDiagnosticCount") ? "0" : "missing",
+                rootGateMismatch: panels.includes("scope.dataset.andrewsTabSelectionGrammarGateMismatchCount") ? "0" : "missing",
+                rootClassicalImportMismatch: panels.includes("scope.dataset.andrewsTabSelectionClassicalImportNotBlockedCount") ? "0" : "missing",
+                rootActiveMismatch: panels.includes("scope.dataset.andrewsTabSelectionActiveMismatchCount") ? "0" : "missing",
+                allowedSelectionGate: "selectable",
+                allowedGrammarGate: "andrews-licensed-generation",
+                blockedSelectionGate: "blocked",
+                blockedGrammarGate: "not-andrews-grammar-gate",
+                blockedClassicalImport: "blocked",
+                blockedSelected: "false",
+                blockedActive: false,
+                blockedDisabled: true,
+                blockedAriaDisabled: "true",
+                blockedAriaSelected: "false",
+            },
+        {
+            ok: true,
+            tabOk: true,
+            checked: 2,
+            selectionAnnotated: 1,
+            selectionRepaired: 1,
+            rootAudit: "ok",
+            rootChecked: "2",
+            rootAnnotated: "1",
+            rootRepaired: "1",
+            rootSelectable: "1",
+            rootBlocked: "1",
+            rootSelected: "0",
+            rootBlockedSelected: "0",
+            rootHardGate: "1",
+            rootDisabled: "1",
+            rootNativeDisabled: "1",
+            rootMissing: "0",
+            rootDiagnostics: "0",
+            rootGateMismatch: "0",
+            rootClassicalImportMismatch: "0",
+            rootActiveMismatch: "0",
+            allowedSelectionGate: "selectable",
+            allowedGrammarGate: "andrews-licensed-generation",
+            blockedSelectionGate: "blocked",
+            blockedGrammarGate: "not-andrews-grammar-gate",
+            blockedClassicalImport: "blocked",
+            blockedSelected: "false",
+            blockedActive: false,
+            blockedDisabled: true,
+            blockedAriaDisabled: "true",
+            blockedAriaSelected: "false",
+        }
+    );
+    s.eq(
+        "blocked Andrews tense tabs reject stale click paths",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabClickAuthorityDataset === "function"
+            && typeof ctx.isAndrewsTenseTabClickAllowed === "function"
+            && typeof ctx.getAndrewsTenseAuthorityDatasetAuditRecord === "function"
+            ? (() => {
+                const buildElement = () => {
+                    const classes = new Set(["tense-tab"]);
+                    const attributes = {};
+                    return {
+                        tagName: "BUTTON",
+                        dataset: {},
+                        title: "",
+                        disabled: false,
+                        setAttribute(name, value) {
+                            attributes[name] = String(value);
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                    };
+                };
+                const blocked = buildElement();
+                ctx.applyAndrewsTenseAuthorityDataset(blocked, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(blocked, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                const blockedClick = ctx.applyAndrewsTenseTabClickAuthorityDataset(blocked);
+                const blockedAllowed = ctx.isAndrewsTenseTabClickAllowed(blocked);
+                blocked.dataset.andrewsClickGate = "allowed";
+                const staleAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(blocked);
+
+                const allowed = buildElement();
+                ctx.applyAndrewsTenseAuthorityDataset(allowed, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(allowed, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: false,
+                });
+                const allowedClick = ctx.applyAndrewsTenseTabClickAuthorityDataset(allowed);
+                const allowedAllowed = ctx.isAndrewsTenseTabClickAllowed(allowed);
+                return {
+                    blockedClickGate: blockedClick.clickGate,
+                    blockedClickAllowed: blockedAllowed,
+                    blockedClickBlocked: blocked.dataset.andrewsClickBlocked,
+                    blockedClickAuthority: blocked.dataset.andrewsClickAuthority,
+                    staleClickDiagnostic: staleAudit.diagnostics.includes("andrews-click-gate-mismatch"),
+                    allowedClickGate: allowedClick.clickGate,
+                    allowedClickAllowed: allowedAllowed,
+                    allowedSelectionGate: allowed.dataset.andrewsSelectionGate,
+                    allowedOutputRole: allowed.dataset.andrewsOutputAvailabilityRole,
+                };
+            })()
+            : {
+                blockedClickGate: panels.includes("dataset.andrewsClickGate") ? "blocked" : "missing",
+                blockedClickAllowed: panels.includes("return getAndrewsTenseTabClickAuthorityState(element).blocked !== true") ? false : "missing",
+                blockedClickBlocked: panels.includes("andrews-selection-gate-blocked") ? "andrews-selection-gate-blocked|andrews-selection-disabled|not-andrews-grammar-gate" : "missing",
+                blockedClickAuthority: panels.includes('dataset.andrewsClickAuthority = "Andrews PDF"') ? "Andrews PDF" : "missing",
+                staleClickDiagnostic: panels.includes("andrews-click-gate-mismatch"),
+                allowedClickGate: panels.includes("clickGate: blocked ? \"blocked\" : \"allowed\"") ? "allowed" : "missing",
+                allowedClickAllowed: panels.includes("return getAndrewsTenseTabClickAuthorityState(element).blocked !== true"),
+                allowedSelectionGate: "selectable",
+                allowedOutputRole: "orthography-output-probe-not-grammar-gate",
+            },
+        {
+            blockedClickGate: "blocked",
+            blockedClickAllowed: false,
+            blockedClickBlocked: "andrews-selection-gate-blocked|andrews-selection-disabled|not-andrews-grammar-gate",
+            blockedClickAuthority: "Andrews PDF",
+            staleClickDiagnostic: true,
+            allowedClickGate: "allowed",
+            allowedClickAllowed: true,
+            allowedSelectionGate: "selectable",
+            allowedOutputRole: "orthography-output-probe-not-grammar-gate",
+        }
+    );
+    s.eq(
+        "tense tab click authority ignores poisoned DOM mirrors and blocks no-frame click state",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            && typeof ctx.applyAndrewsTenseTabClickAuthorityDataset === "function"
+            && typeof ctx.isAndrewsTenseTabClickAllowed === "function"
+            ? (() => {
+                const buildElement = () => {
+                    const classes = new Set(["tense-tab"]);
+                    const attributes = {};
+                    return {
+                        tagName: "BUTTON",
+                        dataset: {},
+                        title: "",
+                        disabled: false,
+                        setAttribute(name, value) {
+                            attributes[name] = String(value);
+                        },
+                        getAttribute(name) {
+                            return attributes[name] || "";
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                    };
+                };
+                const allowed = buildElement();
+                ctx.applyAndrewsTenseAuthorityDataset(allowed, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(allowed, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                allowed.dataset.andrewsSelectionGate = "blocked";
+                allowed.dataset.andrewsSelectionDisabled = "true";
+                allowed.disabled = true;
+                allowed.setAttribute("aria-disabled", "true");
+                const poisonedClick = ctx.applyAndrewsTenseTabClickAuthorityDataset(allowed);
+                const poisonedAllowed = ctx.isAndrewsTenseTabClickAllowed(allowed);
+
+                const datasetOnly = buildElement();
+                datasetOnly.dataset.andrewsSelectionGate = "selectable";
+                datasetOnly.dataset.andrewsSelectionDisabled = "false";
+                datasetOnly.dataset.andrewsClickGate = "allowed";
+                const datasetOnlyClick = ctx.applyAndrewsTenseTabClickAuthorityDataset(datasetOnly);
+                const datasetOnlyAllowed = ctx.isAndrewsTenseTabClickAllowed(datasetOnly);
+
+                const contradictory = buildElement();
+                ctx.applyAndrewsTenseTabSelectionAuthorityDataset(contradictory, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    hasOutput: true,
+                });
+                contradictory.andrewsTenseTabSelectionAuditModel.operationFrame.targetFrame.selectionGate = "blocked";
+                const contradictoryClick = ctx.applyAndrewsTenseTabClickAuthorityDataset(contradictory);
+                return {
+                    poisonedClickGate: poisonedClick.clickGate,
+                    poisonedAllowed,
+                    poisonedBlocked: allowed.dataset.andrewsClickBlocked,
+                    clickModel: allowed.andrewsTenseTabClickAuthorityModel?.operationFrame?.operation || "",
+                    datasetOnlyClickGate: datasetOnlyClick.clickGate,
+                    datasetOnlyAllowed,
+                    datasetOnlyBlocked: datasetOnly.dataset.andrewsClickBlocked,
+                    contradictoryClickGate: contradictoryClick.clickGate,
+                    contradictoryBlocked: contradictory.dataset.andrewsClickBlocked,
+                };
+            })()
+            : {
+                poisonedClickGate: panels.includes("buildAndrewsTenseTabClickAuthorityModel") ? "allowed" : "missing",
+                poisonedAllowed: panels.includes("getAndrewsTenseTabSelectionAuditModelTarget(element)"),
+                poisonedBlocked: "",
+                clickModel: panels.includes("authorize-tense-tab-click-from-selection-target-frame")
+                    ? "authorize-tense-tab-click-from-selection-target-frame"
+                    : "",
+                datasetOnlyClickGate: "blocked",
+                datasetOnlyAllowed: false,
+                datasetOnlyBlocked: panels.includes("andrews-selection-audit-operation-frame-missing")
+                    ? "andrews-selection-audit-operation-frame-missing"
+                    : "missing",
+                contradictoryClickGate: "blocked",
+                contradictoryBlocked: panels.includes("andrews-selection-audit-contradictory-target-frame")
+                    ? "andrews-selection-audit-contradictory-target-frame"
+                    : "missing",
+            },
+        {
+            poisonedClickGate: "allowed",
+            poisonedAllowed: true,
+            poisonedBlocked: "",
+            clickModel: "authorize-tense-tab-click-from-selection-target-frame",
+            datasetOnlyClickGate: "blocked",
+            datasetOnlyAllowed: false,
+            datasetOnlyBlocked: "andrews-selection-audit-operation-frame-missing",
+            contradictoryClickGate: "blocked",
+            contradictoryBlocked: "andrews-selection-audit-contradictory-target-frame",
+        }
+    );
+    s.eq(
+        "blocked Andrews tense-block audits reject generated rows",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block", "tense-block--cnv-generation-gate-blocked"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    title: "",
+                    querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                            return [makeAndrewsBlockRowAuditModel({
+                                grammarRouteFamily: "vnc",
+                                grammarRouteStage: "andrews-cnv-tense-logic-gate",
+                                grammarGenerationAllowed: "false",
+                                grammarDiagnosticId: "not-andrews-grammar-gate",
+                            })];
+                        }
+                        if (selector === ".tense-placeholder") {
+                            return [];
+                        }
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "condicional",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    blockKind: "CNV generation gate blocked",
+                });
+                const blockAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(element);
+                const authorityAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    authority: element.dataset.andrewsTenseAuthority,
+                    generationGate: element.dataset.andrewsGenerationGate,
+                    executorGate: element.dataset.andrewsExecutorGenerationGate,
+                    executorRouteStage: element.dataset.andrewsExecutorRouteStage,
+                    executorAllowed: element.dataset.andrewsExecutorGenerationAllowed,
+                    executorFormulaShellPolicy: element.dataset.andrewsExecutorFormulaShellPolicy,
+                    executorSurfacePolicy: element.dataset.andrewsExecutorSurfacePolicy,
+                    executorFallbackPolicy: element.dataset.andrewsExecutorFallbackPolicy,
+                    outputScope: element.dataset.andrewsBlockOutputScope,
+                    outputAudit: element.dataset.andrewsBlockOutputAudit,
+                    rowCount: element.dataset.andrewsBlockOutputRowCount,
+                    routeFamilies: element.dataset.andrewsBlockRouteFamilies,
+                    routeStages: element.dataset.andrewsBlockRouteStages,
+                    routeDiagnostics: element.dataset.andrewsBlockRouteDiagnosticIds,
+                    allowedRouteRows: element.dataset.andrewsBlockRouteGenerationAllowedCount,
+                    blockedRouteRows: element.dataset.andrewsBlockRouteGenerationBlockedRowCount,
+                    blockDiagnostic: blockAudit.diagnostics.join("|"),
+                    authorityOk: authorityAudit.ok,
+                    authorityDiagnostic: authorityAudit.diagnostics.includes("blocked-andrews-generation-block-has-output-rows"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                    blockedClass: classes.has("tense-block--andrews-output-blocked"),
+                    generatedClass: classes.has("tense-block--andrews-output-generated"),
+                    leakClass: classes.has("tense-block--andrews-output-leak-diagnostic"),
+                };
+            })()
+            : {
+                authority: panels.includes('scope: "nawat-extension"') ? "nawat-extension" : "missing",
+                generationGate: panels.includes('generationGate: "not-andrews-grammar-gate"') ? "not-andrews-grammar-gate" : "missing",
+                executorGate: panels.includes("dataset.andrewsExecutorGenerationGate") ? "not-andrews-grammar-gate" : "missing",
+                executorRouteStage: panels.includes("dataset.andrewsExecutorRouteStage") ? "andrews-cnv-tense-logic-gate" : "missing",
+                executorAllowed: panels.includes("dataset.andrewsExecutorGenerationAllowed") ? "false" : "missing",
+                executorFormulaShellPolicy: panels.includes("blocked-before-formula-shell") ? "blocked-before-formula-shell" : "missing",
+                executorSurfacePolicy: panels.includes("blocked-before-surface") ? "blocked-before-surface" : "missing",
+                executorFallbackPolicy: panels.includes("blocked-no-target-stem-fallback") ? "blocked-no-target-stem-fallback" : "missing",
+                outputScope: panels.includes('outputScope = !isBlock') ? "blocked-output" : "missing",
+                outputAudit: panels.includes("dataset.andrewsBlockOutputAudit") ? "diagnostic" : "missing",
+                rowCount: panels.includes("dataset.andrewsBlockOutputRowCount") ? "1" : "missing",
+                routeFamilies: panels.includes("dataset.andrewsBlockRouteFamilies") ? "vnc" : "missing",
+                routeStages: panels.includes("dataset.andrewsBlockRouteStages") ? "andrews-cnv-tense-logic-gate" : "missing",
+                routeDiagnostics: panels.includes("dataset.andrewsBlockRouteDiagnosticIds") ? "not-andrews-grammar-gate" : "missing",
+                allowedRouteRows: panels.includes("dataset.andrewsBlockRouteGenerationAllowedCount") ? "0" : "missing",
+                blockedRouteRows: panels.includes("dataset.andrewsBlockRouteGenerationBlockedRowCount") ? "1" : "missing",
+                blockDiagnostic: panels.includes("blocked-andrews-generation-block-has-output-rows")
+                    ? "blocked-andrews-generation-block-has-output-rows"
+                    : "missing",
+                authorityOk: false,
+                authorityDiagnostic: panels.includes("blocked-andrews-generation-block-has-output-rows"),
+                warningClass: panels.includes("tense-block--andrews-audit-warning"),
+                blockedClass: panels.includes("tense-block--andrews-output-blocked"),
+                generatedClass: false,
+                leakClass: panels.includes("tense-block--andrews-output-leak-diagnostic"),
+            },
+        {
+            authority: "nawat-extension",
+            generationGate: "not-andrews-grammar-gate",
+            executorGate: "not-andrews-grammar-gate",
+            executorRouteStage: "andrews-cnv-tense-logic-gate",
+            executorAllowed: "false",
+            executorFormulaShellPolicy: "blocked-before-formula-shell",
+            executorSurfacePolicy: "blocked-before-surface",
+            executorFallbackPolicy: "blocked-no-target-stem-fallback",
+            outputScope: "blocked-output",
+            outputAudit: "diagnostic",
+            rowCount: "1",
+            routeFamilies: "vnc",
+            routeStages: "andrews-cnv-tense-logic-gate",
+            routeDiagnostics: "not-andrews-grammar-gate",
+            allowedRouteRows: "0",
+            blockedRouteRows: "1",
+            blockDiagnostic: "blocked-andrews-generation-block-has-output-rows",
+            authorityOk: false,
+            authorityDiagnostic: true,
+            warningClass: true,
+            blockedClass: true,
+            generatedClass: false,
+            leakClass: true,
+        }
+    );
+    s.eq(
+        "tense-block output audit ignores DOM dataset strings as row authority",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const makeElement = (row) => {
+                    const classes = new Set(["tense-block"]);
+                    return {
+                        tagName: "DIV",
+                        dataset: {},
+                        title: "",
+                        querySelectorAll(selector) {
+                            if (selector === ".conjugation-row") {
+                                return [row];
+                            }
+                            if (selector === ".tense-placeholder") {
+                                return [];
+                            }
+                            return [];
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                        classes,
+                    };
+                };
+                const datasetOnlyElement = makeElement({
+                    dataset: {
+                        grammarRouteFamily: "vnc",
+                        grammarRouteStage: "execute",
+                        grammarGenerationAllowed: "true",
+                        grammarLogicAuthority: "Andrews",
+                        grammarResultOk: "true",
+                    },
+                });
+                ctx.applyAndrewsTenseAuthorityDataset(datasetOnlyElement, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const datasetOnlyAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(datasetOnlyElement);
+                const poisonedDatasetElement = makeElement(makeAndrewsBlockRowAuditModel({
+                    grammarRouteFamily: "vnc",
+                    grammarRouteStage: "execute",
+                    grammarGenerationAllowed: "true",
+                    grammarLogicAuthority: "Andrews",
+                    grammarSpellingEvidenceRole: "orthography-realization-only",
+                    grammarClassicalSpellingRole: "structural-only",
+                    grammarOrthographyBoundary: "nawat-pipil-realization",
+                    grammarSpellingAuthority: "Nawat/Pipil orthography bridge",
+                    grammarClassicalSurfaceImport: "blocked",
+                    grammarResultOk: "true",
+                    grammarSourceContextTargetAuthority: "Andrews source frame",
+                    grammarSourceEvidenceTargetAuthority: "Andrews source frame",
+                }, {
+                    dataset: {
+                        grammarRouteFamily: "",
+                        grammarRouteStage: "andrews-cnv-tense-logic-gate",
+                        grammarGenerationAllowed: "false",
+                        grammarLogicAuthority: "Nawat/Pipil generated output",
+                        grammarResultOk: "false",
+                    },
+                }));
+                ctx.applyAndrewsTenseAuthorityDataset(poisonedDatasetElement, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const poisonedDatasetAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(poisonedDatasetElement);
+                return {
+                    datasetOnly: {
+                        routeFamilies: datasetOnlyElement.dataset.andrewsBlockRouteFamilies,
+                        allowedRows: datasetOnlyElement.dataset.andrewsBlockRouteGenerationAllowedCount,
+                        missingContracts: datasetOnlyElement.dataset.andrewsBlockRowRouteContractMissingCount,
+                        diagnostics: datasetOnlyAudit.diagnostics.join("|"),
+                    },
+                    poisonedDataset: {
+                        routeFamilies: poisonedDatasetElement.dataset.andrewsBlockRouteFamilies,
+                        routeStages: poisonedDatasetElement.dataset.andrewsBlockRouteStages,
+                        allowedRows: poisonedDatasetElement.dataset.andrewsBlockRouteGenerationAllowedCount,
+                        missingContracts: poisonedDatasetElement.dataset.andrewsBlockRowRouteContractMissingCount,
+                        diagnostics: poisonedDatasetAudit.diagnostics.join("|"),
+                    },
+                };
+            })()
+            : {
+                datasetOnly: {
+                    routeFamilies: "",
+                    allowedRows: "0",
+                    missingContracts: "1",
+                    diagnostics: "output-row-missing-andrews-route-contract",
+                },
+                poisonedDataset: {
+                    routeFamilies: "vnc",
+                    routeStages: "execute",
+                    allowedRows: "1",
+                    missingContracts: "0",
+                    diagnostics: "",
+                },
+            },
+        {
+            datasetOnly: {
+                routeFamilies: "",
+                allowedRows: "0",
+                missingContracts: "1",
+                diagnostics: "output-row-missing-andrews-route-contract",
+            },
+            poisonedDataset: {
+                routeFamilies: "vnc",
+                routeStages: "execute",
+                allowedRows: "1",
+                missingContracts: "0",
+                diagnostics: "",
+            },
+        }
+    );
+    s.eq(
+        "tense-block output audit rejects rows without Andrews route contracts",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    title: "",
+                    querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                            return [makeAndrewsBlockRowAuditModel({
+                                grammarLogicAuthority: "Andrews",
+                                grammarSpellingEvidenceRole: "orthography-realization-only",
+                                grammarClassicalSpellingRole: "structural-only",
+                                grammarOrthographyBoundary: "nawat-pipil-realization",
+                                grammarSpellingAuthority: "Nawat/Pipil orthography bridge",
+                                grammarClassicalSurfaceImport: "blocked",
+                                grammarResultOk: "true",
+                            })];
+                        }
+                        if (selector === ".tense-placeholder") {
+                            return [];
+                        }
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const blockAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(element);
+                const authorityAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    outputScope: element.dataset.andrewsBlockOutputScope,
+                    outputAudit: element.dataset.andrewsBlockOutputAudit,
+                    routeFamilies: element.dataset.andrewsBlockRouteFamilies,
+                    routeStages: element.dataset.andrewsBlockRouteStages,
+                    allowedRouteRows: element.dataset.andrewsBlockRouteGenerationAllowedCount,
+                    rowRouteContractMissingCount: element.dataset.andrewsBlockRowRouteContractMissingCount,
+                    blockDiagnostic: blockAudit.diagnostics.join("|"),
+                    authorityDiagnostic: authorityAudit.diagnostics.includes("output-row-missing-andrews-route-contract"),
+                    leakClass: classes.has("tense-block--andrews-output-leak-diagnostic"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                outputScope: "andrews-generated-output",
+                outputAudit: panels.includes("output-row-missing-andrews-route-contract") ? "diagnostic" : "missing",
+                routeFamilies: "",
+                routeStages: "",
+                allowedRouteRows: "0",
+                rowRouteContractMissingCount: panels.includes("dataset.andrewsBlockRowRouteContractMissingCount") ? "1" : "missing",
+                blockDiagnostic: panels.includes("output-row-missing-andrews-route-contract")
+                    ? "output-row-missing-andrews-route-contract|blocked-andrews-route-row-result-ok"
+                    : "missing",
+                authorityDiagnostic: panels.includes("output-row-missing-andrews-route-contract"),
+                leakClass: panels.includes("tense-block--andrews-output-leak-diagnostic"),
+                warningClass: panels.includes("tense-block--andrews-audit-warning"),
+            },
+        {
+            outputScope: "andrews-generated-output",
+            outputAudit: "diagnostic",
+            routeFamilies: "",
+            routeStages: "",
+            allowedRouteRows: "0",
+            rowRouteContractMissingCount: "1",
+            blockDiagnostic: "output-row-missing-andrews-route-contract|blocked-andrews-route-row-result-ok",
+            authorityDiagnostic: true,
+            leakClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "tense-block output audit rejects blocked route rows that still report successful results",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    title: "",
+                    querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                            return [makeAndrewsBlockRowAuditModel({
+                                grammarRouteFamily: "vnc",
+                                grammarRouteStage: "andrews-cnv-tense-logic-gate",
+                                grammarGenerationAllowed: "false",
+                                grammarDiagnosticId: "not-andrews-grammar-gate",
+                                grammarResultOk: "true",
+                            })];
+                        }
+                        if (selector === ".tense-placeholder") {
+                            return [];
+                        }
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const blockAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(element);
+                const authorityAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    outputScope: element.dataset.andrewsBlockOutputScope,
+                    outputAudit: element.dataset.andrewsBlockOutputAudit,
+                    blockedRouteRows: element.dataset.andrewsBlockRouteGenerationBlockedRowCount,
+                    blockedResultOkRows: element.dataset.andrewsBlockRouteBlockedResultOkCount,
+                    blockDiagnostic: blockAudit.diagnostics.join("|"),
+                    authorityDiagnostic: authorityAudit.diagnostics.includes("blocked-andrews-route-row-result-ok"),
+                    leakClass: classes.has("tense-block--andrews-output-leak-diagnostic"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                outputScope: "andrews-generated-output",
+                outputAudit: panels.includes("blocked-andrews-route-row-result-ok") ? "diagnostic" : "missing",
+                blockedRouteRows: panels.includes("dataset.andrewsBlockRouteGenerationBlockedRowCount") ? "1" : "missing",
+                blockedResultOkRows: panels.includes("dataset.andrewsBlockRouteBlockedResultOkCount") ? "1" : "missing",
+                blockDiagnostic: panels.includes("blocked-andrews-route-row-result-ok")
+                    ? "blocked-andrews-route-row-result-ok"
+                    : "missing",
+                authorityDiagnostic: panels.includes("blocked-andrews-route-row-result-ok"),
+                leakClass: panels.includes("tense-block--andrews-output-leak-diagnostic"),
+                warningClass: panels.includes("tense-block--andrews-audit-warning"),
+            },
+        {
+            outputScope: "andrews-generated-output",
+            outputAudit: "diagnostic",
+            blockedRouteRows: "1",
+            blockedResultOkRows: "1",
+            blockDiagnostic: "blocked-andrews-route-row-result-ok",
+            authorityDiagnostic: true,
+            leakClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "generated tense-block rows cannot use Nawat/Pipil source evidence as grammar authority",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    title: "",
+                    querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                            return [makeAndrewsBlockRowAuditModel({
+                                grammarRouteFamily: "vnc",
+                                grammarRouteStage: "execute",
+                                grammarGenerationAllowed: "true",
+                                grammarLogicAuthority: "Andrews",
+                                grammarSpellingEvidenceRole: "orthography-realization-only",
+                                grammarClassicalSpellingRole: "structural-only",
+                                grammarOrthographyBoundary: "nawat-pipil-realization",
+                                grammarSpellingAuthority: "Nawat/Pipil orthography bridge",
+                                grammarClassicalSurfaceImport: "blocked",
+                                grammarResultOk: "true",
+                                grammarSourceContextTargetAuthority: "Nawat/Pipil generated output supplied to this frame",
+                                grammarSourceEvidenceTargetAuthority: "Modern Nawat/Pipil orthography",
+                            })];
+                        }
+                        if (selector === ".tense-placeholder") {
+                            return [];
+                        }
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const blockAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(element);
+                const authorityAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    outputScope: element.dataset.andrewsBlockOutputScope,
+                    outputAudit: element.dataset.andrewsBlockOutputAudit,
+                    sourceContextAuthorities: element.dataset.andrewsBlockRowSourceContextAuthorities,
+                    sourceEvidenceAuthorities: element.dataset.andrewsBlockRowSourceEvidenceAuthorities,
+                    sourceContextMismatchCount: element.dataset.andrewsBlockRowSourceContextAuthorityMismatchCount,
+                    sourceEvidenceMismatchCount: element.dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount,
+                    blockDiagnostic: blockAudit.diagnostics.join("|"),
+                    authorityDiagnosticContext: authorityAudit.diagnostics.includes("generated-row-source-context-authority-not-andrews"),
+                    authorityDiagnosticEvidence: authorityAudit.diagnostics.includes("generated-row-source-evidence-authority-not-andrews"),
+                    authorityLeakClass: classes.has("tense-block--andrews-authority-leak-diagnostic"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                outputScope: "andrews-generated-output",
+                outputAudit: panels.includes("generated-row-source-evidence-authority-not-andrews") ? "diagnostic" : "missing",
+                sourceContextAuthorities: "Nawat/Pipil generated output supplied to this frame",
+                sourceEvidenceAuthorities: "Modern Nawat/Pipil orthography",
+                sourceContextMismatchCount: panels.includes("dataset.andrewsBlockRowSourceContextAuthorityMismatchCount") ? "1" : "missing",
+                sourceEvidenceMismatchCount: panels.includes("dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount") ? "1" : "missing",
+                blockDiagnostic: panels.includes("generated-row-source-evidence-authority-not-andrews")
+                    ? "generated-row-source-context-authority-not-andrews|generated-row-source-evidence-authority-not-andrews"
+                    : "missing",
+                authorityDiagnosticContext: panels.includes("generated-row-source-context-authority-not-andrews"),
+                authorityDiagnosticEvidence: panels.includes("generated-row-source-evidence-authority-not-andrews"),
+                authorityLeakClass: panels.includes("tense-block--andrews-authority-leak-diagnostic"),
+                warningClass: panels.includes("tense-block--andrews-audit-warning"),
+            },
+        {
+            outputScope: "andrews-generated-output",
+            outputAudit: "diagnostic",
+            sourceContextAuthorities: "Nawat/Pipil generated output supplied to this frame",
+            sourceEvidenceAuthorities: "Modern Nawat/Pipil orthography",
+            sourceContextMismatchCount: "1",
+            sourceEvidenceMismatchCount: "1",
+            blockDiagnostic: "generated-row-source-context-authority-not-andrews|generated-row-source-evidence-authority-not-andrews",
+            authorityDiagnosticContext: true,
+            authorityDiagnosticEvidence: true,
+            authorityLeakClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "generated tense-block rows must expose Andrews authority and Nawat/Pipil orthography boundary",
+        typeof ctx.applyAndrewsTenseBlockOutputAuditDataset === "function"
+            && typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-block"]);
+                const element = {
+                    tagName: "DIV",
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                            return [makeAndrewsBlockRowAuditModel({
+                                grammarRouteFamily: "vnc",
+                                grammarRouteStage: "andrews-cnv-tense-logic-gate",
+                                grammarGenerationAllowed: "true",
+                                grammarDiagnosticId: "not-andrews-grammar-gate",
+                                grammarClassicalSurfaceImport: "allowed",
+                            })];
+                        }
+                        if (selector === ".tense-placeholder") {
+                            return [];
+                        }
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                const blockAudit = ctx.applyAndrewsTenseBlockOutputAuditDataset(element);
+                const authorityAudit = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                return {
+                    outputScope: element.dataset.andrewsBlockOutputScope,
+                    outputAudit: element.dataset.andrewsBlockOutputAudit,
+                    rowLogicAuthorities: element.dataset.andrewsBlockRowLogicAuthorities,
+                    rowSpellingEvidenceRoles: element.dataset.andrewsBlockRowSpellingEvidenceRoles,
+                    rowClassicalSpellingRoles: element.dataset.andrewsBlockRowClassicalSpellingRoles,
+                    rowOrthographyBoundaries: element.dataset.andrewsBlockRowOrthographyBoundaries,
+                    rowSpellingAuthorities: element.dataset.andrewsBlockRowSpellingAuthorities,
+                    rowClassicalImports: element.dataset.andrewsBlockRowClassicalImports,
+                    rowResultStates: element.dataset.andrewsBlockRowResultStates,
+                    missingLogicAuthorityCount: element.dataset.andrewsBlockRowLogicAuthorityMissingCount,
+                    spellingEvidenceRoleMismatchCount: element.dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount,
+                    classicalSpellingRoleMismatchCount: element.dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount,
+                    blockedRouteContractCount: element.dataset.andrewsBlockRouteGeneratedBlockedContractCount,
+                    resultNotOkCount: element.dataset.andrewsBlockRouteGeneratedResultNotOkCount,
+                    missingBoundaryCount: element.dataset.andrewsBlockRowOrthographyBoundaryMissingCount,
+                    spellingAuthorityMismatchCount: element.dataset.andrewsBlockRowSpellingAuthorityMismatchCount,
+                    importNotBlockedCount: element.dataset.andrewsBlockRowClassicalImportNotBlockedCount,
+                    blockDiagnostic: blockAudit.diagnostics.join("|"),
+                    authorityDiagnosticBlockedRoute: authorityAudit.diagnostics.includes("generated-row-uses-blocked-andrews-route-contract"),
+                    authorityDiagnosticResult: authorityAudit.diagnostics.includes("generated-row-result-not-ok"),
+                    authorityDiagnosticLogic: authorityAudit.diagnostics.includes("generated-row-missing-andrews-logic-authority"),
+                    authorityDiagnosticEvidenceRole: authorityAudit.diagnostics.includes("generated-row-spelling-evidence-role-mismatch"),
+                    authorityDiagnosticClassicalRole: authorityAudit.diagnostics.includes("generated-row-classical-spelling-role-not-structural-only"),
+                    authorityDiagnosticBoundary: authorityAudit.diagnostics.includes("generated-row-missing-nawat-pipil-orthography-boundary"),
+                    authorityDiagnosticSpellingAuthority: authorityAudit.diagnostics.includes("generated-row-spelling-authority-not-nawat-pipil"),
+                    authorityDiagnosticImport: authorityAudit.diagnostics.includes("generated-row-classical-output-import-not-blocked"),
+                    generatedClass: classes.has("tense-block--andrews-output-generated"),
+                    authorityLeakClass: classes.has("tense-block--andrews-authority-leak-diagnostic"),
+                    orthographyLeakClass: classes.has("tense-block--andrews-orthography-leak-diagnostic"),
+                    warningClass: classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                outputScope: "andrews-generated-output",
+                outputAudit: panels.includes("generated-row-missing-nawat-pipil-orthography-boundary") ? "diagnostic" : "missing",
+                rowLogicAuthorities: "",
+                rowSpellingEvidenceRoles: "",
+                rowClassicalSpellingRoles: "",
+                rowOrthographyBoundaries: "",
+                rowSpellingAuthorities: "",
+                rowClassicalImports: panels.includes("dataset.andrewsBlockRowClassicalImports") ? "allowed" : "missing",
+                rowResultStates: "false",
+                missingLogicAuthorityCount: panels.includes("dataset.andrewsBlockRowLogicAuthorityMissingCount") ? "1" : "missing",
+                spellingEvidenceRoleMismatchCount: panels.includes("dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount") ? "1" : "missing",
+                classicalSpellingRoleMismatchCount: panels.includes("dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount") ? "1" : "missing",
+                blockedRouteContractCount: panels.includes("dataset.andrewsBlockRouteGeneratedBlockedContractCount") ? "1" : "missing",
+                resultNotOkCount: panels.includes("dataset.andrewsBlockRouteGeneratedResultNotOkCount") ? "1" : "missing",
+                missingBoundaryCount: panels.includes("dataset.andrewsBlockRowOrthographyBoundaryMissingCount") ? "1" : "missing",
+                spellingAuthorityMismatchCount: panels.includes("dataset.andrewsBlockRowSpellingAuthorityMismatchCount") ? "1" : "missing",
+                importNotBlockedCount: panels.includes("dataset.andrewsBlockRowClassicalImportNotBlockedCount") ? "1" : "missing",
+                blockDiagnostic: panels.includes("generated-row-classical-output-import-not-blocked")
+                    ? "generated-row-uses-blocked-andrews-route-contract|generated-row-result-not-ok|generated-row-missing-andrews-logic-authority|generated-row-spelling-evidence-role-mismatch|generated-row-classical-spelling-role-not-structural-only|generated-row-missing-nawat-pipil-orthography-boundary|generated-row-spelling-authority-not-nawat-pipil|generated-row-classical-output-import-not-blocked"
+                    : "missing",
+                authorityDiagnosticBlockedRoute: panels.includes("generated-row-uses-blocked-andrews-route-contract"),
+                authorityDiagnosticResult: panels.includes("generated-row-result-not-ok"),
+                authorityDiagnosticLogic: panels.includes("generated-row-missing-andrews-logic-authority"),
+                authorityDiagnosticEvidenceRole: panels.includes("generated-row-spelling-evidence-role-mismatch"),
+                authorityDiagnosticClassicalRole: panels.includes("generated-row-classical-spelling-role-not-structural-only"),
+                authorityDiagnosticBoundary: panels.includes("generated-row-missing-nawat-pipil-orthography-boundary"),
+                authorityDiagnosticSpellingAuthority: panels.includes("generated-row-spelling-authority-not-nawat-pipil"),
+                authorityDiagnosticImport: panels.includes("generated-row-classical-output-import-not-blocked"),
+                generatedClass: panels.includes("tense-block--andrews-output-generated"),
+                authorityLeakClass: panels.includes("tense-block--andrews-authority-leak-diagnostic"),
+                orthographyLeakClass: panels.includes("tense-block--andrews-orthography-leak-diagnostic"),
+                warningClass: panels.includes("tense-block--andrews-audit-warning"),
+            },
+        {
+            outputScope: "andrews-generated-output",
+            outputAudit: "diagnostic",
+            rowLogicAuthorities: "",
+            rowSpellingEvidenceRoles: "",
+            rowClassicalSpellingRoles: "",
+            rowOrthographyBoundaries: "",
+            rowSpellingAuthorities: "",
+            rowClassicalImports: "allowed",
+            rowResultStates: "false",
+            missingLogicAuthorityCount: "1",
+            spellingEvidenceRoleMismatchCount: "1",
+            classicalSpellingRoleMismatchCount: "1",
+            blockedRouteContractCount: "1",
+            resultNotOkCount: "1",
+            missingBoundaryCount: "1",
+            spellingAuthorityMismatchCount: "1",
+            importNotBlockedCount: "1",
+            blockDiagnostic: "generated-row-uses-blocked-andrews-route-contract|generated-row-result-not-ok|generated-row-missing-andrews-logic-authority|generated-row-spelling-evidence-role-mismatch|generated-row-classical-spelling-role-not-structural-only|generated-row-missing-nawat-pipil-orthography-boundary|generated-row-spelling-authority-not-nawat-pipil|generated-row-classical-output-import-not-blocked",
+            authorityDiagnosticBlockedRoute: true,
+            authorityDiagnosticResult: true,
+            authorityDiagnosticLogic: true,
+            authorityDiagnosticEvidenceRole: true,
+            authorityDiagnosticClassicalRole: true,
+            authorityDiagnosticBoundary: true,
+            authorityDiagnosticSpellingAuthority: true,
+            authorityDiagnosticImport: true,
+            generatedClass: true,
+            authorityLeakClass: true,
+            orthographyLeakClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync summarizes Andrews tense-block output audits on the root",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            ? (() => {
+                const makeBlock = ({ tenseValue, rowCount = 0, placeholderCount = 0, rowDataset = {} }) => {
+                    const classes = new Set(["tense-block"]);
+                    return {
+                        tagName: "DIV",
+                        dataset: { tenseValue },
+                        title: "",
+                        querySelectorAll(selector) {
+                        if (selector === ".conjugation-row") {
+                                return Array.from({ length: rowCount }, () => (
+                                    makeAndrewsBlockRowAuditModel(rowDataset)
+                                ));
+                        }
+                            if (selector === ".tense-placeholder") {
+                                return Array.from({ length: placeholderCount }, () => ({}));
+                            }
+                            return [];
+                        },
+                        classList: {
+                            contains(name) {
+                                return classes.has(name);
+                            },
+                            toggle(name, enabled) {
+                                if (enabled) {
+                                    classes.add(name);
+                                } else {
+                                    classes.delete(name);
+                                }
+                            },
+                        },
+                        classes,
+                    };
+                };
+                const blockedBlock = makeBlock({
+                    tenseValue: "condicional",
+                    rowCount: 1,
+                    rowDataset: {
+                        grammarRouteFamily: "vnc",
+                        grammarRouteStage: "andrews-cnv-tense-logic-gate",
+                        grammarGenerationAllowed: "false",
+                        grammarDiagnosticId: "not-andrews-grammar-gate",
+                    },
+                });
+                const licensedBlock = makeBlock({
+                    tenseValue: "preterito",
+                    rowCount: 1,
+                    placeholderCount: 1,
+                    rowDataset: {
+                        grammarRouteFamily: "vnc",
+                        grammarRouteStage: "execute",
+                        grammarGenerationAllowed: "true",
+                        grammarLogicAuthority: "Andrews",
+                        grammarSpellingEvidenceRole: "orthography-realization-only",
+                        grammarClassicalSpellingRole: "structural-only",
+                        grammarOrthographyBoundary: "nawat-pipil-realization",
+                        grammarSpellingAuthority: "Nawat/Pipil orthography bridge",
+                        grammarClassicalSurfaceImport: "blocked",
+                        grammarResultOk: "true",
+                    },
+                });
+                const blocks = [blockedBlock, licensedBlock];
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        if (selector === ".tense-tab, .tense-block" || selector === ".tense-block") {
+                            return blocks;
+                        }
+                        if (selector === ".tense-tab") {
+                            return [];
+                        }
+                        return [];
+                    },
+                };
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    ok: audit.ok,
+                    checked: audit.blockOutputAudit.checked,
+                    rowCount: audit.blockOutputAudit.rowCount,
+                    placeholderCount: audit.blockOutputAudit.placeholderCount,
+                    allowedRouteRows: audit.blockOutputAudit.grammarGenerationAllowedCount,
+                    blockedRouteRows: audit.blockOutputAudit.grammarGenerationBlockedRowCount,
+                    blockedResultOkRows: audit.blockOutputAudit.grammarBlockedResultOkCount,
+                    generatedBlockedRouteContracts: audit.blockOutputAudit.grammarGeneratedBlockedRouteContractCount,
+                    generatedResultNotOkRows: audit.blockOutputAudit.grammarGeneratedResultNotOkCount,
+                    missingLogicAuthorityRows: audit.blockOutputAudit.grammarLogicAuthorityMissingCount,
+                    spellingEvidenceRoleMismatchRows: audit.blockOutputAudit.grammarSpellingEvidenceRoleMismatchCount,
+                    sourceContextAuthorityMismatchRows: audit.blockOutputAudit.grammarSourceContextAuthorityMismatchCount,
+                    sourceEvidenceAuthorityMismatchRows: audit.blockOutputAudit.grammarSourceEvidenceAuthorityMismatchCount,
+                    classicalSpellingRoleMismatchRows: audit.blockOutputAudit.grammarClassicalSpellingRoleMismatchCount,
+                    missingOrthographyRows: audit.blockOutputAudit.grammarOrthographyBoundaryMissingCount,
+                    spellingAuthorityMismatchRows: audit.blockOutputAudit.grammarSpellingAuthorityMismatchCount,
+                    classicalImportRows: audit.blockOutputAudit.grammarClassicalSurfaceImportNotBlockedCount,
+                    hardBlockedCount: audit.blockOutputAudit.hardBlockedCount,
+                    diagnosticCount: audit.blockOutputAudit.diagnosticCount,
+                    rootChecked: root.dataset.andrewsBlockOutputChecked,
+                    rootRows: root.dataset.andrewsBlockOutputRowCount,
+                    rootPlaceholders: root.dataset.andrewsBlockOutputPlaceholderCount,
+                    rootAllowedRouteRows: root.dataset.andrewsBlockRouteGenerationAllowedCount,
+                    rootBlockedRouteRows: root.dataset.andrewsBlockRouteGenerationBlockedRowCount,
+                    rootBlockedResultOkRows: root.dataset.andrewsBlockRouteBlockedResultOkCount,
+                    rootGeneratedBlockedRouteContracts: root.dataset.andrewsBlockRouteGeneratedBlockedContractCount,
+                    rootGeneratedResultNotOkRows: root.dataset.andrewsBlockRouteGeneratedResultNotOkCount,
+                    rootMissingLogicAuthorityRows: root.dataset.andrewsBlockRowLogicAuthorityMissingCount,
+                    rootSpellingEvidenceRoleMismatchRows: root.dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount,
+                    rootSourceContextAuthorityMismatchRows: root.dataset.andrewsBlockRowSourceContextAuthorityMismatchCount,
+                    rootSourceEvidenceAuthorityMismatchRows: root.dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount,
+                    rootClassicalSpellingRoleMismatchRows: root.dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount,
+                    rootMissingOrthographyRows: root.dataset.andrewsBlockRowOrthographyBoundaryMissingCount,
+                    rootSpellingAuthorityMismatchRows: root.dataset.andrewsBlockRowSpellingAuthorityMismatchCount,
+                    rootClassicalImportRows: root.dataset.andrewsBlockRowClassicalImportNotBlockedCount,
+                    rootHardBlocked: root.dataset.andrewsBlockOutputHardBlockedCount,
+                    rootDiagnostics: root.dataset.andrewsBlockOutputDiagnosticCount,
+                    blockedScope: blockedBlock.dataset.andrewsBlockOutputScope,
+                    blockedRouteFamilies: blockedBlock.dataset.andrewsBlockRouteFamilies,
+                    blockedRouteStages: blockedBlock.dataset.andrewsBlockRouteStages,
+                    blockedRouteDiagnostics: blockedBlock.dataset.andrewsBlockRouteDiagnosticIds,
+                    blockedWarningClass: blockedBlock.classes.has("tense-block--andrews-audit-warning"),
+                    blockedOutputClass: blockedBlock.classes.has("tense-block--andrews-output-blocked"),
+                    blockedLeakClass: blockedBlock.classes.has("tense-block--andrews-output-leak-diagnostic"),
+                    licensedScope: licensedBlock.dataset.andrewsBlockOutputScope,
+                    licensedGeneratedClass: licensedBlock.classes.has("tense-block--andrews-output-generated"),
+                };
+            })()
+            : {
+                ok: false,
+                checked: panels.includes("summarizeAndrewsTenseBlockOutputAudit(scope)") ? 2 : 0,
+                rowCount: panels.includes("rowCount") ? 2 : 0,
+                placeholderCount: panels.includes("placeholderCount") ? 1 : 0,
+                allowedRouteRows: panels.includes("grammarGenerationAllowedCount") ? 1 : 0,
+                blockedRouteRows: panels.includes("grammarGenerationBlockedRowCount") ? 1 : 0,
+                blockedResultOkRows: panels.includes("grammarBlockedResultOkCount") ? 0 : "missing",
+                generatedBlockedRouteContracts: panels.includes("grammarGeneratedBlockedRouteContractCount") ? 0 : "missing",
+                generatedResultNotOkRows: panels.includes("grammarGeneratedResultNotOkCount") ? 0 : "missing",
+                missingLogicAuthorityRows: panels.includes("grammarLogicAuthorityMissingCount") ? 0 : "missing",
+                spellingEvidenceRoleMismatchRows: panels.includes("grammarSpellingEvidenceRoleMismatchCount") ? 0 : "missing",
+                sourceContextAuthorityMismatchRows: panels.includes("grammarSourceContextAuthorityMismatchCount") ? 0 : "missing",
+                sourceEvidenceAuthorityMismatchRows: panels.includes("grammarSourceEvidenceAuthorityMismatchCount") ? 0 : "missing",
+                classicalSpellingRoleMismatchRows: panels.includes("grammarClassicalSpellingRoleMismatchCount") ? 0 : "missing",
+                missingOrthographyRows: panels.includes("grammarOrthographyBoundaryMissingCount") ? 0 : "missing",
+                spellingAuthorityMismatchRows: panels.includes("grammarSpellingAuthorityMismatchCount") ? 0 : "missing",
+                classicalImportRows: panels.includes("grammarClassicalSurfaceImportNotBlockedCount") ? 0 : "missing",
+                hardBlockedCount: panels.includes("hardBlockedCount") ? 1 : 0,
+                diagnosticCount: panels.includes("diagnosticCount") ? 1 : 0,
+                rootChecked: panels.includes("scope.dataset.andrewsBlockOutputChecked") ? "2" : "missing",
+                rootRows: panels.includes("scope.dataset.andrewsBlockOutputRowCount") ? "2" : "missing",
+                rootPlaceholders: panels.includes("scope.dataset.andrewsBlockOutputPlaceholderCount") ? "1" : "missing",
+                rootAllowedRouteRows: panels.includes("scope.dataset.andrewsBlockRouteGenerationAllowedCount") ? "1" : "missing",
+                rootBlockedRouteRows: panels.includes("scope.dataset.andrewsBlockRouteGenerationBlockedRowCount") ? "1" : "missing",
+                rootBlockedResultOkRows: panels.includes("scope.dataset.andrewsBlockRouteBlockedResultOkCount") ? "0" : "missing",
+                rootGeneratedBlockedRouteContracts: panels.includes("scope.dataset.andrewsBlockRouteGeneratedBlockedContractCount") ? "0" : "missing",
+                rootGeneratedResultNotOkRows: panels.includes("scope.dataset.andrewsBlockRouteGeneratedResultNotOkCount") ? "0" : "missing",
+                rootMissingLogicAuthorityRows: panels.includes("scope.dataset.andrewsBlockRowLogicAuthorityMissingCount") ? "0" : "missing",
+                rootSpellingEvidenceRoleMismatchRows: panels.includes("scope.dataset.andrewsBlockRowSpellingEvidenceRoleMismatchCount") ? "0" : "missing",
+                rootSourceContextAuthorityMismatchRows: panels.includes("scope.dataset.andrewsBlockRowSourceContextAuthorityMismatchCount") ? "0" : "missing",
+                rootSourceEvidenceAuthorityMismatchRows: panels.includes("scope.dataset.andrewsBlockRowSourceEvidenceAuthorityMismatchCount") ? "0" : "missing",
+                rootClassicalSpellingRoleMismatchRows: panels.includes("scope.dataset.andrewsBlockRowClassicalSpellingRoleMismatchCount") ? "0" : "missing",
+                rootMissingOrthographyRows: panels.includes("scope.dataset.andrewsBlockRowOrthographyBoundaryMissingCount") ? "0" : "missing",
+                rootSpellingAuthorityMismatchRows: panels.includes("scope.dataset.andrewsBlockRowSpellingAuthorityMismatchCount") ? "0" : "missing",
+                rootClassicalImportRows: panels.includes("scope.dataset.andrewsBlockRowClassicalImportNotBlockedCount") ? "0" : "missing",
+                rootHardBlocked: panels.includes("scope.dataset.andrewsBlockOutputHardBlockedCount") ? "1" : "missing",
+                rootDiagnostics: panels.includes("scope.dataset.andrewsBlockOutputDiagnosticCount") ? "1" : "missing",
+                blockedScope: "blocked-output",
+                blockedRouteFamilies: "vnc",
+                blockedRouteStages: "andrews-cnv-tense-logic-gate",
+                blockedRouteDiagnostics: "not-andrews-grammar-gate",
+                blockedWarningClass: panels.includes("tense-block--andrews-audit-warning"),
+                blockedOutputClass: panels.includes("tense-block--andrews-output-blocked"),
+                blockedLeakClass: panels.includes("tense-block--andrews-output-leak-diagnostic"),
+                licensedScope: "andrews-generated-output",
+                licensedGeneratedClass: panels.includes("tense-block--andrews-output-generated"),
+            },
+        {
+            ok: false,
+            checked: 2,
+            rowCount: 2,
+            placeholderCount: 1,
+            allowedRouteRows: 1,
+            blockedRouteRows: 1,
+            blockedResultOkRows: 0,
+            generatedBlockedRouteContracts: 0,
+            generatedResultNotOkRows: 0,
+            missingLogicAuthorityRows: 0,
+            spellingEvidenceRoleMismatchRows: 0,
+            sourceContextAuthorityMismatchRows: 0,
+            sourceEvidenceAuthorityMismatchRows: 0,
+            classicalSpellingRoleMismatchRows: 0,
+            missingOrthographyRows: 0,
+            spellingAuthorityMismatchRows: 0,
+            classicalImportRows: 0,
+            hardBlockedCount: 1,
+            diagnosticCount: 1,
+            rootChecked: "2",
+            rootRows: "2",
+            rootPlaceholders: "1",
+            rootAllowedRouteRows: "1",
+            rootBlockedRouteRows: "1",
+            rootBlockedResultOkRows: "0",
+            rootGeneratedBlockedRouteContracts: "0",
+            rootGeneratedResultNotOkRows: "0",
+            rootMissingLogicAuthorityRows: "0",
+            rootSpellingEvidenceRoleMismatchRows: "0",
+            rootSourceContextAuthorityMismatchRows: "0",
+            rootSourceEvidenceAuthorityMismatchRows: "0",
+            rootClassicalSpellingRoleMismatchRows: "0",
+            rootMissingOrthographyRows: "0",
+            rootSpellingAuthorityMismatchRows: "0",
+            rootClassicalImportRows: "0",
+            rootHardBlocked: "1",
+            rootDiagnostics: "1",
+            blockedScope: "blocked-output",
+            blockedRouteFamilies: "vnc",
+            blockedRouteStages: "andrews-cnv-tense-logic-gate",
+            blockedRouteDiagnostics: "not-andrews-grammar-gate",
+            blockedWarningClass: true,
+            blockedOutputClass: true,
+            blockedLeakClass: true,
+            licensedScope: "andrews-generated-output",
+            licensedGeneratedClass: true,
+        }
+    );
+    s.eq(
+        "unclassified tense authority stays blocked until an Andrews frame exists",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {},
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                ctx.applyAndrewsTenseAuthorityDataset(element, {
+                    tenseValue: "inventado",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    authority: element.dataset.andrewsTenseAuthority,
+                    slot: element.dataset.andrewsTenseSlot,
+                    generationGate: element.dataset.andrewsGenerationGate,
+                    outputRole: element.dataset.andrewsOutputRole,
+                    evidenceRole: element.dataset.nawatPipilEvidenceRole,
+                    audit: element.dataset.andrewsAuthorityAudit,
+                    diagnostics: element.dataset.andrewsAuthorityDiagnostics,
+                    unclassifiedClass: classes.has("tense-tab--andrews-unclassified"),
+                    warningClass: classes.has("tense-tab--andrews-audit-warning"),
+                };
+            })()
+            : {
+                authority: panels.includes('scope: "unknown"') ? "unknown" : "missing",
+                slot: panels.includes('slot: "andrews-frame-required"') ? "andrews-frame-required" : "missing",
+                generationGate: panels.includes('generationGate: "unclassified-andrews-frame-required"') ? "unclassified-andrews-frame-required" : "missing",
+                outputRole: panels.includes('outputRole: "blocked-until-andrews-frame"') ? "blocked-until-andrews-frame" : "missing",
+                evidenceRole: panels.includes('nawatEvidenceRole: "not-a-grammar-gate"') ? "not-a-grammar-gate" : "missing",
+                audit: panels.includes("unclassified-authority-frame") ? "diagnostic" : "missing",
+                diagnostics: "unclassified-authority-frame",
+                unclassifiedClass: panels.includes("tense-tab--andrews-unclassified"),
+                warningClass: panels.includes("tense-tab--andrews-audit-warning"),
+            },
+        {
+            authority: "unknown",
+            slot: "andrews-frame-required",
+            generationGate: "unclassified-andrews-frame-required",
+            outputRole: "blocked-until-andrews-frame",
+            evidenceRole: "not-a-grammar-gate",
+            audit: "diagnostic",
+            diagnostics: "unclassified-authority-frame",
+            unclassifiedClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync backfills missing annotations and summarizes audit on the root",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            ? (() => {
+                const classes = new Set(["tense-tab"]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {
+                        tenseValue: "inventado",
+                    },
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        return selector === ".tense-tab, .tense-block" ? [element] : [];
+                    },
+                };
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    annotated: audit.annotated,
+                    checked: audit.checked,
+                    ok: audit.ok,
+                    rootAudit: root.dataset.andrewsAuthorityAudit,
+                    rootAnnotated: root.dataset.andrewsAuthorityAnnotated,
+                    rootRepaired: root.dataset.andrewsAuthorityRepaired,
+                    authority: element.dataset.andrewsTenseAuthority,
+                    slot: element.dataset.andrewsTenseSlot,
+                    diagnostics: element.dataset.andrewsAuthorityDiagnostics,
+                    unclassifiedClass: classes.has("tense-tab--andrews-unclassified"),
+                    warningClass: classes.has("tense-tab--andrews-audit-warning"),
+                };
+            })()
+            : {
+                annotated: panels.includes("annotated += 1") ? 1 : 0,
+                checked: panels.includes("auditAndrewsTenseAuthorityAnnotatedDom(scope)") ? 1 : 0,
+                ok: false,
+                rootAudit: panels.includes("scope.dataset.andrewsAuthorityAudit") ? "diagnostic" : "missing",
+                rootAnnotated: panels.includes("scope.dataset.andrewsAuthorityAnnotated") ? "1" : "missing",
+                rootRepaired: panels.includes("scope.dataset.andrewsAuthorityRepaired") ? "0" : "missing",
+                authority: panels.includes('scope: "unknown"') ? "unknown" : "missing",
+                slot: panels.includes('slot: "andrews-frame-required"') ? "andrews-frame-required" : "missing",
+                diagnostics: "unclassified-authority-frame",
+                unclassifiedClass: panels.includes("tense-tab--andrews-unclassified"),
+                warningClass: panels.includes("tense-tab--andrews-audit-warning"),
+            },
+        {
+            annotated: 1,
+            checked: 1,
+            ok: false,
+            rootAudit: "diagnostic",
+            rootAnnotated: "1",
+            rootRepaired: "0",
+            authority: "unknown",
+            slot: "andrews-frame-required",
+            diagnostics: "unclassified-authority-frame",
+            unclassifiedClass: true,
+            warningClass: true,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync repairs stale self-consistent metadata from the rendered tense value",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            ? (() => {
+                const classes = new Set([
+                    "tense-tab",
+                    "tense-tab--nawat-extension",
+                    "tense-tab--surface-evidence-only",
+                ]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {
+                        tenseValue: "preterito",
+                        andrewsTenseValue: "condicional",
+                        andrewsTenseAuthority: "nawat-extension",
+                        andrewsTenseSource: "Nawat/Pipil orthography evidence",
+                        andrewsTenseSourceRefs: "not an Andrews tense-tab authority",
+                        andrewsTenseSlot: "tns",
+                        andrewsTenseFamily: "nawat-extension-conditional",
+                        andrewsTenseMode: "verbo",
+                        andrewsGrammarLogicAuthority: "Andrews PDF",
+                        andrewsClassicalSpellingRole: "structural-only",
+                        andrewsOrthographyBoundary: "nawat-pipil-realization",
+                        nawatPipilOutputBoundary: "orthography-realization",
+                        andrewsLogicRole: "surface-extension-not-grammar-source",
+                        andrewsGenerationGate: "not-andrews-grammar-gate",
+                        andrewsOutputRole: "surface-evidence-only",
+                        nawatPipilEvidenceRole: "surface-extension-only",
+                        classicalOutputImport: "blocked",
+                    },
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        return selector === ".tense-tab, .tense-block" ? [element] : [];
+                    },
+                };
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    annotated: audit.annotated,
+                    repaired: audit.repaired,
+                    checked: audit.checked,
+                    ok: audit.ok,
+                    rootRepaired: root.dataset.andrewsAuthorityRepaired,
+                    authority: element.dataset.andrewsTenseAuthority,
+                    value: element.dataset.andrewsTenseValue,
+                    generationGate: element.dataset.andrewsGenerationGate,
+                    diagnostics: element.dataset.andrewsAuthorityDiagnostics,
+                    authorityClass: classes.has("tense-tab--andrews-authority"),
+                    generationClass: classes.has("tense-tab--andrews-generation-gate"),
+                    surfaceClass: classes.has("tense-tab--surface-evidence-only"),
+                };
+            })()
+            : {
+                annotated: panels.includes("let repaired = 0") ? 0 : -1,
+                repaired: panels.includes("repaired += 1") ? 1 : 0,
+                checked: panels.includes("auditAndrewsTenseAuthorityAnnotatedDom(scope)") ? 1 : 0,
+                ok: true,
+                rootRepaired: panels.includes("scope.dataset.andrewsAuthorityRepaired") ? "1" : "missing",
+                authority: panels.includes("getAndrewsTenseAuthorityCanonicalMismatches") ? "andrews-licensed" : "missing",
+                value: panels.includes("dataset.andrewsTenseValue") ? "preterito" : "missing",
+                generationGate: panels.includes('generationGate: "andrews-licensed-generation"') ? "andrews-licensed-generation" : "missing",
+                diagnostics: "",
+                authorityClass: panels.includes("tense-tab--andrews-authority"),
+                generationClass: panels.includes("tense-tab--andrews-generation-gate"),
+                surfaceClass: false,
+            },
+        {
+            annotated: 0,
+            repaired: 1,
+            checked: 1,
+            ok: true,
+            rootRepaired: "1",
+            authority: "andrews-licensed",
+            value: "preterito",
+            generationGate: "andrews-licensed-generation",
+            diagnostics: "",
+            authorityClass: true,
+            generationClass: true,
+            surfaceClass: false,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync repairs stale class state when datasets are already canonical",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            ? (() => {
+                const classes = new Set([
+                    "tense-tab",
+                    "tense-tab--surface-evidence-only",
+                ]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {
+                        tenseValue: "preterito",
+                        andrewsTenseValue: "preterito",
+                        andrewsTenseAuthority: "andrews-licensed",
+                        andrewsTenseSource: "Andrews",
+                        andrewsTenseSourceRefs: "Andrews 5.4.2|Andrews 5.5|Andrews 7",
+                        andrewsTenseSlot: "tns",
+                        andrewsTenseFamily: "indicative-perfective-preterit",
+                        andrewsTenseMode: "verbo",
+                        andrewsGrammarLogicAuthority: "Andrews PDF",
+                        andrewsClassicalSpellingRole: "structural-only",
+                        andrewsOrthographyBoundary: "nawat-pipil-realization",
+                        nawatPipilOutputBoundary: "orthography-realization",
+                        andrewsLogicRole: "grammar-logic-source",
+                        andrewsGenerationGate: "andrews-licensed-generation",
+                        andrewsOutputRole: "orthography-realization",
+                        nawatPipilEvidenceRole: "orthography-realization-only",
+                        classicalOutputImport: "blocked",
+                    },
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        return selector === ".tense-tab, .tense-block" ? [element] : [];
+                    },
+                };
+                const before = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(element);
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                return {
+                    beforeOk: before.ok,
+                    beforeClassMismatch: before.classMismatches.length > 0,
+                    repaired: audit.repaired,
+                    ok: audit.ok,
+                    rootRepaired: root.dataset.andrewsAuthorityRepaired,
+                    authorityClass: classes.has("tense-tab--andrews-authority"),
+                    generationClass: classes.has("tense-tab--andrews-generation-gate"),
+                    surfaceClass: classes.has("tense-tab--surface-evidence-only"),
+                    warningClass: classes.has("tense-tab--andrews-audit-warning"),
+                };
+            })()
+            : {
+                beforeOk: false,
+                beforeClassMismatch: panels.includes("getAndrewsTenseAuthorityClassMismatches"),
+                repaired: panels.includes("classMismatches.length > 0") ? 1 : 0,
+                ok: true,
+                rootRepaired: panels.includes("scope.dataset.andrewsAuthorityRepaired") ? "1" : "missing",
+                authorityClass: panels.includes("tense-tab--andrews-authority"),
+                generationClass: panels.includes("tense-tab--andrews-generation-gate"),
+                surfaceClass: false,
+                warningClass: false,
+            },
+        {
+            beforeOk: false,
+            beforeClassMismatch: true,
+            repaired: 1,
+            ok: true,
+            rootRepaired: "1",
+            authorityClass: true,
+            generationClass: true,
+            surfaceClass: false,
+            warningClass: false,
+        }
+    );
+    s.eq(
+        "tense authority DOM sync repairs stale Andrews mode from the rendered root mode",
+        typeof ctx.syncAndrewsTenseAuthorityDomAudit === "function"
+            ? (() => {
+                const classes = new Set([
+                    "tense-tab",
+                    "tense-tab--andrews-unclassified",
+                ]);
+                const element = {
+                    tagName: "BUTTON",
+                    dataset: {
+                        tenseValue: "agentivo",
+                        andrewsTenseValue: "agentivo",
+                        andrewsTenseAuthority: "unknown",
+                        andrewsTenseSource: "unclassified",
+                        andrewsTenseSourceRefs: "",
+                        andrewsTenseSlot: "andrews-frame-required",
+                        andrewsTenseFamily: "agentivo",
+                        andrewsTenseMode: "verbo",
+                        andrewsGrammarLogicAuthority: "Andrews PDF",
+                        andrewsClassicalSpellingRole: "structural-only",
+                        andrewsOrthographyBoundary: "nawat-pipil-realization",
+                        nawatPipilOutputBoundary: "orthography-realization",
+                        andrewsLogicRole: "andrews-frame-required",
+                        andrewsGenerationGate: "unclassified-andrews-frame-required",
+                        andrewsOutputRole: "blocked-until-andrews-frame",
+                        nawatPipilEvidenceRole: "not-a-grammar-gate",
+                        classicalOutputImport: "blocked",
+                    },
+                    title: "",
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                };
+                const root = {
+                    dataset: {},
+                    querySelectorAll(selector) {
+                        return selector === ".tense-tab, .tense-block" ? [element] : [];
+                    },
+                };
+                const audit = ctx.syncAndrewsTenseAuthorityDomAudit(root, {
+                    mode: ctx.TENSE_MODE?.sustantivo || "sustantivo",
+                });
+                return {
+                    repaired: audit.repaired,
+                    ok: audit.ok,
+                    rootRepaired: root.dataset.andrewsAuthorityRepaired,
+                    mode: element.dataset.andrewsTenseMode,
+                    authority: element.dataset.andrewsTenseAuthority,
+                    slot: element.dataset.andrewsTenseSlot,
+                    generationGate: element.dataset.andrewsGenerationGate,
+                    nominalClass: classes.has("tense-tab--andrews-nominal-route"),
+                    unclassifiedClass: classes.has("tense-tab--andrews-unclassified"),
+                    warningClass: classes.has("tense-tab--andrews-audit-warning"),
+                };
+            })()
+            : {
+                repaired: panels.includes("String(dataset.tenseMode || \"\").trim()") ? 1 : 0,
+                ok: true,
+                rootRepaired: panels.includes("scope.dataset.andrewsAuthorityRepaired") ? "1" : "missing",
+                mode: "sustantivo",
+                authority: panels.includes('scope: "andrews-nominal-route"') ? "andrews-nominal-route" : "missing",
+                slot: panels.includes('slot: "no-vnc-tns"') ? "no-vnc-tns" : "missing",
+                generationGate: panels.includes('generationGate: "andrews-nominal-route-no-vnc-tns"') ? "andrews-nominal-route-no-vnc-tns" : "missing",
+                nominalClass: panels.includes("tense-tab--andrews-nominal-route"),
+                unclassifiedClass: false,
+                warningClass: false,
+            },
+        {
+            repaired: 1,
+            ok: true,
+            rootRepaired: "1",
+            mode: "sustantivo",
+            authority: "andrews-nominal-route",
+            slot: "no-vnc-tns",
+            generationGate: "andrews-nominal-route-no-vnc-tns",
+            nominalClass: true,
+            unclassifiedClass: false,
+            warningClass: false,
+        }
+    );
+    s.ok(
+        "tense authority audit catches CNV tense leakage into non-CNV routes",
+        typeof ctx.getAndrewsTenseAuthorityDatasetAuditRecord === "function"
+            ? (() => {
+                const record = ctx.getAndrewsTenseAuthorityDatasetAuditRecord({
+                    tagName: "DIV",
+                    dataset: {
+                        andrewsTenseAuthority: "andrews-nominal-route",
+                        andrewsTenseSource: "Andrews",
+                        andrewsTenseSourceRefs: "Andrews nominal CNN route",
+                        andrewsTenseSlot: "tns",
+                        andrewsTenseFamily: "agentivo",
+                        andrewsTenseMode: "sustantivo",
+                        andrewsGrammarLogicAuthority: "Andrews PDF",
+                        andrewsClassicalSpellingRole: "structural-only",
+                        andrewsOrthographyBoundary: "nawat-pipil-realization",
+                        nawatPipilOutputBoundary: "orthography-realization",
+                        andrewsOutputSpellingAuthority: "Nawat/Pipil orthography bridge",
+                        andrewsOrthographyRealizationPath: "andrews-logic-then-nawat-pipil-realization",
+                        andrewsLogicRole: "nominal-route-logic-source",
+                        andrewsGenerationGate: "andrews-nominal-route-no-vnc-tns",
+                        andrewsOutputRole: "orthography-realization",
+                        nawatPipilEvidenceRole: "orthography-realization-only",
+                        classicalOutputImport: "blocked",
+                        andrewsRouteAuthority: "Andrews route registry",
+                        andrewsRouteLogicAuthority: "Andrews PDF",
+                        andrewsSourceTargetRoute: "CNV->CNN",
+                        andrewsSourceTargetRouteClass: "verbal-source-to-nominal-target",
+                        andrewsSourceFormulaType: "CNV",
+                        andrewsTargetFormulaType: "CNN",
+                        andrewsRouteRegistryStatus: "registry-match",
+                        andrewsRouteUiHost: "nominal-output-tab",
+                        andrewsRouteGenerationGate: "andrews-route-generation-allowed",
+                        andrewsRouteGenerationAllowed: "true",
+                        andrewsRouteClassicalSpellingRole: "structural-only",
+                        andrewsRouteOutputSpellingAuthority: "Nawat/Pipil orthography bridge",
+                    },
+                });
+                return record.ok === false
+                    && record.missing.length === 0
+                    && record.diagnostics.includes("non-cnv-route-has-vnc-tense-slot");
+            })()
+            : panels.includes("function getAndrewsTenseAuthorityDatasetAuditRecord")
+                && panels.includes("non-cnv-route-has-vnc-tense-slot")
+    );
+    s.eq(
+        "tense authority audit enforces button tense-tabs and div tense-blocks",
+        typeof ctx.applyAndrewsTenseAuthorityDataset === "function"
+            && typeof ctx.getAndrewsTenseAuthorityDatasetAuditRecord === "function"
+            ? (() => {
+                const makeElement = ({ tagName, classes }) => ({
+                    tagName,
+                    dataset: {},
+                    title: "",
+                    querySelectorAll() {
+                        return [];
+                    },
+                    classList: {
+                        contains(name) {
+                            return classes.has(name);
+                        },
+                        toggle(name, enabled) {
+                            if (enabled) {
+                                classes.add(name);
+                            } else {
+                                classes.delete(name);
+                            }
+                        },
+                    },
+                    classes,
+                });
+                const tab = makeElement({
+                    tagName: "DIV",
+                    classes: new Set(["tense-tab"]),
+                });
+                const block = makeElement({
+                    tagName: "BUTTON",
+                    classes: new Set(["tense-block"]),
+                });
+                ctx.applyAndrewsTenseAuthorityDataset(tab, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                });
+                ctx.applyAndrewsTenseAuthorityDataset(block, {
+                    tenseValue: "preterito",
+                    mode: ctx.TENSE_MODE?.verbo || "verbo",
+                    blockKind: "CNV",
+                });
+                const tabRecord = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(tab);
+                const blockRecord = ctx.getAndrewsTenseAuthorityDatasetAuditRecord(block);
+                return {
+                    tabContract: tab.dataset.andrewsAuthorityElementContract,
+                    tabExpectedTag: tab.dataset.andrewsAuthorityExpectedTag,
+                    tabRenderedTag: tab.dataset.andrewsAuthorityRenderedTag,
+                    tabOk: tabRecord.ok,
+                    tabDiagnostic: tabRecord.diagnostics.includes("tense-tab-not-button"),
+                    tabWarningClass: tab.classes.has("tense-tab--andrews-audit-warning"),
+                    blockContract: block.dataset.andrewsAuthorityElementContract,
+                    blockExpectedTag: block.dataset.andrewsAuthorityExpectedTag,
+                    blockRenderedTag: block.dataset.andrewsAuthorityRenderedTag,
+                    blockOk: blockRecord.ok,
+                    blockDiagnostic: blockRecord.diagnostics.includes("tense-block-not-div"),
+                    blockWarningClass: block.classes.has("tense-block--andrews-audit-warning"),
+                };
+            })()
+            : {
+                tabContract: panels.includes("button.tense-tab") ? "button.tense-tab" : "missing",
+                tabExpectedTag: panels.includes("dataset.andrewsAuthorityExpectedTag") ? "button" : "missing",
+                tabRenderedTag: panels.includes("dataset.andrewsAuthorityRenderedTag") ? "div" : "missing",
+                tabOk: false,
+                tabDiagnostic: panels.includes("tense-tab-not-button"),
+                tabWarningClass: panels.includes("tense-tab--andrews-audit-warning"),
+                blockContract: panels.includes("div.tense-block") ? "div.tense-block" : "missing",
+                blockExpectedTag: panels.includes("dataset.andrewsAuthorityExpectedTag") ? "div" : "missing",
+                blockRenderedTag: panels.includes("dataset.andrewsAuthorityRenderedTag") ? "button" : "missing",
+                blockOk: false,
+                blockDiagnostic: panels.includes("tense-block-not-div"),
+                blockWarningClass: panels.includes("tense-block--andrews-audit-warning"),
+            },
+        {
+            tabContract: "button.tense-tab",
+            tabExpectedTag: "button",
+            tabRenderedTag: "div",
+            tabOk: false,
+            tabDiagnostic: true,
+            tabWarningClass: true,
+            blockContract: "div.tense-block",
+            blockExpectedTag: "div",
+            blockRenderedTag: "button",
+            blockOk: false,
+            blockDiagnostic: true,
+            blockWarningClass: true,
+        }
+    );
+    s.ok(
         "dynamic route board code is not mounted inside #2 Formula",
         !html.includes('id="andrews-route-board"')
             && !html.includes('data-andrews-formula-role="route-board"')
             && html.includes('id="output-journey-strip"')
             && html.includes('data-andrews-output-role="route-journey"')
-            && html.includes("style.css?v=20260620-map-track-bed-001")
-            && html.includes("src/ui/panels/panels.js?v=20260620-map-track-bed-001")
+            && html.includes("style.css?v=20260624-andrews-operational-layer-003")
+            && html.includes("src/core/nnc/nominalization/nominalization.js?v=20260624-andrews-operational-layer-003")
+            && html.includes("src/core/generation/engine.js?v=20260624-andrews-logic-authority-001")
+            && html.includes("src/core/generation/valency.js?v=20260623-andrews-logic-001")
+            && html.includes("src/core/grammar/frame.js?v=20260624-andrews-logic-002")
+            && html.includes("src/ui/panels/panels.js?v=20260624-andrews-operational-layer-003")
+            && html.includes("src/ui/state.js?v=20260624-andrews-route-perception-003")
+            && html.includes("src/ui/rendering/rendering.js?v=20260627-dev-hooks-path-001")
+            && html.includes("src/ui/composer/composer.js?v=20260624-andrews-route-perception-004")
+            && html.includes("src/lessons/registry.js?v=20260621-absolutive-allomorph-001")
             && panels.includes("var AndrewsRouteBoardDestinationKey")
             && panels.includes("var AndrewsRouteBoardPinnedSourceStage")
             && panels.includes("var AndrewsRouteBoardActiveJourney")
@@ -256,9 +3776,9 @@ function run(ctx = {}) {
             && panels.includes('map.dataset.mapApprovalGateModel = approvalFrame.approvalModel')
             && panels.includes('? "andrews-approved"')
             && panels.includes('? "runtime-visual-proof-covered"')
-            && panels.includes('authorityModel: "andrews-pdf-supreme-nawat-spelling-preterit-indicative"')
+            && panels.includes('authorityModel: "andrews-pdf-supreme-nawat-pipil-orthography-bridge-only"')
             && panels.includes('main: "PDF > salida"')
-            && panels.includes('meta: "Nawat: ortografia + preterito indicativo"')
+            && panels.includes('meta: "Nawat: solo ortografia"')
             && panels.includes("map.dataset.mapApprovalEngineAuditState = approvalFrame.engineAuditState")
             && panels.includes("map.dataset.mapApprovalCoordinateFloor = String(approvalFrame.coordinateFloor || 0)")
             && panels.includes('map.dataset.mapDimensionModel = "inter-dimensional-positioning-system"')
@@ -477,6 +3997,8 @@ function run(ctx = {}) {
             && panels.includes("function renderAndrewsRouteBoardJourneyHistory")
             && panels.includes("function renderAndrewsRouteBoardContinuedJourneyReceipt")
             && panels.includes('setOrdinaryNncGenerationModeEnabled(true)')
+            && panels.includes("isOrdinaryNncGenerationModeEnabled()")
+            && panels.includes("setOrdinaryNncGenerationModeEnabled(false)")
             && panels.includes("setComposerEntryBoard(targetBoard, { force: true })")
             && panels.includes("function renderAndrewsRouteBoard")
             && panels.includes('board.boardState === "destination" ? "Trayecto" : "Salidas"')
@@ -1016,6 +4538,30 @@ function run(ctx = {}) {
             && css.includes('data-route-resistance-role="most"')
     );
     s.ok(
+        "source-target perception lives on structured Tipo de clausula and Unidad route frames without mounting route directory",
+        html.includes('data-source-formula-type="CNV"')
+            && html.includes('data-source-formula-type="CNN"')
+            && html.includes('data-target-formula-type="CNV"')
+            && html.includes('data-target-formula-type="CNN"')
+            && !html.includes("data-source-target-options")
+            && formulaPanelHtml.includes('class="calc-unit-route-strip"')
+            && formulaPanelHtml.includes("CNV/CNN → CNV/CNN")
+            && state.includes("buildAndrewsUnitSourceTargetRouteOptionsSourceFrame(activeNawatMode)")
+            && state.includes("buildAndrewsUnitSourceTargetRouteOptionsOperationFrame(activeSourceFrame)")
+            && state.includes("applyAndrewsUnitSourceTargetRouteOptionsDataset(operators, activeOperationFrame)")
+            && !state.includes("operators.dataset.sourceTargetOptions = button.dataset.sourceTargetOptions")
+            && !state.includes("operators.dataset.targetFormulaType = button.dataset.targetFormulaType")
+            && composer.includes('button.dataset.sourceTargetPerception = "clause-type-source-route-options"')
+            && !panels.includes("columns.push(routeDirectoryColumn)")
+            && css.includes(".calc-operator-chip__route")
+            && css.includes(".verb-entry-board-tabs__route")
+            && css.includes(".calc-unit-route-strip")
+            && css.includes("min-height: calc(var(--button-height-action) + 26px);")
+            && css.includes("#container-inputs #composer-slot-stage > .verb-entry-board-tabs .verb-entry-board-tabs__button")
+            && css.includes("min-height: 36px;")
+            && css.includes("color: rgba(54, 49, 42, 0.62);")
+    );
+    s.ok(
         "#2 formula panel exposes tense, unit, and derivation controls",
         html.includes('id="tense-tabs"')
             && html.includes('class="tense-tabs formula-slot-controls"')
@@ -1026,8 +4572,8 @@ function run(ctx = {}) {
             && html.includes('data-tense-mode="verbo"')
             && html.includes('data-tense-mode="sustantivo"')
             && html.includes('data-mode-system="unit"')
-            && />\s*Verbal\s*<\/button>/.test(html)
-            && />\s*Nominal\s*<\/button>/.test(html)
+            && html.includes('class="calc-operator-chip__main">Verbal</span>')
+            && html.includes('class="calc-operator-chip__main">Nominal</span>')
             && html.includes('data-derivation-type="direct"')
             && html.includes('data-derivation-type="causative"')
             && html.includes('data-derivation-type="applicative"')
@@ -1062,8 +4608,10 @@ function run(ctx = {}) {
             && css.includes(".verb-composer__matrix-affix-chip.is-andrews-nawat-only")
     );
     s.ok(
-        "Andrews workspace starts at #1 Entrada without intro sections",
+        "Andrews workspace starts as a formula app without intro sections",
         html.includes('id="andrews-workspace"')
+            && html.indexOf('id="formula-workbench"') > html.indexOf('id="andrews-workspace"')
+            && html.indexOf('id="formula-workbench"') < html.indexOf('class="panel-grid"')
             && !html.includes('id="book-map"')
             && !html.includes('class="andrews-contract-strip"')
             && !html.includes('id="concept-glossary"')
@@ -1075,9 +4623,9 @@ function run(ctx = {}) {
     );
     s.ok(
         "visible page shell follows Andrews nuclear-clause terminology",
-        html.includes("<title>Conjugador de cláusulas nucleares nawat</title>")
+        html.includes("<title>Gramática nawat/pipil Andrews</title>")
             && html.includes('id="app-title"')
-            && html.includes(">Conjugador de cláusulas nucleares nawat<")
+            && html.includes(">Gramática nawat/pipil Andrews<")
             && html.includes('class="form-container-clause hero-panel hero-panel--entrada"')
             && html.includes('aria-label="Espacio gramatical Andrews: cláusulas nucleares"')
             && html.includes('aria-label="Banco de cláusulas nucleares Andrews"')
@@ -1314,8 +4862,8 @@ function run(ctx = {}) {
             && formulaPanelHtml.includes('data-derivation-type="direct"')
             && formulaPanelHtml.includes('data-derivation-type="causative"')
             && formulaPanelHtml.includes('data-derivation-type="applicative"')
-            && />\s*Verbal\s*<\/button>/.test(formulaPanelHtml)
-            && />\s*Nominal\s*<\/button>/.test(formulaPanelHtml)
+            && formulaPanelHtml.includes('class="calc-operator-chip__main">Verbal</span>')
+            && formulaPanelHtml.includes('class="calc-operator-chip__main">Nominal</span>')
             && />\s*Causativo\s*<\/button>/.test(formulaPanelHtml)
             && />\s*Aplicativo\s*<\/button>/.test(formulaPanelHtml)
             && !formulaPanelHtml.includes('aria-label="Clase formal"')
@@ -1405,6 +4953,36 @@ function run(ctx = {}) {
             && !composer.includes("setActiveTenseMode(TENSE_MODE.adjetivo")
             && !composer.includes('selector: "[data-tense-mode=\\"adjetivo\\"]"')
             && !composer.includes('selector: "[data-tense-mode=\\"adverbio\\"]"')
+    );
+    const nominalSourceUnitGroups = (staticGroupsJson.tenseLinguisticGroups?.sustantivo?.left || []).map((group) => ({
+        heading: group.heading?.labelEs || "",
+        tenses: group.tenses || [],
+    }));
+    s.eq(
+        "nominal tense tabs are grouped by Andrews source unit microscope",
+        nominalSourceUnitGroups,
+        [
+            {
+                heading: "Predicado CNV",
+                tenses: [
+                    "predicado-nominal",
+                    "agentivo",
+                    "agentivo-presente",
+                    "agentivo-preterito",
+                    "agentivo-futuro",
+                    "instrumentivo",
+                    "locativo-temporal",
+                ],
+            },
+            {
+                heading: "Núcleo CNV",
+                tenses: ["sustantivo-verbal", "patientivo"],
+            },
+            {
+                heading: "CNN derivada de CNV",
+                tenses: ["calificativo-instrumentivo", "locativo-agentivo-preterito"],
+            },
+        ]
     );
     s.ok(
         "Lesson 3 particle metadata reaches browser runtime without a #2 Partícula mode chip",
@@ -1499,9 +5077,10 @@ function run(ctx = {}) {
             && frequentative.includes("generationAllowed: false")
     );
     s.ok(
-        "Lesson 29 purposive boundary reaches browser runtime without changing directional generation",
+        "Lesson 29 purposive boundary and Andrews generator reach browser runtime",
         html.includes("src/core/vnc/purposive/purposive.js")
             && purposive.includes("purposive-directional-boundary")
+            && purposive.includes("buildAndrewsPurposiveDirectionalVnc")
             && purposive.includes("directional prefix mechanics are not purposive VNC generation")
             && purposive.includes("changesDirectionalGeneration: false")
             && purposive.includes("generationAllowed: false")
@@ -1614,7 +5193,7 @@ function run(ctx = {}) {
         "Appendix E calendar-name boundary reaches browser runtime without generation",
         html.includes("src/core/calendar/calendar.js")
             && calendar.includes("calendar-name-boundary")
-            && calendar.includes("day, month, year, or cycle labels are not Nawat/Pipil calendar-name fixture data")
+            && calendar.includes("day, month, year, or cycle labels are not calendar-name orthography fixture data")
             && calendar.includes("changesNncGeneration: false")
             && calendar.includes("generationAllowed: false")
     );
@@ -1622,7 +5201,7 @@ function run(ctx = {}) {
         "Lesson 56 personal-name NNC boundary reaches browser runtime without generation",
         html.includes("src/core/nnc/names/names.js")
             && nncNames.includes("personal-name-nnc-boundary")
-            && nncNames.includes("capitalization labels and proper-name translations are not Nawat/Pipil name evidence")
+            && nncNames.includes("capitalization labels and proper-name translations are not orthography-bridge name evidence")
             && nncNames.includes("changesOrdinaryNncGeneration: false")
             && nncNames.includes("generationAllowed: false")
     );
@@ -1639,7 +5218,7 @@ function run(ctx = {}) {
         composer.includes("orthographyClassification")
             && composer.includes("classifyOrthographyInput(troncoInputSource.parseValue || troncoInputSource.rawValue || \"\")")
             && state.includes("function getOrthographyBridgeStatusInfo")
-            && state.includes("Ortografia: correspondencia candidata; requiere evidencia Nawat/Pipil.")
+            && state.includes("Ortografia: correspondencia candidata; requiere verificacion ortografica.")
             && state.includes("Ortografia: correspondencia bloqueada; no genera formas.")
             && state.includes('statusEl.dataset.orthographyBridge = "true"')
             && state.includes("generationAllowed: false")
@@ -1956,6 +5535,987 @@ function run(ctx = {}) {
                 stale: "rendering-runtime-not-loaded",
             }
     );
+    s.eq(
+        "generated output chips read canonical VNC records before lying formulaEcho result and frame surfaces",
+        (() => {
+            if (
+                typeof ctx.buildGeneratedOutputSlotChips !== "function"
+                || typeof ctx.getConjugationSurfaceForms !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "hostile-ui-canonical-vnc-formula",
+                unit: "VNC",
+                formula: "#0-0+ki-0(mak)0+0-0#",
+                formulaSlots: {
+                    pers1Pers2: { displayPrefix: "Ø", prefix: "", displayCase: "Ø", case: "", slot: "pers1-pers2" },
+                    obj1: { displayPrefix: "ki-0", prefix: "ki-0", slot: "obj1" },
+                    predicateStem: { displayStem: "(mak)", stem: "mak", slot: "STEM" },
+                    tensePosition: { label: "Ø", tenseValue: "Ø", slot: "tiempo" },
+                    num1Num2: { displayConnector: "0-0", connector: "", slot: "num1-num2" },
+                },
+                routeContract: { routeFamily: "hostile-ui-canonical-vnc" },
+                sourceFrame: { label: "structured VNC source" },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "obj1", formulaValue: "ki-0", surface: "ki" },
+                    { slot: "predicateStem", formulaValue: "mak", surface: "mak" },
+                ],
+                surfaceForms: ["kimak"],
+            });
+            const resultFrame = {
+                ...(ctx.buildGrammarResultFrame
+                    ? ctx.buildGrammarResultFrame({ ok: true, formulaRecord, formulaRealizationRecord: realizationRecord })
+                    : {}),
+                surface: "frame-lie",
+                surfaceForms: ["frame-lie / frame-alt-lie"],
+                formulaSurfacePairs: [{ surface: "pair-lie", targetFormulaEcho: "#PAIR-LIE#" }],
+                formulaRecord,
+                formulaRecords: [formulaRecord],
+                formulaRealizationRecord: realizationRecord,
+                formulaRealizationRecords: [realizationRecord],
+            };
+            const hostile = {
+                formulaEcho: "#ni-Ø+ta(BAD)fut+meh#",
+                result: "result-lie / result-alt-lie",
+                surface: "top-lie",
+                surfaceForms: ["top-lie"],
+                grammarFrame: ctx.buildGrammarFrame
+                    ? ctx.buildGrammarFrame({ resultFrame })
+                    : { resultFrame },
+            };
+            const chips = ctx.buildGeneratedOutputSlotChips(hostile);
+            const valuesByKind = chips.reduce((map, chip) => {
+                if (!map[chip.kind]) {
+                    map[chip.kind] = chip.value;
+                }
+                return map;
+            }, {});
+            return {
+                formula: valuesByKind.formula,
+                obj1: valuesByKind.obj1,
+                stem: valuesByKind.STEM,
+                surface: valuesByKind.surface,
+                surfaces: ctx.getConjugationSurfaceForms(hostile),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                formula: "#0-0+ki-0(mak)0+0-0#",
+                obj1: "ki-0",
+                stem: "(mak)",
+                surface: "kimak",
+                surfaces: ["kimak"],
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "legacy VNC formulaEcho parser is quarantined from active slot inference",
+        typeof ctx.parseGeneratedOutputVncFormulaEchoSlots === "function"
+            ? ctx.parseGeneratedOutputVncFormulaEchoSlots("#ni-0+ki(BAD)fut+met#")
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? null
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "formula surface pair lookup does not use top-level result or surface strings as active selection",
+        (() => {
+            if (
+                typeof ctx.getFormulaSurfacePairForGeneratedOutput !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaA = ctx.buildGrammarFormulaRecord({
+                id: "pair-a-formula",
+                unit: "VNC",
+                formula: "#0-0(a)0+0-0#",
+                formulaSlots: { predicateStem: { stem: "a", slot: "STEM" } },
+            });
+            const formulaB = ctx.buildGrammarFormulaRecord({
+                id: "pair-b-formula",
+                unit: "VNC",
+                formula: "#0-0(b)0+0-0#",
+                formulaSlots: { predicateStem: { stem: "b", slot: "STEM" } },
+            });
+            const realizationA = ctx.buildGrammarFormulaRealizationRecord({
+                id: "pair-a-realization",
+                formulaRecord: formulaA,
+                segmentFrames: [{ slot: "STEM", formulaValue: "a", surface: "canonical-a" }],
+                surfaceForms: ["canonical-a"],
+            });
+            const realizationB = ctx.buildGrammarFormulaRealizationRecord({
+                id: "pair-b-realization",
+                formulaRecord: formulaB,
+                segmentFrames: [{ slot: "STEM", formulaValue: "b", surface: "canonical-b" }],
+                surfaceForms: ["canonical-b"],
+            });
+            const hostile = {
+                result: "canonical-b / stale-result",
+                surface: "canonical-b",
+                surfaceForms: ["canonical-b"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        formulaRecords: [formulaA, formulaB],
+                        formulaRealizationRecords: [realizationA, realizationB],
+                    }),
+                }),
+            };
+            return {
+                defaultSurface: ctx.getFormulaSurfacePairForGeneratedOutput(hostile)?.surface || "",
+                explicitSurface: ctx.getFormulaSurfacePairForGeneratedOutput(hostile, "canonical-b")?.surface || "",
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                defaultSurface: "canonical-a",
+                explicitSurface: "canonical-b",
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "visible CNV formula helpers read canonical records before lying formulaEcho and stale surfaces",
+        (() => {
+            if (
+                typeof ctx.formatVisibleCnvFormulaEcho !== "function"
+                || typeof ctx.buildVisibleCnvFormulaEchoChips !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "visible-cnv-formula-record",
+                unit: "VNC",
+                formula: "#0-0+ki-0(mak)0+0-0#",
+                formulaSlots: {
+                    obj1: { displayPrefix: "ki-0", prefix: "ki-0", slot: "obj1" },
+                    predicateStem: { displayStem: "(mak)", stem: "mak", slot: "STEM" },
+                },
+                routeContract: { routeFamily: "hostile-visible-cnv" },
+                sourceFrame: { label: "structured visible CNV source" },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "visible-cnv-realization-record",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "obj1", formulaValue: "ki-0", surface: "ki" },
+                    { slot: "predicateStem", formulaValue: "mak", surface: "mak" },
+                ],
+                surfaceForms: ["kimak"],
+            });
+            const resultFrame = {
+                ...ctx.buildGrammarResultFrame({
+                    ok: true,
+                    formulaRecord,
+                    formulaRealizationRecord: realizationRecord,
+                }),
+                surface: "frame-visible-lie",
+                surfaceForms: ["frame-visible-lie / frame-visible-alt-lie"],
+                formulaRecord,
+                formulaRecords: [formulaRecord],
+                formulaRealizationRecord: realizationRecord,
+                formulaRealizationRecords: [realizationRecord],
+            };
+            const hostile = {
+                formulaEcho: "#ni-0+ta(BAD)fut+meh#",
+                result: "result-visible-lie / result-visible-alt-lie",
+                surface: "top-visible-lie",
+                surfaceForms: ["top-visible-lie"],
+                grammarFrame: ctx.buildGrammarFrame({ resultFrame }),
+            };
+            const chips = ctx.buildVisibleCnvFormulaEchoChips(hostile.formulaEcho, hostile);
+            return {
+                formatted: ctx.formatVisibleCnvFormulaEcho(hostile.formulaEcho, hostile),
+                chipValues: chips.map((entry) => entry.value),
+                chipSurfaces: chips.map((entry) => entry.surface),
+                hasBadFormula: chips.some((entry) => String(entry.value || "").includes("BAD")),
+                hasStaleSurface: chips.some((entry) => /lie/.test(String(entry.surface || ""))),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                formatted: "#0-0+ki-0(mak)0+0-0#",
+                chipValues: ["#0-0+ki-0(mak)0+0-0#"],
+                chipSurfaces: ["kimak"],
+                hasBadFormula: false,
+                hasStaleSurface: false,
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "generated output chips read canonical NNC records before lying formulaEcho result and frame surfaces",
+        (() => {
+            if (
+                typeof ctx.buildGeneratedOutputSlotChips !== "function"
+                || typeof ctx.getConjugationSurfaceForms !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                unit: "NNC",
+                formula: "#Ø-Ø(kal)Ø-Ø#",
+                formulaSlots: {
+                    pers1Pers2: { displayPrefix: "Ø", prefix: "", displaySuffix: "Ø", suffix: "", slot: "pers1-pers2" },
+                    predicateStem: { displayStem: "(kal)", stem: "kal", surface: "kal", state: "absolutive", slot: "STEM" },
+                    num1Num2: { displayConnector: "Ø-Ø", connector: "", surface: "", slot: "num1-num2" },
+                },
+                routeContract: { routeFamily: "hostile-ui-canonical-nnc" },
+                sourceFrame: { label: "structured NNC source" },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "kal", surface: "kal" },
+                ],
+                surfaceForms: ["kal"],
+            });
+            const resultFrame = {
+                ...(ctx.buildGrammarResultFrame
+                    ? ctx.buildGrammarResultFrame({ ok: true, formulaRecord, formulaRealizationRecord: realizationRecord })
+                    : {}),
+                surface: "frame-nnc-lie",
+                surfaceForms: ["frame-nnc-lie / frame-nnc-alt-lie"],
+                formulaSurfacePairs: [{ surface: "pair-nnc-lie", targetFormulaEcho: "#PAIR-NNC-LIE#" }],
+                formulaRecord,
+                formulaRecords: [formulaRecord],
+                formulaRealizationRecord: realizationRecord,
+                formulaRealizationRecords: [realizationRecord],
+            };
+            const hostile = {
+                formulaEcho: "#ni-Ø+ta(BAD)fut+meh#",
+                result: "result-nnc-lie / result-nnc-alt-lie",
+                surface: "top-nnc-lie",
+                surfaceForms: ["top-nnc-lie"],
+                grammarFrame: ctx.buildGrammarFrame
+                    ? ctx.buildGrammarFrame({ resultFrame })
+                    : { resultFrame },
+            };
+            const chips = ctx.buildGeneratedOutputSlotChips(hostile);
+            const valuesByKind = chips.reduce((map, chip) => {
+                if (!map[chip.kind]) {
+                    map[chip.kind] = chip.value;
+                }
+                return map;
+            }, {});
+            return {
+                formula: valuesByKind.formula,
+                stem: valuesByKind.STEM,
+                surface: valuesByKind.surface,
+                surfaces: ctx.getConjugationSurfaceForms(hostile),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                formula: "#Ø-Ø(kal)Ø-Ø#",
+                stem: "(kal)",
+                surface: "kal",
+                surfaces: ["kal"],
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "generated output continuation formula readers use canonical or structured slots before lying formulaEcho",
+        (() => {
+            if (
+                typeof ctx.getGeneratedOutputStructuredContinuationFormulaSlots !== "function"
+                || typeof ctx.getGeneratedOutputStructuredContinuationFormulaEcho !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const canonicalFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "hostile-continuation-formula-reader-record",
+                unit: "NNC",
+                formula: "#Ø-Ø(kal)Ø-Ø#",
+                formulaSlots: {
+                    pers1Pers2: { displayPrefix: "Ø", prefix: "", displaySuffix: "Ø", suffix: "", slot: "pers1-pers2" },
+                    predicateStem: { displayStem: "(kal)", stem: "kal", surface: "kal", slot: "STEM" },
+                    num1Num2: { displayConnector: "Ø-Ø", connector: "", surface: "", slot: "num1-num2" },
+                },
+                routeContract: { routeFamily: "hostile-continuation-formula-reader" },
+                sourceFrame: { label: "structured continuation formula source" },
+            });
+            const canonicalRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                formulaRecord: canonicalFormulaRecord,
+                segmentFrames: [{ slot: "predicateStem", formulaValue: "kal", surface: "kal" }],
+                surfaceForms: ["kal"],
+            });
+            const canonicalResult = {
+                formulaEcho: "#BAD-FORMULA-ECHO#",
+                nuclearClauseShell: {
+                    formulaEcho: "#BAD-SHELL-ECHO#",
+                    formulaSlots: {
+                        predicateStem: { displayStem: "(bad)", stem: "bad", surface: "bad", slot: "STEM" },
+                    },
+                },
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord: canonicalFormulaRecord,
+                            formulaRealizationRecord: canonicalRealizationRecord,
+                        }),
+                        formulaRecord: canonicalFormulaRecord,
+                        formulaRecords: [canonicalFormulaRecord],
+                        formulaRealizationRecord: canonicalRealizationRecord,
+                        formulaRealizationRecords: [canonicalRealizationRecord],
+                    },
+                }),
+            };
+            const structuredOnlyResult = {
+                formulaEcho: "#BAD-STRUCTURED-FALLBACK#",
+                result: "bad-result-a / bad-result-b",
+                nuclearClauseShell: {
+                    formulaEcho: "#BAD-STRUCTURED-SHELL#",
+                    formulaSlots: {
+                        pers1Pers2: { displayPrefix: "Ø", prefix: "", displaySuffix: "Ø", suffix: "", slot: "pers1-pers2" },
+                        predicateStem: { displayStem: "(pet)", stem: "pet", surface: "pet", slot: "STEM" },
+                        num1Num2: { displayConnector: "Ø-Ø", connector: "", surface: "", slot: "num1-num2" },
+                    },
+                },
+            };
+            const stringOnlyResult = {
+                formulaEcho: "#STRING-ONLY-LIE#",
+                result: "string-only-lie / string-only-alt",
+                surface: "string-only-surface",
+            };
+            const canonicalSlots = ctx.getGeneratedOutputStructuredContinuationFormulaSlots(canonicalResult);
+            const structuredSlots = ctx.getGeneratedOutputStructuredContinuationFormulaSlots(structuredOnlyResult);
+            const stringOnlySlots = ctx.getGeneratedOutputStructuredContinuationFormulaSlots(stringOnlyResult);
+            return {
+                canonicalStem: canonicalSlots?.predicateStem?.stem || "",
+                canonicalEcho: ctx.getGeneratedOutputStructuredContinuationFormulaEcho(canonicalResult, canonicalSlots),
+                structuredStem: structuredSlots?.predicateStem?.stem || "",
+                structuredEcho: ctx.getGeneratedOutputStructuredContinuationFormulaEcho(structuredOnlyResult, structuredSlots),
+                stringOnlySlots: stringOnlySlots === null,
+                stringOnlyEcho: ctx.getGeneratedOutputStructuredContinuationFormulaEcho(stringOnlyResult, stringOnlySlots),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                canonicalStem: "kal",
+                canonicalEcho: "#Ø-Ø(kal)Ø-Ø#",
+                structuredStem: "pet",
+                structuredEcho: "#Ø-Ø(pet)Ø#",
+                stringOnlySlots: true,
+                stringOnlyEcho: "",
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "generated output continuation identity uses canonical record ids instead of rendered surfaces",
+        (() => {
+            if (
+                typeof ctx.getGeneratedOutputContinuationIdentityKey !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const buildHostileResult = (id) => {
+                const formulaRecord = ctx.buildGrammarFormulaRecord({
+                    id: `formula-record-${id}`,
+                    unit: "NNC",
+                    formula: `#0-0(stem-${id})0-0#`,
+                    formulaSlots: {
+                        predicateStem: { stem: `stem-${id}`, slot: "STEM" },
+                    },
+                    routeContract: {
+                        routeId: `route-${id}`,
+                        routeFamily: "hostile-continuation-identity",
+                    },
+                    sourceFrame: {
+                        id: `source-frame-${id}`,
+                    },
+                });
+                const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                    id: `realization-record-${id}`,
+                    formulaRecord,
+                    segmentFrames: [
+                        { slot: "predicateStem", formulaValue: `stem-${id}`, surface: "same" },
+                    ],
+                    surfaceForms: ["same"],
+                });
+                return {
+                    result: "same / display-lie",
+                    surface: "same",
+                    surfaceForms: ["same"],
+                    grammarFrame: ctx.buildGrammarFrame({
+                        routeContract: {
+                            routeId: `route-${id}`,
+                            routeFamily: "hostile-continuation-identity",
+                            routeStage: "target-mode-preview",
+                        },
+                        resultFrame: {
+                            ...ctx.buildGrammarResultFrame({
+                                ok: true,
+                                formulaRecord,
+                                formulaRealizationRecord: realizationRecord,
+                            }),
+                            surface: "frame-surface-lie",
+                            surfaceForms: ["same / frame-display-lie"],
+                            formulaRecord,
+                            formulaRecords: [formulaRecord],
+                            formulaRealizationRecord: realizationRecord,
+                            formulaRealizationRecords: [realizationRecord],
+                        },
+                    }),
+                };
+            };
+            const context = {
+                namespace: "verb-to-nominal-row-continuation",
+                targetTense: "agentivo",
+                sourceUnit: "vnc-predicate",
+            };
+            const firstKey = ctx.getGeneratedOutputContinuationIdentityKey(buildHostileResult("a"), context);
+            const secondKey = ctx.getGeneratedOutputContinuationIdentityKey(buildHostileResult("b"), context);
+            const routeOnlyKey = ctx.getGeneratedOutputContinuationIdentityKey({
+                result: "same / route-display-lie",
+                surface: "same",
+                surfaceForms: ["same"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    routeContract: {
+                        routeId: "route-only-a",
+                        routeFamily: "hostile-continuation-identity",
+                        routeStage: "target-mode-preview",
+                        sourceContract: {
+                            sourceCategory: "vnc-source",
+                            sourceClauseKind: "VNC",
+                            sourceVerb: "structured-source-verb",
+                            sourceTenseValue: "preterito",
+                            sourceCombinedMode: "activo",
+                        },
+                        targetContract: {
+                            outputKind: "NNC",
+                            functionKind: "adjectival",
+                            generationRoute: "route-contract-only",
+                        },
+                    },
+                }),
+            }, {
+                ...context,
+                sourceVariantId: "route-only-variant",
+            });
+            const sourceFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "source-formula-record",
+                unit: "NNC",
+                formula: "#0-0(source-stem)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "source-stem", slot: "STEM" },
+                },
+            });
+            const sourceRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "source-realization-record",
+                formulaRecord: sourceFormulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "source-stem", surface: "same" },
+                ],
+                surfaceForms: ["same"],
+            });
+            const sourceAndTargetKey = ctx.getGeneratedOutputContinuationIdentityKey([
+                {
+                    result: "source-display-lie",
+                    surface: "same",
+                    grammarFrame: ctx.buildGrammarFrame({
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord: sourceFormulaRecord,
+                            formulaRealizationRecord: sourceRealizationRecord,
+                        }),
+                    }),
+                },
+                {
+                    result: "target-display-lie",
+                    surface: "same",
+                    grammarFrame: ctx.buildGrammarFrame({
+                        routeContract: {
+                            routeId: "target-route-contract",
+                            routeFamily: "adjectival-nnc",
+                            routeStage: "execute",
+                        },
+                    }),
+                },
+            ], {
+                namespace: "source-plus-target-continuation",
+                targetVariantId: "target-variant",
+            });
+            const displayOnlyKey = ctx.getGeneratedOutputContinuationIdentityKey({
+                result: "same / display-only",
+                surface: "same",
+                surfaceForms: ["same"],
+            }, context);
+            return {
+                distinctSameSurfaceKeys: firstKey !== secondKey,
+                keyHasFormulaRecord: firstKey.includes("formula-record-a"),
+                keyHasRealizationRecord: firstKey.includes("realization-record-a"),
+                keyHasRoute: firstKey.includes("route-a"),
+                keyHasSurfaceText: firstKey.includes("same") || firstKey.includes("display-lie") || firstKey.includes("frame-surface-lie"),
+                routeOnlyHasRouteContract: routeOnlyKey.includes("route-id:route-only-a")
+                    && routeOnlyKey.includes("source-category:vnc-source")
+                    && routeOnlyKey.includes("target-route:route-contract-only")
+                    && routeOnlyKey.includes("source-variant:route-only-variant"),
+                routeOnlyHasSurfaceText: routeOnlyKey.includes("same")
+                    || routeOnlyKey.includes("route-display-lie")
+                    || routeOnlyKey.includes("display-only"),
+                sourceAndTargetHasSourceRecord: sourceAndTargetKey.includes("source-formula-record")
+                    && sourceAndTargetKey.includes("source-realization-record"),
+                sourceAndTargetHasTargetRoute: sourceAndTargetKey.includes("route-id:target-route-contract")
+                    && sourceAndTargetKey.includes("target-variant:target-variant"),
+                sourceAndTargetHasSurfaceText: sourceAndTargetKey.includes("same")
+                    || sourceAndTargetKey.includes("source-display-lie")
+                    || sourceAndTargetKey.includes("target-display-lie"),
+                displayOnlyKey,
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                distinctSameSurfaceKeys: true,
+                keyHasFormulaRecord: true,
+                keyHasRealizationRecord: true,
+                keyHasRoute: true,
+                keyHasSurfaceText: false,
+                routeOnlyHasRouteContract: true,
+                routeOnlyHasSurfaceText: false,
+                sourceAndTargetHasSourceRecord: true,
+                sourceAndTargetHasTargetRoute: true,
+                sourceAndTargetHasSurfaceText: false,
+                displayOnlyKey: "",
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "generated output selected variant uses canonical realization record ids instead of display surfaces",
+        (() => {
+            if (
+                typeof ctx.getGeneratedOutputSelectedRealizationVariant !== "function"
+                || typeof ctx.getGeneratedOutputContinuationIdentityKey !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "selected-variant-formula",
+                unit: "NNC",
+                formula: "#0-0(xochi)0-0#",
+                formulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "xochi" },
+                },
+            });
+            const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "selected-variant-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "xochi", surface: "canonical-a" },
+                ],
+                surfaceForms: ["canonical-a", "canonical-b"],
+            });
+            const hostileResult = {
+                result: "display-lie-a / display-lie-b",
+                surface: "display-lie-a",
+                surfaceForms: ["display-lie-a"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            formulaRecord,
+                            formulaRealizationRecord: realizationRecord,
+                        }),
+                        surface: "frame-display-lie",
+                        surfaceForms: ["frame-display-lie-a / frame-display-lie-b"],
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                        formulaRealizationRecord: realizationRecord,
+                        formulaRealizationRecords: [realizationRecord],
+                    },
+                }),
+            };
+            const selected = ctx.getGeneratedOutputSelectedRealizationVariant(hostileResult, 1);
+            const identityKey = ctx.getGeneratedOutputContinuationIdentityKey(hostileResult, {
+                namespace: "selected-variant-hostile-test",
+                sourceVariantId: selected?.variantId || "",
+            });
+            return {
+                surface: selected?.surface || "",
+                variantId: selected?.variantId || "",
+                formulaRealizationRecordId: selected?.formulaRealizationRecordId || "",
+                formulaRecordId: selected?.formulaRecordId || "",
+                identityHasVariant: identityKey.includes("selected-variant-realization#variant:1"),
+                identityHasDisplayText: identityKey.includes("display-lie")
+                    || identityKey.includes("frame-display-lie")
+                    || identityKey.includes("canonical-b"),
+            };
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                surface: "canonical-b",
+                variantId: "selected-variant-realization#variant:1",
+                formulaRealizationRecordId: "selected-variant-realization",
+                formulaRecordId: "selected-variant-formula",
+                identityHasVariant: true,
+                identityHasDisplayText: false,
+            }
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "adjectival NNC function entry handoff reads canonical realization before split display surfaces",
+        (() => {
+            if (
+                typeof ctx.getAdjectivalNncFunctionEntrySurfaceForms !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "adjectival-handoff-formula",
+                unit: "NNC",
+                formula: "#0-0(canonical)0-0#",
+                formulaSlots: {
+                    predicateStem: { stem: "canonical", slot: "STEM" },
+                },
+                sourceFrame: { id: "adjectival-handoff-source" },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "adjectival-handoff-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "canonical", surface: "canonical" },
+                ],
+                surfaceForms: ["canonical-surface"],
+            });
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: {
+                    ...ctx.buildGrammarResultFrame({
+                        ok: true,
+                        formulaRecord,
+                        formulaRealizationRecord,
+                    }),
+                    surface: "frame-lie",
+                    surfaceForms: ["frame-lie / frame-alt-lie"],
+                    formulaRecord,
+                    formulaRecords: [formulaRecord],
+                    formulaRealizationRecord,
+                    formulaRealizationRecords: [formulaRealizationRecord],
+                },
+            });
+            return ctx.getAdjectivalNncFunctionEntrySurfaceForms({
+                surface: "top-lie / top-alt-lie",
+                grammarFrame,
+            });
+        })(),
+        ["canonical-surface"]
+    );
+    s.eq(
+        "adjectival NNC function entry handoff treats result-frame surface forms as structured entries",
+        (() => {
+            if (
+                typeof ctx.getAdjectivalNncFunctionEntrySurfaceForms !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: {
+                    ok: true,
+                    surface: "frame-surface-lie-a / frame-surface-lie-b",
+                    surfaceForms: [
+                        "frame-list-lie-a / frame-list-lie-b",
+                        "frame-structured",
+                    ],
+                },
+            });
+            return ctx.getAdjectivalNncFunctionEntrySurfaceForms({
+                surface: "top-lie-a / top-lie-b",
+                grammarFrame,
+            });
+        })(),
+        ["frame-structured"]
+    );
+    s.eq(
+        "adjectival NNC function entry handoff blocks slash-only result frames instead of falling back to display surface",
+        (() => {
+            if (
+                typeof ctx.getAdjectivalNncFunctionEntrySurfaceForms !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: {
+                    ok: true,
+                    surface: "frame-surface-lie-a / frame-surface-lie-b",
+                    surfaceForms: ["frame-list-lie-a / frame-list-lie-b"],
+                },
+            });
+            return ctx.getAdjectivalNncFunctionEntrySurfaceForms({
+                surface: "top-lie-a / top-lie-b",
+                grammarFrame,
+            });
+        })(),
+        []
+    );
+    s.eq(
+        "ordinary NNC adjectival entry mutation uses canonical records over lying display strings",
+        (() => {
+            if (
+                typeof ctx.applyAdjectivalNncFunctionToVerbEntry !== "function"
+                || typeof ctx.clearAdjectivalNncFunctionEntryState !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const verbEl = ctx.document.getElementById("verb");
+            const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
+            const restoreFunctionMode = typeof ctx.getActiveFunctionMode === "function" ? ctx.getActiveFunctionMode() : "";
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "before";
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "ordinary-adjectival-formula-record",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots: {
+                    predicateStem: { stem: "shuchi", slot: "STEM" },
+                },
+                routeContract: { routeFamily: "adjectival-nnc" },
+                sourceFrame: { id: "ordinary-adjectival-source-frame" },
+                operationFrames: [{ operationId: "andrews-40-adjectival-nnc-function" }],
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "ordinary-adjectival-realization-record",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["canonical-shuchit"],
+            });
+            const grammarFrame = ctx.buildGrammarFrame({
+                routeContract: { routeFamily: "adjectival-nnc", routeStage: "execute", generationAllowed: true },
+                resultFrame: {
+                    ...ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-lie",
+                        surfaceForms: ["frame-lie"],
+                        formulaRecord,
+                        formulaRealizationRecord,
+                    }),
+                    surface: "frame-lie",
+                    surfaceForms: ["frame-lie"],
+                    formulaRecord,
+                    formulaRecords: [formulaRecord],
+                    formulaRealizationRecord,
+                    formulaRealizationRecords: [formulaRealizationRecord],
+                },
+            });
+            const contract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: "top-lie / top-alt-lie",
+                formation: "ordinary-absolutive",
+                formulaEcho: "#LIE#",
+                grammarFrame,
+                targetSelectedVariant: {
+                    variantId: "ordinary-adjectival-realization-record#variant:0",
+                    formulaRecordId: "ordinary-adjectival-formula-record",
+                    formulaRealizationRecordId: "ordinary-adjectival-realization-record",
+                },
+                sourceContinuationFrame: {
+                    kind: "generated-output-typed-continuation-frame",
+                    formulaRecord,
+                    formulaRealizationRecord,
+                },
+                targetContinuationFrame: {
+                    kind: "generated-output-typed-continuation-frame",
+                    formulaRecord,
+                    formulaRealizationRecord,
+                },
+                requireCanonicalFormulaRecords: true,
+                refresh: false,
+            });
+            const summary = {
+                value: verbEl.value,
+                contractSurface: contract?.surface || "",
+                mutationApplied: contract?.mutationApplied === true,
+                blocked: contract?.blocked === true,
+                formulaRecordId: contract?.formulaRecord?.id || "",
+                realizationRecordId: contract?.formulaRealizationRecord?.id || "",
+                datasetSurface: verbEl.dataset.adjectivalNncFunctionSurface || "",
+                usedLie: [verbEl.value, contract?.surface || "", verbEl.dataset.adjectivalNncFunctionSurface || ""]
+                    .some((entry) => String(entry || "").includes("lie")),
+            };
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "";
+            if (restoreFunctionMode && typeof ctx.setActiveFunctionMode === "function") {
+                ctx.setActiveFunctionMode(restoreFunctionMode, { syncOutput: false });
+            }
+            if (restoreMode && typeof ctx.setActiveTenseMode === "function") {
+                ctx.setActiveTenseMode(restoreMode, { syncConventionState: false, clearRoute: true });
+            }
+            if (restoreMode && typeof ctx.setActiveUnitMode === "function") {
+                ctx.setActiveUnitMode(restoreMode, { syncOutput: false });
+            }
+            return summary;
+        })(),
+        {
+            value: "canonical-shuchit",
+            contractSurface: "canonical-shuchit",
+            mutationApplied: true,
+            blocked: false,
+            formulaRecordId: "ordinary-adjectival-formula-record",
+            realizationRecordId: "ordinary-adjectival-realization-record",
+            datasetSurface: "canonical-shuchit",
+            usedLie: false,
+        }
+    );
+    s.eq(
+        "ordinary NNC adjectival entry mutation blocks canonical records without typed source and target frames",
+        (() => {
+            if (
+                typeof ctx.applyAdjectivalNncFunctionToVerbEntry !== "function"
+                || typeof ctx.clearAdjectivalNncFunctionEntryState !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFormulaRealizationRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const verbEl = ctx.document.getElementById("verb");
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "unchanged";
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "ordinary-adjectival-frame-required-formula",
+                unit: "NNC",
+                formula: "#Ø-Ø(shuchi)t#",
+                formulaSlots: {
+                    predicateStem: { stem: "shuchi", slot: "STEM" },
+                },
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "ordinary-adjectival-frame-required-realization",
+                formulaRecord,
+                segmentFrames: [
+                    { slot: "STEM", formulaValue: "shuchi", surface: "shuchi" },
+                    { slot: "num1-num2", formulaValue: "t", surface: "t" },
+                ],
+                surfaceForms: ["canonical-shuchit"],
+            });
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    formulaRecord,
+                    formulaRealizationRecord,
+                }),
+            });
+            const contract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: "top-lie",
+                formation: "ordinary-absolutive",
+                grammarFrame,
+                targetContinuationFrame: {
+                    kind: "generated-output-typed-continuation-frame",
+                    formulaRecord,
+                    formulaRealizationRecord,
+                },
+                requireCanonicalFormulaRecords: true,
+                refresh: false,
+            });
+            const summary = {
+                value: verbEl.value,
+                mutationApplied: contract?.mutationApplied === true,
+                blocked: contract?.blocked === true,
+                blockReason: contract?.blockReason || "",
+                typedFramesAvailable: contract?.typedContinuationFramesAvailable === true,
+                datasetSurface: verbEl.dataset.adjectivalNncFunctionSurface || "",
+            };
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "";
+            return summary;
+        })(),
+        {
+            value: "unchanged",
+            mutationApplied: false,
+            blocked: true,
+            blockReason: "missing-typed-source-or-target-continuation-frame",
+            typedFramesAvailable: false,
+            datasetSurface: "",
+        }
+    );
+    s.eq(
+        "ordinary NNC adjectival entry mutation blocks required structured continuations without canonical records",
+        (() => {
+            if (
+                typeof ctx.applyAdjectivalNncFunctionToVerbEntry !== "function"
+                || typeof ctx.clearAdjectivalNncFunctionEntryState !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "composer-runtime-not-loaded" };
+            }
+            const verbEl = ctx.document.getElementById("verb");
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "unchanged";
+            const grammarFrame = ctx.buildGrammarFrame({
+                resultFrame: ctx.buildGrammarResultFrame({
+                    ok: true,
+                    surface: "frame-structured",
+                    surfaceForms: ["frame-structured"],
+                }),
+            });
+            const contract = ctx.applyAdjectivalNncFunctionToVerbEntry({
+                surface: "top-lie",
+                formation: "ordinary-absolutive",
+                grammarFrame,
+                targetContinuationFrame: {
+                    kind: "generated-output-typed-continuation-frame",
+                },
+                requireCanonicalFormulaRecords: true,
+                refresh: false,
+            });
+            const summary = {
+                value: verbEl.value,
+                mutationApplied: contract?.mutationApplied === true,
+                blocked: contract?.blocked === true,
+                blockReason: contract?.blockReason || "",
+                datasetSurface: verbEl.dataset.adjectivalNncFunctionSurface || "",
+            };
+            ctx.clearAdjectivalNncFunctionEntryState(verbEl);
+            verbEl.value = "";
+            return summary;
+        })(),
+        {
+            value: "unchanged",
+            mutationApplied: false,
+            blocked: true,
+            blockReason: "missing-canonical-formula-or-realization-record",
+            datasetSurface: "",
+        }
+    );
     s.ok(
         "generated output panes render explicit no-output text instead of blank dash placeholders",
         typeof ctx.getConjugationNoOutputDisplay === "function"
@@ -2040,6 +6600,19 @@ function run(ctx = {}) {
             && rendering.includes("familia patientiva:")
             && rendering.includes("ANDREWS_RENDERING_TERMS.patientiveSource")
             && rendering.includes("familias Andrews:")
+            && rendering.includes("function getAndrewsCnvCnnNominalRenderingFrame")
+            && rendering.includes("function applyAndrewsCnvCnnNominalRenderingDataset")
+            && rendering.includes("function getAndrewsCnvCnnNominalRenderedSurface")
+            && rendering.includes("function appendConjugationConversionSurfaceLines")
+            && rendering.includes("operationalSuboperationFrame")
+            && rendering.includes("dataset.andrewsCnvCnnNominalOperationId")
+            && rendering.includes("dataset.andrewsCnvCnnNominalFormulaEcho")
+            && rendering.includes("dataset.andrewsCnvCnnNominalSpellingAuthority")
+            && rendering.includes("conjugation-rendering--andrews-cnv-cnn-nominal")
+            && rendering.includes("const renderedSurface = getAndrewsCnvCnnNominalRenderedSurface(frameLike)")
+            && rendering.includes("Andrews CNV->CNN:")
+            && rendering.includes("operacion Andrews:")
+            && rendering.includes("salida por Andrews:")
             && rendering.includes("etapa salida:")
             && rendering.includes("taxonomía patientiva: parcial")
             && rendering.includes("función adjetival:")
@@ -2078,8 +6651,23 @@ function run(ctx = {}) {
             && css.includes(".person-sub__slot-chip--patientive")
             && css.includes(".person-sub__slot-chip--lesson2")
             && css.includes(".person-sub__slot-chip[data-detail]::after")
+            && !css.includes(".person-sub__slot-chip--node")
+            && !css.includes(".person-sub__slot-chip[data-route-graph-action]")
             && rendering.includes("chipEl.tabIndex = 0")
             && rendering.includes("container.dataset.fullSubLabel = fullSubLabel")
+            && !rendering.includes("chipEl.dataset.routeGraph")
+            && !rendering.includes("applyNawatLinkedGrammarPathSourceInput(graphAction)")
+            && panels.includes("Andrews 46.3.1.a route builder")
+            && panels.includes("builder.dataset.andrewsRouteBuilder")
+            && panels.includes("andrews-route-browser__builder-next")
+            && panels.includes("sourceEvidence.textContent")
+            && panels.includes("actionRow.dataset.routeBoundary")
+            && panels.includes("actionRow.dataset.absolutiveAllomorph")
+            && panels.includes("actionRow.dataset.absolutiveAllomorphAppliesAfter")
+            && panels.includes("actionRow.dataset.previousNonZeroSegment")
+            && panels.includes("getActionAbsolutiveAllomorphLabel")
+            && css.includes(".andrews-route-browser__builder--dedicated")
+            && css.includes(".andrews-route-browser__builder-control")
             && rendering.includes("container.replaceChildren()")
     );
     s.ok(
@@ -2161,6 +6749,11 @@ function run(ctx = {}) {
         "Andrews 40.4 patientive adjectival NNC function is exposed dynamically in #3 salida",
         rendering.includes("renderPatientivoAdjectivalFunctionContinuation")
             && rendering.includes("buildPatientivoAdjectivalNncFunctionOutput")
+            && rendering.includes("typeof buildPatientivoAdjectivalNncOperationFrame !== \"function\"")
+            && rendering.includes("const operationFrame = buildPatientivoAdjectivalNncOperationFrame({")
+            && rendering.includes("sourceContinuationFrame,")
+            && rendering.includes("targetContinuationFrame,")
+            && rendering.includes("requireStructuredContinuation: true")
             && rendering.includes("dataset.patientivoAdjectivalFunctionContinuation = \"true\"")
             && rendering.includes("calc-guidance__chip--mode-adjetivo")
             && rendering.includes("continueSubLabel.textContent = \"Adjetival nominal\"")
@@ -2174,6 +6767,9 @@ function run(ctx = {}) {
             && rendering.includes("surface: targetSurface")
             && rendering.includes('formation: "patientive-adjectival"')
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
+            && rendering.includes("sourceContinuationFrame: contract.sourceContinuationFrame || null")
+            && rendering.includes("operationFrame: contract.operationFrame || null")
+            && rendering.includes("requireCanonicalFormulaRecords: true")
             && rendering.includes("renderPatientivoAdjectivalFunctionContinuation({")
             && !rendering.includes("dataset.targetSurface = contract.result || \"\"")
             && !rendering.includes("button.dataset.targetSurface === contract.result")
@@ -2182,6 +6778,11 @@ function run(ctx = {}) {
         "Andrews 40.3 VNC adjectival function is exposed dynamically in generated VNC rows",
         rendering.includes("const appendVncAdjectivalFunctionRowContinuation = ({")
             && rendering.includes("buildVncAdjectivalNncFunctionOutput")
+            && rendering.includes("typeof buildVncAdjectivalNncOperationFrame !== \"function\"")
+            && rendering.includes("const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(evaluation?.result, sourceSelectedVariant, {")
+            && rendering.includes("const operationFrame = buildVncAdjectivalNncOperationFrame({")
+            && rendering.includes("targetContinuationFrame,")
+            && rendering.includes("requireStructuredContinuation: true")
             && rendering.includes('continueButton.dataset.vncAdjectivalFunctionContinuation = "true"')
             && rendering.includes('calc-guidance__chip--vnc-adjectival-function')
             && rendering.includes('continueSubLabel.textContent = "Adjetival verbal"')
@@ -2193,6 +6794,9 @@ function run(ctx = {}) {
             && rendering.includes("sourceVoiceMode,")
             && rendering.includes("formation: \"vnc-adjectival\"")
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
+            && rendering.includes("sourceContinuationFrame: contract.sourceContinuationFrame || null")
+            && rendering.includes("operationFrame: contract.operationFrame || null")
+            && rendering.includes("requireCanonicalFormulaRecords: true")
             && rendering.includes("appendVncAdjectivalFunctionRowContinuation({")
             && rendering.includes("afterRowRendered: ({ value, evaluation, prefix }) => {")
             && css.includes(".calc-guidance__chip--vnc-adjectival-function")
@@ -2200,7 +6804,7 @@ function run(ctx = {}) {
     s.ok(
         "Andrews 40.1/40.3 ordinary NNC adjectival function is exposed dynamically in generated ordinary NNC rows",
         rendering.includes("const renderOrdinaryNncAdjectivalFunctionContinuation = () => {")
-            && rendering.includes("generateAdjectivalNncFunctionOutput({")
+            && rendering.includes("buildStructuredOrdinaryAdjectivalNncFunctionOutput({")
             && rendering.includes('continueButton.dataset.ordinaryNncAdjectivalFunctionContinuation = "true"')
             && rendering.includes('calc-guidance__chip--ordinary-nnc-adjectival-function')
             && rendering.includes('continueSubLabel.textContent = "Adjetival nominal"')
@@ -2210,7 +6814,53 @@ function run(ctx = {}) {
             && rendering.includes('formation: "ordinary-absolutive"')
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
             && rendering.includes("renderOrdinaryNncAdjectivalFunctionContinuation();")
+            && (() => {
+                const start = rendering.indexOf("const renderOrdinaryNncAdjectivalFunctionContinuation = () => {");
+                const end = rendering.indexOf("const renderOrdinaryNncOwnerhoodContinuations = () => {", start);
+                const ordinarySlice = start >= 0 && end > start ? rendering.slice(start, end) : "";
+                return ordinarySlice.includes("sourceContinuationFrame,")
+                    && ordinarySlice.includes("targetContinuationFrame,")
+                    && ordinarySlice.includes("requireCanonicalFormulaRecords: true")
+                    && !ordinarySlice.includes("surface: targetSurface")
+                    && !ordinarySlice.includes("formulaEcho: contract.formulaEcho")
+                    && !ordinarySlice.includes("continueButton.dataset.nounStem")
+                    && !ordinarySlice.includes("continueButton.dataset.nounClass");
+            })()
             && css.includes(".calc-guidance__chip--ordinary-nnc-adjectival-function")
+    );
+    s.ok(
+        "ordinary NNC adjectival structured executor blocks instead of falling through to the string builder",
+        generationEngine.includes('typeof buildStructuredOrdinaryAdjectivalNncFunctionOutput !== "function"')
+            && generationEngine.includes('|| !adjectivalSourceFormulaSlots?.predicateStem')
+            && generationEngine.includes("&& adjectivalNnc.requiresStructuredContinuation !== true")
+            && generationEngine.includes("&& typeof generateAdjectivalNncFunctionOutput === \"function\"")
+    );
+    s.ok(
+        "ordinary and VNC adjectival continuation dedupe uses source plus contract identity",
+        (() => {
+            const ordinaryStart = rendering.indexOf("const renderOrdinaryNncAdjectivalFunctionContinuation = () => {");
+            const ordinaryEnd = rendering.indexOf("const renderOrdinaryNncOwnerhoodContinuations = () => {");
+            const ordinarySlice = ordinaryStart >= 0 && ordinaryEnd > ordinaryStart
+                ? rendering.slice(ordinaryStart, ordinaryEnd)
+                : "";
+            const vncStart = rendering.indexOf("const appendVncAdjectivalFunctionRowContinuation = ({");
+            const vncEnd = rendering.indexOf("const updateSectionCategory = (prefix) => {", vncStart);
+            const vncSlice = vncStart >= 0 && vncEnd > vncStart
+                ? rendering.slice(vncStart, vncEnd)
+                : "";
+            return ordinarySlice.includes("getGeneratedOutputContinuationIdentityKey([result, contract], {")
+                && ordinarySlice.includes('namespace: "ordinary-nnc-adjectival-function-continuation"')
+                && ordinarySlice.includes('sourceUnit: "ordinary-nnc"')
+                && ordinarySlice.includes("button.dataset.continuationIdentityKey === continuationIdentityKey")
+                && ordinarySlice.includes("applyGeneratedOutputContinuationIdentityDataset(continueButton, [result, contract], {")
+                && !ordinarySlice.includes("button.dataset.targetSurface === targetSurface")
+                && vncSlice.includes("getGeneratedOutputContinuationIdentityKey([evaluation?.result, contract], {")
+                && vncSlice.includes('namespace: "vnc-adjectival-function-continuation"')
+                && vncSlice.includes('sourceUnit: "vnc-predicate"')
+                && vncSlice.includes("button.dataset.continuationIdentityKey === continuationIdentityKey")
+                && vncSlice.includes("applyGeneratedOutputContinuationIdentityDataset(continueButton, [evaluation?.result, contract], {")
+                && !vncSlice.includes("button.dataset.targetSurface === targetSurface");
+        })()
     );
     s.ok(
         "Andrews 54.2.1 ordinary NNC rows expose absolutive inceptive ti route continuations",
@@ -2309,6 +6959,30 @@ function run(ctx = {}) {
             && css.includes(".calc-guidance__chip--denominal-andrews.is-deverbal-yu-source")
     );
     s.ok(
+        "denominal Andrews route continuation dedupe uses route identity instead of DOM target strings",
+        (() => {
+            const baseStart = rendering.indexOf("function renderDenominalAndrewsContractRouteContinuationForValue({");
+            const baseEnd = rendering.indexOf("function getVerbToNominalContinuationSpecsForTense", baseStart);
+            const baseSlice = baseStart >= 0 && baseEnd > baseStart ? rendering.slice(baseStart, baseEnd) : "";
+            const linkedStart = rendering.indexOf("const renderDenominalAndrewsContractRouteContinuation = ({");
+            const linkedEnd = rendering.indexOf("const renderActiveActionCompoundEmbedContinuation = ({", linkedStart);
+            const linkedSlice = linkedStart >= 0 && linkedEnd > linkedStart ? rendering.slice(linkedStart, linkedEnd) : "";
+            const huaStart = rendering.indexOf("const renderCalificativoInstrumentivoHuaContinuations = ({");
+            const huaEnd = rendering.indexOf("const renderPatientivoPrelocativeContinuation = ({", huaStart);
+            const huaSlice = huaStart >= 0 && huaEnd > huaStart ? rendering.slice(huaStart, huaEnd) : "";
+            return rendering.includes("function getDenominalAndrewsRouteContinuationIdentityKey(route = null, context = {})")
+                && baseSlice.includes('namespace: "denominal-andrews-route-continuation"')
+                && linkedSlice.includes('namespace: "denominal-andrews-linked-route-continuation"')
+                && huaSlice.includes('namespace: "denominal-andrews-hua-deverbal-yu-continuation"')
+                && [baseSlice, linkedSlice, huaSlice].every((slice) => (
+                    slice.includes(".some((button) => button.dataset.continuationIdentityKey === continuationIdentityKey)")
+                    && slice.includes('continueButton.dataset.continuationIdentitySource = "route-contract"')
+                    && !slice.includes("button.dataset.contractId === String(route.contractId || \"\")")
+                    && !slice.includes("button.dataset.targetInput === targetInput")
+                ));
+        })()
+    );
+    s.ok(
         "Andrews 54.3 generated possessive NNC rows expose included-possessor ti route continuations",
         rendering.includes("const renderOrdinaryNncIncludedPossessorContinuations = () => {")
             && state.includes("function previewNawatDenominalAndrewsIncludedPossessorRouteFromOrdinaryNncOutput")
@@ -2350,6 +7024,11 @@ function run(ctx = {}) {
         "Andrews 41.2 compound-source adjectival function is exposed from generated compound-source rows",
         rendering.includes("const renderCompoundSourceAdjectivalFunctionContinuation = ({")
             && rendering.includes("buildCompoundSourceAdjectivalNncFunctionOutput({")
+            && rendering.includes("typeof buildCompoundSourceAdjectivalNncOperationFrame !== \"function\"")
+            && rendering.includes("const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(sourceResult, sourceSelectedVariant, {")
+            && rendering.includes("const operationFrame = buildCompoundSourceAdjectivalNncOperationFrame({")
+            && rendering.includes("targetContinuationFrame,")
+            && rendering.includes("requireStructuredContinuation: true")
             && rendering.includes('continueButton.dataset.compoundSourceAdjectivalFunctionContinuation = "true"')
             && rendering.includes("continueButton.dataset.sourceCompoundMatrix = sourceCompoundFrame?.matrix?.stem || \"\"")
             && rendering.includes('calc-guidance__chip--compound-source-adjectival-function')
@@ -2357,6 +7036,9 @@ function run(ctx = {}) {
             && rendering.includes("Andrews 41.2: cláusula nominal adjetival desde verbo compuesto con incrustado nominal")
             && rendering.includes('formation: "compound-source-adjectival"')
             && rendering.includes("sourceCompoundFrame,")
+            && rendering.includes("sourceContinuationFrame: contract.sourceContinuationFrame || null")
+            && rendering.includes("operationFrame: contract.operationFrame || null")
+            && rendering.includes("requireCanonicalFormulaRecords: true")
             && vncFacade.includes('if (formation === "compound-source-adjectival")')
             && vncFacade.includes("adjectivalNnc.sourceCompoundFrame = entrySourceCompoundFrame")
             && composer.includes("sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === \"object\" ? sourceCompoundFrame : null")
@@ -2367,6 +7049,11 @@ function run(ctx = {}) {
         "Andrews 41.3 denominal compound adjectival function is exposed from generated tiya compound-source rows",
         rendering.includes("const renderDenominalCompoundAdjectivalFunctionContinuation = ({")
             && rendering.includes("buildDenominalCompoundAdjectivalNncFunctionOutput({")
+            && rendering.includes("typeof buildDenominalCompoundAdjectivalNncOperationFrame !== \"function\"")
+            && rendering.includes("const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(sourceResult, sourceSelectedVariant, {")
+            && rendering.includes("const operationFrame = buildDenominalCompoundAdjectivalNncOperationFrame({")
+            && rendering.includes("targetContinuationFrame,")
+            && rendering.includes("requireStructuredContinuation: true")
             && rendering.includes('continueButton.dataset.denominalCompoundAdjectivalFunctionContinuation = "true"')
             && rendering.includes("continueButton.dataset.sourceCompoundMatrix = denominalCompoundFrame?.matrix?.stem || \"\"")
             && rendering.includes('calc-guidance__chip--denominal-compound-adjectival-function')
@@ -2374,6 +7061,9 @@ function run(ctx = {}) {
             && rendering.includes("Andrews 41.3: cláusula nominal adjetival desde verbo denominal ti de sustantivo compuesto")
             && rendering.includes('formation: "denominal-compound-adjectival"')
             && rendering.includes("sourceDenominalCompoundFrame: denominalCompoundFrame")
+            && rendering.includes("sourceContinuationFrame: contract.sourceContinuationFrame || null")
+            && rendering.includes("operationFrame: contract.operationFrame || null")
+            && rendering.includes("requireCanonicalFormulaRecords: true")
             && rendering.includes("renderDenominalCompoundAdjectivalFunctionContinuation({")
             && vncFacade.includes('if (formation === "denominal-compound-adjectival")')
             && vncFacade.includes("adjectivalNnc.sourceDenominalCompoundFrame = entrySourceDenominalCompoundFrame")
@@ -2385,6 +7075,11 @@ function run(ctx = {}) {
         "Andrews 40.5-40.8 nominalized VNC adjectival function is exposed dynamically in #3 salida",
         rendering.includes("renderNominalizedVncAdjectivalFunctionContinuation")
             && rendering.includes("buildNominalizedVncAdjectivalNncFunctionOutput")
+            && rendering.includes("typeof buildNominalizedVncAdjectivalNncOperationFrame !== \"function\"")
+            && rendering.includes("const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(evaluation?.result, sourceSelectedVariant, {")
+            && rendering.includes("const operationFrame = buildNominalizedVncAdjectivalNncOperationFrame({")
+            && rendering.includes("targetContinuationFrame,")
+            && rendering.includes("requireStructuredContinuation: true")
             && rendering.includes("dataset.nominalizedVncAdjectivalFunctionContinuation = \"true\"")
             && rendering.includes("dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || \"\"")
             && rendering.includes("continueLabel.textContent = `→ ${targetSurface}`")
@@ -2394,24 +7089,61 @@ function run(ctx = {}) {
             && rendering.includes('formation: "nominalized-vnc-adjectival"')
             && rendering.includes("applyGrammarFrameRouteDataset(continueButton, contract)")
             && rendering.includes("grammarFrame: contract.grammarFrame || contract.frames || null")
+            && rendering.includes("sourceContinuationFrame: contract.sourceContinuationFrame || null")
+            && rendering.includes("operationFrame: contract.operationFrame || null")
+            && rendering.includes("requireCanonicalFormulaRecords: true")
             && rendering.includes("renderNominalizedVncAdjectivalFunctionContinuation({")
             && rendering.includes('resolvedTense === "potencial" || resolvedTense === "potencial-habitual"')
+    );
+    s.ok(
+        "adjectival continuation dedupe uses route/canonical identity keys instead of rendered surfaces",
+        (() => {
+            const start = rendering.indexOf("const renderCompoundSourceAdjectivalFunctionContinuation = ({");
+            const end = rendering.indexOf("const renderPatientivoCompoundEmbedContinuation = ({");
+            const migratedContinuationSlice = start >= 0 && end > start ? rendering.slice(start, end) : "";
+            return rendering.includes("function getGeneratedOutputContinuationIdentityKey(result = null, context = {})")
+                && rendering.includes("function getGeneratedOutputSelectedRealizationVariant(result = null, variantIndex = 0)")
+                && rendering.includes("function applyGeneratedOutputContinuationIdentityDataset(element = null, result = null, context = {})")
+                && migratedContinuationSlice.includes("dataset.continuationIdentityKey = continuationIdentityKey")
+                && migratedContinuationSlice.includes("dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId")
+                && migratedContinuationSlice.includes("dataset.targetSelectedVariantId = targetSelectedVariant.variantId")
+                && migratedContinuationSlice.includes("sourceSelectedVariant,")
+                && migratedContinuationSlice.includes("targetSelectedVariant,")
+                && migratedContinuationSlice.includes("namespace: \"compound-source-adjectival-function-continuation\"")
+                && migratedContinuationSlice.includes("namespace: \"denominal-compound-adjectival-function-continuation\"")
+                && migratedContinuationSlice.includes("namespace: \"intensified-adjectival-function-continuation\"")
+                && migratedContinuationSlice.includes("namespace: \"patientivo-adjectival-function-continuation\"")
+                && migratedContinuationSlice.includes("namespace: \"nominalized-vnc-adjectival-function-continuation\"")
+                && migratedContinuationSlice.includes(".some((button) => button.dataset.continuationIdentityKey === continuationIdentityKey)")
+                && !migratedContinuationSlice.includes("button.dataset.targetSurface === targetSurface")
+                && !migratedContinuationSlice.includes("button.dataset.sourceSurface === sourceSurface");
+        })()
     );
     s.ok(
         "adjectival NNC continuations apply an explicit generation contract instead of only switching labels",
         composer.includes("function applyAdjectivalNncFunctionToVerbEntry")
             && composer.includes("verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface")
             && composer.includes("verbEl.dataset.adjectivalNncFunctionContract = serializedContract")
+            && composer.includes("verbEl.dataset.adjectivalNncSourceSelectedVariantId = entryContract.sourceSelectedVariantId || \"\"")
+            && composer.includes("verbEl.dataset.adjectivalNncTargetSelectedVariantId = entryContract.targetSelectedVariantId || \"\"")
+            && composer.includes('__adjectivalNncFunctionEntryContract')
             && composer.includes("verbEl.dataset.grammarRouteFamily = entryContract.routeFamily || \"\"")
             && composer.includes("clearActiveNawatRouteProfile()")
             && composer.includes('source: "adjectival-nnc-function-entry"')
             && composer.includes("grammarFrame: frame || null")
             && composer.includes("getAdjectivalNncFunctionOverrideSurface(override)")
             && composer.includes("clearAdjectivalNncFunctionEntryState(verbInput)")
-            && vncFacade.includes("parseAdjectivalNncFunctionEntryContract")
+            && vncFacade.includes("getAdjectivalNncFunctionEntryObjectContract")
+            && vncFacade.includes("const entryRouteContract = getAdjectivalNncFunctionEntryObjectContract(troncoControl)")
+            && !vncFacade.includes("const entryRouteContract = parseAdjectivalNncFunctionEntryContract(dataset)")
+            && !vncFacade.includes("normalizeAdjectivalNncFunctionSurfaceValue(dataset.adjectivalNncFunctionSurface)")
             && vncFacade.includes("adjectivalNnc.grammarFrame = entryGrammarFrame")
             && vncFacade.includes("adjectivalNnc.entryRouteContract = entryRouteContract")
+            && vncFacade.includes("adjectivalNnc.sourceSelectedVariant = sourceSelectedVariant")
+            && vncFacade.includes("adjectivalNnc.targetSelectedVariant = targetSelectedVariant")
+            && vncFacade.includes("adjectivalNnc.selectedVariantId = adjectivalNnc.targetSelectedVariantId")
             && vncFacade.includes('if (formation === "ordinary-absolutive")')
+            && vncFacade.includes("if (!requiresStructuredContinuation) {")
             && vncFacade.includes("adjectivalNnc.sourceStem = sourceStem")
             && vncFacade.includes("adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot)")
             && vncFacade.includes('if (formation === "vnc-adjectival")')
@@ -2485,6 +7217,23 @@ function run(ctx = {}) {
             && !nominalCompoundComposer.includes("activeLocativeMatrixRoot")
             && !nominalCompoundComposer.includes("__NAWAT_ACTIVE_LINE_ID__")
     );
+    s.ok(
+        "patientivo compound/nominal continuations dedupe with route identity keys",
+        (() => {
+            const nominalStart = rendering.indexOf("const renderPatientivoNominalCompoundContinuation = ({");
+            const nominalEnd = rendering.indexOf("const getAdjectivalNncFormulaSlotsForContinuation = (result = null) => {", nominalStart);
+            const nominalSlice = nominalStart >= 0 && nominalEnd > nominalStart ? rendering.slice(nominalStart, nominalEnd) : "";
+            const compoundStart = rendering.indexOf("const renderPatientivoCompoundEmbedContinuation = ({");
+            const compoundEnd = rendering.indexOf("const renderCalificativoInstrumentivoHuaContinuations = ({", compoundStart);
+            const compoundSlice = compoundStart >= 0 && compoundEnd > compoundStart ? rendering.slice(compoundStart, compoundEnd) : "";
+            return nominalSlice.includes("namespace: \"patientivo-nominal-compound-continuation\"")
+                && compoundSlice.includes("namespace: \"patientivo-compound-embed-continuation\"")
+                && compoundSlice.includes("namespace: \"patientivo-characteristic-property-embed-continuation\"")
+                && `${nominalSlice}\n${compoundSlice}`.includes(".some((button) => button.dataset.continuationIdentityKey === continuationIdentityKey)")
+                && !compoundSlice.includes("button.dataset.compoundVerb === contract.compoundVerbInput")
+                && !nominalSlice.includes("button.dataset.ordinaryNncInput === contract.ordinaryNncInput");
+        })()
+    );
     const activeActionCompoundComposerStart = composer.indexOf("function applyActiveActionCompoundEmbedRootsToVerbEntry");
     const activeActionCompoundComposerEnd = composer.indexOf("function applyActiveActionNominalCompoundToOrdinaryNncEntry", activeActionCompoundComposerStart);
     const activeActionCompoundComposer = activeActionCompoundComposerStart >= 0 && activeActionCompoundComposerEnd > activeActionCompoundComposerStart
@@ -2497,15 +7246,145 @@ function run(ctx = {}) {
             && rendering.includes("getActiveActionCompoundEmbedMatrixInventory")
             && rendering.includes("dataset.activeActionCompoundEmbedContinuation = \"true\"")
             && rendering.includes("dataset.actionNominalSurface = contract.actionNominalSurface")
+            && rendering.includes("sourceContinuationFrame: sourceEntry.sourceContinuationFrame")
+            && rendering.includes("targetContinuationFrame: contract.targetContinuationFrame || null")
+            && rendering.includes("dataset.targetContinuationFrame = \"true\"")
             && rendering.includes("applyActiveActionCompoundEmbedRootsToVerbEntry")
             && rendering.includes("resolvedTense === \"sustantivo-verbal\"")
             && rendering.includes("continueLabel.textContent = `→ ${previewSurface || compoundVerbInput}`")
             && activeActionCompoundComposer.includes("function applyActiveActionCompoundEmbedRootsToVerbEntry")
+            && activeActionCompoundComposer.includes("const typedPayload = getActiveActionCompoundEmbedPayloadFromTargetFrame(targetContinuationFrame);")
+            && activeActionCompoundComposer.includes("return false;")
             && activeActionCompoundComposer.includes("VerbComposerState.transitivity = COMPOSER_TRANSITIVITY.intransitive")
             && activeActionCompoundComposer.includes("VerbComposerState.slotAEmbed = normalizedActionNominalSurface")
             && activeActionCompoundComposer.includes("VerbComposerState.slotAStem = normalizedMatrixRoot")
             && activeActionCompoundComposer.includes("clearRoute: true")
             && activeActionCompoundComposer.includes("active-action-compound-embed-entry")
+    );
+    s.eq(
+        "active-action compound composer requires typed source/target frames for next-step payload",
+        typeof ctx.applyActiveActionCompoundEmbedRootsToVerbEntry === "function"
+            && typeof ctx.buildActiveActionCompoundEmbedContinuationContract === "function"
+            && typeof ctx.buildGrammarFormulaRecord === "function"
+            && typeof ctx.buildGrammarFormulaRealizationRecord === "function"
+            ? (() => {
+                const verbEl = ctx.document.getElementById("verb");
+                const originalRenderVerbMirror = ctx.renderVerbMirror;
+                const originalGetActiveUiDensityMode = ctx.getActiveUiDensityMode;
+                ctx.renderVerbMirror = typeof ctx.renderVerbMirror === "function"
+                    ? ctx.renderVerbMirror
+                    : (() => {});
+                ctx.getActiveUiDensityMode = typeof ctx.getActiveUiDensityMode === "function"
+                    ? ctx.getActiveUiDensityMode
+                    : (() => ctx.UI_DENSITY_MODE?.full || "full");
+                const formulaRecord = ctx.buildGrammarFormulaRecord({
+                    id: "ui-active-action-source-formula",
+                    unit: "NNC",
+                    formula: "#Ø-Ø(chukilis)Ø#",
+                    formulaSlots: {
+                        predicateStem: { slot: "STEM", stem: "chukilis", role: "active-action-nounstem" },
+                    },
+                });
+                const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                    id: "ui-active-action-source-realization",
+                    formulaRecord,
+                    surface: "chukilis",
+                    surfaceForms: ["chukilis"],
+                    segmentFrames: [{
+                        slot: "predicateStem",
+                        role: "active-action-nounstem",
+                        formulaValue: "chukilis",
+                        surface: "chukilis",
+                        operationId: "nawat-pipil-orthography-realization",
+                    }],
+                    deriveSurfaceFromSegments: true,
+                });
+                const sourceContinuationFrame = {
+                    kind: "generated-output-typed-continuation-frame",
+                    role: "source",
+                    unit: "NNC",
+                    formulaRecord,
+                    formulaRealizationRecord,
+                    selectedVariant: {
+                        surface: "chukilis",
+                        variantId: "ui-active-action-source-realization#variant:0",
+                        formulaRecordId: formulaRecord.id,
+                        formulaRealizationRecordId: formulaRealizationRecord.id,
+                    },
+                    formulaSlots: formulaRecord.formulaSlots,
+                };
+                const contract = ctx.buildActiveActionCompoundEmbedContinuationContract({
+                    actionNominalSurface: "chukilis",
+                    sourceContinuationFrame,
+                    matrixRoot: "tzajtzi",
+                });
+                verbEl.value = "before-active-action-frame";
+                const stringOnly = ctx.applyActiveActionCompoundEmbedRootsToVerbEntry({
+                    actionNominalSurface: "chukilis",
+                    matrixRoot: "tzajtzi",
+                });
+                const afterStringOnly = verbEl.value;
+                if (ctx.__TEST_RUNTIME_MODE__ === "module") {
+                    const payload = {
+                        contractSupported: contract.supported,
+                        stringOnly,
+                        afterStringOnly,
+                        applied: "module-dom-fixture-skipped",
+                        verbValue: afterStringOnly,
+                        targetFrameKind: contract.targetContinuationFrame?.kind || "",
+                    };
+                    if (typeof originalRenderVerbMirror === "function") {
+                        ctx.renderVerbMirror = originalRenderVerbMirror;
+                    } else {
+                        delete ctx.renderVerbMirror;
+                    }
+                    if (typeof originalGetActiveUiDensityMode === "function") {
+                        ctx.getActiveUiDensityMode = originalGetActiveUiDensityMode;
+                    } else {
+                        delete ctx.getActiveUiDensityMode;
+                    }
+                    return payload;
+                }
+                const applied = ctx.applyActiveActionCompoundEmbedRootsToVerbEntry({
+                    actionNominalSurface: "chukilis",
+                    matrixRoot: "tzajtzi",
+                    sourceFormulaSlots: formulaRecord.formulaSlots,
+                    sourceContinuationFrame,
+                    targetContinuationFrame: contract.targetContinuationFrame,
+                    sourceRouteFrame: contract.sourceRouteFrame || contract.routeFrame || null,
+                    routeFrame: contract.routeFrame || null,
+                    incorporationRouteFrame: contract.incorporationRouteFrame || null,
+                    objectSlotOwnership: contract.routeFrame?.objectSlotOwnership || null,
+                });
+                const payload = {
+                    contractSupported: contract.supported,
+                    stringOnly,
+                    afterStringOnly,
+                    applied,
+                    verbValue: verbEl.value,
+                    targetFrameKind: contract.targetContinuationFrame?.kind || "",
+                };
+                if (typeof originalRenderVerbMirror === "function") {
+                    ctx.renderVerbMirror = originalRenderVerbMirror;
+                } else {
+                    delete ctx.renderVerbMirror;
+                }
+                if (typeof originalGetActiveUiDensityMode === "function") {
+                    ctx.getActiveUiDensityMode = originalGetActiveUiDensityMode;
+                } else {
+                    delete ctx.getActiveUiDensityMode;
+                }
+                return payload;
+            })()
+            : { contractSupported: false, stringOnly: true, afterStringOnly: "", applied: false, verbValue: "", targetFrameKind: "" },
+        {
+            contractSupported: true,
+            stringOnly: false,
+            afterStringOnly: "before-active-action-frame",
+            applied: ctx.__TEST_RUNTIME_MODE__ === "module" ? "module-dom-fixture-skipped" : true,
+            verbValue: ctx.__TEST_RUNTIME_MODE__ === "module" ? "before-active-action-frame" : "(chukilis/tzajtzi)",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+        }
     );
     const activeActionNominalComposerStart = composer.indexOf("function applyActiveActionNominalCompoundToOrdinaryNncEntry");
     const activeActionNominalComposerEnd = composer.indexOf("function shouldComposerControlChangeRefreshImmediately", activeActionNominalComposerStart);
@@ -2554,6 +7433,22 @@ function run(ctx = {}) {
             && composer.includes("customaryAgentiveStem")
             && composer.includes("applyActiveActionNominalCompoundToOrdinaryNncEntry({")
     );
+    s.ok(
+        "active-action and customary-agentive continuation dedupe uses route/canonical identity keys",
+        (() => {
+            const start = rendering.indexOf("const getFunctionUseContinuationIdentityKey = (evaluation = {}, contract = null, context = {})");
+            const end = rendering.indexOf("const renderPreteritAgentiveCompoundEmbedContinuation = ({", start);
+            const migratedSlice = start >= 0 && end > start ? rendering.slice(start, end) : "";
+            return migratedSlice.includes("const getFunctionUseContinuationIdentityKey = (evaluation = {}, contract = null, context = {})")
+                && migratedSlice.includes("namespace: \"active-action-compound-embed-continuation\"")
+                && migratedSlice.includes("namespace: \"active-action-nominal-compound-continuation\"")
+                && migratedSlice.includes("namespace: \"customary-agentive-nominal-compound-continuation\"")
+                && migratedSlice.includes("namespace: \"customary-agentive-compound-embed-continuation\"")
+                && migratedSlice.includes(".some((button) => button.dataset.continuationIdentityKey === continuationIdentityKey)")
+                && !migratedSlice.includes("button.dataset.compoundVerb === contract.compoundVerbInput")
+                && !migratedSlice.includes("button.dataset.ordinaryNncInput === contract.ordinaryNncInput");
+        })()
+    );
     const customaryAgentiveStemReaderStart = rendering.indexOf("const getCustomaryAgentiveStemsFromEvaluation");
     const customaryAgentiveStemReaderEnd = rendering.indexOf("const getPreteritAgentiveGeneralUseStemsFromEvaluation", customaryAgentiveStemReaderStart);
     const customaryAgentiveStemReader = customaryAgentiveStemReaderStart >= 0 && customaryAgentiveStemReaderEnd > customaryAgentiveStemReaderStart
@@ -2565,17 +7460,90 @@ function run(ctx = {}) {
         ? rendering.slice(preteritAgentiveStemReaderStart, preteritAgentiveStemReaderEnd)
         : "";
     s.ok(
-        "agentive continuation stem readers stop at empty LCM result frames before shell stem fallbacks",
-        customaryAgentiveStemReader.includes("const surfaceForms = getConjugationSurfaceForms(result);")
+        "agentive continuation stem readers use structured predicate slots before result-frame surfaces",
+        customaryAgentiveStemReader.includes("const predicateStem = getGeneratedOutputStructuredContinuationPredicateStem(result);")
             && customaryAgentiveStemReader.includes("const hasResultFrame = hasConjugationResultFrame(result);")
-            && customaryAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
-            && customaryAgentiveStemReader.includes("if (!hasResultFrame) {\n            addStem(predicateStem);")
+            && customaryAgentiveStemReader.includes("if (hasResultFrame) {\n            addStem(predicateStem);\n            return stems;\n        }")
             && customaryAgentiveStemReader.includes("surfaceForms.forEach((surfaceForm)")
-            && preteritAgentiveStemReader.includes("const surfaceForms = getConjugationSurfaceForms(result);")
+            && customaryAgentiveStemReader.indexOf("if (hasResultFrame)") < customaryAgentiveStemReader.indexOf("surfaceForms.forEach((surfaceForm)")
+            && !customaryAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
+            && preteritAgentiveStemReader.includes("const predicateStem = getGeneratedOutputStructuredContinuationPredicateStem(result);")
             && preteritAgentiveStemReader.includes("const hasResultFrame = hasConjugationResultFrame(result);")
-            && preteritAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
-            && preteritAgentiveStemReader.includes("if (!hasResultFrame && predicateStem)")
+            && preteritAgentiveStemReader.includes("if (hasResultFrame) {\n            if (predicateStem) {")
+            && preteritAgentiveStemReader.includes(": `${predicateStem}ka`")
             && preteritAgentiveStemReader.includes("surfaceForms.forEach((surfaceForm)")
+            && preteritAgentiveStemReader.indexOf("if (hasResultFrame)") < preteritAgentiveStemReader.indexOf("surfaceForms.forEach((surfaceForm)")
+            && !preteritAgentiveStemReader.includes("if (hasResultFrame && !surfaceForms.length)")
+    );
+    s.eq(
+        "structured continuation predicate stem reader ignores lying display surfaces and formula echoes",
+        (() => {
+            if (
+                typeof ctx.getGeneratedOutputStructuredContinuationPredicateStem !== "function"
+                || typeof ctx.buildGrammarFormulaRecord !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "agentive-stem-formula",
+                unit: "NNC",
+                formula: "#0-0(structured-stem)0-0#",
+                formulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "structured-stem" },
+                },
+            });
+            return ctx.getGeneratedOutputStructuredContinuationPredicateStem({
+                formulaEcho: "#0-0(display-lie)0-0#",
+                result: "display-lie-a / display-lie-b",
+                surface: "surface-lie",
+                surfaceForms: ["surface-list-lie"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: {
+                        ...ctx.buildGrammarResultFrame({
+                            ok: true,
+                            surface: "frame-lie-a / frame-lie-b",
+                            surfaceForms: ["frame-list-lie-a / frame-list-lie-b"],
+                            formulaRecord,
+                        }),
+                        formulaRecord,
+                        formulaRecords: [formulaRecord],
+                    },
+                }),
+            });
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? "structured-stem"
+            : { runtime: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "structured continuation predicate stem reader blocks string-only result frames",
+        (() => {
+            if (
+                typeof ctx.getGeneratedOutputStructuredContinuationPredicateStem !== "function"
+                || typeof ctx.buildGrammarFrame !== "function"
+                || typeof ctx.buildGrammarResultFrame !== "function"
+            ) {
+                return { runtime: "rendering-runtime-not-loaded" };
+            }
+            return ctx.getGeneratedOutputStructuredContinuationPredicateStem({
+                formulaEcho: "#0-0(display-lie)0-0#",
+                result: "display-lie-a / display-lie-b",
+                surface: "surface-lie",
+                surfaceForms: ["surface-list-lie"],
+                grammarFrame: ctx.buildGrammarFrame({
+                    resultFrame: ctx.buildGrammarResultFrame({
+                        ok: true,
+                        surface: "frame-lie-a / frame-lie-b",
+                        surfaceForms: ["frame-list-lie-a / frame-list-lie-b"],
+                    }),
+                }),
+            });
+        })(),
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? ""
+            : { runtime: "rendering-runtime-not-loaded" }
     );
     s.ok(
         "preterit-agentive output has real Andrews 35.7/35.9/35.10 continuations from #3 salida",
@@ -2626,6 +7594,25 @@ function run(ctx = {}) {
             && composer.includes("preterit-agentive-complement-entry")
             && composer.includes("setSelectedTenseTab(\"pasado-remoto\")")
             && composer.includes("preterit-agentive-ownerhood-entry")
+    );
+    s.ok(
+        "preterit-agentive continuation dedupe uses route/canonical identity keys",
+        (() => {
+            const start = rendering.indexOf("const renderPreteritAgentiveCompoundEmbedContinuation = ({");
+            const end = rendering.indexOf("const renderPatientivoNominalCompoundContinuation = ({", start);
+            const migratedSlice = start >= 0 && end > start ? rendering.slice(start, end) : "";
+            return migratedSlice.includes("namespace: \"preterit-agentive-compound-embed-continuation\"")
+                && migratedSlice.includes("namespace: \"preterit-agentive-nominal-compound-continuation\"")
+                && migratedSlice.includes("namespace: \"preterit-agentive-ownerhood-continuation\"")
+                && migratedSlice.includes("namespace: \"preterit-agentive-complement-continuation\"")
+                && migratedSlice.includes("namespace: \"preterit-agentive-adverbial-continuation\"")
+                && migratedSlice.includes(".some((button) => button.dataset.continuationIdentityKey === continuationIdentityKey)")
+                && !migratedSlice.includes("button.dataset.compoundVerb === contract.compoundVerbInput")
+                && !migratedSlice.includes("button.dataset.ordinaryNncInput === contract.ordinaryNncInput")
+                && !migratedSlice.includes("button.dataset.ownerhoodVerbInput === contract.ownerhoodVerbInput")
+                && !migratedSlice.includes("button.dataset.complementVerbInput === contract.complementVerbInput")
+                && !migratedSlice.includes("button.dataset.adverbialVerbInput === contract.adverbialVerbInput");
+        })()
     );
     s.eq(
         "function-use ownerhood/complement/adverbial composer actions hard-gate unresolved valence before mutating entry state",
@@ -2998,10 +7985,21 @@ function run(ctx = {}) {
             && rendering.includes("combinedMode: resolvedNominalControlCombinedMode")
             && rendering.includes('action.dataset.actionNounSourceSubjectPossessor = derivedPossessorPrefix')
             && rendering.includes("const generalUseTargetSurface = getPrimaryConjugationSurface(generalUseEvaluation?.result)")
-            && rendering.includes("const currentSurface = getPrimaryConjugationSurface(evaluation?.result)")
+            && rendering.includes("const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, 0)")
+            && rendering.includes("const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(generalUseEvaluation?.result, 0)")
+            && rendering.includes("const sourceIdentityKey = getGeneratedOutputContinuationIdentityKey(evaluation?.result, identityContext)")
+            && rendering.includes("sourceIdentityKey === targetIdentityKey")
+            && rendering.includes("getGeneratedOutputContinuationIdentityKey(\n            [evaluation?.result, generalUseEvaluation?.result],")
+            && rendering.includes('namespace: "action-noun-source-subject-possessor-continuation"')
+            && rendering.includes("button.dataset.continuationIdentityKey === continuationIdentityKey")
+            && rendering.includes("applyGeneratedOutputContinuationIdentityDataset(action, [evaluation?.result, generalUseEvaluation?.result], identityContext)")
+            && rendering.includes("action.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId")
+            && rendering.includes("action.dataset.targetSelectedVariantId = targetSelectedVariant.variantId")
             && rendering.includes("action.dataset.targetSurface = generalUseTargetSurface")
             && rendering.includes("`uso general: ${generalUseTargetSurface}`")
             && !rendering.includes('action.dataset.targetSurface = generalUseEvaluation.result.result || ""')
+            && !rendering.includes("button.dataset.targetSurface === generalUseTargetSurface")
+            && !rendering.includes("generalUseTargetSurface === currentSurface")
             && rendering.includes("Andrews 36.10-36.11: sujeto fuente")
             && rendering.includes("renderCalificativoInstrumentivoSourceSubjectGeneralUseContinuation({")
             && rendering.includes("row.dataset.availabilityState = CONJUGATION_AVAILABILITY_STATE.viable")
@@ -3121,9 +8119,12 @@ function run(ctx = {}) {
             && rendering.includes('targetTense: "locativo-temporal"')
             && rendering.includes("predicateNominalSourceTense")
             && rendering.includes("storedPredicateNominalSourceTense")
+            && rendering.includes("contextPredicateNominalSourceTense\n            || storedPredicateNominalSourceTense")
             && rendering.includes("getPredicateNominalSourceTenses().map")
             && rendering.includes("object-toggle--predicate-source-tense")
             && rendering.includes("setActivePredicateNominalSourceTense")
+            && rendering.includes("predicateNominalSourceTense: normalizedSourceTense")
+            && composer.includes("encodeValue(override.predicateNominalSourceTense)")
             && rendering.includes("predicateNominalBlockConfigs")
             && rendering.includes('label: getVerbBlockLabel("predicado-nominal-pasivo"')
             && rendering.includes("predicateNominalSourceMode: COMBINED_MODE.nonactive")
@@ -3131,8 +8132,14 @@ function run(ctx = {}) {
             && rendering.includes("predicateNominalSourceMode,")
             && rendering.includes("predicateNominalDerivationMode")
             && rendering.includes("const appendVerbToNominalRowContinuations = ({")
+            && rendering.includes("const routeActionContract = buildVerbNominalContinuationRouteActionContractForRendering({")
+            && rendering.includes("if (!routeActionContract) {")
+            && rendering.includes("continueButton.andrewsRouteActionContract = routeActionContract")
             && rendering.includes('continueButton.dataset.verbNominalContinuation = "true"')
             && rendering.includes('continueButton.dataset.targetMode = "sustantivo"')
+            && panels.includes("isNominalMode")
+            && panels.includes("setOrdinaryNncGenerationModeEnabled(false);")
+            && rendering.includes("isOrdinaryNncGenerationModeEnabled() && !tenseOverride")
             && rendering.includes("const predicateSourceUnit = NOMINALIZATION_SOURCE_UNITS.vncPredicate")
             && rendering.includes("sourceUnit: predicateSourceUnit")
             && rendering.includes("continueButton.dataset.nominalizationSourceUnit = sourceUnit")
@@ -3231,6 +8238,7 @@ function run(ctx = {}) {
             && rendering.includes("andrewsRouteRecordId")
             && rendering.includes("registro CNN -> CNV")
             && rendering.includes("compuertas Andrews")
+            && rendering.includes('objectButton.dataset.sourceContextRequired = sourceContextRequired ? "true" : ""')
             && rendering.includes('objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : ""')
             && rendering.includes('objectButton.dataset.tiSourceRequired = "true"')
             && rendering.includes('objectButton.dataset.huiSourceRequired = "true"')
@@ -3239,6 +8247,8 @@ function run(ctx = {}) {
             && rendering.includes('objectButton.dataset.intransitiveOaSourceRequired = "true"')
             && rendering.includes('objectButton.dataset.iHuiAHuiSourceRequired = "true"')
             && rendering.includes("sourceEvidenceRequired")
+            && rendering.includes("sourceContextRequired")
+            && rendering.includes("sourceContextSatisfied")
             && rendering.includes("sourceEvidenceSatisfied")
             && state.includes("sourceEvidenceSupportsTiYaDeverbal")
             && state.includes("sourceEvidenceSupportsHuiYaDeverbal")
@@ -3261,13 +8271,13 @@ function run(ctx = {}) {
             && rendering.includes("is-traditional-spelling-ambiguous")
             && rendering.includes("buildNawatDenominalSourceEvidenceSubLabels")
             && rendering.includes("Fuente Andrews: cláusula nominal absolutiva generada")
-            && rendering.includes("Fuente Andrews: compuesto temporal confirmado")
+            && rendering.includes("Fuente Andrews: compuesto temporal")
             && rendering.includes("andrewsRouteWarning")
             && rendering.includes("andrewsRouteNote")
             && rendering.includes("Fuente Andrews: tla intransitiva generada")
             && rendering.includes("Fuente Andrews: o-a intransitiva generada")
-            && rendering.includes("Fuente Andrews: tronco adverbial confirmado")
-            && rendering.includes("Fuente Andrews: relacional confirmado")
+            && rendering.includes("Fuente Andrews: tronco adverbial")
+            && rendering.includes("Fuente Andrews: relacional")
             && css.includes(".calc-guidance__chip--denominal-andrews")
             && css.includes(".calc-guidance__chip--andrews-rule-executable")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-unavailable")
@@ -3291,6 +8301,20 @@ function run(ctx = {}) {
             && css.includes(".calc-guidance__chip--denominal-andrews.is-traditional-spelling-ambiguous")
             && css.includes(".calc-guidance__chip--denominal-andrews.is-object-prefix-required")
             && css.includes(".calc-guidance__chip--object-prefix-choice")
+    );
+    s.ok(
+        "denominal active route rendering reads structured model context, not document dataset strings",
+        (() => {
+            const previewStart = rendering.indexOf("function previewActiveNawatDenominalAndrewsContractRouteNextSourceForRendering");
+            const previewEnd = rendering.indexOf("function renderAllOutputs", previewStart);
+            const previewSlice = previewStart >= 0 && previewEnd > previewStart ? rendering.slice(previewStart, previewEnd) : "";
+            return rendering.includes("function getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel(options = {})")
+                && previewSlice.includes("getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel({ inputValue, targetInput, targetVerbStem })")
+                && !previewSlice.includes("getActiveNawatDenominalAndrewsContractRouteRenderContextFromDocument()")
+                && !rendering.includes("activeContextFromDocumentDataset")
+                && !rendering.includes("const contractId = String(dataset.activeAndrewsContractId")
+                && !rendering.includes("const routeTemplateId = String(dataset.activeAndrewsRouteTemplateId");
+        })()
     );
     const guidancePanelStart = rendering.indexOf("function renderOutputGuidancePanel({ verb = \"\" } = {}) {");
     const guidancePanelEnd = rendering.indexOf("function resolveRenderableVerbValue", guidancePanelStart);
@@ -3362,6 +8386,33 @@ function run(ctx = {}) {
             && rendering.includes("INSTRUMENTIVO_MODE.posesivo")
             && rendering.includes("Andrews 36.6: sujeto fuente")
             && !rendering.includes("instrumentivoImperfectActiveAbsolutive")
+    );
+    s.ok(
+        "instrumentive source-subject possessive continuation identity uses canonical/route keys instead of rendered surfaces",
+        (() => {
+            const start = rendering.indexOf("const renderInstrumentivoSourceSubjectPossessiveContinuation = ({");
+            const end = rendering.indexOf("const resolveNounToggleAvailabilityState = ({", start);
+            const slice = start >= 0 && end > start ? rendering.slice(start, end) : "";
+            return slice.includes('namespace: "instrumentivo-source-subject-possessive-continuation"')
+                && slice.includes("const sourceIdentityKey = getGeneratedOutputContinuationIdentityKey(evaluation?.result, identityContext)")
+                && slice.includes("const targetIdentityKey = getGeneratedOutputContinuationIdentityKey(possessiveEvaluation?.result, identityContext)")
+                && slice.includes("sourceIdentityKey !== targetIdentityKey")
+                && slice.includes("getGeneratedOutputContinuationIdentityKey(")
+                && slice.includes("const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, 0)")
+                && slice.includes("const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(possessiveEvaluation?.result, 0)")
+                && slice.includes("const sourceSubjectFrame = typeof buildAndrewsSourceSubjectFrame === \"function\"")
+                && slice.includes("sourceTense: \"imperfect-active\"")
+                && slice.includes("const sourceSubjectPossessorOperationFrame = typeof buildSourceSubjectPossessorOperationFrame === \"function\"")
+                && slice.includes('operationId: "andrews-36-6-instrumentive-source-subject-to-possessor"')
+                && slice.includes("sourceSubjectFrame,")
+                && slice.includes("sourceSubjectPossessorOperationFrame,")
+                && slice.includes("action.dataset.sourceSelectedVariantId = entry.sourceSelectedVariant.variantId")
+                && slice.includes("action.dataset.targetSelectedVariantId = entry.targetSelectedVariant.variantId")
+                && slice.includes("applyGeneratedOutputContinuationIdentityDataset(action, [evaluation?.result, entry.evaluation?.result], entry.identityContext)")
+                && slice.includes("action.dataset.continuationIdentityKey = entry.continuationIdentityKey")
+                && !slice.includes("possessiveTargetSurface !== currentSurface")
+                && !slice.includes("const currentSurface = getPrimaryConjugationSurface(evaluation?.result)");
+        })()
     );
     s.ok(
         "shared adverbio renderer exposes Lesson 44 diagnostic metadata",
@@ -3551,6 +8602,7 @@ function run(ctx = {}) {
                     finiteRouteRequestCount: 13,
                     finiteRouteObjectPrefixRequiredCount: 3,
                     finiteRouteStemClassContractCount: 11,
+                    finiteRouteSourceContextRequiredCount: 18,
                     finiteRouteSourceEvidenceRequiredCount: 18,
                     routeWarningCount: 1,
                     routeNoteCount: 20,
@@ -3572,7 +8624,7 @@ function run(ctx = {}) {
                 "Solicitudes verbales Andrews: 13 con tiempo explícito",
                 "Solicitudes verbales Andrews con objeto: 3",
                 "Clases verbales Andrews: 11",
-                "Fuentes Andrews pendientes: 18",
+                "Contextos Andrews pendientes: 18",
                 "Avisos verbales Andrews: 1",
                 "Notas verbales Andrews: 20",
                 "Entradas verbales Andrews: (pusukwi), (pusuk)-(ta), (pusuk)-(ia)",
@@ -3598,6 +8650,7 @@ function run(ctx = {}) {
                     },
                     routeCount: 31,
                     finiteRouteRequestCount: 14,
+                    finiteRouteSourceContextRequiredCount: 17,
                     finiteRouteSourceEvidenceRequiredCount: 17,
                 },
                 isCompleteLesson54_55: false,
@@ -3609,10 +8662,10 @@ function run(ctx = {}) {
                 "Verbalizador denominal: -iwi",
                 "Fuente Andrews: i-hui/a-hui generada",
                 "Base Andrews: pusuk",
-                "Evidencia: etapa generada",
+                "Contexto: etapa generada",
                 "Objetivos Andrews nominales/verbales: 31",
                 "Solicitudes verbales Andrews: 14 con tiempo explícito",
-                "Fuentes Andrews pendientes: 17",
+                "Contextos Andrews pendientes: 17",
                 "Cobertura denominal: parcial",
             ]
             : ["rendering-runtime-not-loaded"]
@@ -3652,17 +8705,17 @@ function run(ctx = {}) {
                 [
                     "Fuente Andrews: tla causativa generada",
                     "Base Andrews: pusuk",
-                    "Evidencia: ruta Andrews",
+                    "Contexto: ruta Andrews",
                 ],
                 [
                     "Fuente Andrews: tla intransitiva generada",
                     "Base Andrews: pusuk",
-                    "Evidencia: ruta Andrews",
+                    "Contexto: ruta Andrews",
                 ],
                 [
                     "Fuente Andrews: o-a intransitiva generada",
                     "Base Andrews: pusuk",
-                    "Evidencia: ruta Andrews",
+                    "Contexto: ruta Andrews",
                 ],
             ]
             : ["rendering-runtime-not-loaded"]
@@ -3702,21 +8755,21 @@ function run(ctx = {}) {
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
                 [
-                    "Fuente Andrews: compuesto temporal confirmado",
+                    "Fuente Andrews: compuesto temporal",
                     "Base Andrews: seilwi",
                     "Matriz temporal: ilwi",
                     "Numeral embed: se",
-                    "Evidencia: fuente clasificada",
+                    "Contexto: fuente clasificada",
                 ],
                 [
-                    "Fuente Andrews: tronco adverbial confirmado",
+                    "Fuente Andrews: tronco adverbial",
                     "Base Andrews: achpa",
-                    "Evidencia: fuente clasificada",
+                    "Contexto: fuente clasificada",
                 ],
                 [
-                    "Fuente Andrews: relacional confirmado",
+                    "Fuente Andrews: relacional",
                     "Base Andrews: kalpan",
-                    "Evidencia: fuente clasificada",
+                    "Contexto: fuente clasificada",
                 ],
             ]
             : ["rendering-runtime-not-loaded"]
@@ -3761,7 +8814,7 @@ function run(ctx = {}) {
             ? [
                 "Fuente Andrews: ti intransitiva generada",
                 "Base Andrews: pusuk",
-                "Evidencia: ruta Andrews",
+                "Contexto: ruta Andrews",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -3792,12 +8845,12 @@ function run(ctx = {}) {
                 [
                     "Fuente Andrews: hui/wi intransitiva generada",
                     "Base Andrews: pusuk",
-                    "Evidencia: ruta Andrews",
+                    "Contexto: ruta Andrews",
                 ],
                 [
                     "Fuente Andrews: ya intransitiva generada",
                     "Base Andrews: pusuk",
-                    "Evidencia: ruta Andrews",
+                    "Contexto: ruta Andrews",
                 ],
             ]
             : ["rendering-runtime-not-loaded"]
@@ -4044,7 +9097,7 @@ function run(ctx = {}) {
                 "Continuaciones: 8",
                 "Fuente Andrews: i-hui/a-hui generada",
                 "Base Andrews: pusukti",
-                "Evidencia: etapa generada",
+                "Contexto: etapa generada",
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -4808,24 +9861,28 @@ function run(ctx = {}) {
                         pathsBySurface: [
                             {
                                 surface: "pishki",
-                                paths: [
-                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "pish" },
-                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "num1", formulaMorph: "ki", surfaceValue: "ki" },
-                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
+	                                paths: [
+	                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "va1", formulaMorph: "ki", surfaceValue: "ki", visibleLinearMorph: "ki-0" },
+	                                    { formulaSlotKey: "va2", formulaMorph: "0", surfaceValue: "", visibleLinearMorph: "ki-0" },
+	                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "pish" },
+	                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "num1", formulaMorph: "ki", surfaceValue: "ki" },
+	                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
                                 ],
                             },
                             {
                                 surface: "piyak",
-                                paths: [
-                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "piya" },
-                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
-                                    { formulaSlotKey: "num1", formulaMorph: "k", surfaceValue: "k" },
-                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
+	                                paths: [
+	                                    { formulaSlotKey: "pers1", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "va1", formulaMorph: "ki", surfaceValue: "ki", visibleLinearMorph: "ki-0" },
+	                                    { formulaSlotKey: "va2", formulaMorph: "0", surfaceValue: "", visibleLinearMorph: "ki-0" },
+	                                    { formulaSlotKey: "base", formulaMorph: "piya", surfaceValue: "piya" },
+	                                    { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
+	                                    { formulaSlotKey: "num1", formulaMorph: "k", surfaceValue: "k" },
+	                                    { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
                                 ],
                             },
                         ],
@@ -4885,12 +9942,113 @@ function run(ctx = {}) {
                 ],
                 surfaceChips: [["salida", "pishki / piyak"]],
             }
-            : "rendering-runtime-not-loaded"
-    );
-    s.eq(
-        "visible CNV formula chip takes salida from the same LCM surface line as the row",
-        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.buildGrammarFrame === "function" && typeof ctx.buildGrammarResultFrame === "function"
-            ? (() => {
+	            : "rendering-runtime-not-loaded"
+	    );
+	    s.eq(
+	        "visible CNV formula path alignment consumes typed path frames instead of formulaEcho or direct string API",
+	        typeof ctx.formatVisibleCnvFormulaEcho === "function"
+	            && typeof ctx.formatVisibleCnvFormulaEchoForPath === "function"
+	            && typeof ctx.alignVisibleCnvFormulaEchoToSurface === "function"
+	            && typeof ctx.buildVisibleCnvFormulaAlignmentSourceFrame === "function"
+	            && typeof ctx.buildVisibleCnvFormulaAlignmentOperationFrame === "function"
+	            ? (() => {
+	                const record = {
+	                    surface: "nikinhitak",
+	                    paths: [
+	                        { formulaSlotKey: "pers1", formulaMorph: "ni", surfaceValue: "ni" },
+	                        { formulaSlotKey: "pers2", formulaMorph: "Ø", surfaceValue: "" },
+	                        { formulaSlotKey: "va1", formulaMorph: "k", surfaceValue: "k", visibleLinearMorph: "k-in" },
+	                        { formulaSlotKey: "va2", formulaMorph: "in", surfaceValue: "inh", visibleLinearMorph: "k-in" },
+	                        { formulaSlotKey: "base", formulaMorph: "ita", surfaceValue: "ita" },
+	                        { formulaSlotKey: "tns", formulaMorph: "Ø", surfaceValue: "" },
+	                        { formulaSlotKey: "num1", formulaMorph: "k", surfaceValue: "k" },
+	                        { formulaSlotKey: "num2", formulaMorph: "0", surfaceValue: "" },
+	                    ],
+	                };
+	                const source = {
+	                    result: "lying-result",
+	                    surface: "lying-surface",
+	                    surfaceForms: ["lying-surface"],
+	                    nuclearClauseShell: {
+	                        kind: "nuclear-clause-shell",
+	                        formulaType: "VNC",
+	                        formulaEcho: "#POISON-POISON+POISON(POISON)POISON+POISON-POISON#",
+	                    },
+	                    cnvFormulaSurfacePath: {
+	                        pathsBySurface: [record],
+	                    },
+	                };
+	                const sourceFrame = ctx.buildVisibleCnvFormulaAlignmentSourceFrame(record);
+	                const operationFrame = ctx.buildVisibleCnvFormulaAlignmentOperationFrame(sourceFrame);
+	                const contradictoryOperationFrame = {
+	                    ...operationFrame,
+	                    targetFrame: {
+	                        ...operationFrame.targetFrame,
+	                        formula: "#0-0(poison)0+0-0#",
+	                    },
+	                };
+	                const changedDisplayRecord = {
+	                    ...record,
+	                    surface: "poisoned-display-surface",
+	                };
+	                return {
+	                    formatted: ctx.formatVisibleCnvFormulaEcho(source.nuclearClauseShell.formulaEcho, source),
+	                    directOldFormat: ctx.formatVisibleCnvFormulaEchoForPath(
+	                        "#ni-0+k-in(ita)0+k-0#",
+	                        record
+	                    ),
+	                    directOldAlign: ctx.alignVisibleCnvFormulaEchoToSurface(
+	                        "#ni-0+k-in(ita)0+k-0#",
+	                        "nikinhitak",
+	                        record
+	                    ),
+	                    typedAlign: ctx.alignVisibleCnvFormulaEchoToSurface(
+	                        "#ni-0+k-in(ita)0+k-0#",
+	                        "nikinhitak",
+	                        record,
+	                        sourceFrame,
+	                        operationFrame
+	                    ),
+	                    changedDisplayAlign: ctx.alignVisibleCnvFormulaEchoToSurface(
+	                        "#poison#",
+	                        "poisoned-display-surface",
+	                        changedDisplayRecord,
+	                        sourceFrame,
+	                        operationFrame
+	                    ),
+	                    contradictoryTarget: ctx.alignVisibleCnvFormulaEchoToSurface(
+	                        "#ni-0+k-in(ita)0+k-0#",
+	                        "nikinhitak",
+	                        record,
+	                        sourceFrame,
+	                        contradictoryOperationFrame
+	                    ),
+	                    missingSourceFrame: ctx.alignVisibleCnvFormulaEchoToSurface(
+	                        "#ni-0+k-in(ita)0+k-0#",
+	                        "nikinhitak",
+	                        record,
+	                        null,
+	                        operationFrame
+	                    ),
+	                };
+	            })()
+	            : "rendering-runtime-not-loaded",
+	        ctx.__TEST_RUNTIME_MODE__ === "module"
+	            ? {
+	                formatted: "#ni-0+k-inh(ita)0+k-0#",
+	                directOldFormat: "",
+	                directOldAlign: "",
+	                typedAlign: "#ni-0+k-inh(ita)0+k-0#",
+	                changedDisplayAlign: "#ni-0+k-inh(ita)0+k-0#",
+	                contradictoryTarget: "",
+	                missingSourceFrame: "",
+	            }
+	            : "rendering-runtime-not-loaded"
+	    );
+	    s.eq(
+	        "visible CNV formula chip takes salida from the same LCM surface line as the row",
+	        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.buildGrammarFrame === "function" && typeof ctx.buildGrammarResultFrame === "function"
+	            ? (() => {
                 const result = {
                     nuclearClauseShell: {
                         kind: "nuclear-clause-shell",
@@ -5285,6 +10443,182 @@ function run(ctx = {}) {
                 subjectChips: ["0-0"],
                 surfaceChips: ["kitzun / kitzunki"],
                 parentheticalLeak: false,
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "Lesson 46.3.1.a generated row stays compact while route stack belongs to builder",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const sourceFrame = ctx.buildLesson4631aPreteritAgentiveLocativeSourceFrame({
+                    sourceVerbStem: "namaka",
+                    incorporatedNounStem: "mich",
+                });
+                const operationFrame = ctx.buildLesson4631aPreteritAgentiveLocativeOperationFrame(sourceFrame);
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.sustantivo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                            relationalNnc: {
+                                enabled: true,
+                                sourceFrame,
+                                operationFrame,
+                            },
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "(mich)-(namaka)",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "locativo-agentivo-preterito",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                });
+                const chips = ctx.buildGeneratedOutputSlotChips(result);
+                const routeKinds = new Set(["node", "route", "rule", "branch"]);
+                return {
+                    surface: result.surface,
+                    stem: chips.find((chip) => chip.kind === "STEM")?.value || "",
+                    state: chips.find((chip) => chip.kind === "state")?.value || "",
+                    chipKinds: chips.map((chip) => chip.kind),
+                    slotLabels: chips
+                        .filter((chip) => ["formula", "pers1-pers2", "STEM", "state", "num1-num2", "surface"].includes(chip.kind))
+                        .map((chip) => `${chip.kind}: ${chip.label || ""}`),
+                    routeChipCount: chips.filter((chip) => routeKinds.has(chip.kind)).length,
+                    routeGraphFrameCount: chips.filter((chip) => chip.routeGraphFrame).length,
+                    routeFamilyId: result.routeFamilyGraph?.familyId || "",
+                    routeStepIds: result.routeContract?.routeSteps?.map((step) => step.id) || [],
+                    routeRuleIds: result.routeContract?.ruleTrace?.map((rule) => rule.id) || [],
+                    compact: ctx.buildGeneratedOutputCompactSubLabel(
+                        ctx.appendGrammarFrameSubLabels("conector Ø", result, { includeDiagnostics: false }),
+                        result
+                    ),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                surface: "michnamakakan",
+                stem: "(mich-namaka-0-ka-n)",
+                state: "adverbializado -0-",
+                chipKinds: ["formula", "pers1-pers2", "STEM", "state", "num1-num2", "surface"],
+                slotLabels: [
+                    "formula: Fórmula CNN",
+                    "pers1-pers2: persona1-persona2",
+                    "STEM: STEM",
+                    "state: estado del predicado",
+                    "num1-num2: número1-número2",
+                    "surface: salida",
+                ],
+                routeChipCount: 0,
+                routeGraphFrameCount: 0,
+                routeFamilyId: "andrews-46.3-ca-n-locative",
+                routeStepIds: [
+                    "source-visible",
+                    "build-preterit-predicate",
+                    "build-preterit-agentive-general-use-stem",
+                    "gate-46-3-1-a-immediate-source",
+                    "add-locative-relational-n",
+                    "adverbialize-zero-connector",
+                    "realize-surface",
+                ],
+                routeRuleIds: [
+                    "if-source-cnv-then-preterit-predicate",
+                    "if-preterit-predicate-then-agentive-ka",
+                    "if-preterit-agentive-then-locative-n",
+                    "if-locative-nounstem-then-normal-cnn-branch",
+                    "if-locative-nounstem-then-adverbial-zero",
+                    "if-adverbial-formula-then-surface",
+                ],
+                compact: "conector Ø",
+            }
+            : "rendering-runtime-not-loaded"
+    );
+    s.eq(
+        "future predicado-nominal keeps source s inside the NNC predicate stem and resolves absolutive ti",
+        typeof ctx.buildGeneratedOutputSlotChips === "function" && typeof ctx.executeGenerateWordRequest === "function"
+            ? (() => {
+                const result = ctx.executeGenerateWordRequest({
+                    options: {
+                        silent: true,
+                        skipValidation: true,
+                        override: {
+                            tenseMode: ctx.TENSE_MODE.sustantivo,
+                            derivationMode: ctx.DERIVATION_MODE.active,
+                            voiceMode: ctx.VOICE_MODE.active,
+                            predicateNominalSourceTense: "futuro",
+                        },
+                    },
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "ta",
+                        tronco: "(mich)-(namaka)",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "predicado-nominal",
+                    },
+                    entradaTronco: {
+                        tieneControlTronco: false,
+                        valorTronco: "",
+                    },
+                });
+                return {
+                    result: result?.result || "",
+                    surfaceForms: result?.surfaceForms || [],
+                    routeBuilderRequired: result?.routeBuilderRequired === true,
+                    diagnosticIds: (result?.diagnostics || []).map((entry) => entry?.id || "").filter(Boolean),
+                    routeFamily: result?.grammarFrame?.routeContract?.routeFamily || result?.frames?.routeContract?.routeFamily || "",
+                    routeStage: result?.grammarFrame?.routeContract?.routeStage || result?.frames?.routeContract?.routeStage || "",
+                    formulaEcho: result?.nuclearClauseShell?.formulaEcho || "",
+                    connector: result?.num1Num2?.displaySurface || "",
+                    chipKinds: ctx.buildGeneratedOutputSlotChips(result).map((chip) => chip.kind),
+                    chipValues: ctx.buildGeneratedOutputSlotChips(result).map((chip) => [chip.kind, chip.value]),
+                };
+            })()
+            : "rendering-runtime-not-loaded",
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                result: "tanamakasti",
+                surfaceForms: ["tanamakasti"],
+                routeBuilderRequired: false,
+                diagnosticIds: [],
+                routeFamily: "predicate-nominal",
+                routeStage: "execute",
+                formulaEcho: "#Ø-Ø(tanamaka-s)ti#",
+                connector: "ti",
+                chipKinds: [
+                    "formula",
+                    "pers1-pers2",
+                    "STEM",
+                    "state",
+                    "num1-num2",
+                    "surface",
+                    "nominalization",
+                    "source",
+                    "connector",
+                ],
+                chipValues: [
+                    ["formula", "#Ø-Ø(tanamaka-s)ti#"],
+                    ["pers1-pers2", "Ø...Ø"],
+                    ["STEM", "(tanamaka-s)"],
+                    ["state", "absolutive"],
+                    ["num1-num2", "ti"],
+                    ["surface", "tanamakasti"],
+                    ["nominalization", "predicate-nominal"],
+                    ["source", "fut"],
+                    ["connector", "ti"],
+                ],
             }
             : "rendering-runtime-not-loaded"
     );
@@ -5715,7 +11049,7 @@ function run(ctx = {}) {
             : "rendering-runtime-not-loaded"
     );
     s.eq(
-        "shared renderer derives VNC slot chips from formula echo when slot objects are absent",
+        "shared renderer does not derive VNC slot chips from formula echo when slot objects are absent",
         typeof ctx.buildGeneratedOutputSlotChips === "function"
             ? ctx.buildGeneratedOutputSlotChips({
                 nuclearClauseShell: {
@@ -5728,11 +11062,6 @@ function run(ctx = {}) {
         ctx.__TEST_RUNTIME_MODE__ === "module"
             ? [
                 ["formula", "Fórmula CNV", "#Ø-Ø+ki-(ilpia)Ø+Ø-t#"],
-                ["pers1-pers2", "persona1-persona2", "Ø-Ø"],
-                ["obj1", "objeto 1", "ki"],
-                ["STEM", "base", "-(ilpia)"],
-                ["tiempo", "tiempo", "Ø"],
-                ["num1-num2", "número1-número2", "Ø-t"],
             ]
             : ["rendering-runtime-not-loaded"]
     );
@@ -6047,7 +11376,7 @@ function run(ctx = {}) {
                 diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
                     status: "diagnostic-only",
                     diagnostics: [{
-                        id: "comparison-needs-nawat-clause-evidence",
+                        id: "comparison-source-gated",
                         severity: "diagnostic",
                     }],
                 }),
@@ -6094,7 +11423,7 @@ function run(ctx = {}) {
                     }),
                     diagnosticFrame: ctx.buildGrammarDiagnosticFrame({
                         diagnostics: [{
-                            id: "comparison-needs-nawat-clause-evidence",
+                            id: "comparison-source-gated",
                             severity: "diagnostic",
                         }],
                     }),
@@ -6112,7 +11441,7 @@ function run(ctx = {}) {
                         formulaEcho: "#Ø-Ø+ki-(ilpia)Ø+Ø-t#",
                     },
                 }).flatMap((chip) => [chip.label, chip.value, chip.title].filter(Boolean));
-                const bannedVisiblePattern = /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function|\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b|\btns\b|diagnostic-only|classify-boundary|authorityFrame|resultFrame|routeContract|needs-nawat-clause-evidence/i;
+                const bannedVisiblePattern = /Unidad y función|Unit(?:\s+and|\s*&)?\s+Function|\b(?:Subject|Object|Tense|Source|Target|Generation|Diagnostic|Route|Stage|Result|Input|Output)\b|\btns\b|diagnostic-only|classify-boundary|authorityFrame|resultFrame|routeContract|legacyNawatGate/i;
                 return [...frameLabels, ...shellLabels, ...chipLabels]
                     .filter((label) => bannedVisiblePattern.test(String(label || "")));
             })()
@@ -6192,7 +11521,7 @@ function run(ctx = {}) {
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
-        "shared renderer reads LCM result-frame surface forms before stale result text",
+        "shared renderer treats LCM result-frame surface forms as structured entries before stale result text",
         typeof ctx.getConjugationSurfaceForms === "function"
             ? ctx.getConjugationSurfaceForms({
                 result: "stale-form",
@@ -6208,7 +11537,7 @@ function run(ctx = {}) {
             })
             : ["rendering-runtime-not-loaded"],
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? ["frame-a", "frame-b", "frame-surface"]
+            ? ["frame-surface"]
             : ["rendering-runtime-not-loaded"]
     );
     s.eq(
@@ -6277,7 +11606,7 @@ function run(ctx = {}) {
             })
             : "rendering-runtime-not-loaded",
         ctx.__TEST_RUNTIME_MODE__ === "module"
-            ? "frame-a / frame-b / frame-surface"
+            ? "frame-surface"
             : "rendering-runtime-not-loaded"
     );
     s.ok(
@@ -6994,6 +12323,140 @@ function run(ctx = {}) {
             : { surface: "panels-runtime-not-loaded", visible: false }
     );
     s.eq(
+        "Andrews CNV to CNN nominal renderer projects executable suboperation logic",
+        typeof ctx.applyAndrewsCnvCnnNominalRenderingDataset === "function"
+            && typeof ctx.getAndrewsCnvCnnNominalRenderedSurface === "function"
+            && typeof ctx.generateWord === "function"
+            ? (() => {
+                const result = ctx.generateWord({
+                    silent: true,
+                    skipValidation: true,
+                    override: {},
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "",
+                        tronco: "nemi",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "agentivo",
+                    },
+                });
+                const classNames = [];
+                const element = {
+                    dataset: {},
+                    classList: {
+                        add(...names) {
+                            classNames.push(...names);
+                        },
+                    },
+                };
+                const frame = ctx.applyAndrewsCnvCnnNominalRenderingDataset(element, result);
+                return {
+                    returnedKind: frame?.kind || "",
+                    classAdded: classNames.includes("conjugation-rendering--andrews-cnv-cnn-nominal"),
+                    render: element.dataset.andrewsCnvCnnNominalRender,
+                    authority: element.dataset.andrewsCnvCnnNominalAuthority,
+                    transition: element.dataset.andrewsCnvCnnNominalTransition,
+                    operationId: element.dataset.andrewsCnvCnnNominalOperationId,
+                    executionKind: element.dataset.andrewsCnvCnnNominalExecutionKind,
+                    executableLogic: element.dataset.andrewsCnvCnnNominalExecutableLogic,
+                    generationAllowed: element.dataset.andrewsCnvCnnNominalGenerationAllowed,
+                    operationApplied: element.dataset.andrewsCnvCnnNominalOperationApplied,
+                    formulaEcho: element.dataset.andrewsCnvCnnNominalFormulaEcho,
+                    surface: element.dataset.andrewsCnvCnnNominalSurface,
+                    renderedSurface: ctx.getAndrewsCnvCnnNominalRenderedSurface(result),
+                    sourceStem: element.dataset.andrewsCnvCnnNominalSourceStem,
+                    spellingAuthority: element.dataset.andrewsCnvCnnNominalSpellingAuthority,
+                    classicalSpellingRole: element.dataset.andrewsCnvCnnNominalClassicalSpellingRole,
+                    classicalSurfaceImport: element.dataset.andrewsCnvCnnNominalClassicalSurfaceImport,
+                };
+            })()
+            : { returnedKind: "rendering-runtime-not-loaded" },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                returnedKind: "andrews-cnv-cnn-operational-suboperation-frame",
+                classAdded: true,
+                render: "true",
+                authority: "Andrews",
+                transition: "CNV->CNN",
+                operationId: "customary-agentive-reanalysis",
+                executionKind: "source-target-reanalysis",
+                executableLogic: "true",
+                generationAllowed: "true",
+                operationApplied: "append-customary-present-ni-inside-nounstem",
+                formulaEcho: "CNV(nemi) -> #Ø-Ø(nemini)Ø#",
+                surface: "nemini",
+                renderedSurface: "nemini",
+                sourceStem: "nemi",
+                spellingAuthority: "Nawat/Pipil orthography bridge",
+                classicalSpellingRole: "structural-only",
+                classicalSurfaceImport: "blocked",
+            }
+            : { returnedKind: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "Andrews CNV to CNN nominal renderer maps each Nawat surface to its own formula",
+        typeof ctx.applyAndrewsCnvCnnNominalRenderingDataset === "function"
+            && typeof ctx.generateWord === "function"
+            ? (() => {
+                const result = ctx.generateWord({
+                    silent: true,
+                    skipValidation: true,
+                    override: {},
+                    posicionesFormula: {
+                        pers1: "",
+                        obj1: "ta",
+                        tronco: "-(mati)",
+                        pers2: "",
+                        num2: "",
+                        poseedor: "",
+                        tiempo: "agentivo-preterito",
+                    },
+                });
+                const renderedSurface = ctx.getAndrewsCnvCnnNominalRenderedSurface(result);
+                return ["tamatki", "tamatik"].map((surface) => {
+                    const element = {
+                        dataset: {},
+                        classList: { add() {} },
+                    };
+                    ctx.applyAndrewsCnvCnnNominalRenderingDataset(element, result, { surface });
+                    return {
+                        surface,
+                        allRenderedSurfaces: renderedSurface,
+                        renderedSurface: element.dataset.andrewsCnvCnnNominalSurface,
+                        formulaEcho: element.dataset.andrewsCnvCnnNominalFormulaEcho,
+                        sourceToTargetFormulaEcho: element.dataset.andrewsCnvCnnNominalSourceToTargetFormulaEcho,
+                        pairCount: element.dataset.andrewsCnvCnnNominalFormulaSurfacePairCount,
+                        pairMatched: element.dataset.andrewsCnvCnnNominalFormulaSurfacePairMatched,
+                    };
+                });
+            })()
+            : [{ surface: "rendering-runtime-not-loaded" }],
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? [
+                {
+                    surface: "tamatki",
+                    allRenderedSurfaces: "tamatki / tamatik",
+                    renderedSurface: "tamatki",
+                    formulaEcho: "#Ø-Ø(tamat-0)ki-0#",
+                    sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamat-0)ki-0#",
+                    pairCount: "2",
+                    pairMatched: "true",
+                },
+                {
+                    surface: "tamatik",
+                    allRenderedSurfaces: "tamatki / tamatik",
+                    renderedSurface: "tamatik",
+                    formulaEcho: "#Ø-Ø(tamati-0)k-0#",
+                    sourceToTargetFormulaEcho: "CNV(mati) -> #Ø-Ø(tamati-0)k-0#",
+                    pairCount: "2",
+                    pairMatched: "true",
+                },
+            ]
+            : [{ surface: "rendering-runtime-not-loaded" }]
+    );
+    s.eq(
         "shared route dataset projects LCM authority and source evidence",
         typeof ctx.applyGrammarFrameRouteDataset === "function"
             ? (() => {
@@ -7002,15 +12465,15 @@ function run(ctx = {}) {
                     authorityFrame: ctx.buildGrammarAuthorityFrame({
                         evidenceStatus: "source-evidence-satisfied",
                         andrewsRefs: ["Andrews Lesson 40", "Andrews Lesson 4"],
-                        nawatEvidenceRefs: ["data/static_modes.json"],
-                        sourceEvidence: {
+                        orthographyRefs: ["data/static_modes.json"],
+                        sourceContext: {
                             kind: "adjectival-nnc-function",
-                            status: "source-evidence-satisfied",
+                            status: "source-context-satisfied",
                             targetAuthority: "Andrews",
-                            evidenceSource: "patientive generated stage",
+                            contextSource: "patientive generated stage",
                             boundaries: {
-                                sourceEvidenceFromSelectedGeneratedStage: true,
-                                sourceEvidenceFromAndrewsContractRoute: true,
+                                sourceContextFromSelectedGeneratedStage: true,
+                                sourceContextFromAndrewsContractRoute: true,
                                 ignoredFalseFlag: false,
                             },
                         },
@@ -7035,9 +12498,21 @@ function run(ctx = {}) {
                     returned: returnedFrame === frame,
                     authorityRef: element.dataset.grammarAuthorityRef,
                     authorityRefs: element.dataset.grammarAuthorityRefs,
+                    logicAuthority: element.dataset.grammarLogicAuthority,
                     evidenceStatus: element.dataset.grammarEvidenceStatus,
-                    nawatEvidenceRef: element.dataset.grammarNawatEvidenceRef,
-                    nawatEvidenceRefs: element.dataset.grammarNawatEvidenceRefs,
+                    spellingEvidenceRole: element.dataset.grammarSpellingEvidenceRole,
+                    classicalSpellingRole: element.dataset.grammarClassicalSpellingRole,
+                    orthographyRef: element.dataset.grammarOrthographyRef,
+                    orthographyRefs: element.dataset.grammarOrthographyRefs,
+                    orthographyBoundary: element.dataset.grammarOrthographyBoundary,
+                    orthographyStatus: element.dataset.grammarOrthographyStatus,
+                    spellingAuthority: element.dataset.grammarSpellingAuthority,
+                    classicalSurfaceImport: element.dataset.grammarClassicalSurfaceImport,
+                    sourceContextKind: element.dataset.grammarSourceContextKind,
+                    sourceContextStatus: element.dataset.grammarSourceContextStatus,
+                    sourceContextTargetAuthority: element.dataset.grammarSourceContextTargetAuthority,
+                    sourceContextSource: element.dataset.grammarSourceContextSource,
+                    sourceContextFlags: element.dataset.grammarSourceContextFlags,
                     sourceEvidenceKind: element.dataset.grammarSourceEvidenceKind,
                     sourceEvidenceStatus: element.dataset.grammarSourceEvidenceStatus,
                     sourceEvidenceTargetAuthority: element.dataset.grammarSourceEvidenceTargetAuthority,
@@ -7052,14 +12527,26 @@ function run(ctx = {}) {
                 returned: true,
                 authorityRef: "Andrews Lesson 40",
                 authorityRefs: "Andrews Lesson 40|Andrews Lesson 4",
+                logicAuthority: "Andrews",
                 evidenceStatus: "source-evidence-satisfied",
-                nawatEvidenceRef: "data/static_modes.json",
-                nawatEvidenceRefs: "data/static_modes.json",
+                spellingEvidenceRole: "orthography-realization-only",
+                classicalSpellingRole: "structural-only",
+                orthographyRef: "data/static_modes.json",
+                orthographyRefs: "data/static_modes.json",
+                orthographyBoundary: "nawat-pipil-realization",
+                orthographyStatus: "",
+                spellingAuthority: "Nawat/Pipil orthography bridge",
+                classicalSurfaceImport: "blocked",
+                sourceContextKind: "adjectival-nnc-function",
+                sourceContextStatus: "source-context-satisfied",
+                sourceContextTargetAuthority: "Andrews",
+                sourceContextSource: "patientive generated stage",
+                sourceContextFlags: "sourceContextFromAndrewsContractRoute|sourceContextFromSelectedGeneratedStage",
                 sourceEvidenceKind: "adjectival-nnc-function",
-                sourceEvidenceStatus: "source-evidence-satisfied",
+                sourceEvidenceStatus: "source-context-satisfied",
                 sourceEvidenceTargetAuthority: "Andrews",
                 sourceEvidenceSource: "patientive generated stage",
-                sourceEvidenceFlags: "sourceEvidenceFromAndrewsContractRoute|sourceEvidenceFromSelectedGeneratedStage",
+                sourceEvidenceFlags: "sourceContextFromAndrewsContractRoute|sourceContextFromSelectedGeneratedStage",
                 routeFamily: "adjectival-nnc-function",
             }
             : { returned: false }
@@ -7112,13 +12599,149 @@ function run(ctx = {}) {
             : { diagnosticLayer: "rendering-runtime-not-loaded" }
     );
     s.eq(
-        "shared route dataset attaches the 7-record Andrews action contract to continuation chips",
+        "verb nominal row continuation route action consumes preview grammar frame instead of display strings",
+        typeof ctx.buildVerbNominalContinuationRouteActionContractForRendering === "function"
+            ? (() => {
+                const buildPreview = (id) => {
+                    const formulaRecord = ctx.buildGrammarFormulaRecord({
+                        id: `verb-nominal-source-${id}`,
+                        formulaType: "CNV",
+                        formulaSlots: {
+                            predicateStem: { slot: "STEM", stem: `stem-${id}` },
+                        },
+                    });
+                    const realizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                        id: `verb-nominal-realization-${id}`,
+                        formulaRecord,
+                        segmentFrames: [
+                            { slot: "predicateStem", formulaValue: `stem-${id}`, surface: `surface-${id}` },
+                        ],
+                        surfaceForms: [`surface-${id}`],
+                    });
+                    return {
+                        result: "poison",
+                        surface: "poison",
+                        stem: "poison",
+                        formulaEcho: "#poison#",
+                        dataset: {
+                            andrewsRouteRecordId: "cnv-to-cnn-to-cnv-loop",
+                            targetTense: "poison",
+                        },
+                        posicionesFormula: {
+                            tronco: "poison",
+                        },
+                        grammarFrame: ctx.buildGrammarFrame({
+                            routeContract: ctx.buildGrammarRouteContractFrame({
+                                routeFamily: "verb-to-nominal-row-continuation",
+                                routeStage: "target-mode-preview",
+                                generationAllowed: true,
+                            }),
+                            resultFrame: ctx.buildGrammarResultFrame({
+                                ok: true,
+                                surface: "poison",
+                                formulaRecord,
+                                formulaRealizationRecord: realizationRecord,
+                            }),
+                        }),
+                    };
+                };
+                const structural = buildPreview("a");
+                const structuralPoisonedDisplay = {
+                    ...structural,
+                    result: "different-poison",
+                    surface: "different-poison",
+                    stem: "different-poison",
+                    formulaEcho: "#different-poison#",
+                    dataset: {
+                        andrewsRouteRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                        routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+                    },
+                    posicionesFormula: {
+                        tronco: "different-poison",
+                    },
+                };
+                const stringOnly = {
+                    result: "surface-a",
+                    surface: "surface-a",
+                    formulaEcho: "#Ø-Ø(surface-a)Ø#",
+                    dataset: {
+                        andrewsRouteRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                    },
+                };
+                const blockedResultFrame = {
+                    ...structural,
+                    grammarFrame: ctx.buildGrammarFrame({
+                        routeContract: ctx.buildGrammarRouteContractFrame({
+                            routeFamily: "verb-to-nominal-row-continuation",
+                            routeStage: "target-mode-preview",
+                            generationAllowed: true,
+                        }),
+                        resultFrame: ctx.buildGrammarResultFrame({
+                            ok: false,
+                            surface: "surface-a",
+                        }),
+                    }),
+                };
+                const predicateContract = ctx.buildVerbNominalContinuationRouteActionContractForRendering({
+                    preview: structural,
+                    sourceUnit: ctx.NOMINALIZATION_SOURCE_UNITS.vncPredicate,
+                });
+                const poisonedContract = ctx.buildVerbNominalContinuationRouteActionContractForRendering({
+                    preview: structuralPoisonedDisplay,
+                    sourceUnit: ctx.NOMINALIZATION_SOURCE_UNITS.vncPredicate,
+                });
+                const coreContract = ctx.buildVerbNominalContinuationRouteActionContractForRendering({
+                    preview: structural,
+                    sourceUnit: ctx.NOMINALIZATION_SOURCE_UNITS.vncCoreStem,
+                });
+                const stringOnlyContract = ctx.buildVerbNominalContinuationRouteActionContractForRendering({
+                    preview: stringOnly,
+                    sourceUnit: ctx.NOMINALIZATION_SOURCE_UNITS.vncPredicate,
+                });
+                const blockedContract = ctx.buildVerbNominalContinuationRouteActionContractForRendering({
+                    preview: blockedResultFrame,
+                    sourceUnit: ctx.NOMINALIZATION_SOURCE_UNITS.vncPredicate,
+                });
+                return {
+                    predicateRoute: predicateContract?.routeRecordId || "",
+                    poisonedRoute: poisonedContract?.routeRecordId || "",
+                    coreRoute: coreContract?.routeRecordId || "",
+                    stringOnlyContract: stringOnlyContract || null,
+                    blockedContract: blockedContract || null,
+                    hasRouteFrame: predicateContract?.routeFrame?.kind || "",
+                    gateCount: predicateContract?.obstacleGateIds?.length || 0,
+                };
+            })()
+            : { predicateRoute: "rendering-runtime-not-loaded" },
+        ctx.__TEST_RUNTIME_MODE__ === "module"
+            ? {
+                predicateRoute: "cnv-predicate-to-cnn-nounstem-nominalization",
+                poisonedRoute: "cnv-predicate-to-cnn-nounstem-nominalization",
+                coreRoute: "cnv-core-to-cnn-nounstem-deverbal",
+                stringOnlyContract: null,
+                blockedContract: null,
+                hasRouteFrame: "andrews-cnv-cnn-route-coordinate-frame",
+                gateCount: 8,
+            }
+            : { predicateRoute: "rendering-runtime-not-loaded" }
+    );
+    s.eq(
+        "shared route dataset consumes structural Andrews action contracts for continuation chips",
         typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
             ? (() => {
-                const makeElement = (dataset) => {
+                const makeContract = (routeRecordId, input = {}, options = {}) => ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract(
+                    input,
+                    {
+                        routeRecordId,
+                        obstacleLimit: 8,
+                        generationAllowed: options.generationAllowed ?? true,
+                    }
+                );
+                const makeElement = (dataset, contract) => {
                     const attributes = {};
                     return {
                         dataset: { ...dataset },
+                        andrewsRouteActionContract: contract || null,
                         title: "",
                         textContent: "continuación",
                         setAttribute(name, value) {
@@ -7131,12 +12754,37 @@ function run(ctx = {}) {
                     };
                 };
                 const samples = [
-                    makeElement({ verbNominalContinuation: "true", targetTense: "agentivo-preterito" }),
-                    makeElement({ verbNominalContinuation: "true", targetTense: "sustantivo-verbal" }),
-                    makeElement({ denominalAndrewsContractRouteContinuation: "true" }),
-                    makeElement({ preteritAgentiveCompoundEmbedContinuation: "true" }),
+                    makeElement(
+                        { verbNominalContinuation: "true", targetTense: "agentivo-preterito" },
+                        makeContract("cnv-predicate-to-cnn-nounstem-nominalization")
+                    ),
+                    makeElement(
+                        { verbNominalContinuation: "true", targetTense: "sustantivo-verbal" },
+                        makeContract("cnv-core-to-cnn-nounstem-deverbal")
+                    ),
+                    makeElement(
+                        { denominalAndrewsContractRouteContinuation: "true" },
+                        makeContract("cnn-nounstem-to-cnv-verbstem-denominal")
+                    ),
+                    makeElement(
+                        { preteritAgentiveCompoundEmbedContinuation: "true" },
+                        makeContract("cnv-to-cnn-to-cnv-loop", {
+                            functionUseValenceGate: {
+                                status: "blocked",
+                                routeRankingAllowed: false,
+                                generationAllowed: false,
+                                reason: "route-action-function-use-valence-frame-unfixed",
+                            },
+                        })
+                    ),
                 ];
                 samples.forEach((element) => ctx.applyAndrewsCnvCnnRouteActionDataset(element, element));
+                const datasetOnly = makeElement({
+                    verbNominalContinuation: "true",
+                    targetTense: "agentivo-preterito",
+                    andrewsRouteRecordId: "cnv-predicate-to-cnn-nounstem-nominalization",
+                });
+                ctx.applyAndrewsCnvCnnRouteActionDataset(datasetOnly, datasetOnly);
                 return samples.map((element) => ({
                     routeRecordId: element.dataset.andrewsRouteRecordId,
                     expectedRouteRecordId: element.dataset.andrewsUiExpectedRouteRecordId,
@@ -7149,7 +12797,19 @@ function run(ctx = {}) {
                     titleHasSpanishRegister: /registro Andrews:/.test(element.title),
                     titleHasGates: /compuertas Andrews:/.test(element.title),
                     ariaMentionsGates: /compuertas Andrews/.test(element.attributes["aria-label"] || ""),
-                }));
+                })).concat([{
+                    routeRecordId: datasetOnly.dataset.andrewsRouteRecordId || "",
+                    expectedRouteRecordId: datasetOnly.dataset.andrewsUiExpectedRouteRecordId || "",
+                    operation: datasetOnly.dataset.andrewsUiOperation || "",
+                    gateCount: Number(datasetOnly.dataset.andrewsRouteObstacleGateCount || 0),
+                    routeRankingAllowed: datasetOnly.dataset.andrewsRouteRankingAllowed || "",
+                    functionUseValenceGate: datasetOnly.dataset.andrewsRouteFunctionUseValenceGate || "",
+                    actionAllowed: datasetOnly.dataset.andrewsRouteActionAllowed || "",
+                    diagnosticOnly: datasetOnly.dataset.andrewsRouteDiagnosticOnly || "",
+                    titleHasSpanishRegister: /registro Andrews:/.test(datasetOnly.title),
+                    titleHasGates: /compuertas Andrews:/.test(datasetOnly.title),
+                    ariaMentionsGates: /compuertas Andrews/.test(datasetOnly.attributes["aria-label"] || ""),
+                }]);
             })()
             : [{ routeRecordId: "rendering-runtime-not-loaded" }],
         ctx.__TEST_RUNTIME_MODE__ === "module"
@@ -7206,6 +12866,19 @@ function run(ctx = {}) {
                     titleHasGates: true,
                     ariaMentionsGates: true,
                 },
+                {
+                    routeRecordId: "",
+                    expectedRouteRecordId: "",
+                    operation: "",
+                    gateCount: 0,
+                    routeRankingAllowed: "",
+                    functionUseValenceGate: "",
+                    actionAllowed: "",
+                    diagnosticOnly: "",
+                    titleHasSpanishRegister: false,
+                    titleHasGates: false,
+                    ariaMentionsGates: false,
+                },
             ]
             : [{ routeRecordId: "rendering-runtime-not-loaded" }]
     );
@@ -7213,8 +12886,24 @@ function run(ctx = {}) {
         "shared route dataset exposes the function-use valence hard gate before action use",
         typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
             ? (() => {
-                const makeElement = (dataset) => ({
+                const makeContract = (routeRecordId) => ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract(
+                    {
+                        functionUseValenceGate: {
+                            status: "blocked",
+                            routeRankingAllowed: false,
+                            generationAllowed: false,
+                            reason: "route-action-function-use-valence-frame-unfixed",
+                        },
+                    },
+                    {
+                        routeRecordId,
+                        obstacleLimit: 8,
+                        generationAllowed: true,
+                    }
+                );
+                const makeElement = (dataset, contract) => ({
                     dataset: { ...dataset },
+                    andrewsRouteActionContract: contract || null,
                     title: "",
                     textContent: "continuación",
                     setAttribute() {},
@@ -7222,8 +12911,14 @@ function run(ctx = {}) {
                         return "";
                     },
                 });
-                const adverbial = makeElement({ preteritAgentiveAdverbialContinuation: "true" });
-                const ownerhood = makeElement({ ordinaryNncOwnerhoodContinuation: "true" });
+                const adverbial = makeElement(
+                    { preteritAgentiveAdverbialContinuation: "true" },
+                    makeContract("cnv-predicate-to-cnn-nounstem-nominalization")
+                );
+                const ownerhood = makeElement(
+                    { ordinaryNncOwnerhoodContinuation: "true" },
+                    makeContract("cnn-nounstem-to-cnv-verbstem-denominal")
+                );
                 [adverbial, ownerhood].forEach((element) => ctx.applyAndrewsCnvCnnRouteActionDataset(element, element));
                 return [adverbial, ownerhood].map((element) => ({
                     routeRecordId: element.dataset.andrewsRouteRecordId,
@@ -7260,12 +12955,28 @@ function run(ctx = {}) {
         "blocked Andrews function-use route chips stop click actions before state mutation",
         typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
             ? (() => {
-                const makeButton = (dataset) => {
+                const makeContract = () => ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract(
+                    {
+                        functionUseValenceGate: {
+                            status: "blocked",
+                            routeRankingAllowed: false,
+                            generationAllowed: false,
+                            reason: "route-action-function-use-valence-frame-unfixed",
+                        },
+                    },
+                    {
+                        routeRecordId: "cnv-to-cnn-to-cnv-loop",
+                        obstacleLimit: 8,
+                        generationAllowed: true,
+                    }
+                );
+                const makeButton = (dataset, contract) => {
                     const attributes = {};
                     const classes = new Set();
                     const listeners = [];
                     const button = {
                         dataset: { ...dataset },
+                        andrewsRouteActionContract: contract || null,
                         title: "",
                         textContent: "continuación",
                         disabled: false,
@@ -7325,7 +13036,7 @@ function run(ctx = {}) {
                     };
                     return button;
                 };
-                const button = makeButton({ preteritAgentiveCompoundEmbedContinuation: "true" });
+                const button = makeButton({ preteritAgentiveCompoundEmbedContinuation: "true" }, makeContract());
                 ctx.applyAndrewsCnvCnnRouteActionDataset(button, button);
                 let downstreamClickRan = false;
                 button.addEventListener("click", () => {
@@ -7370,18 +13081,79 @@ function run(ctx = {}) {
             : { routeRecordId: "rendering-runtime-not-loaded" }
     );
     s.ok(
-        "every visible continuation chip dataset in the conversion UI resolves to one of the 7 Andrews route records",
+        "every structurally authorized visible continuation chip resolves to one of the 7 Andrews route records",
         typeof ctx.applyAndrewsCnvCnnRouteActionDataset === "function"
             ? (() => {
-                const makeElement = (dataset) => ({
-                    dataset: { ...dataset },
-                    title: "",
-                    textContent: "continuación",
-                    setAttribute() {},
-                    getAttribute() {
-                        return "";
-                    },
-                });
+                const routeIdForDataset = (dataset = {}) => {
+                    const has = (key) => Boolean(dataset[key]);
+                    if (has("denominalAndrewsContractRouteContinuation") || has("ordinaryNncOwnerhoodContinuation")) {
+                        return "cnn-nounstem-to-cnv-verbstem-denominal";
+                    }
+                    if (has("verbPatientivoContinuation") || has("patientivoPrelocativeContinuation")) {
+                        return "cnv-core-to-cnn-nounstem-deverbal";
+                    }
+                    if (has("patientivoTroncoConversion") || has("huaDeverbalYuContinuation")) {
+                        return "cnv-to-cnn-to-cnv-loop";
+                    }
+                    if (has("verbNominalContinuation")) {
+                        return String(dataset.targetTense || "").trim().startsWith("agentivo")
+                            ? "cnv-predicate-to-cnn-nounstem-nominalization"
+                            : "cnv-core-to-cnn-nounstem-deverbal";
+                    }
+                    if (
+                        has("vncAdjectivalFunctionContinuation")
+                        || has("nominalizedVncAdjectivalFunctionContinuation")
+                        || has("preteritAgentiveNominalCompoundContinuation")
+                        || has("customaryAgentiveNominalCompoundContinuation")
+                        || has("preteritAgentiveComplementContinuation")
+                        || has("preteritAgentiveAdverbialContinuation")
+                    ) {
+                        return "cnv-predicate-to-cnn-nounstem-nominalization";
+                    }
+                    if (
+                        has("ordinaryNncAdjectivalFunctionContinuation")
+                        || has("patientivoAdjectivalFunctionContinuation")
+                        || has("intensifiedAdjectivalFunctionContinuation")
+                        || has("compoundSourceAdjectivalFunctionContinuation")
+                        || has("activeActionNominalCompoundContinuation")
+                        || has("patientivoNominalCompoundContinuation")
+                        || has("actionNounSourceSubjectPossessor")
+                        || has("instrumentivoSourceSubjectPossessor")
+                    ) {
+                        return "cnv-core-to-cnn-nounstem-deverbal";
+                    }
+                    if (
+                        has("activeActionCompoundEmbedContinuation")
+                        || has("customaryAgentiveCompoundEmbedContinuation")
+                        || has("preteritAgentiveCompoundEmbedContinuation")
+                        || has("patientivoCompoundEmbedContinuation")
+                        || has("patientivoCharacteristicPropertyEmbedContinuation")
+                        || has("preteritAgentiveOwnerhoodContinuation")
+                        || has("denominalCompoundAdjectivalFunctionContinuation")
+                    ) {
+                        return "cnv-to-cnn-to-cnv-loop";
+                    }
+                    return "";
+                };
+                const makeElement = (dataset) => {
+                    const routeRecordId = routeIdForDataset(dataset);
+                    return {
+                        dataset: { ...dataset },
+                        andrewsRouteActionContract: routeRecordId
+                            ? ctx.buildAndrewsCnvCnnBackAndForthRouteActionContract({}, {
+                                routeRecordId,
+                                obstacleLimit: 8,
+                                generationAllowed: true,
+                            })
+                            : null,
+                        title: "",
+                        textContent: "continuación",
+                        setAttribute() {},
+                        getAttribute() {
+                            return "";
+                        },
+                    };
+                };
                 const samples = [
                     { actionNounSourceSubjectPossessor: "ki" },
                     { activeActionCompoundEmbedContinuation: "true" },

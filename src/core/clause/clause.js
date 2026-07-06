@@ -144,7 +144,7 @@ const NUCLEAR_CLAUSE_LESSON4_FORMULA_BOUNDARY_FRAME = Object.freeze({
     formulaRepresentsMorphicFillers: true,
     formulaIsEngineContract: true,
     surfaceGenerationAuthority: false,
-    nawatEvidenceCannotChangeSlotOrder: true,
+    orthographyCannotChangeSlotOrder: true,
     stemDimensionsExplicit: true,
 });
 
@@ -248,7 +248,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_ROUTE_RECORDS = Object.freeze([
         transition: "CNN nounstem -> CNV verbstem",
         directiveEs: "Un tronco nominal puede alimentar un tronco verbal denominal por sufijos verbales autorizados por Andrews, con compuertas de fuente y ortografía Nawat/Pipil.",
         implementationProbe: "getNawatDenominalAndrewsContractInventory",
-        requiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente, objeto, tiempo o evidencia Nawat/Pipil.",
+        requiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente Andrews concreta, objeto, tiempo o puente ortografico.",
     }),
     Object.freeze({
         id: "cnv-verbstem-to-cnv-verbstem-deverbal",
@@ -503,7 +503,7 @@ const ANDREWS_CNV_CNN_OBSTACLE_GATE_DOMAINS = Object.freeze([
 const ANDREWS_CNV_CNN_EVIDENCE_STATUS_CODES = Object.freeze({
     "andrews-structural-gate": 1,
     "blocking-or-requirement-gate": 2,
-    "source-or-nawat-evidence-gate": 3,
+    "andrews-source-or-orthography-gate": 3,
     unknown: 0,
 });
 
@@ -511,7 +511,7 @@ const ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS = Object.freeze({
     obstacleCount: 1,
     uniqueGateDomainCount: 10,
     pathDepthBeyondOne: 25,
-    sourceOrNawatEvidenceGateCount: 2,
+    sourceOrOrthographyGateCount: 2,
     blockingOrRequirementGateCount: 1,
     formulaTypeChanged: 5,
     intermediateFormulaTypeCount: 5,
@@ -3161,7 +3161,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         sourceRefs: Object.freeze(["Andrews 40.10", "Andrews 40.11"]),
         pdfPages: Object.freeze([418, 419]),
         routeId: "cnv-to-cnn-to-cnv-loop",
-        obstacleEs: "Los pares/tripletes sinónimos c-ti-ya/z-ti-ya explican fuente, pero no autorizan generar hermanos sin evidencia Nawat.",
+        obstacleEs: "Los pares/tripletes sinónimos c-ti-ya/z-ti-ya explican fuente, pero no autorizan generar hermanos sin fuente Andrews concreta y puente ortografico.",
         requiredProbe: "Generar solo la fuente solicitada y registrar el conjunto sinónimo como diagnóstico.",
     }),
     Object.freeze({
@@ -3554,7 +3554,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([587]),
         routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
         obstacleEs: "Algunas formaciones prefieren solo ti, otras ti-ya y otras son indiferentes; el valor de traducción puede ser el mismo aunque el contrato de tronco y clase no lo sea.",
-        requiredProbe: "No generar ti-ya automáticamente desde todo ti; registrar preferencia léxica, clase Andrews y evidencia Nawat/Pipil antes de permitir superficies.",
+        requiredProbe: "No generar ti-ya automáticamente desde todo ti; registrar preferencia léxica, clase Andrews, fuente concreta y puente ortografico antes de permitir superficies.",
     }),
     Object.freeze({
         id: "ya-class-perfective-x-z-boundary",
@@ -3849,7 +3849,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         sourceRefs: Object.freeze(["Andrews 55.6", "Andrews 54.2.1", "Andrews 24.7"]),
         pdfPages: Object.freeze([605]),
         routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
-        obstacleEs: "i-hui/a-hui puede ser sinonimo del ti inceptivo/estativo, pero la sinonimia no autoriza generar hermanos ti o i-hui/a-hui sin evidencia Nawat.",
+        obstacleEs: "i-hui/a-hui puede ser sinonimo del ti inceptivo/estativo, pero la sinonimia no autoriza generar hermanos ti o i-hui/a-hui sin fuente Andrews concreta y puente ortografico.",
         requiredProbe: "Registrar sinonimia como diagnostico de fuente y generar solo la ruta solicitada o confirmada.",
     }),
     Object.freeze({
@@ -4338,7 +4338,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([586, 587, 588]),
         routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
         obstacleEs: "Andrews advierte que ia/ya en grafia tradicional no es confiable; una causativa puede probar la presencia de i y la posicion del acento.",
-        requiredProbe: "No decidir i/ya desde ortografia tradicional; exigir prueba morfologica o evidencia Nawat antes de fijar superficie.",
+        requiredProbe: "No decidir i/ya desde ortografia tradicional; exigir prueba morfologica, fuente Andrews concreta o puente ortografico antes de fijar superficie.",
     }),
     Object.freeze({
         id: "denominal-ya-causative-lia-spelling-proof-boundary",
@@ -6810,7 +6810,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([523]),
         routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
         obstacleEs: "Gentilic nounstem puede incorporarse en compound stem verbal o en place-name, incluso profundamente.",
-        requiredProbe: "No limitar gentilic a predicado CNN; permitir embed nominal en compound routes pero no promoverlo sin evidencia Nawat.",
+        requiredProbe: "No limitar gentilic a predicado CNN; permitir embed nominal en compound routes pero no promoverlo sin fuente Andrews concreta y puente ortografico.",
     }),
     Object.freeze({
         id: "gentilic-vs-associated-entity-atlancatepec-boundary",
@@ -8341,7 +8341,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         requiredProbe: "Do not fill unattested intermediate forms as generated evidence; expose hypothesized chain and supporting patientive nounstem only.",
     }),
     Object.freeze({
-        id: "ohhuitia-teteltzingo-glottal-evidence-boundary",
+        id: "ohhuitia-teteltzingo-glottal-source-boundary",
         sourceRefs: Object.freeze(["Andrews 54.5.1 note 1", "Andrews 54.4"]),
         pdfPages: Object.freeze([595]),
         routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
@@ -8474,7 +8474,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([600, 601]),
         routeId: "cnn-nounstem-to-cnv-verbstem-denominal",
         obstacleEs: "Andrews labels denominal causative tla as not very productive, so nounstem+tla is not an open automatic generator.",
-        requiredProbe: "Do not offer a full productive tla paradigm from any nounstem; require listed source pattern, diagnostic-only status, or Nawat evidence.",
+        requiredProbe: "Do not offer a full productive tla paradigm from any nounstem; require listed source pattern, diagnostic-only status, or orthography-bridge examples.",
     }),
     Object.freeze({
         id: "causative-tla-pa-homonymous-source-boundary",
@@ -9045,7 +9045,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         requiredProbe: "Do not read later 0-0 subjects as third person automatically; inspect first-person continuity and reflexive evidence.",
     }),
     Object.freeze({
-        id: "silent-pers1-reflexive-evidence-boundary",
+        id: "silent-pers1-reflexive-source-boundary",
         sourceRefs: Object.freeze(["Andrews 57.6"]),
         pdfPages: Object.freeze([629]),
         routeId: "cnv-to-cnn-to-cnv-loop",
@@ -9658,7 +9658,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([615, 678, 682, 691]),
         routeId: "cnv-to-cnn-to-cnv-loop",
         obstacleEs: "Los nombres y referencias de índice muestran que un derivado puede entrar en nombres, pero no autorizan generación ordinaria nueva.",
-        requiredProbe: "Tratar nombres como uso/diagnóstico salvo evidencia Nawat específica.",
+        requiredProbe: "Tratar nombres como uso/diagnóstico salvo fuente Andrews concreta y puente ortografico especifico.",
     }),
     Object.freeze({
         id: "personal-name-derived-stem-embed-matrix-boundary",
@@ -10098,7 +10098,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([432, 437, 446, 447, 455, 456, 463, 471, 495, 556, 561, 609, 611, 612, 613, 637, 638, 665, 667, 679, 683, 687, 689]),
         routeId: "cnv-predicate-to-cnn-nounstem-nominalization",
         obstacleEs: "Las referencias posteriores a agentivos y nominalizaciones muestran usos en composicion, adjuncion, nombres o ejemplos, pero no autorizan nuevas rutas finitas por si mismas.",
-        requiredProbe: "Catalogar la referencia posterior como uso diagnostico hasta que la leccion correspondiente se ejecute con evidencia Nawat/Pipil.",
+        requiredProbe: "Catalogar la referencia posterior como uso diagnostico hasta que la leccion correspondiente se ejecute con fuente Andrews concreta y puente ortografico.",
     }),
     Object.freeze({
         id: "causative-final-vowel-valence-not-predictive-boundary",
@@ -11298,7 +11298,7 @@ const ANDREWS_CNV_CNN_BACK_AND_FORTH_OBSTACLE_CATALOG = Object.freeze([
         pdfPages: Object.freeze([189]),
         routeId: "cnv-verbstem-to-cnv-verbstem-deverbal",
         obstacleEs: "Algunos tla-impersonals solo estan atestiguados como derivados y presuponen fuente intransitiva no extante o relacionada.",
-        requiredProbe: "No exigir fuente fixture para generar diagnostico; marcar fuente hipotetica/no atestiguada y bloquear superficie si falta evidencia Nawat.",
+        requiredProbe: "No exigir fuente fixture para generar diagnostico; marcar fuente hipotetica/no atestiguada y bloquear superficie si falta fuente Andrews concreta y puente ortografico.",
     }),
     Object.freeze({
         id: "destockal-ni-hui-stock-formative-boundary",
@@ -13309,7 +13309,7 @@ const NUCLEAR_CLAUSE_ANTI_CONFLATION_RULES = Object.freeze([
     "objective personal pronouns belong only in VNC predicates",
     "possessive personal pronouns belong only in NNC predicates",
     "topic and supplementation are clause-level relations, not noun classes",
-    "Andrews slot order is architecture, not Nawat/Pipil surface evidence",
+    "Andrews slot order is architecture, not orthography-bridge surface evidence",
     "Andrews formulas are engine contracts, not optional metadata",
 ]);
 
@@ -14016,7 +14016,7 @@ function buildAndrewsCnvCnnBackAndForthRouteCoordinateFrame(recordOrRouteId = nu
         },
         evidenceFrame: {
             grammarAuthority: "Andrews PDF",
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             evidenceStatus: "route-coordinate",
         },
         dimensionVector: {
@@ -14201,6 +14201,85 @@ function buildAndrewsCnvCnnSurfaceInputEchoPolicyFrame({
         canAutoDeriveFormulaSlots: autoDerive,
         derivationConfidence: autoDerive ? "auto-derivable" : "candidate-only",
         diagnosticId: "entrada-surface-candidate-finished-stem-echo",
+    };
+}
+
+function getAndrewsCnvCnnRouteStageFromStructuralSourceFrame(sourceFrame = null) {
+    const source = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : {};
+    const candidates = [
+        source,
+        source.routeStage,
+        source.sourceStage,
+        source.sourceRouteFrame,
+        source.routeFrame,
+        source.routeContract?.sourceRouteFrame,
+        source.routeContract?.routeFrame,
+        source.grammarFrame?.routeContract?.sourceRouteFrame,
+        source.grammarFrame?.routeContract?.routeFrame,
+    ];
+    return candidates
+        .map((candidate) => normalizeAndrewsCnvCnnRouteStage(candidate))
+        .find((stage) => stage.formulaType || stage.formulaPosition || stage.stemRank)
+        || normalizeAndrewsCnvCnnRouteStage(null);
+}
+
+function getAndrewsCnvCnnFormulaTypeFromFormulaSlots(formulaSlots = null) {
+    if (!formulaSlots || typeof formulaSlots !== "object") {
+        return "";
+    }
+    return String(
+        formulaSlots.formulaType
+        || formulaSlots.unit
+        || formulaSlots.schemaFormulaType
+        || formulaSlots.formulaSchemaType
+        || (formulaSlots.num1Num2 && formulaSlots.predicateStem && !formulaSlots.tensePosition ? "CNN" : "")
+        || (formulaSlots.tensePosition || formulaSlots.valence ? "CNV" : "")
+        || ""
+    ).trim().toUpperCase();
+}
+
+function buildAndrewsCnvCnnSurfaceInputRouteAuthorizationFrame(surfaceFrame = null, {
+    structuralSourceFrame = null,
+    formulaSlots = null,
+    routeContract = null,
+} = {}) {
+    const surfaceFormulaType = String(surfaceFrame?.formulaType || "").trim().toUpperCase();
+    const structuralStage = getAndrewsCnvCnnRouteStageFromStructuralSourceFrame(
+        structuralSourceFrame || routeContract || null
+    );
+    const slotFormulaType = getAndrewsCnvCnnFormulaTypeFromFormulaSlots(formulaSlots);
+    const structuralType = structuralStage.formulaType || slotFormulaType;
+    const authorized = Boolean(
+        surfaceFormulaType
+        && structuralType
+        && surfaceFormulaType === structuralType
+    );
+    return {
+        kind: "andrews-cnv-cnn-surface-input-route-authorization-frame",
+        version: 1,
+        authorized,
+        generationAllowed: authorized,
+        routeRankingAllowed: authorized,
+        authority: "Andrews structural source frame",
+        gate: authorized
+            ? "structural-source-authorizes-surface-candidate"
+            : "surface-candidate-not-route-authority",
+        diagnosticId: authorized
+            ? ""
+            : "surface-candidate-cannot-authorize-route-stage",
+        surfaceFormulaType,
+        structuralFormulaType: structuralType,
+        structuralSourceStage: structuralStage.formulaType || structuralStage.formulaPosition || structuralStage.stemRank
+            ? structuralStage
+            : null,
+        hasFormulaSlots: Boolean(formulaSlots && typeof formulaSlots === "object"),
+        hasRouteContract: Boolean(routeContract && typeof routeContract === "object"),
+        boundaries: {
+            surfaceCandidateCannotAuthorizeRoute: !authorized,
+            surfaceCandidateCannotInferDepartures: !authorized,
+            surfaceCandidateCannotContinue: !authorized,
+            stringsRenderOnlyAfterStructuralAuthorization: true,
+        },
     };
 }
 
@@ -14455,6 +14534,9 @@ function buildAndrewsCnvCnnRouteInputTicketFrame(input = "", boundaryFrame = nul
 function getAndrewsCnvCnnRouteStageFromFormulaInput(input = "", {
     mode = "",
     defaultStage = null,
+    structuralSourceFrame = null,
+    formulaSlots = null,
+    routeContract = null,
 } = {}) {
     const raw = String(input || "").trim();
     const defaultRouteStage = defaultStage
@@ -14488,6 +14570,14 @@ function getAndrewsCnvCnnRouteStageFromFormulaInput(input = "", {
         });
     }
     if (boundaryFrame.surfaceCandidateFrame) {
+        const routeAuthorizationFrame = buildAndrewsCnvCnnSurfaceInputRouteAuthorizationFrame(
+            boundaryFrame.surfaceCandidateFrame,
+            {
+                structuralSourceFrame,
+                formulaSlots,
+                routeContract,
+            }
+        );
         if (boundaryFrame.surfaceCandidateFrame.formulaType === "CNN") {
             return withBoundaryFrame({
                 formulaType: "CNN",
@@ -14496,6 +14586,9 @@ function getAndrewsCnvCnnRouteStageFromFormulaInput(input = "", {
                 inputKind: "whole-cnn-surface-candidate",
                 inputScope: "nuclear-clause",
                 surfaceInputFrame: boundaryFrame.surfaceCandidateFrame,
+                routeAuthorizationFrame,
+                routeRankingAllowed: routeAuthorizationFrame.routeRankingAllowed,
+                generationAllowed: routeAuthorizationFrame.generationAllowed,
             });
         }
         return withBoundaryFrame({
@@ -14505,6 +14598,9 @@ function getAndrewsCnvCnnRouteStageFromFormulaInput(input = "", {
             inputKind: "whole-cnv-surface-candidate",
             inputScope: "nuclear-clause",
             surfaceInputFrame: boundaryFrame.surfaceCandidateFrame,
+            routeAuthorizationFrame,
+            routeRankingAllowed: routeAuthorizationFrame.routeRankingAllowed,
+            generationAllowed: routeAuthorizationFrame.generationAllowed,
         });
     }
     if (!/^#.*#$/.test(withoutWhitespace)) {
@@ -14574,6 +14670,12 @@ function getAndrewsCnvCnnRouteBoardSourceCandidateStages(sourceStage = null) {
             sourceRole: String(sourceRole || "").trim(),
         });
     };
+    if (
+        stageMetadata.surfaceInputFrame
+        && stageMetadata.routeAuthorizationFrame?.authorized !== true
+    ) {
+        return [];
+    }
     addCandidate(currentStage, "received-source");
     const shouldExposeCnvContainedLayers = currentStage.formulaType === "CNV"
         && currentStage.formulaPosition === "predicate"
@@ -16475,6 +16577,17 @@ function buildAndrewsCnvCnnRouteBoard({
                         : [],
                 }
                 : null,
+            routeAuthorizationFrame: sourceStageMetadata.routeAuthorizationFrame && typeof sourceStageMetadata.routeAuthorizationFrame === "object"
+                ? {
+                    ...sourceStageMetadata.routeAuthorizationFrame,
+                    structuralSourceStage: sourceStageMetadata.routeAuthorizationFrame.structuralSourceStage
+                        ? { ...sourceStageMetadata.routeAuthorizationFrame.structuralSourceStage }
+                        : null,
+                    boundaries: sourceStageMetadata.routeAuthorizationFrame.boundaries
+                        ? { ...sourceStageMetadata.routeAuthorizationFrame.boundaries }
+                        : {},
+                }
+                : null,
             inputTicketFrame: sourceStageMetadata.inputTicketFrame && typeof sourceStageMetadata.inputTicketFrame === "object"
                 ? {
                     ...sourceStageMetadata.inputTicketFrame,
@@ -16591,7 +16704,7 @@ function getAndrewsCnvCnnBackAndForthObstacleEvidenceStatus(entry = null) {
         .map((value) => String(value || "").toLowerCase())
         .join(" ");
     if (/nawat|pipil|orthograph|ortograf|spelling|confirmed|unconfirmed|evidence|evidencia|source-limited|source evidence/.test(text)) {
-        return "source-or-nawat-evidence-gate";
+        return "andrews-source-or-orthography-gate";
     }
     if (/block|bloque|no |not |cannot|falta|missing|exigir|requires|require/.test(text)) {
         return "blocking-or-requirement-gate";
@@ -17330,7 +17443,7 @@ function buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(routeFeatureFrame =
     const evidenceStatusCounts = countAndrewsCnvCnnDimensionValues(routeObstacles, (frame) => frame.evidenceStatus);
     const uniqueGateDomainCount = gateDomainCounts.length;
     const obstacleCount = routeObstacles.length;
-    const sourceOrNawatEvidenceGateCount = getAndrewsCnvCnnCountValue(evidenceStatusCounts, "source-or-nawat-evidence-gate");
+    const sourceOrOrthographyGateCount = getAndrewsCnvCnnCountValue(evidenceStatusCounts, "andrews-source-or-orthography-gate");
     const blockingOrRequirementGateCount = getAndrewsCnvCnnCountValue(evidenceStatusCounts, "blocking-or-requirement-gate");
     const formulaTypeChanged = routeFeatureFrame.numericFeatures.formulaTypeChanged === 1;
     const pathDepth = Number(routeFeatureFrame.numericFeatures.pathDepth || 1);
@@ -17339,7 +17452,7 @@ function buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(routeFeatureFrame =
         obstacleCount,
         domainBreadthPenalty: uniqueGateDomainCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.uniqueGateDomainCount,
         pathDepthPenalty: Math.max(0, pathDepth - 1) * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.pathDepthBeyondOne,
-        evidencePenalty: sourceOrNawatEvidenceGateCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.sourceOrNawatEvidenceGateCount,
+        evidencePenalty: sourceOrOrthographyGateCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.sourceOrOrthographyGateCount,
         requirementPenalty: blockingOrRequirementGateCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.blockingOrRequirementGateCount,
         formulaShiftPenalty: formulaTypeChanged ? ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.formulaTypeChanged : 0,
         intermediatePenalty: intermediateFormulaTypeCount * ANDREWS_CNV_CNN_RESISTANCE_FEATURE_WEIGHTS.intermediateFormulaTypeCount,
@@ -17359,7 +17472,7 @@ function buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(routeFeatureFrame =
         uniqueGateDomainCount,
         gateDomainCounts,
         evidenceStatusCounts,
-        sourceOrNawatEvidenceGateCount,
+        sourceOrOrthographyGateCount,
         blockingOrRequirementGateCount,
         andrewsStructuralGateCount: getAndrewsCnvCnnCountValue(evidenceStatusCounts, "andrews-structural-gate"),
         formulaTypeChanged,
@@ -17370,7 +17483,7 @@ function buildAndrewsCnvCnnBackAndForthRouteResistanceRecord(routeFeatureFrame =
             obstacleCount,
             obstacleShareBasisPoints: totalObstacleCount ? Math.round((obstacleCount / totalObstacleCount) * 10000) : 0,
             uniqueGateDomainCount,
-            sourceOrNawatEvidenceGateCount,
+            sourceOrOrthographyGateCount,
             blockingOrRequirementGateCount,
             resistanceScore,
         },
@@ -17396,8 +17509,8 @@ function getAndrewsCnvCnnRouteResistanceCorrelationFeatures() {
             actionWhenPositive: "Turn requirements into #1/#2 prechecks instead of late route failures.",
         },
         {
-            feature: "sourceOrNawatEvidenceGateCount",
-            label: "source/Nawat evidence gates",
+            feature: "sourceOrOrthographyGateCount",
+            label: "Andrews source/orthography gates",
             actionWhenPositive: "Resolve source evidence before surface realization.",
         },
         {
@@ -18237,109 +18350,64 @@ function inferAndrewsCnvCnnBackAndForthRouteRecordId(input = null) {
     const dataset = input.dataset && typeof input.dataset === "object"
         ? input.dataset
         : {};
-    const datasetFlag = (key) => Boolean(dataset[key]);
-    if (datasetFlag("denominalAndrewsContractRouteContinuation") || datasetFlag("ordinaryNncOwnerhoodContinuation")) {
-        return "cnn-nounstem-to-cnv-verbstem-denominal";
-    }
-    if (datasetFlag("verbPatientivoContinuation") || datasetFlag("patientivoPrelocativeContinuation")) {
-        return "cnv-core-to-cnn-nounstem-deverbal";
-    }
-    if (datasetFlag("patientivoTroncoConversion") || datasetFlag("huaDeverbalYuContinuation")) {
-        return "cnv-to-cnn-to-cnv-loop";
-    }
-    if (datasetFlag("verbNominalContinuation")) {
-        const targetTense = String(dataset.targetTense || "").trim();
-        return targetTense.startsWith("agentivo")
-            ? "cnv-predicate-to-cnn-nounstem-nominalization"
-            : "cnv-core-to-cnn-nounstem-deverbal";
-    }
-    if (
-        datasetFlag("vncAdjectivalFunctionContinuation")
-        || datasetFlag("nominalizedVncAdjectivalFunctionContinuation")
-        || datasetFlag("preteritAgentiveNominalCompoundContinuation")
-        || datasetFlag("customaryAgentiveNominalCompoundContinuation")
-        || datasetFlag("preteritAgentiveComplementContinuation")
-        || datasetFlag("preteritAgentiveAdverbialContinuation")
-    ) {
-        return "cnv-predicate-to-cnn-nounstem-nominalization";
-    }
-    if (
-        datasetFlag("ordinaryNncAdjectivalFunctionContinuation")
-        || datasetFlag("patientivoAdjectivalFunctionContinuation")
-        || datasetFlag("intensifiedAdjectivalFunctionContinuation")
-        || datasetFlag("compoundSourceAdjectivalFunctionContinuation")
-        || datasetFlag("activeActionNominalCompoundContinuation")
-        || datasetFlag("patientivoNominalCompoundContinuation")
-        || datasetFlag("actionNounSourceSubjectPossessor")
-        || datasetFlag("instrumentivoSourceSubjectPossessor")
-    ) {
-        return "cnv-core-to-cnn-nounstem-deverbal";
-    }
-    if (
-        datasetFlag("activeActionCompoundEmbedContinuation")
-        || datasetFlag("customaryAgentiveCompoundEmbedContinuation")
-        || datasetFlag("preteritAgentiveCompoundEmbedContinuation")
-        || datasetFlag("patientivoCompoundEmbedContinuation")
-        || datasetFlag("patientivoCharacteristicPropertyEmbedContinuation")
-        || datasetFlag("preteritAgentiveOwnerhoodContinuation")
-        || datasetFlag("denominalCompoundAdjectivalFunctionContinuation")
-    ) {
-        return "cnv-to-cnn-to-cnv-loop";
-    }
+    const routeFrameIds = (frame = null) => {
+        if (!frame || typeof frame !== "object") {
+            return [];
+        }
+        return [
+            frame.andrewsRouteRecordId,
+            frame.routeRecordId,
+            frame.routeId,
+        ];
+    };
+    const routeContractIds = (contract = null) => {
+        if (!contract || typeof contract !== "object") {
+            return [];
+        }
+        return [
+            contract.andrewsRouteRecordId,
+            contract.routeRecordId,
+            contract.routeId,
+            contract.sourceContract?.andrewsRouteRecordId,
+            contract.sourceContract?.routeRecordId,
+            contract.sourceContract?.routeId,
+            contract.targetContract?.andrewsRouteRecordId,
+            contract.targetContract?.routeRecordId,
+            contract.targetContract?.routeId,
+            ...routeFrameIds(contract.sourceContract?.sourceRouteFrame),
+            ...routeFrameIds(contract.sourceContract?.routeFrame),
+            ...routeFrameIds(contract.targetContract?.sourceRouteFrame),
+            ...routeFrameIds(contract.targetContract?.routeFrame),
+        ];
+    };
     const directIds = [
         input.andrewsRouteRecordId,
         input.routeRecordId,
         input.conversionRouteRecordId,
         input.routeId,
-        dataset.andrewsRouteRecordId,
-        dataset.routeRecordId,
-        dataset.conversionRouteRecordId,
-        dataset.routeId,
-        input.routeContract?.sourceContract?.andrewsRouteRecordId,
-        input.routeContract?.targetContract?.andrewsRouteRecordId,
-        input.grammarFrame?.routeContract?.sourceContract?.andrewsRouteRecordId,
-        input.grammarFrame?.routeContract?.targetContract?.andrewsRouteRecordId,
-        input.frames?.routeContract?.sourceContract?.andrewsRouteRecordId,
-        input.frames?.routeContract?.targetContract?.andrewsRouteRecordId,
+        input.andrewsRouteActionContract?.routeRecordId,
+        input.routeActionContract?.routeRecordId,
+        input.result?.andrewsRouteActionContract?.routeRecordId,
+        input.evaluation?.result?.andrewsRouteActionContract?.routeRecordId,
+        input.grammarFrame?.morphBoundaryFrame?.andrewsRouteActionContract?.routeRecordId,
+        input.frames?.morphBoundaryFrame?.andrewsRouteActionContract?.routeRecordId,
+        ...routeContractIds(input.routeContract),
+        ...routeContractIds(input.grammarFrame?.routeContract),
+        ...routeContractIds(input.frames?.routeContract),
+        ...routeFrameIds(input.sourceRouteFrame),
+        ...routeFrameIds(input.routeFrame),
+        ...routeFrameIds(input.routeCoordinateFrame),
+        ...routeFrameIds(input.incorporationRouteFrame),
+        ...routeFrameIds(input.result?.sourceRouteFrame),
+        ...routeFrameIds(input.result?.routeFrame),
+        ...routeFrameIds(input.grammarFrame?.sourceRouteFrame),
+        ...routeFrameIds(input.grammarFrame?.routeFrame),
+        ...routeFrameIds(input.frames?.sourceRouteFrame),
+        ...routeFrameIds(input.frames?.routeFrame),
     ].map((entry) => String(entry || "").trim());
     const direct = directIds.find((entry) => getAndrewsCnvCnnBackAndForthRouteRecordById(entry));
     if (direct) {
         return direct;
-    }
-    const routeFamily = String(input.routeFamily
-        || input.generationRoute
-        || input.outputKind
-        || input.grammarFrame?.routeContract?.routeFamily
-        || input.frames?.routeContract?.routeFamily
-        || "").trim();
-    const routeStage = String(input.routeStage
-        || input.grammarFrame?.routeContract?.routeStage
-        || input.frames?.routeContract?.routeStage
-        || "").trim();
-    const routeTemplateId = String(input.routeTemplateId || input.contractId || "").trim();
-    const nominalizationKind = String(input.nominalizationProfile?.role?.nominalizationKind
-        || input.nominalizationKind
-        || input.grammarFrame?.routeContract?.targetContract?.nominalizationKind
-        || "").trim();
-    if (/adjectival-nnc|root-plus-ya|denominal-tiya|denominal-compound/i.test(routeFamily) || input.denominalCompoundSourceFrame) {
-        return "cnv-to-cnn-to-cnv-loop";
-    }
-    const denominalFamily = input.denominalFamilyProfile || input.andrewsContractRoutePreview;
-    if (
-        denominalFamily
-        || /denominal|inceptive-stative|verbializing|ti-ya|hui-ya|andrews-contract/i.test(routeTemplateId)
-        || /denominal/i.test(routeFamily)
-    ) {
-        return "cnn-nounstem-to-cnv-verbstem-denominal";
-    }
-    if (/deverbal.*verbstem|ti-ya|hui-ya/i.test(routeFamily) || /next-source|linked-grammar-path-stage/i.test(routeStage)) {
-        return "cnv-verbstem-to-cnv-verbstem-deverbal";
-    }
-    if (/action-nominal|instrumentivo|patientive|potential-patient|locativo-temporal|calificativo/i.test(nominalizationKind || routeFamily)) {
-        return "cnv-core-to-cnn-nounstem-deverbal";
-    }
-    if (/agentive|agentivo|nominalized-vnc|present-agentive|preterit-agentive|customary-agentive|future-agentive/i.test(nominalizationKind || routeFamily)) {
-        return "cnv-predicate-to-cnn-nounstem-nominalization";
     }
     return "";
 }
@@ -19289,30 +19357,39 @@ function buildAndrewsCnvCnnSynonymLoopProbe() {
         { stem: "chichiktiya", expectedResult: "chichiktik", expectedLessonRef: "Andrews 40.10", expectedSynonymSetKind: "pair" },
         { stem: "melaztiya", expectedResult: "melaztik", expectedLessonRef: "Andrews 40.11", expectedSynonymSetKind: "triplet" },
     ].map((example) => {
-        const result = typeof generateRootPlusYaAdjectivalNncOutput === "function"
-            ? generateRootPlusYaAdjectivalNncOutput({ stem: example.stem })
+        const parsedVerb = typeof resolveAdjectivalNncParsedVerb === "function"
+            ? resolveAdjectivalNncParsedVerb(example.stem)
             : null;
-        const sourceFrame = result?.rootPlusYaAdjectivalNncFrame?.sourceFormationFrame || null;
+        const sourceFrame = typeof buildRootPlusYaAdjectivalNncSourceFrame === "function"
+            ? buildRootPlusYaAdjectivalNncSourceFrame({ parsedVerb })
+            : null;
+        const operationFrame = typeof buildRootPlusYaAdjectivalNncOperationFrame === "function"
+            ? buildRootPlusYaAdjectivalNncOperationFrame(sourceFrame)
+            : null;
+        const result = typeof generateRootPlusYaAdjectivalNncOutput === "function"
+            ? generateRootPlusYaAdjectivalNncOutput({ stem: example.stem, sourceFrame, operationFrame })
+            : null;
+        const formationFrame = result?.rootPlusYaAdjectivalNncFrame?.sourceFormationFrame || null;
         const hit = Boolean(result)
             && result.supported === true
             && result.result === example.expectedResult
-            && sourceFrame?.lessonRef === example.expectedLessonRef
-            && sourceFrame?.sourceFormationSubtype === "denominal-tiya"
-            && sourceFrame?.synonymSetKind === example.expectedSynonymSetKind
-            && sourceFrame?.outputContract === "generate-current-source-only"
-            && sourceFrame?.doesNotGenerateSiblingForms === true;
+            && formationFrame?.lessonRef === example.expectedLessonRef
+            && formationFrame?.sourceFormationSubtype === "denominal-tiya"
+            && formationFrame?.synonymSetKind === example.expectedSynonymSetKind
+            && formationFrame?.outputContract === "generate-current-source-only"
+            && formationFrame?.doesNotGenerateSiblingForms === true;
         return {
             stem: example.stem,
             expectedResult: example.expectedResult,
             result: result?.result || "",
             formulaEcho: result?.formulaEcho || "",
-            sourceFormationSubtype: sourceFrame?.sourceFormationSubtype || "",
-            sourceLessonRef: sourceFrame?.lessonRef || "",
-            sourcePattern: sourceFrame?.sourcePattern || "",
-            andrewsSourcePattern: sourceFrame?.andrewsSourcePattern || "",
-            synonymSetKind: sourceFrame?.synonymSetKind || "",
-            outputContract: sourceFrame?.outputContract || "",
-            doesNotGenerateSiblingForms: sourceFrame?.doesNotGenerateSiblingForms === true,
+            sourceFormationSubtype: formationFrame?.sourceFormationSubtype || "",
+            sourceLessonRef: formationFrame?.lessonRef || "",
+            sourcePattern: formationFrame?.sourcePattern || "",
+            andrewsSourcePattern: formationFrame?.andrewsSourcePattern || "",
+            synonymSetKind: formationFrame?.synonymSetKind || "",
+            outputContract: formationFrame?.outputContract || "",
+            doesNotGenerateSiblingForms: formationFrame?.doesNotGenerateSiblingForms === true,
             hit,
         };
     });
@@ -19332,16 +19409,69 @@ function buildAndrewsCnvCnnSynonymLoopProbe() {
 }
 
 function buildAndrewsCnvCnnDenominalCompoundLoopProbe() {
+    const parsedVerb = typeof resolveAdjectivalNncParsedVerb === "function"
+        ? resolveAdjectivalNncParsedVerb("(xilo/tzon/tiya)")
+        : null;
+    const rootPlusYaSourceFrame = typeof buildRootPlusYaAdjectivalNncSourceFrame === "function"
+        ? buildRootPlusYaAdjectivalNncSourceFrame({ parsedVerb })
+        : null;
+    const rootPlusYaOperationFrame = typeof buildRootPlusYaAdjectivalNncOperationFrame === "function"
+        ? buildRootPlusYaAdjectivalNncOperationFrame(rootPlusYaSourceFrame)
+        : null;
     const generated = typeof generateRootPlusYaAdjectivalNncOutput === "function"
-        ? generateRootPlusYaAdjectivalNncOutput({ stem: "(xilo/tzon/tiya)" })
+        ? generateRootPlusYaAdjectivalNncOutput({
+            stem: "(xilo/tzon/tiya)",
+            sourceFrame: rootPlusYaSourceFrame,
+            operationFrame: rootPlusYaOperationFrame,
+        })
         : null;
     const sourceFrame = generated?.denominalCompoundSourceFrame || null;
+    const formulaRecord = generated?.grammarFrame?.resultFrame?.formulaRecord || null;
+    const formulaRealizationRecord = generated?.grammarFrame?.resultFrame?.formulaRealizationRecord || null;
+    const sourceContinuationFrame = formulaRecord && formulaRealizationRecord
+        ? {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots: formulaRecord.formulaSlots || generated?.formulaSlots || null,
+        }
+        : null;
+    const operationFrame = sourceContinuationFrame
+        && typeof buildDenominalCompoundAdjectivalNncOperationFrame === "function"
+        ? buildDenominalCompoundAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            sourceDenominalCompoundFrame: sourceFrame,
+            role: "predicate-surface",
+        })
+        : null;
+    const targetContinuationFrame = sourceContinuationFrame && operationFrame
+        ? {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...sourceContinuationFrame.formulaRecord,
+                operationFrames: [
+                    ...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames)
+                        ? sourceContinuationFrame.formulaRecord.operationFrames
+                        : []),
+                    operationFrame,
+                ],
+            },
+        }
+        : null;
     const direct = typeof buildDenominalCompoundAdjectivalNncFunctionOutput === "function"
         ? buildDenominalCompoundAdjectivalNncFunctionOutput({
-            denominalCompoundSurface: generated?.result || "",
+            denominalCompoundSurface: "engine-probe-display-only",
             sourceDenominalCompoundFrame: sourceFrame,
-            formulaSlots: generated?.formulaSlots || null,
-            formulaEcho: generated?.formulaEcho || "",
+            formulaSlots: formulaRecord?.formulaSlots || generated?.formulaSlots || null,
+            formulaEcho: "engine-probe-formula-display-only",
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true,
         })
         : null;
     const functionFrame = direct?.adjectivalNncFunctionFrame || null;
@@ -19550,7 +19680,7 @@ function buildAndrewsCnvCnnBackAndForthAudit() {
         version: 1,
         pdfSearchTerms: ["deverbal nounstem", "denominal verbstem", "deverbal verbstem"],
         grammarAuthority: "Andrews PDF",
-        spellingAuthority: "Nawat/Pipil evidence",
+        spellingAuthority: "Nawat/Pipil orthography bridge",
         formalClasses: ["CNV", "CNN", "Partícula"],
         dimensionSystem: dimensionalIndex.dimensionSystem,
         routeRecords,
@@ -20771,10 +20901,67 @@ function splitNuclearClauseShellSurfaceText(value = "") {
         .filter(Boolean);
 }
 
+function getNuclearClauseShellCanonicalRealizationSurfaceForms(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return records
+        .filter((record) => record && typeof record === "object" && record.kind === "grammar-formula-realization-record")
+        .flatMap((record) => [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ])
+        .map((entry) => normalizeNuclearClauseShellSurface(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function getNuclearClauseShellSelectedRealizationVariant(input = null) {
+    const resultFrame = getNuclearClauseShellResultFrame(input);
+    if (!resultFrame) {
+        return null;
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+            continue;
+        }
+        const surfaces = [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ]
+            .map((entry) => normalizeNuclearClauseShellSurface(entry))
+            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+            continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+            kind: "grammar-formula-realization-selected-variant",
+            selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+            selectedVariantIndex,
+            formulaRealizationRecordId,
+            formulaRecordId,
+            unit: String(record.unit || resultFrame.formulaRecord?.unit || ""),
+        };
+    }
+    return null;
+}
+
 function getNuclearClauseShellFramedSurface(input = null) {
     const resultFrame = getNuclearClauseShellResultFrame(input);
     if (!resultFrame) {
         return null;
+    }
+    const canonicalForms = getNuclearClauseShellCanonicalRealizationSurfaceForms(resultFrame);
+    if (canonicalForms.length) {
+        return canonicalForms[0] || "";
     }
     const forms = [];
     if (Array.isArray(resultFrame.surfaceForms)) {
@@ -20783,7 +20970,9 @@ function getNuclearClauseShellFramedSurface(input = null) {
     if (resultFrame.surface) {
         forms.push(resultFrame.surface);
     }
-    return forms.flatMap((entry) => splitNuclearClauseShellSurfaceText(entry))[0] || "";
+    return forms
+        .map((entry) => normalizeNuclearClauseShellSurface(entry))
+        .filter((entry) => entry && !entry.includes("/"))[0] || "";
 }
 
 function resolveNuclearClauseShellText(input = null, fields = [], fallback = "") {
@@ -21046,12 +21235,23 @@ function buildVerbalNuclearClauseShell({
         usageRole,
         slots: formulaSlots,
     });
+    const formulaSchema = typeof getAndrewsFormulaSlotSchema === "function"
+        ? getAndrewsFormulaSlotSchema("vnc-shell")
+        : null;
+    const formulaSlotTokenOverrides = predicatePositionStatus === "monadic"
+        ? { valence: "va" }
+        : {};
     return {
         formulaType: NUCLEAR_CLAUSE_FORMULA_TYPE.vnc,
         formulaAbbreviation: terminology.abbreviation,
         formulaLabel: getNuclearClauseFormulaLabel(NUCLEAR_CLAUSE_FORMULA_TYPE.vnc),
         terminology,
-        formula: lesson4.activeFormula.formula,
+        formulaSchemaId: formulaSchema?.id || "vnc-shell",
+        formulaSchemaVersion: formulaSchema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: typeof renderAndrewsFormulaTemplate === "function"
+            ? renderAndrewsFormulaTemplate(formulaSchema || "vnc-shell", { slotTokens: formulaSlotTokenOverrides })
+            : lesson4.activeFormula.formula,
         expandedFormula: VERBAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA,
         formulaSlots,
         formulaEcho: buildVerbalNuclearClauseFormulaEchoFromSlots(formulaSlots),
@@ -21090,6 +21290,16 @@ function buildNominalNuclearClauseShell({
     const subjectSource = getNuclearClauseFormulaSlot(formulaSlots, "pers1Pers2") || subject || {};
     const predicateSource = getNuclearClauseFormulaSlot(formulaSlots, "predicateStem") || predicate || {};
     const connectorSource = getNuclearClauseFormulaSlot(formulaSlots, "num1Num2") || {};
+    const resolvedPredicateState = String(predicateSource.state || predicate?.state || predicateState || "");
+    const formulaSchemaId = resolvedPredicateState === "possessive"
+        ? "possessive-state-nnc"
+        : "ordinary-nnc-shell";
+    const formulaSchema = typeof getAndrewsFormulaSlotSchema === "function"
+        ? getAndrewsFormulaSlotSchema(formulaSchemaId)
+        : null;
+    const connectorDefinition = typeof getAndrewsFormulaSlotDefinition === "function"
+        ? getAndrewsFormulaSlotDefinition(formulaSchemaId, "num1-num2")
+        : null;
     const subjectSlot = buildClauseParticipantSlot({
         slot: subjectSource.slot || ANDREWS_NUCLEAR_SLOT.pers1Pers2,
         role: "subject",
@@ -21102,17 +21312,25 @@ function buildNominalNuclearClauseShell({
         ["stem", "surface"],
         predicate?.stem || ""
     );
+    const predicateFormulaDisplayStem = resolveNuclearClauseShellText(
+        predicateSource,
+        ["formulaDisplayStem"],
+        ""
+    );
     const predicateSlot = {
         slot: predicateSource.slot || ANDREWS_NUCLEAR_SLOT.predicateStem,
         role: "nominal-predicate",
         stem: String(predicateStem || ""),
-        displayStem: String(predicateStem || "") || "∅",
+        displayStem: String(predicateFormulaDisplayStem || predicateStem || "") || "∅",
         state: predicateSource.state || predicateState || "unknown",
         stateSlot: predicateSource.stateSlot || null,
     };
     const connectorSlot = {
         slot: connectorSource.slot || ANDREWS_NUCLEAR_SLOT.numberConnector,
         role: "subject-number-connector",
+        formulaSchemaId: formulaSchema?.id || "ordinary-nnc-shell",
+        formulaSlot: connectorDefinition?.id || "num1-num2",
+        slotPath: connectorDefinition?.path || "subject.num1-num2",
         connector: resolveNuclearClauseShellText(connectorSource, ["connector", "surface"], ""),
         displayConnector: resolveNuclearClauseShellText(
             connectorSource,
@@ -21120,10 +21338,41 @@ function buildNominalNuclearClauseShell({
             "Ø"
         ) || "Ø",
         nounClass: connectorSource.nounClass || "",
+        compactDisplay: connectorSource.compactDisplay,
+        compactSurface: connectorSource.compactSurface,
+        num1: connectorSource.num1,
+        num2: connectorSource.num2,
+        displayNum1: connectorSource.displayNum1,
+        displayNum2: connectorSource.displayNum2,
+        displayDyad: connectorSource.displayDyad,
+        dyadSource: connectorSource.dyadSource,
+        blockedInterpretations: Array.isArray(connectorDefinition?.blockedInterpretations)
+            ? Array.from(connectorDefinition.blockedInterpretations)
+            : ["tense", "stem-suffix", "nounstem", "predicate-state"],
         notLexicalSuffix: true,
+        notStemSuffix: true,
         notTense: true,
     };
-    const echo = formulaEcho || `#${subjectSlot.displayPrefix}-${subjectSlot.displaySuffix}(${predicateSlot.displayStem})${connectorSlot.displayConnector}#`;
+    const compactEcho = formulaEcho || (
+        typeof renderAndrewsFormulaEchoFromSchema === "function"
+            ? renderAndrewsFormulaEchoFromSchema("ordinary-nnc-shell", {
+                pers1Pers2: subjectSlot,
+                predicateStem: predicateSlot,
+                num1Num2: connectorSlot,
+            })
+            : `#${subjectSlot.displayPrefix}-${subjectSlot.displaySuffix}(${predicateSlot.displayStem})${connectorSlot.displayConnector}#`
+    );
+    const fullEcho = connectorSlot.displayDyad && typeof renderAndrewsFormulaEchoFromSchema === "function"
+        ? renderAndrewsFormulaEchoFromSchema("ordinary-nnc-shell", {
+            pers1Pers2: subjectSlot,
+            predicateStem: predicateSlot,
+            num1Num2: {
+                ...connectorSlot,
+                displayConnector: connectorSlot.displayConnector,
+                displayDyad: connectorSlot.displayDyad,
+            },
+        })
+        : compactEcho;
     const terminology = getNuclearClauseTerminologyForFormulaType(NUCLEAR_CLAUSE_FORMULA_TYPE.nnc);
     const predicatePositionStatus = inferNominalPredicatePositionStatus({
         predicate,
@@ -21146,15 +21395,26 @@ function buildNominalNuclearClauseShell({
         usageRole,
         slots: lesson4Slots,
     });
+    const formulaSlotTokenOverrides = formulaSchemaId === "possessive-state-nnc"
+        && String(predicateSlot.stateSlot?.predicatePositionStatus || predicatePositionStatus || "") === "monadic"
+        ? { possessiveState: "st" }
+        : {};
     return {
         formulaType: NUCLEAR_CLAUSE_FORMULA_TYPE.nnc,
         formulaAbbreviation: terminology.abbreviation,
         formulaLabel: getNuclearClauseFormulaLabel(NUCLEAR_CLAUSE_FORMULA_TYPE.nnc),
         terminology,
-        formula: lesson4.activeFormula.formula,
+        formulaSchemaId: formulaSchema?.id || formulaSchemaId,
+        formulaSchemaVersion: formulaSchema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: typeof renderAndrewsFormulaTemplate === "function"
+            ? renderAndrewsFormulaTemplate(formulaSchema || formulaSchemaId, { slotTokens: formulaSlotTokenOverrides })
+            : lesson4.activeFormula.formula,
         expandedFormula: NOMINAL_NUCLEAR_CLAUSE_EXPANDED_COMPAT_FORMULA,
         formulaSlots: lesson4Slots,
-        formulaEcho: echo,
+        formulaEcho: compactEcho,
+        fullFormulaEcho: fullEcho,
+        compactFormulaEcho: compactEcho,
         lesson4,
         predicatePositionStatus,
         predicatePositionStatusSource,
@@ -21199,7 +21459,7 @@ function buildNuclearClauseShellMetadata(options = {}) {
         kind: "nuclear-clause-shell",
         version: NUCLEAR_CLAUSE_SHELL_VERSION,
         source: "Andrews Lesson 4 structural analogy",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         clauseKind,
         terminology,
         formulaAbbreviation,
@@ -21223,9 +21483,14 @@ function buildNuclearClauseShellMetadata(options = {}) {
             formulaLabel: getNuclearClauseFormulaLabel(formulaType),
             terminology,
             displayLabel: shell.displayLabel,
+            formulaSchemaId: shell.formulaSchemaId || "",
+            formulaSchemaVersion: shell.formulaSchemaVersion || null,
+            formulaSlotSource: shell.formulaSlotSource || "",
             formula: shell.formula,
             expandedFormula: shell.expandedFormula || "",
             formulaEcho: shell.formulaEcho,
+            fullFormulaEcho: shell.fullFormulaEcho || "",
+            compactFormulaEcho: shell.compactFormulaEcho || "",
             lesson4: shell.lesson4 || null,
             predicatePositionStatus: shell.predicatePositionStatus || "",
             predicatePositionStatusSource: shell.predicatePositionStatusSource || "",

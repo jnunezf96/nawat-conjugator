@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/preterit/engine.js.
 
-export function createPreteritEngineApi(targetObject = globalThis) {
+export function createPreteritEngineModule(targetObject = globalThis) {
     // Preterit/perfective universal runtime (class builders + policy + assembly).
     // Depends on pret_universal_context.js.
     const PRET_STEM_SPEC_KIND = Object.freeze({
@@ -14,8 +14,162 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       deletionShift: "deletion-shift",
       coalesceFinalI: "coalesce-final-i"
     });
+    const PRET_BASE_SOURCE_FRAME_KIND = "preterit-base-source-frame";
+    const PRET_BASE_SEGMENT_FRAME_KIND = "preterit-base-segment-frame";
+    const PRET_BASE_OPERATION_FRAME_KIND = "preterit-base-transform-operation-frame";
+    const PRET_PREFIX_BASE_CONTACT_FRAME_KIND = "preterit-prefix-base-contact-frame";
+    const PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND = "preterit-prefix-base-contact-segment-frame";
+    const PRET_VARIANT_ASSEMBLY_FRAME_KIND = "preterit-variant-assembly-frame";
+    const PRET_VARIANT_ASSEMBLY_SOURCE_FRAME_KIND = "preterit-variant-assembly-source-frame";
+    const PRET_VARIANT_ASSEMBLY_OPERATION_FRAME_KIND = "preterit-variant-assembly-operation-frame";
+    function normalizePretBaseFrameText(value = "") {
+      return typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(value || "").trim().toLowerCase()) : String(value || "").trim().toLowerCase();
+    }
+    function buildPretBaseSourceFrame(sourceBase = "") {
+      const surfaceBase = normalizePretBaseFrameText(sourceBase);
+      if (!surfaceBase) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_BASE_SOURCE_FRAME_KIND,
+        role: "preterit-source-base",
+        surfaceBase
+      });
+    }
+    function buildPretBaseSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_BASE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretBaseFrameText(value)
+      });
+    }
+    function buildPretBaseOperationFrame({
+      transformKind = "",
+      sourceFrame = null,
+      sourceSuffix = "",
+      appendText = "",
+      replacement = "",
+      deletionVariant = "",
+      isTransitive = false
+    } = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== PRET_BASE_SOURCE_FRAME_KIND || !sourceFrame.surfaceBase || !transformKind) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_BASE_OPERATION_FRAME_KIND,
+        transformKind,
+        sourceFrame: Object.freeze({
+          ...sourceFrame
+        }),
+        sourceSuffixFrame: buildPretBaseSegmentFrame("source-suffix", sourceSuffix),
+        appendFrame: buildPretBaseSegmentFrame("append", appendText),
+        replacementFrame: buildPretBaseSegmentFrame("replacement", replacement),
+        deletionVariant: String(deletionVariant || ""),
+        isTransitive: isTransitive === true
+      });
+    }
+    function getPretContactLetters(value = "") {
+      const normalized = normalizePretBaseFrameText(value);
+      return typeof targetObject.splitVerbLetters === "function" ? targetObject.splitVerbLetters(normalized) : normalized.split("");
+    }
+    function joinPretContactLetters(letters = []) {
+      return (Array.isArray(letters) ? letters : []).join("");
+    }
+    function buildPretPrefixBaseContactSegmentFrame(role = "", value = "") {
+      const text = normalizePretBaseFrameText(value);
+      const letters = getPretContactLetters(text);
+      return Object.freeze({
+        kind: PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND,
+        role,
+        text,
+        letters: Object.freeze(letters.slice()),
+        first: letters[0] || "",
+        second: letters[1] || "",
+        penultimate: letters[letters.length - 2] || "",
+        final: letters[letters.length - 1] || ""
+      });
+    }
+    function buildPretPrefixBaseContactFrame({
+      prefix = "",
+      base = "",
+      baseSubjectPrefix = "",
+      contactKind = "prefix-base",
+      composedObjectPrefix = false,
+      suppressBareKBeforeK = false,
+      allowZeroBitransitiveDrop = false,
+      dropYAfterWal = false
+    } = {}) {
+      const prefixFrame = buildPretPrefixBaseContactSegmentFrame("prefix", prefix);
+      const baseFrame = buildPretPrefixBaseContactSegmentFrame("base", base);
+      if (!prefixFrame.text && !baseFrame.text) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_PREFIX_BASE_CONTACT_FRAME_KIND,
+        contactKind: String(contactKind || "prefix-base"),
+        prefixFrame,
+        baseFrame,
+        baseSubjectPrefixFrame: buildPretPrefixBaseContactSegmentFrame("base-subject-prefix", baseSubjectPrefix),
+        operationFrame: Object.freeze({
+          kind: "preterit-prefix-base-contact-operation-frame",
+          composedObjectPrefix: composedObjectPrefix === true,
+          suppressBareKBeforeK: suppressBareKBeforeK === true,
+          allowZeroBitransitiveDrop: allowZeroBitransitiveDrop === true,
+          dropYAfterWal: dropYAfterWal === true
+        })
+      });
+    }
+    function buildPretVariantAssemblyFrame({
+      variants = [],
+      subjectPrefix = "",
+      objectPrefix = "",
+      subjectSuffix = "",
+      directionalInputPrefix = "",
+      directionalOutputPrefix = "",
+      baseSubjectPrefix = subjectPrefix,
+      baseObjectPrefix = objectPrefix,
+      pluralSuffix = null,
+      indirectObjectMarker = "",
+      hasDoubleDash = false,
+      isYawi = false,
+      hasOptionalSupportiveI = false,
+      optionalSupportiveLetter = ""
+    } = {}) {
+      const structuralVariants = Array.isArray(variants) ? variants.slice() : [];
+      return Object.freeze({
+        kind: PRET_VARIANT_ASSEMBLY_FRAME_KIND,
+        sourceFrame: Object.freeze({
+          kind: PRET_VARIANT_ASSEMBLY_SOURCE_FRAME_KIND,
+          variants: Object.freeze(structuralVariants),
+          variantCount: structuralVariants.length
+        }),
+        participantFrame: Object.freeze({
+          subjectPrefix: String(subjectPrefix || ""),
+          objectPrefix: String(objectPrefix || ""),
+          subjectSuffix: String(subjectSuffix || ""),
+          baseSubjectPrefix: String(baseSubjectPrefix || subjectPrefix || ""),
+          baseObjectPrefix: String(baseObjectPrefix || objectPrefix || ""),
+          indirectObjectMarker: String(indirectObjectMarker || ""),
+          hasDoubleDash: hasDoubleDash === true
+        }),
+        directionalFrame: Object.freeze({
+          inputPrefix: String(directionalInputPrefix || ""),
+          outputPrefix: String(directionalOutputPrefix || ""),
+          isYawi: isYawi === true
+        }),
+        inflectionFrame: Object.freeze({
+          pluralSuffix: pluralSuffix === null ? null : String(pluralSuffix || ""),
+          hasOptionalSupportiveI: hasOptionalSupportiveI === true,
+          optionalSupportiveLetter: String(optionalSupportiveLetter || "")
+        }),
+        operationFrame: Object.freeze({
+          kind: PRET_VARIANT_ASSEMBLY_OPERATION_FRAME_KIND,
+          operation: "assemble-preterit-variant-surfaces"
+        })
+      });
+    }
     function buildPretLiteralBaseSpec(base = "") {
-      const normalizedBase = typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(base || "").trim().toLowerCase()) : String(base || "").trim().toLowerCase();
+      const normalizedBase = normalizePretBaseFrameText(base);
       if (!normalizedBase) {
         return null;
       }
@@ -33,7 +187,17 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       deletionVariant = "",
       isTransitive = false
     } = {}) {
-      const normalizedSourceBase = typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(sourceBase || "").trim().toLowerCase()) : String(sourceBase || "").trim().toLowerCase();
+      const sourceFrame = buildPretBaseSourceFrame(sourceBase);
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind,
+        sourceFrame,
+        sourceSuffix,
+        appendText,
+        replacement,
+        deletionVariant,
+        isTransitive
+      });
+      const normalizedSourceBase = sourceFrame?.surfaceBase || "";
       if (!normalizedSourceBase || !transformKind) {
         return null;
       }
@@ -41,11 +205,12 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         kind: PRET_STEM_SPEC_KIND.transform,
         transformKind,
         sourceBase: normalizedSourceBase,
-        sourceSuffix: typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(sourceSuffix || "").trim().toLowerCase()) : String(sourceSuffix || "").trim().toLowerCase(),
-        appendText: typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(appendText || "").trim().toLowerCase()) : String(appendText || "").trim().toLowerCase(),
-        replacement: typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(replacement || "").trim().toLowerCase()) : String(replacement || "").trim().toLowerCase(),
+        sourceSuffix: normalizePretBaseFrameText(sourceSuffix),
+        appendText: normalizePretBaseFrameText(appendText),
+        replacement: normalizePretBaseFrameText(replacement),
         deletionVariant: String(deletionVariant || ""),
-        isTransitive: isTransitive === true
+        isTransitive: isTransitive === true,
+        operationFrame
       });
     }
     function buildPretAppendBaseSpec(sourceBase = "", appendText = "") {
@@ -70,6 +235,39 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         isTransitive: options.isTransitive === true
       });
     }
+    function buildPretTransformBaseSpecFromOperationFrame(operationFrame = null) {
+      const sourceBase = getPretOperationFrameSourceBase(operationFrame);
+      const transformKind = String(operationFrame?.transformKind || "");
+      if (!operationFrame || typeof operationFrame !== "object" || operationFrame.kind !== PRET_BASE_OPERATION_FRAME_KIND || !sourceBase || !transformKind) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_STEM_SPEC_KIND.transform,
+        transformKind,
+        sourceBase,
+        sourceSuffix: normalizePretBaseFrameText(operationFrame.sourceSuffixFrame?.text || ""),
+        appendText: normalizePretBaseFrameText(operationFrame.appendFrame?.text || ""),
+        replacement: normalizePretBaseFrameText(operationFrame.replacementFrame?.text || ""),
+        deletionVariant: String(operationFrame.deletionVariant || ""),
+        isTransitive: operationFrame.isTransitive === true,
+        operationFrame
+      });
+    }
+    function buildPretBaseSourceFrameFromRootPlusYaSourceFrame(rootPlusYaFrame = null) {
+      if (!rootPlusYaFrame || typeof rootPlusYaFrame !== "object" || rootPlusYaFrame.kind !== "preterit-root-plus-ya-source-frame" || !rootPlusYaFrame.sourceVerbFrame || rootPlusYaFrame.sourceVerbFrame.kind !== "preterit-root-plus-ya-source-segment-frame") {
+        return null;
+      }
+      return buildPretBaseSourceFrame(rootPlusYaFrame.sourceVerbFrame.text || "");
+    }
+    function buildPretPerfectiveReplacementBaseSpecFromRootPlusYaSourceFrame(rootPlusYaFrame = null, options = {}) {
+      const sourceFrame = buildPretBaseSourceFrameFromRootPlusYaSourceFrame(rootPlusYaFrame);
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind: PRET_STEM_TRANSFORM_KIND.perfectiveReplacement,
+        sourceFrame,
+        isTransitive: options.isTransitive === true
+      });
+      return buildPretTransformBaseSpecFromOperationFrame(operationFrame);
+    }
     function buildPretDeletionShiftBaseSpec(sourceBase = "", deletionVariant = "", options = {}) {
       return buildPretTransformBaseSpec({
         transformKind: PRET_STEM_TRANSFORM_KIND.deletionShift,
@@ -84,80 +282,212 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         sourceBase
       });
     }
-    function realizePretBaseSpec(spec = null, fallbackBase = "") {
+    function buildPretBaseSpecDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-base-transform-operation-frame",
+        ...details
+      };
+    }
+    function blockPretBaseSpec(id = "", details = {}) {
+      return {
+        ok: false,
+        base: "",
+        diagnostics: [buildPretBaseSpecDiagnostic(id, details)]
+      };
+    }
+    function getPretOperationFrameSourceBase(operationFrame = null) {
+      return typeof operationFrame?.sourceFrame?.surfaceBase === "string" ? normalizePretBaseFrameText(operationFrame.sourceFrame.surfaceBase) : "";
+    }
+    function evaluatePretBaseOperationFrame(operationFrame = null, expected = {}) {
+      if (!operationFrame || typeof operationFrame !== "object") {
+        return blockPretBaseSpec("preterit-base-missing-operation-frame", {
+          expectedTransformKind: expected.transformKind || ""
+        });
+      }
+      const sourceBase = getPretOperationFrameSourceBase(operationFrame);
+      const transformKind = String(operationFrame.transformKind || "");
+      if (operationFrame.kind !== PRET_BASE_OPERATION_FRAME_KIND || !sourceBase || expected.transformKind && transformKind !== expected.transformKind) {
+        return blockPretBaseSpec("preterit-base-contradictory-operation-frame", {
+          expectedTransformKind: expected.transformKind || "",
+          actualTransformKind: transformKind,
+          actualSourceBase: sourceBase
+        });
+      }
+      if (transformKind === PRET_STEM_TRANSFORM_KIND.append) {
+        return {
+          ok: true,
+          base: `${sourceBase}${operationFrame.appendFrame?.text || ""}`,
+          diagnostics: [],
+          operationFrame
+        };
+      }
+      if (transformKind === PRET_STEM_TRANSFORM_KIND.replaceSuffix) {
+        const sourceSuffix = normalizePretBaseFrameText(operationFrame.sourceSuffixFrame?.text || "");
+        const replacement = normalizePretBaseFrameText(operationFrame.replacementFrame?.text || "");
+        if (!sourceSuffix) {
+          return {
+            ok: true,
+            base: `${sourceBase}${replacement}`,
+            diagnostics: [],
+            operationFrame
+          };
+        }
+        return {
+          ok: true,
+          base: sourceBase.endsWith(sourceSuffix) ? `${sourceBase.slice(0, -sourceSuffix.length)}${replacement}` : `${sourceBase}${replacement}`,
+          diagnostics: [],
+          operationFrame
+        };
+      }
+      if (transformKind === PRET_STEM_TRANSFORM_KIND.perfectiveReplacement) {
+        if (sourceBase.endsWith("ya")) {
+          const letters = targetObject.splitVerbLetters(sourceBase);
+          const recent = letters.slice(Math.max(0, letters.length - 6));
+          const hasRecentS = recent.includes("s");
+          const base = sourceBase.slice(0, -2);
+          if (!operationFrame.isTransitive && hasRecentS) {
+            return {
+              ok: true,
+              base: base.endsWith("s") ? base : `${base}s`,
+              diagnostics: [],
+              operationFrame
+            };
+          }
+          return {
+            ok: true,
+            base: `${base}sh`,
+            diagnostics: [],
+            operationFrame
+          };
+        }
+        return {
+          ok: true,
+          base: `${sourceBase.slice(0, -1)}j`,
+          diagnostics: [],
+          operationFrame
+        };
+      }
+      if (transformKind === PRET_STEM_TRANSFORM_KIND.deletionShift) {
+        if (operationFrame.deletionVariant === "kw-to-k") {
+          return {
+            ok: sourceBase.endsWith("kw"),
+            base: sourceBase.endsWith("kw") ? `${sourceBase.slice(0, -2)}k` : "",
+            diagnostics: sourceBase.endsWith("kw") ? [] : [buildPretBaseSpecDiagnostic("preterit-base-contradictory-operation-frame", {
+              expectedFinal: "kw",
+              actualSourceBase: sourceBase
+            })],
+            operationFrame
+          };
+        }
+        if (operationFrame.deletionVariant === "w-keep") {
+          return {
+            ok: true,
+            base: sourceBase,
+            diagnostics: [],
+            operationFrame
+          };
+        }
+        if (operationFrame.deletionVariant === "w-to-j") {
+          return {
+            ok: sourceBase.endsWith("w"),
+            base: sourceBase.endsWith("w") ? `${sourceBase.slice(0, -1)}j` : "",
+            diagnostics: sourceBase.endsWith("w") ? [] : [buildPretBaseSpecDiagnostic("preterit-base-contradictory-operation-frame", {
+              expectedFinal: "w",
+              actualSourceBase: sourceBase
+            })],
+            operationFrame
+          };
+        }
+        if (operationFrame.deletionVariant === "m-to-n") {
+          return {
+            ok: sourceBase.endsWith("m"),
+            base: sourceBase.endsWith("m") ? `${sourceBase.slice(0, -1)}n` : "",
+            diagnostics: sourceBase.endsWith("m") ? [] : [buildPretBaseSpecDiagnostic("preterit-base-contradictory-operation-frame", {
+              expectedFinal: "m",
+              actualSourceBase: sourceBase
+            })],
+            operationFrame
+          };
+        }
+        if (operationFrame.deletionVariant === "y-shift") {
+          if (!sourceBase.endsWith("y")) {
+            return blockPretBaseSpec("preterit-base-contradictory-operation-frame", {
+              expectedFinal: "y",
+              actualSourceBase: sourceBase
+            });
+          }
+          const letters = targetObject.splitVerbLetters(sourceBase);
+          const recent = letters.slice(Math.max(0, letters.length - 6));
+          const hasRecentS = recent.includes("s");
+          const base = sourceBase.slice(0, -1);
+          if (!operationFrame.isTransitive && hasRecentS) {
+            return {
+              ok: true,
+              base: base.endsWith("s") ? base : `${base}s`,
+              diagnostics: [],
+              operationFrame
+            };
+          }
+          return {
+            ok: true,
+            base: `${base}sh`,
+            diagnostics: [],
+            operationFrame
+          };
+        }
+        if (operationFrame.deletionVariant === "identity") {
+          return {
+            ok: true,
+            base: sourceBase,
+            diagnostics: [],
+            operationFrame
+          };
+        }
+      }
+      if (transformKind === PRET_STEM_TRANSFORM_KIND.coalesceFinalI) {
+        return {
+          ok: true,
+          base: targetObject.shouldCoalesceFinalI(sourceBase) ? `${sourceBase.slice(0, -1)}y` : sourceBase,
+          diagnostics: [],
+          operationFrame
+        };
+      }
+      return blockPretBaseSpec("preterit-base-unsupported-operation-frame", {
+        actualTransformKind: transformKind
+      });
+    }
+    function evaluatePretBaseSpec(spec = null) {
       if (!spec || typeof spec !== "object") {
-        return typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(fallbackBase || "").trim().toLowerCase()) : String(fallbackBase || "").trim().toLowerCase();
+        return blockPretBaseSpec("preterit-base-missing-stem-spec");
       }
       if (spec.kind === PRET_STEM_SPEC_KIND.literal) {
-        return typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(spec.surfaceBase || "").trim().toLowerCase()) : String(spec.surfaceBase || "").trim().toLowerCase();
+        const base = normalizePretBaseFrameText(spec.surfaceBase || "");
+        return base ? {
+          ok: true,
+          base,
+          diagnostics: [],
+          spec
+        } : blockPretBaseSpec("preterit-base-missing-literal-base");
       }
       if (spec.kind === PRET_STEM_SPEC_KIND.transform) {
-        const sourceBase = typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(spec.sourceBase || fallbackBase || "").trim().toLowerCase()) : String(spec.sourceBase || fallbackBase || "").trim().toLowerCase();
-        if (!sourceBase) {
-          return "";
-        }
-        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.append) {
-          return `${sourceBase}${spec.appendText || ""}`;
-        }
-        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.replaceSuffix) {
-          const sourceSuffix = typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(spec.sourceSuffix || "").trim().toLowerCase()) : String(spec.sourceSuffix || "").trim().toLowerCase();
-          const replacement = typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(spec.replacement || "").trim().toLowerCase()) : String(spec.replacement || "").trim().toLowerCase();
-          if (!sourceSuffix) {
-            return `${sourceBase}${replacement}`;
-          }
-          if (!sourceBase.endsWith(sourceSuffix)) {
-            return `${sourceBase}${replacement}`;
-          }
-          return `${sourceBase.slice(0, -sourceSuffix.length)}${replacement}`;
-        }
-        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.perfectiveReplacement) {
-          if (sourceBase.endsWith("ya")) {
-            const letters = targetObject.splitVerbLetters(sourceBase);
-            const recent = letters.slice(Math.max(0, letters.length - 6));
-            const hasRecentS = recent.includes("s");
-            const base = sourceBase.slice(0, -2);
-            if (!spec.isTransitive && hasRecentS) {
-              return base.endsWith("s") ? base : `${base}s`;
-            }
-            return `${base}sh`;
-          }
-          return `${sourceBase.slice(0, -1)}j`;
-        }
-        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.deletionShift) {
-          if (spec.deletionVariant === "kw-to-k") {
-            return sourceBase.endsWith("kw") ? `${sourceBase.slice(0, -2)}k` : "";
-          }
-          if (spec.deletionVariant === "w-keep") {
-            return sourceBase;
-          }
-          if (spec.deletionVariant === "w-to-j") {
-            return sourceBase.endsWith("w") ? `${sourceBase.slice(0, -1)}j` : "";
-          }
-          if (spec.deletionVariant === "m-to-n") {
-            return sourceBase.endsWith("m") ? `${sourceBase.slice(0, -1)}n` : "";
-          }
-          if (spec.deletionVariant === "y-shift") {
-            if (!sourceBase.endsWith("y")) {
-              return "";
-            }
-            const letters = targetObject.splitVerbLetters(sourceBase);
-            const recent = letters.slice(Math.max(0, letters.length - 6));
-            const hasRecentS = recent.includes("s");
-            const base = sourceBase.slice(0, -1);
-            if (!spec.isTransitive && hasRecentS) {
-              return base.endsWith("s") ? base : `${base}s`;
-            }
-            return `${base}sh`;
-          }
-          if (spec.deletionVariant === "identity") {
-            return sourceBase;
-          }
-        }
-        if (spec.transformKind === PRET_STEM_TRANSFORM_KIND.coalesceFinalI) {
-          return targetObject.shouldCoalesceFinalI(sourceBase) ? `${sourceBase.slice(0, -1)}y` : sourceBase;
-        }
+        return evaluatePretBaseOperationFrame(spec.operationFrame, {
+          transformKind: spec.transformKind
+        });
       }
-      return typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(fallbackBase || "").trim().toLowerCase()) : String(fallbackBase || "").trim().toLowerCase();
+      return blockPretBaseSpec("preterit-base-unsupported-stem-spec", {
+        actualKind: spec.kind || ""
+      });
+    }
+    function realizePretBaseSpec(spec = null, fallbackBase = "") {
+      const result = evaluatePretBaseSpec(spec);
+      if (result.ok) {
+        return result.base;
+      }
+      if (!spec || typeof spec !== "object") {
+        return normalizePretBaseFrameText(fallbackBase);
+      }
+      return "";
     }
     function getPretVariantBase(variant = null) {
       if (!variant || typeof variant !== "object") {
@@ -192,6 +522,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         base,
         suffix,
         baseSpec: variant.baseSpec || null,
+        routePolicyFrame: variant.routePolicyFrame || null,
         surfaceRuleMeta: getPretVariantSurfaceRuleMeta(variant),
         surfaceStem: `${base || ""}${suffix || ""}`
       };
@@ -205,11 +536,15 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (!realizedBase && !suffix) {
         return null;
       }
-      return {
+      const variant = {
         base: realizedBase,
         baseSpec,
         suffix: String(suffix || "")
       };
+      if (options.routePolicyFrame && typeof options.routePolicyFrame === "object") {
+        variant.routePolicyFrame = options.routePolicyFrame;
+      }
+      return variant;
     }
     function addUniquePretVariant(target = [], base = "", suffix = "", options = {}) {
       const variant = buildPretVariant(base, suffix, options);
@@ -240,9 +575,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       }) && !allowShapeCVV && !allowShapeVV) {
         return null;
       }
-      const replacementBaseSpec = buildPretPerfectiveReplacementBaseSpec(context.verb, {
-        isTransitive: context.isTransitive
-      });
+      const classCFrameResult = buildPretClassCBaseSpecsFromSourceFrame(context.classCSourceFrame, context);
+      if (!classCFrameResult.ok) {
+        return null;
+      }
+      const replacementBaseSpec = classCFrameResult.baseSpecs[0] || null;
       const replaced = realizePretBaseSpec(replacementBaseSpec, "");
       if (!isAllowedStem(replaced)) {
         return null;
@@ -254,7 +591,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     function buildPretUniversalClassD(context) {
       const patterns = createPretDescriptorMatcher(context);
       if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vwaI)) {
-        const baseSpec = buildPretAppendBaseSpec(context.verb, "j");
+        const classDFrameResult = buildPretClassDBaseSpecsFromSourceFrame(context.classDSourceFrame, context);
+        if (!classDFrameResult.ok) {
+          return null;
+        }
+        const baseSpec = classDFrameResult.baseSpecs[0] || null;
         const base = realizePretBaseSpec(baseSpec, "");
         if (!targetObject.isSyllableSequencePronounceable(base)) {
           return null;
@@ -266,12 +607,12 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (context.vowelCount !== 1 || !context.isDerivedMonosyllable) {
         return null;
       }
-      const monosyllableStemPath = context.monosyllableStemPath;
-      if (!monosyllableStemPath) {
+      const classDFrameResult = buildPretClassDBaseSpecsFromSourceFrame(context.classDSourceFrame, context);
+      if (!classDFrameResult.ok) {
         return null;
       }
-      const baseSpec = monosyllableStemPath.classDBaseSpec || buildPretAppendBaseSpec(context.verb, "j");
-      const base = realizePretBaseSpec(baseSpec, monosyllableStemPath.classDBase || "");
+      const baseSpec = classDFrameResult.baseSpecs[0] || null;
+      const base = realizePretBaseSpec(baseSpec, "");
       if (!targetObject.isSyllableSequencePronounceable(base)) {
         return null;
       }
@@ -295,6 +636,500 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     }
     function isSlashDenominalRootPlusYaMatrix(context) {
       return Boolean(context && !context.isTransitive && context.hasSlashMarker && context.isDenominalMatrixInput && (context.denominalMatrixStem === "tiya" || context.denominalMatrixStem === "wiya"));
+    }
+    function buildPretRootPlusYaClassADiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-a-root-plus-ya-source-frame",
+        ...details
+      };
+    }
+    function blockPretRootPlusYaClassABaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretRootPlusYaClassADiagnostic(id, details)]
+      };
+    }
+    function buildPretRootPlusYaClassABaseSpecsFromSourceFrame(rootPlusYaFrame = null, context = {}) {
+      if (!rootPlusYaFrame || typeof rootPlusYaFrame !== "object" || rootPlusYaFrame.kind !== "preterit-root-plus-ya-source-frame") {
+        return blockPretRootPlusYaClassABaseSpecs("preterit-class-a-root-plus-ya-missing-source-frame");
+      }
+      const rootBase = normalizePretBaseFrameText(rootPlusYaFrame.rootFrame?.text || "");
+      const sourceVerb = normalizePretBaseFrameText(rootPlusYaFrame.sourceVerbFrame?.text || "");
+      if (!rootBase || !sourceVerb) {
+        return blockPretRootPlusYaClassABaseSpecs("preterit-class-a-root-plus-ya-incomplete-source-frame", {
+          rootBase,
+          sourceVerb
+        });
+      }
+      if (rootPlusYaFrame.isWeya === true || context.isWeya === true) {
+        return {
+          ok: true,
+          baseSpecs: [buildPretLiteralBaseSpec(rootBase)].filter(Boolean),
+          diagnostics: []
+        };
+      }
+      if (!sourceVerb.endsWith("ya")) {
+        return blockPretRootPlusYaClassABaseSpecs("preterit-class-a-root-plus-ya-contradictory-source-frame", {
+          sourceVerb,
+          expectedFinal: "ya"
+        });
+      }
+      const baseSpec = buildPretPerfectiveReplacementBaseSpecFromRootPlusYaSourceFrame(rootPlusYaFrame, {
+        isTransitive: context.isTransitive === true
+      });
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        diagnostics: []
+      } : blockPretRootPlusYaClassABaseSpecs("preterit-class-a-root-plus-ya-missing-operation-frame");
+    }
+    function buildPretRootPlusYaClassBDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-root-plus-ya-source-frame",
+        ...details
+      };
+    }
+    function blockPretRootPlusYaClassBBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        sourceVerb: "",
+        rootBase: "",
+        deletedYaBase: "",
+        sourceVerbBaseSpec: null,
+        deletedYaBaseSpec: null,
+        rootBaseSpec: null,
+        diagnostics: [buildPretRootPlusYaClassBDiagnostic(id, details)]
+      };
+    }
+    function buildPretRootPlusYaClassBBaseSpecsFromSourceFrame(rootPlusYaFrame = null, _context = {}) {
+      if (!rootPlusYaFrame || typeof rootPlusYaFrame !== "object" || rootPlusYaFrame.kind !== "preterit-root-plus-ya-source-frame") {
+        return blockPretRootPlusYaClassBBaseSpecs("preterit-class-b-root-plus-ya-missing-source-frame");
+      }
+      const rootBase = normalizePretBaseFrameText(rootPlusYaFrame.rootFrame?.text || "");
+      const sourceVerb = normalizePretBaseFrameText(rootPlusYaFrame.sourceVerbFrame?.text || "");
+      const suffix = normalizePretBaseFrameText(rootPlusYaFrame.suffixFrame?.text || "");
+      if (!rootBase || !sourceVerb || suffix !== "ya") {
+        return blockPretRootPlusYaClassBBaseSpecs("preterit-class-b-root-plus-ya-incomplete-source-frame", {
+          rootBase,
+          sourceVerb,
+          suffix
+        });
+      }
+      if (sourceVerb !== `${rootBase}${suffix}`) {
+        return blockPretRootPlusYaClassBBaseSpecs("preterit-class-b-root-plus-ya-contradictory-source-frame", {
+          sourceVerb,
+          rootBase,
+          suffix
+        });
+      }
+      const sourceVerbBaseSpec = buildPretLiteralBaseSpec(sourceVerb);
+      const deletedYaBaseSpec = buildPretReplaceSuffixBaseSpec(sourceVerb, suffix, "");
+      const rootBaseSpec = buildPretLiteralBaseSpec(rootBase);
+      if (!sourceVerbBaseSpec || !deletedYaBaseSpec || !rootBaseSpec) {
+        return blockPretRootPlusYaClassBBaseSpecs("preterit-class-b-root-plus-ya-missing-base-frame");
+      }
+      return {
+        ok: true,
+        sourceVerb,
+        rootBase,
+        deletedYaBase: rootBase,
+        sourceVerbBaseSpec,
+        deletedYaBaseSpec,
+        rootBaseSpec,
+        diagnostics: []
+      };
+    }
+    function buildPretClassAYyaDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-a-yya-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassAYyaBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretClassAYyaDiagnostic(id, details)]
+      };
+    }
+    function getPretClassAYyaFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.retainedBaseFrame, frame.suffixFrame, frame.previousYFrame, frame.finalOnsetFrame, frame.finalNucleusFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassAYyaBaseSpecsFromSourceFrame(sourceFrame = null, context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-a-yya-source-frame") {
+        return blockPretClassAYyaBaseSpecs("preterit-class-a-yya-missing-source-frame");
+      }
+      const sourceVerb = getPretClassAYyaFrameText(sourceFrame, "source-verb");
+      const retainedBase = getPretClassAYyaFrameText(sourceFrame, "retained-base");
+      const suffix = getPretClassAYyaFrameText(sourceFrame, "deleted-yya-suffix");
+      const previousY = getPretClassAYyaFrameText(sourceFrame, "previous-y");
+      const finalOnset = getPretClassAYyaFrameText(sourceFrame, "final-onset");
+      const finalNucleus = getPretClassAYyaFrameText(sourceFrame, "final-nucleus");
+      if (!sourceVerb || !retainedBase || !suffix) {
+        return blockPretClassAYyaBaseSpecs("preterit-class-a-yya-incomplete-source-frame", {
+          sourceVerb,
+          retainedBase,
+          suffix
+        });
+      }
+      if (suffix !== "ya" || previousY !== "y" || finalOnset !== "y" || finalNucleus !== "a" || `${retainedBase}${suffix}` !== sourceVerb) {
+        return blockPretClassAYyaBaseSpecs("preterit-class-a-yya-contradictory-source-frame", {
+          sourceVerb,
+          retainedBase,
+          suffix,
+          previousY,
+          finalOnset,
+          finalNucleus
+        });
+      }
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind: PRET_STEM_TRANSFORM_KIND.replaceSuffix,
+        sourceFrame: buildPretBaseSourceFrame(sourceVerb),
+        sourceSuffix: suffix,
+        replacement: "",
+        isTransitive: context.isTransitive === true
+      });
+      const baseSpec = buildPretTransformBaseSpecFromOperationFrame(operationFrame);
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        diagnostics: []
+      } : blockPretClassAYyaBaseSpecs("preterit-class-a-yya-missing-operation-frame");
+    }
+    function buildPretClassAItaDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-a-ita-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassAItaBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretClassAItaDiagnostic(id, details)]
+      };
+    }
+    function getPretClassAItaFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.retainedBaseFrame, frame.sourceSuffixFrame, frame.replacementFrame, frame.firstNucleusFrame, frame.finalOnsetFrame, frame.finalNucleusFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassAItaBaseSpecsFromSourceFrame(sourceFrame = null, context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-a-ita-source-frame") {
+        return blockPretClassAItaBaseSpecs("preterit-class-a-ita-missing-source-frame");
+      }
+      const sourceVerb = getPretClassAItaFrameText(sourceFrame, "source-verb");
+      const retainedBase = getPretClassAItaFrameText(sourceFrame, "retained-base");
+      const sourceSuffix = getPretClassAItaFrameText(sourceFrame, "source-suffix");
+      const replacement = getPretClassAItaFrameText(sourceFrame, "replacement");
+      const firstNucleus = getPretClassAItaFrameText(sourceFrame, "first-nucleus");
+      const finalOnset = getPretClassAItaFrameText(sourceFrame, "final-onset");
+      const finalNucleus = getPretClassAItaFrameText(sourceFrame, "final-nucleus");
+      if (!sourceVerb || !retainedBase || !sourceSuffix || !replacement) {
+        return blockPretClassAItaBaseSpecs("preterit-class-a-ita-incomplete-source-frame", {
+          sourceVerb,
+          retainedBase,
+          sourceSuffix,
+          replacement
+        });
+      }
+      if (retainedBase !== "i" || sourceSuffix !== "ta" || replacement !== "tz" || firstNucleus !== "i" || finalOnset !== "t" || finalNucleus !== "a" || `${retainedBase}${sourceSuffix}` !== sourceVerb) {
+        return blockPretClassAItaBaseSpecs("preterit-class-a-ita-contradictory-source-frame", {
+          sourceVerb,
+          retainedBase,
+          sourceSuffix,
+          replacement,
+          firstNucleus,
+          finalOnset,
+          finalNucleus
+        });
+      }
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind: PRET_STEM_TRANSFORM_KIND.replaceSuffix,
+        sourceFrame: buildPretBaseSourceFrame(sourceVerb),
+        sourceSuffix,
+        replacement,
+        isTransitive: context.isTransitive === true
+      });
+      const baseSpec = buildPretTransformBaseSpecFromOperationFrame(operationFrame);
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        diagnostics: []
+      } : blockPretClassAItaBaseSpecs("preterit-class-a-ita-missing-operation-frame");
+    }
+    function buildPretClassAFinalVowelDeletionDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-a-final-vowel-deletion-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassAFinalVowelDeletionBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretClassAFinalVowelDeletionDiagnostic(id, details)]
+      };
+    }
+    function getPretClassADeletionFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.deletedBaseFrame, frame.finalVowelFrame, frame.finalBaseSegmentFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassAFinalVowelDeletionBaseSpecsFromSourceFrame(sourceFrame = null, context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-a-final-vowel-deletion-source-frame") {
+        return blockPretClassAFinalVowelDeletionBaseSpecs("preterit-class-a-missing-final-vowel-deletion-source-frame");
+      }
+      const sourceVerb = getPretClassADeletionFrameText(sourceFrame, "source-verb");
+      const deletedBase = getPretClassADeletionFrameText(sourceFrame, "deleted-base");
+      const finalVowel = getPretClassADeletionFrameText(sourceFrame, "deleted-final-vowel");
+      const finalBaseSegment = getPretClassADeletionFrameText(sourceFrame, "deleted-base-final-segment");
+      if (!sourceVerb || !finalVowel) {
+        return blockPretClassAFinalVowelDeletionBaseSpecs("preterit-class-a-incomplete-final-vowel-deletion-source-frame", {
+          sourceVerb,
+          finalVowel
+        });
+      }
+      if (`${deletedBase}${finalVowel}` !== sourceVerb) {
+        return blockPretClassAFinalVowelDeletionBaseSpecs("preterit-class-a-contradictory-final-vowel-deletion-source-frame", {
+          sourceVerb,
+          deletedBase,
+          finalVowel
+        });
+      }
+      if (context.isCausativeTypeTwo) {
+        return {
+          ok: true,
+          baseSpecs: [buildPretLiteralBaseSpec(sourceVerb)].filter(Boolean),
+          diagnostics: []
+        };
+      }
+      const shiftSpecs = (() => {
+        if (finalBaseSegment === "kw") {
+          return [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
+            isTransitive: context.isTransitive
+          })];
+        }
+        if (finalBaseSegment === "w") {
+          return [buildPretDeletionShiftBaseSpec(deletedBase, "w-keep", {
+            isTransitive: context.isTransitive
+          }), buildPretDeletionShiftBaseSpec(deletedBase, "w-to-j", {
+            isTransitive: context.isTransitive
+          })];
+        }
+        if (finalBaseSegment === "m") {
+          return [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
+            isTransitive: context.isTransitive
+          })];
+        }
+        if (finalBaseSegment === "y") {
+          return [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
+            isTransitive: context.isTransitive
+          })];
+        }
+        return [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
+          isTransitive: context.isTransitive
+        })];
+      })().filter(Boolean);
+      return shiftSpecs.length ? {
+        ok: true,
+        baseSpecs: shiftSpecs,
+        diagnostics: []
+      } : blockPretClassAFinalVowelDeletionBaseSpecs("preterit-class-a-missing-final-vowel-deletion-operation-frame");
+    }
+    function buildPretClassBDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-b-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassBBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        sourceVerb: "",
+        diagnostics: [buildPretClassBDiagnostic(id, details)]
+      };
+    }
+    function getPretClassBFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.vowelCountFrame, frame.syllableCountFrame, frame.finalFormFrame, frame.finalOnsetFrame, frame.finalNucleusFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassBBaseSpecsFromSourceFrame(sourceFrame = null, _context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-b-source-frame") {
+        return blockPretClassBBaseSpecs("preterit-class-b-missing-source-frame");
+      }
+      if (!sourceFrame.operationFrame || typeof sourceFrame.operationFrame !== "object" || sourceFrame.operationFrame.kind !== "preterit-class-b-literal-base-operation-frame" || sourceFrame.operationFrame.operation !== "select-source-verb-as-class-b-base") {
+        return blockPretClassBBaseSpecs("preterit-class-b-missing-operation-frame");
+      }
+      const sourceVerb = getPretClassBFrameText(sourceFrame, "source-verb");
+      const vowelCountText = getPretClassBFrameText(sourceFrame, "vowel-count");
+      const syllableCountText = getPretClassBFrameText(sourceFrame, "syllable-count");
+      if (!sourceVerb || !vowelCountText || !syllableCountText) {
+        return blockPretClassBBaseSpecs("preterit-class-b-incomplete-source-frame", {
+          sourceVerb,
+          vowelCount: vowelCountText,
+          syllableCount: syllableCountText
+        });
+      }
+      const syllables = typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(sourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = typeof targetObject.buildPretRightEdgeDescriptor === "function" ? targetObject.buildPretRightEdgeDescriptor(syllables) : {};
+      const vowelCount = typeof targetObject.getTrailingVowelCountFromSyllables === "function" ? targetObject.getTrailingVowelCountFromSyllables(syllables) : targetObject.getPretUniversalCoreVowelCount(sourceVerb);
+      const frameVowelCount = Number.parseInt(vowelCountText, 10);
+      const frameSyllableCount = Number.parseInt(syllableCountText, 10);
+      const finalForm = getPretClassBFrameText(sourceFrame, "final-form");
+      const finalOnset = getPretClassBFrameText(sourceFrame, "final-onset");
+      const finalNucleus = getPretClassBFrameText(sourceFrame, "final-nucleus");
+      if (!syllables.length || frameVowelCount !== vowelCount || frameSyllableCount !== syllables.length || finalForm !== normalizePretBaseFrameText(edge.finalForm || "") || finalOnset !== normalizePretBaseFrameText(edge.finalOnset || "") || finalNucleus !== normalizePretBaseFrameText(edge.finalNucleus || "")) {
+        return blockPretClassBBaseSpecs("preterit-class-b-contradictory-source-frame", {
+          sourceVerb,
+          vowelCount: vowelCountText,
+          syllableCount: syllableCountText,
+          finalForm,
+          finalOnset,
+          finalNucleus
+        });
+      }
+      const baseSpec = buildPretLiteralBaseSpec(sourceVerb);
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        sourceVerb,
+        diagnostics: []
+      } : blockPretClassBBaseSpecs("preterit-class-b-missing-literal-base-frame");
+    }
+    function buildPretClassCDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-c-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassCBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretClassCDiagnostic(id, details)]
+      };
+    }
+    function getPretClassCFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.retainedBaseFrame, frame.finalVowelFrame, frame.previousNucleusFrame, frame.finalFormFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassCBaseSpecsFromSourceFrame(sourceFrame = null, context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-c-source-frame") {
+        return blockPretClassCBaseSpecs("preterit-class-c-missing-source-frame");
+      }
+      const sourceVerb = getPretClassCFrameText(sourceFrame, "source-verb");
+      const retainedBase = getPretClassCFrameText(sourceFrame, "retained-base");
+      const finalVowel = getPretClassCFrameText(sourceFrame, "final-vowel");
+      if (!sourceVerb || !retainedBase || !finalVowel) {
+        return blockPretClassCBaseSpecs("preterit-class-c-incomplete-source-frame", {
+          sourceVerb,
+          retainedBase,
+          finalVowel
+        });
+      }
+      if (`${retainedBase}${finalVowel}` !== sourceVerb) {
+        return blockPretClassCBaseSpecs("preterit-class-c-contradictory-source-frame", {
+          sourceVerb,
+          retainedBase,
+          finalVowel
+        });
+      }
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind: PRET_STEM_TRANSFORM_KIND.perfectiveReplacement,
+        sourceFrame: buildPretBaseSourceFrame(sourceVerb),
+        isTransitive: context.isTransitive === true
+      });
+      const baseSpec = buildPretTransformBaseSpecFromOperationFrame(operationFrame);
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        diagnostics: []
+      } : blockPretClassCBaseSpecs("preterit-class-c-missing-operation-frame");
+    }
+    function buildPretClassDDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-class-d-source-frame",
+        ...details
+      };
+    }
+    function blockPretClassDBaseSpecs(id = "", details = {}) {
+      return {
+        ok: false,
+        baseSpecs: [],
+        diagnostics: [buildPretClassDDiagnostic(id, details)]
+      };
+    }
+    function getPretClassDFrameText(frame = null, role = "") {
+      if (!frame || typeof frame !== "object") {
+        return "";
+      }
+      const candidates = [frame.sourceVerbFrame, frame.appendFrame, frame.syllableCountFrame, frame.finalFormFrame, frame.finalNucleusFrame];
+      const segment = candidates.find(entry => entry?.role === role) || null;
+      return normalizePretBaseFrameText(segment?.text || "");
+    }
+    function buildPretClassDBaseSpecsFromSourceFrame(sourceFrame = null, context = {}) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== "preterit-class-d-source-frame") {
+        return blockPretClassDBaseSpecs("preterit-class-d-missing-source-frame");
+      }
+      const sourceVerb = getPretClassDFrameText(sourceFrame, "source-verb");
+      const appendText = getPretClassDFrameText(sourceFrame, "append");
+      if (!sourceVerb || !appendText) {
+        return blockPretClassDBaseSpecs("preterit-class-d-incomplete-source-frame", {
+          sourceVerb,
+          appendText
+        });
+      }
+      if (appendText !== "j") {
+        return blockPretClassDBaseSpecs("preterit-class-d-contradictory-source-frame", {
+          sourceVerb,
+          appendText
+        });
+      }
+      const operationFrame = buildPretBaseOperationFrame({
+        transformKind: PRET_STEM_TRANSFORM_KIND.append,
+        sourceFrame: buildPretBaseSourceFrame(sourceVerb),
+        appendText,
+        isTransitive: context.isTransitive === true
+      });
+      const baseSpec = buildPretTransformBaseSpecFromOperationFrame(operationFrame);
+      return baseSpec ? {
+        ok: true,
+        baseSpecs: [baseSpec],
+        diagnostics: []
+      } : blockPretClassDBaseSpecs("preterit-class-d-missing-operation-frame");
     }
     function createPretDescriptorTierMatcher(descriptors = []) {
       return Object.freeze({
@@ -341,6 +1176,222 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         }
       };
     }
+    function hasAuthoritativePretClassASlashAkiZeroFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassASlashAkiFrameMismatch === "function" && !targetObject.getPretClassASlashAkiFrameMismatch({
+        sourceFrame: context.classASlashAkiSourceFrame,
+        operationFrame: context.classASlashAkiOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAKwvForceFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAKwvFrameMismatch === "function" && !targetObject.getPretClassAKwvFrameMismatch({
+        sourceFrame: context.classAKwvSourceFrame,
+        operationFrame: context.classAKwvOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAKvAllowFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAKvAllowFrameMismatch === "function" && !targetObject.getPretClassAKvAllowFrameMismatch({
+        sourceFrame: context.classAKvAllowSourceFrame,
+        operationFrame: context.classAKvAllowOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAChiAllowFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAChiAllowFrameMismatch === "function" && !targetObject.getPretClassAChiAllowFrameMismatch({
+        sourceFrame: context.classAChiAllowSourceFrame,
+        operationFrame: context.classAChiAllowOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassATaRedupFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassATaRedupFrameMismatch === "function" && !targetObject.getPretClassATaRedupFrameMismatch({
+        sourceFrame: context.classATaRedupSourceFrame,
+        operationFrame: context.classATaRedupOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAPaTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAPaTransitiveFrameMismatch === "function" && !targetObject.getPretClassAPaTransitiveFrameMismatch({
+        sourceFrame: context.classAPaTransitiveSourceFrame,
+        operationFrame: context.classAPaTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAMTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAMTransitiveFrameMismatch === "function" && !targetObject.getPretClassAMTransitiveFrameMismatch({
+        sourceFrame: context.classAMTransitiveSourceFrame,
+        operationFrame: context.classAMTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAPiIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAPiIntransitiveFrameMismatch === "function" && !targetObject.getPretClassAPiIntransitiveFrameMismatch({
+        sourceFrame: context.classAPiIntransitiveSourceFrame,
+        operationFrame: context.classAPiIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAPiCvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAPiCvTransitiveFrameMismatch === "function" && !targetObject.getPretClassAPiCvTransitiveFrameMismatch({
+        sourceFrame: context.classAPiCvTransitiveSourceFrame,
+        operationFrame: context.classAPiCvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvwiTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvwiTransitiveFrameMismatch === "function" && !targetObject.getPretClassACvwiTransitiveFrameMismatch({
+        sourceFrame: context.classACvwiTransitiveSourceFrame,
+        operationFrame: context.classACvwiTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvcvwiTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvcvwiTransitiveFrameMismatch === "function" && !targetObject.getPretClassACvcvwiTransitiveFrameMismatch({
+        sourceFrame: context.classACvcvwiTransitiveSourceFrame,
+        operationFrame: context.classACvcvwiTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvwaiTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvwaiTransitiveFrameMismatch === "function" && !targetObject.getPretClassACvwaiTransitiveFrameMismatch({
+        sourceFrame: context.classACvwaiTransitiveSourceFrame,
+        operationFrame: context.classACvwaiTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvewaTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvewaTransitiveFrameMismatch === "function" && !targetObject.getPretClassACvewaTransitiveFrameMismatch({
+        sourceFrame: context.classACvewaTransitiveSourceFrame,
+        operationFrame: context.classACvewaTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvawaTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvawaTransitiveFrameMismatch === "function" && !targetObject.getPretClassACvawaTransitiveFrameMismatch({
+        sourceFrame: context.classACvawaTransitiveSourceFrame,
+        operationFrame: context.classACvawaTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassAPaCvIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassAPaCvIntransitiveFrameMismatch === "function" && !targetObject.getPretClassAPaCvIntransitiveFrameMismatch({
+        sourceFrame: context.classAPaCvIntransitiveSourceFrame,
+        operationFrame: context.classAPaCvIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaCvIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaCvIntransitiveFrameMismatch === "function" && !targetObject.getPretClassANaCvIntransitiveFrameMismatch({
+        sourceFrame: context.classANaCvIntransitiveSourceFrame,
+        operationFrame: context.classANaCvIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBVnaIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBVnaIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBVnaIntransitiveFrameMismatch({
+        sourceFrame: context.classBVnaIntransitiveSourceFrame,
+        operationFrame: context.classBVnaIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBTaIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBTaIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBTaIntransitiveFrameMismatch({
+        sourceFrame: context.classBTaIntransitiveSourceFrame,
+        operationFrame: context.classBTaIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBTaTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBTaTransitiveFrameMismatch === "function" && !targetObject.getPretClassBTaTransitiveFrameMismatch({
+        sourceFrame: context.classBTaTransitiveSourceFrame,
+        operationFrame: context.classBTaTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBKwiCvIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBKwiCvIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBKwiCvIntransitiveFrameMismatch({
+        sourceFrame: context.classBKwiCvIntransitiveSourceFrame,
+        operationFrame: context.classBKwiCvIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBVcvcuIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBVcvcuIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBVcvcuIntransitiveFrameMismatch({
+        sourceFrame: context.classBVcvcuIntransitiveSourceFrame,
+        operationFrame: context.classBVcvcuIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBVlcvwiIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBVlcvwiIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBVlcvwiIntransitiveFrameMismatch({
+        sourceFrame: context.classBVlcvwiIntransitiveSourceFrame,
+        operationFrame: context.classBVlcvwiIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBCvniuIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBCvniuIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBCvniuIntransitiveFrameMismatch({
+        sourceFrame: context.classBCvniuIntransitiveSourceFrame,
+        operationFrame: context.classBCvniuIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvvniIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvvniIntransitiveFrameMismatch === "function" && !targetObject.getPretClassACvvniIntransitiveFrameMismatch({
+        sourceFrame: context.classACvvniIntransitiveSourceFrame,
+        operationFrame: context.classACvvniIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvsvIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvsvIntransitiveFrameMismatch === "function" && !targetObject.getPretClassACvsvIntransitiveFrameMismatch({
+        sourceFrame: context.classACvsvIntransitiveSourceFrame,
+        operationFrame: context.classACvsvIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvwiIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvwiIntransitiveFrameMismatch === "function" && !targetObject.getPretClassACvwiIntransitiveFrameMismatch({
+        sourceFrame: context.classACvwiIntransitiveSourceFrame,
+        operationFrame: context.classACvwiIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassACvcvwiIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassACvcvwiIntransitiveFrameMismatch === "function" && !targetObject.getPretClassACvcvwiIntransitiveFrameMismatch({
+        sourceFrame: context.classACvcvwiIntransitiveSourceFrame,
+        operationFrame: context.classACvcvwiIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBVjwaIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBVjwaIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBVjwaIntransitiveFrameMismatch({
+        sourceFrame: context.classBVjwaIntransitiveSourceFrame,
+        operationFrame: context.classBVjwaIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassBCuwaIntransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassBCuwaIntransitiveFrameMismatch === "function" && !targetObject.getPretClassBCuwaIntransitiveFrameMismatch({
+        sourceFrame: context.classBCuwaIntransitiveSourceFrame,
+        operationFrame: context.classBCuwaIntransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANiCvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANiCvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANiCvTransitiveFrameMismatch({
+        sourceFrame: context.classANiCvTransitiveSourceFrame,
+        operationFrame: context.classANiCvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaCvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaCvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANaCvTransitiveFrameMismatch({
+        sourceFrame: context.classANaCvTransitiveSourceFrame,
+        operationFrame: context.classANaCvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaCvcvcvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaCvcvcvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANaCvcvcvTransitiveFrameMismatch({
+        sourceFrame: context.classANaCvcvcvTransitiveSourceFrame,
+        operationFrame: context.classANaCvcvcvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaCvlvcvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaCvlvcvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANaCvlvcvTransitiveFrameMismatch({
+        sourceFrame: context.classANaCvlvcvTransitiveSourceFrame,
+        operationFrame: context.classANaCvlvcvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaVlcvcvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaVlcvcvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANaVlcvcvTransitiveFrameMismatch({
+        sourceFrame: context.classANaVlcvcvTransitiveSourceFrame,
+        operationFrame: context.classANaVlcvcvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassANaVjcvcvTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassANaVjcvcvTransitiveFrameMismatch === "function" && !targetObject.getPretClassANaVjcvcvTransitiveFrameMismatch({
+        sourceFrame: context.classANaVjcvcvTransitiveSourceFrame,
+        operationFrame: context.classANaVjcvcvTransitiveOperationFrame
+      }));
+    }
+    function hasAuthoritativePretClassATzaTransitiveFrame(context = null) {
+      return Boolean(context && typeof targetObject.getPretClassATzaTransitiveFrameMismatch === "function" && !targetObject.getPretClassATzaTransitiveFrameMismatch({
+        sourceFrame: context.classATzaTransitiveSourceFrame,
+        operationFrame: context.classATzaTransitiveOperationFrame
+      }));
+    }
     function buildPretUniversalClassA(context) {
       const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
       const isAllowedStem = base => allowUnpronounceableStems || targetObject.isSyllableSequencePronounceable(base);
@@ -354,20 +1405,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         if (isSlashDenominalRootPlusYaMatrix(context)) {
           return null;
         }
-        if (context.isWeya && context.rootPlusYaBase) {
-          const baseSpec = buildPretLiteralBaseSpec(context.rootPlusYaBase);
-          const base = realizePretBaseSpec(baseSpec, context.rootPlusYaBase);
-          if (!isAllowedStem(base)) {
-            return null;
-          }
-          return [buildPretVariant("", "ki", {
-            baseSpec
-          })];
+        const baseSpecFrameResult = buildPretRootPlusYaClassABaseSpecsFromSourceFrame(context.rootPlusYaSourceFrame, context);
+        if (!baseSpecFrameResult.ok) {
+          return null;
         }
-        const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
-        const baseSpecs = rootPlusYaVerb ? [buildPretPerfectiveReplacementBaseSpec(rootPlusYaVerb, {
-          isTransitive: context.isTransitive
-        })].filter(Boolean) : [];
+        const baseSpecs = baseSpecFrameResult.baseSpecs;
         const variants = baseSpecs.map(baseSpec => {
           const base = realizePretBaseSpec(baseSpec, "");
           if (!isAllowedStem(base)) {
@@ -391,9 +1433,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         return null;
       }
       const isIntransitiveWiKiOnly = !context.isTransitive && (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vwi) || targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiV_CV_CV) && !context.supportiveInitialI || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvwi) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vlvwi) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvlvwi));
-      const allowIntransitiveChiClassA = !context.isTransitive && hasRightEdge({
-        endingFamily: "ch+i"
-      });
+      const allowIntransitiveChiClassA = hasAuthoritativePretClassAChiAllowFrame(context);
       const isShapeLVIKiOnly = !hasAnyRightEdge([{
         rightEdgeProfileSuffixes: ["Vl|V", "CVl|V"]
       }]) && context.lastNucleus === "i" && (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vlv) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvlv));
@@ -408,22 +1448,218 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const isTransitiveCawaKiOnly = isTransitiveCawa && !isTransitiveCawaZeroOnly && !isTransitiveCawaAllowZero;
       const isTransitiveAwaAllowZero = context.isTransitive && (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvcawa) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvlawa));
       const isTransitiveCVwi = context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvwi);
-      const isTransitiveMV = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+      const hasMTransitiveRightEdge = context.isTransitive && !context.isMonosyllable && hasRightEdge({
         finalOnset: "m",
         finalNuclei: ["a", "i"]
       });
+      const allowMTransitiveClassA = hasAuthoritativePretClassAMTransitiveFrame(context);
+      const classAMTransitivePolicyFrame = allowMTransitiveClassA ? context.classAMTransitiveOperationFrame : null;
+      const hasPiIntransitiveRightEdge = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+i"
+      });
+      const allowPiIntransitiveClassA = hasAuthoritativePretClassAPiIntransitiveFrame(context);
+      const classAPiIntransitivePolicyFrame = allowPiIntransitiveClassA ? context.classAPiIntransitiveOperationFrame : null;
+      const hasPiCvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowPiCvTransitiveClassA = hasAuthoritativePretClassAPiCvTransitiveFrame(context);
+      const classAPiCvTransitivePolicyFrame = allowPiCvTransitiveClassA ? context.classAPiCvTransitiveOperationFrame : null;
+      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvwiTransitiveClassA = hasAuthoritativePretClassACvwiTransitiveFrame(context);
+      const classACvwiTransitivePolicyFrame = allowCvwiTransitiveClassA ? context.classACvwiTransitiveOperationFrame : null;
+      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
+      const allowCvcvwiTransitiveClassA = hasAuthoritativePretClassACvcvwiTransitiveFrame(context);
+      const classACvcvwiTransitivePolicyFrame = allowCvcvwiTransitiveClassA ? context.classACvcvwiTransitiveOperationFrame : null;
+      const hasCvwaiTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "i"
+      });
+      const allowCvwaiTransitiveClassA = hasAuthoritativePretClassACvwaiTransitiveFrame(context);
+      const classACvwaiTransitivePolicyFrame = allowCvwaiTransitiveClassA ? context.classACvwaiTransitiveOperationFrame : null;
+      const hasCvewaTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "e"
+      });
+      const allowCvewaTransitiveClassA = hasAuthoritativePretClassACvewaTransitiveFrame(context);
+      const classACvewaTransitivePolicyFrame = allowCvewaTransitiveClassA ? context.classACvewaTransitiveOperationFrame : null;
+      const hasCvawaTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && context.hasSlashMarker !== true && hasRightEdge({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "a"
+      });
+      const allowCvawaTransitiveClassA = hasAuthoritativePretClassACvawaTransitiveFrame(context);
+      const classACvawaTransitivePolicyFrame = allowCvawaTransitiveClassA ? context.classACvawaTransitiveOperationFrame : null;
+      const hasPaTransitiveRightEdge = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+a"
+      });
+      const allowPaTransitiveClassA = hasAuthoritativePretClassAPaTransitiveFrame(context);
+      const classAPaTransitivePolicyFrame = allowPaTransitiveClassA ? context.classAPaTransitiveOperationFrame : null;
+      const hasPaCvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+a",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowPaCvIntransitiveClassA = hasAuthoritativePretClassAPaCvIntransitiveFrame(context);
+      const classAPaCvIntransitivePolicyFrame = allowPaCvIntransitiveClassA ? context.classAPaCvIntransitiveOperationFrame : null;
+      const hasNaCvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowNaCvIntransitiveClassA = hasAuthoritativePretClassANaCvIntransitiveFrame(context);
+      const classANaCvIntransitivePolicyFrame = allowNaCvIntransitiveClassA ? context.classANaCvIntransitiveOperationFrame : null;
+      const hasCvvniIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|V|CV"]
+      });
+      const allowCvvniIntransitiveClassA = hasAuthoritativePretClassACvvniIntransitiveFrame(context);
+      const classACvvniIntransitivePolicyFrame = allowCvvniIntransitiveClassA ? context.classACvvniIntransitiveOperationFrame : null;
+      const hasCvsvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "s+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvsvIntransitiveClassA = hasAuthoritativePretClassACvsvIntransitiveFrame(context);
+      const classACvsvIntransitivePolicyFrame = allowCvsvIntransitiveClassA ? context.classACvsvIntransitiveOperationFrame : null;
+      const hasCvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvwiIntransitiveClassA = hasAuthoritativePretClassACvwiIntransitiveFrame(context);
+      const classACvwiIntransitivePolicyFrame = allowCvwiIntransitiveClassA ? context.classACvwiIntransitiveOperationFrame : null;
+      const hasCvcvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV|CV"]
+      });
+      const allowCvcvwiIntransitiveClassA = hasAuthoritativePretClassACvcvwiIntransitiveFrame(context);
+      const classACvcvwiIntransitivePolicyFrame = allowCvcvwiIntransitiveClassA ? context.classACvcvwiIntransitiveOperationFrame : null;
+      const hasNiCvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowNiCvTransitiveClassA = hasAuthoritativePretClassANiCvTransitiveFrame(context);
+      const classANiCvTransitivePolicyFrame = allowNiCvTransitiveClassA ? context.classANiCvTransitiveOperationFrame : null;
+      const hasNaCvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowNaCvTransitiveClassA = hasAuthoritativePretClassANaCvTransitiveFrame(context);
+      const classANaCvTransitivePolicyFrame = allowNaCvTransitiveClassA ? context.classANaCvTransitiveOperationFrame : null;
       const isTransitiveShapeCVCVna = context.isTransitive && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV);
+      const allowNaCvcvcvTransitiveClassA = hasAuthoritativePretClassANaCvcvcvTransitiveFrame(context);
+      const classANaCvcvcvTransitivePolicyFrame = allowNaCvcvcvTransitiveClassA ? context.classANaCvcvcvTransitiveOperationFrame : null;
+      const hasNaCvlvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CVl|V|CV"]
+      });
+      const allowNaCvlvcvTransitiveClassA = hasAuthoritativePretClassANaCvlvcvTransitiveFrame(context);
+      const classANaCvlvcvTransitivePolicyFrame = allowNaCvlvcvTransitiveClassA ? context.classANaCvlvcvTransitiveOperationFrame : null;
+      const hasNaVlcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vlcvna);
+      const allowNaVlcvcvTransitiveClassA = hasAuthoritativePretClassANaVlcvcvTransitiveFrame(context);
+      const classANaVlcvcvTransitivePolicyFrame = allowNaVlcvcvTransitiveClassA ? context.classANaVlcvcvTransitiveOperationFrame : null;
+      const hasNaVjcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvna);
+      const allowNaVjcvcvTransitiveClassA = hasAuthoritativePretClassANaVjcvcvTransitiveFrame(context);
+      const classANaVjcvcvTransitivePolicyFrame = allowNaVjcvcvTransitiveClassA ? context.classANaVjcvcvTransitiveOperationFrame : null;
+      const hasTzaTransitiveShape = context.isTransitive && !context.isMonosyllable && (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvtza) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvtza));
+      const allowTzaTransitiveClassA = hasAuthoritativePretClassATzaTransitiveFrame(context);
+      const classATzaTransitivePolicyFrame = allowTzaTransitiveClassA ? context.classATzaTransitiveOperationFrame : null;
       const isTransitiveCVnaAllowZero = context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvna) && (context.isReduplicated || context.isBitransitive);
       const isTransitiveShapeNi = context.isTransitive && !patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvnV) && patterns.hasShapeEndingFamily("n+i");
-      const isTransitiveTaRedupCVCV = context.isTransitive && hasRightEdge({
-        endingFamily: "t+a"
-      }) && context.isReduplicatedCVCV && context.analysisVerb !== "ita";
-      const allowSlashAkiZero = !context.isTransitive && context.hasSlashMarker && context.analysisVerb === "aki";
+      const isTransitiveTaRedupCVCV = hasAuthoritativePretClassATaRedupFrame(context);
+      const allowSlashAkiZero = !context.isTransitive && context.hasSlashMarker && hasAuthoritativePretClassASlashAkiZeroFrame(context);
+      const forceClassAForKWV = hasAuthoritativePretClassAKwvForceFrame(context);
       const isDenominalWiVowelSourceClassA = !context.isTransitive && context.isDenominalMatrixInput && context.isDenominalWiMatrix && context.denominalSourceEndsWithVowel;
       if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvsV)) {
+        if (hasCvsvIntransitiveShape && !allowCvsvIntransitiveClassA) {
+          return null;
+        }
         allowZeroSuffix = false;
       }
-      if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvpV)) {
+      if (hasPiCvTransitiveShape) {
+        if (!allowPiCvTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      } else if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvpV)) {
+        if (hasPaTransitiveRightEdge) {
+          if (!allowPaTransitiveClassA) {
+            return null;
+          }
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasCvwiTransitiveShape) {
+        if (!allowCvwiTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasCvcvwiTransitiveShape) {
+        if (!allowCvcvwiTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classACvcvwiTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classACvcvwiTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasCvwaiTransitiveShape) {
+        if (!allowCvwaiTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classACvwaiTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classACvwaiTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasCvewaTransitiveShape) {
+        if (!allowCvewaTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classACvewaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classACvewaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasCvawaTransitiveShape) {
+        if (!allowCvawaTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classACvawaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classACvawaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasPaCvIntransitiveShape) {
+        if (!allowPaCvIntransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasNaCvIntransitiveShape) {
+        if (!allowNaCvIntransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasCvvniIntransitiveShape) {
+        if (!allowCvvniIntransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasCvwiIntransitiveShape) {
+        if (!allowCvwiIntransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = false;
+        allowKiSuffix = true;
+      }
+      if (hasCvcvwiIntransitiveShape) {
+        if (!allowCvcvwiIntransitiveClassA) {
+          return null;
+        }
         allowZeroSuffix = false;
         allowKiSuffix = true;
       }
@@ -431,7 +1667,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowZeroSuffix = false;
       }
       const isKSeriesNoU = ["k", "kw"].includes(finalOnset) && finalNucleus !== "u";
-      const allowIntransitiveKV = context.allowIntransitiveKV === true;
+      const allowIntransitiveKV = finalOnset === "kw" ? forceClassAForKWV : finalOnset === "k" ? hasAuthoritativePretClassAKvAllowFrame(context) : context.allowIntransitiveKV === true;
       if (!context.isTransitive && isKSeriesNoU && !context.hasSlashMarker && !allowIntransitiveKV) {
         return null;
       }
@@ -459,6 +1695,9 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (context.isTransitive && hasRightEdge({
         endingFamily: "tz+a"
       })) {
+        if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
+          return null;
+        }
         allowZeroSuffix = false;
       }
       if (hasRightEdge({
@@ -469,11 +1708,51 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
       }
-      if (context.isTransitive && !context.isMonosyllable && hasRightEdge({
-        endingFamily: "p+a"
-      })) {
+      if (hasPaTransitiveRightEdge && !allowPaTransitiveClassA) {
+        return null;
+      }
+      if (allowPaTransitiveClassA) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
+      }
+      if (hasMTransitiveRightEdge && !allowMTransitiveClassA) {
+        return null;
+      }
+      if (hasPiIntransitiveRightEdge && !allowPiIntransitiveClassA) {
+        return null;
+      }
+      if (hasNiCvTransitiveShape && !allowNiCvTransitiveClassA) {
+        return null;
+      }
+      if (allowNiCvTransitiveClassA) {
+        allowZeroSuffix = classANiCvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANiCvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasNaCvTransitiveShape && !allowNaCvTransitiveClassA) {
+        return null;
+      }
+      if (allowNaCvTransitiveClassA) {
+        allowZeroSuffix = classANaCvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaCvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (isTransitiveShapeCVCVna && !allowNaCvcvcvTransitiveClassA) {
+        return null;
+      }
+      if (hasNaCvlvcvTransitiveShape && !allowNaCvlvcvTransitiveClassA) {
+        return null;
+      }
+      if (allowNaCvlvcvTransitiveClassA) {
+        allowZeroSuffix = classANaCvlvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaCvlvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
+      if (hasNaVlcvcvTransitiveShape && !allowNaVlcvcvTransitiveClassA) {
+        return null;
+      }
+      if (hasNaVjcvcvTransitiveShape && !allowNaVjcvcvTransitiveClassA) {
+        return null;
+      }
+      if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
+        return null;
       }
       if (isKSeriesNoU) {
         allowKiSuffix = false;
@@ -488,7 +1767,10 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (!context.isTransitive && hasRightEdge({
         endingFamily: "n+a"
       })) {
-        if (context.totalVowels <= 2 && !patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvna)) {
+        if (context.totalVowels <= 2 && !hasNaCvIntransitiveShape && !patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvna)) {
+          return null;
+        }
+        if (hasNaCvIntransitiveShape && !allowNaCvIntransitiveClassA) {
           return null;
         }
         allowZeroSuffix = false;
@@ -513,11 +1795,17 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       }
       if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvnV)) {
         if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvna)) {
-          allowZeroSuffix = true;
-          allowKiSuffix = true;
+          if (!allowNaCvTransitiveClassA) {
+            return null;
+          }
+          allowZeroSuffix = classANaCvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+          allowKiSuffix = classANaCvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
         } else if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvni)) {
-          allowZeroSuffix = true;
-          allowKiSuffix = true;
+          if (!allowNiCvTransitiveClassA) {
+            return null;
+          }
+          allowZeroSuffix = classANiCvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+          allowKiSuffix = classANiCvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
         } else {
           allowZeroSuffix = context.isReduplicated;
           allowKiSuffix = !context.isReduplicated;
@@ -532,10 +1820,13 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowKiSuffix = true;
       }
       if (isTransitiveShapeCVCVna) {
-        allowZeroSuffix = true;
-        allowKiSuffix = true;
+        if (!allowNaCvcvcvTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classANaCvcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaCvcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
       }
-      if (isTransitiveCVnaAllowZero) {
+      if (isTransitiveCVnaAllowZero && !allowNaCvTransitiveClassA) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
       }
@@ -543,21 +1834,15 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
       }
-      if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvmV)) {
-        if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvma)) {
-          allowZeroSuffix = true;
-          allowKiSuffix = true;
-        } else {
-          allowZeroSuffix = context.isReduplicated;
-          allowKiSuffix = !context.isReduplicated;
+      if (hasMTransitiveRightEdge) {
+        if (!allowMTransitiveClassA) {
+          return null;
         }
-      }
-      if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvma)) {
         allowZeroSuffix = true;
         allowKiSuffix = true;
       }
-      if (isTransitiveMV) {
-        allowZeroSuffix = true;
+      if (allowPiIntransitiveClassA) {
+        allowZeroSuffix = false;
         allowKiSuffix = true;
       }
       if (!context.isTransitive && hasRightEdge({
@@ -569,7 +1854,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       })) {
         allowZeroSuffix = false;
       }
-      if (!context.forceClassAForKWV) {
+      if (!forceClassAForKWV) {
         const allowIntransitiveWiVtV = !context.isTransitive && patterns.hasAggregate(targetObject.PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern);
         if (context.isMonosyllable && finalOnset !== "t" && !isDenominalWiVowelSourceClassA || !context.isTransitive && (context.isVtVStart || context.isVVtVStart) && !allowIntransitiveWiVtV && !allowIntransitiveChiClassA) {
           return null;
@@ -632,8 +1917,13 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowKiSuffix = true;
       }
       if (context.isTransitive && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
-        allowZeroSuffix = true;
-        allowKiSuffix = false;
+        if (classACvcvwiTransitivePolicyFrame) {
+          allowZeroSuffix = classACvcvwiTransitivePolicyFrame.targetFrame?.allowZeroSuffix === true;
+          allowKiSuffix = classACvcvwiTransitivePolicyFrame.targetFrame?.allowKiSuffix === true;
+        } else {
+          allowZeroSuffix = true;
+          allowKiSuffix = false;
+        }
       }
       if (isTransitiveTaRedupCVCV) {
         allowZeroSuffix = false;
@@ -643,10 +1933,14 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         allowZeroSuffix = false;
         allowKiSuffix = true;
       }
-      const isShapeItaVerb = context.analysisVerb === "ita";
-      if (context.isTransitive && context.isItaVerb && isShapeItaVerb) {
+      const hasItaClassASourceShape = context.isTransitive && context.isItaVerb && Array.isArray(context.syllableForms) && context.syllableForms.length === 2 && context.syllableForms[0] === "V" && context.syllableForms[1] === "CV" && context.rightEdgeDescriptor?.previousNucleus === "i" && context.rightEdgeDescriptor?.finalOnset === "t" && context.rightEdgeDescriptor?.finalNucleus === "a";
+      if (hasItaClassASourceShape) {
+        const itaFrameResult = buildPretClassAItaBaseSpecsFromSourceFrame(context.itaClassASourceFrame, context);
+        if (!itaFrameResult.ok) {
+          return null;
+        }
         const variants = [];
-        const itaStemSpec = buildPretReplaceSuffixBaseSpec(context.verb, "ta", "tz");
+        const itaStemSpec = itaFrameResult.baseSpecs[0] || null;
         const itaStem = realizePretBaseSpec(itaStemSpec, "");
         if (!isAllowedStem(itaStem)) {
           return null;
@@ -663,8 +1957,13 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         }
         return variants.length ? variants : null;
       }
-      if (!context.isTransitive && context.verb.endsWith("yya")) {
-        const baseSpec = buildPretReplaceSuffixBaseSpec(context.verb, "ya", "");
+      const hasDirectYyaRightEdge = !context.isTransitive && context.rightEdgeDescriptor?.finalOnset === "y" && context.rightEdgeDescriptor?.finalNucleus === "a" && context.rightEdgeDescriptor?.previousForm === "C" && context.rightEdgeDescriptor?.previousOnset === "y";
+      if (hasDirectYyaRightEdge) {
+        const yyaFrameResult = buildPretClassAYyaBaseSpecsFromSourceFrame(context.yyaClassASourceFrame, context);
+        if (!yyaFrameResult.ok) {
+          return null;
+        }
+        const baseSpec = yyaFrameResult.baseSpecs[0] || null;
         const base = realizePretBaseSpec(baseSpec, "");
         if (!isAllowedStem(base)) {
           return null;
@@ -673,28 +1972,17 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           baseSpec
         })];
       }
-      const deletedBase = context.verb.slice(0, -1);
-      let deletedVariants = context.isCausativeTypeTwo ? [buildPretVariant("", "", {
-        baseSpec: buildPretLiteralBaseSpec(context.verb)
-      })] : (deletedBase.endsWith("kw") ? [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
-        isTransitive: context.isTransitive
-      })] : deletedBase.endsWith("w") ? [buildPretDeletionShiftBaseSpec(deletedBase, "w-keep", {
-        isTransitive: context.isTransitive
-      }), buildPretDeletionShiftBaseSpec(deletedBase, "w-to-j", {
-        isTransitive: context.isTransitive
-      })] : deletedBase.endsWith("m") ? [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
-        isTransitive: context.isTransitive
-      })] : deletedBase.endsWith("y") ? [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
-        isTransitive: context.isTransitive
-      })] : [buildPretDeletionShiftBaseSpec(deletedBase, "identity", {
-        isTransitive: context.isTransitive
-      })]).filter(Boolean).map(baseSpec => buildPretVariant("", "", {
+      const deletionFrameResult = buildPretClassAFinalVowelDeletionBaseSpecsFromSourceFrame(context.classAFinalVowelDeletionSourceFrame, context);
+      if (!deletionFrameResult.ok) {
+        return null;
+      }
+      let deletedVariants = deletionFrameResult.baseSpecs.map(baseSpec => buildPretVariant("", "", {
         baseSpec
-      }));
+      })).filter(Boolean);
       if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vccawa)) {
         deletedVariants = deletedVariants.filter(variant => !getPretVariantBase(variant).endsWith("j"));
       }
-      if (context.isTransitive && patterns.hasAggregate(targetObject.PRET_DESCRIPTOR_QUERIES.aggregate.kawa) && !(context.isReduplicated || context.hasSlashMarker)) {
+      if (classACvawaTransitivePolicyFrame?.targetFrame?.allowJBaseVariant === false || context.isTransitive && patterns.hasAggregate(targetObject.PRET_DESCRIPTOR_QUERIES.aggregate.kawa) && !(context.isReduplicated || context.hasSlashMarker)) {
         deletedVariants = deletedVariants.filter(variant => !getPretVariantBase(variant).endsWith("j"));
       }
       const variants = [];
@@ -705,12 +1993,14 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         }
         if (allowKiSuffix) {
           addUniquePretVariant(variants, "", "ki", {
-            baseSpec: variant.baseSpec
+            baseSpec: variant.baseSpec,
+            routePolicyFrame: classAMTransitivePolicyFrame || classAPiIntransitivePolicyFrame || classAPaTransitivePolicyFrame || classAPiCvTransitivePolicyFrame || classACvwiTransitivePolicyFrame || classACvcvwiTransitivePolicyFrame || classACvwaiTransitivePolicyFrame || classACvewaTransitivePolicyFrame || classACvawaTransitivePolicyFrame || classAPaCvIntransitivePolicyFrame || classANaCvIntransitivePolicyFrame || classACvvniIntransitivePolicyFrame || classACvsvIntransitivePolicyFrame || classANiCvTransitivePolicyFrame || classANaCvTransitivePolicyFrame || classANaCvcvcvTransitivePolicyFrame || classANaCvlvcvTransitivePolicyFrame || classANaVlcvcvTransitivePolicyFrame || classANaVjcvcvTransitivePolicyFrame || classATzaTransitivePolicyFrame || classACvwiIntransitivePolicyFrame || classACvcvwiIntransitivePolicyFrame
           });
         }
         if (allowZeroSuffix) {
           addUniquePretVariant(variants, "", "", {
-            baseSpec: variant.baseSpec
+            baseSpec: variant.baseSpec,
+            routePolicyFrame: classAMTransitivePolicyFrame || classAPiIntransitivePolicyFrame || classAPaTransitivePolicyFrame || classAPiCvTransitivePolicyFrame || classACvwiTransitivePolicyFrame || classACvcvwiTransitivePolicyFrame || classACvwaiTransitivePolicyFrame || classACvewaTransitivePolicyFrame || classACvawaTransitivePolicyFrame || classAPaCvIntransitivePolicyFrame || classANaCvIntransitivePolicyFrame || classACvvniIntransitivePolicyFrame || classACvsvIntransitivePolicyFrame || classANiCvTransitivePolicyFrame || classANaCvTransitivePolicyFrame || classANaCvcvcvTransitivePolicyFrame || classANaCvlvcvTransitivePolicyFrame || classANaVlcvcvTransitivePolicyFrame || classANaVjcvcvTransitivePolicyFrame || classATzaTransitivePolicyFrame || classACvwiIntransitivePolicyFrame || classACvcvwiIntransitivePolicyFrame
           });
         }
       });
@@ -721,28 +2011,133 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const isAllowedStem = base => allowUnpronounceableStems || targetObject.isSyllableSequencePronounceable(base);
       const patterns = createPretDescriptorMatcher(context);
       const hasRightEdge = (query = {}) => targetObject.pretContextHasRightEdge(context, query);
+      const hasTaIntransitiveRightEdge = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "t+a"
+      });
+      const allowTaIntransitiveClassB = hasAuthoritativePretClassBTaIntransitiveFrame(context);
+      const classBTaIntransitivePolicyFrame = allowTaIntransitiveClassB ? context.classBTaIntransitiveOperationFrame : null;
+      const hasTaTransitiveRightEdge = context.isTransitive && !context.isMonosyllable && context.isItaVerb !== true && hasRightEdge({
+        endingFamily: "t+a"
+      });
+      const allowTaTransitiveClassB = hasAuthoritativePretClassBTaTransitiveFrame(context);
+      const classBTaTransitivePolicyFrame = allowTaTransitiveClassB ? context.classBTaTransitiveOperationFrame : null;
+      const hasPiIntransitiveRightEdge = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+i"
+      });
+      const allowPiIntransitiveClassB = hasAuthoritativePretClassAPiIntransitiveFrame(context);
+      const classAPiIntransitivePolicyFrame = allowPiIntransitiveClassB ? context.classAPiIntransitiveOperationFrame : null;
+      const hasPaCvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "p+a",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowPaCvIntransitiveClassB = hasAuthoritativePretClassAPaCvIntransitiveFrame(context);
+      const classAPaCvIntransitivePolicyFrame = allowPaCvIntransitiveClassB ? context.classAPaCvIntransitiveOperationFrame : null;
+      const hasNaCvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowNaCvIntransitiveClassB = hasAuthoritativePretClassANaCvIntransitiveFrame(context);
+      const classANaCvIntransitivePolicyFrame = allowNaCvIntransitiveClassB ? context.classANaCvIntransitiveOperationFrame : null;
+      const hasVnaIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["V|CV"]
+      });
+      const allowVnaIntransitiveClassB = hasAuthoritativePretClassBVnaIntransitiveFrame(context);
+      const classBVnaIntransitivePolicyFrame = allowVnaIntransitiveClassB ? context.classBVnaIntransitiveOperationFrame : null;
+      const hasKwiCvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "kw+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowKwiCvIntransitiveClassB = hasAuthoritativePretClassBKwiCvIntransitiveFrame(context);
+      const classBKwiCvIntransitivePolicyFrame = allowKwiCvIntransitiveClassB ? context.classBKwiCvIntransitiveOperationFrame : null;
+      const hasVcvcuIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        rightEdgeProfiles: ["V|CV|CV"],
+        finalNucleus: "u"
+      });
+      const allowVcvcuIntransitiveClassB = hasAuthoritativePretClassBVcvcuIntransitiveFrame(context);
+      const classBVcvcuIntransitivePolicyFrame = allowVcvcuIntransitiveClassB ? context.classBVcvcuIntransitiveOperationFrame : null;
+      const hasVlcvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      });
+      const allowVlcvwiIntransitiveClassB = hasAuthoritativePretClassBVlcvwiIntransitiveFrame(context);
+      const classBVlcvwiIntransitivePolicyFrame = allowVlcvwiIntransitiveClassB ? context.classBVlcvwiIntransitiveOperationFrame : null;
+      const hasCvniuIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "u"
+      });
+      const allowCvniuIntransitiveClassB = hasAuthoritativePretClassBCvniuIntransitiveFrame(context);
+      const classBCvniuIntransitivePolicyFrame = allowCvniuIntransitiveClassB ? context.classBCvniuIntransitiveOperationFrame : null;
+      const hasCvvniIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|V|CV"]
+      });
+      const allowCvvniIntransitiveClassB = hasAuthoritativePretClassACvvniIntransitiveFrame(context);
+      const classACvvniIntransitivePolicyFrame = allowCvvniIntransitiveClassB ? context.classACvvniIntransitiveOperationFrame : null;
+      const hasCvsvIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "s+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvsvIntransitiveClassB = hasAuthoritativePretClassACvsvIntransitiveFrame(context);
+      const classACvsvIntransitivePolicyFrame = allowCvsvIntransitiveClassB ? context.classACvsvIntransitiveOperationFrame : null;
+      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvwiTransitiveClassB = hasAuthoritativePretClassACvwiTransitiveFrame(context);
+      const classACvwiTransitivePolicyFrame = allowCvwiTransitiveClassB ? context.classACvwiTransitiveOperationFrame : null;
+      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
+      const allowCvcvwiTransitiveClassB = hasAuthoritativePretClassACvcvwiTransitiveFrame(context);
+      const classACvcvwiTransitivePolicyFrame = allowCvcvwiTransitiveClassB ? context.classACvcvwiTransitiveOperationFrame : null;
+      const hasCvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      });
+      const allowCvwiIntransitiveClassB = hasAuthoritativePretClassACvwiIntransitiveFrame(context);
+      const classACvwiIntransitivePolicyFrame = allowCvwiIntransitiveClassB ? context.classACvwiIntransitiveOperationFrame : null;
+      const hasCvcvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV|CV"]
+      });
+      const allowCvcvwiIntransitiveClassB = hasAuthoritativePretClassACvcvwiIntransitiveFrame(context);
+      const classACvcvwiIntransitivePolicyFrame = allowCvcvwiIntransitiveClassB ? context.classACvcvwiIntransitiveOperationFrame : null;
+      const hasVjwaIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["Vj|CV"]
+      });
+      const allowVjwaIntransitiveClassB = hasAuthoritativePretClassBVjwaIntransitiveFrame(context);
+      const classBVjwaIntransitivePolicyFrame = allowVjwaIntransitiveClassB ? context.classBVjwaIntransitiveOperationFrame : null;
+      const hasCuwaIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "u"
+      });
+      const allowCuwaIntransitiveClassB = hasAuthoritativePretClassBCuwaIntransitiveFrame(context);
+      const classBCuwaIntransitivePolicyFrame = allowCuwaIntransitiveClassB ? context.classBCuwaIntransitiveOperationFrame : null;
       if (!context.isTransitive && context.fromRootPlusYa) {
+        const rootPlusYaFrameResult = buildPretRootPlusYaClassBBaseSpecsFromSourceFrame(context.rootPlusYaSourceFrame, context);
+        if (!rootPlusYaFrameResult.ok) {
+          return null;
+        }
         if (isSlashDenominalRootPlusYaMatrix(context)) {
-          const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context) || context.verb || "";
-          const deletedYaBase = rootPlusYaVerb.endsWith("ya") ? rootPlusYaVerb.slice(0, -2) : context.rootPlusYaBase || rootPlusYaVerb;
-          const baseSpec = rootPlusYaVerb.endsWith("ya") ? buildPretReplaceSuffixBaseSpec(rootPlusYaVerb, "ya", "") : buildPretLiteralBaseSpec(context.rootPlusYaBase || rootPlusYaVerb);
+          const deletedYaBase = rootPlusYaFrameResult.deletedYaBase;
           if (!deletedYaBase || !isAllowedStem(deletedYaBase)) {
             return null;
           }
           return [buildPretVariant("", "k", {
-            baseSpec
+            baseSpec: rootPlusYaFrameResult.deletedYaBaseSpec
           })];
         }
         if (context.isWeya) {
           return [buildPretVariant("", "k", {
-            baseSpec: buildPretLiteralBaseSpec(context.verb)
+            baseSpec: rootPlusYaFrameResult.sourceVerbBaseSpec
           })];
         }
-        const rootPlusYaVerb = getRootPlusYaSurfaceVerb(context);
         const variants = [buildPretVariant("", "k", {
-          baseSpec: buildPretLiteralBaseSpec(rootPlusYaVerb || context.verb)
+          baseSpec: rootPlusYaFrameResult.sourceVerbBaseSpec
         })].filter(Boolean);
-        const rootPlusYaBase = context.rootPlusYaBase;
+        const rootPlusYaBase = rootPlusYaFrameResult.rootBase;
         const addRootPlusYaVariant = candidateBase => {
           if (!candidateBase || !isAllowedStem(candidateBase)) {
             return;
@@ -769,7 +2164,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         if (!isShortRootPlusYaBase && rootPlusYaBase) {
           addRootPlusYaVariant(rootPlusYaBase);
         }
-        const slashEmbeddedYaBase = context.hasSlashMarker && rootPlusYaVerb.endsWith("ya") ? rootPlusYaVerb.slice(0, -2) : "";
+        const slashEmbeddedYaBase = context.hasSlashMarker ? rootPlusYaFrameResult.deletedYaBase : "";
         if (slashEmbeddedYaBase) {
           addRootPlusYaVariant(slashEmbeddedYaBase);
         }
@@ -784,23 +2179,38 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (!context.isTransitive && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV_CV)) {
         return null;
       }
-      if (!context.isTransitive && patterns.hasAggregate(targetObject.PRET_DESCRIPTOR_QUERIES.aggregate.waPattern)) {
-        if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cuwa)) {
-          return [buildPretVariant("", "k", {
-            baseSpec: buildPretLiteralBaseSpec(context.verb)
-          })];
+      if (!context.isTransitive && (patterns.hasAggregate(targetObject.PRET_DESCRIPTOR_QUERIES.aggregate.waPattern) || hasCuwaIntransitiveShape)) {
+        const classBFrameResult = buildPretClassBBaseSpecsFromSourceFrame(context.classBSourceFrame, context);
+        if (!classBFrameResult.ok) {
+          return null;
+        }
+        if (hasCuwaIntransitiveShape) {
+          if (!allowCuwaIntransitiveClassB) {
+            return null;
+          }
+          const cuwaTargetSuffix = classBCuwaIntransitivePolicyFrame?.targetFrame?.targetSuffix || "";
+          if (!cuwaTargetSuffix) {
+            return null;
+          }
+          return [buildPretVariant("", cuwaTargetSuffix, {
+            baseSpec: classBFrameResult.baseSpecs[0],
+            routePolicyFrame: classBCuwaIntransitivePolicyFrame
+          })].filter(Boolean);
         }
         if (context.isReduplicated || !targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.waCV_CV_CV)) {
           return null;
         }
         return [buildPretVariant("", "k", {
-          baseSpec: buildPretLiteralBaseSpec(context.verb)
-        })];
+          baseSpec: classBFrameResult.baseSpecs[0]
+        })].filter(Boolean);
       }
       if (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvsV) && !hasRightEdge({
         finalForm: "V",
         finalNucleus: "u"
       })) {
+        if (hasCvsvIntransitiveShape && !allowCvsvIntransitiveClassB) {
+          return null;
+        }
         if (context.lastNucleus !== "i" || context.isTransitive) {
           return null;
         }
@@ -808,11 +2218,81 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       if (context.vowelCount !== 1) {
         return null;
       }
-      if (!isAllowedStem(context.verb)) {
+      if (hasTaIntransitiveRightEdge && !allowTaIntransitiveClassB) {
         return null;
       }
-      const variants = [buildPretVariant("", "k", {
-        baseSpec: buildPretLiteralBaseSpec(context.verb)
+      if (hasTaTransitiveRightEdge && !allowTaTransitiveClassB) {
+        return null;
+      }
+      if (hasPiIntransitiveRightEdge && !allowPiIntransitiveClassB) {
+        return null;
+      }
+      if (hasPaCvIntransitiveShape && !allowPaCvIntransitiveClassB) {
+        return null;
+      }
+      if (hasNaCvIntransitiveShape && !allowNaCvIntransitiveClassB) {
+        return null;
+      }
+      if (hasVnaIntransitiveShape && !allowVnaIntransitiveClassB) {
+        return null;
+      }
+      if (hasKwiCvIntransitiveShape && !allowKwiCvIntransitiveClassB) {
+        return null;
+      }
+      if (hasVcvcuIntransitiveShape && !allowVcvcuIntransitiveClassB) {
+        return null;
+      }
+      if (hasVlcvwiIntransitiveShape && !allowVlcvwiIntransitiveClassB) {
+        return null;
+      }
+      if (hasCvniuIntransitiveShape && !allowCvniuIntransitiveClassB) {
+        return null;
+      }
+      if (hasCvvniIntransitiveShape && !allowCvvniIntransitiveClassB) {
+        return null;
+      }
+      if (hasCvsvIntransitiveShape && !allowCvsvIntransitiveClassB) {
+        return null;
+      }
+      if (hasCvwiTransitiveShape && !allowCvwiTransitiveClassB) {
+        return null;
+      }
+      if (hasCvcvwiTransitiveShape && !allowCvcvwiTransitiveClassB) {
+        return null;
+      }
+      if (hasCvwiIntransitiveShape && !allowCvwiIntransitiveClassB) {
+        return null;
+      }
+      if (hasCvcvwiIntransitiveShape && !allowCvcvwiIntransitiveClassB) {
+        return null;
+      }
+      if (hasVjwaIntransitiveShape && !allowVjwaIntransitiveClassB) {
+        return null;
+      }
+      if (hasCuwaIntransitiveShape && !allowCuwaIntransitiveClassB) {
+        return null;
+      }
+      const classBFrameResult = buildPretClassBBaseSpecsFromSourceFrame(context.classBSourceFrame, context);
+      if (!classBFrameResult.ok) {
+        return null;
+      }
+      if (!isAllowedStem(classBFrameResult.sourceVerb)) {
+        return null;
+      }
+      let classBTargetSuffix = "k";
+      if (hasTaIntransitiveRightEdge) {
+        classBTargetSuffix = classBTaIntransitivePolicyFrame?.targetFrame?.targetSuffix || "";
+      } else if (hasTaTransitiveRightEdge) {
+        classBTargetSuffix = classBTaTransitivePolicyFrame?.targetFrame?.targetSuffix || "";
+      } else if (hasVjwaIntransitiveShape) {
+        classBTargetSuffix = classBVjwaIntransitivePolicyFrame?.targetFrame?.targetSuffix || "";
+      }
+      if (!classBTargetSuffix) {
+        return null;
+      }
+      const variants = [buildPretVariant("", classBTargetSuffix, {
+        baseSpec: classBFrameResult.baseSpecs[0],
+        routePolicyFrame: classBTaIntransitivePolicyFrame || classBTaTransitivePolicyFrame || classAPiIntransitivePolicyFrame || classAPaCvIntransitivePolicyFrame || classANaCvIntransitivePolicyFrame || classBVnaIntransitivePolicyFrame || classBKwiCvIntransitivePolicyFrame || classBVcvcuIntransitivePolicyFrame || classBVlcvwiIntransitivePolicyFrame || classBCvniuIntransitivePolicyFrame || classACvvniIntransitivePolicyFrame || classACvsvIntransitivePolicyFrame || classACvwiTransitivePolicyFrame || classACvcvwiTransitivePolicyFrame || classACvwiIntransitivePolicyFrame || classACvcvwiIntransitivePolicyFrame || classBVjwaIntransitivePolicyFrame || classBCuwaIntransitivePolicyFrame
       })].filter(Boolean);
       const disallowRootPlusYa = context.analysisVerb === "ya" && (context.hasSlashMarker || context.hasSuffixSeparator || context.hasLeadingDash);
       const rootPlusYaBase = disallowRootPlusYa ? null : context.rootPlusYaBasePronounceable || "";
@@ -853,15 +2333,19 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       }
     }
     function getPronounceableClassBFallback(context) {
-      if (!context || !context.verb) {
+      if (!context) {
+        return null;
+      }
+      const classBFrameResult = buildPretClassBBaseSpecsFromSourceFrame(context.classBSourceFrame, context);
+      if (!classBFrameResult.ok) {
         return null;
       }
       const allowUnpronounceableStems = context.allowUnpronounceableStems === true;
-      if (!allowUnpronounceableStems && !targetObject.isSyllableSequencePronounceable(context.verb)) {
+      if (!allowUnpronounceableStems && !targetObject.isSyllableSequencePronounceable(classBFrameResult.sourceVerb)) {
         return null;
       }
       return [buildPretVariant("", "k", {
-        baseSpec: buildPretLiteralBaseSpec(context.verb)
+        baseSpec: classBFrameResult.baseSpecs[0]
       })];
     }
     function getPretUniversalVariantsByClass(context) {
@@ -991,38 +2475,82 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         base: adjustedBase
       };
     }
-    function adjustPretPrefixBaseContact(prefix, base, baseSubjectPrefix = "", options = {}) {
-      let adjustedPrefix = prefix || "";
-      let adjustedBase = base || "";
-      const shouldDropLeadingI = adjustedPrefix && adjustedPrefix.endsWith("i") && adjustedBase.startsWith("i");
-      if (shouldDropLeadingI) {
-        adjustedBase = adjustedBase.slice(1);
+    function buildPretPrefixBaseContactDiagnostic(id = "", details = {}) {
+      return {
+        id,
+        layer: "preterit-prefix-base-contact-frame",
+        ...details
+      };
+    }
+    function blockPretPrefixBaseContact(id = "", details = {}) {
+      return {
+        ok: false,
+        prefix: "",
+        base: "",
+        diagnostics: [buildPretPrefixBaseContactDiagnostic(id, details)]
+      };
+    }
+    function evaluatePretPrefixBaseContactFrame(contactFrame = null) {
+      if (!contactFrame || typeof contactFrame !== "object" || contactFrame.kind !== PRET_PREFIX_BASE_CONTACT_FRAME_KIND || contactFrame.prefixFrame?.kind !== PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND || contactFrame.baseFrame?.kind !== PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND || contactFrame.operationFrame?.kind !== "preterit-prefix-base-contact-operation-frame") {
+        return blockPretPrefixBaseContact("preterit-prefix-base-contact-missing-frame");
       }
-      if (options.dropYAfterWal === true && adjustedBase.startsWith("ya")) {
-        adjustedBase = adjustedBase.slice(1);
+      const operationFrame = contactFrame.operationFrame;
+      const prefixLetters = Array.isArray(contactFrame.prefixFrame.letters) ? contactFrame.prefixFrame.letters.slice() : getPretContactLetters(contactFrame.prefixFrame.text || "");
+      const baseLetters = Array.isArray(contactFrame.baseFrame.letters) ? contactFrame.baseFrame.letters.slice() : getPretContactLetters(contactFrame.baseFrame.text || "");
+      if (joinPretContactLetters(prefixLetters) !== normalizePretBaseFrameText(contactFrame.prefixFrame.text || "") || joinPretContactLetters(baseLetters) !== normalizePretBaseFrameText(contactFrame.baseFrame.text || "")) {
+        return blockPretPrefixBaseContact("preterit-prefix-base-contact-contradictory-frame", {
+          prefix: contactFrame.prefixFrame.text || "",
+          base: contactFrame.baseFrame.text || ""
+        });
       }
-      return adjustPretNhBeforeVowel(adjustedPrefix, adjustedBase);
+      if (operationFrame.suppressBareKBeforeK === true && joinPretContactLetters(prefixLetters) === "k" && (baseLetters[0] === "k" || baseLetters[0] === "kw")) {
+        prefixLetters.length = 0;
+      }
+      if (operationFrame.composedObjectPrefix === true && prefixLetters[prefixLetters.length - 1] === "k" && (baseLetters[0] === "k" || baseLetters[0] === "kw")) {
+        if (baseLetters[0] === "kw") {
+          prefixLetters.pop();
+        } else {
+          baseLetters.shift();
+        }
+      }
+      if (prefixLetters.length && prefixLetters[prefixLetters.length - 1] === "i" && baseLetters[0] === "i") {
+        baseLetters.shift();
+      }
+      if (operationFrame.dropYAfterWal === true && baseLetters[0] === "y" && baseLetters[1] === "a") {
+        baseLetters.shift();
+      }
+      if (prefixLetters.length && baseLetters.length && targetObject.isVerbLetterVowel(baseLetters[0]) && prefixLetters[prefixLetters.length - 1] === "n" && prefixLetters[prefixLetters.length - 2] !== "h" && targetObject.isVerbLetterVowel(prefixLetters[prefixLetters.length - 2] || "")) {
+        prefixLetters.push("h");
+      }
+      return {
+        ok: true,
+        prefix: joinPretContactLetters(prefixLetters),
+        base: joinPretContactLetters(baseLetters),
+        diagnostics: [],
+        contactFrame
+      };
+    }
+    function adjustPretPrefixBaseContact(contactFrame) {
+      return evaluatePretPrefixBaseContactFrame(contactFrame);
     }
     function adjustPretComposedObjectPrefixContact({
       objectPrefix = "",
       base = "",
       baseSubjectPrefix = "",
       allowZeroBitransitiveDrop = false,
+      suppressBareKBeforeK = false,
       dropYAfterWal = false
     }) {
-      let adjustedObjectPrefix = objectPrefix;
-      let adjustedBase = base;
-      if (adjustedObjectPrefix.endsWith("k") && adjustedBase.startsWith("k")) {
-        if (adjustedBase.startsWith("kw")) {
-          adjustedObjectPrefix = adjustedObjectPrefix.slice(0, -1);
-        } else {
-          adjustedBase = adjustedBase.slice(1);
-        }
-      }
-      return adjustPretPrefixBaseContact(adjustedObjectPrefix, adjustedBase, baseSubjectPrefix, {
+      return adjustPretPrefixBaseContact(buildPretPrefixBaseContactFrame({
+        prefix: objectPrefix,
+        base,
+        baseSubjectPrefix,
+        contactKind: "composed-object-prefix-base",
+        composedObjectPrefix: true,
+        suppressBareKBeforeK,
         allowZeroBitransitiveDrop,
         dropYAfterWal
-      });
+      }));
     }
     function resolvePretObjectPrefixContact({
       objectPrefix = "",
@@ -1037,12 +2565,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         hasDoubleDash,
         indirectObjectMarker
       });
-      let adjustedObjectPrefix = objectPrefix;
-      if (suppressBareKBeforeK && adjustedObjectPrefix === "k" && base.startsWith("k") && !indirectObjectMarker) {
-        adjustedObjectPrefix = "";
-      }
-      adjustedObjectPrefix = composePretUniversalObjectPrefix({
-        objectPrefix: adjustedObjectPrefix,
+      const adjustedObjectPrefix = composePretUniversalObjectPrefix({
+        objectPrefix,
         baseSubjectPrefix,
         indirectObjectMarker,
         hasDoubleDash
@@ -1052,6 +2576,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         base,
         baseSubjectPrefix,
         allowZeroBitransitiveDrop,
+        suppressBareKBeforeK: suppressBareKBeforeK && !indirectObjectMarker,
         dropYAfterWal
       });
     }
@@ -1083,7 +2608,13 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         const objectTail = baseObjectPrefix === "kin" ? "in" : "";
         const objectHead = targetObject.applyObj2ToObj1Chain(`${dropK ? "" : "k"}${objectTail}`, indirectObjectMarker);
         const directionalizedObjectHead = objectHead.startsWith("k") ? `k${outputDirectional}${objectHead.slice(1)}` : `${outputDirectional}${objectHead}`;
-        return adjustPretNhBeforeVowel(`${subjectHead}${directionalizedObjectHead}`, dropYAfterWal && baseCore.startsWith("ya") ? baseCore.slice(1) : baseCore);
+        return adjustPretPrefixBaseContact(buildPretPrefixBaseContactFrame({
+          prefix: `${subjectHead}${directionalizedObjectHead}`,
+          base: baseCore,
+          baseSubjectPrefix,
+          contactKind: "directional-object-prefix-base",
+          dropYAfterWal
+        }));
       }
       if (isShuntlineThirdPersonObject && outputDirectional === "al") {
         const allowZeroBitransitiveDrop = shouldAllowZeroBitransitiveKiDrop({
@@ -1279,14 +2810,15 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       hasDoubleDash = false,
       isYawi = false,
       routeStage = "assemble-variants",
-      enumerable = false
+      enumerable = false,
+      diagnosticsOverride = null
     } = {}) {
       const result = output && typeof output === "object" ? output : {};
       const forms = getPretVariantAssemblySurfaceForms(result);
       const surface = getPretVariantAssemblySurface(result);
       const soundSpellingFrames = getPretUniversalOutputSoundSpellingFrames(result);
       const ok = Boolean(surface && forms.length);
-      const diagnostics = ok ? [] : [buildPretUniversalVariantAssemblyDiagnostic({
+      const diagnostics = Array.isArray(diagnosticsOverride) ? diagnosticsOverride : ok ? [] : [buildPretUniversalVariantAssemblyDiagnostic({
         failedLayer: "route",
         contractLayer: "routeContract",
         routeStage
@@ -1318,7 +2850,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           surface,
           surfaceForms: forms,
           soundSpellingFrames,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
@@ -1427,7 +2959,54 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       });
       return result;
     }
-    function buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix = "", directionalOutputPrefix = "", baseSubjectPrefix = subjectPrefix, baseObjectPrefix = objectPrefix, pluralSuffix = null, indirectObjectMarker = "", hasDoubleDash = false, isYawi = false, hasOptionalSupportiveI = false, optionalSupportiveLetter = "") {
+    function blockPretVariantAssemblyFromFrame(id = "", routeStage = "variant-assembly-frame-gate", details = {}) {
+      return attachPretUniversalVariantAssemblyGrammarContract({
+        result: null,
+        forms: []
+      }, {
+        variants: [],
+        routeStage,
+        diagnosticsOverride: [buildPretUniversalVariantAssemblyDiagnostic({
+          id,
+          failedLayer: "frame",
+          contractLayer: "variantAssemblyFrame",
+          routeStage,
+          ...details
+        })]
+      });
+    }
+    function buildPretUniversalResultDetailedFromVariants(assemblyFrame) {
+      if (!assemblyFrame || typeof assemblyFrame !== "object" || assemblyFrame.kind !== PRET_VARIANT_ASSEMBLY_FRAME_KIND) {
+        return blockPretVariantAssemblyFromFrame("preterit-variant-assembly-missing-frame");
+      }
+      const sourceFrame = assemblyFrame.sourceFrame;
+      const operationFrame = assemblyFrame.operationFrame;
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== PRET_VARIANT_ASSEMBLY_SOURCE_FRAME_KIND || !Array.isArray(sourceFrame.variants)) {
+        return blockPretVariantAssemblyFromFrame("preterit-variant-assembly-missing-source-frame");
+      }
+      if (!operationFrame || typeof operationFrame !== "object" || operationFrame.kind !== PRET_VARIANT_ASSEMBLY_OPERATION_FRAME_KIND) {
+        return blockPretVariantAssemblyFromFrame("preterit-variant-assembly-missing-operation-frame");
+      }
+      if (sourceFrame.variantCount !== sourceFrame.variants.length) {
+        return blockPretVariantAssemblyFromFrame("preterit-variant-assembly-contradictory-source-frame");
+      }
+      const variants = sourceFrame.variants.slice();
+      const participantFrame = assemblyFrame.participantFrame || {};
+      const directionalFrame = assemblyFrame.directionalFrame || {};
+      const inflectionFrame = assemblyFrame.inflectionFrame || {};
+      const subjectPrefix = String(participantFrame.subjectPrefix || "");
+      const objectPrefix = String(participantFrame.objectPrefix || "");
+      const subjectSuffix = String(participantFrame.subjectSuffix || "");
+      const directionalInputPrefix = String(directionalFrame.inputPrefix || "");
+      const directionalOutputPrefix = String(directionalFrame.outputPrefix || "");
+      const baseSubjectPrefix = String(participantFrame.baseSubjectPrefix || subjectPrefix || "");
+      const baseObjectPrefix = String(participantFrame.baseObjectPrefix || objectPrefix || "");
+      const pluralSuffix = inflectionFrame.pluralSuffix === null ? null : String(inflectionFrame.pluralSuffix || "");
+      const indirectObjectMarker = String(participantFrame.indirectObjectMarker || "");
+      const hasDoubleDash = participantFrame.hasDoubleDash === true;
+      const isYawi = directionalFrame.isYawi === true;
+      const hasOptionalSupportiveI = inflectionFrame.hasOptionalSupportiveI === true;
+      const optionalSupportiveLetter = String(inflectionFrame.optionalSupportiveLetter || "");
       if (!variants || variants.length === 0) {
         return attachPretUniversalVariantAssemblyGrammarContract({
           result: null,
@@ -1618,8 +3197,8 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         isYawi
       });
     }
-    function buildPretUniversalResultFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix = "", directionalOutputPrefix = "", baseSubjectPrefix = subjectPrefix, baseObjectPrefix = objectPrefix, pluralSuffix = null, indirectObjectMarker = "", hasDoubleDash = false, isYawi = false, hasOptionalSupportiveI = false, optionalSupportiveLetter = "") {
-      return buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter).result;
+    function buildPretUniversalResultFromVariants(assemblyFrame) {
+      return buildPretUniversalResultDetailedFromVariants(assemblyFrame).result;
     }
     function buildNonactivePerfectiveResult({
       verb,
@@ -1700,7 +3279,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         finalOnset: "m",
         finalNuclei: ["a", "i"]
       }) || /m[ai]$/.test(mvSource)));
-      const allowSlashAkiZero = !!(context && !isTransitive && context.hasSlashMarker && context.analysisVerb === "aki");
+      const allowSlashAkiZero = !!(context && !isTransitive && context.hasSlashMarker && hasAuthoritativePretClassASlashAkiZeroFrame(context));
       if (allowSlashAkiZero) {
         return {
           shouldMaskClassBSelection: false,
@@ -1718,7 +3297,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           shouldSkipClassB: baseSkipClassB
         };
       }
-      const forceClassAForKWV = context.forceClassAForKWV;
+      const forceClassAForKWV = hasAuthoritativePretClassAKwvForceFrame(context);
       const allowBothForKi = isTransitive && baseObjectPrefix === "ki";
       const isKOnlyNoU = ["k", "kw"].includes(rightEdgeDescriptor.finalOnset || "") && (rightEdgeDescriptor.finalNucleus || "") !== "u";
       const preferClassBForKV = !allowAllClasses && isPreterit && !classFilter && isKOnlyNoU && !allowBothForKi;
@@ -1859,8 +3438,11 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         isCVpVPattern: Boolean(context && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvpV) && !context.isTransitive),
         isIntransitivePiPattern: Boolean(context && !context.isTransitive && targetObject.pretContextHasRightEdge(context, {
           endingFamily: "p+i"
-        }) && !context.isMonosyllable),
-        isCVVniPattern: Boolean(context && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvvni) && !context.isTransitive)
+        }) && !context.isMonosyllable && hasAuthoritativePretClassAPiIntransitiveFrame(context)),
+        isCVVniPattern: Boolean(context && targetObject.pretContextHasRightEdge(context, {
+          endingFamily: "n+i",
+          rightEdgeProfiles: ["CV|V|CV"]
+        }) && !context.isTransitive && hasAuthoritativePretClassACvvniIntransitiveFrame(context))
       };
       const rules = [{
         name: "force-class-b-only",
@@ -1986,6 +3568,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       forceTransitive = false,
       indirectObjectMarker = "",
       hasDoubleDash = false,
+      allowUnpronounceableStems = false,
       forceClassBSelection = false,
       forceClassBOnly = false,
       returnDetailed = false
@@ -2023,6 +3606,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
           rootPlusYaBase,
           rootPlusYaBasePronounceable,
           derivationType,
+          allowUnpronounceableStems,
           forceClassBOnly
         });
         if (!isTransitive && ["k", "kw"].includes(context?.rightEdgeDescriptor?.finalOnset || "") && (context?.rightEdgeDescriptor?.finalNucleus || "") !== "u" && tense !== "preterito") {
@@ -2097,7 +3681,22 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         }
         let classResult = null;
         if (isPreterit) {
-          const detailedClassResult = buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pretPluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+          const detailedClassResult = buildPretUniversalResultDetailedFromVariants(buildPretVariantAssemblyFrame({
+            variants,
+            subjectPrefix,
+            objectPrefix,
+            subjectSuffix,
+            directionalInputPrefix,
+            directionalOutputPrefix,
+            baseSubjectPrefix,
+            baseObjectPrefix,
+            pluralSuffix: pretPluralSuffix,
+            indirectObjectMarker,
+            hasDoubleDash,
+            isYawi,
+            hasOptionalSupportiveI,
+            optionalSupportiveLetter
+          }));
           classResult = detailedClassResult.result;
           collectPretUniversalSoundSpellingFrames(soundSpellingFrames, getPretUniversalOutputSoundSpellingFrames(detailedClassResult));
         } else {
@@ -2254,13 +3853,28 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         const candidates = targetObject.getPretUniversalClassCandidates(context);
         const classAVariants = normalizePretYawiPreteriteVariants(candidates.has("A") ? buildPretUniversalClassA(context) : null, tense, isYawi);
         const hasClassAVariants = Array.isArray(classAVariants) && classAVariants.length > 0;
-        if (context.forceClassAForKWV) {
+        if (hasAuthoritativePretClassAKwvForceFrame(context)) {
           if (hasClassAVariants) {
             blockedReason = "class-b-fallback-to-a-kwv";
             const {
               result: resultKWV,
               forms: formsKWV
-            } = buildPretUniversalResultDetailedFromVariants(classAVariants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, null, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+            } = buildPretUniversalResultDetailedFromVariants(buildPretVariantAssemblyFrame({
+              variants: classAVariants,
+              subjectPrefix,
+              objectPrefix,
+              subjectSuffix,
+              directionalInputPrefix,
+              directionalOutputPrefix,
+              baseSubjectPrefix,
+              baseObjectPrefix,
+              pluralSuffix: null,
+              indirectObjectMarker,
+              hasDoubleDash,
+              isYawi,
+              hasOptionalSupportiveI,
+              optionalSupportiveLetter
+            }));
             return {
               result: resultKWV,
               forms: formsKWV,
@@ -2292,7 +3906,22 @@ export function createPreteritEngineApi(targetObject = globalThis) {
             const {
               result: resultFallbackA,
               forms: formsFallbackA
-            } = buildPretUniversalResultDetailedFromVariants(classAVariants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, null, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+            } = buildPretUniversalResultDetailedFromVariants(buildPretVariantAssemblyFrame({
+              variants: classAVariants,
+              subjectPrefix,
+              objectPrefix,
+              subjectSuffix,
+              directionalInputPrefix,
+              directionalOutputPrefix,
+              baseSubjectPrefix,
+              baseObjectPrefix,
+              pluralSuffix: null,
+              indirectObjectMarker,
+              hasDoubleDash,
+              isYawi,
+              hasOptionalSupportiveI,
+              optionalSupportiveLetter
+            }));
             return {
               result: resultFallbackA,
               forms: formsFallbackA,
@@ -2416,7 +4045,22 @@ export function createPreteritEngineApi(targetObject = globalThis) {
       const {
         result,
         forms
-      } = buildPretUniversalResultDetailedFromVariants(variants, subjectPrefix, objectPrefix, subjectSuffix, directionalInputPrefix, directionalOutputPrefix, baseSubjectPrefix, baseObjectPrefix, pluralSuffix, indirectObjectMarker, hasDoubleDash, isYawi, hasOptionalSupportiveI, optionalSupportiveLetter);
+      } = buildPretUniversalResultDetailedFromVariants(buildPretVariantAssemblyFrame({
+        variants,
+        subjectPrefix,
+        objectPrefix,
+        subjectSuffix,
+        directionalInputPrefix,
+        directionalOutputPrefix,
+        baseSubjectPrefix,
+        baseObjectPrefix,
+        pluralSuffix,
+        indirectObjectMarker,
+        hasDoubleDash,
+        isYawi,
+        hasOptionalSupportiveI,
+        optionalSupportiveLetter
+      }));
       return {
         result,
         forms,
@@ -2446,13 +4090,70 @@ export function createPreteritEngineApi(targetObject = globalThis) {
         enumerable: true,
         get() { return PRET_STEM_TRANSFORM_KIND; },
     });
+    Object.defineProperty(api, "PRET_BASE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_BASE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_BASE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_BASE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_BASE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_BASE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_PREFIX_BASE_CONTACT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_PREFIX_BASE_CONTACT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_VARIANT_ASSEMBLY_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_VARIANT_ASSEMBLY_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_VARIANT_ASSEMBLY_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_VARIANT_ASSEMBLY_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_VARIANT_ASSEMBLY_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_VARIANT_ASSEMBLY_OPERATION_FRAME_KIND; },
+    });
+    api.normalizePretBaseFrameText = normalizePretBaseFrameText;
+    api.buildPretBaseSourceFrame = buildPretBaseSourceFrame;
+    api.buildPretBaseSegmentFrame = buildPretBaseSegmentFrame;
+    api.buildPretBaseOperationFrame = buildPretBaseOperationFrame;
+    api.getPretContactLetters = getPretContactLetters;
+    api.joinPretContactLetters = joinPretContactLetters;
+    api.buildPretPrefixBaseContactSegmentFrame = buildPretPrefixBaseContactSegmentFrame;
+    api.buildPretPrefixBaseContactFrame = buildPretPrefixBaseContactFrame;
+    api.buildPretVariantAssemblyFrame = buildPretVariantAssemblyFrame;
     api.buildPretLiteralBaseSpec = buildPretLiteralBaseSpec;
     api.buildPretTransformBaseSpec = buildPretTransformBaseSpec;
     api.buildPretAppendBaseSpec = buildPretAppendBaseSpec;
     api.buildPretReplaceSuffixBaseSpec = buildPretReplaceSuffixBaseSpec;
     api.buildPretPerfectiveReplacementBaseSpec = buildPretPerfectiveReplacementBaseSpec;
+    api.buildPretTransformBaseSpecFromOperationFrame = buildPretTransformBaseSpecFromOperationFrame;
+    api.buildPretBaseSourceFrameFromRootPlusYaSourceFrame = buildPretBaseSourceFrameFromRootPlusYaSourceFrame;
+    api.buildPretPerfectiveReplacementBaseSpecFromRootPlusYaSourceFrame = buildPretPerfectiveReplacementBaseSpecFromRootPlusYaSourceFrame;
     api.buildPretDeletionShiftBaseSpec = buildPretDeletionShiftBaseSpec;
     api.buildPretCoalescedIBaseSpec = buildPretCoalescedIBaseSpec;
+    api.buildPretBaseSpecDiagnostic = buildPretBaseSpecDiagnostic;
+    api.blockPretBaseSpec = blockPretBaseSpec;
+    api.getPretOperationFrameSourceBase = getPretOperationFrameSourceBase;
+    api.evaluatePretBaseOperationFrame = evaluatePretBaseOperationFrame;
+    api.evaluatePretBaseSpec = evaluatePretBaseSpec;
     api.realizePretBaseSpec = realizePretBaseSpec;
     api.getPretVariantBase = getPretVariantBase;
     api.getPretVariantSuffix = getPretVariantSuffix;
@@ -2464,8 +4165,74 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.buildPretUniversalClassD = buildPretUniversalClassD;
     api.getRootPlusYaSurfaceVerb = getRootPlusYaSurfaceVerb;
     api.isSlashDenominalRootPlusYaMatrix = isSlashDenominalRootPlusYaMatrix;
+    api.buildPretRootPlusYaClassADiagnostic = buildPretRootPlusYaClassADiagnostic;
+    api.blockPretRootPlusYaClassABaseSpecs = blockPretRootPlusYaClassABaseSpecs;
+    api.buildPretRootPlusYaClassABaseSpecsFromSourceFrame = buildPretRootPlusYaClassABaseSpecsFromSourceFrame;
+    api.buildPretRootPlusYaClassBDiagnostic = buildPretRootPlusYaClassBDiagnostic;
+    api.blockPretRootPlusYaClassBBaseSpecs = blockPretRootPlusYaClassBBaseSpecs;
+    api.buildPretRootPlusYaClassBBaseSpecsFromSourceFrame = buildPretRootPlusYaClassBBaseSpecsFromSourceFrame;
+    api.buildPretClassAYyaDiagnostic = buildPretClassAYyaDiagnostic;
+    api.blockPretClassAYyaBaseSpecs = blockPretClassAYyaBaseSpecs;
+    api.getPretClassAYyaFrameText = getPretClassAYyaFrameText;
+    api.buildPretClassAYyaBaseSpecsFromSourceFrame = buildPretClassAYyaBaseSpecsFromSourceFrame;
+    api.buildPretClassAItaDiagnostic = buildPretClassAItaDiagnostic;
+    api.blockPretClassAItaBaseSpecs = blockPretClassAItaBaseSpecs;
+    api.getPretClassAItaFrameText = getPretClassAItaFrameText;
+    api.buildPretClassAItaBaseSpecsFromSourceFrame = buildPretClassAItaBaseSpecsFromSourceFrame;
+    api.buildPretClassAFinalVowelDeletionDiagnostic = buildPretClassAFinalVowelDeletionDiagnostic;
+    api.blockPretClassAFinalVowelDeletionBaseSpecs = blockPretClassAFinalVowelDeletionBaseSpecs;
+    api.getPretClassADeletionFrameText = getPretClassADeletionFrameText;
+    api.buildPretClassAFinalVowelDeletionBaseSpecsFromSourceFrame = buildPretClassAFinalVowelDeletionBaseSpecsFromSourceFrame;
+    api.buildPretClassBDiagnostic = buildPretClassBDiagnostic;
+    api.blockPretClassBBaseSpecs = blockPretClassBBaseSpecs;
+    api.getPretClassBFrameText = getPretClassBFrameText;
+    api.buildPretClassBBaseSpecsFromSourceFrame = buildPretClassBBaseSpecsFromSourceFrame;
+    api.buildPretClassCDiagnostic = buildPretClassCDiagnostic;
+    api.blockPretClassCBaseSpecs = blockPretClassCBaseSpecs;
+    api.getPretClassCFrameText = getPretClassCFrameText;
+    api.buildPretClassCBaseSpecsFromSourceFrame = buildPretClassCBaseSpecsFromSourceFrame;
+    api.buildPretClassDDiagnostic = buildPretClassDDiagnostic;
+    api.blockPretClassDBaseSpecs = blockPretClassDBaseSpecs;
+    api.getPretClassDFrameText = getPretClassDFrameText;
+    api.buildPretClassDBaseSpecsFromSourceFrame = buildPretClassDBaseSpecsFromSourceFrame;
     api.createPretDescriptorTierMatcher = createPretDescriptorTierMatcher;
     api.createPretDescriptorMatcher = createPretDescriptorMatcher;
+    api.hasAuthoritativePretClassASlashAkiZeroFrame = hasAuthoritativePretClassASlashAkiZeroFrame;
+    api.hasAuthoritativePretClassAKwvForceFrame = hasAuthoritativePretClassAKwvForceFrame;
+    api.hasAuthoritativePretClassAKvAllowFrame = hasAuthoritativePretClassAKvAllowFrame;
+    api.hasAuthoritativePretClassAChiAllowFrame = hasAuthoritativePretClassAChiAllowFrame;
+    api.hasAuthoritativePretClassATaRedupFrame = hasAuthoritativePretClassATaRedupFrame;
+    api.hasAuthoritativePretClassAPaTransitiveFrame = hasAuthoritativePretClassAPaTransitiveFrame;
+    api.hasAuthoritativePretClassAMTransitiveFrame = hasAuthoritativePretClassAMTransitiveFrame;
+    api.hasAuthoritativePretClassAPiIntransitiveFrame = hasAuthoritativePretClassAPiIntransitiveFrame;
+    api.hasAuthoritativePretClassAPiCvTransitiveFrame = hasAuthoritativePretClassAPiCvTransitiveFrame;
+    api.hasAuthoritativePretClassACvwiTransitiveFrame = hasAuthoritativePretClassACvwiTransitiveFrame;
+    api.hasAuthoritativePretClassACvcvwiTransitiveFrame = hasAuthoritativePretClassACvcvwiTransitiveFrame;
+    api.hasAuthoritativePretClassACvwaiTransitiveFrame = hasAuthoritativePretClassACvwaiTransitiveFrame;
+    api.hasAuthoritativePretClassACvewaTransitiveFrame = hasAuthoritativePretClassACvewaTransitiveFrame;
+    api.hasAuthoritativePretClassACvawaTransitiveFrame = hasAuthoritativePretClassACvawaTransitiveFrame;
+    api.hasAuthoritativePretClassAPaCvIntransitiveFrame = hasAuthoritativePretClassAPaCvIntransitiveFrame;
+    api.hasAuthoritativePretClassANaCvIntransitiveFrame = hasAuthoritativePretClassANaCvIntransitiveFrame;
+    api.hasAuthoritativePretClassBVnaIntransitiveFrame = hasAuthoritativePretClassBVnaIntransitiveFrame;
+    api.hasAuthoritativePretClassBTaIntransitiveFrame = hasAuthoritativePretClassBTaIntransitiveFrame;
+    api.hasAuthoritativePretClassBTaTransitiveFrame = hasAuthoritativePretClassBTaTransitiveFrame;
+    api.hasAuthoritativePretClassBKwiCvIntransitiveFrame = hasAuthoritativePretClassBKwiCvIntransitiveFrame;
+    api.hasAuthoritativePretClassBVcvcuIntransitiveFrame = hasAuthoritativePretClassBVcvcuIntransitiveFrame;
+    api.hasAuthoritativePretClassBVlcvwiIntransitiveFrame = hasAuthoritativePretClassBVlcvwiIntransitiveFrame;
+    api.hasAuthoritativePretClassBCvniuIntransitiveFrame = hasAuthoritativePretClassBCvniuIntransitiveFrame;
+    api.hasAuthoritativePretClassACvvniIntransitiveFrame = hasAuthoritativePretClassACvvniIntransitiveFrame;
+    api.hasAuthoritativePretClassACvsvIntransitiveFrame = hasAuthoritativePretClassACvsvIntransitiveFrame;
+    api.hasAuthoritativePretClassACvwiIntransitiveFrame = hasAuthoritativePretClassACvwiIntransitiveFrame;
+    api.hasAuthoritativePretClassACvcvwiIntransitiveFrame = hasAuthoritativePretClassACvcvwiIntransitiveFrame;
+    api.hasAuthoritativePretClassBVjwaIntransitiveFrame = hasAuthoritativePretClassBVjwaIntransitiveFrame;
+    api.hasAuthoritativePretClassBCuwaIntransitiveFrame = hasAuthoritativePretClassBCuwaIntransitiveFrame;
+    api.hasAuthoritativePretClassANiCvTransitiveFrame = hasAuthoritativePretClassANiCvTransitiveFrame;
+    api.hasAuthoritativePretClassANaCvTransitiveFrame = hasAuthoritativePretClassANaCvTransitiveFrame;
+    api.hasAuthoritativePretClassANaCvcvcvTransitiveFrame = hasAuthoritativePretClassANaCvcvcvTransitiveFrame;
+    api.hasAuthoritativePretClassANaCvlvcvTransitiveFrame = hasAuthoritativePretClassANaCvlvcvTransitiveFrame;
+    api.hasAuthoritativePretClassANaVlcvcvTransitiveFrame = hasAuthoritativePretClassANaVlcvcvTransitiveFrame;
+    api.hasAuthoritativePretClassANaVjcvcvTransitiveFrame = hasAuthoritativePretClassANaVjcvcvTransitiveFrame;
+    api.hasAuthoritativePretClassATzaTransitiveFrame = hasAuthoritativePretClassATzaTransitiveFrame;
     api.buildPretUniversalClassA = buildPretUniversalClassA;
     api.buildPretUniversalClassB = buildPretUniversalClassB;
     api.getPretUniversalVariants = getPretUniversalVariants;
@@ -2477,6 +4244,9 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.shouldAllowZeroBitransitiveKiDrop = shouldAllowZeroBitransitiveKiDrop;
     api.adjustPretNhBeforeVowel = adjustPretNhBeforeVowel;
     api.adjustPretSubjectSupportiveIBeforeIStem = adjustPretSubjectSupportiveIBeforeIStem;
+    api.buildPretPrefixBaseContactDiagnostic = buildPretPrefixBaseContactDiagnostic;
+    api.blockPretPrefixBaseContact = blockPretPrefixBaseContact;
+    api.evaluatePretPrefixBaseContactFrame = evaluatePretPrefixBaseContactFrame;
     api.adjustPretPrefixBaseContact = adjustPretPrefixBaseContact;
     api.adjustPretComposedObjectPrefixContact = adjustPretComposedObjectPrefixContact;
     api.resolvePretObjectPrefixContact = resolvePretObjectPrefixContact;
@@ -2495,6 +4265,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
     api.getPretUniversalOutputSoundSpellingFrames = getPretUniversalOutputSoundSpellingFrames;
     api.buildPretUniversalMCodaSoundSpellingFrame = buildPretUniversalMCodaSoundSpellingFrame;
     api.attachPretUniversalVariantAssemblyGrammarContract = attachPretUniversalVariantAssemblyGrammarContract;
+    api.blockPretVariantAssemblyFromFrame = blockPretVariantAssemblyFromFrame;
     api.buildPretUniversalResultDetailedFromVariants = buildPretUniversalResultDetailedFromVariants;
     api.buildPretUniversalResultFromVariants = buildPretUniversalResultFromVariants;
     api.buildNonactivePerfectiveResult = buildNonactivePerfectiveResult;
@@ -2517,7 +4288,7 @@ export function createPreteritEngineApi(targetObject = globalThis) {
 }
 
 export function installPreteritEngineGlobals(targetObject = globalThis) {
-    const api = createPreteritEngineApi(targetObject);
+    const api = createPreteritEngineModule(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

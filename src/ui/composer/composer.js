@@ -353,6 +353,9 @@ function isComposerFieldVisibleForSupportiveToggle(fieldEl) {
     if (!style || style.display === "none" || style.visibility === "hidden") {
         return false;
     }
+    if (typeof fieldEl.getClientRects !== "function") {
+        return true;
+    }
     return fieldEl.getClientRects().length > 0;
 }
 
@@ -363,7 +366,9 @@ function resolveComposerSupportiveIToggleHost(slotKey = "", slotRefs = null) {
         if (!fieldEl || !canShow || !isComposerFieldVisibleForSupportiveToggle(fieldEl)) {
             return;
         }
-        const rect = fieldEl.getBoundingClientRect();
+        const rect = typeof fieldEl.getBoundingClientRect === "function"
+            ? fieldEl.getBoundingClientRect()
+            : { top: 0, left: 0 };
         candidates.push({
             fieldEl,
             top: Number(rect.top) || 0,
@@ -4220,7 +4225,7 @@ function getComposerMatrixAffixAndrewsJudgment(slotKey = "", entry = {}) {
         classical,
         nawat,
         category,
-        detail: detail || `Andrews ${range}: requiere fuente generada o confirmada antes de funcionar como regla productiva.`,
+        detail: detail || `Andrews ${range}: requiere fuente generada o contexto Andrews antes de funcionar como regla productiva.`,
     });
     const supported = (range, classical, nawat, category, detail = "") => buildComposerMatrixAffixAndrewsJudgment({
         status: "supported",
@@ -5083,7 +5088,9 @@ function updateVerbInputPlaceholder() {
         return;
     }
     verbInput.placeholder = getVerbRegexPlaceholder();
-    renderVerbMirror();
+    if (typeof renderVerbMirror === "function") {
+        renderVerbMirror();
+    }
 }
 
 function normalizeComposerStem(value) {
@@ -5559,12 +5566,24 @@ function applyComposerSupportiveMarkerToRootPath({
             leadingLetter,
             SUPPORTIVE_MARKER_FORMAT.envelope
         );
+        const supportiveSourceFrame = buildOptionalSupportiveMarkedSurfaceSourceFrame({
+            precedingSurface,
+            markedSurface,
+            inputFormat: SUPPORTIVE_MARKER_FORMAT.envelope,
+            outputFormat: SUPPORTIVE_MARKER_FORMAT.envelope,
+            preserveMarkers: true,
+            sourceKind: "composer-optional-supportive-segment",
+            sourceRole: "tronco",
+        });
+        const supportiveOperationFrame = buildOptionalSupportiveMarkedSurfaceOperationFrame(supportiveSourceFrame);
         return resolveOptionalSupportiveMarkedSurface({
             precedingSurface,
             markedSurface,
             inputFormat: SUPPORTIVE_MARKER_FORMAT.envelope,
             outputFormat: SUPPORTIVE_MARKER_FORMAT.envelope,
             preserveMarkers: true,
+            sourceFrame: supportiveSourceFrame,
+            operationFrame: supportiveOperationFrame,
         }).outputSurface || String(segmentValue || "");
     };
     if (getStemLeadingSupportiveLetter(cleanEmbed)) {
@@ -7269,12 +7288,14 @@ function renderVerbComposerFromState() {
     Array.from(entryBoardButtons || []).forEach((button) => {
         const board = normalizeComposerEntryBoard(button.getAttribute("data-composer-entry-board") || "");
         const isActive = isComposer && !ordinaryNncActive && board === activeBoard;
+        button.dataset.sourceTargetPerception = "clause-type-source-route-options";
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         button.tabIndex = 0;
     });
     Array.from(ordinaryNncModeButtons || []).forEach((button) => {
         const isActive = isComposer && ordinaryNncActive;
+        button.dataset.sourceTargetPerception = "clause-type-source-route-options";
         button.classList.toggle("is-active", isActive);
         button.setAttribute("aria-pressed", String(isActive));
         if (button.getAttribute("role") === "tab") {
@@ -7478,6 +7499,10 @@ function clearAdjectivalNncFunctionEntryState(verbEl = document.getElementById("
     delete verbEl.dataset.adjectivalNncFormulaEcho;
     delete verbEl.dataset.patientivoSource;
     delete verbEl.dataset.nominalizedVncKind;
+    delete verbEl.dataset.adjectivalNncSourceSelectedVariantId;
+    delete verbEl.dataset.adjectivalNncTargetSelectedVariantId;
+    delete verbEl.dataset.adjectivalNncSourceFormulaRealizationRecordId;
+    delete verbEl.dataset.adjectivalNncTargetFormulaRealizationRecordId;
     delete verbEl.dataset.adjectivalNncFunctionContract;
     delete verbEl.dataset.grammarAuthorityRef;
     delete verbEl.dataset.grammarEvidenceStatus;
@@ -7487,6 +7512,11 @@ function clearAdjectivalNncFunctionEntryState(verbEl = document.getElementById("
     delete verbEl.dataset.grammarGenerationAllowed;
     delete verbEl.dataset.grammarDiagnosticStatus;
     delete verbEl.dataset.grammarResultOk;
+    try {
+        delete verbEl.__adjectivalNncFunctionEntryContract;
+    } catch (_error) {
+        verbEl.__adjectivalNncFunctionEntryContract = null;
+    }
 }
 
 function getAdjectivalNncFunctionEntryGrammarFrame(frameLike = null) {
@@ -7517,6 +7547,45 @@ function splitAdjectivalNncFunctionEntrySurfaceText(value = "") {
         .filter(Boolean);
 }
 
+function getAdjectivalNncFunctionEntryCanonicalSurfaceForms(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return records
+        .filter((record) => record && typeof record === "object" && record.kind === "grammar-formula-realization-record")
+        .flatMap((record) => [
+            ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+            record.surface || "",
+        ])
+        .map((entry) => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+}
+
+function isStructuredAdjectivalNncFunctionEntryFrameSurface(value = "") {
+    const text = normalizeAdjectivalNncFunctionEntrySurfaceValue(value);
+    return Boolean(text) && !/[\/,\n\r]/u.test(text);
+}
+
+function getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const forms = [];
+    if (Array.isArray(resultFrame.surfaceForms)) {
+        forms.push(...resultFrame.surfaceForms);
+    }
+    if (resultFrame.surface) {
+        forms.push(resultFrame.surface);
+    }
+    return forms
+        .map((entry) => normalizeAdjectivalNncFunctionEntrySurfaceValue(entry))
+        .filter((entry) => isStructuredAdjectivalNncFunctionEntryFrameSurface(entry))
+        .filter((entry, index, list) => list.indexOf(entry) === index);
+}
+
 function getAdjectivalNncFunctionEntrySurfaceForms({
     surface = "",
     grammarFrame = null,
@@ -7526,18 +7595,14 @@ function getAdjectivalNncFunctionEntrySurfaceForms({
         ? frame.resultFrame
         : null;
     const hasResultFrame = Boolean(resultFrame);
-    const forms = [];
-    if (Array.isArray(resultFrame?.surfaceForms)) {
-        forms.push(...resultFrame.surfaceForms);
-    }
-    if (resultFrame?.surface) {
-        forms.push(resultFrame.surface);
+    const canonicalForms = getAdjectivalNncFunctionEntryCanonicalSurfaceForms(resultFrame);
+    if (canonicalForms.length) {
+        return canonicalForms;
     }
     if (hasResultFrame) {
-        return forms
-            .flatMap((entry) => splitAdjectivalNncFunctionEntrySurfaceText(entry))
-            .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return getStructuredAdjectivalNncFunctionEntryFrameSurfaceForms(resultFrame);
     }
+    const forms = [];
     if (!hasResultFrame && surface) {
         forms.push(surface);
     }
@@ -7551,6 +7616,39 @@ function getAdjectivalNncFunctionEntrySurface({
     grammarFrame = null,
 } = {}) {
     return getAdjectivalNncFunctionEntrySurfaceForms({ surface, grammarFrame })[0] || "";
+}
+
+function getAdjectivalNncFunctionEntryCanonicalFormulaRecords(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRecords) && resultFrame.formulaRecords.length
+        ? resultFrame.formulaRecords
+        : (resultFrame.formulaRecord ? [resultFrame.formulaRecord] : []);
+    return records.filter((record) => record && typeof record === "object" && record.kind === "grammar-formula-record");
+}
+
+function getAdjectivalNncFunctionEntryCanonicalRealizationRecords(resultFrame = null) {
+    if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+    }
+    const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length
+        ? resultFrame.formulaRealizationRecords
+        : (resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : []);
+    return records.filter((record) => (
+        record
+        && typeof record === "object"
+        && record.kind === "grammar-formula-realization-record"
+    ));
+}
+
+function isAdjectivalNncFunctionTypedContinuationFrame(frame = null) {
+    if (!frame || typeof frame !== "object") {
+        return false;
+    }
+    return frame.kind === "generated-output-typed-continuation-frame"
+        && frame.formulaRecord?.kind === "grammar-formula-record"
+        && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record";
 }
 
 function getAdjectivalNncFunctionOverrideSurface(override = null) {
@@ -7577,6 +7675,12 @@ function buildAdjectivalNncFunctionEntryContract({
     patientivoSource = "",
     nominalizedVncKind = "",
     grammarFrame = null,
+    sourceSelectedVariant = null,
+    targetSelectedVariant = null,
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireCanonicalFormulaRecords = false,
 } = {}) {
     const frame = getAdjectivalNncFunctionEntryGrammarFrame(grammarFrame);
     const authorityFrame = frame?.authorityFrame || {};
@@ -7600,6 +7704,33 @@ function buildAdjectivalNncFunctionEntryContract({
         || ""
     ).trim();
     const resolvedSurface = getAdjectivalNncFunctionEntrySurface({ surface, grammarFrame: frame });
+    const normalizedSourceSelectedVariant = sourceSelectedVariant && typeof sourceSelectedVariant === "object"
+        ? sourceSelectedVariant
+        : null;
+    const normalizedTargetSelectedVariant = targetSelectedVariant && typeof targetSelectedVariant === "object"
+        ? targetSelectedVariant
+        : null;
+    const normalizedSourceContinuationFrame = sourceContinuationFrame && typeof sourceContinuationFrame === "object"
+        ? sourceContinuationFrame
+        : null;
+    const normalizedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object"
+        ? targetContinuationFrame
+        : null;
+    const normalizedOperationFrame = operationFrame && typeof operationFrame === "object"
+        ? operationFrame
+        : (normalizedTargetContinuationFrame?.operationFrame && typeof normalizedTargetContinuationFrame.operationFrame === "object"
+            ? normalizedTargetContinuationFrame.operationFrame
+            : null);
+    const canonicalFormulaRecords = getAdjectivalNncFunctionEntryCanonicalFormulaRecords(resultFrame);
+    const canonicalFormulaRealizationRecords = getAdjectivalNncFunctionEntryCanonicalRealizationRecords(resultFrame);
+    const requiresCanonicalRecords = requireCanonicalFormulaRecords === true
+        || Boolean(normalizedSourceContinuationFrame || normalizedTargetContinuationFrame);
+    const canonicalRecordsAvailable = Boolean(canonicalFormulaRecords.length && canonicalFormulaRealizationRecords.length);
+    const typedContinuationFramesAvailable = isAdjectivalNncFunctionTypedContinuationFrame(normalizedSourceContinuationFrame)
+        && isAdjectivalNncFunctionTypedContinuationFrame(normalizedTargetContinuationFrame);
+    const structuredContinuationBlockReason = !canonicalRecordsAvailable
+        ? "missing-canonical-formula-or-realization-record"
+        : (!typedContinuationFramesAvailable ? "missing-typed-source-or-target-continuation-frame" : "");
     const authorityRefs = Array.isArray(authorityFrame.andrewsRefs)
         ? authorityFrame.andrewsRefs.map((entry) => String(entry || "").trim()).filter(Boolean)
         : [];
@@ -7620,6 +7751,26 @@ function buildAdjectivalNncFunctionEntryContract({
         sourceFormulaEcho: resolvedSourceFormulaEcho,
         sourceCompoundFrame: sourceCompoundFrame && typeof sourceCompoundFrame === "object" ? sourceCompoundFrame : null,
         sourceDenominalCompoundFrame: sourceDenominalCompoundFrame && typeof sourceDenominalCompoundFrame === "object" ? sourceDenominalCompoundFrame : null,
+        sourceSelectedVariant: normalizedSourceSelectedVariant,
+        targetSelectedVariant: normalizedTargetSelectedVariant,
+        sourceContinuationFrame: normalizedSourceContinuationFrame,
+        targetContinuationFrame: normalizedTargetContinuationFrame,
+        operationFrame: normalizedOperationFrame,
+        sourceSelectedVariantId: String(normalizedSourceSelectedVariant?.variantId || normalizedSourceSelectedVariant?.selectedVariantId || "").trim(),
+        targetSelectedVariantId: String(normalizedTargetSelectedVariant?.variantId || normalizedTargetSelectedVariant?.selectedVariantId || "").trim(),
+        sourceFormulaRealizationRecordId: String(normalizedSourceSelectedVariant?.formulaRealizationRecordId || "").trim(),
+        targetFormulaRealizationRecordId: String(normalizedTargetSelectedVariant?.formulaRealizationRecordId || "").trim(),
+        sourceFormulaRecordId: String(normalizedSourceSelectedVariant?.formulaRecordId || "").trim(),
+        targetFormulaRecordId: String(normalizedTargetSelectedVariant?.formulaRecordId || "").trim(),
+        formulaRecord: canonicalFormulaRecords[0] || null,
+        formulaRecords: canonicalFormulaRecords,
+        formulaRealizationRecord: canonicalFormulaRealizationRecords[0] || null,
+        formulaRealizationRecords: canonicalFormulaRealizationRecords,
+        requiresCanonicalFormulaRecords: requiresCanonicalRecords,
+        canonicalFormulaRecordsAvailable: canonicalRecordsAvailable,
+        typedContinuationFramesAvailable,
+        blocked: requiresCanonicalRecords && Boolean(structuredContinuationBlockReason),
+        blockReason: requiresCanonicalRecords ? structuredContinuationBlockReason : "",
         patientivoSource: String(patientivoSource || "").trim(),
         nominalizedVncKind: String(nominalizedVncKind || "").trim(),
         authorityRefs,
@@ -7739,6 +7890,12 @@ function applyAdjectivalNncFunctionToVerbEntry({
     patientivoSource = "",
     nominalizedVncKind = "",
     grammarFrame = null,
+    sourceSelectedVariant = null,
+    targetSelectedVariant = null,
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
+    operationFrame = null,
+    requireCanonicalFormulaRecords = false,
     refresh = true,
 } = {}) {
     const verbEl = document.getElementById("verb");
@@ -7757,7 +7914,17 @@ function applyAdjectivalNncFunctionToVerbEntry({
         patientivoSource,
         nominalizedVncKind,
         grammarFrame,
+        sourceSelectedVariant,
+        targetSelectedVariant,
+        sourceContinuationFrame,
+        targetContinuationFrame,
+        operationFrame,
+        requireCanonicalFormulaRecords,
     });
+    if (entryContract.blocked) {
+        entryContract.mutationApplied = false;
+        return entryContract;
+    }
     const entryFunctionUseValenceGate = buildAdjectivalNncFunctionEntryMutationValenceGate({
         formation,
         entryContract,
@@ -7780,11 +7947,21 @@ function applyAdjectivalNncFunctionToVerbEntry({
     }
     entryContract.mutationApplied = true;
     verbEl.value = normalizedSurface;
+    Object.defineProperty(verbEl, "__adjectivalNncFunctionEntryContract", {
+        configurable: true,
+        enumerable: false,
+        writable: true,
+        value: entryContract,
+    });
     verbEl.dataset.adjectivalNncFunctionSurface = normalizedSurface;
     verbEl.dataset.adjectivalNncFormation = String(formation || "").trim();
     verbEl.dataset.adjectivalNncFormulaEcho = String(formulaEcho || "").trim();
     verbEl.dataset.patientivoSource = String(patientivoSource || "").trim();
     verbEl.dataset.nominalizedVncKind = String(nominalizedVncKind || "").trim();
+    verbEl.dataset.adjectivalNncSourceSelectedVariantId = entryContract.sourceSelectedVariantId || "";
+    verbEl.dataset.adjectivalNncTargetSelectedVariantId = entryContract.targetSelectedVariantId || "";
+    verbEl.dataset.adjectivalNncSourceFormulaRealizationRecordId = entryContract.sourceFormulaRealizationRecordId || "";
+    verbEl.dataset.adjectivalNncTargetFormulaRealizationRecordId = entryContract.targetFormulaRealizationRecordId || "";
     const serializedContract = serializeAdjectivalNncFunctionEntryContract(entryContract);
     if (serializedContract) {
         verbEl.dataset.adjectivalNncFunctionContract = serializedContract;
@@ -8373,12 +8550,58 @@ function applyPatientivoNominalCompoundToOrdinaryNncEntry({
     return true;
 }
 
+function isActiveActionCompoundEmbedTypedTargetFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "andrews-typed-operation-continuation-frame"
+        && frame.operationFrame?.operationId === "active-action-nounstem-as-compound-embed"
+        && frame.sourceFrame?.kind === "generated-output-typed-continuation-frame"
+        && frame.formulaSlots?.embeddedRoot
+        && frame.formulaSlots?.matrixRoot
+    );
+}
+
+function getActiveActionCompoundEmbedPayloadFromTargetFrame(frame = null) {
+    if (!isActiveActionCompoundEmbedTypedTargetFrame(frame)) {
+        return null;
+    }
+    const embeddedRoot = normalizeComposerEmbedValue(
+        frame.formulaSlots.embeddedRoot.token
+        || frame.sourceFrame?.selectedVariant?.surface
+        || frame.sourceFrame?.formulaRealizationRecord?.surface
+        || ""
+    );
+    const matrixRoot = normalizeComposerStem(
+        frame.formulaSlots.matrixRoot.root
+        || frame.matrixFrame?.root
+        || ""
+    );
+    const targetInput = String(
+        frame.targetInput
+        || frame.resultFrame?.targetInput
+        || frame.displayInput
+        || ""
+    ).trim();
+    if (!embeddedRoot || !matrixRoot || !targetInput) {
+        return null;
+    }
+    return {
+        embeddedRoot,
+        matrixRoot,
+        targetInput,
+        matrixSpecId: String(frame.formulaSlots.matrixRoot.matrixSpecId || frame.matrixFrame?.id || "").trim(),
+    };
+}
+
 function applyActiveActionCompoundEmbedRootsToVerbEntry({
     actionNominalSurface = "",
     matrixRoot = "tzajtzi",
     matrixSpecId = "",
     sourceFormulaSlots = null,
     sourceFormulaEcho = "",
+    sourceContinuationFrame = null,
+    targetContinuationFrame = null,
     grammarFrame = null,
     sourceRouteFrame = null,
     routeFrame = null,
@@ -8386,14 +8609,29 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
     objectSlotOwnership = null,
     functionUseValenceGate = null,
 } = {}) {
-    const normalizedActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
+    const typedPayload = getActiveActionCompoundEmbedPayloadFromTargetFrame(targetContinuationFrame);
+    if (!typedPayload) {
+        return false;
+    }
+    const displayActionNominalSurface = normalizeComposerEmbedValue(actionNominalSurface);
+    if (displayActionNominalSurface && displayActionNominalSurface !== typedPayload.embeddedRoot) {
+        return false;
+    }
+    if (
+        sourceContinuationFrame
+        && targetContinuationFrame.sourceFrame
+        && sourceContinuationFrame !== targetContinuationFrame.sourceFrame
+    ) {
+        return false;
+    }
+    const normalizedActionNominalSurface = typedPayload.embeddedRoot;
     const resolvedMatrixSpec = typeof resolveActiveActionCompoundEmbedMatrixSpec === "function"
-        ? resolveActiveActionCompoundEmbedMatrixSpec(matrixRoot || "tzajtzi")
+        ? resolveActiveActionCompoundEmbedMatrixSpec(typedPayload.matrixRoot || matrixRoot || "tzajtzi")
         : null;
     const normalizedMatrixRoot = normalizeComposerStem(
-        resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : (matrixRoot || "tzajtzi")
+        resolvedMatrixSpec?.supported ? resolvedMatrixSpec.nawatRoot : typedPayload.matrixRoot
     );
-    const resolvedMatrixSpecId = String(matrixSpecId || resolvedMatrixSpec?.id || "").trim();
+    const resolvedMatrixSpecId = String(typedPayload.matrixSpecId || matrixSpecId || resolvedMatrixSpec?.id || "").trim();
     const verbEl = document.getElementById("verb");
     if (!normalizedActionNominalSurface || !normalizedMatrixRoot || !verbEl) {
         return false;
@@ -8453,15 +8691,7 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
     });
     renderVerbComposerFromState();
     applyComposerStateToVerbInput({ triggerGenerate: false });
-    const compoundVerbInput = String(verbEl.value || "").trim()
-        || (
-            typeof buildActiveActionCompoundEmbedVerbInput === "function"
-                ? buildActiveActionCompoundEmbedVerbInput({
-                    actionNominalSurface: normalizedActionNominalSurface,
-                    matrixRoot: normalizedMatrixRoot,
-                })
-                : `(${normalizedActionNominalSurface}/${normalizedMatrixRoot})`
-        );
+    const compoundVerbInput = typedPayload.targetInput;
     if (verbEl.value !== compoundVerbInput) {
         verbEl.value = compoundVerbInput;
     }
@@ -8482,6 +8712,8 @@ function applyActiveActionCompoundEmbedRootsToVerbEntry({
             matrixRoot: normalizedMatrixRoot,
             matrixSpecId: resolvedMatrixSpecId,
             compoundVerbInput,
+            sourceContinuationFrame,
+            targetContinuationFrame,
         });
     }
     const applyButton = document.getElementById("verb-entry-apply");
@@ -9760,7 +9992,9 @@ function setVerbInputMode(mode, options = {}) {
         if (nextDisplayValue !== verbEl.value) {
             verbEl.value = nextDisplayValue;
             verbEl.dataset.prevValue = nextDisplayValue;
-            renderVerbMirror();
+            if (typeof renderVerbMirror === "function") {
+                renderVerbMirror();
+            }
         }
     }
     clearVerbDisambiguation();
@@ -10866,15 +11100,27 @@ function updateExistingTenseTabsDom({
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isActive));
         if (typeof getAndrewsFirstTenseHoverTitle === "function") {
-            button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
+            button.title = getAndrewsFirstTenseHoverTitle(tenseValue, getActiveTenseMode());
         }
+        if (typeof applyAndrewsTenseAuthorityDataset === "function") {
+            applyAndrewsTenseAuthorityDataset(button, { tenseValue, mode: getActiveTenseMode() });
+        }
+        const selectionAuthority = typeof applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            ? applyAndrewsTenseTabSelectionAuthorityDataset(button, {
+                tenseValue,
+                mode: getActiveTenseMode(),
+                hasOutput,
+                endsWithConsonant,
+                isBlockedNominalTense,
+            })
+            : null;
         if (isNominalMode) {
             setTensePresenceBadges(button, {
                 active: activePresence,
                 nonactive: nonactivePresence,
             });
         }
-        button.disabled = endsWithConsonant || hasOutput === false || isBlockedNominalTense;
+        button.disabled = selectionAuthority ? selectionAuthority.disabled : (endsWithConsonant || hasOutput === false || isBlockedNominalTense);
     });
     const universalRoot = universalContainer || container;
     const universalWrap = universalRoot?.querySelector(".tense-tabs-universal");
@@ -10926,9 +11172,22 @@ function updateExistingTenseTabsDom({
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", String(isUniversalActive || isClassActive));
         if (typeof getAndrewsFirstTenseHoverTitle === "function") {
-            button.title = getAndrewsFirstTenseHoverTitle(tenseValue);
+            button.title = getAndrewsFirstTenseHoverTitle(tenseValue, getActiveTenseMode());
         }
-        button.disabled = endsWithConsonant || !available || hasOutput === false;
+        if (typeof applyAndrewsTenseAuthorityDataset === "function") {
+            applyAndrewsTenseAuthorityDataset(button, { tenseValue, mode: getActiveTenseMode() });
+        }
+        const selectionAuthority = typeof applyAndrewsTenseTabSelectionAuthorityDataset === "function"
+            ? applyAndrewsTenseTabSelectionAuthorityDataset(button, {
+                tenseValue,
+                mode: getActiveTenseMode(),
+                hasOutput,
+                isAvailable: available,
+                endsWithConsonant,
+                isUniversal: true,
+            })
+            : null;
+        button.disabled = selectionAuthority ? selectionAuthority.disabled : (endsWithConsonant || !available || hasOutput === false);
     });
     return true;
 }
@@ -12212,6 +12471,7 @@ function buildSilentGenerationCacheKey(options = {}) {
         encodeValue(overrideFormula.poseedor || override.poseedor),
         encodeValue(override.patientivoOwnership),
         encodeValue(override.patientivoSource),
+        encodeValue(override.predicateNominalSourceTense),
         encodeValue(getPatientivoNominalSuffixCacheToken(override.patientivoNominalSuffix)),
         encodeValue(override.tenseMode),
         encodeValue(override.derivationMode),
@@ -12284,7 +12544,9 @@ function applyVerbInputReplacement(value) {
     verbInput.value = nextValue;
     VerbInputState.lastNonSearchValue = nextValue;
     verbInput.dataset.lastClassVerb = parseVerbInput(nextValue).verb;
-    renderVerbMirror();
+    if (typeof renderVerbMirror === "function") {
+        renderVerbMirror();
+    }
     scheduleVerbInputRefresh(nextValue, { immediate: true, source: "immediate" });
     focusVisibleVerbSurfaceAtEnd();
 }

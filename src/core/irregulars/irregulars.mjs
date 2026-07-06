@@ -33,7 +33,7 @@ export function createIrregularsApi(targetObject = globalThis) {
           regularAllowedIn: Object.freeze(["singular-preterit"]),
           regularRequiredIn: Object.freeze(["plural-preterit", "plural-admonitive", "distant-past"])
         }),
-        nawatStatus: "saltillo/h/j realization requires local Nawat/Pipil evidence before generation",
+        nawatStatus: "saltillo/h/j realization requires local Andrews source logic plus the orthography bridge before generation",
         generationAllowed: false
       })])
     });
@@ -92,7 +92,7 @@ export function createIrregularsApi(targetObject = globalThis) {
         function: "live",
         pattern: "regular tenses; distant-past sometimes used as past"
       })]),
-      currentEngineBoundary: "No full dislocation generator exists; confirmed Nawat/Pipil evidence must license each surface and meaning."
+      currentEngineBoundary: "No full dislocation generator exists; Andrews source models plus orthography-bridge support must license each surface and meaning."
     });
     const IRREGULARS_LESSON11_SUPPLETION_FRAME = Object.freeze({
       kind: "lesson-11-suppletion-frame",
@@ -120,23 +120,23 @@ export function createIrregularsApi(targetObject = globalThis) {
       })]),
       currentNawatSuppletiveSubset: Object.freeze([Object.freeze({
         id: "kati",
-        status: "implemented from repo Nawat evidence, not a complete Andrews ye-ca import"
+        status: "implemented from repo orthography-bridge examples, not a complete Andrews ye-ca import"
       }), Object.freeze({
         id: "yawi",
-        status: "implemented from repo Nawat evidence, aligned only where current tests confirm it"
+        status: "implemented from repo orthography-bridge examples, aligned only where current tests confirm it"
       }), Object.freeze({
         id: "witzi",
-        status: "implemented from repo Nawat evidence, defective route remains evidence-bound"
+        status: "implemented from repo orthography-bridge examples, defective route remains source-gated"
       }), Object.freeze({
         id: "weya",
-        status: "implemented from repo Nawat evidence, separate from Andrews Lesson 11 taxonomy unless explicitly mapped"
+        status: "implemented from repo orthography-bridge examples, separate from Andrews Lesson 11 taxonomy unless explicitly mapped"
       })])
     });
     const IRREGULARS_LESSON11_IDIOM_FRAME = Object.freeze({
       kind: "lesson-11-irregular-vnc-idiom-frame",
       sourceSection: "Andrews §11.6",
       generationAllowed: false,
-      directiveEs: "Las CNV irregulares aparecen frecuentemente en modismos; los ejemplos de Andrews son inventario diagnostico hasta que haya evidencia Nawat/Pipil local.",
+      directiveEs: "Las CNV irregulares aparecen frecuentemente en modismos; los ejemplos de Andrews son inventario diagnostico hasta que haya fuente Andrews concreta y puente ortografico local.",
       andrewsExamples: Object.freeze(["Quen tonyezqueh?", "Ahquen nicmati.", "Ahquen nocommati.", "Zan huitz.", "Quin yez.", "Nihuallamati.", "Ma ammomattin.", "Oc onyauh."]),
       currentEngineBoundary: "No idiom generator exists; idioms need confirmed lexical, spelling, and usage evidence."
     });
@@ -182,7 +182,7 @@ export function createIrregularsApi(targetObject = globalThis) {
       category: "suppletion",
       directiveEs: "Modelar suplecion como paradigma llenado por varios troncos, manteniendo separado el subconjunto Nawat ya confirmado.",
       engineSurface: "current suppletive engine plus Andrews taxonomy frame",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -195,7 +195,101 @@ export function createIrregularsApi(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const IRREGULARS_LESSON11_REMAINING_GAPS = Object.freeze(["The full Andrews Lesson 11 irregular taxonomy is not mapped to Nawat/Pipil generation.", "Perfective-stem irregularities, form-meaning dislocations, and defective paradigms require direct Nawat/Pipil evidence before surfaces are generated.", "Lesson 11 idioms are diagnostic inventory only until lexical, spelling, and usage evidence confirms them."]);
+    const IRREGULARS_LESSON11_REMAINING_GAPS = Object.freeze(["The full Andrews Lesson 11 irregular taxonomy is not mapped to Nawat/Pipil generation.", "Perfective-stem irregularities, form-meaning dislocations, and defective paradigms require direct Andrews source logic plus orthography-bridge support before surfaces are generated.", "Lesson 11 idioms are diagnostic inventory only until lexical, spelling, and usage evidence confirms them."]);
+    const CURRENT_SUPPLETIVE_STEM_FRAME_KIND = "lesson-11-current-suppletive-stem-frame";
+    const CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND = "lesson-11-current-suppletive-preterit-variant-frame";
+    const CURRENT_SUPPLETIVE_STEM_INVENTORY = Object.freeze({
+      yawi: Object.freeze({
+        kind: "lesson-11-current-suppletive-paradigm-frame",
+        paradigmId: "yawi",
+        sourceSection: "Andrews §11.5.2",
+        routeRole: "current-Nawat-suppletive-subset",
+        stems: Object.freeze({
+          canonical: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "canonical",
+            surfaceStem: "yawi"
+          }),
+          imperfective: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "imperfective",
+            surfaceStem: "ya"
+          }),
+          short: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "short",
+            surfaceStem: "yaw"
+          }),
+          yuVariant: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "yu-variant",
+            surfaceStem: "yu"
+          }),
+          causativeActive: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "causative-active",
+            surfaceStem: "wika"
+          }),
+          causativeNonactive: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "yawi",
+            stemSlot: "causative-nonactive",
+            surfaceStem: "wikalu"
+          })
+        }),
+        preteritVariants: Object.freeze([Object.freeze({
+          kind: CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND,
+          paradigmId: "yawi",
+          pretClass: "D",
+          base: "yaj",
+          suffix: "ki"
+        })])
+      }),
+      weya: Object.freeze({
+        kind: "lesson-11-current-suppletive-paradigm-frame",
+        paradigmId: "weya",
+        sourceSection: "current-Nawat-suppletive-subset",
+        routeRole: "current-Nawat-suppletive-subset",
+        stems: Object.freeze({
+          rootPlusYaBase: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "weya",
+            stemSlot: "root-plus-ya-base",
+            surfaceStem: "wey"
+          }),
+          canonical: Object.freeze({
+            kind: CURRENT_SUPPLETIVE_STEM_FRAME_KIND,
+            paradigmId: "weya",
+            stemSlot: "canonical",
+            surfaceStem: "weyya"
+          })
+        }),
+        preteritVariants: Object.freeze([Object.freeze({
+          kind: CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND,
+          paradigmId: "weya",
+          pretClass: "A",
+          base: "wey",
+          suffix: "ki",
+          surfaceRuleMeta: Object.freeze({
+            preserveCodaY: true
+          })
+        }), Object.freeze({
+          kind: CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND,
+          paradigmId: "weya",
+          pretClass: "A",
+          base: "weyya",
+          suffix: "k",
+          surfaceRuleMeta: Object.freeze({
+            preserveCodaY: true
+          })
+        })])
+      })
+    });
     function isIntransitiveOnlySuppletiveId(id = "") {
       return targetObject.INTRANSITIVE_ONLY_SUPPLETIVE_IDS.has(String(id || "").toLowerCase());
     }
@@ -215,33 +309,162 @@ export function createIrregularsApi(targetObject = globalThis) {
       }
       return targetObject.VOWEL_END_RE.test(stem) ? stem.slice(0, -1) : stem;
     }
+    function buildCurrentSuppletiveStemDiagnostic(id, details = {}) {
+      return {
+        id,
+        layer: "irregular-suppletive-stem-inventory",
+        ...details
+      };
+    }
+    function blockCurrentSuppletiveStem(id, details = {}) {
+      return {
+        error: true,
+        surfaceForms: [],
+        diagnostics: [buildCurrentSuppletiveStemDiagnostic(id, details)]
+      };
+    }
+    function getCurrentSuppletiveParadigmFrame(paradigmId = "") {
+      const frame = CURRENT_SUPPLETIVE_STEM_INVENTORY[String(paradigmId || "").toLowerCase()] || null;
+      return frame ? cloneIrregularsLessonRecord(frame) : null;
+    }
+    function getCurrentSuppletiveStemFrame(paradigmId = "", stemSlot = "") {
+      const paradigmFrame = CURRENT_SUPPLETIVE_STEM_INVENTORY[String(paradigmId || "").toLowerCase()] || null;
+      const frame = paradigmFrame?.stems?.[stemSlot] || null;
+      return frame ? cloneIrregularsLessonRecord(frame) : null;
+    }
+    function getCurrentSuppletivePreteritVariantFrames(paradigmId = "", pretClass = "") {
+      const paradigmFrame = CURRENT_SUPPLETIVE_STEM_INVENTORY[String(paradigmId || "").toLowerCase()] || null;
+      const classKey = String(pretClass || "").toUpperCase();
+      const frames = Array.isArray(paradigmFrame?.preteritVariants) ? paradigmFrame.preteritVariants.filter(frame => !classKey || frame.pretClass === classKey) : [];
+      return frames.map(frame => cloneIrregularsLessonRecord(frame));
+    }
+    function realizeCurrentSuppletiveStemFrame(frame = null, expected = {}) {
+      if (!frame || typeof frame !== "object") {
+        return blockCurrentSuppletiveStem("current-suppletive-missing-stem-frame", {
+          expectedParadigmId: expected.paradigmId || "",
+          expectedStemSlot: expected.stemSlot || ""
+        });
+      }
+      const surfaceStem = typeof frame.surfaceStem === "string" ? frame.surfaceStem : "";
+      const paradigmMatches = !expected.paradigmId || frame.paradigmId === expected.paradigmId;
+      const slotMatches = !expected.stemSlot || frame.stemSlot === expected.stemSlot;
+      const surfaceMatches = !expected.surfaceStem || surfaceStem === expected.surfaceStem;
+      if (frame.kind !== CURRENT_SUPPLETIVE_STEM_FRAME_KIND || !surfaceStem || !paradigmMatches || !slotMatches || !surfaceMatches) {
+        return blockCurrentSuppletiveStem("current-suppletive-contradictory-stem-frame", {
+          expectedParadigmId: expected.paradigmId || "",
+          actualParadigmId: frame.paradigmId || "",
+          expectedStemSlot: expected.stemSlot || "",
+          actualStemSlot: frame.stemSlot || "",
+          expectedSurfaceStem: expected.surfaceStem || "",
+          actualSurfaceStem: surfaceStem
+        });
+      }
+      return {
+        ok: true,
+        surfaceStem,
+        frame: cloneIrregularsLessonRecord(frame)
+      };
+    }
+    function realizeCurrentSuppletivePreteritVariantFrame(frame = null, expected = {}) {
+      if (!frame || typeof frame !== "object") {
+        return blockCurrentSuppletiveStem("current-suppletive-missing-preterit-variant-frame", {
+          expectedParadigmId: expected.paradigmId || "",
+          expectedPretClass: expected.pretClass || ""
+        });
+      }
+      const base = typeof frame.base === "string" ? frame.base : "";
+      const suffix = typeof frame.suffix === "string" ? frame.suffix : "";
+      const paradigmMatches = !expected.paradigmId || frame.paradigmId === expected.paradigmId;
+      const classMatches = !expected.pretClass || frame.pretClass === expected.pretClass;
+      const baseMatches = !expected.base || base === expected.base;
+      const suffixMatches = !expected.suffix || suffix === expected.suffix;
+      if (frame.kind !== CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND || !base || !paradigmMatches || !classMatches || !baseMatches || !suffixMatches) {
+        return blockCurrentSuppletiveStem("current-suppletive-contradictory-preterit-variant-frame", {
+          expectedParadigmId: expected.paradigmId || "",
+          actualParadigmId: frame.paradigmId || "",
+          expectedPretClass: expected.pretClass || "",
+          actualPretClass: frame.pretClass || "",
+          expectedBase: expected.base || "",
+          actualBase: base,
+          expectedSuffix: expected.suffix || "",
+          actualSuffix: suffix
+        });
+      }
+      return {
+        ok: true,
+        variant: {
+          base,
+          suffix,
+          ...(frame.surfaceRuleMeta ? {
+            surfaceRuleMeta: cloneIrregularsLessonRecord(frame.surfaceRuleMeta)
+          } : {})
+        },
+        frame: cloneIrregularsLessonRecord(frame)
+      };
+    }
     function getSuppletiveYawiCanonical() {
-      return targetObject.SUPPLETIVE_YAWI_CANONICAL || "yawi";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "canonical"), {
+        paradigmId: "yawi",
+        stemSlot: "canonical",
+        surfaceStem: "yawi"
+      });
+      return result.ok ? result.surfaceStem : "yawi";
     }
     function getSuppletiveYawiImperfective() {
-      return targetObject.SUPPLETIVE_YAWI_IMPERFECTIVE || "ya";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "imperfective"), {
+        paradigmId: "yawi",
+        stemSlot: "imperfective",
+        surfaceStem: "ya"
+      });
+      return result.ok ? result.surfaceStem : "ya";
     }
     function getSuppletiveYawiShort() {
-      return targetObject.SUPPLETIVE_YAWI_SHORT || "yaw";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "short"), {
+        paradigmId: "yawi",
+        stemSlot: "short",
+        surfaceStem: "yaw"
+      });
+      return result.ok ? result.surfaceStem : "yaw";
     }
     function getSuppletiveYawiYuVariant() {
-      return targetObject.SUPPLETIVE_YAWI_YU_VARIANT || "yu";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "yuVariant"), {
+        paradigmId: "yawi",
+        stemSlot: "yu-variant",
+        surfaceStem: "yu"
+      });
+      return result.ok ? result.surfaceStem : "yu";
     }
     function getSuppletiveYawiCausativeActive() {
-      return targetObject.SUPPLETIVE_YAWI_CAUSATIVE_ACTIVE || "wika";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "causativeActive"), {
+        paradigmId: "yawi",
+        stemSlot: "causative-active",
+        surfaceStem: "wika"
+      });
+      return result.ok ? result.surfaceStem : "wika";
     }
     function getSuppletiveYawiCausativeNonactive() {
-      return targetObject.SUPPLETIVE_YAWI_CAUSATIVE_NONACTIVE || "wikalu";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("yawi", "causativeNonactive"), {
+        paradigmId: "yawi",
+        stemSlot: "causative-nonactive",
+        surfaceStem: "wikalu"
+      });
+      return result.ok ? result.surfaceStem : "wikalu";
     }
     function getSuppletiveWeyaRootPlusYaBase() {
-      return targetObject.SUPPLETIVE_WEYA_ROOT || "wey";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("weya", "rootPlusYaBase"), {
+        paradigmId: "weya",
+        stemSlot: "root-plus-ya-base",
+        surfaceStem: "wey"
+      });
+      return result.ok ? result.surfaceStem : "wey";
     }
     function getSuppletiveWeyaCanonical() {
-      if (targetObject.SUPPLETIVE_WEYA_CANONICAL) {
-        return targetObject.SUPPLETIVE_WEYA_CANONICAL;
-      }
-      const rootBase = getSuppletiveWeyaRootPlusYaBase();
-      return rootBase ? `${rootBase}ya` : "weyya";
+      const result = realizeCurrentSuppletiveStemFrame(getCurrentSuppletiveStemFrame("weya", "canonical"), {
+        paradigmId: "weya",
+        stemSlot: "canonical",
+        surfaceStem: "weyya"
+      });
+      return result.ok ? result.surfaceStem : "weyya";
     }
     function buildSuppletiveKatiStemSet() {
       const variantsByClass = new Map();
@@ -271,20 +494,45 @@ export function createIrregularsApi(targetObject = globalThis) {
         classExclusionsByTense: targetObject.SUPPLETIVE_KATI_CLASS_EXCLUSIONS
       };
     }
-    function buildSuppletiveYawiStemSet() {
-      const base = getSuppletiveYawiImperfective();
-      const variantsByClass = new Map();
-      variantsByClass.set("D", [{
-        base: `${base}j`,
+    function buildSuppletiveYawiStemSetFromFrames(frameSet = null) {
+      if (!frameSet || typeof frameSet !== "object") {
+        return blockCurrentSuppletiveStem("current-suppletive-yawi-missing-stem-set-frame", {
+          expectedParadigmId: "yawi"
+        });
+      }
+      const imperfective = realizeCurrentSuppletiveStemFrame(frameSet.imperfective, {
+        paradigmId: "yawi",
+        stemSlot: "imperfective",
+        surfaceStem: "ya"
+      });
+      if (!imperfective.ok) {
+        return imperfective;
+      }
+      const pretVariantFrame = Array.isArray(frameSet.preteritVariants) ? frameSet.preteritVariants[0] : null;
+      const preteritVariant = realizeCurrentSuppletivePreteritVariantFrame(pretVariantFrame, {
+        paradigmId: "yawi",
+        pretClass: "D",
+        base: "yaj",
         suffix: "ki"
-      }]);
+      });
+      if (!preteritVariant.ok) {
+        return preteritVariant;
+      }
+      const variantsByClass = new Map();
+      variantsByClass.set("D", [preteritVariant.variant]);
       return {
         imperfective: {
-          verb: base,
-          analysisVerb: base
+          verb: imperfective.surfaceStem,
+          analysisVerb: imperfective.surfaceStem
         },
         variantsByClass
       };
+    }
+    function buildSuppletiveYawiStemSet() {
+      return buildSuppletiveYawiStemSetFromFrames({
+        imperfective: getCurrentSuppletiveStemFrame("yawi", "imperfective"),
+        preteritVariants: getCurrentSuppletivePreteritVariantFrames("yawi", "D")
+      });
     }
     function buildSuppletiveWitziStemSet() {
       const imperfective = targetObject.SUPPLETIVE_WITZI_IMPERFECTIVE || "witzi";
@@ -413,7 +661,7 @@ export function createIrregularsApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(IRREGULARS_LESSON11_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no importa superficies clasicas ni genera CNV irregulares sin evidencia Nawat/Pipil"
+        generationPolicy: "diagnostico; no importa superficies clasicas ni genera CNV irregulares sin fuente Andrews concreta y puente ortografico"
       }));
     }
     function getIrregularsLesson11RemainingGaps() {
@@ -467,7 +715,7 @@ export function createIrregularsApi(targetObject = globalThis) {
         nuclearClauseFrame: {
           clauseKind: "verbal-nuclear-clause",
           irregularVncStatus: "partial",
-          generationRequiresNawatEvidence: true
+          generationRequiresAndrewsSourceGate: true
         },
         routeContract: {
           metadataKind: "lesson-11-pursuit-frame",
@@ -529,9 +777,31 @@ export function createIrregularsApi(targetObject = globalThis) {
         enumerable: true,
         get() { return IRREGULARS_LESSON11_REMAINING_GAPS; },
     });
+    Object.defineProperty(api, "CURRENT_SUPPLETIVE_STEM_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return CURRENT_SUPPLETIVE_STEM_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return CURRENT_SUPPLETIVE_PRETERIT_VARIANT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "CURRENT_SUPPLETIVE_STEM_INVENTORY", {
+        configurable: true,
+        enumerable: true,
+        get() { return CURRENT_SUPPLETIVE_STEM_INVENTORY; },
+    });
     api.isIntransitiveOnlySuppletiveId = isIntransitiveOnlySuppletiveId;
     api.isSuppletiveIntransitiveOnlyContext = isSuppletiveIntransitiveOnlyContext;
     api.dropFinalVowel = dropFinalVowel;
+    api.buildCurrentSuppletiveStemDiagnostic = buildCurrentSuppletiveStemDiagnostic;
+    api.blockCurrentSuppletiveStem = blockCurrentSuppletiveStem;
+    api.getCurrentSuppletiveParadigmFrame = getCurrentSuppletiveParadigmFrame;
+    api.getCurrentSuppletiveStemFrame = getCurrentSuppletiveStemFrame;
+    api.getCurrentSuppletivePreteritVariantFrames = getCurrentSuppletivePreteritVariantFrames;
+    api.realizeCurrentSuppletiveStemFrame = realizeCurrentSuppletiveStemFrame;
+    api.realizeCurrentSuppletivePreteritVariantFrame = realizeCurrentSuppletivePreteritVariantFrame;
     api.getSuppletiveYawiCanonical = getSuppletiveYawiCanonical;
     api.getSuppletiveYawiImperfective = getSuppletiveYawiImperfective;
     api.getSuppletiveYawiShort = getSuppletiveYawiShort;
@@ -541,6 +811,7 @@ export function createIrregularsApi(targetObject = globalThis) {
     api.getSuppletiveWeyaRootPlusYaBase = getSuppletiveWeyaRootPlusYaBase;
     api.getSuppletiveWeyaCanonical = getSuppletiveWeyaCanonical;
     api.buildSuppletiveKatiStemSet = buildSuppletiveKatiStemSet;
+    api.buildSuppletiveYawiStemSetFromFrames = buildSuppletiveYawiStemSetFromFrames;
     api.buildSuppletiveYawiStemSet = buildSuppletiveYawiStemSet;
     api.buildSuppletiveWitziStemSet = buildSuppletiveWitziStemSet;
     api.buildSuppletiveWeyaStemSet = buildSuppletiveWeyaStemSet;

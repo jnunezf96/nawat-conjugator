@@ -1,6 +1,6 @@
 // Native wrapper generated from src/ui/rendering/rendering.js.
 
-export function createUiRenderingModule(targetObject = globalThis) {
+export function createUiRenderingApi(targetObject = globalThis) {
     var ActiveNawatDenominalAndrewsContractRouteRenderContext = null;
     function getNawatDenominalAndrewsRenderContextComparableInputs(context = null) {
       const targetInput = String(context?.targetInput || "").trim();
@@ -46,52 +46,28 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return context;
     }
     function getActiveNawatDenominalAndrewsContractRouteRenderContextFromDocument() {
-      if (typeof targetObject.document === "undefined") {
-        return null;
-      }
-      const dataset = targetObject.document.documentElement?.dataset || {};
-      const contractId = String(dataset.activeAndrewsContractId || "").trim();
-      const routeTemplateId = String(dataset.activeAndrewsRouteTemplateId || "").trim();
-      const sourceStem = String(dataset.activeAndrewsSourceStem || "").trim();
-      const targetInput = String(dataset.activeAndrewsTargetInput || "").trim();
-      const targetVerbStem = String(dataset.activeAndrewsTargetVerbStem || "").trim();
-      if (!contractId || !routeTemplateId || !targetInput) {
-        return null;
-      }
-      const route = {
-        contractId,
-        routeTemplateId,
-        executableRuleId: String(dataset.activeAndrewsExecutableRuleId || "").trim(),
-        sourceStem,
-        targetInput,
-        targetInputValue: targetInput,
-        targetVerbStem
-      };
-      const nextSourcePreview = typeof targetObject.previewNawatDenominalAndrewsContractRouteNextSource === "function" ? targetObject.previewNawatDenominalAndrewsContractRouteNextSource(route) : null;
-      return {
-        version: 1,
-        outputKind: "active-denominal-andrews-contract-route-render-context",
-        contractId,
-        routeTemplateId,
-        sourceStem,
-        targetInput,
-        targetVerbStem,
-        route,
-        nextSourcePreview,
-        boundaries: {
-          noFixtureEvidence: true,
-          doesNotCreateLexicalEvidence: true,
-          activeContextFromDocumentDataset: true,
-          activeContextMustMatchCurrentInput: true
+      return null;
+    }
+    function getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel(options = {}) {
+      const contextFns = [typeof targetObject.getActiveNawatDenominalAndrewsContractRouteContext === "function" ? targetObject.getActiveNawatDenominalAndrewsContractRouteContext : null, typeof globalThis !== "undefined" && typeof globalThis.getActiveNawatDenominalAndrewsContractRouteContext === "function" ? globalThis.getActiveNawatDenominalAndrewsContractRouteContext : null].filter(candidate => typeof candidate === "function");
+      for (const getContext of contextFns) {
+        const context = getContext(options);
+        if (context?.route) {
+          return context;
         }
-      };
+      }
+      return null;
     }
     function previewActiveNawatDenominalAndrewsContractRouteNextSourceForRendering({
       inputValue = "",
       targetInput = "",
       targetVerbStem = ""
     } = {}) {
-      const context = ActiveNawatDenominalAndrewsContractRouteRenderContext || getActiveNawatDenominalAndrewsContractRouteRenderContextFromDocument();
+      const context = ActiveNawatDenominalAndrewsContractRouteRenderContext || getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel({
+        inputValue,
+        targetInput,
+        targetVerbStem
+      });
       if (!context?.route) {
         return null;
       }
@@ -1008,7 +984,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     } = {}) {
       const resolvedMode = String(mode || "").trim();
       if (resolvedMode === "verb" || resolvedMode === targetObject.TENSE_MODE.verbo) {
-        const tenseTitle = typeof targetObject.getAndrewsFirstTenseHoverTitle === "function" ? targetObject.getAndrewsFirstTenseHoverTitle(tenseValue) : "Andrews dirige la arquitectura de CNV; Nawat/Pipil confirma la superficie.";
+        const tenseTitle = typeof targetObject.getAndrewsFirstTenseHoverTitle === "function" ? targetObject.getAndrewsFirstTenseHoverTitle(tenseValue, targetObject.TENSE_MODE.verbo) : "Andrews dirige la arquitectura de CNV; Nawat/Pipil confirma la superficie.";
         return `Andrews Lecciones 4-7: bloque de cláusula nuclear verbal. ${tenseTitle}`;
       }
       if (resolvedMode === "noun" || resolvedMode === targetObject.TENSE_MODE.sustantivo) {
@@ -1071,7 +1047,302 @@ export function createUiRenderingModule(targetObject = globalThis) {
     function isVisibleCnvFormulaDirectionalPart(value = "") {
       return ["wal", "al", "un"].includes(String(value || "").trim());
     }
-    function alignVisibleCnvFormulaEchoToSurface(formulaEcho = "", surface = "", record = null) {
+    function normalizeVisibleCnvFormulaAlignmentToken(value = "", fallback = "0") {
+      const token = String(value ?? "").trim();
+      if (!token || token === "Ø" || token === "∅") {
+        return fallback;
+      }
+      return token;
+    }
+    function cloneVisibleCnvFormulaAlignmentFeatures(value = null) {
+      if (!value || typeof value !== "object" || Array.isArray(value)) {
+        return {};
+      }
+      return Object.keys(value).sort().reduce((acc, key) => {
+        acc[key] = String(value[key] ?? "");
+        return acc;
+      }, {});
+    }
+    function getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame = null, slotKey = "") {
+      return (Array.isArray(sourceFrame?.slotFrames) ? sourceFrame.slotFrames : []).find(entry => entry.slotKey === slotKey) || null;
+    }
+    function getVisibleCnvFormulaAlignmentSlotValue(sourceFrame = null, slotKey = "", fallback = "0", {
+      preferSurface = true
+    } = {}) {
+      const slot = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, slotKey);
+      if (!slot) {
+        return fallback;
+      }
+      const surfaceValue = String(slot.surfaceValue ?? "").trim();
+      const formulaMorph = String(slot.formulaMorph ?? "").trim();
+      const value = preferSurface ? surfaceValue || formulaMorph : formulaMorph || surfaceValue;
+      return normalizeVisibleCnvFormulaAlignmentToken(value, fallback);
+    }
+    function getVisibleCnvFormulaAlignmentObjectMorph(sourceFrame = null) {
+      const va = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va");
+      if (va) {
+        return normalizeVisibleCnvFormulaAlignmentToken(String(va.surfaceValue || va.formulaMorph || ""), "");
+      }
+      const va1 = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va1");
+      const va2 = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va2");
+      if (!va1 && !va2) {
+        return "";
+      }
+      const visible = String(va1?.visibleLinearMorph || va2?.visibleLinearMorph || "").trim();
+      const va2Formula = String(va2?.formulaMorph || "").trim();
+      const va2Surface = String(va2?.surfaceValue || "").trim();
+      if (visible && va2Formula && va2Surface && va2Surface !== "0" && va2Surface !== "Ø" && va2Surface !== va2Formula && visible.endsWith(va2Formula)) {
+        return normalizeVisibleCnvFormulaAlignmentToken(`${visible.slice(0, -va2Formula.length)}${va2Surface}`, "");
+      }
+      if (visible) {
+        return normalizeVisibleCnvFormulaAlignmentToken(visible, "");
+      }
+      const va1Value = normalizeVisibleCnvFormulaAlignmentToken(String(va1?.surfaceValue || va1?.formulaMorph || ""), "");
+      const va2Value = normalizeVisibleCnvFormulaAlignmentToken(String(va2?.surfaceValue || va2?.formulaMorph || ""), "0");
+      return va1Value ? `${va1Value}-${va2Value}` : "";
+    }
+    function splitVisibleCnvFormulaAlignmentConnector(connector = "") {
+      const [num1 = "0", num2 = "0"] = String(connector || "0-0").split("-");
+      return {
+        num1: normalizeVisibleCnvFormulaAlignmentToken(num1, "0"),
+        num2: normalizeVisibleCnvFormulaAlignmentToken(num2, "0")
+      };
+    }
+    function resolveVisibleCnvFormulaAlignmentSurfaceSlots(sourceFrame = null, slots = {}) {
+      const fallbackBase = slots.base || "STEM";
+      const fallbackConnector = `${slots.num1 || "0"}-${slots.num2 || "0"}`;
+      let coreSurface = String(sourceFrame?.surface || "").replace(/\s+/g, "").trim();
+      const stripLeading = (segment = "") => {
+        const surface = projectVisibleCnvFormulaSegmentToSurface(segment);
+        if (surface && coreSurface.startsWith(surface)) {
+          coreSurface = coreSurface.slice(surface.length);
+          return true;
+        }
+        return false;
+      };
+      stripLeading(slots.pers1);
+      const directionalSurface = projectVisibleCnvFormulaSegmentToSurface(slots.directional);
+      const objectSurface = projectVisibleCnvFormulaSegmentToSurface(slots.objectMorph);
+      const objectThenDirectional = objectSurface && directionalSurface && coreSurface.startsWith(`${objectSurface}${directionalSurface}`);
+      const prePredicateParts = [];
+      if (objectThenDirectional) {
+        if (stripLeading(slots.objectMorph)) {
+          prePredicateParts.push(slots.objectMorph);
+        }
+        if (stripLeading(slots.directional)) {
+          prePredicateParts.push(slots.directional);
+        }
+      } else {
+        if (stripLeading(slots.directional)) {
+          prePredicateParts.push(slots.directional);
+        }
+        if (stripLeading(slots.objectMorph)) {
+          prePredicateParts.push(slots.objectMorph);
+        }
+      }
+      if (slots.directional && !prePredicateParts.includes(slots.directional)) {
+        prePredicateParts.push(slots.directional);
+      }
+      if (slots.objectMorph && !prePredicateParts.includes(slots.objectMorph)) {
+        prePredicateParts.push(slots.objectMorph);
+      }
+      const suffixCandidates = [fallbackConnector, ...(fallbackConnector === "ki-0" ? ["k-0"] : []), ...(fallbackConnector !== "0-0" ? ["0-0"] : [])].map(connector => {
+        const {
+          num1,
+          num2
+        } = splitVisibleCnvFormulaAlignmentConnector(connector);
+        return {
+          connector,
+          num1,
+          num2
+        };
+      }).filter((candidate, index, list) => list.findIndex(entry => entry.connector === candidate.connector) === index);
+      const matchedSuffix = suffixCandidates.find(candidate => {
+        const suffixSurface = `${projectVisibleCnvFormulaSegmentToSurface(slots.tns)}${projectVisibleCnvFormulaSegmentToSurface(candidate.connector)}`;
+        if (!suffixSurface) {
+          return false;
+        }
+        return coreSurface.endsWith(suffixSurface);
+      });
+      if (matchedSuffix) {
+        const suffixSurface = `${projectVisibleCnvFormulaSegmentToSurface(slots.tns)}${projectVisibleCnvFormulaSegmentToSurface(matchedSuffix.connector)}`;
+        coreSurface = suffixSurface ? coreSurface.slice(0, -suffixSurface.length) : coreSurface;
+      }
+      const base = coreSurface || fallbackBase;
+      const connectorFrame = matchedSuffix || splitVisibleCnvFormulaAlignmentConnector(fallbackConnector);
+      return {
+        base: normalizeVisibleCnvFormulaAlignmentToken(base, fallbackBase),
+        num1: connectorFrame.num1 || slots.num1 || "0",
+        num2: connectorFrame.num2 || slots.num2 || "0",
+        prePredicateParts
+      };
+    }
+    function buildVisibleCnvFormulaAlignmentTargetFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "visible-cnv-formula-alignment-source-frame") {
+        return null;
+      }
+      const pers1 = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "pers1", "0");
+      const pers2 = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "pers2", "0");
+      const directional = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "directional", "");
+      const objectMorph = getVisibleCnvFormulaAlignmentObjectMorph(sourceFrame);
+      const directionalFrame = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "directional");
+      const objectFrame = getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va") || getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va1") || getVisibleCnvFormulaAlignmentSlotFrame(sourceFrame, "va2");
+      const directionalIndex = Number.isFinite(directionalFrame?.index) ? directionalFrame.index : -1;
+      const objectIndex = Number.isFinite(objectFrame?.index) ? objectFrame.index : -1;
+      let prePredicateParts = [];
+      if (directional && objectMorph) {
+        if (objectIndex >= 0 && directionalIndex >= 0 && objectIndex < directionalIndex) {
+          prePredicateParts.push(objectMorph, directional);
+        } else {
+          prePredicateParts.push(directional, objectMorph);
+        }
+      } else {
+        if (directional) {
+          prePredicateParts.push(directional);
+        }
+        if (objectMorph) {
+          prePredicateParts.push(objectMorph);
+        }
+      }
+      const base = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "base", "STEM");
+      const tns = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "tns", "0");
+      const num1 = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "num1", "0");
+      const num2 = getVisibleCnvFormulaAlignmentSlotValue(sourceFrame, "num2", "0");
+      const surfaceSlots = resolveVisibleCnvFormulaAlignmentSurfaceSlots(sourceFrame, {
+        pers1,
+        pers2,
+        directional,
+        objectMorph,
+        base,
+        tns,
+        num1,
+        num2
+      });
+      prePredicateParts = surfaceSlots.prePredicateParts.length ? surfaceSlots.prePredicateParts : prePredicateParts;
+      const prePredicate = prePredicateParts.length ? `+${prePredicateParts.join("+")}` : "";
+      return Object.freeze({
+        kind: "visible-cnv-formula-alignment-target-frame",
+        version: 1,
+        formula: `#${pers1}-${pers2}${prePredicate}(${surfaceSlots.base})${tns}+${surfaceSlots.num1}-${surfaceSlots.num2}#`,
+        surface: sourceFrame.surface,
+        sourceSignature: sourceFrame.sourceSignature,
+        slotSummary: Object.freeze({
+          pers1,
+          pers2,
+          directional,
+          objectMorph,
+          base: surfaceSlots.base,
+          tns,
+          num1: surfaceSlots.num1,
+          num2: surfaceSlots.num2
+        })
+      });
+    }
+    function buildVisibleCnvFormulaAlignmentSourceFrame(record = null) {
+      const paths = Array.isArray(record?.paths) ? record.paths : [];
+      if (!paths.length) {
+        return null;
+      }
+      const slotFrames = paths.map((path, index) => ({
+        kind: "visible-cnv-formula-alignment-slot-frame",
+        index,
+        slotKey: String(path?.formulaSlotKey || "").trim(),
+        formulaSlot: String(path?.formulaSlot || path?.formulaSlotKey || "").trim(),
+        formulaRole: String(path?.formulaRole || "").trim(),
+        formulaMorph: String(path?.formulaMorph ?? "").trim(),
+        surfaceValue: String(path?.surfaceValue ?? "").trim(),
+        visibleLinearMorph: String(path?.visibleLinearMorph || "").trim(),
+        formulaFeatures: cloneVisibleCnvFormulaAlignmentFeatures(path?.formulaFeatures),
+        linearPieces: Array.isArray(path?.linearPieces) ? path.linearPieces.map(piece => String(piece ?? "").trim()).filter(Boolean) : [],
+        status: String(path?.status || "").trim()
+      })).filter(entry => entry.slotKey);
+      if (!slotFrames.length) {
+        return null;
+      }
+      const sourceSignature = JSON.stringify(slotFrames.map(entry => ({
+        index: entry.index,
+        slotKey: entry.slotKey,
+        formulaSlot: entry.formulaSlot,
+        formulaRole: entry.formulaRole,
+        formulaMorph: entry.formulaMorph,
+        surfaceValue: entry.surfaceValue,
+        visibleLinearMorph: entry.visibleLinearMorph,
+        formulaFeatures: entry.formulaFeatures,
+        linearPieces: entry.linearPieces,
+        status: entry.status
+      })));
+      return Object.freeze({
+        kind: "visible-cnv-formula-alignment-source-frame",
+        version: 1,
+        authority: "cnvFormulaSurfacePath.pathsBySurface.path-slot-frames",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        formulaEchoAuthority: false,
+        surfaceTextAuthority: false,
+        surface: String(record?.surface || "").trim(),
+        slotFrames: Object.freeze(slotFrames.map(entry => Object.freeze({
+          ...entry,
+          formulaFeatures: Object.freeze({
+            ...entry.formulaFeatures
+          }),
+          linearPieces: Object.freeze(entry.linearPieces.slice())
+        }))),
+        sourceSignature
+      });
+    }
+    function buildVisibleCnvFormulaAlignmentOperationFrame(sourceFrame = null) {
+      const targetFrame = buildVisibleCnvFormulaAlignmentTargetFrame(sourceFrame);
+      if (!sourceFrame || !targetFrame) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-visible-cnv-formula-alignment-operation-frame",
+        version: 1,
+        operationId: "visible-cnv-formula-path-slot-alignment",
+        authority: "Andrews CNV formula path slots",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        formulaEchoAuthority: false,
+        surfaceTextAuthority: false,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame
+      });
+    }
+    function getVisibleCnvFormulaAlignmentMismatch(record = null, sourceFrame = null, operationFrame = null) {
+      const rebuiltSourceFrame = buildVisibleCnvFormulaAlignmentSourceFrame(record);
+      if (!rebuiltSourceFrame || !sourceFrame || sourceFrame.kind !== "visible-cnv-formula-alignment-source-frame") {
+        return "visible-cnv-formula-alignment-source-frame-required";
+      }
+      if (String(rebuiltSourceFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "visible-cnv-formula-alignment-contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-visible-cnv-formula-alignment-operation-frame" || operationFrame.operationId !== "visible-cnv-formula-path-slot-alignment" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || operationFrame.formulaEchoAuthority !== false || operationFrame.surfaceTextAuthority !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "visible-cnv-formula-alignment-operation-frame-required";
+      }
+      const rebuiltOperationFrame = buildVisibleCnvFormulaAlignmentOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame) {
+        return "visible-cnv-formula-alignment-target-frame-required";
+      }
+      if (JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "visible-cnv-formula-alignment-contradictory-target-frame";
+      }
+      return "";
+    }
+    function isVisibleCnvFormulaAlignmentSourceFrameComplete(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "visible-cnv-formula-alignment-source-frame") {
+        return false;
+      }
+      const slotKeys = new Set((Array.isArray(sourceFrame.slotFrames) ? sourceFrame.slotFrames : []).map(entry => String(entry?.slotKey || "")));
+      return ["pers1", "pers2", "base", "tns", "num1", "num2"].every(slotKey => slotKeys.has(slotKey));
+    }
+    function getVisibleCnvFormulaAlignmentPathRecords(path = null) {
+      return (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).filter(record => isVisibleCnvFormulaAlignmentSourceFrameComplete(buildVisibleCnvFormulaAlignmentSourceFrame(record)));
+    }
+    function alignVisibleCnvFormulaEchoToSurface(formulaEcho = "", surface = "", record = null, sourceFrame = null, operationFrame = null) {
+      if (record) {
+        const mismatch = getVisibleCnvFormulaAlignmentMismatch(record, sourceFrame, operationFrame);
+        return mismatch ? "" : String(operationFrame?.targetFrame?.formula || "");
+      }
       const formula = String(formulaEcho || "").trim();
       const surfaceText = String(surface || "").replace(/\s+/g, "").trim();
       if (!formula || !surfaceText || projectVisibleCnvFormulaEchoToSurface(formula) === surfaceText) {
@@ -1098,7 +1369,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       if (objectSurface && coreSurface.startsWith(objectSurface)) {
         coreSurface = coreSurface.slice(objectSurface.length);
       }
-      const baseHint = getVisibleCnvFormulaPathRecordSurfaceValue(record, "base");
+      const baseHint = "";
       const tenseSurface = projectVisibleCnvFormulaSegmentToSurface(tenseText);
       const connectorSurface = projectVisibleCnvFormulaSegmentToSurface(connectorText);
       const suffixCandidates = [{
@@ -1147,11 +1418,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return candidates[0]?.formula || formula;
     }
     function getVisibleCnvFormulaSurfaceForms(source = null) {
+      const path = getVisibleCnvFormulaSurfacePath(source);
+      const pathForms = getVisibleCnvFormulaAlignmentPathRecords(path).map(record => String(record?.surface || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+      if (pathForms.length) {
+        return pathForms;
+      }
       const forms = typeof getConjugationSurfaceForms === "function" ? getConjugationSurfaceForms(source) : [];
       if (forms.length) {
         return forms;
       }
-      const path = getVisibleCnvFormulaSurfacePath(source);
       return (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).map(record => String(record?.surface || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
     }
     function getVisibleCnvFormulaSurfaceDisplay(source = null) {
@@ -1204,6 +1479,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
     }
     function dedupeVisibleCnvFormulaEchoEntries(entries = []) {
       return (Array.isArray(entries) ? entries : []).filter(entry => entry?.value).filter((entry, index, list) => list.findIndex(candidate => candidate.value === entry.value && candidate.surface === entry.surface) === index);
+    }
+    function getCanonicalVisibleCnvFormulaEchoEntries(source = null) {
+      return getFormulaSurfacePairsForGeneratedOutput(source).filter(pair => pair?.formulaRealizationRecord?.kind === "grammar-formula-realization-record").map(pair => ({
+        value: String(pair.targetFormulaEcho || pair.conjugatorFormulaEcho || "").trim(),
+        surface: String(pair.surface || "").trim(),
+        sourceFormulaEcho: String(pair.sourceFormulaEcho || "").trim(),
+        andrewsFormulaEcho: String(pair.andrewsFormulaEcho || "").trim(),
+        targetFormulaEcho: String(pair.targetFormulaEcho || "").trim(),
+        conjugatorFormulaEcho: String(pair.conjugatorFormulaEcho || "").trim(),
+        sourceToTargetFormulaEcho: String(pair.sourceToTargetFormulaEcho || "").trim(),
+        andrewsToConjugatorFormulaEcho: String(pair.andrewsToConjugatorFormulaEcho || "").trim(),
+        formulaPair: pair
+      })).filter(entry => entry.value);
     }
     function getVisibleCnvFormulaBaseRealizations(source = null) {
       const path = getVisibleCnvFormulaSurfacePath(source);
@@ -1268,43 +1556,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       return visible;
     }
-    function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null) {
-      let formula = String(formulaEcho || "").trim();
-      if (!formula) {
-        return "";
+    function formatVisibleCnvFormulaEchoForPath(formulaEcho = "", record = null, sourceFrame = null, operationFrame = null) {
+      void formulaEcho;
+      if (!record) {
+        return String(formulaEcho || "").trim();
       }
-      const prePredicateMatch = formula.match(/^#([^+#()]*)(?:\+([^()]*))?(\()/);
-      const prePredicateParts = String(prePredicateMatch?.[2] || "").split("+").map(part => part.trim()).filter(Boolean);
-      const directionalIndex = prePredicateParts.findIndex(part => isVisibleCnvFormulaDirectionalPart(part));
-      const objectText = prePredicateParts.filter((part, index) => index !== directionalIndex).join("+");
-      const objectMorph = getVisibleCnvFormulaPathRecordVisibleObjectMorph(record, objectText);
-      if (objectMorph) {
-        const directionalText = directionalIndex >= 0 ? prePredicateParts[directionalIndex] : "";
-        const nextPrePredicateParts = directionalText ? directionalIndex > 0 ? [objectMorph, directionalText] : [directionalText, objectMorph] : [objectMorph];
-        formula = formula.replace(/^#([^+#()]*)(?:\+[^()]*)?(\()/, `#$1+${nextPrePredicateParts.join("+")}$2`);
-      }
-      const pers1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers1");
-      const pers2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "pers2");
-      const base = getVisibleCnvFormulaPathRecordSurfaceValue(record, "base");
-      const tns = getVisibleCnvFormulaPathRecordSurfaceValue(record, "tns");
-      const num1 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num1");
-      const num2 = getVisibleCnvFormulaPathRecordSurfaceValue(record, "num2");
-      if (pers1 || pers2) {
-        formula = formula.replace(/^#([^+()]*)/, `#${pers1 || "0"}-${pers2 || "0"}`);
-      }
-      if (base) {
-        formula = formula.replace(/\(([^)]*)\)/, `(${base})`);
-      }
-      if (tns) {
-        formula = formula.replace(/\)([^)+#]*)\+([^+#]*)#$/, `)${tns}+${num1 || "0"}-${num2 || "0"}#`);
-        return formula;
-      }
-      if (num1 || num2) {
-        formula = formula.replace(/\+([^+#]*)#$/, `+${num1 || "0"}-${num2 || "0"}#`);
-      }
-      return formula;
+      const mismatch = getVisibleCnvFormulaAlignmentMismatch(record, sourceFrame, operationFrame);
+      return mismatch ? "" : String(operationFrame?.targetFrame?.formula || "");
     }
     function getVisibleCnvFormulaEchoEntries(formulaEcho = "", source = null) {
+      const canonicalEntries = getCanonicalVisibleCnvFormulaEchoEntries(source);
+      if (canonicalEntries.length) {
+        return dedupeVisibleCnvFormulaEchoEntries(canonicalEntries);
+      }
       const formula = String(formulaEcho || "").trim();
       if (!formula) {
         return [];
@@ -1321,10 +1585,17 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       const path = getVisibleCnvFormulaSurfacePath(source);
       const surfaceSet = new Set(surfaceForms);
-      const pathEntries = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).filter(record => surfaceSet.has(String(record?.surface || "").trim())).map(record => ({
-        value: alignVisibleCnvFormulaEchoToSurface(formatVisibleCnvFormulaEchoForPath(formula, record), String(record?.surface || "").trim(), record),
-        surface: String(record?.surface || "").trim()
-      }));
+      const pathEntries = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).filter(record => surfaceSet.has(String(record?.surface || "").trim())).map(record => {
+        const sourceFrame = buildVisibleCnvFormulaAlignmentSourceFrame(record);
+        const operationFrame = buildVisibleCnvFormulaAlignmentOperationFrame(sourceFrame);
+        const pathFormula = formatVisibleCnvFormulaEchoForPath(formula, record, sourceFrame, operationFrame);
+        return {
+          value: alignVisibleCnvFormulaEchoToSurface(pathFormula, String(record?.surface || "").trim(), record, sourceFrame, operationFrame),
+          surface: String(record?.surface || "").trim(),
+          alignmentSourceFrame: sourceFrame,
+          alignmentOperationFrame: operationFrame
+        };
+      });
       const alignedEntries = dedupeVisibleCnvFormulaEchoEntries(pathEntries);
       if (alignedEntries.length) {
         return alignedEntries;
@@ -1332,6 +1603,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return dedupeVisibleCnvFormulaEchoEntries([...alignedEntries, ...slotEntries]);
     }
     function getVisibleCnvFormulaEchoes(formulaEcho = "", source = null) {
+      const canonicalEntries = getCanonicalVisibleCnvFormulaEchoEntries(source);
+      if (canonicalEntries.length) {
+        return canonicalEntries.map(entry => entry.value).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+      }
       const formula = String(formulaEcho || "").trim();
       if (!formula) {
         return [];
@@ -1350,11 +1625,33 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return formula;
     }
     function buildVisibleCnvFormulaEchoChips(formulaEcho = "", source = null) {
+      const canonicalEntries = getCanonicalVisibleCnvFormulaEchoEntries(source);
+      if (canonicalEntries.length) {
+        return dedupeVisibleCnvFormulaEchoEntries(canonicalEntries);
+      }
       const formula = String(formulaEcho || "").trim();
       if (!formula) {
         return [];
       }
       return getVisibleCnvFormulaEchoEntries(formula, source);
+    }
+    function formatVisibleCnvFormulaSurfacePairEcho(result = null, pair = null) {
+      const formula = String(pair?.targetFormulaEcho || "").trim();
+      if (!formula) {
+        return "";
+      }
+      const surfaceKey = normalizeAndrewsCnvCnnNominalSurfaceKey(pair?.surface || "");
+      const path = getVisibleCnvFormulaSurfacePath(result);
+      const record = (Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : []).find(entry => normalizeAndrewsCnvCnnNominalSurfaceKey(entry?.surface || "") === surfaceKey);
+      if (pair?.formulaRealizationRecord?.kind === "grammar-formula-realization-record" && !record) {
+        return formula;
+      }
+      if (!record) {
+        return formatVisibleCnvFormulaEcho(formula, result);
+      }
+      const sourceFrame = buildVisibleCnvFormulaAlignmentSourceFrame(record);
+      const operationFrame = buildVisibleCnvFormulaAlignmentOperationFrame(sourceFrame);
+      return alignVisibleCnvFormulaEchoToSurface(formatVisibleCnvFormulaEchoForPath(formula, record, sourceFrame, operationFrame), pair?.surface || "", record, sourceFrame, operationFrame);
     }
     function createLesson4InspectorPanel(title = "", sourceLabel = "") {
       const panel = targetObject.document.createElement("div");
@@ -2151,6 +2448,24 @@ export function createUiRenderingModule(targetObject = globalThis) {
       if (boundaries.nominalizationScope === "structural-word-output") {
         labels.push("ambito: salida estructural");
       }
+      const operationalFrame = getAndrewsCnvCnnNominalRenderingFrame({
+        nominalizationProfile: profile
+      });
+      if (operationalFrame?.formulaEcho) {
+        labels.push(`Andrews CNV->CNN: ${operationalFrame.formulaEcho}`);
+      }
+      if (operationalFrame?.routeFormulaEcho || operationalFrame?.sourceToTargetFormulaEcho) {
+        labels.push(`ruta formula: ${operationalFrame.routeFormulaEcho || operationalFrame.sourceToTargetFormulaEcho}`);
+      }
+      if (Array.isArray(operationalFrame?.formulaSurfacePairs) && operationalFrame.formulaSurfacePairs.length) {
+        labels.push(`formas: ${operationalFrame.formulaSurfacePairs.map(entry => `${entry.surface}: ${entry.sourceFormulaEcho || "SOURCE"} -> ${entry.targetFormulaEcho}`).join(" / ")}`);
+      }
+      if (operationalFrame?.operationApplied) {
+        labels.push(`operacion Andrews: ${operationalFrame.operationApplied}`);
+      }
+      if (operationalFrame?.generationAllowed === true && operationalFrame?.surface) {
+        labels.push(`salida por Andrews: ${operationalFrame.surface}`);
+      }
       const nominalizationKindLabel = getVerbDerivedNominalizationProfileLabel(kindLabels, role.nominalizationKind || profile.nominalKind, profile.nominalKind || "");
       if (nominalizationKindLabel) {
         labels.push(`${ANDREWS_RENDERING_TERMS.nominalization}: ${nominalizationKindLabel}`);
@@ -2263,9 +2578,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
       if (stemClassContractCount > 0) {
         labels.push(`Clases verbales Andrews: ${stemClassContractCount}`);
       }
-      const sourceEvidenceRequiredCount = Number(contractRoutePreview?.finiteRouteSourceEvidenceRequiredCount || 0);
-      if (sourceEvidenceRequiredCount > 0) {
-        labels.push(`Fuentes Andrews pendientes: ${sourceEvidenceRequiredCount}`);
+      const sourceContextRequiredCount = Number(contractRoutePreview?.finiteRouteSourceContextRequiredCount || contractRoutePreview?.finiteRouteSourceEvidenceRequiredCount || 0);
+      if (sourceContextRequiredCount > 0) {
+        labels.push(`Contextos Andrews pendientes: ${sourceContextRequiredCount}`);
       }
       const routeWarningCount = Number(contractRoutePreview?.routeWarningCount || 0);
       if (routeWarningCount > 0) {
@@ -2321,11 +2636,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
       } else if (evidence.possessionTiSource === true || sourceCategory === "ordinary-nnc-predicate-nounstem") {
         labels.push("Fuente Andrews: tronco nominal generado");
       } else if (evidence.temporalCompoundSource === true) {
-        labels.push("Fuente Andrews: compuesto temporal confirmado");
+        labels.push("Fuente Andrews: compuesto temporal");
       } else if (evidence.adverbialSource === true || sourceCategory === "adverbial-nounstem") {
-        labels.push("Fuente Andrews: tronco adverbial confirmado");
+        labels.push("Fuente Andrews: tronco adverbial");
       } else if (evidence.relationalCompoundSource === true || sourceCategory.includes("relational")) {
-        labels.push("Fuente Andrews: relacional confirmado");
+        labels.push("Fuente Andrews: relacional");
       } else if (sourceCategory) {
         labels.push(`Fuente Andrews: ${sourceCategory}`);
       }
@@ -2349,17 +2664,17 @@ export function createUiRenderingModule(targetObject = globalThis) {
       if (numeralEmbed) {
         labels.push(`Numeral embed: ${numeralEmbed}`);
       }
-      if (evidence.boundaries?.sourceEvidenceFromSelectedGeneratedStage === true) {
-        labels.push("Evidencia: etapa generada");
+      if (evidence.boundaries?.sourceContextFromSelectedGeneratedStage === true || evidence.boundaries?.sourceEvidenceFromSelectedGeneratedStage === true) {
+        labels.push("Contexto: etapa generada");
       }
-      if (evidence.boundaries?.sourceEvidenceFromAndrewsContractRoute === true) {
-        labels.push("Evidencia: ruta Andrews");
+      if (evidence.boundaries?.sourceContextFromAndrewsContractRoute === true || evidence.boundaries?.sourceEvidenceFromAndrewsContractRoute === true) {
+        labels.push("Contexto: ruta Andrews");
       }
       if (evidence.boundaries?.sourceEvidenceFromGeneratedOrdinaryNnc === true) {
         labels.push("Evidencia: salida nominal");
       }
       if (evidence.boundaries?.sourceEvidenceFromExplicitSourceClassification === true) {
-        labels.push("Evidencia: fuente clasificada");
+        labels.push("Contexto: fuente clasificada");
       }
       return labels;
     }
@@ -2415,8 +2730,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       const displaySurface = getNawatLinkedGrammarStageDisplaySurface(stage);
       const candidateRouteCount = Number(nextPreview?.candidateRouteCount || 0);
-      const sourceEvidence = nextSource.sourceEvidence && typeof nextSource.sourceEvidence === "object" ? nextSource.sourceEvidence : stage?.sourceEvidence && typeof stage.sourceEvidence === "object" ? stage.sourceEvidence : null;
-      return [`Siguiente fuente: ${sourceVerb}`, displaySurface && displaySurface !== sourceVerb ? `Salida de etapa: ${displaySurface}` : "", Number.isFinite(candidateRouteCount) && candidateRouteCount > 0 ? `Continuaciones: ${candidateRouteCount}` : "", ...buildNawatDenominalSourceEvidenceSubLabels(sourceEvidence)].filter(Boolean);
+      const sourceContext = nextSource.sourceContext && typeof nextSource.sourceContext === "object" ? nextSource.sourceContext : stage?.sourceContext && typeof stage.sourceContext === "object" ? stage.sourceContext : nextSource.sourceEvidence && typeof nextSource.sourceEvidence === "object" ? nextSource.sourceEvidence : stage?.sourceEvidence && typeof stage.sourceEvidence === "object" ? stage.sourceEvidence : null;
+      return [`Siguiente fuente: ${sourceVerb}`, displaySurface && displaySurface !== sourceVerb ? `Salida de etapa: ${displaySurface}` : "", Number.isFinite(candidateRouteCount) && candidateRouteCount > 0 ? `Continuaciones: ${candidateRouteCount}` : "", ...buildNawatDenominalSourceEvidenceSubLabels(sourceContext)].filter(Boolean);
     }
     function getNawatLinkedGrammarCompactRouteLabel(routeOrId = "") {
       const routeId = String(routeOrId && typeof routeOrId === "object" ? routeOrId.routeFamily || routeOrId.routeId || routeOrId.id || "" : routeOrId).trim();
@@ -2492,6 +2807,460 @@ export function createUiRenderingModule(targetObject = globalThis) {
         applyAndrewsRideDatasetToSurfaceElement(line, rideFrame);
       });
       return routeRecordId || stationLineFrame?.routePathLabel || rideFrame?.primaryRoutePathLabel || "";
+    }
+    function getAndrewsCnvCnnNominalRenderingFrame(frameLike = null) {
+      if (!frameLike || typeof frameLike !== "object") {
+        return null;
+      }
+      const candidates = [frameLike?.nominalizationProfile?.operationalSuboperationFrame, frameLike?.result?.nominalizationProfile?.operationalSuboperationFrame, frameLike?.frames?.nominalizationProfile?.operationalSuboperationFrame, frameLike?.grammarFrame?.nominalizationProfile?.operationalSuboperationFrame, frameLike?.operationalSuboperationFrame, frameLike];
+      return candidates.find(candidate => candidate && typeof candidate === "object" && candidate.kind === "andrews-cnv-cnn-operational-suboperation-frame") || null;
+    }
+    function normalizeAndrewsCnvCnnNominalSurfaceKey(value = "") {
+      return String(value || "").replace(/\s+/g, "").trim();
+    }
+    function getAndrewsCnvCnnNominalFormulaSurfacePairs(frame = null) {
+      return Array.isArray(frame?.formulaSurfacePairs) ? frame.formulaSurfacePairs.map(entry => entry && typeof entry === "object" ? {
+        surface: String(entry.surface || "").trim(),
+        sourceFormulaEcho: String(entry.sourceFormulaEcho || "").trim(),
+        andrewsFormulaEcho: String(entry.andrewsFormulaEcho || entry.sourceFormulaEcho || "").trim(),
+        targetFormulaEcho: String(entry.targetFormulaEcho || "").trim(),
+        conjugatorFormulaEcho: String(entry.conjugatorFormulaEcho || entry.targetFormulaEcho || "").trim(),
+        sourceToTargetFormulaEcho: String(entry.sourceToTargetFormulaEcho || "").trim(),
+        andrewsToConjugatorFormulaEcho: String(entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho || "").trim()
+      } : null).filter(entry => entry && entry.surface && entry.targetFormulaEcho) : [];
+    }
+    function getAndrewsCnvCnnNominalFormulaSurfacePairForSurface(frame = null, surface = "") {
+      const surfaceKey = normalizeAndrewsCnvCnnNominalSurfaceKey(surface);
+      if (!surfaceKey) {
+        return null;
+      }
+      return getAndrewsCnvCnnNominalFormulaSurfacePairs(frame).find(entry => normalizeAndrewsCnvCnnNominalSurfaceKey(entry.surface) === surfaceKey) || null;
+    }
+    function getGeneratedOutputResultFrame(result = null) {
+      const grammarFrame = getConjugationResultFrame(result);
+      return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+    }
+    function getGeneratedOutputCanonicalFormulaRecords(result = null) {
+      const resultFrame = getGeneratedOutputResultFrame(result);
+      if (!resultFrame) {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRecords) && resultFrame.formulaRecords.length ? resultFrame.formulaRecords : resultFrame.formulaRecord ? [resultFrame.formulaRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-record");
+    }
+    function getGeneratedOutputCanonicalFormulaRecord(result = null) {
+      return getGeneratedOutputCanonicalFormulaRecords(result)[0] || null;
+    }
+    function getGeneratedOutputCanonicalFormulaSlots(result = null) {
+      return getGeneratedOutputCanonicalFormulaRecords(result).map(record => record.formulaSlots).find(slots => slots && typeof slots === "object") || null;
+    }
+    function getGeneratedOutputCanonicalFormulaText(result = null) {
+      const record = getGeneratedOutputCanonicalFormulaRecord(result);
+      return String(record?.formulaText || record?.formula || "").trim();
+    }
+    function getGeneratedOutputStructuredContinuationFormulaSlots(result = null) {
+      const source = result && typeof result === "object" ? result : {};
+      const canonicalSlots = getGeneratedOutputCanonicalFormulaSlots(source);
+      if (canonicalSlots) {
+        return canonicalSlots;
+      }
+      const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
+      const formulaSlots = source.nuclearClauseShell?.formulaSlots || source.nuclearClauseShell?.slots || source.nncBasic?.formulaSlots || source.clauseFrame?.formulaSlots || source.formulaSlots || frame?.morphBoundaryFrame?.formulaSlots || frame?.nuclearClauseFrame?.formulaSlots || null;
+      return formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+    }
+    function getGeneratedOutputStructuredContinuationFormulaEcho(result = null, formulaSlots = null) {
+      const canonicalFormula = getGeneratedOutputCanonicalFormulaText(result);
+      if (canonicalFormula) {
+        return canonicalFormula;
+      }
+      if (formulaSlots && typeof formulaSlots === "object" && typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function") {
+        return String(targetObject.buildOrdinaryNncFormulaEchoFromSlots(formulaSlots) || "").trim();
+      }
+      return "";
+    }
+    function normalizeGeneratedOutputStructuredContinuationStem(value = "") {
+      const text = String(value || "").trim();
+      return text && text !== "—" && !/[\/,\n\r]/u.test(text) ? text : "";
+    }
+    function getGeneratedOutputStructuredContinuationPredicateStem(result = null) {
+      const formulaSlots = getGeneratedOutputStructuredContinuationFormulaSlots(result);
+      if (!formulaSlots || typeof formulaSlots !== "object") {
+        return "";
+      }
+      const predicateSlot = formulaSlots.predicateStem || formulaSlots.predicate || formulaSlots.stem || null;
+      if (!predicateSlot || typeof predicateSlot !== "object") {
+        return "";
+      }
+      return [predicateSlot.stem, predicateSlot.root, predicateSlot.formulaValue].map(normalizeGeneratedOutputStructuredContinuationStem).find(Boolean) || "";
+    }
+    function getGeneratedOutputCanonicalRealizationRecords(result = null) {
+      const resultFrame = getGeneratedOutputResultFrame(result);
+      if (!resultFrame) {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record");
+    }
+    function getCanonicalFormulaRealizationSurfaceForms(record = null) {
+      if (!record || typeof record !== "object") {
+        return [];
+      }
+      const forms = [];
+      if (Array.isArray(record.surfaceForms)) {
+        forms.push(...record.surfaceForms);
+      }
+      if (record.surface) {
+        forms.push(record.surface);
+      }
+      return forms.map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+    }
+    function getGeneratedOutputCanonicalRealizationSurfaceForms(result = null) {
+      return getGeneratedOutputCanonicalRealizationRecords(result).flatMap(getCanonicalFormulaRealizationSurfaceForms).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
+    function getGeneratedOutputSelectedRealizationVariant(result = null, variantIndex = 0) {
+      const selectedIndex = Number.isInteger(Number(variantIndex)) && Number(variantIndex) >= 0 ? Number(variantIndex) : 0;
+      let currentIndex = 0;
+      for (const record of getGeneratedOutputCanonicalRealizationRecords(result)) {
+        const surfaces = getCanonicalFormulaRealizationSurfaceForms(record);
+        for (const surface of surfaces) {
+          const localIndex = currentIndex;
+          currentIndex += 1;
+          if (localIndex !== selectedIndex) {
+            continue;
+          }
+          const formulaRealizationRecordId = String(record.id || "").trim();
+          const formulaRecordId = String(record.formulaRecordId || "").trim();
+          const variantId = [formulaRealizationRecordId || formulaRecordId, `variant:${localIndex}`].filter(Boolean).join("#");
+          return {
+            kind: "grammar-formula-realization-selected-variant",
+            surface,
+            variantIndex: localIndex,
+            variantId,
+            selectedVariantId: variantId,
+            formulaRealizationRecordId,
+            formulaRecordId
+          };
+        }
+      }
+      return null;
+    }
+    function getGeneratedOutputCanonicalFormulaRecordById(result = null, recordId = "") {
+      const id = String(recordId || "").trim();
+      return getGeneratedOutputCanonicalFormulaRecords(result).find(record => [record.id, record.formulaRecordId, record.formula, record.formulaText].map(entry => String(entry || "").trim()).includes(id)) || null;
+    }
+    function getGeneratedOutputCanonicalRealizationRecordById(result = null, recordId = "") {
+      const id = String(recordId || "").trim();
+      return getGeneratedOutputCanonicalRealizationRecords(result).find(record => [record.id, record.formulaRealizationRecordId].map(entry => String(entry || "").trim()).includes(id)) || null;
+    }
+    function buildGeneratedOutputTypedContinuationFrame(result = null, selectedVariant = null, {
+      role = "",
+      unit = ""
+    } = {}) {
+      const grammarFrame = getConjugationResultFrame(result);
+      const formulaRecord = getGeneratedOutputCanonicalFormulaRecordById(result, selectedVariant?.formulaRecordId || "") || getGeneratedOutputCanonicalFormulaRecord(result);
+      const formulaRealizationRecord = getGeneratedOutputCanonicalRealizationRecordById(result, selectedVariant?.formulaRealizationRecordId || "") || getGeneratedOutputCanonicalRealizationRecords(result)[0] || null;
+      if (!formulaRecord || !formulaRealizationRecord) {
+        return null;
+      }
+      return {
+        kind: "generated-output-typed-continuation-frame",
+        role: String(role || ""),
+        unit: String(unit || formulaRecord.unit || ""),
+        formulaRecord,
+        formulaRealizationRecord,
+        selectedVariant: selectedVariant && typeof selectedVariant === "object" ? selectedVariant : null,
+        formulaSlots: formulaRecord.formulaSlots || null,
+        sourceFrame: formulaRecord.sourceFrame || null,
+        routeContract: grammarFrame?.routeContract || formulaRecord.routeContract || null,
+        resultFrame: getGeneratedOutputResultFrame(result)
+      };
+    }
+    function getCanonicalFormulaSurfacePairsForGeneratedOutput(result = null) {
+      const formulaRecords = getGeneratedOutputCanonicalFormulaRecords(result);
+      const realizationRecords = getGeneratedOutputCanonicalRealizationRecords(result);
+      if (!formulaRecords.length || !realizationRecords.length) {
+        return [];
+      }
+      const formulaById = new Map();
+      formulaRecords.forEach(record => {
+        [record.id, record.formula, record.formulaText].map(entry => String(entry || "").trim()).filter(Boolean).forEach(id => formulaById.set(id, record));
+      });
+      return realizationRecords.flatMap(realizationRecord => {
+        const formulaRecord = formulaById.get(String(realizationRecord.formulaRecordId || "").trim()) || formulaRecords[0] || null;
+        const formula = String(formulaRecord?.formulaText || formulaRecord?.formula || "").trim();
+        if (!formula) {
+          return [];
+        }
+        const sourceFormula = String(formulaRecord?.sourceFrame?.formula || formulaRecord?.sourceFrame?.formulaText || "").trim();
+        const routeFormula = String(formulaRecord?.sourceFrame?.label || formulaRecord?.sourceFrame?.formula || formulaRecord?.sourceFrame?.formulaText || formula).trim();
+        return getCanonicalFormulaRealizationSurfaceForms(realizationRecord).map(surface => ({
+          surface,
+          sourceFormulaEcho: sourceFormula,
+          andrewsFormulaEcho: formula,
+          targetFormulaEcho: formula,
+          conjugatorFormulaEcho: formula,
+          sourceToTargetFormulaEcho: `${routeFormula} -> ${formula}`,
+          andrewsToConjugatorFormulaEcho: `${routeFormula} -> ${formula}`,
+          formulaRecord,
+          formulaRealizationRecord: realizationRecord
+        }));
+      });
+    }
+    function getGeneratedOutputRouteContractIdentityParts(result = null) {
+      if (Array.isArray(result)) {
+        return result.flatMap(entry => getGeneratedOutputRouteContractIdentityParts(entry));
+      }
+      const grammarFrame = getConjugationResultFrame(result);
+      const routeContract = grammarFrame?.routeContract && typeof grammarFrame.routeContract === "object" ? grammarFrame.routeContract : null;
+      if (!routeContract) {
+        return [];
+      }
+      return [routeContract.routeId ? `route-id:${routeContract.routeId}` : "", routeContract.contractId ? `contract-id:${routeContract.contractId}` : "", routeContract.routeFamily ? `route-family:${routeContract.routeFamily}` : "", routeContract.routeStage ? `route-stage:${routeContract.routeStage}` : "", routeContract.outputKind ? `output-kind:${routeContract.outputKind}` : "", routeContract.unitKind ? `unit-kind:${routeContract.unitKind}` : "", routeContract.sourceContract?.sourceCategory ? `source-category:${routeContract.sourceContract.sourceCategory}` : "", routeContract.sourceContract?.sourceClauseKind ? `source-clause:${routeContract.sourceContract.sourceClauseKind}` : "", routeContract.sourceContract?.sourceVerb ? `source-verb:${routeContract.sourceContract.sourceVerb}` : "", routeContract.sourceContract?.sourceTenseValue ? `source-tense:${routeContract.sourceContract.sourceTenseValue}` : "", routeContract.sourceContract?.sourceCombinedMode ? `source-mode:${routeContract.sourceContract.sourceCombinedMode}` : "", routeContract.targetContract?.outputKind ? `target-output:${routeContract.targetContract.outputKind}` : "", routeContract.targetContract?.functionKind ? `target-function:${routeContract.targetContract.functionKind}` : "", routeContract.targetContract?.generationRoute ? `target-route:${routeContract.targetContract.generationRoute}` : ""].filter(Boolean);
+    }
+    function getGeneratedOutputCanonicalContinuationIdentityParts(result = null) {
+      const sources = Array.isArray(result) ? result : [result];
+      const formulaParts = sources.flatMap(source => getGeneratedOutputCanonicalFormulaRecords(source)).flatMap(record => {
+        const formulaId = String(record.id || record.formula || record.formulaText || "").trim();
+        const sourceFrameId = String(record.sourceFrame?.id || record.sourceFrame?.sourceFrameId || "").trim();
+        const routeId = String(record.routeContract?.routeId || record.routeContract?.contractId || "").trim();
+        return [formulaId ? `formula:${formulaId}` : "", sourceFrameId ? `formula-source:${sourceFrameId}` : "", routeId ? `formula-route:${routeId}` : ""].filter(Boolean);
+      });
+      const realizationParts = sources.flatMap(source => getGeneratedOutputCanonicalRealizationRecords(source)).flatMap(record => {
+        const realizationId = String(record.id || "").trim();
+        const formulaRecordId = String(record.formulaRecordId || "").trim();
+        return [realizationId ? `realization:${realizationId}` : "", formulaRecordId ? `realization-formula:${formulaRecordId}` : ""].filter(Boolean);
+      });
+      return [...sources.flatMap(source => getGeneratedOutputRouteContractIdentityParts(source)), ...formulaParts, ...realizationParts].filter(Boolean);
+    }
+    function getGeneratedOutputContinuationIdentityKey(result = null, context = {}) {
+      const contextObject = context && typeof context === "object" ? context : {};
+      const contextParts = [contextObject.namespace ? `namespace:${contextObject.namespace}` : "", contextObject.targetTense ? `target-tense:${contextObject.targetTense}` : "", contextObject.sourceUnit ? `source-unit:${contextObject.sourceUnit}` : "", contextObject.predicateNominalSourceTense ? `predicate-source-tense:${contextObject.predicateNominalSourceTense}` : "", contextObject.sourceObjectPrefix ? `source-object:${contextObject.sourceObjectPrefix}` : "", contextObject.sourceVariantId ? `source-variant:${contextObject.sourceVariantId}` : "", contextObject.targetVariantId ? `target-variant:${contextObject.targetVariantId}` : ""].filter(Boolean);
+      const canonicalParts = getGeneratedOutputCanonicalContinuationIdentityParts(result);
+      const routeParts = canonicalParts.length ? [] : getGeneratedOutputRouteContractIdentityParts(result);
+      const identityParts = canonicalParts.length ? canonicalParts : routeParts;
+      if (!identityParts.length) {
+        return "";
+      }
+      return ["generated-output-continuation", ...contextParts, ...identityParts].join("|");
+    }
+    function applyGeneratedOutputContinuationIdentityDataset(element = null, result = null, context = {}) {
+      if (!element?.dataset) {
+        return "";
+      }
+      const identityKey = getGeneratedOutputContinuationIdentityKey(result, context);
+      if (!identityKey) {
+        return "";
+      }
+      element.dataset.continuationIdentityKey = identityKey;
+      element.dataset.continuationIdentitySource = getGeneratedOutputCanonicalContinuationIdentityParts(result).length ? "canonical-formula-realization-record" : "route-contract";
+      return identityKey;
+    }
+    function getDenominalAndrewsRouteContinuationIdentityKey(route = null, context = {}) {
+      if (!route || typeof route !== "object") {
+        return "";
+      }
+      const contextObject = context && typeof context === "object" ? context : {};
+      const parts = ["denominal-andrews-route-continuation", contextObject.namespace ? `namespace:${contextObject.namespace}` : "", contextObject.routeRecordId ? `route-record:${contextObject.routeRecordId}` : "", contextObject.targetTense ? `target-tense:${contextObject.targetTense}` : "", contextObject.objectPrefix ? `object-prefix:${contextObject.objectPrefix}` : "", route.contractId ? `contract:${route.contractId}` : "", route.routeTemplateId ? `template:${route.routeTemplateId}` : "", route.executableRuleId ? `rule:${route.executableRuleId}` : "", route.routeId ? `route-id:${route.routeId}` : "", route.sourceStem ? `source-stem:${route.sourceStem}` : "", route.targetVerbStem ? `target-stem:${route.targetVerbStem}` : "", route.targetInputValue ? `target-input:${route.targetInputValue}` : "", !route.targetInputValue && route.targetInput ? `target-input:${route.targetInput}` : "", route.targetStemClass ? `target-class:${route.targetStemClass}` : "", route.sourceEvidence?.id ? `source-evidence:${route.sourceEvidence.id}` : ""].map(entry => String(entry || "").trim()).filter(Boolean);
+      return parts.length > 4 ? parts.join("|") : "";
+    }
+    function getFormulaSurfacePairsForGeneratedOutput(result = null) {
+      const source = result && typeof result === "object" ? result : {};
+      const grammarFrame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
+      const canonicalPairs = getCanonicalFormulaSurfacePairsForGeneratedOutput(result);
+      const candidates = [canonicalPairs, grammarFrame?.resultFrame?.formulaSurfacePairs, grammarFrame?.nuclearClauseFrame?.formulaSurfacePairs, grammarFrame?.morphBoundaryFrame?.cnvFormulaSurfacePath?.formulaSurfacePairs, grammarFrame?.morphBoundaryFrame?.formulaSurfacePairs, grammarFrame?.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs, source.formulaSurfacePairs, source.cnvFormulaSurfacePath?.formulaSurfacePairs, source.nuclearClauseShell?.formulaSurfacePairs, source.nominalizationProfile?.operationalSuboperationFrame?.formulaSurfacePairs];
+      const pairs = candidates.find(candidate => Array.isArray(candidate) && candidate.length) || [];
+      return pairs.map(entry => {
+        if (!entry || typeof entry !== "object") {
+          return null;
+        }
+        const formulaRecord = entry.formulaRecord && typeof entry.formulaRecord === "object" ? entry.formulaRecord : null;
+        const realizationRecord = entry.formulaRealizationRecord && typeof entry.formulaRealizationRecord === "object" ? entry.formulaRealizationRecord : null;
+        const canonicalFormula = String(formulaRecord?.formulaText || formulaRecord?.formula || "").trim();
+        const canonicalSurface = getCanonicalFormulaRealizationSurfaceForms(realizationRecord)[0] || "";
+        const targetFormulaEcho = canonicalFormula || String(entry.targetFormulaEcho || "").trim();
+        const sourceFormulaEcho = String(formulaRecord?.sourceFrame?.formula || formulaRecord?.sourceFrame?.formulaText || entry.sourceFormulaEcho || "").trim();
+        const routeFormula = String(formulaRecord?.sourceFrame?.label || formulaRecord?.sourceFrame?.formula || formulaRecord?.sourceFrame?.formulaText || sourceFormulaEcho || targetFormulaEcho).trim();
+        const surface = canonicalSurface || String(entry.surface || "").trim();
+        return {
+          surface,
+          sourceFormulaEcho,
+          andrewsFormulaEcho: canonicalFormula || String(entry.andrewsFormulaEcho || entry.sourceFormulaEcho || "").trim(),
+          targetFormulaEcho,
+          conjugatorFormulaEcho: canonicalFormula || String(entry.conjugatorFormulaEcho || entry.targetFormulaEcho || "").trim(),
+          sourceToTargetFormulaEcho: canonicalFormula ? `${routeFormula} -> ${canonicalFormula}` : String(entry.sourceToTargetFormulaEcho || "").trim(),
+          andrewsToConjugatorFormulaEcho: canonicalFormula ? `${routeFormula} -> ${canonicalFormula}` : String(entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho || "").trim(),
+          formulaRecord,
+          formulaRealizationRecord: realizationRecord
+        };
+      }).filter(entry => entry && entry.surface && entry.targetFormulaEcho).filter((entry, index, list) => list.findIndex(candidate => candidate.surface === entry.surface && candidate.targetFormulaEcho === entry.targetFormulaEcho && String(candidate.formulaRealizationRecord?.id || "") === String(entry.formulaRealizationRecord?.id || "")) === index);
+    }
+    function getFormulaSurfacePairForGeneratedOutput(result = null, surface = "") {
+      const pairs = getFormulaSurfacePairsForGeneratedOutput(result);
+      if (!pairs.length) {
+        return null;
+      }
+      const requestedSurface = normalizeAndrewsCnvCnnNominalSurfaceKey(surface);
+      if (requestedSurface) {
+        const requestedPair = pairs.find(entry => normalizeAndrewsCnvCnnNominalSurfaceKey(entry.surface) === requestedSurface);
+        if (requestedPair) {
+          return requestedPair;
+        }
+      }
+      return pairs[0] || null;
+    }
+    function applyFormulaSurfacePairDatasetToSurfaceLine(element = null, result = null, surface = "") {
+      if (!element?.dataset) {
+        return null;
+      }
+      const pair = getFormulaSurfacePairForGeneratedOutput(result, surface);
+      if (!pair) {
+        return null;
+      }
+      element.dataset.formulaSurfacePair = "true";
+      element.dataset.formulaSurface = pair.surface;
+      element.dataset.sourceFormulaEcho = pair.sourceFormulaEcho;
+      element.dataset.andrewsFormulaEcho = pair.andrewsFormulaEcho;
+      element.dataset.targetFormulaEcho = pair.targetFormulaEcho;
+      element.dataset.conjugatorFormulaEcho = pair.conjugatorFormulaEcho;
+      element.dataset.sourceToTargetFormulaEcho = pair.sourceToTargetFormulaEcho;
+      element.dataset.andrewsToConjugatorFormulaEcho = pair.andrewsToConjugatorFormulaEcho;
+      element.title = pair.andrewsToConjugatorFormulaEcho || pair.sourceToTargetFormulaEcho || pair.targetFormulaEcho;
+      return pair;
+    }
+    function appendFormulaSurfacePairDetailToSurfaceLine(element = null, pair = null, surface = "") {
+      if (!element || !pair) {
+        return null;
+      }
+      const surfaceValue = String(surface || pair.surface || "").trim();
+      element.textContent = "";
+      const surfaceSpan = targetObject.document.createElement("span");
+      surfaceSpan.className = "conjugation-conversion-surface-form";
+      surfaceSpan.textContent = surfaceValue;
+      element.appendChild(surfaceSpan);
+      const andrewsFormula = String(pair.andrewsFormulaEcho || pair.sourceFormulaEcho || "").trim();
+      const conjugatorFormula = String(pair.conjugatorFormulaEcho || pair.targetFormulaEcho || "").trim();
+      if (andrewsFormula || conjugatorFormula) {
+        const route = targetObject.document.createElement("span");
+        route.className = "conjugation-conversion-formula-route";
+        if (andrewsFormula) {
+          const source = targetObject.document.createElement("span");
+          source.className = "conjugation-conversion-formula-route-part conjugation-conversion-formula-route-part--andrews";
+          source.textContent = `Andrews ${andrewsFormula}`;
+          route.appendChild(source);
+        }
+        if (conjugatorFormula) {
+          const target = targetObject.document.createElement("span");
+          target.className = "conjugation-conversion-formula-route-part conjugation-conversion-formula-route-part--conjugator";
+          target.textContent = `Conjugador ${conjugatorFormula}`;
+          route.appendChild(target);
+        }
+        element.appendChild(route);
+      }
+      return element;
+    }
+    function applyAndrewsCnvCnnNominalRenderingDataset(element = null, frameLike = null, options = {}) {
+      if (!element?.dataset) {
+        return null;
+      }
+      const frame = getAndrewsCnvCnnNominalRenderingFrame(frameLike);
+      if (!frame) {
+        return null;
+      }
+      const source = frame.source && typeof frame.source === "object" ? frame.source : {};
+      const orthography = frame.orthography && typeof frame.orthography === "object" ? frame.orthography : {};
+      const missingRequirements = Array.isArray(frame.missingRequirements) ? frame.missingRequirements.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const diagnostics = Array.isArray(frame.diagnostics) ? frame.diagnostics.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const lineSurface = String(options.surface || "").trim();
+      const formulaSurfacePairs = getAndrewsCnvCnnNominalFormulaSurfacePairs(frame);
+      const lineFormulaPair = getAndrewsCnvCnnNominalFormulaSurfacePairForSurface(frame, lineSurface);
+      const visibleFormulaEcho = lineFormulaPair?.targetFormulaEcho || String(frame.formulaEcho || "").trim();
+      const visibleSourceFormulaEcho = lineFormulaPair?.sourceFormulaEcho || String(frame.sourceFormulaEcho || "").trim();
+      const visibleAndrewsFormulaEcho = lineFormulaPair?.andrewsFormulaEcho || visibleSourceFormulaEcho;
+      const visibleConjugatorFormulaEcho = lineFormulaPair?.conjugatorFormulaEcho || visibleFormulaEcho;
+      const visibleSourceToTargetFormulaEcho = lineFormulaPair?.sourceToTargetFormulaEcho || String(frame.sourceToTargetFormulaEcho || frame.formulaEcho || "").trim();
+      const visibleAndrewsToConjugatorFormulaEcho = lineFormulaPair?.andrewsToConjugatorFormulaEcho || visibleSourceToTargetFormulaEcho;
+      const visibleSurface = lineFormulaPair?.surface || lineSurface || String(frame.surface || "").trim();
+      element.classList?.add("conjugation-rendering--andrews-cnv-cnn-nominal");
+      element.dataset.andrewsCnvCnnNominalRender = "true";
+      element.dataset.andrewsCnvCnnNominalAuthority = "Andrews";
+      element.dataset.andrewsCnvCnnNominalTransition = String(frame.formulaTransition || "CNV->CNN").trim();
+      element.dataset.andrewsCnvCnnNominalSourceFormulaType = String(frame.sourceFormulaType || "CNV").trim();
+      element.dataset.andrewsCnvCnnNominalTargetFormulaType = String(frame.targetFormulaType || "CNN").trim();
+      element.dataset.andrewsCnvCnnNominalOperationId = String(frame.operationId || "").trim();
+      element.dataset.andrewsCnvCnnNominalLabel = String(frame.label || frame.nominalKind || "").trim();
+      element.dataset.andrewsCnvCnnNominalFamily = String(frame.family || "").trim();
+      element.dataset.andrewsCnvCnnNominalSection = String(frame.andrewsSection || "").trim();
+      element.dataset.andrewsCnvCnnNominalExecutionKind = String(frame.executionKind || "").trim();
+      element.dataset.andrewsCnvCnnNominalExecutableLogic = String(frame.executableLogic === true);
+      element.dataset.andrewsCnvCnnNominalCanAttemptSurface = String(frame.canAttemptSurface === true);
+      element.dataset.andrewsCnvCnnNominalGenerationAllowed = String(frame.generationAllowed === true);
+      element.dataset.andrewsCnvCnnNominalStatus = String(frame.status || "").trim();
+      element.dataset.andrewsCnvCnnNominalRouteStage = String(frame.routeStage || "").trim();
+      element.dataset.andrewsCnvCnnNominalOperationApplied = String(frame.operationApplied || "").trim();
+      element.dataset.andrewsCnvCnnNominalSourceFormulaEcho = visibleSourceFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalAndrewsFormulaEcho = visibleAndrewsFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalFormulaEcho = visibleFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalConjugatorFormulaEcho = visibleConjugatorFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalSourceToTargetFormulaEcho = visibleSourceToTargetFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalAndrewsToConjugatorFormulaEcho = visibleAndrewsToConjugatorFormulaEcho;
+      element.dataset.andrewsCnvCnnNominalFormulaSurfacePairs = formulaSurfacePairs.map(entry => `${entry.surface}=>${entry.andrewsFormulaEcho || entry.sourceFormulaEcho || ""}=>${entry.conjugatorFormulaEcho || entry.targetFormulaEcho}`).join("|");
+      element.dataset.andrewsCnvCnnNominalFormulaSurfacePairCount = String(formulaSurfacePairs.length);
+      element.dataset.andrewsCnvCnnNominalFormulaSurfacePairMatched = String(Boolean(lineFormulaPair));
+      element.dataset.andrewsCnvCnnNominalSurface = visibleSurface;
+      element.dataset.andrewsCnvCnnNominalSourceStem = String(source.stem || "").trim();
+      element.dataset.andrewsCnvCnnNominalSourceTense = String(source.tense || "").trim();
+      element.dataset.andrewsCnvCnnNominalSourceVoice = String(source.voice || "").trim();
+      element.dataset.andrewsCnvCnnNominalMissingRequirements = missingRequirements.join("|");
+      element.dataset.andrewsCnvCnnNominalDiagnostics = diagnostics.join("|");
+      element.dataset.andrewsCnvCnnNominalSpellingAuthority = String(orthography.spellingAuthority || "Nawat/Pipil orthography bridge").trim();
+      element.dataset.andrewsCnvCnnNominalClassicalSpellingRole = String(orthography.classicalSpellingRole || "structural-only").trim();
+      element.dataset.andrewsCnvCnnNominalClassicalSurfaceImport = orthography.noClassicalSurfaceImport === false ? "allowed" : "blocked";
+      return frame;
+    }
+    function getAndrewsCnvCnnNominalRenderedSurface(frameLike = null) {
+      const frame = getAndrewsCnvCnnNominalRenderingFrame(frameLike);
+      if (!frame || frame.generationAllowed !== true) {
+        return "";
+      }
+      const formulaPairSurfaces = getAndrewsCnvCnnNominalFormulaSurfacePairs(frame).map(entry => entry.surface).filter(Boolean);
+      if (formulaPairSurfaces.length > 1) {
+        return formulaPairSurfaces.join(" / ");
+      }
+      const surface = String(frame.surface || "").trim();
+      if (surface) {
+        return surface;
+      }
+      const forms = Array.isArray(frame.surfaceForms) ? frame.surfaceForms.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      return forms[0] || "";
+    }
+    function appendConjugationConversionSurfaceLines(surfaceText = null, surfaceDisplay = "", frameLike = null) {
+      if (!surfaceText) {
+        return [];
+      }
+      const renderedSurface = getAndrewsCnvCnnNominalRenderedSurface(frameLike);
+      const resolvedSurfaceDisplay = renderedSurface || surfaceDisplay;
+      const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(resolvedSurfaceDisplay) : resolvedSurfaceDisplay;
+      return String(groupedSurfaceDisplay || "").split(/\n+/).map(line => line.trim()).filter(Boolean).flatMap(line => {
+        const surfaceParts = line.split(/\s*\/\s*/).map(part => part.trim()).filter(Boolean);
+        const parts = surfaceParts.length ? surfaceParts : [line];
+        return parts.map((surface, index) => {
+          if (index) {
+            surfaceText.appendChild(targetObject.document.createTextNode(" / "));
+          }
+          const lineElement = targetObject.document.createElement("span");
+          lineElement.className = "conjugation-conversion-surface-line";
+          applyAndrewsCnvCnnNominalRenderingDataset(lineElement, frameLike, {
+            surface
+          });
+          const formulaPair = applyFormulaSurfacePairDatasetToSurfaceLine(lineElement, frameLike, surface);
+          appendFormulaSurfacePairDetailToSurfaceLine(lineElement, formulaPair, surface);
+          if (!formulaPair) {
+            lineElement.textContent = surface;
+          }
+          surfaceText.appendChild(lineElement);
+          return lineElement;
+        });
+      });
     }
     function syncConjugationConversionSurfaceRouteFrameFromActions(actions = null) {
       if (!actions) {
@@ -2845,13 +3614,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       value.classList.add("conjugation-value--conversion-picker");
       const surfaceText = targetObject.document.createElement("span");
       surfaceText.className = "conjugation-conversion-surface";
-      const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
-      groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-        const lineElement = targetObject.document.createElement("span");
-        lineElement.className = "conjugation-conversion-surface-line";
-        lineElement.textContent = line;
-        surfaceText.appendChild(lineElement);
-      });
+      appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, evaluation?.result);
       actions = createConjugationConversionActionsContainer();
       value.append(surfaceText, actions);
       applyConjugationConversionColumnLayout(value, surfaceText, actions);
@@ -2877,7 +3640,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         });
       }
       const dataset = frameLike.dataset || {};
-      const routeRecordId = String(dataset.andrewsRouteRecordId || frameLike.routeRecordId || "").trim();
+      const routeRecordId = String(frameLike.routeRecordId || "").trim();
       if (!routeRecordId) {
         return null;
       }
@@ -2889,6 +3652,40 @@ export function createUiRenderingModule(targetObject = globalThis) {
         obstacleGateIds: String(dataset.andrewsRouteObstacleGates || "").split("|").filter(Boolean),
         obstacleGates: []
       };
+    }
+    function getVerbNominalContinuationRouteRecordIdFromSourceUnit(sourceUnit = "") {
+      const normalizedSourceUnit = String(sourceUnit || "").trim();
+      if (normalizedSourceUnit === NOMINALIZATION_SOURCE_UNITS.vncPredicate) {
+        return "cnv-predicate-to-cnn-nounstem-nominalization";
+      }
+      if (normalizedSourceUnit === NOMINALIZATION_SOURCE_UNITS.vncCoreStem) {
+        return "cnv-core-to-cnn-nounstem-deverbal";
+      }
+      return "";
+    }
+    function buildVerbNominalContinuationRouteActionContractForRendering({
+      preview = null,
+      sourceUnit = ""
+    } = {}) {
+      if (!preview || typeof preview !== "object" || typeof targetObject.buildAndrewsCnvCnnBackAndForthRouteActionContract !== "function") {
+        return null;
+      }
+      const routeRecordId = getVerbNominalContinuationRouteRecordIdFromSourceUnit(sourceUnit);
+      if (!routeRecordId) {
+        return null;
+      }
+      const frame = getGrammarFrameForRendering(preview);
+      const routeContract = frame?.routeContract && typeof frame.routeContract === "object" ? frame.routeContract : null;
+      const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object" ? frame.resultFrame : null;
+      if (!routeContract || !resultFrame || resultFrame.ok !== true) {
+        return null;
+      }
+      return targetObject.buildAndrewsCnvCnnBackAndForthRouteActionContract(preview, {
+        routeRecordId,
+        sourceRequirementIds: getAndrewsCnvCnnRouteSourceRequirementIdsForRendering(preview),
+        obstacleLimit: 8,
+        generationAllowed: true
+      });
     }
     function formatAndrewsCnvCnnRouteTransitionForRendering(transition = "") {
       const value = String(transition || "").trim();
@@ -2916,12 +3713,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
       }
     }
+    function clearAndrewsCnvCnnRouteActionDataset(element = null) {
+      if (!element?.dataset) {
+        return false;
+      }
+      ["andrewsRouteRecordId", "andrewsRouteRecordTransition", "andrewsRouteRecordKind", "andrewsRouteSourceUnit", "andrewsRouteTargetUnit", "andrewsRouteObstacleGates", "andrewsRouteObstacleGateCount", "andrewsRouteRankingAllowed", "andrewsRouteFunctionUseValenceGate", "andrewsRouteFunctionUseValenceReason", "andrewsRouteActionAllowed", "andrewsRouteDiagnosticOnly", "andrewsRouteHardGateBlocked", "andrewsRouteActionBlocked", "functionUseValenceHardGate", "andrewsUiDatasetKey", "andrewsUiExpectedRouteRecordId", "andrewsUiOperation"].forEach(key => {
+        delete element.dataset[key];
+      });
+      return true;
+    }
     function applyAndrewsCnvCnnRouteActionDataset(element = null, frameLike = null) {
       if (!element?.dataset) {
         return null;
       }
       const contract = getAndrewsCnvCnnRouteActionContractForRendering(frameLike);
       if (!contract?.routeRecordId) {
+        clearAndrewsCnvCnnRouteActionDataset(element);
         return null;
       }
       const expectation = getVisibleContinuationChipRouteExpectation(element);
@@ -3084,10 +3891,14 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return;
         }
         const sourceRequirementIds = Array.isArray(route.sourceRequirement?.requirements) ? route.sourceRequirement.requirements.map(requirement => String(requirement?.id || "").trim()) : [];
-        const sourceEvidenceRequired = route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+        const sourceContextRequired = route.finiteGenerationRequiresSourceContext === true || route.sourceRequirement?.finiteGenerationRequiresSourceContext === true;
+        const sourceEvidenceRequired = sourceContextRequired || route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+        const resolvedSourceContextSatisfied = route.sourceRequirement?.sourceContextValidationStatus === "source-context-satisfied";
+        const resolvedSourceEvidenceSatisfied = sourceEvidenceSatisfied || resolvedSourceContextSatisfied || route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
+        const sourceEvidencePending = sourceEvidenceRequired && !resolvedSourceEvidenceSatisfied;
         const objectButton = targetObject.document.createElement("button");
         objectButton.type = "button";
-        objectButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "calc-guidance__chip--object-prefix-choice", "is-source-satisfied"].join(" ");
+        objectButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "calc-guidance__chip--object-prefix-choice", resolvedSourceEvidenceSatisfied ? "is-source-satisfied" : "", sourceEvidencePending ? "is-source-pending" : "", sourceEvidencePending ? "is-andrews-source-diagnostic" : ""].filter(Boolean).join(" ");
         objectButton.dataset.denominalAndrewsContractRouteContinuation = "true";
         objectButton.dataset.denominalAndrewsObjectPrefixChoice = "true";
         objectButton.dataset.andrewsRouteRecordId = "cnn-nounstem-to-cnv-verbstem-denominal";
@@ -3097,8 +3908,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
         objectButton.dataset.targetTense = resolvedTargetTense;
         objectButton.dataset.objectPrefix = prefix;
         objectButton.dataset.objectPrefixSatisfied = "true";
+        objectButton.dataset.sourceContextRequired = sourceContextRequired ? "true" : "";
         objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : "";
-        objectButton.dataset.sourceEvidenceSatisfied = sourceEvidenceSatisfied ? "true" : "";
+        objectButton.dataset.sourceEvidenceSatisfied = resolvedSourceEvidenceSatisfied ? "true" : "";
+        objectButton.dataset.sourceEvidencePending = sourceEvidencePending ? "true" : "";
+        objectButton.dataset.sourceRequirementGate = sourceEvidencePending ? "andrews-source-context-diagnostic-not-generation-gate" : "satisfied-or-not-required";
         if (route.executableRuleId) {
           objectButton.dataset.executableRuleId = route.executableRuleId;
           objectButton.classList.add("calc-guidance__chip--andrews-rule-executable");
@@ -3157,7 +3971,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!targetInput) {
           return;
         }
-        const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.contractId === String(route.contractId || "") && button.dataset.routeTemplateId === String(route.routeTemplateId || "") && button.dataset.targetTense === resolvedTargetTense);
+        const continuationIdentityKey = getDenominalAndrewsRouteContinuationIdentityKey(route, {
+          namespace: "denominal-andrews-route-continuation",
+          routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+          targetTense: resolvedTargetTense
+        });
+        if (!continuationIdentityKey) {
+          return;
+        }
+        const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
         if (alreadyRendered) {
           return;
         }
@@ -3174,6 +3996,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
         continueButton.dataset.targetInput = targetInput;
         continueButton.dataset.targetTense = resolvedTargetTense;
+        continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+        continueButton.dataset.continuationIdentitySource = "route-contract";
         applyGrammarFrameRouteDataset(continueButton, route);
         const continueRouteActionContract = applyAndrewsCnvCnnRouteActionDataset(continueButton, {
           ...route,
@@ -3214,13 +4038,26 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.classList.add("is-traditional-spelling-ambiguous");
         }
         const objectPrefixRequired = route.finiteGenerationRequiresObjectPrefix === true || route.objectSlotExpected === true;
-        const sourceEvidenceRequired = route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
-        const sourceEvidenceSatisfied = route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
+        const sourceContextRequired = route.finiteGenerationRequiresSourceContext === true || route.sourceRequirement?.finiteGenerationRequiresSourceContext === true;
+        const sourceEvidenceRequired = sourceContextRequired || route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+        const sourceContextSatisfied = route.sourceRequirement?.sourceContextValidationStatus === "source-context-satisfied";
+        const sourceEvidenceSatisfied = sourceContextSatisfied || route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
         const sourceEvidencePending = sourceEvidenceRequired && !sourceEvidenceSatisfied;
         const sourceRequirementIds = Array.isArray(route.sourceRequirement?.requirements) ? route.sourceRequirement.requirements.map(requirement => String(requirement?.id || "").trim()) : [];
         if (sourceEvidenceRequired) {
+          continueButton.dataset.sourceContextRequired = sourceContextRequired ? "true" : "";
           continueButton.dataset.sourceEvidenceRequired = "true";
           continueButton.classList.add("is-source-required");
+        }
+        if (sourceEvidencePending) {
+          continueButton.dataset.sourceEvidencePending = "true";
+          continueButton.dataset.sourceRequirementGate = "andrews-source-context-diagnostic-not-generation-gate";
+          continueButton.classList.add("is-source-pending", "is-andrews-source-diagnostic");
+        } else {
+          continueButton.dataset.sourceRequirementGate = "satisfied-or-not-required";
+        }
+        if (sourceContextSatisfied) {
+          continueButton.dataset.sourceContextSatisfied = "true";
         }
         if (sourceEvidenceSatisfied) {
           continueButton.dataset.sourceEvidenceSatisfied = "true";
@@ -3269,14 +4106,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (objectPrefixRequired) {
           continueButton.dataset.objectPrefixRequired = "true";
         }
-        if (sourceEvidencePending || objectPrefixRequired && !currentObjectPrefix) {
+        if (objectPrefixRequired && !currentObjectPrefix) {
           continueButton.disabled = true;
           continueButton.setAttribute("aria-disabled", "true");
           continueButton.classList.add("is-unavailable");
-          if (objectPrefixRequired && !currentObjectPrefix && !sourceEvidencePending) {
-            continueButton.dataset.objectPrefixMissing = "true";
-            continueButton.classList.add("is-object-prefix-required");
-          }
+          continueButton.dataset.objectPrefixMissing = "true";
+          continueButton.classList.add("is-object-prefix-required");
         }
         const continueLabel = targetObject.document.createElement("span");
         continueLabel.className = "calc-guidance__chip-label";
@@ -3284,9 +4119,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.appendChild(continueLabel);
         const continueSubLabel = targetObject.document.createElement("span");
         continueSubLabel.className = "calc-guidance__chip-sublabel";
-        continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", "registro CNN -> CNV", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas ${continueRouteActionContract.obstacleGateIds.length}` : "", sourceEvidencePending ? "fuente pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", resolvedTargetTense].filter(Boolean).join(" · ");
+        continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", "registro CNN -> CNV", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas ${continueRouteActionContract.obstacleGateIds.length}` : "", sourceEvidencePending ? "contexto Andrews pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", resolvedTargetTense].filter(Boolean).join(" · ");
         continueButton.appendChild(continueSubLabel);
-        continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, sourceEvidencePending ? "requiere fuente Andrews verificada" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", continueRouteActionContract?.requiredBoundary ? `límite Andrews: ${continueRouteActionContract.requiredBoundary}` : "", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas Andrews: ${continueRouteActionContract.obstacleGateIds.join(", ")}` : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
+        continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${resolvedTargetTense}`, sourceEvidencePending ? "contexto Andrews pendiente; no bloquea generacion" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", continueRouteActionContract?.requiredBoundary ? `límite Andrews: ${continueRouteActionContract.requiredBoundary}` : "", continueRouteActionContract?.obstacleGateIds?.length ? `compuertas Andrews: ${continueRouteActionContract.obstacleGateIds.join(", ")}` : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
         continueButton.addEventListener("click", () => {
           setActiveNawatDenominalAndrewsContractRouteRenderContext(route);
           targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
@@ -3297,7 +4132,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
         });
         appendContinuationAction(actions, continueButton);
-        if (objectPrefixRequired && !currentObjectPrefix && !sourceEvidencePending) {
+        if (objectPrefixRequired && !currentObjectPrefix) {
           objectPrefixChoices.forEach(objectPrefixChoice => {
             renderObjectPrefixChoice({
               route,
@@ -3702,11 +4537,14 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return String(fallback ?? "").trim();
     }
     function buildGeneratedOutputSlotPredicateValue(predicateSlot = null) {
-      const stem = normalizeGeneratedOutputSlotChipValue(predicateSlot?.displayStem || predicateSlot?.stem || predicateSlot?.surface || "", "");
+      const stem = normalizeGeneratedOutputSlotChipValue(predicateSlot?.displayStem || predicateSlot?.stem || predicateSlot?.formula || predicateSlot?.sourceFormula || predicateSlot?.surface || "", "");
       if (!stem) {
         return "";
       }
       return stem.includes("(") && stem.includes(")") ? stem : `(${stem})`;
+    }
+    function isLesson46PreteritAgentiveLocativeResult(result = null) {
+      return Boolean(result && typeof result === "object" && (result.kind === "lesson-46-3-1-a-preterit-agentive-locative-nnc" || result.andrewsSection === "46.3.1.a"));
     }
     function buildGeneratedOutputVisibleCnvPredicateValue(result = null, predicateSlot = null) {
       return normalizeGeneratedOutputVisibleCnvSlotValue(result, buildGeneratedOutputSlotPredicateValue(predicateSlot));
@@ -3799,10 +4637,74 @@ export function createUiRenderingModule(targetObject = globalThis) {
         return null;
       }
       const shell = result.nuclearClauseShell && typeof result.nuclearClauseShell === "object" ? result.nuclearClauseShell : null;
-      const candidates = [shell?.formulaSlots, shell?.slots, result.nncBasic?.formulaSlots, result.clauseFrame?.formulaSlots, result.formulaSlots, result.vncValencyFrame?.nuclearClauseFormulaSlots, result.grammarFrame?.morphBoundaryFrame?.formulaSlots, result.frames?.morphBoundaryFrame?.formulaSlots];
+      const canonicalFormulaSlots = getGeneratedOutputCanonicalFormulaSlots(result);
+      const cnvPathFormulaSlots = buildGeneratedOutputFormulaSlotsFromCnvPath(result);
+      const candidates = [canonicalFormulaSlots, shell?.formulaSlots, shell?.slots, cnvPathFormulaSlots, result.nncBasic?.formulaSlots, result.clauseFrame?.formulaSlots, result.formulaSlots, result.vncValencyFrame?.nuclearClauseFormulaSlots, result.grammarFrame?.morphBoundaryFrame?.formulaSlots, result.frames?.morphBoundaryFrame?.formulaSlots];
       return candidates.find(candidate => candidate && typeof candidate === "object") || null;
     }
+    function buildGeneratedOutputFormulaSlotsFromCnvPath(result = null) {
+      const path = getVisibleCnvFormulaSurfacePath(result);
+      const records = Array.isArray(path?.pathsBySurface) ? path.pathsBySurface : [];
+      const firstRecord = records[0] || null;
+      const firstPaths = Array.isArray(firstRecord?.paths) ? firstRecord.paths : [];
+      if (!firstPaths.length && !Array.isArray(path?.surfaceNumberConnectorRealizations)) {
+        return null;
+      }
+      const getPathFormulaValue = (slotKey = "") => {
+        const entry = firstPaths.find(candidate => candidate?.formulaSlotKey === slotKey);
+        const value = String(entry?.formulaMorph || entry?.visibleLinearMorph || entry?.surfaceValue || "").trim();
+        return value === "Ø" ? "0" : value;
+      };
+      const pers1 = getPathFormulaValue("pers1") || "0";
+      const pers2 = getPathFormulaValue("pers2") || "0";
+      const base = getPathFormulaValue("base");
+      const tns = getPathFormulaValue("tns") || "0";
+      const connector = Array.isArray(path?.surfaceNumberConnectorRealizations) && path.surfaceNumberConnectorRealizations[0] ? normalizeVisibleCnvFormulaSurfaceZero(path.surfaceNumberConnectorRealizations[0]) : `${getPathFormulaValue("num1") || "0"}-${getPathFormulaValue("num2") || "0"}`;
+      if (!base && !connector && !pers1 && !pers2) {
+        return null;
+      }
+      return {
+        pers1Pers2: {
+          displayPrefix: pers1 || "0",
+          prefix: pers1 === "0" ? "" : pers1,
+          displayCase: pers2 || "0",
+          case: pers2 === "0" ? "" : pers2,
+          slot: "pers1-pers2",
+          source: "cnv-formula-surface-path"
+        },
+        predicateStem: base ? {
+          displayStem: `(${base})`,
+          stem: base,
+          slot: "STEM",
+          source: "cnv-formula-surface-path"
+        } : null,
+        tensePosition: {
+          label: tns || "0",
+          tenseValue: tns || "0",
+          slot: "tiempo",
+          source: "cnv-formula-surface-path"
+        },
+        num1Num2: {
+          displayConnector: connector || "0-0",
+          connector: connector || "",
+          slot: "num1-num2",
+          source: "cnv-formula-surface-path"
+        }
+      };
+    }
     function getGeneratedOutputSlotFormulaType(result = null, slots = null) {
+      const canonicalFormulaRecord = getGeneratedOutputCanonicalFormulaRecord(result);
+      const canonicalUnit = String(canonicalFormulaRecord?.unit || "").trim().toUpperCase();
+      if (canonicalUnit === "VNC" || canonicalUnit === "CNV") {
+        return "VNC";
+      }
+      if (canonicalUnit === "NNC" || canonicalUnit === "CNN") {
+        return "NNC";
+      }
+      const canonicalFormula = String(canonicalFormulaRecord?.formulaText || canonicalFormulaRecord?.formula || "").trim();
+      if (canonicalFormula) {
+        return /\)[^#)]*\+/.test(canonicalFormula) ? "VNC" : "NNC";
+      }
       const shellFormulaType = String(result?.nuclearClauseShell?.formulaType || "").trim().toUpperCase();
       if (shellFormulaType === "VNC" || shellFormulaType === "NNC") {
         return shellFormulaType;
@@ -3815,128 +4717,16 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       return "";
     }
+    function getFormulaSurfacePairFormulaType(pair = null) {
+      const targetFormulaEcho = String(pair?.targetFormulaEcho || "").trim();
+      if (!targetFormulaEcho) {
+        return "";
+      }
+      return /\)[^#)]*\+/.test(targetFormulaEcho) ? "VNC" : "NNC";
+    }
     function parseGeneratedOutputVncFormulaEchoSlots(formulaEcho = "") {
-      const echo = String(formulaEcho || "").trim();
-      if (!echo.startsWith("#") || !echo.endsWith("#")) {
-        return null;
-      }
-      const inner = echo.slice(1, -1);
-      const newPredicateOpenIndex = inner.indexOf("(");
-      const newPredicateCloseIndex = inner.lastIndexOf(")");
-      const postPredicate = newPredicateCloseIndex >= 0 ? inner.slice(newPredicateCloseIndex + 1) : "";
-      const numberSeparatorIndex = postPredicate.lastIndexOf("+");
-      if (newPredicateOpenIndex >= 0 && newPredicateCloseIndex > newPredicateOpenIndex && numberSeparatorIndex >= 0) {
-        const predicateStart = newPredicateOpenIndex > 0 && inner[newPredicateOpenIndex - 1] === "-" ? newPredicateOpenIndex - 1 : newPredicateOpenIndex;
-        const head = inner.slice(0, predicateStart).trim();
-        const predicateDisplay = inner.slice(predicateStart, newPredicateCloseIndex + 1).trim();
-        const tenseDisplay = postPredicate.slice(0, numberSeparatorIndex).trim() || "Ø";
-        const rawNumberDisplay = postPredicate.slice(numberSeparatorIndex + 1).trim() || "Ø-Ø";
-        const numberDisplay = rawNumberDisplay.includes("-") ? rawNumberDisplay : `Ø-${rawNumberDisplay}`;
-        const plusIndex = head.indexOf("+");
-        const subjectDisplay = (plusIndex >= 0 ? head.slice(0, plusIndex) : head).trim() || "Ø-Ø";
-        const prePredicateParts = plusIndex >= 0 ? head.slice(plusIndex + 1).split("+").map(part => part.trim()).filter(Boolean) : [];
-        const directionalIndex = prePredicateParts.findIndex(part => isVisibleCnvFormulaDirectionalPart(part));
-        const directionalDisplay = directionalIndex >= 0 ? prePredicateParts[directionalIndex] : "";
-        const directionalPosition = directionalIndex > 0 ? "after-object" : "before-object";
-        const objectDisplay = prePredicateParts.filter((part, index) => index !== directionalIndex).join("+");
-        const subjectParts = subjectDisplay.split("-");
-        const subjectPrefixDisplay = subjectParts[0] || "Ø";
-        const subjectCaseDisplay = subjectParts.slice(1).join("-") || "Ø";
-        const numberParts = numberDisplay.split("-");
-        return {
-          pers1Pers2: {
-            displayPrefix: subjectPrefixDisplay,
-            prefix: subjectPrefixDisplay === "Ø" ? "" : subjectPrefixDisplay,
-            displayCase: subjectCaseDisplay,
-            case: subjectCaseDisplay === "Ø" ? "" : subjectCaseDisplay,
-            displaySuffix: "Ø",
-            suffix: "",
-            slot: "pers1-pers2"
-          },
-          obj1: {
-            displayPrefix: objectDisplay || "Ø",
-            prefix: !objectDisplay || objectDisplay === "Ø" ? "" : objectDisplay.split("-")[0],
-            slot: "obj1"
-          },
-          directional: {
-            displayPrefix: directionalDisplay || "Ø",
-            prefix: directionalDisplay,
-            position: directionalPosition,
-            slot: "directional"
-          },
-          predicateStem: {
-            displayStem: predicateDisplay,
-            stem: predicateDisplay,
-            slot: "STEM"
-          },
-          tensePosition: {
-            label: tenseDisplay,
-            tenseValue: tenseDisplay,
-            slot: "tiempo"
-          },
-          num1Num2: {
-            displayConnector: numberDisplay,
-            connector: numberParts.filter(part => part && part !== "Ø").join("-"),
-            slot: "num1-num2"
-          }
-        };
-      }
-      const subjectSeparatorIndex = inner.indexOf("-");
-      const tenseSeparatorIndex = inner.lastIndexOf("-");
-      if (subjectSeparatorIndex <= 0 || tenseSeparatorIndex <= subjectSeparatorIndex) {
-        return null;
-      }
-      const subjectDisplay = inner.slice(0, subjectSeparatorIndex).trim() || "Ø";
-      const objectPredicateAndMaybeSuffix = inner.slice(subjectSeparatorIndex + 1, tenseSeparatorIndex).trim();
-      const tenseDisplay = inner.slice(tenseSeparatorIndex + 1).trim() || "Ø";
-      const predicateParenIndex = objectPredicateAndMaybeSuffix.indexOf("(");
-      if (predicateParenIndex < 0) {
-        return null;
-      }
-      const predicateStart = predicateParenIndex > 0 && objectPredicateAndMaybeSuffix[predicateParenIndex - 1] === "-" ? predicateParenIndex - 1 : predicateParenIndex;
-      const objectDisplay = objectPredicateAndMaybeSuffix.slice(0, predicateStart).trim() || "Ø";
-      const predicateAndMaybeSuffix = objectPredicateAndMaybeSuffix.slice(predicateStart).trim();
-      const predicateCloseIndex = predicateAndMaybeSuffix.lastIndexOf(")");
-      if (predicateCloseIndex < 0) {
-        return null;
-      }
-      const suffixTail = predicateAndMaybeSuffix.slice(predicateCloseIndex + 1).trim();
-      let subjectSuffixDisplay = "Ø";
-      let predicateDisplay = predicateAndMaybeSuffix;
-      if (suffixTail.startsWith("-")) {
-        const suffixCandidate = suffixTail.slice(1).trim();
-        if (suffixCandidate) {
-          subjectSuffixDisplay = suffixCandidate;
-          predicateDisplay = predicateAndMaybeSuffix.slice(0, predicateCloseIndex + 1).trim();
-        }
-      }
-      if (!predicateDisplay) {
-        return null;
-      }
-      return {
-        pers1Pers2: {
-          displayPrefix: subjectDisplay,
-          prefix: subjectDisplay === "Ø" ? "" : subjectDisplay,
-          displaySuffix: subjectSuffixDisplay,
-          suffix: subjectSuffixDisplay === "Ø" ? "" : subjectSuffixDisplay,
-          slot: "pers1-pers2"
-        },
-        obj1: {
-          displayPrefix: objectDisplay,
-          prefix: objectDisplay === "Ø" ? "" : objectDisplay,
-          slot: "obj1"
-        },
-        predicateStem: {
-          displayStem: predicateDisplay,
-          stem: predicateDisplay,
-          slot: "STEM"
-        },
-        tensePosition: {
-          label: tenseDisplay,
-          tenseValue: tenseDisplay,
-          slot: "tiempo"
-        }
-      };
+      void formulaEcho;
+      return null;
     }
     function mergeGeneratedOutputFormulaSlots(primarySlots = null, fallbackSlots = null) {
       if (!primarySlots || typeof primarySlots !== "object") {
@@ -4101,27 +4891,58 @@ export function createUiRenderingModule(targetObject = globalThis) {
           value: normalizedValue,
           title: normalizeGeneratedOutputSlotChipValue(options.title || "", ""),
           detail: normalizeGeneratedOutputSlotChipValue(options.detail || options.title || "", ""),
-          surfaceFrame: options.surfaceFrame && typeof options.surfaceFrame === "object" ? options.surfaceFrame : null
+          surfaceFrame: options.surfaceFrame && typeof options.surfaceFrame === "object" ? options.surfaceFrame : null,
+          formulaPair: options.formulaPair && typeof options.formulaPair === "object" ? options.formulaPair : null
         });
       };
       const shell = result.nuclearClauseShell && typeof result.nuclearClauseShell === "object" ? result.nuclearClauseShell : null;
       const primarySlots = getGeneratedOutputShellSlots(result);
-      const formulaType = getGeneratedOutputSlotFormulaType(result, primarySlots);
-      const formulaEcho = normalizeGeneratedOutputSlotChipValue(shell?.formulaEcho || result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "", "");
+      const formulaSurfacePairs = getFormulaSurfacePairsForGeneratedOutput(result);
+      const formulaSurfacePair = getFormulaSurfacePairForGeneratedOutput(result);
+      const formulaType = getGeneratedOutputSlotFormulaType(result, primarySlots) || getFormulaSurfacePairFormulaType(formulaSurfacePair);
+      const shellFormulaEcho = normalizeGeneratedOutputSlotChipValue(shell?.formulaEcho || result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "", "");
+      const formulaEcho = normalizeGeneratedOutputSlotChipValue(formulaType === "NNC" ? shellFormulaEcho || formulaSurfacePair?.targetFormulaEcho || "" : formulaSurfacePair?.targetFormulaEcho || shellFormulaEcho || "", "");
       const visibleFormulaEcho = formulaType === "VNC" ? formatVisibleCnvFormulaEcho(formulaEcho, result) : formulaEcho;
-      const slots = mergeGeneratedOutputFormulaSlots(primarySlots, formulaType === "VNC" ? parseGeneratedOutputVncFormulaEchoSlots(formulaEcho) : null);
+      const slots = mergeGeneratedOutputFormulaSlots(primarySlots, null);
       if (includeFormula && formulaEcho && formulaType === "VNC") {
-        buildVisibleCnvFormulaEchoChips(formulaEcho, result).forEach(entry => {
+        const formulaChipEntries = formulaSurfacePairs.length ? formulaSurfacePairs.map(pair => ({
+          value: formatVisibleCnvFormulaSurfacePairEcho(result, pair) || pair.targetFormulaEcho,
+          surface: pair.surface,
+          sourceFormulaEcho: pair.sourceFormulaEcho,
+          andrewsFormulaEcho: pair.andrewsFormulaEcho,
+          targetFormulaEcho: pair.targetFormulaEcho,
+          conjugatorFormulaEcho: pair.conjugatorFormulaEcho,
+          sourceToTargetFormulaEcho: pair.sourceToTargetFormulaEcho,
+          andrewsToConjugatorFormulaEcho: pair.andrewsToConjugatorFormulaEcho
+        })) : buildVisibleCnvFormulaEchoChips(formulaEcho, result);
+        formulaChipEntries.forEach(entry => {
           const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, entry);
           const routePathLabel = String(surfaceFrame?.routePathLabel || "").trim();
-          const title = [`${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value}`, entry.surface ? `salida: ${entry.surface}` : "", routePathLabel ? `ruta: ${routePathLabel}` : ""].filter(Boolean).join(" · ");
+          const title = [`${ANDREWS_RENDERING_TERMS.vncFormula}: ${entry.value}`, entry.surface ? `salida: ${entry.surface}` : "", entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho ? `formula: ${entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho}` : "", routePathLabel ? `ruta: ${routePathLabel}` : ""].filter(Boolean).join(" · ");
           pushChip("formula", ANDREWS_RENDERING_TERMS.vncFormula, entry.value, {
             title,
-            surfaceFrame
+            detail: entry.andrewsToConjugatorFormulaEcho || entry.sourceToTargetFormulaEcho || "",
+            surfaceFrame,
+            formulaPair: entry
           });
         });
       } else if (includeFormula && formulaEcho && formulaType) {
-        pushChip("formula", ANDREWS_RENDERING_TERMS.nncFormula, visibleFormulaEcho);
+        const useShellFormulaChip = formulaType === "NNC" && shellFormulaEcho && shellFormulaEcho !== String(formulaSurfacePair?.targetFormulaEcho || "").trim();
+        const formulaChipPairs = !useShellFormulaChip && formulaSurfacePairs.length ? formulaSurfacePairs : formulaSurfacePair ? [formulaSurfacePair] : [];
+        if (!useShellFormulaChip && formulaChipPairs.length) {
+          formulaChipPairs.forEach(pair => {
+            pushChip("formula", ANDREWS_RENDERING_TERMS.nncFormula, pair.targetFormulaEcho, {
+              title: `${pair.surface}: ${pair.sourceToTargetFormulaEcho}`,
+              detail: `${pair.surface}: ${pair.andrewsFormulaEcho || pair.sourceFormulaEcho || ""} -> ${pair.conjugatorFormulaEcho || pair.targetFormulaEcho}`,
+              formulaPair: pair
+            });
+          });
+        } else {
+          pushChip("formula", ANDREWS_RENDERING_TERMS.nncFormula, visibleFormulaEcho, {
+            title: "",
+            detail: ""
+          });
+        }
       }
       if (formulaType === "VNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.vncValencyFrame?.pers1Pers2 || null;
@@ -4133,42 +4954,73 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || null;
         const tenseSlot = getGeneratedOutputFormulaSlot(slots, "tensePosition") || null;
         const connectorSlot = getGeneratedOutputFormulaSlot(slots, "num1Num2") || null;
-        pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVisibleCnvSubjectValue(result, subjectSlot));
-        if (directionalSlot?.isPresent || directionalSlot?.prefix && directionalSlot.prefix !== "Ø") {
+        const hasStructuredSlotAuthority = Boolean(slots || result.vncValencyFrame);
+        if (hasStructuredSlotAuthority) {
+          pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputVisibleCnvSubjectValue(result, subjectSlot));
+        }
+        if (hasStructuredSlotAuthority && (directionalSlot?.isPresent || directionalSlot?.prefix && directionalSlot.prefix !== "Ø")) {
           pushChip("directional", ANDREWS_RENDERING_TERMS.directional, normalizeGeneratedOutputSlotChipValue(directionalSlot?.displayPrefix || directionalSlot?.prefix || "", ""));
         }
-        pushChip("obj1", ANDREWS_RENDERING_TERMS.obj1, normalizeGeneratedOutputSlotChipValue(objectSlot?.displayPrefix || objectSlot?.prefix || "", "Ø"));
-        pushChip("obj2", ANDREWS_RENDERING_TERMS.obj2, object2Slot?.prefix || "");
-        pushChip("obj3", ANDREWS_RENDERING_TERMS.obj3, object3Slot?.prefix || "");
-        if (result.isReflexive === true || reflexiveSlot?.isPresent || objectSlot?.prefix === "mu" || result.vncValencyFrame?.obj1?.prefix === "mu") {
+        if (hasStructuredSlotAuthority && objectSlot) {
+          pushChip("obj1", ANDREWS_RENDERING_TERMS.obj1, normalizeGeneratedOutputSlotChipValue(objectSlot?.displayPrefix || objectSlot?.prefix || "", "Ø"));
+        }
+        if (hasStructuredSlotAuthority) {
+          pushChip("obj2", ANDREWS_RENDERING_TERMS.obj2, object2Slot?.prefix || "");
+          pushChip("obj3", ANDREWS_RENDERING_TERMS.obj3, object3Slot?.prefix || "");
+        }
+        if (hasStructuredSlotAuthority && (result.isReflexive === true || reflexiveSlot?.isPresent || objectSlot?.prefix === "mu" || result.vncValencyFrame?.obj1?.prefix === "mu")) {
           pushChip("reflexivo", ANDREWS_RENDERING_TERMS.reflexivo, reflexiveSlot?.prefix || "mu");
         }
-        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputVisibleCnvPredicateValue(result, predicateSlot));
-        const tenseValue = normalizeGeneratedOutputSlotChipValue(tenseSlot?.label || tenseSlot?.tenseValue || "", "");
-        pushChip("tiempo", ANDREWS_RENDERING_TERMS.tiempo, getGeneratedOutputCompactTenseValue(tenseValue), {
-          title: tenseValue ? `${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}` : ANDREWS_RENDERING_TERMS.tiempo
-        });
-        pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot));
+        if (hasStructuredSlotAuthority) {
+          pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputVisibleCnvPredicateValue(result, predicateSlot));
+          const tenseValue = normalizeGeneratedOutputSlotChipValue(tenseSlot?.label || tenseSlot?.tenseValue || "", "");
+          pushChip("tiempo", ANDREWS_RENDERING_TERMS.tiempo, getGeneratedOutputCompactTenseValue(tenseValue), {
+            title: tenseValue ? `${ANDREWS_RENDERING_TERMS.tiempo}: ${tenseValue}` : ANDREWS_RENDERING_TERMS.tiempo
+          });
+          pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, buildGeneratedOutputVisibleCnvConnectorValue(result, connectorSlot));
+        }
         const surfaceForms = getGeneratedOutputVisibleSurfaceForms(result);
-        const surfaceDisplay = surfaceForms.join(" / ");
-        const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, {
-          surface: surfaceDisplay,
-          value: visibleFormulaEcho
-        });
-        pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, surfaceDisplay, {
-          surfaceFrame
-        });
+        if (formulaSurfacePairs.length) {
+          const surfaceDisplay = surfaceForms.length ? surfaceForms.join(" / ") : formulaSurfacePairs.map(pair => pair.surface).filter(Boolean).join(" / ");
+          const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, {
+            surface: surfaceDisplay,
+            value: visibleFormulaEcho
+          });
+          pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, surfaceDisplay, {
+            surfaceFrame
+          });
+        } else {
+          const surfaceDisplay = surfaceForms.join(" / ");
+          const surfaceFrame = buildVisibleCnvFormulaSurfaceFrame(result, {
+            surface: surfaceDisplay,
+            value: visibleFormulaEcho
+          });
+          pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, surfaceDisplay, {
+            surfaceFrame
+          });
+        }
       } else if (formulaType === "NNC") {
         const subjectSlot = getGeneratedOutputFormulaSlot(slots, "pers1Pers2") || result.nncBasic?.formulaSlots?.pers1Pers2 || null;
         const predicateSlot = getGeneratedOutputFormulaSlot(slots, "predicateStem") || result.nncBasic?.formulaSlots?.predicateStem || null;
         const connectorSlot = getGeneratedOutputFormulaSlot(slots, "num1Num2") || result.nncBasic?.formulaSlots?.num1Num2 || null;
-        const predicateState = predicateSlot?.state || result.nncBasic?.categoryProfile?.predicateState?.label || result.nominalizationProfile?.predicateState?.value || "";
+        const predicateState = predicateSlot?.stateLabel || (isLesson46PreteritAgentiveLocativeResult(result) ? "adverbializado -0-" : "") || predicateSlot?.state || result.nncBasic?.categoryProfile?.predicateState?.label || result.nominalizationProfile?.predicateState?.value || "";
+        const predicateStemLabel = isLesson46PreteritAgentiveLocativeResult(result) ? "STEM" : ANDREWS_RENDERING_TERMS.predicateStem;
         pushChip("pers1-pers2", ANDREWS_RENDERING_TERMS.pers1Pers2, buildGeneratedOutputSlotSubjectValue(subjectSlot));
-        pushChip("STEM", ANDREWS_RENDERING_TERMS.predicateStem, buildGeneratedOutputSlotPredicateValue(predicateSlot));
+        pushChip("STEM", predicateStemLabel, buildGeneratedOutputSlotPredicateValue(predicateSlot));
         pushChip("state", ANDREWS_RENDERING_TERMS.predicateState, predicateState);
         pushChip("num1-num2", ANDREWS_RENDERING_TERMS.num1Num2, normalizeGeneratedOutputSlotChipValue(connectorSlot?.displayConnector || connectorSlot?.displaySurface || connectorSlot?.connector || connectorSlot?.surface || "", "Ø"));
         const surfaceForms = getGeneratedOutputVisibleSurfaceForms(result);
-        pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, surfaceForms.join(" / "));
+        if (formulaSurfacePairs.length) {
+          formulaSurfacePairs.forEach(pair => {
+            pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, pair.surface, {
+              title: `${pair.surface}: ${pair.andrewsToConjugatorFormulaEcho || pair.sourceToTargetFormulaEcho || pair.targetFormulaEcho}`,
+              detail: pair.andrewsToConjugatorFormulaEcho || pair.sourceToTargetFormulaEcho || "",
+              formulaPair: pair
+            });
+          });
+        } else {
+          pushChip("surface", ANDREWS_RENDERING_TERMS.surfaceOutput, surfaceForms.join(" / "));
+        }
       }
       const profile = result.nominalizationProfile && typeof result.nominalizationProfile === "object" ? result.nominalizationProfile : null;
       if (profile?.outputKind === "verb-derived-nominal") {
@@ -4265,6 +5117,16 @@ export function createUiRenderingModule(targetObject = globalThis) {
           applyAndrewsSourceLayerDatasetToSurfaceElement(chipEl, surfaceFrame.sourceLayerFrame);
           applyAndrewsRideDatasetToSurfaceElement(chipEl, surfaceFrame.rideFrame);
         }
+        const formulaPair = chip.formulaPair && typeof chip.formulaPair === "object" ? chip.formulaPair : null;
+        if (formulaPair) {
+          chipEl.dataset.formulaSurface = String(formulaPair.surface || chip.value || "").trim();
+          chipEl.dataset.sourceFormulaEcho = String(formulaPair.sourceFormulaEcho || "").trim();
+          chipEl.dataset.andrewsFormulaEcho = String(formulaPair.andrewsFormulaEcho || formulaPair.sourceFormulaEcho || "").trim();
+          chipEl.dataset.targetFormulaEcho = String(formulaPair.targetFormulaEcho || "").trim();
+          chipEl.dataset.conjugatorFormulaEcho = String(formulaPair.conjugatorFormulaEcho || formulaPair.targetFormulaEcho || "").trim();
+          chipEl.dataset.sourceToTargetFormulaEcho = String(formulaPair.sourceToTargetFormulaEcho || "").trim();
+          chipEl.dataset.andrewsToConjugatorFormulaEcho = String(formulaPair.andrewsToConjugatorFormulaEcho || formulaPair.sourceToTargetFormulaEcho || "").trim();
+        }
         if (chip.title) {
           chipEl.title = chip.title;
           chipEl.setAttribute("aria-label", chip.title);
@@ -4281,6 +5143,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
           chipEl.append(label);
         }
         chipEl.append(value);
+        if (chip.kind === "surface" && chip.detail) {
+          const route = targetObject.document.createElement("span");
+          route.className = "person-sub__slot-chip-detail";
+          route.textContent = chip.detail;
+          chipEl.append(route);
+        }
         strip.appendChild(chipEl);
       });
       container.appendChild(strip);
@@ -4326,6 +5194,78 @@ export function createUiRenderingModule(targetObject = globalThis) {
         contractLayer: ""
       };
     }
+    function buildGrammarFrameRouteAuditModelForRendering(frame = null) {
+      if (!frame || typeof frame !== "object") {
+        return null;
+      }
+      const authorityFrame = frame.authorityFrame || {};
+      const routeContract = frame.routeContract || {};
+      const orthographyFrame = frame.orthographyFrame || {};
+      const diagnosticFrame = frame.diagnosticFrame || {};
+      const resultFrame = frame.resultFrame || {};
+      const primaryDiagnostic = (Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : []).find(entry => entry && typeof entry === "object" && String(entry.id || entry.code || "").trim()) || {};
+      const sourceContext = authorityFrame.sourceContext && typeof authorityFrame.sourceContext === "object" ? authorityFrame.sourceContext : authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : {};
+      const sourceEvidence = authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : sourceContext;
+      const spellingAuthority = String(orthographyFrame.spellingAuthority || authorityFrame.spellingAuthority || "Nawat/Pipil orthography bridge").trim();
+      const sourceFrame = {
+        kind: "andrews-tense-block-output-row-audit-source-frame",
+        version: 1,
+        authorityFrame: {
+          grammarAuthority: String(authorityFrame.grammarAuthority || "Andrews").trim(),
+          sourceContextTargetAuthority: String(sourceContext.targetAuthority || "").trim(),
+          sourceEvidenceTargetAuthority: String(sourceEvidence.targetAuthority || "").trim()
+        },
+        routeContract: {
+          routeFamily: String(routeContract.routeFamily || "").trim(),
+          routeStage: String(routeContract.routeStage || "").trim(),
+          generationAllowed: routeContract.generationAllowed === true
+        },
+        orthographyFrame: {
+          spellingEvidenceRole: "orthography-realization-only",
+          classicalSpellingRole: "structural-only",
+          orthographyBoundary: "nawat-pipil-realization",
+          spellingAuthority,
+          classicalSurfaceImport: orthographyFrame.noClassicalSurfaceImport === false ? "allowed" : "blocked"
+        },
+        diagnosticFrame: {
+          diagnosticId: String(primaryDiagnostic.id || primaryDiagnostic.code || "").trim()
+        },
+        resultFrame: {
+          ok: resultFrame.ok === true
+        }
+      };
+      const targetFrame = {
+        kind: "andrews-tense-block-output-row-audit-target-frame",
+        version: 1,
+        grammarRouteFamily: sourceFrame.routeContract.routeFamily,
+        grammarRouteStage: sourceFrame.routeContract.routeStage,
+        grammarGenerationAllowed: String(sourceFrame.routeContract.generationAllowed === true),
+        grammarDiagnosticId: sourceFrame.diagnosticFrame.diagnosticId,
+        grammarLogicAuthority: sourceFrame.authorityFrame.grammarAuthority,
+        grammarSpellingEvidenceRole: sourceFrame.orthographyFrame.spellingEvidenceRole,
+        grammarClassicalSpellingRole: sourceFrame.orthographyFrame.classicalSpellingRole,
+        grammarOrthographyBoundary: sourceFrame.orthographyFrame.orthographyBoundary,
+        grammarSpellingAuthority: sourceFrame.orthographyFrame.spellingAuthority,
+        grammarClassicalSurfaceImport: sourceFrame.orthographyFrame.classicalSurfaceImport,
+        grammarResultOk: String(sourceFrame.resultFrame.ok === true),
+        grammarSourceContextTargetAuthority: sourceFrame.authorityFrame.sourceContextTargetAuthority,
+        grammarSourceEvidenceTargetAuthority: sourceFrame.authorityFrame.sourceEvidenceTargetAuthority
+      };
+      return {
+        kind: "andrews-tense-block-output-row-audit-model",
+        version: 1,
+        sourceFrame,
+        operationFrame: {
+          kind: "andrews-tense-block-output-row-audit-operation-frame",
+          version: 1,
+          status: "authorized",
+          operation: "audit-output-row-from-grammar-frame",
+          sourceFrame,
+          targetFrame
+        },
+        targetFrame
+      };
+    }
     function applyGrammarFrameRouteDataset(element = null, frameLike = null) {
       if (!element?.dataset) {
         return null;
@@ -4333,29 +5273,56 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const frame = getGrammarFrameForRendering(frameLike);
       if (!frame) {
         applyAndrewsCnvCnnRouteActionDataset(element, frameLike);
+        applyAndrewsCnvCnnNominalRenderingDataset(element, frameLike);
         return null;
+      }
+      const auditModel = buildGrammarFrameRouteAuditModelForRendering(frame);
+      if (auditModel) {
+        Object.defineProperty(element, "andrewsTenseBlockOutputRowAuditModel", {
+          configurable: true,
+          enumerable: false,
+          writable: true,
+          value: auditModel
+        });
       }
       const authorityFrame = frame.authorityFrame || {};
       const unitFrame = frame.unitFrame || {};
+      const orthographyFrame = frame.orthographyFrame || {};
       const routeContract = frame.routeContract || {};
       const resultFrame = frame.resultFrame || {};
       const diagnosticFrame = frame.diagnosticFrame || {};
       const primaryDiagnostic = (Array.isArray(diagnosticFrame.diagnostics) ? diagnosticFrame.diagnostics : []).find(entry => entry && typeof entry === "object" && (String(entry.id || entry.code || "").trim() || String(entry.failedLayer || entry.contractLayer || "").trim())) || {};
       const inferredLayer = inferGrammarFrameDiagnosticLayerForRendering(frame);
-      const sourceEvidence = authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : {};
+      const sourceContext = authorityFrame.sourceContext && typeof authorityFrame.sourceContext === "object" ? authorityFrame.sourceContext : authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : {};
+      const sourceEvidence = authorityFrame.sourceEvidence && typeof authorityFrame.sourceEvidence === "object" ? authorityFrame.sourceEvidence : sourceContext;
+      const sourceContextBoundaries = sourceContext.boundaries && typeof sourceContext.boundaries === "object" ? sourceContext.boundaries : {};
       const authorityRefs = Array.isArray(authorityFrame.andrewsRefs) ? authorityFrame.andrewsRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
-      const nawatEvidenceRefs = Array.isArray(authorityFrame.nawatEvidenceRefs) ? authorityFrame.nawatEvidenceRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
+      const orthographyRefs = Array.isArray(authorityFrame.orthographyRefs) ? authorityFrame.orthographyRefs.map(entry => String(entry || "").trim()).filter(Boolean) : [];
       const sourceEvidenceBoundaries = sourceEvidence.boundaries && typeof sourceEvidence.boundaries === "object" ? sourceEvidence.boundaries : {};
+      const sourceContextFlags = Object.keys(sourceContextBoundaries).filter(key => sourceContextBoundaries[key] === true).sort();
       const sourceEvidenceFlags = Object.keys(sourceEvidenceBoundaries).filter(key => sourceEvidenceBoundaries[key] === true).sort();
+      const formulaSurfacePair = getFormulaSurfacePairForGeneratedOutput(frameLike);
       element.dataset.grammarAuthorityRef = authorityRefs[0] || "";
       element.dataset.grammarAuthorityRefs = authorityRefs.join("|");
+      element.dataset.grammarLogicAuthority = String(authorityFrame.grammarAuthority || "Andrews").trim();
       element.dataset.grammarEvidenceStatus = String(authorityFrame.evidenceStatus || "").trim();
-      element.dataset.grammarNawatEvidenceRef = nawatEvidenceRefs[0] || "";
-      element.dataset.grammarNawatEvidenceRefs = nawatEvidenceRefs.join("|");
+      element.dataset.grammarSpellingEvidenceRole = "orthography-realization-only";
+      element.dataset.grammarClassicalSpellingRole = "structural-only";
+      element.dataset.grammarOrthographyRef = orthographyRefs[0] || "";
+      element.dataset.grammarOrthographyRefs = orthographyRefs.join("|");
+      element.dataset.grammarOrthographyBoundary = "nawat-pipil-realization";
+      element.dataset.grammarOrthographyStatus = String(orthographyFrame.orthographyStatus || "").trim();
+      element.dataset.grammarSpellingAuthority = String(orthographyFrame.spellingAuthority || authorityFrame.spellingAuthority || "Nawat/Pipil orthography bridge").trim();
+      element.dataset.grammarClassicalSurfaceImport = orthographyFrame.noClassicalSurfaceImport === false ? "allowed" : "blocked";
+      element.dataset.grammarSourceContextKind = String(sourceContext.kind || sourceContext.sourceKind || sourceContext.type || "").trim();
+      element.dataset.grammarSourceContextStatus = String(sourceContext.status || sourceContext.sourceContextStatus || sourceContext.evidenceStatus || sourceContext.validationStatus || "").trim();
+      element.dataset.grammarSourceContextTargetAuthority = String(sourceContext.targetAuthority || "").trim();
+      element.dataset.grammarSourceContextSource = String(sourceContext.contextSource || sourceContext.evidenceSource || "").trim();
+      element.dataset.grammarSourceContextFlags = sourceContextFlags.join("|");
       element.dataset.grammarSourceEvidenceKind = String(sourceEvidence.kind || sourceEvidence.sourceKind || sourceEvidence.type || "").trim();
       element.dataset.grammarSourceEvidenceStatus = String(sourceEvidence.status || sourceEvidence.evidenceStatus || sourceEvidence.validationStatus || "").trim();
       element.dataset.grammarSourceEvidenceTargetAuthority = String(sourceEvidence.targetAuthority || "").trim();
-      element.dataset.grammarSourceEvidenceSource = String(sourceEvidence.evidenceSource || "").trim();
+      element.dataset.grammarSourceEvidenceSource = String(sourceEvidence.evidenceSource || sourceEvidence.contextSource || "").trim();
       element.dataset.grammarSourceEvidenceFlags = sourceEvidenceFlags.join("|");
       element.dataset.grammarUnitKind = String(unitFrame.unitKind || "").trim();
       element.dataset.grammarRouteFamily = String(routeContract.routeFamily || "").trim();
@@ -4366,7 +5333,17 @@ export function createUiRenderingModule(targetObject = globalThis) {
       element.dataset.grammarDiagnosticLayer = String(primaryDiagnostic.failedLayer || inferredLayer.failedLayer || "").trim();
       element.dataset.grammarDiagnosticContractLayer = String(primaryDiagnostic.contractLayer || inferredLayer.contractLayer || "").trim();
       element.dataset.grammarResultOk = String(resultFrame.ok === true);
+      if (formulaSurfacePair) {
+        element.dataset.sourceFormulaEcho = formulaSurfacePair.sourceFormulaEcho;
+        element.dataset.andrewsFormulaEcho = formulaSurfacePair.andrewsFormulaEcho;
+        element.dataset.targetFormulaEcho = formulaSurfacePair.targetFormulaEcho;
+        element.dataset.conjugatorFormulaEcho = formulaSurfacePair.conjugatorFormulaEcho;
+        element.dataset.sourceToTargetFormulaEcho = formulaSurfacePair.sourceToTargetFormulaEcho;
+        element.dataset.andrewsToConjugatorFormulaEcho = formulaSurfacePair.andrewsToConjugatorFormulaEcho;
+        element.dataset.formulaSurfacePairs = getFormulaSurfacePairsForGeneratedOutput(frameLike).map(entry => `${entry.surface}=>${entry.andrewsFormulaEcho || entry.sourceFormulaEcho || ""}=>${entry.conjugatorFormulaEcho || entry.targetFormulaEcho}`).join("|");
+      }
       applyAndrewsCnvCnnRouteActionDataset(element, frameLike);
+      applyAndrewsCnvCnnNominalRenderingDataset(element, frameLike);
       return frame;
     }
     function attachUiRouteControlGrammarContract(record = null, {
@@ -4378,7 +5355,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       targetInput = "",
       targetSurface = "",
       andrewsRefs = [],
-      nawatEvidenceRefs = [],
+      orthographyRefs = [],
       generationAllowed = true,
       supported = true,
       evidenceStatus = "route-control",
@@ -4407,7 +5384,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         generationAllowed,
         supported,
         andrewsRefs,
-        nawatEvidenceRefs,
+        orthographyRefs,
         evidenceStatus,
         diagnosticStatus,
         sourceInput,
@@ -4419,7 +5396,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         orthographyFrame: orthographyFrame || {
           surface,
           surfaceForms: forms,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
           targetInput
         },
@@ -4459,8 +5436,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
       return String(diagnostic.message || diagnostic.id || diagnostic.code || "").trim();
     }
     const VISIBLE_LCM_EXACT_LABELS = Object.freeze({
-      "andrews-authoritative-nawat-data-backed": "Andrews autoritativo con datos nawat",
-      "andrews-authoritative-nawat-matrix-evidence": "Andrews autoritativo con evidencia matriz nawat",
+      "andrews-authoritative-nawat-data-backed": "Andrews autoritativo; puente ortográfico nawat",
+      "andrews-authoritative-matrix-orthography-bridge": "Andrews autoritativo; puente ortográfico matriz",
       "andrews-authoritative-nawat-orthography": "Andrews autoritativo con ortografía nawat",
       "andrews-orthography-adapted": "ortografía Andrews adaptada",
       "composition-ast": "composición de árbol",
@@ -4470,10 +5447,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
       "direct-pdf-diagnostic": "diagnóstico de PDF directo",
       "direct-pdf-partial": "PDF directo parcial",
       "metadata-supported": "metadatos respaldados",
-      "nawat-data-backed": "datos nawat respaldados",
+      "nawat-data-backed": "puente ortográfico nawat",
       "not-particle-syntax": "no es sintaxis de partícula",
       "route-control": "control de ruta",
-      "source-evidence-satisfied": "evidencia fuente satisfecha",
+      "source-evidence-satisfied": "contexto fuente satisfecho",
       "visible-diagnostic": "diagnóstico visible"
     });
     const VISIBLE_LCM_ROUTE_LABELS = Object.freeze({
@@ -4561,7 +5538,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       unitFrame: "marco de unidad"
     });
     const VISIBLE_LCM_DIAGNOSTIC_LABELS = Object.freeze({
-      "comparison-needs-nawat-clause-evidence": "comparación necesita evidencia de cláusula nawat",
+      "comparison-source-gated": "comparación necesita evidencia de cláusula nawat",
       "particle-candidate-empty": "candidata de partícula vacía",
       "particle-candidate-unconfirmed": "candidata de partícula no confirmada",
       "particle-seed-inventory-entry": "entrada de inventario de partícula"
@@ -5251,7 +6228,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         generationAllowed: true,
         supported: true,
         andrewsRefs: hasAndrewsSuffixContract ? ["Andrews Lessons 54-55"] : [],
-        nawatEvidenceRefs: ["data/static_modes.json"],
+        orthographyRefs: ["data/static_modes.json"],
         evidenceStatus: hasAndrewsSuffixContract ? "denominal-route-preview" : "nawat-route-no-andrews-suffix",
         diagnosticStatus: "route-control",
         sourceInput: sourceVerb || stem,
@@ -5395,7 +6372,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
     function renderOutputSelectionRequiredPlaceholder({
       containerId = "all-tense-conjugations",
       titleText = "Salida",
-      message = ""
+      message = "",
+      tenseValue = "selection-required",
+      mode = typeof targetObject.getActiveTenseMode === "function" ? targetObject.getActiveTenseMode() : targetObject.TENSE_MODE.verbo,
+      blockKind = "seleccion requerida",
+      blockClassName = ""
     } = {}) {
       const container = targetObject.document.getElementById(containerId);
       if (!container) {
@@ -5406,6 +6387,16 @@ export function createUiRenderingModule(targetObject = globalThis) {
       } = createObjectSectionGrid(container);
       const block = targetObject.document.createElement("div");
       block.className = "tense-block tense-block--selection-required";
+      if (blockClassName) {
+        block.classList.add(blockClassName);
+      }
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(block, {
+          tenseValue,
+          mode,
+          blockKind
+        });
+      }
       const title = targetObject.document.createElement("div");
       title.className = "tense-block__title";
       const label = targetObject.document.createElement("span");
@@ -5547,6 +6538,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         block.className = "tense-block particle-panel tense-block--particle-mode";
         block.dataset.tenseBlock = "particle-mode";
         block.title = "Andrews Lección 3";
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(block, {
+            tenseValue: "particle-mode",
+            mode: targetObject.TENSE_MODE.particula,
+            blockKind: "Particula"
+          });
+        }
         const list = targetObject.document.createElement("div");
         list.className = "particle-table";
         block.appendChild(list);
@@ -5562,6 +6560,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         block.className = "tense-block particle-panel particle-panel--candidate tense-block--particle-mode";
         block.dataset.tenseBlock = "particle-mode";
         block.title = "Andrews Lección 3";
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(block, {
+            tenseValue: "particle-mode",
+            mode: targetObject.TENSE_MODE.particula,
+            blockKind: "Particula candidata"
+          });
+        }
         const title = targetObject.document.createElement("div");
         title.className = "tense-block__title";
         const titleLabel = targetObject.document.createElement("span");
@@ -5597,6 +6602,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
           groupBlock.className = "tense-block particle-panel particle-panel--inventory particle-panel--group tense-block--particle-boundary";
           groupBlock.dataset.tenseBlock = "particle-boundary";
           groupBlock.title = "Andrews Lección 3";
+          if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+            targetObject.applyAndrewsTenseAuthorityDataset(groupBlock, {
+              tenseValue: "particle-boundary",
+              mode: targetObject.TENSE_MODE.particula,
+              blockKind: "Particula inventario"
+            });
+          }
           groupBlock.dataset.particleInventoryGroup = group.id || "";
           groupBlock.dataset.particleSection = group.sectionLabel || group.sectionPrefix || "";
           const groupTitle = targetObject.document.createElement("div");
@@ -5633,6 +6645,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
       boundaryBlock.className = "tense-block particle-panel particle-panel--inventory tense-block--particle-boundary";
       boundaryBlock.dataset.tenseBlock = "particle-boundary";
       boundaryBlock.title = "Andrews Lección 3";
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(boundaryBlock, {
+          tenseValue: "particle-boundary",
+          mode: targetObject.TENSE_MODE.particula,
+          blockKind: "Particula inventario"
+        });
+      }
       const boundaryTitle = targetObject.document.createElement("div");
       boundaryTitle.className = "tense-block__title";
       const boundaryLabel = targetObject.document.createElement("span");
@@ -5790,6 +6809,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
         mode: targetObject.TENSE_MODE.sustantivo,
         blockKind: "controles CNN ordinaria"
       });
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(controlsBlock, {
+          mode: targetObject.TENSE_MODE.sustantivo,
+          blockKind: "controles CNN ordinaria"
+        });
+      }
       const controlsTitle = targetObject.document.createElement("div");
       controlsTitle.className = "tense-block__title";
       const controlsLabel = targetObject.document.createElement("span");
@@ -5991,6 +7016,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
         mode: targetObject.TENSE_MODE.sustantivo,
         blockKind: "CNN ordinaria"
       });
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(block, {
+          mode: targetObject.TENSE_MODE.sustantivo,
+          blockKind: "CNN ordinaria"
+        });
+      }
       const title = targetObject.document.createElement("div");
       title.className = "tense-block__title";
       const label = targetObject.document.createElement("span");
@@ -6033,6 +7064,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       row.className = "conjugation-row";
       row.dataset.generationRoute = result.generationRoute || "";
       row.dataset.pluralType = result.pluralType || "";
+      applyGrammarFrameRouteDataset(row, result);
       const rowLabel = targetObject.document.createElement("div");
       rowLabel.className = "conjugation-label";
       const personLabel = targetObject.document.createElement("div");
@@ -6050,7 +7082,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const rowStateSlot = result.nncBasic?.predicate?.stateSlot || result.clauseFrame?.predicate?.stateSlot || result.clauseFrame?.stateSlot || null;
       const rowPredicateFormula = result.nncBasic?.predicate?.formula || result.predicateFormula || result.clauseFrame?.predicate?.formula || "";
       const rowFormulaSlots = result.nncBasic?.formulaSlots || result.clauseFrame?.formulaSlots || null;
-      const rowFormulaEcho = typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(rowFormulaSlots) : result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "";
+      const rowFormulaPair = getFormulaSurfacePairForGeneratedOutput(result);
+      const rowFormulaEcho = rowFormulaPair?.targetFormulaEcho || (typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(rowFormulaSlots) : result.nncBasic?.formulaEcho || result.clauseFrame?.formulaEcho || "");
       const rowConnectorSlot = rowFormulaSlots?.num1Num2 || null;
       const rowConnectorSurface = rowConnectorSlot ? resolveNominalNum1Num2Surface(rowConnectorSlot, rowConnectorSlot.connector || rowConnectorSlot.surface || "") : "";
       const rowConnectorSlotLabel = rowConnectorSlot ? `${rowConnectorSlot.slot || ANDREWS_RENDERING_TERMS.num1Num2}: ${rowConnectorSurface || "Ø"}` : "";
@@ -6104,47 +7137,57 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
-        surfaceText.textContent = targetObject.formatConjugationDisplay(surfaceDisplay);
+        appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, result);
         ordinaryNncConversionActions = createConjugationConversionActionsContainer();
         value.append(surfaceText, ordinaryNncConversionActions);
         applyConjugationConversionColumnLayout(value, surfaceText, ordinaryNncConversionActions);
         return ordinaryNncConversionActions;
       };
       const renderOrdinaryNncAdjectivalFunctionContinuation = () => {
-        if (result.supported !== true || !surfaceDisplay || rowStateSlot?.state === "possessive" || typeof targetObject.generateAdjectivalNncFunctionOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
+        if (result.supported !== true || !surfaceDisplay || rowStateSlot?.state === "possessive" || typeof targetObject.buildStructuredOrdinaryAdjectivalNncFunctionOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
           return false;
         }
-        const predicateStem = String(result.stem || result.nncBasic?.predicate?.stem || normalizedStem || "").trim();
-        const nounClass = String(result.nounClass || activeNounClass || "").trim();
-        if (!predicateStem || !nounClass) {
+        const sourceFormulaSlots = getGeneratedOutputStructuredContinuationFormulaSlots(result);
+        const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(result, 0);
+        const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(result, sourceSelectedVariant, {
+          role: "source",
+          unit: "NNC"
+        });
+        if (!sourceFormulaSlots || !sourceSelectedVariant || !sourceContinuationFrame) {
           return false;
         }
-        const contract = targetObject.generateAdjectivalNncFunctionOutput({
-          stem: predicateStem,
+        const contract = targetObject.buildStructuredOrdinaryAdjectivalNncFunctionOutput({
+          sourceContinuationFrame,
+          sourceFormulaSlots,
           state: "absolutive",
-          subject: {
-            subjectPrefix: rowSubject.subjectPrefix || "",
-            subjectSuffix: rowSubject.subjectSuffix || "",
-            personSubKey: rowSubject.personSubKey || state.subjectKey || ""
-          },
-          number: result.number || state.number || "singular",
-          pluralType: result.pluralType || activePluralType || "auto",
-          nounClass,
-          animacy: result.animacy || activeAnimacy || "",
           role: "modifier-candidate"
         });
         if (!contract?.supported) {
           return false;
         }
-        const targetSurface = getPrimaryConjugationSurface(contract);
-        if (!targetSurface) {
+        const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+        const targetContinuationFrame = buildGeneratedOutputTypedContinuationFrame(contract, targetSelectedVariant, {
+          role: "target",
+          unit: "NNC"
+        });
+        const targetSurface = targetSelectedVariant?.surface || "";
+        if (!targetSurface || !targetSelectedVariant || !targetContinuationFrame) {
           return false;
         }
         const actions = ensureOrdinaryNncConversionActions();
         if (!actions) {
           return false;
         }
-        const alreadyRendered = Array.from(actions.querySelectorAll("[data-ordinary-nnc-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
+        const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey([result, contract], {
+          namespace: "ordinary-nnc-adjectival-function-continuation",
+          sourceUnit: "ordinary-nnc",
+          sourceVariantId: sourceSelectedVariant?.variantId || "",
+          targetVariantId: targetSelectedVariant?.variantId || "adjectival-function"
+        });
+        if (!continuationIdentityKey) {
+          return false;
+        }
+        const alreadyRendered = Array.from(actions.querySelectorAll("[data-ordinary-nnc-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
         if (alreadyRendered) {
           return true;
         }
@@ -6153,8 +7196,18 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo", "calc-guidance__chip--ordinary-nnc-adjectival-function"].join(" ");
         continueButton.dataset.ordinaryNncAdjectivalFunctionContinuation = "true";
         continueButton.dataset.targetSurface = targetSurface;
-        continueButton.dataset.nounStem = predicateStem;
-        continueButton.dataset.nounClass = nounClass;
+        if (sourceSelectedVariant?.variantId) {
+          continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+        }
+        if (targetSelectedVariant?.variantId) {
+          continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+        }
+        applyGeneratedOutputContinuationIdentityDataset(continueButton, [result, contract], {
+          namespace: "ordinary-nnc-adjectival-function-continuation",
+          sourceUnit: "ordinary-nnc",
+          sourceVariantId: sourceSelectedVariant?.variantId || "",
+          targetVariantId: targetSelectedVariant?.variantId || "adjectival-function"
+        });
         applyGrammarFrameRouteDataset(continueButton, contract);
         const continueLabel = targetObject.document.createElement("span");
         continueLabel.className = "calc-guidance__chip-label";
@@ -6167,10 +7220,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         continueButton.title = [`#3 salida nominal: ${targetSurface}`, "Andrews 40.1/40.3: cláusula nominal absolutiva en función adjetival", rowFormulaEcho ? `${ANDREWS_RENDERING_TERMS.nncFormula}: ${rowFormulaEcho}` : "", "no crea modificación lecciones 42-43"].filter(Boolean).join("; ");
         continueButton.addEventListener("click", () => {
           targetObject.applyAdjectivalNncFunctionToVerbEntry({
-            surface: targetSurface,
             formation: "ordinary-absolutive",
-            formulaEcho: contract.formulaEcho || rowFormulaEcho || "",
-            grammarFrame: contract.grammarFrame || contract.frames || null
+            grammarFrame: contract.grammarFrame || contract.frames || null,
+            sourceSelectedVariant,
+            targetSelectedVariant,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            requireCanonicalFormulaRecords: true
           });
         });
         appendContinuationAction(actions, continueButton);
@@ -6646,7 +7702,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         renderObjectPrefix = activeLocativePromotedObjectPrefix;
       }
       updateTensePanelDescription();
-      if (targetObject.isOrdinaryNncGenerationModeEnabled()) {
+      if (targetObject.isOrdinaryNncGenerationModeEnabled() && !tenseOverride) {
         renderOutputGuidancePanel({
           verb: ""
         });
@@ -6940,6 +7996,24 @@ export function createUiRenderingModule(targetObject = globalThis) {
     function splitConjugationSurfaceText(surface = "") {
       return String(surface || "").split(/\s*(?:\/|,|\n)\s*/).map(form => form.trim()).filter(Boolean);
     }
+    function getStructuredConjugationResultFrameSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const forms = [];
+      const addStructuredForm = (value = "") => {
+        const form = String(value || "").trim();
+        if (!form || form === "—" || /[\/,\n]/.test(form)) {
+          return;
+        }
+        forms.push(form);
+      };
+      if (Array.isArray(resultFrame.surfaceForms)) {
+        resultFrame.surfaceForms.forEach(addStructuredForm);
+      }
+      addStructuredForm(resultFrame.surface);
+      return forms.filter((form, index, list) => list.indexOf(form) === index);
+    }
     function getConjugationResultFrame(result = null) {
       return (result?.grammarFrame && typeof result.grammarFrame === "object" ? result.grammarFrame : null) || (result?.frames && typeof result.frames === "object" ? result.frames : null);
     }
@@ -6950,21 +8024,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
     function getConjugationFrameSurfaceForms(result = null) {
       const grammarFrame = getConjugationResultFrame(result);
       const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
-      const forms = [];
-      if (Array.isArray(resultFrame?.surfaceForms)) {
-        forms.push(...resultFrame.surfaceForms);
+      const canonicalForms = getGeneratedOutputCanonicalRealizationSurfaceForms(result);
+      if (canonicalForms.length) {
+        return canonicalForms;
       }
-      if (resultFrame?.surface) {
-        forms.push(resultFrame.surface);
-      }
-      return forms.flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+      return getStructuredConjugationResultFrameSurfaceForms(resultFrame);
     }
     function getConjugationSurfaceForms(result = null) {
       const grammarFrame = getConjugationResultFrame(result);
       const hasResultFrame = Boolean(grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object");
+      const canonicalForms = getGeneratedOutputCanonicalRealizationSurfaceForms(result);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [...getConjugationFrameSurfaceForms(result)];
       if (hasResultFrame) {
-        return forms.flatMap(form => splitConjugationSurfaceText(form)).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
+        return forms;
       }
       if (!hasResultFrame && Array.isArray(result?.surfaceForms) && result.surfaceForms.length) {
         forms.push(...result.surfaceForms);
@@ -7182,6 +8257,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         tenseValue,
         blockKind: "CNV"
       });
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(tenseBlock, {
+          tenseValue,
+          mode: targetObject.TENSE_MODE.verbo,
+          blockKind: "CNV"
+        });
+      }
       const transitiveLabel = targetObject.getVerbBlockLabel("transitive", isNawat, "verbo transitivo");
       const intransitiveLabel = targetObject.getVerbBlockLabel("intransitive", isNawat, "verbo intransitivo");
       const passiveLabel = targetObject.getVerbBlockLabel("passive", isNawat, "pasivo");
@@ -7512,7 +8594,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
       };
       const ensureVerbRowConversionActions = ({
         value,
-        sourceDisplay = ""
+        sourceDisplay = "",
+        frameLike = null
       } = {}) => {
         if (!value) {
           return null;
@@ -7529,13 +8612,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(display) : display;
-        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-          const lineElement = targetObject.document.createElement("span");
-          lineElement.className = "conjugation-conversion-surface-line";
-          lineElement.textContent = line;
-          surfaceText.appendChild(lineElement);
-        });
+        appendConjugationConversionSurfaceLines(surfaceText, display, frameLike);
         actions = createConjugationConversionActionsContainer();
         value.append(surfaceText, actions);
         applyConjugationConversionColumnLayout(value, surfaceText, actions);
@@ -7580,7 +8657,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
         const actions = ensureVerbRowConversionActions({
           value,
-          sourceDisplay
+          sourceDisplay,
+          frameLike: evaluation?.result
         });
         if (!actions) {
           return false;
@@ -7682,13 +8760,14 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const sourceDisplay = getVerbRowSourceDisplay(evaluation);
         const actions = ensureVerbRowConversionActions({
           value,
-          sourceDisplay
+          sourceDisplay,
+          frameLike: evaluation?.result
         });
         if (!actions) {
           return 0;
         }
         let appended = 0;
-        const seenSurfaces = new Set();
+        const seenContinuationKeys = new Set();
         specs.forEach(spec => {
           const targetTense = String(spec.targetTense || "").trim();
           if (!targetTense) {
@@ -7722,11 +8801,25 @@ export function createUiRenderingModule(targetObject = globalThis) {
           }
           const previewForms = getConjugationSurfaceForms(preview).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
           const previewSurface = previewForms.join(" / ");
-          if (!previewSurface || seenSurfaces.has(`${targetTense}|${previewSurface}`)) {
+          const sourceUnit = String(spec.sourceUnit || NOMINALIZATION_SOURCE_UNITS.vncPredicate);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(preview, {
+            namespace: "verb-to-nominal-row-continuation",
+            targetTense,
+            sourceUnit,
+            predicateNominalSourceTense,
+            sourceObjectPrefix
+          });
+          if (!previewSurface || !continuationIdentityKey || seenContinuationKeys.has(continuationIdentityKey)) {
             return;
           }
-          seenSurfaces.add(`${targetTense}|${previewSurface}`);
-          const sourceUnit = String(spec.sourceUnit || NOMINALIZATION_SOURCE_UNITS.vncPredicate);
+          const routeActionContract = buildVerbNominalContinuationRouteActionContractForRendering({
+            preview,
+            sourceUnit
+          });
+          if (!routeActionContract) {
+            return;
+          }
+          seenContinuationKeys.add(continuationIdentityKey);
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
@@ -7734,8 +8827,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.targetMode = "sustantivo";
           continueButton.dataset.targetTense = targetTense;
           continueButton.dataset.targetSurface = previewSurface;
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "canonical-formula-realization-record";
           continueButton.dataset.nominalizationSourceUnit = sourceUnit;
           continueButton.dataset.predicateNominalSourceTense = predicateNominalSourceTense;
+          continueButton.andrewsRouteActionContract = routeActionContract;
           applyGrammarFrameRouteDataset(continueButton, preview);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -7770,7 +8866,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         sourceCombinedMode = targetObject.COMBINED_MODE.active,
         sourceVoiceMode = ""
       } = {}) => {
-        if (!value || !verb || !tenseValue || evaluation?.shouldMaskRow || typeof targetObject.buildVncAdjectivalNncFunctionOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
+        if (!value || !verb || !tenseValue || evaluation?.shouldMaskRow || typeof targetObject.buildVncAdjectivalNncFunctionOutput !== "function" || typeof targetObject.buildVncAdjectivalNncOperationFrame !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
           return false;
         }
         const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
@@ -7780,25 +8876,66 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const sourceDisplay = getVerbRowSourceDisplay(evaluation);
         const actions = ensureVerbRowConversionActions({
           value,
-          sourceDisplay
+          sourceDisplay,
+          frameLike: evaluation?.result
         });
         if (!actions) {
           return false;
         }
-        const contracts = forms.map(form => targetObject.buildVncAdjectivalNncFunctionOutput({
-          vncSurface: form,
-          sourceVerb: verb,
-          sourceTenseValue: tenseValue,
-          sourceCombinedMode,
-          sourceVoiceMode
-        })).filter(entry => entry?.supported);
+        const contracts = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(evaluation?.result, sourceSelectedVariant, {
+            role: "source",
+            unit: "VNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildVncAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            role: "predicate-surface"
+          });
+          const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+              ...sourceContinuationFrame.formulaRecord,
+              operationFrames: [...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames) ? sourceContinuationFrame.formulaRecord.operationFrames : []), operationFrame]
+            }
+          };
+          return targetObject.buildVncAdjectivalNncFunctionOutput({
+            vncSurface: form,
+            sourceVerb: verb,
+            sourceTenseValue: tenseValue,
+            sourceCombinedMode,
+            sourceVoiceMode,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true
+          });
+        }).filter(entry => entry?.supported);
         let appended = false;
-        contracts.forEach(contract => {
+        contracts.forEach((contract, index) => {
           const targetSurface = getPrimaryConjugationSurface(contract);
           if (!targetSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-vnc-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey([evaluation?.result, contract], {
+            namespace: "vnc-adjectival-function-continuation",
+            targetTense: tenseValue,
+            sourceUnit: "vnc-predicate",
+            sourceObjectPrefix,
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-vnc-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (alreadyRendered) {
             return;
           }
@@ -7810,6 +8947,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.sourceTenseValue = tenseValue;
           continueButton.dataset.sourceCombinedMode = sourceCombinedMode || "";
           continueButton.dataset.sourceObjectPrefix = sourceObjectPrefix || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          applyGeneratedOutputContinuationIdentityDataset(continueButton, [evaluation?.result, contract], {
+            namespace: "vnc-adjectival-function-continuation",
+            targetTense: tenseValue,
+            sourceUnit: "vnc-predicate",
+            sourceObjectPrefix,
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -7824,7 +8975,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
             targetObject.applyAdjectivalNncFunctionToVerbEntry({
               surface: targetSurface,
               formation: "vnc-adjectival",
-              grammarFrame: contract.grammarFrame || contract.frames || null
+              grammarFrame: contract.grammarFrame || contract.frames || null,
+              sourceSelectedVariant,
+              targetSelectedVariant,
+              sourceContinuationFrame: contract.sourceContinuationFrame || null,
+              targetContinuationFrame: contract.targetContinuationFrame || null,
+              operationFrame: contract.operationFrame || null,
+              requireCanonicalFormulaRecords: true
             });
           });
           appendContinuationAction(actions, continueButton);
@@ -8447,7 +9604,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           object2,
           object3,
           form,
-          ...(typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {})
+          ...(typeof targetObject.getUnifiedVerbOutputGrammarDatasetMetadata === "function" ? targetObject.getUnifiedVerbOutputGrammarDatasetMetadata(row.dataset) : {}),
+          ...(typeof targetObject.getVisibleConjugationFormulaSurfaceExportMetadata === "function" ? targetObject.getVisibleConjugationFormulaSurfaceExportMetadata(row) : {})
         };
         rows.push(entry);
         const baseKey = [entry.groupKey, entry.tenseValue, entry.block, entry.person, entry.personSub, entry.object, entry.object2, entry.object3].join("|");
@@ -8804,6 +9962,29 @@ export function createUiRenderingModule(targetObject = globalThis) {
       objectPrefix = "",
       includeDiagnostics = false
     }) {
+      const resolvedOutputTenseValue = resolveVerbTenseValue({
+        modeKey,
+        tenseValue
+      });
+      if (modeKey !== "universal" && typeof targetObject.isAndrewsCnvTenseGenerationGateAllowed === "function" && !targetObject.isAndrewsCnvTenseGenerationGateAllowed(resolvedOutputTenseValue, targetObject.TENSE_MODE.verbo)) {
+        clearUnifiedVerbOutputDataset();
+        renderOutputSelectionRequiredPlaceholder({
+          containerId,
+          titleText: "Andrews",
+          tenseValue: resolvedOutputTenseValue,
+          mode: targetObject.TENSE_MODE.verbo,
+          blockKind: "CNV generation gate blocked",
+          blockClassName: "tense-block--cnv-generation-gate-blocked",
+          message: "La salida CNV queda bloqueada hasta que la ranura tiempo tenga una puerta de generacion Andrews."
+        });
+        const container = targetObject.document.getElementById(containerId);
+        if (typeof targetObject.syncAndrewsTenseAuthorityDomAudit === "function") {
+          targetObject.syncAndrewsTenseAuthorityDomAudit(container, {
+            mode: targetObject.TENSE_MODE.verbo
+          });
+        }
+        return;
+      }
       const selectedCombinedMode = targetObject.getCombinedMode();
       const sourceScope = targetObject.getVerbSourceScope();
       const isSimpleUi = targetObject.getActiveUiDensityMode() === targetObject.UI_DENSITY_MODE.simple;
@@ -8952,7 +10133,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const {
         grid
       } = createObjectSectionGrid(container);
-      const sourceColumns = modeFilter == null ? createSourceModeColumns(grid, isNawat) : null;
+      const sourceColumns = modeFilter == null && !targetObject.isPreteritAgentiveLocativeNnc ? createSourceModeColumns(grid, isNawat) : null;
       const buildPossessorOptions = values => {
         const options = [{
           id: targetObject.OBJECT_TOGGLE_ALL,
@@ -9093,6 +10274,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const tenseBlock = targetObject.document.createElement("div");
         tenseBlock.className = "tense-block";
         tenseBlock.dataset.tenseBlock = `${mode}-locativo-temporal`;
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(tenseBlock, {
+            tenseValue: "locativo-temporal",
+            mode,
+            blockKind: "CNN locativo/temporal"
+          });
+        }
         const tenseTitle = targetObject.document.createElement("div");
         tenseTitle.className = "tense-block__title";
         const titleLabel = targetObject.document.createElement("span");
@@ -9643,6 +10831,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const selectedTense = tenseValue || selectionState.tenseValue;
       const fallbackTense = allowedNounTenses[0] || "sustantivo-verbal";
       const resolvedTense = allowedNounTenses.includes(selectedTense) ? selectedTense : fallbackTense;
+      const isPreteritAgentiveLocativeNnc = resolvedTense === "locativo-agentivo-preterito";
       if (resolvedTense === "locativo-temporal") {
         return {
           container,
@@ -9695,7 +10884,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const objectOptionMap = primaryObjectSlot ? primaryObjectSlot.optionMap : new Map(objectOptions.map(entry => [entry.id, entry]));
       const possessorValues = targetObject.POSSESSIVE_PREFIXES.map(entry => entry.value);
       const possessedInstrumentivoValues = possessorValues.filter(value => value);
-      const visiblePossessorValues = isPotencial || isPatientivoAdjective ? [""] : isPossessionSplit ? showDualVoiceColumns ? possessorValues : nominalControlCombinedMode === targetObject.COMBINED_MODE.nonactive ? [""] : possessedInstrumentivoValues : possessorValues;
+      const visiblePossessorValues = isPotencial || isPatientivoAdjective || isPreteritAgentiveLocativeNnc ? [""] : isPossessionSplit ? showDualVoiceColumns ? possessorValues : nominalControlCombinedMode === targetObject.COMBINED_MODE.nonactive ? [""] : possessedInstrumentivoValues : possessorValues;
       let activePossessor = targetObject.getToggleStateValue(targetObject.PossessorToggleState, possessorKey);
       const canSelectAllPossessors = visiblePossessorValues.length > 1;
       if (activePossessor === undefined || activePossessor !== targetObject.OBJECT_TOGGLE_ALL && !visiblePossessorValues.includes(activePossessor) || activePossessor === targetObject.OBJECT_TOGGLE_ALL && !canSelectAllPossessors) {
@@ -9723,7 +10912,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       }
       const isSubjectOptionAllowed = entry => !showNonanimateOnly || entry.id === targetObject.SUBJECT_TOGGLE_ALL || targetObject.isNonanimatePers1Pers2(entry.subjectPrefix, entry.subjectSuffix);
       const showSubjectToggle = !showNonanimateOnly && !isSubjectlessTense;
-      const showObjectToggle = nounObjectSlotStates.some(slot => slot.showToggle);
+      const showObjectToggle = !isPreteritAgentiveLocativeNnc && nounObjectSlotStates.some(slot => slot.showToggle);
       const hasImplicitAbsolutePossessor = visiblePossessorValues.includes("");
       const explicitPossessorToggleValues = hasImplicitAbsolutePossessor ? visiblePossessorValues.filter(value => value) : visiblePossessorValues;
       const showPossessorToggle = hasImplicitAbsolutePossessor ? explicitPossessorToggleValues.length > 0 : explicitPossessorToggleValues.length > 1;
@@ -9746,6 +10935,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
+        isPreteritAgentiveLocativeNnc,
         isLocativoTemporal: false,
         isSubjectlessTense,
         showNonanimateOnly,
@@ -9813,6 +11003,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         isPossessionSplit,
         isInstrumentivo,
         isCalificativoInstrumentivo,
+        isPreteritAgentiveLocativeNnc,
         isLocativoTemporal,
         isSubjectlessTense,
         showNonanimateOnly,
@@ -9858,7 +11049,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
       const isPredicateNominalTenseSelected = targetObject.isPredicateNominalTense(resolvedTense);
       const predicateNominalSourceTenseKey = `${modeKey}|${resolvedTense}|predicate-source-tense`;
       const storedPredicateNominalSourceTense = isPredicateNominalTenseSelected ? targetObject.getToggleStateValue(targetObject.ObjectToggleState, predicateNominalSourceTenseKey) : "";
-      let activePredicateNominalSourceTense = isPredicateNominalTenseSelected ? targetObject.normalizePredicateNominalSourceTense(storedPredicateNominalSourceTense || contextPredicateNominalSourceTense || targetObject.getPredicateNominalSourceTenseForTarget(resolvedTense)) : "";
+      let activePredicateNominalSourceTense = isPredicateNominalTenseSelected ? targetObject.normalizePredicateNominalSourceTense(contextPredicateNominalSourceTense || storedPredicateNominalSourceTense || targetObject.getPredicateNominalSourceTenseForTarget(resolvedTense)) : "";
       if (isPredicateNominalTenseSelected) {
         targetObject.setToggleStateValue(targetObject.ObjectToggleState, predicateNominalSourceTenseKey, activePredicateNominalSourceTense, {
           syncLock: false
@@ -10390,13 +11581,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
-        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-          const lineElement = targetObject.document.createElement("span");
-          lineElement.className = "conjugation-conversion-surface-line";
-          lineElement.textContent = line;
-          surfaceText.appendChild(lineElement);
-        });
+        appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, evaluation?.result);
         actions = createConjugationConversionActionsContainer();
         value.append(surfaceText, actions);
         applyConjugationConversionColumnLayout(value, surfaceText, actions);
@@ -10453,10 +11638,14 @@ export function createUiRenderingModule(targetObject = globalThis) {
             return;
           }
           const sourceRequirementIds = Array.isArray(route.sourceRequirement?.requirements) ? route.sourceRequirement.requirements.map(requirement => String(requirement?.id || "").trim()) : [];
-          const sourceEvidenceRequired = route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+          const sourceContextRequired = route.finiteGenerationRequiresSourceContext === true || route.sourceRequirement?.finiteGenerationRequiresSourceContext === true;
+          const sourceEvidenceRequired = sourceContextRequired || route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+          const resolvedSourceContextSatisfied = route.sourceRequirement?.sourceContextValidationStatus === "source-context-satisfied";
+          const resolvedSourceEvidenceSatisfied = sourceEvidenceSatisfied || resolvedSourceContextSatisfied || route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
+          const sourceEvidencePending = sourceEvidenceRequired && !resolvedSourceEvidenceSatisfied;
           const objectButton = targetObject.document.createElement("button");
           objectButton.type = "button";
-          objectButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "calc-guidance__chip--object-prefix-choice", "is-source-satisfied"].join(" ");
+          objectButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-verbo", "calc-guidance__chip--denominal-andrews", "calc-guidance__chip--object-prefix-choice", resolvedSourceEvidenceSatisfied ? "is-source-satisfied" : "", sourceEvidencePending ? "is-source-pending" : "", sourceEvidencePending ? "is-andrews-source-diagnostic" : ""].filter(Boolean).join(" ");
           objectButton.dataset.denominalAndrewsContractRouteContinuation = "true";
           objectButton.dataset.denominalAndrewsObjectPrefixChoice = "true";
           objectButton.dataset.contractId = route.contractId || "";
@@ -10465,8 +11654,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
           objectButton.dataset.targetTense = targetTense;
           objectButton.dataset.objectPrefix = prefix;
           objectButton.dataset.objectPrefixSatisfied = "true";
+          objectButton.dataset.sourceContextRequired = sourceContextRequired ? "true" : "";
           objectButton.dataset.sourceEvidenceRequired = sourceEvidenceRequired ? "true" : "";
-          objectButton.dataset.sourceEvidenceSatisfied = sourceEvidenceSatisfied ? "true" : "";
+          objectButton.dataset.sourceEvidenceSatisfied = resolvedSourceEvidenceSatisfied ? "true" : "";
+          objectButton.dataset.sourceEvidencePending = sourceEvidencePending ? "true" : "";
+          objectButton.dataset.sourceRequirementGate = sourceEvidencePending ? "andrews-source-context-diagnostic-not-generation-gate" : "satisfied-or-not-required";
           if (route.executableRuleId) {
             objectButton.dataset.executableRuleId = route.executableRuleId;
             objectButton.classList.add("calc-guidance__chip--andrews-rule-executable");
@@ -10521,7 +11713,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (!targetInput) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.contractId === String(route.contractId || "") && button.dataset.routeTemplateId === String(route.routeTemplateId || "") && button.dataset.targetTense === targetTense);
+          const continuationIdentityKey = getDenominalAndrewsRouteContinuationIdentityKey(route, {
+            namespace: "denominal-andrews-linked-route-continuation",
+            routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            targetTense
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (alreadyRendered) {
             return;
           }
@@ -10537,6 +11737,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           }
           continueButton.dataset.targetInput = targetInput;
           continueButton.dataset.targetTense = targetTense;
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, route);
           const routeDiagnostics = Array.isArray(route.routeDiagnostics) ? route.routeDiagnostics : [];
           const hasRouteWarning = routeDiagnostics.some(diagnostic => diagnostic?.severity === "warning");
@@ -10573,13 +11775,26 @@ export function createUiRenderingModule(targetObject = globalThis) {
             continueButton.classList.add("is-traditional-spelling-ambiguous");
           }
           const objectPrefixRequired = route.finiteGenerationRequiresObjectPrefix === true || route.objectSlotExpected === true;
-          const sourceEvidenceRequired = route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
-          const sourceEvidenceSatisfied = route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
+          const sourceContextRequired = route.finiteGenerationRequiresSourceContext === true || route.sourceRequirement?.finiteGenerationRequiresSourceContext === true;
+          const sourceEvidenceRequired = sourceContextRequired || route.finiteGenerationRequiresSourceEvidence === true || route.sourceRequirement?.finiteGenerationRequiresSourceEvidence === true;
+          const sourceContextSatisfied = route.sourceRequirement?.sourceContextValidationStatus === "source-context-satisfied";
+          const sourceEvidenceSatisfied = sourceContextSatisfied || route.sourceRequirement?.validationStatus === "source-evidence-satisfied";
           const sourceEvidencePending = sourceEvidenceRequired && !sourceEvidenceSatisfied;
           const sourceRequirementIds = Array.isArray(route.sourceRequirement?.requirements) ? route.sourceRequirement.requirements.map(requirement => String(requirement?.id || "").trim()) : [];
           if (sourceEvidenceRequired) {
+            continueButton.dataset.sourceContextRequired = sourceContextRequired ? "true" : "";
             continueButton.dataset.sourceEvidenceRequired = "true";
             continueButton.classList.add("is-source-required");
+          }
+          if (sourceEvidencePending) {
+            continueButton.dataset.sourceEvidencePending = "true";
+            continueButton.dataset.sourceRequirementGate = "andrews-source-context-diagnostic-not-generation-gate";
+            continueButton.classList.add("is-source-pending", "is-andrews-source-diagnostic");
+          } else {
+            continueButton.dataset.sourceRequirementGate = "satisfied-or-not-required";
+          }
+          if (sourceContextSatisfied) {
+            continueButton.dataset.sourceContextSatisfied = "true";
           }
           if (sourceEvidenceSatisfied) {
             continueButton.dataset.sourceEvidenceSatisfied = "true";
@@ -10624,14 +11839,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (objectPrefixRequired) {
             continueButton.dataset.objectPrefixRequired = "true";
           }
-          if (sourceEvidencePending || objectPrefixRequired && !currentObjectPrefix) {
+          if (objectPrefixRequired && !currentObjectPrefix) {
             continueButton.disabled = true;
             continueButton.setAttribute("aria-disabled", "true");
             continueButton.classList.add("is-unavailable");
-            if (objectPrefixRequired && !currentObjectPrefix && !sourceEvidencePending) {
-              continueButton.dataset.objectPrefixMissing = "true";
-              continueButton.classList.add("is-object-prefix-required");
-            }
+            continueButton.dataset.objectPrefixMissing = "true";
+            continueButton.classList.add("is-object-prefix-required");
           }
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -10639,9 +11852,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.appendChild(continueLabel);
           const continueSubLabel = targetObject.document.createElement("span");
           continueSubLabel.className = "calc-guidance__chip-sublabel";
-          continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", sourceEvidencePending ? "fuente pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", targetTense].filter(Boolean).join(" · ");
+          continueSubLabel.textContent = [`Andrews ${route.range || ""}`, route.targetStemClass ? `Clase ${route.targetStemClass}` : "", hasRouteWarning ? "aviso" : "", !hasRouteWarning && hasRouteNote ? "nota" : "", sourceFinalPatternLabel, sourceFinalDeterminesTargetStemClass ? "clase por segmento final" : "", traditionalSpellingConfusableWith ? "grafía ambigua" : "", sourceEvidencePending ? "contexto Andrews pendiente" : "", sourceEvidenceSatisfied ? "fuente Andrews" : "", objectPrefixRequired && !currentObjectPrefix ? "objeto pendiente" : "", targetTense].filter(Boolean).join(" · ");
           continueButton.appendChild(continueSubLabel);
-          continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${targetTense}`, sourceEvidencePending ? "requiere fuente Andrews verificada" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
+          continueButton.title = [`contrato: ${route.contractId || ""}`, route.executableRuleId ? `regla: ${route.executableRuleId}` : "", `ruta: ${route.routeTemplateId || ""}`, `sufijo: ${route.classicalSuffixSequence || ""} -> ${route.nawatRuleSuffix || ""}`, route.targetStemClass ? `clase: ${route.targetStemClass}` : "", `entrada verbal: ${targetInput}`, `tiempo: ${targetTense}`, sourceEvidencePending ? "contexto Andrews pendiente; no bloquea generacion" : "", sourceEvidenceSatisfied ? "fuente Andrews satisfecha por etapa generada" : "", objectPrefixRequired ? "requiere objeto verbal" : "", sourceFinalPatternLabel, targetStemClassRule ? `regla de clase: ${targetStemClassRule}` : "", traditionalSpellingConfusableWith ? `grafía ${traditionalSpelling} puede confundirse con ${traditionalSpellingConfusableWith}` : "", routeDiagnostics.map(diagnostic => diagnostic?.message || "").filter(Boolean).join(" "), "no crea ficha lexical"].filter(Boolean).join("; ");
           continueButton.addEventListener("click", () => {
             setActiveNawatDenominalAndrewsContractRouteRenderContext(route);
             targetObject.activateNawatDenominalAndrewsContractRouteTarget(route, {
@@ -10652,7 +11865,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           });
           appendContinuationAction(actions, continueButton);
-          if (objectPrefixRequired && !currentObjectPrefix && !sourceEvidencePending) {
+          if (objectPrefixRequired && !currentObjectPrefix) {
             objectPrefixChoices.forEach(objectPrefixChoice => {
               renderObjectPrefixChoice({
                 route,
@@ -10765,16 +11978,31 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
         return forms;
       };
+      const getActionNominalSourceEntriesFromEvaluation = (evaluation = {}) => {
+        const result = evaluation?.result || {};
+        return getActionNominalSurfacesFromEvaluation(evaluation).map((surface, index) => {
+          const selectedVariant = getGeneratedOutputSelectedRealizationVariant(result, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(result, selectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          const sourceVariantId = selectedVariant?.variantId || (hasConjugationResultFrame(result) ? `structured-result-frame:${index}` : `legacy-display:${index}`);
+          return {
+            surface,
+            sourceVariantId,
+            selectedVariant,
+            sourceContinuationFrame
+          };
+        });
+      };
       const getFunctionUseContinuationFormulaSlotsFromResult = (result = null) => {
-        const source = result && typeof result === "object" ? result : {};
-        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
-        const formulaSlots = source.nuclearClauseShell?.formulaSlots || source.nuclearClauseShell?.slots || source.nncBasic?.formulaSlots || source.clauseFrame?.formulaSlots || source.formulaSlots || frame?.morphBoundaryFrame?.formulaSlots || frame?.nuclearClauseFrame?.formulaSlots || null;
-        return formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+        return getGeneratedOutputStructuredContinuationFormulaSlots(result);
       };
       const getFunctionUseContinuationFormulaEchoFromResult = (result = null, formulaSlots = null) => {
-        const source = result && typeof result === "object" ? result : {};
-        const frame = source.grammarFrame && typeof source.grammarFrame === "object" ? source.grammarFrame : source.frames && typeof source.frames === "object" ? source.frames : null;
-        return String(source.nuclearClauseShell?.formulaEcho || source.nncBasic?.formulaEcho || source.clauseFrame?.formulaEcho || source.formulaEcho || frame?.morphBoundaryFrame?.formulaEcho || frame?.nuclearClauseFrame?.formulaEcho || (typeof targetObject.buildOrdinaryNncFormulaEchoFromSlots === "function" ? targetObject.buildOrdinaryNncFormulaEchoFromSlots(formulaSlots) : "") || "").trim();
+        return getGeneratedOutputStructuredContinuationFormulaEcho(result, formulaSlots);
+      };
+      const getFunctionUseContinuationIdentityKey = (evaluation = {}, contract = null, context = {}) => {
+        return getGeneratedOutputContinuationIdentityKey([evaluation?.result, contract], context);
       };
       const getCustomaryAgentiveStemsFromEvaluation = (evaluation = {}) => {
         const result = evaluation?.result || {};
@@ -10783,12 +12011,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
         const surfaceForms = getConjugationSurfaceForms(result);
         const hasResultFrame = hasConjugationResultFrame(result);
-        if (hasResultFrame && !surfaceForms.length) {
-          return [];
-        }
-        const slots = result?.nuclearClauseShell?.slots || {};
+        const predicateStem = getGeneratedOutputStructuredContinuationPredicateStem(result);
+        const slots = !hasResultFrame ? result?.nuclearClauseShell?.slots || {} : {};
         const subjectPrefix = String((slots.pers1Pers2 || slots.subject)?.prefix || "").trim();
-        const predicateStem = String((slots.predicateStem || slots.predicate)?.stem || "").trim();
         const connector = String(slots.num1Num2?.connector || "").trim();
         const stems = [];
         const addStem = (stem = "") => {
@@ -10797,6 +12022,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
             stems.push(normalized);
           }
         };
+        if (hasResultFrame) {
+          addStem(predicateStem);
+          return stems;
+        }
         if (!hasResultFrame) {
           addStem(predicateStem);
         }
@@ -10822,14 +12051,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         }
         const surfaceForms = getConjugationSurfaceForms(result);
         const hasResultFrame = hasConjugationResultFrame(result);
-        if (hasResultFrame && !surfaceForms.length) {
-          return [];
-        }
-        const slots = result?.nuclearClauseShell?.slots || {};
+        const slots = !hasResultFrame ? result?.nuclearClauseShell?.slots || {} : {};
         const subjectPrefix = String(slots.subject?.prefix || "").trim();
-        const predicateStem = String(slots.predicate?.stem || "").trim();
-        const predicateState = String(slots.predicate?.state || result?.nominalizationProfile?.predicateState?.value || "").trim();
-        const possessorPrefix = String(slots.predicate?.stateSlot?.possessorPrefix || result?.nominalizationProfile?.predicateState?.possessorPrefix || "").trim();
+        const predicateStem = getGeneratedOutputStructuredContinuationPredicateStem(result);
+        const structuredFormulaSlots = hasResultFrame ? getGeneratedOutputStructuredContinuationFormulaSlots(result) || {} : {};
+        const structuredPredicateSlot = structuredFormulaSlots.predicateStem || structuredFormulaSlots.predicate || {};
+        const predicateState = String((hasResultFrame ? structuredPredicateSlot?.state : slots.predicate?.state) || result?.nominalizationProfile?.predicateState?.value || "").trim();
+        const possessorPrefix = String((hasResultFrame ? structuredPredicateSlot?.stateSlot?.possessorPrefix : slots.predicate?.stateSlot?.possessorPrefix) || result?.nominalizationProfile?.predicateState?.possessorPrefix || "").trim();
         const stems = [];
         const addStem = (stem = "") => {
           const normalized = String(stem || "").trim();
@@ -10837,6 +12065,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
             stems.push(normalized);
           }
         };
+        if (hasResultFrame) {
+          if (predicateStem) {
+            addStem(predicateState === "possessive" || predicateStem.endsWith("ka") ? predicateStem : `${predicateStem}ka`);
+          }
+          return stems;
+        }
         if (!hasResultFrame && predicateStem) {
           addStem(predicateState === "possessive" || predicateStem.endsWith("ka") ? predicateStem : `${predicateStem}ka`);
         }
@@ -10876,8 +12110,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!value || evaluation?.shouldMaskRow || resolvedTense !== "sustantivo-verbal" || typeof targetObject.buildActiveActionCompoundEmbedContinuationContract !== "function") {
           return false;
         }
-        const actionNominalSurfaces = getActionNominalSurfacesFromEvaluation(evaluation);
-        if (!actionNominalSurfaces.length) {
+        const actionNominalEntries = getActionNominalSourceEntriesFromEvaluation(evaluation);
+        if (!actionNominalEntries.length) {
           return false;
         }
         const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
@@ -10887,12 +12121,18 @@ export function createUiRenderingModule(targetObject = globalThis) {
           nawatRoot: "tzajtzi",
           label: "shout with the embedded action"
         }];
-        const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionCompoundEmbedContinuationContract({
-          actionNominalSurface,
-          sourceSurface: actionNominalSurface,
-          sourceFormulaSlots,
-          sourceFormulaEcho,
-          matrixRoot: matrixSpec.nawatRoot || "tzajtzi"
+        const contracts = actionNominalEntries.flatMap(sourceEntry => matrixInventory.map(matrixSpec => ({
+          ...targetObject.buildActiveActionCompoundEmbedContinuationContract({
+            actionNominalSurface: sourceEntry.surface,
+            sourceSurface: sourceEntry.surface,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame: sourceEntry.sourceContinuationFrame,
+            matrixRoot: matrixSpec.nawatRoot || "tzajtzi"
+          }),
+          sourceSelectedVariant: sourceEntry.selectedVariant,
+          sourceVariantId: sourceEntry.sourceVariantId,
+          sourceContinuationFrame: sourceEntry.sourceContinuationFrame
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
@@ -10912,11 +12152,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
               matrixSpecId: contract.matrix?.id || "",
               sourceFormulaSlots: contract.sourceFormulaSlots || sourceFormulaSlots || null,
               sourceFormulaEcho: contract.sourceFormulaEcho || sourceFormulaEcho || "",
+              sourceContinuationFrame: contract.sourceContinuationFrame || null,
+              targetContinuationFrame: contract.targetContinuationFrame || null,
               ...getFunctionUseContinuationRouteOwnershipOptions(contract)
             });
           }
         };
-        const createActiveActionCompoundButton = contract => {
+        const createActiveActionCompoundButton = (contract, continuationIdentityKey = "") => {
           const compoundVerbInput = contract.compoundVerbInput;
           const previewSurface = getCompoundEmbedFinitePreviewSurface({
             compoundVerb: compoundVerbInput
@@ -10929,6 +12171,17 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.actionNominalSurface = contract.actionNominalSurface;
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
+          if (contract.sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = contract.sourceSelectedVariant.variantId;
+          }
+          if (contract.sourceContinuationFrame?.formulaRealizationRecord?.id) {
+            continueButton.dataset.sourceFormulaRealizationRecordId = contract.sourceContinuationFrame.formulaRealizationRecord.id;
+          }
+          if (contract.targetContinuationFrame?.targetInput) {
+            continueButton.dataset.targetContinuationFrame = "true";
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -10941,9 +12194,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return continueButton;
         };
         contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "active-action-compound-embed-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "action-noun",
+            sourceVariantId: contract.sourceSelectedVariant?.variantId || contract.sourceVariantId || "",
+            targetVariantId: [contract.matrix?.id || "", contract.compoundVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-compound-embed-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createActiveActionCompoundButton(contract));
+            appendContinuationAction(actions, createActiveActionCompoundButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -10955,8 +12218,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!value || evaluation?.shouldMaskRow || resolvedTense !== "sustantivo-verbal" || typeof targetObject.buildActiveActionNominalCompoundContinuationContract !== "function") {
           return false;
         }
-        const actionNominalSurfaces = getActionNominalSurfacesFromEvaluation(evaluation);
-        if (!actionNominalSurfaces.length) {
+        const actionNominalEntries = getActionNominalSourceEntriesFromEvaluation(evaluation);
+        if (!actionNominalEntries.length) {
           return false;
         }
         const sourceFormulaSlots = getFunctionUseContinuationFormulaSlotsFromResult(evaluation?.result);
@@ -10967,12 +12230,16 @@ export function createUiRenderingModule(targetObject = globalThis) {
           nounClass: "zero",
           animacy: "inanimate"
         }];
-        const contracts = actionNominalSurfaces.flatMap(actionNominalSurface => matrixInventory.map(matrixSpec => targetObject.buildActiveActionNominalCompoundContinuationContract({
-          actionNominalSurface,
-          sourceSurface: actionNominalSurface,
-          sourceFormulaSlots,
-          sourceFormulaEcho,
-          matrixRoot: matrixSpec.nawatRoot || "kal"
+        const contracts = actionNominalEntries.flatMap(sourceEntry => matrixInventory.map(matrixSpec => ({
+          ...targetObject.buildActiveActionNominalCompoundContinuationContract({
+            actionNominalSurface: sourceEntry.surface,
+            sourceSurface: sourceEntry.surface,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            matrixRoot: matrixSpec.nawatRoot || "kal"
+          }),
+          sourceSelectedVariant: sourceEntry.selectedVariant,
+          sourceVariantId: sourceEntry.sourceVariantId
         }))).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
@@ -11000,7 +12267,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createActiveActionNominalButton = contract => {
+        const createActiveActionNominalButton = (contract, continuationIdentityKey = "") => {
           const previewSurface = getNominalCompoundPreviewSurface({
             ordinaryNncRequest: contract.ordinaryNncRequest
           });
@@ -11013,6 +12280,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
+          if (contract.sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = contract.sourceSelectedVariant.variantId;
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11025,9 +12297,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return continueButton;
         };
         contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "active-action-nominal-compound-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "action-noun",
+            sourceVariantId: contract.sourceSelectedVariant?.variantId || contract.sourceVariantId || "",
+            targetVariantId: [contract.matrix?.id || "", contract.ordinaryNncInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-active-action-nominal-compound-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createActiveActionNominalButton(contract));
+            appendContinuationAction(actions, createActiveActionNominalButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11084,7 +12366,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createCustomaryAgentiveNominalButton = contract => {
+        const createCustomaryAgentiveNominalButton = (contract, continuationIdentityKey = "") => {
           const previewSurface = getNominalCompoundPreviewSurface({
             ordinaryNncRequest: contract.ordinaryNncRequest
           });
@@ -11097,6 +12379,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11108,10 +12392,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "customary-agentive-nominal-compound-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "customary-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.ordinaryNncInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-nominal-compound-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createCustomaryAgentiveNominalButton(contract));
+            appendContinuationAction(actions, createCustomaryAgentiveNominalButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11167,7 +12461,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createCustomaryAgentiveCompoundEmbedButton = contract => {
+        const createCustomaryAgentiveCompoundEmbedButton = (contract, continuationIdentityKey = "") => {
           const compoundVerbInput = contract.compoundVerbInput;
           const previewSurface = getCompoundEmbedFinitePreviewSurface({
             compoundVerb: compoundVerbInput,
@@ -11182,6 +12476,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11193,10 +12489,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "customary-agentive-compound-embed-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "customary-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.objectPrefix || "", contract.compoundVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-customary-agentive-compound-embed-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createCustomaryAgentiveCompoundEmbedButton(contract));
+            appendContinuationAction(actions, createCustomaryAgentiveCompoundEmbedButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11248,7 +12554,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createPreteritAgentiveCompoundButton = contract => {
+        const createPreteritAgentiveCompoundButton = (contract, continuationIdentityKey = "") => {
           const compoundVerbInput = contract.compoundVerbInput;
           const previewSurface = getCompoundEmbedFinitePreviewSurface({
             compoundVerb: compoundVerbInput
@@ -11261,6 +12567,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.preteritAgentiveStem = contract.preteritAgentiveStem;
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11272,10 +12580,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "preterit-agentive-compound-embed-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "preterit-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.compoundVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-compound-embed-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createPreteritAgentiveCompoundButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveCompoundButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11337,7 +12655,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createPreteritAgentiveNominalButton = contract => {
+        const createPreteritAgentiveNominalButton = (contract, continuationIdentityKey = "") => {
           const previewSurface = getNominalCompoundPreviewSurface({
             ordinaryNncRequest: contract.ordinaryNncRequest
           });
@@ -11350,6 +12668,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11361,10 +12681,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "preterit-agentive-nominal-compound-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "preterit-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.ordinaryNncInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-nominal-compound-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createPreteritAgentiveNominalButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveNominalButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11418,7 +12748,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createPreteritAgentiveOwnerhoodButton = contract => {
+        const createPreteritAgentiveOwnerhoodButton = (contract, continuationIdentityKey = "") => {
           const ownerhoodVerbInput = contract.ownerhoodVerbInput;
           const previewSurface = getPreteritAgentiveOwnerhoodPreviewSurface({
             ownerhoodVerbInput
@@ -11432,6 +12762,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.ownerhoodMatrixRoot = contract.matrixRoot;
           continueButton.dataset.ownerhoodMatrixId = contract.matrix?.id || "";
           continueButton.dataset.ownerhoodKind = contract.ownerhoodKind || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11443,10 +12775,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-ownerhood-continuation]")).some(button => button.dataset.ownerhoodVerbInput === contract.ownerhoodVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "preterit-agentive-ownerhood-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "preterit-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.ownerhoodKind || "", contract.ownerhoodVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-ownerhood-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createPreteritAgentiveOwnerhoodButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveOwnerhoodButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11501,7 +12843,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createPreteritAgentiveComplementButton = contract => {
+        const createPreteritAgentiveComplementButton = (contract, continuationIdentityKey = "") => {
           const complementVerbInput = contract.complementVerbInput;
           const previewSurface = getCompoundEmbedFinitePreviewSurface({
             compoundVerb: complementVerbInput,
@@ -11516,6 +12858,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.complementMatrixRoot = contract.matrixRoot;
           continueButton.dataset.complementMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "ki";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11527,10 +12871,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-complement-continuation]")).some(button => button.dataset.complementVerbInput === contract.complementVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "preterit-agentive-complement-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "preterit-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.objectPrefix || "", contract.complementVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-complement-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createPreteritAgentiveComplementButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveComplementButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11586,7 +12940,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createPreteritAgentiveAdverbialButton = contract => {
+        const createPreteritAgentiveAdverbialButton = (contract, continuationIdentityKey = "") => {
           const adverbialVerbInput = contract.adverbialVerbInput;
           const previewSurface = getCompoundEmbedFinitePreviewSurface({
             compoundVerb: adverbialVerbInput,
@@ -11601,6 +12955,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.adverbialMatrixRoot = contract.matrixRoot;
           continueButton.dataset.adverbialMatrixId = contract.matrix?.id || "";
           continueButton.dataset.objectPrefix = contract.objectPrefix || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11612,10 +12968,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-adverbial-continuation]")).some(button => button.dataset.adverbialVerbInput === contract.adverbialVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "preterit-agentive-adverbial-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "preterit-agentive",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.objectPrefix || "", contract.adverbialVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-preterit-agentive-adverbial-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createPreteritAgentiveAdverbialButton(contract));
+            appendContinuationAction(actions, createPreteritAgentiveAdverbialButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11677,7 +13043,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createNominalCompoundContinuationButton = contract => {
+        const createNominalCompoundContinuationButton = (contract, continuationIdentityKey = "") => {
           const incorporatedRoot = contract.incorporatedRoot;
           const matrixRoot = contract.matrixRoot;
           const ordinaryNncInput = contract.ordinaryNncInput;
@@ -11692,6 +13058,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.nominalCompoundStem = contract.compoundStem;
           continueButton.dataset.nominalCompoundMatrixRoot = matrixRoot;
           continueButton.dataset.nominalCompoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11703,10 +13071,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-nominal-compound-continuation]")).some(button => button.dataset.ordinaryNncInput === contract.ordinaryNncInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "patientivo-nominal-compound-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: patientivoSource || "patientivo",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.ordinaryNncInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-nominal-compound-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createNominalCompoundContinuationButton(contract));
+            appendContinuationAction(actions, createNominalCompoundContinuationButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -11728,7 +13106,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value,
         evaluation
       } = {}) => {
-        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildCompoundSourceAdjectivalNncFunctionOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildCompoundSourceAdjectivalNncFunctionOutput !== "function" || typeof targetObject.buildCompoundSourceAdjectivalNncOperationFrame !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
           return false;
         }
         const sourceResult = evaluation?.result || null;
@@ -11738,19 +13116,48 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return false;
         }
         const sourceFormulaSlots = compoundSourceFrame.sourceFormulaSlots || getAdjectivalNncFormulaSlotsForContinuation(sourceResult);
-        const sourceFormulaEcho = compoundSourceFrame.sourceFormulaEcho || getAdjectivalNncFormulaEchoForContinuation(sourceResult, sourceFormulaSlots);
+        const sourceFormulaEcho = getAdjectivalNncFormulaEchoForContinuation(sourceResult, sourceFormulaSlots);
         const nominalizedVncKind = compoundSourceFrame.nominalizationKind || "adjectival-surface";
         const forms = getConjugationSurfaceForms(sourceResult).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
         if (!forms.length) {
           return false;
         }
-        const contracts = forms.map(form => targetObject.buildCompoundSourceAdjectivalNncFunctionOutput({
-          compoundSourceSurface: form,
-          sourceCompoundFrame,
-          nominalizationKind: nominalizedVncKind,
-          formulaSlots: sourceFormulaSlots,
-          formulaEcho: sourceFormulaEcho
-        })).filter(entry => entry?.supported);
+        const contracts = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(sourceResult, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(sourceResult, sourceSelectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildCompoundSourceAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            sourceCompoundFrame,
+            nominalizationKind: nominalizedVncKind,
+            role: "predicate-surface"
+          });
+          const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+              ...sourceContinuationFrame.formulaRecord,
+              operationFrames: [...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames) ? sourceContinuationFrame.formulaRecord.operationFrames : []), operationFrame]
+            }
+          };
+          return targetObject.buildCompoundSourceAdjectivalNncFunctionOutput({
+            compoundSourceSurface: form,
+            sourceCompoundFrame,
+            nominalizationKind: nominalizedVncKind,
+            formulaSlots: sourceFormulaSlots,
+            formulaEcho: sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true
+          });
+        }).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
         }
@@ -11761,7 +13168,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createCompoundSourceAdjectivalButton = (contract, targetSurface, sourceSurface) => {
+        const createCompoundSourceAdjectivalButton = (contract, targetSurface, sourceSurface, continuationIdentityKey = "", {
+          sourceSelectedVariant = null,
+          targetSelectedVariant = null
+        } = {}) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo", "calc-guidance__chip--compound-source-adjectival-function"].join(" ");
@@ -11770,6 +13180,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.sourceSurface = sourceSurface;
           continueButton.dataset.sourceFormulaEcho = sourceFormulaEcho;
           continueButton.dataset.sourceCompoundMatrix = sourceCompoundFrame?.matrix?.stem || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          if (continuationIdentityKey) {
+            continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+            continueButton.dataset.continuationIdentitySource = "route-contract";
+          } else {
+            applyGeneratedOutputContinuationIdentityDataset(continueButton, contract, {
+              namespace: "compound-source-adjectival-function-continuation"
+            });
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11789,7 +13213,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
               sourceFormulaEcho,
               sourceCompoundFrame,
               nominalizedVncKind,
-              grammarFrame: contract.grammarFrame || contract.frames || null
+              grammarFrame: contract.grammarFrame || contract.frames || null,
+              sourceSelectedVariant,
+              targetSelectedVariant,
+              sourceContinuationFrame: contract.sourceContinuationFrame || null,
+              targetContinuationFrame: contract.targetContinuationFrame || null,
+              operationFrame: contract.operationFrame || null,
+              requireCanonicalFormulaRecords: true
             });
           });
           return continueButton;
@@ -11800,9 +13230,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (!targetSurface || !sourceSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-compound-source-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface && button.dataset.sourceSurface === sourceSurface);
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(sourceResult, index);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(contract, {
+            namespace: "compound-source-adjectival-function-continuation",
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-compound-source-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createCompoundSourceAdjectivalButton(contract, targetSurface, sourceSurface));
+            appendContinuationAction(actions, createCompoundSourceAdjectivalButton(contract, targetSurface, sourceSurface, continuationIdentityKey, {
+              sourceSelectedVariant,
+              targetSelectedVariant
+            }));
           }
         });
         return true;
@@ -11811,7 +13254,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value,
         evaluation
       } = {}) => {
-        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput !== "function" || typeof targetObject.buildDenominalCompoundAdjectivalNncOperationFrame !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
           return false;
         }
         const sourceResult = evaluation?.result || null;
@@ -11820,17 +13263,45 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return false;
         }
         const sourceFormulaSlots = sourceResult?.rootPlusYaAdjectivalNncFrame?.sourceFormulaSlots || getAdjectivalNncFormulaSlotsForContinuation(sourceResult);
-        const sourceFormulaEcho = sourceResult?.rootPlusYaAdjectivalNncFrame?.sourceFormulaEcho || getAdjectivalNncFormulaEchoForContinuation(sourceResult, sourceFormulaSlots);
+        const sourceFormulaEcho = getAdjectivalNncFormulaEchoForContinuation(sourceResult, sourceFormulaSlots);
         const forms = getConjugationSurfaceForms(sourceResult).filter((form, index, list) => form && form !== "—" && list.indexOf(form) === index);
         if (!forms.length) {
           return false;
         }
-        const contracts = forms.map(form => targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput({
-          denominalCompoundSurface: form,
-          sourceDenominalCompoundFrame: denominalCompoundFrame,
-          formulaSlots: sourceFormulaSlots,
-          formulaEcho: sourceFormulaEcho
-        })).filter(entry => entry?.supported);
+        const contracts = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(sourceResult, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(sourceResult, sourceSelectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildDenominalCompoundAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            sourceDenominalCompoundFrame: denominalCompoundFrame,
+            role: "predicate-surface"
+          });
+          const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+              ...sourceContinuationFrame.formulaRecord,
+              operationFrames: [...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames) ? sourceContinuationFrame.formulaRecord.operationFrames : []), operationFrame]
+            }
+          };
+          return targetObject.buildDenominalCompoundAdjectivalNncFunctionOutput({
+            denominalCompoundSurface: form,
+            sourceDenominalCompoundFrame: denominalCompoundFrame,
+            formulaSlots: sourceFormulaSlots,
+            formulaEcho: sourceFormulaEcho,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true
+          });
+        }).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
         }
@@ -11841,7 +13312,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createDenominalCompoundAdjectivalButton = (contract, targetSurface, sourceSurface) => {
+        const createDenominalCompoundAdjectivalButton = (contract, targetSurface, sourceSurface, continuationIdentityKey = "", {
+          sourceSelectedVariant = null,
+          targetSelectedVariant = null
+        } = {}) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo", "calc-guidance__chip--denominal-compound-adjectival-function"].join(" ");
@@ -11850,6 +13324,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.sourceSurface = sourceSurface;
           continueButton.dataset.sourceFormulaEcho = sourceFormulaEcho;
           continueButton.dataset.sourceCompoundMatrix = denominalCompoundFrame?.matrix?.stem || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          if (continuationIdentityKey) {
+            continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+            continueButton.dataset.continuationIdentitySource = "route-contract";
+          } else {
+            applyGeneratedOutputContinuationIdentityDataset(continueButton, contract, {
+              namespace: "denominal-compound-adjectival-function-continuation"
+            });
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11869,7 +13357,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
               sourceFormulaEcho,
               sourceDenominalCompoundFrame: denominalCompoundFrame,
               nominalizedVncKind: "preterit-agentive",
-              grammarFrame: contract.grammarFrame || contract.frames || null
+              grammarFrame: contract.grammarFrame || contract.frames || null,
+              sourceSelectedVariant,
+              targetSelectedVariant,
+              sourceContinuationFrame: contract.sourceContinuationFrame || null,
+              targetContinuationFrame: contract.targetContinuationFrame || null,
+              operationFrame: contract.operationFrame || null,
+              requireCanonicalFormulaRecords: true
             });
           });
           return continueButton;
@@ -11880,9 +13374,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (!targetSurface || !sourceSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-compound-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface && button.dataset.sourceSurface === sourceSurface);
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(sourceResult, index);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(contract, {
+            namespace: "denominal-compound-adjectival-function-continuation",
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-compound-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createDenominalCompoundAdjectivalButton(contract, targetSurface, sourceSurface));
+            appendContinuationAction(actions, createDenominalCompoundAdjectivalButton(contract, targetSurface, sourceSurface, continuationIdentityKey, {
+              sourceSelectedVariant,
+              targetSelectedVariant
+            }));
           }
         });
         return true;
@@ -11891,7 +13398,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value,
         evaluation
       } = {}) => {
-        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildIntensifiedAdjectivalNncOutput !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildIntensifiedAdjectivalNncOutput !== "function" || typeof targetObject.buildIntensifiedAdjectivalNncOperationFrame !== "function" || typeof targetObject.applyAdjectivalNncFunctionToVerbEntry !== "function") {
           return false;
         }
         const sourceResult = evaluation?.result || null;
@@ -11907,11 +13414,51 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!forms.length) {
           return false;
         }
-        const contracts = forms.map(form => targetObject.buildIntensifiedAdjectivalNncOutput({
-          sourceSurface: form,
-          sourceFormulaSlots,
-          sourceFormulaEcho
-        })).filter(entry => entry?.supported);
+        const contractEntries = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(sourceResult, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(sourceResult, sourceSelectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildIntensifiedAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            role: "predicate-surface"
+          });
+          const contract = targetObject.buildIntensifiedAdjectivalNncOutput({
+            sourceSurface: form,
+            sourceFormulaSlots,
+            sourceFormulaEcho,
+            sourceContinuationFrame,
+            operationFrame
+          });
+          if (!contract?.supported) {
+            return null;
+          }
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const targetContinuationFrame = buildGeneratedOutputTypedContinuationFrame(contract, targetSelectedVariant, {
+            role: "target",
+            unit: "NNC"
+          });
+          if (!targetSelectedVariant || !targetContinuationFrame) {
+            return null;
+          }
+          return {
+            contract,
+            sourceContinuationFrame,
+            targetContinuationFrame: {
+              ...targetContinuationFrame,
+              operationFrame,
+              sourceFrame: sourceContinuationFrame
+            },
+            operationFrame,
+            sourceSelectedVariant,
+            targetSelectedVariant
+          };
+        }).filter(Boolean);
+        const contracts = contractEntries.map(entry => entry.contract);
         if (!contracts.length) {
           return false;
         }
@@ -11922,7 +13469,10 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createIntensifiedAdjectivalButton = (contract, targetSurface, sourceSurface) => {
+        const createIntensifiedAdjectivalButton = (contract, targetSurface, sourceSurface, continuationIdentityKey = "", {
+          sourceSelectedVariant = null,
+          targetSelectedVariant = null
+        } = {}) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo", "calc-guidance__chip--intensified-adjectival-function"].join(" ");
@@ -11931,6 +13481,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.sourceSurface = sourceSurface;
           continueButton.dataset.sourceFormulaEcho = sourceFormulaEcho;
           continueButton.dataset.intensifiedStem = contract.adjectivalNncFunctionFrame?.intensifiedStem || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          if (continuationIdentityKey) {
+            continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+            continueButton.dataset.continuationIdentitySource = "route-contract";
+          } else {
+            applyGeneratedOutputContinuationIdentityDataset(continueButton, contract, {
+              namespace: "intensified-adjectival-function-continuation"
+            });
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -11948,20 +13512,46 @@ export function createUiRenderingModule(targetObject = globalThis) {
               formulaEcho: sourceFormulaEcho,
               sourceFormulaSlots,
               sourceFormulaEcho,
-              grammarFrame: contract.grammarFrame || contract.frames || null
+              grammarFrame: contract.grammarFrame || contract.frames || null,
+              sourceSelectedVariant,
+              targetSelectedVariant,
+              sourceContinuationFrame: contract.sourceContinuationFrame || null,
+              targetContinuationFrame: contract.targetContinuationFrame || null,
+              operationFrame: contract.operationFrame || null,
+              requireCanonicalFormulaRecords: true
             });
           });
           return continueButton;
         };
-        contracts.forEach((contract, index) => {
+        contractEntries.forEach((entry, index) => {
+          const contract = entry.contract;
           const targetSurface = getPrimaryConjugationSurface(contract);
           const sourceSurface = forms[index] || forms[0] || "";
           if (!targetSurface || !sourceSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-intensified-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface && button.dataset.sourceSurface === sourceSurface);
+          const sourceSelectedVariant = entry.sourceSelectedVariant;
+          const targetSelectedVariant = entry.targetSelectedVariant;
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(contract, {
+            namespace: "intensified-adjectival-function-continuation",
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-intensified-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createIntensifiedAdjectivalButton(contract, targetSurface, sourceSurface));
+            const contractForClick = {
+              ...contract,
+              sourceContinuationFrame: entry.sourceContinuationFrame,
+              targetContinuationFrame: entry.targetContinuationFrame,
+              operationFrame: entry.operationFrame
+            };
+            appendContinuationAction(actions, createIntensifiedAdjectivalButton(contractForClick, targetSurface, sourceSurface, continuationIdentityKey, {
+              sourceSelectedVariant,
+              targetSelectedVariant
+            }));
           }
         });
         return true;
@@ -11971,20 +13561,48 @@ export function createUiRenderingModule(targetObject = globalThis) {
         evaluation,
         patientivoSource = ""
       } = {}) => {
-        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildPatientivoAdjectivalNncFunctionOutput !== "function") {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildPatientivoAdjectivalNncFunctionOutput !== "function" || typeof targetObject.buildPatientivoAdjectivalNncOperationFrame !== "function") {
           return false;
         }
         const forms = getConjugationSurfaceForms(evaluation?.result).filter((form, index, list) => form && list.indexOf(form) === index);
         if (!forms.length) {
           return false;
         }
-        const contracts = forms.map(form => targetObject.buildPatientivoAdjectivalNncFunctionOutput({
-          patientivoSurface: form,
-          patientivoSource,
-          nominalizationProfile: evaluation?.result?.nominalizationProfile || null,
-          formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
-          formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || ""
-        })).filter(entry => entry?.supported);
+        const contracts = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(evaluation?.result, sourceSelectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildPatientivoAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            patientivoSource,
+            role: "predicate-surface"
+          });
+          const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+              ...sourceContinuationFrame.formulaRecord,
+              operationFrames: [...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames) ? sourceContinuationFrame.formulaRecord.operationFrames : []), operationFrame]
+            }
+          };
+          return targetObject.buildPatientivoAdjectivalNncFunctionOutput({
+            patientivoSurface: form,
+            patientivoSource,
+            nominalizationProfile: evaluation?.result?.nominalizationProfile || null,
+            formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
+            formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || "",
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true
+          });
+        }).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
         }
@@ -11995,13 +13613,30 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createAdjectivalFunctionButton = (contract, targetSurface) => {
+        const createAdjectivalFunctionButton = (contract, targetSurface, continuationIdentityKey = "", {
+          sourceSelectedVariant = null,
+          targetSelectedVariant = null
+        } = {}) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo"].join(" ");
           continueButton.dataset.patientivoAdjectivalFunctionContinuation = "true";
           continueButton.dataset.targetSurface = targetSurface;
           continueButton.dataset.adjectivalFunction = contract.adjectivalNncFunctionFrame?.functionKind || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          if (continuationIdentityKey) {
+            continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+            continueButton.dataset.continuationIdentitySource = "route-contract";
+          } else {
+            applyGeneratedOutputContinuationIdentityDataset(continueButton, contract, {
+              namespace: "patientivo-adjectival-function-continuation"
+            });
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -12019,20 +13654,39 @@ export function createUiRenderingModule(targetObject = globalThis) {
                 formation: "patientive-adjectival",
                 formulaEcho: contract.formulaEcho || "",
                 patientivoSource: contract.adjectivalNncFunctionFrame?.patientivoSource || "",
-                grammarFrame: contract.grammarFrame || contract.frames || null
+                grammarFrame: contract.grammarFrame || contract.frames || null,
+                sourceSelectedVariant,
+                targetSelectedVariant,
+                sourceContinuationFrame: contract.sourceContinuationFrame || null,
+                targetContinuationFrame: contract.targetContinuationFrame || null,
+                operationFrame: contract.operationFrame || null,
+                requireCanonicalFormulaRecords: true
               });
             }
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
+        contracts.forEach((contract, index) => {
           const targetSurface = getPrimaryConjugationSurface(contract);
           if (!targetSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(contract, {
+            namespace: "patientivo-adjectival-function-continuation",
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createAdjectivalFunctionButton(contract, targetSurface));
+            appendContinuationAction(actions, createAdjectivalFunctionButton(contract, targetSurface, continuationIdentityKey, {
+              sourceSelectedVariant,
+              targetSelectedVariant
+            }));
           }
         });
         return true;
@@ -12041,7 +13695,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value,
         evaluation
       } = {}) => {
-        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildNominalizedVncAdjectivalNncFunctionOutput !== "function") {
+        if (!value || evaluation?.shouldMaskRow || typeof targetObject.buildNominalizedVncAdjectivalNncFunctionOutput !== "function" || typeof targetObject.buildNominalizedVncAdjectivalNncOperationFrame !== "function") {
           return false;
         }
         const nominalizationProfile = evaluation?.result?.nominalizationProfile || null;
@@ -12050,13 +13704,41 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return false;
         }
         const predicateState = nominalizationProfile?.predicateState?.value || "absolutive";
-        const contracts = forms.map(form => targetObject.buildNominalizedVncAdjectivalNncFunctionOutput({
-          nominalizedSurface: form,
-          state: predicateState,
-          nominalizationProfile,
-          formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
-          formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || ""
-        })).filter(entry => entry?.supported);
+        const contracts = forms.map((form, index) => {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const sourceContinuationFrame = buildGeneratedOutputTypedContinuationFrame(evaluation?.result, sourceSelectedVariant, {
+            role: "source",
+            unit: "NNC"
+          });
+          if (!sourceSelectedVariant || !sourceContinuationFrame) {
+            return null;
+          }
+          const operationFrame = targetObject.buildNominalizedVncAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            nominalizationProfile,
+            role: "predicate-surface"
+          });
+          const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+              ...sourceContinuationFrame.formulaRecord,
+              operationFrames: [...(Array.isArray(sourceContinuationFrame.formulaRecord?.operationFrames) ? sourceContinuationFrame.formulaRecord.operationFrames : []), operationFrame]
+            }
+          };
+          return targetObject.buildNominalizedVncAdjectivalNncFunctionOutput({
+            nominalizedSurface: form,
+            state: predicateState,
+            nominalizationProfile,
+            formulaSlots: evaluation?.result?.nuclearClauseShell?.formulaSlots || null,
+            formulaEcho: evaluation?.result?.nuclearClauseShell?.formulaEcho || "",
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            requireStructuredContinuation: true
+          });
+        }).filter(entry => entry?.supported);
         if (!contracts.length) {
           return false;
         }
@@ -12067,13 +13749,30 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!actions) {
           return false;
         }
-        const createNominalizedVncAdjectivalButton = (contract, targetSurface) => {
+        const createNominalizedVncAdjectivalButton = (contract, targetSurface, continuationIdentityKey = "", {
+          sourceSelectedVariant = null,
+          targetSelectedVariant = null
+        } = {}) => {
           const continueButton = targetObject.document.createElement("button");
           continueButton.type = "button";
           continueButton.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-adjetivo"].join(" ");
           continueButton.dataset.nominalizedVncAdjectivalFunctionContinuation = "true";
           continueButton.dataset.targetSurface = targetSurface;
           continueButton.dataset.nominalizedVncKind = contract.adjectivalNncFunctionFrame?.nominalizationKind || "";
+          if (sourceSelectedVariant?.variantId) {
+            continueButton.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+          }
+          if (targetSelectedVariant?.variantId) {
+            continueButton.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+          }
+          if (continuationIdentityKey) {
+            continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+            continueButton.dataset.continuationIdentitySource = "route-contract";
+          } else {
+            applyGeneratedOutputContinuationIdentityDataset(continueButton, contract, {
+              namespace: "nominalized-vnc-adjectival-function-continuation"
+            });
+          }
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -12091,20 +13790,39 @@ export function createUiRenderingModule(targetObject = globalThis) {
                 formation: "nominalized-vnc-adjectival",
                 formulaEcho: contract.formulaEcho || "",
                 nominalizedVncKind: contract.adjectivalNncFunctionFrame?.nominalizationKind || "",
-                grammarFrame: contract.grammarFrame || contract.frames || null
+                grammarFrame: contract.grammarFrame || contract.frames || null,
+                sourceSelectedVariant,
+                targetSelectedVariant,
+                sourceContinuationFrame: contract.sourceContinuationFrame || null,
+                targetContinuationFrame: contract.targetContinuationFrame || null,
+                operationFrame: contract.operationFrame || null,
+                requireCanonicalFormulaRecords: true
               });
             }
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
+        contracts.forEach((contract, index) => {
           const targetSurface = getPrimaryConjugationSurface(contract);
           if (!targetSurface) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-nominalized-vnc-adjectival-function-continuation]")).some(button => button.dataset.targetSurface === targetSurface);
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, index);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(contract, 0);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey(contract, {
+            namespace: "nominalized-vnc-adjectival-function-continuation",
+            sourceVariantId: sourceSelectedVariant?.variantId || String(index),
+            targetVariantId: targetSelectedVariant?.variantId || ""
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-nominalized-vnc-adjectival-function-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createNominalizedVncAdjectivalButton(contract, targetSurface));
+            appendContinuationAction(actions, createNominalizedVncAdjectivalButton(contract, targetSurface, continuationIdentityKey, {
+              sourceSelectedVariant,
+              targetSelectedVariant
+            }));
           }
         });
         return true;
@@ -12161,7 +13879,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createCompoundEmbedContinuationButton = contract => {
+        const createCompoundEmbedContinuationButton = (contract, continuationIdentityKey = "") => {
           const incorporatedRoot = contract.incorporatedRoot;
           const matrixRoot = contract.matrixRoot;
           const compoundVerbInput = contract.compoundVerbInput;
@@ -12175,6 +13893,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.compoundVerb = compoundVerbInput;
           continueButton.dataset.compoundMatrixRoot = matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -12186,10 +13906,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-compound-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "patientivo-compound-embed-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: patientivoSource || "patientivo",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.compoundVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-compound-embed-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createCompoundEmbedContinuationButton(contract));
+            appendContinuationAction(actions, createCompoundEmbedContinuationButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -12244,7 +13974,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             });
           }
         };
-        const createCharacteristicPropertyContinuationButton = contract => {
+        const createCharacteristicPropertyContinuationButton = (contract, continuationIdentityKey = "") => {
           const compoundVerbInput = contract.compoundVerbInput;
           const previewSurface = getCharacteristicPropertyEmbedFinitePreviewSurface({
             compoundVerb: compoundVerbInput,
@@ -12258,6 +13988,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.compoundMatrixRoot = contract.matrixRoot;
           continueButton.dataset.compoundMatrixId = contract.matrix?.id || "";
           continueButton.dataset.omittedSuffix = contract.omittedSuffix || "";
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           applyGrammarFrameRouteDataset(continueButton, contract);
           const continueLabel = targetObject.document.createElement("span");
           continueLabel.className = "calc-guidance__chip-label";
@@ -12269,10 +14001,20 @@ export function createUiRenderingModule(targetObject = globalThis) {
           });
           return continueButton;
         };
-        contracts.forEach(contract => {
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-characteristic-property-embed-continuation]")).some(button => button.dataset.compoundVerb === contract.compoundVerbInput);
+        contracts.forEach((contract, index) => {
+          const continuationIdentityKey = getFunctionUseContinuationIdentityKey(evaluation, contract, {
+            namespace: "patientivo-characteristic-property-embed-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "characteristic-property",
+            sourceVariantId: String(index),
+            targetVariantId: [contract.matrix?.id || "", contract.objectPrefix || "", contract.compoundVerbInput || ""].filter(Boolean).join(":")
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-patientivo-characteristic-property-embed-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (!alreadyRendered) {
-            appendContinuationAction(actions, createCharacteristicPropertyContinuationButton(contract));
+            appendContinuationAction(actions, createCharacteristicPropertyContinuationButton(contract, continuationIdentityKey));
           }
         });
         return true;
@@ -12302,7 +14044,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (!targetInput) {
             return;
           }
-          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.contractId === String(route.contractId || "") && button.dataset.routeTemplateId === String(route.routeTemplateId || "") && button.dataset.targetTense === targetTense && button.dataset.targetInput === targetInput);
+          const continuationIdentityKey = getDenominalAndrewsRouteContinuationIdentityKey(route, {
+            namespace: "denominal-andrews-hua-deverbal-yu-continuation",
+            routeRecordId: "cnn-nounstem-to-cnv-verbstem-denominal",
+            targetTense
+          });
+          if (!continuationIdentityKey) {
+            return;
+          }
+          const alreadyRendered = Array.from(actions.querySelectorAll("[data-denominal-andrews-contract-route-continuation]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
           if (alreadyRendered) {
             return;
           }
@@ -12316,6 +14066,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
           continueButton.dataset.executableRuleId = route.executableRuleId || "";
           continueButton.dataset.targetInput = targetInput;
           continueButton.dataset.targetTense = targetTense;
+          continueButton.dataset.continuationIdentityKey = continuationIdentityKey;
+          continueButton.dataset.continuationIdentitySource = "route-contract";
           continueButton.dataset.sourceEvidenceSatisfied = "true";
           continueButton.dataset.deverbalYuSourceRequired = "true";
           continueButton.dataset.sourceEvidenceFromCharacteristicProperty = "true";
@@ -12457,13 +14209,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         value.classList.add("conjugation-value--conversion-picker");
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
-        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-          const lineElement = targetObject.document.createElement("span");
-          lineElement.className = "conjugation-conversion-surface-line";
-          lineElement.textContent = line;
-          surfaceText.appendChild(lineElement);
-        });
+        appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, evaluation?.result);
         const continuationActions = createConjugationConversionActionsContainer();
         contracts.forEach(contract => {
           appendContinuationAction(continuationActions, createPrelocativeContinuationButton(contract));
@@ -12611,6 +14357,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
             labelValency
           };
         }
+        if (isPreteritAgentiveLocativeNnc) {
+          return {
+            sourceMode: "",
+            sourceTenseLabel: "",
+            labelValency: null
+          };
+        }
         return {
           sourceMode: resolvedSourceMode,
           sourceTenseLabel: entry.sourceTenseLabel || "",
@@ -12622,6 +14375,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (resolvedTense === "patientivo") {
           const valencyPart = Number.isFinite(meta.labelValency) ? ` · valencia total: ${meta.labelValency}` : "";
           return `${entry.label || ""}${valencyPart}`;
+        }
+        if (isPreteritAgentiveLocativeNnc) {
+          return entry.label || "";
         }
         return targetObject.buildNominalSourceTaggedLabel(entry.label || "", meta.sourceMode, isNawat, {
           sourceTenseLabel: meta.sourceTenseLabel,
@@ -12745,13 +14501,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
         const surfaceDisplay = forms.join(" / ");
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
-        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-          const lineElement = targetObject.document.createElement("span");
-          lineElement.className = "conjugation-conversion-surface-line";
-          lineElement.textContent = line;
-          surfaceText.appendChild(lineElement);
-        });
+        appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, evaluation?.result);
         const conversionActions = createConjugationConversionActionsContainer();
         conversionEntries.forEach(({
           stem,
@@ -12800,7 +14550,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
         instrumentivoMode = "",
         actionNounStemUse = "",
         predicateNominalSourceMode = "",
-        useReduplicatedSingularSurface = false
+        useReduplicatedSingularSurface = false,
+        sourceSubjectFrame = null,
+        sourceSubjectPossessorOperationFrame = null
       }) => {
         const isAgentivo = resolvedTense === "agentivo";
         const isPatientivo = resolvedTense === "patientivo";
@@ -12851,7 +14603,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
               indirectObjectMarker: resolvedIndirectObjectMarker,
               thirdObjectMarker: resolvedThirdObjectMarker,
               mode: resolvedInstrumentivoMode,
-              possessivePrefix: possessorPrefix
+              possessivePrefix: possessorPrefix,
+              sourceSubjectFrame,
+              sourceSubjectPossessorOperationFrame
             }) || {};
           } else if (isCalificativoInstrumentivo) {
             result = targetObject.getCalificativoInstrumentivoResult({
@@ -12864,7 +14618,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
               thirdObjectMarker: resolvedThirdObjectMarker,
               possessivePrefix: possessorPrefix,
               actionNounStemUse,
-              combinedMode: resolvedNominalControlCombinedMode
+              combinedMode: resolvedNominalControlCombinedMode,
+              sourceSubjectFrame,
+              sourceSubjectPossessorOperationFrame
             }) || {};
           } else {
             const nominalDerivationMode = targetObject.getNominalDerivationModeForTense(tenseValue);
@@ -12973,6 +14729,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (!derivedPossessorPrefix) {
           return false;
         }
+        const sourceSubjectFrame = typeof targetObject.buildAndrewsSourceSubjectFrame === "function" ? targetObject.buildAndrewsSourceSubjectFrame({
+          subjectPrefix: selection?.subjectPrefix || "",
+          subjectSuffix: selection?.subjectSuffix || "",
+          sourceUnit: "CNV",
+          sourceTense: resolvedNominalControlCombinedMode === targetObject.COMBINED_MODE.nonactive ? "distant-past-passive" : "distant-past-active"
+        }) : null;
+        const sourceSubjectPossessorOperationFrame = typeof targetObject.buildSourceSubjectPossessorOperationFrame === "function" ? targetObject.buildSourceSubjectPossessorOperationFrame({
+          sourceSubjectFrame,
+          targetPossessivePrefix: derivedPossessorPrefix,
+          nominalKind: "calificativo-instrumentivo",
+          operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+          andrewsRef: resolvedNominalControlCombinedMode === targetObject.COMBINED_MODE.nonactive ? "Andrews 36.10" : "Andrews 36.11"
+        }) : null;
         const generalUseEvaluation = evaluateNounCombinationState({
           selection,
           number,
@@ -12980,11 +14749,26 @@ export function createUiRenderingModule(targetObject = globalThis) {
           objectPrefix,
           indirectObjectMarker,
           thirdObjectMarker,
-          actionNounStemUse: "general-use"
+          actionNounStemUse: "general-use",
+          sourceSubjectFrame,
+          sourceSubjectPossessorOperationFrame
         });
         const generalUseTargetSurface = getPrimaryConjugationSurface(generalUseEvaluation?.result);
-        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
-        if (generalUseEvaluation?.shouldMaskRow || !generalUseTargetSurface || generalUseTargetSurface === currentSurface) {
+        const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, 0);
+        const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(generalUseEvaluation?.result, 0);
+        const fallbackSourceVariantId = [selection?.subjectPrefix || "", selection?.subjectSuffix || "", number || "", indirectObjectMarker || "", thirdObjectMarker || ""].filter(Boolean).join(":");
+        const identityContext = {
+          namespace: "action-noun-source-subject-possessor-continuation",
+          targetTense: resolvedTense,
+          sourceUnit: "action-noun",
+          sourceObjectPrefix: objectPrefix,
+          sourceVariantId: sourceSelectedVariant?.variantId || fallbackSourceVariantId,
+          targetVariantId: targetSelectedVariant?.variantId || "general-use"
+        };
+        const sourceIdentityKey = getGeneratedOutputContinuationIdentityKey(evaluation?.result, identityContext);
+        const targetIdentityKey = getGeneratedOutputContinuationIdentityKey(generalUseEvaluation?.result, identityContext);
+        const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey([evaluation?.result, generalUseEvaluation?.result], identityContext);
+        if (generalUseEvaluation?.shouldMaskRow || !generalUseTargetSurface || !sourceIdentityKey || !targetIdentityKey || sourceIdentityKey === targetIdentityKey || !continuationIdentityKey) {
           return false;
         }
         let actions = getConjugationConversionActionsForValue(value);
@@ -12997,13 +14781,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
           if (sourceSurface && sourceSurface !== "—") {
             surfaceText = targetObject.document.createElement("span");
             surfaceText.className = "conjugation-conversion-surface";
-            const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(sourceSurface) : sourceSurface;
-            groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-              const lineElement = targetObject.document.createElement("span");
-              lineElement.className = "conjugation-conversion-surface-line";
-              lineElement.textContent = line;
-              surfaceText.appendChild(lineElement);
-            });
+            appendConjugationConversionSurfaceLines(surfaceText, sourceSurface, evaluation?.result);
             value.appendChild(surfaceText);
           }
           actions = createConjugationConversionActionsContainer();
@@ -13012,7 +14790,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
             applyConjugationConversionColumnLayout(value, surfaceText, actions);
           }
         }
-        const alreadyRendered = Array.from(actions.querySelectorAll("[data-action-noun-source-subject-possessor]")).some(button => button.dataset.targetSurface === generalUseTargetSurface);
+        const alreadyRendered = Array.from(actions.querySelectorAll("[data-action-noun-source-subject-possessor]")).some(button => button.dataset.continuationIdentityKey === continuationIdentityKey);
         if (alreadyRendered) {
           return true;
         }
@@ -13022,6 +14800,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
         action.dataset.actionNounSourceSubjectPossessor = derivedPossessorPrefix;
         action.dataset.actionNounStemUse = "general-use";
         action.dataset.targetSurface = generalUseTargetSurface;
+        if (sourceSelectedVariant?.variantId) {
+          action.dataset.sourceSelectedVariantId = sourceSelectedVariant.variantId;
+        }
+        if (targetSelectedVariant?.variantId) {
+          action.dataset.targetSelectedVariantId = targetSelectedVariant.variantId;
+        }
+        applyGeneratedOutputContinuationIdentityDataset(action, [evaluation?.result, generalUseEvaluation?.result], identityContext);
         applyGrammarFrameRouteDataset(action, generalUseEvaluation.result);
         const label = targetObject.document.createElement("span");
         label.className = "calc-guidance__chip-label";
@@ -13051,10 +14836,22 @@ export function createUiRenderingModule(targetObject = globalThis) {
         if (resolvedTense !== "instrumentivo" || !value || evaluation?.shouldMaskRow || typeof targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject !== "function") {
           return;
         }
-        const currentSurface = getPrimaryConjugationSurface(evaluation?.result);
         const actionsToRender = [];
         const possessivePrefix = targetObject.resolveInstrumentivoPossessorPrefixFromSourceSubject(selection?.subjectPrefix || "", selection?.subjectSuffix || "");
         if (possessivePrefix) {
+          const sourceSubjectFrame = typeof targetObject.buildAndrewsSourceSubjectFrame === "function" ? targetObject.buildAndrewsSourceSubjectFrame({
+            subjectPrefix: selection?.subjectPrefix || "",
+            subjectSuffix: selection?.subjectSuffix || "",
+            sourceUnit: "CNV",
+            sourceTense: "imperfect-active"
+          }) : null;
+          const sourceSubjectPossessorOperationFrame = typeof targetObject.buildSourceSubjectPossessorOperationFrame === "function" ? targetObject.buildSourceSubjectPossessorOperationFrame({
+            sourceSubjectFrame,
+            targetPossessivePrefix: possessivePrefix,
+            nominalKind: "instrumentivo",
+            operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+            andrewsRef: "Andrews 36.6"
+          }) : null;
           const possessiveEvaluation = evaluateNounCombinationState({
             selection,
             number,
@@ -13062,15 +14859,34 @@ export function createUiRenderingModule(targetObject = globalThis) {
             objectPrefix,
             indirectObjectMarker,
             thirdObjectMarker,
-            instrumentivoMode: targetObject.INSTRUMENTIVO_MODE.posesivo
+            instrumentivoMode: targetObject.INSTRUMENTIVO_MODE.posesivo,
+            sourceSubjectFrame,
+            sourceSubjectPossessorOperationFrame
           });
           const possessiveTargetSurface = getPrimaryConjugationSurface(possessiveEvaluation?.result);
-          if (!possessiveEvaluation?.shouldMaskRow && possessiveTargetSurface && possessiveTargetSurface !== currentSurface) {
+          const sourceSelectedVariant = getGeneratedOutputSelectedRealizationVariant(evaluation?.result, 0);
+          const targetSelectedVariant = getGeneratedOutputSelectedRealizationVariant(possessiveEvaluation?.result, 0);
+          const identityContext = {
+            namespace: "instrumentivo-source-subject-possessive-continuation",
+            targetTense: resolvedTense,
+            sourceUnit: "instrumentivo",
+            sourceObjectPrefix: objectPrefix,
+            sourceVariantId: sourceSelectedVariant?.variantId || [selection?.subjectPrefix || "", selection?.subjectSuffix || "", number || "", indirectObjectMarker || "", thirdObjectMarker || ""].filter(Boolean).join(":"),
+            targetVariantId: targetSelectedVariant?.variantId || `possessive:${possessivePrefix}`
+          };
+          const sourceIdentityKey = getGeneratedOutputContinuationIdentityKey(evaluation?.result, identityContext);
+          const targetIdentityKey = getGeneratedOutputContinuationIdentityKey(possessiveEvaluation?.result, identityContext);
+          const continuationIdentityKey = getGeneratedOutputContinuationIdentityKey([evaluation?.result, possessiveEvaluation?.result], identityContext);
+          if (!possessiveEvaluation?.shouldMaskRow && sourceIdentityKey && targetIdentityKey && sourceIdentityKey !== targetIdentityKey && continuationIdentityKey) {
             actionsToRender.push({
               datasetFlag: "instrumentivoSourceSubjectPossessor",
               datasetValue: possessivePrefix,
               targetSurface: possessiveTargetSurface,
               evaluation: possessiveEvaluation,
+              continuationIdentityKey,
+              identityContext,
+              sourceSelectedVariant,
+              targetSelectedVariant,
               title: ["Andrews 36.6: sujeto fuente → poseedor", `poseedor: ${possessivePrefix}`, `salida posesiva: ${possessiveTargetSurface}`].join("; "),
               subLabel: "sujeto fuente → poseedor"
             });
@@ -13085,13 +14901,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
         const surfaceText = targetObject.document.createElement("span");
         surfaceText.className = "conjugation-conversion-surface";
         const surfaceDisplay = forms.join(" / ") || getConjugationDisplaySurface(evaluation?.result);
-        const groupedSurfaceDisplay = typeof targetObject.formatConjugationDisplay === "function" ? targetObject.formatConjugationDisplay(surfaceDisplay) : surfaceDisplay;
-        groupedSurfaceDisplay.split(/\n+/).map(line => line.trim()).filter(Boolean).forEach(line => {
-          const lineElement = targetObject.document.createElement("span");
-          lineElement.className = "conjugation-conversion-surface-line";
-          lineElement.textContent = line;
-          surfaceText.appendChild(lineElement);
-        });
+        appendConjugationConversionSurfaceLines(surfaceText, surfaceDisplay, evaluation?.result);
         const actions = createConjugationConversionActionsContainer();
         actionsToRender.forEach(entry => {
           const action = targetObject.document.createElement("button");
@@ -13099,6 +14909,15 @@ export function createUiRenderingModule(targetObject = globalThis) {
           action.className = ["calc-guidance__chip", "calc-guidance__chip--button", "calc-guidance__chip--linked-promote", "calc-guidance__chip--mode-sustantivo"].join(" ");
           action.dataset[entry.datasetFlag] = entry.datasetValue;
           action.dataset.targetSurface = entry.targetSurface;
+          action.dataset.continuationIdentityKey = entry.continuationIdentityKey;
+          action.dataset.continuationIdentitySource = "canonical-formula-realization-record";
+          if (entry.sourceSelectedVariant?.variantId) {
+            action.dataset.sourceSelectedVariantId = entry.sourceSelectedVariant.variantId;
+          }
+          if (entry.targetSelectedVariant?.variantId) {
+            action.dataset.targetSelectedVariantId = entry.targetSelectedVariant.variantId;
+          }
+          applyGeneratedOutputContinuationIdentityDataset(action, [evaluation?.result, entry.evaluation?.result], entry.identityContext);
           applyGrammarFrameRouteDataset(action, entry.evaluation.result);
           const label = targetObject.document.createElement("span");
           label.className = "calc-guidance__chip-label";
@@ -13450,6 +15269,12 @@ export function createUiRenderingModule(targetObject = globalThis) {
           mode: targetObject.TENSE_MODE.sustantivo,
           blockKind: "controles CNN"
         });
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(controlsBlock, {
+            mode: targetObject.TENSE_MODE.sustantivo,
+            blockKind: "controles CNN"
+          });
+        }
         const controlsTitle = targetObject.document.createElement("div");
         controlsTitle.className = "tense-block__title";
         const controlsLabel = targetObject.document.createElement("span");
@@ -13486,6 +15311,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
           tenseValue: id,
           blockKind: "CNN"
         });
+        if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+          targetObject.applyAndrewsTenseAuthorityDataset(tenseBlock, {
+            tenseValue: id,
+            mode: targetObject.TENSE_MODE.sustantivo,
+            blockKind: "CNN"
+          });
+        }
         if (isPatientivoTense && patientivoSource) {
           tenseBlock.dataset.nawatPatientivoSource = patientivoSource;
         }
@@ -13563,7 +15395,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
           return;
         }
         const selections = getSubjectSelectionsForId(activeSubject);
-        const objectSlotSelectionModels = buildNounObjectSlotModelsForState();
+        const objectSlotSelectionModels = isPreteritAgentiveLocativeNnc ? [] : buildNounObjectSlotModelsForState();
         const possessorSelections = getPossessorSelectionsForId(activePossessor);
         targetObject.iterateNounObjectSlotSelections(objectSlotSelectionModels, selectedBySlot => {
           const objectPrefix = selectedBySlot.object || "";
@@ -13602,25 +15434,28 @@ export function createUiRenderingModule(targetObject = globalThis) {
               row.dataset.objectPrefix = displayObjectPrefix;
               row.dataset.indirectObjectPrefix = displayIndirectObjectMarker;
               row.dataset.thirdObjectPrefix = displayThirdObjectMarker;
+              if (isPreteritAgentiveLocativeNnc) {
+                row.dataset.exportSourceLabel = "CNN derivada de CNV";
+              }
               const label = targetObject.document.createElement("div");
               label.className = "conjugation-label";
               const personLabel = targetObject.document.createElement("div");
               personLabel.className = "person-label";
-              personLabel.textContent = displaySelection ? targetObject.getSubjectPersonLabel(group, displaySelection, isNawat) : "";
+              personLabel.textContent = isPreteritAgentiveLocativeNnc ? "CNN" : displaySelection ? targetObject.getSubjectPersonLabel(group, displaySelection, isNawat) : "";
               const personSub = targetObject.document.createElement("div");
               personSub.className = "person-sub";
-              const basePersonSub = displayPersonSubLabel ? targetObject.getLocalizedLabel(displayPersonSubLabel, isNawat, "") : displaySelection ? targetObject.getSubjectSubLabel(displaySelection, {
+              const basePersonSub = isPreteritAgentiveLocativeNnc ? "" : displayPersonSubLabel ? targetObject.getLocalizedLabel(displayPersonSubLabel, isNawat, "") : displaySelection ? targetObject.getSubjectSubLabel(displaySelection, {
                 isNawat,
                 mode: "noun",
                 tenseValue: resolvedTense
               }) : "";
               const objectMarkers = [displayObjectPrefix, displayIndirectObjectMarker, displayThirdObjectMarker].filter(Boolean);
-              const suppressZeroObjectLabel = targetObject.isPotencialProfileTense(resolvedTense);
+              const suppressZeroObjectLabel = targetObject.isPotencialProfileTense(resolvedTense) || isPreteritAgentiveLocativeNnc;
               const isDummyImpersonalRow = combinedMode === targetObject.COMBINED_MODE.nonactive && isSubjectlessTense && !selection.subjectPrefix && !selection.subjectSuffix && !possessorPrefix && objectMarkers.length === 0;
               const objectLabel = objectMarkers.length ? objectMarkers.map(prefix => targetObject.getNounObjectComboLabel(prefix, isNawat)).join(" + ") : suppressZeroObjectLabel ? "" : targetObject.getNounZeroObjectComboLabel(isNawat, {
                 isImpersonalDummy: isDummyImpersonalRow
               });
-              let possessorLabel = targetObject.getPossessorLabel(possessorPrefix, isNawat);
+              let possessorLabel = isPreteritAgentiveLocativeNnc ? "" : targetObject.getPossessorLabel(possessorPrefix, isNawat);
               label.appendChild(personLabel);
               label.appendChild(personSub);
               const value = targetObject.document.createElement("div");
@@ -13637,7 +15472,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
               }), evaluation.result?.nominalizationProfile, {
                 isNawat
               }), evaluation.result?.denominalFamilyProfile), evaluation.result?.placeGentilicNncBoundaryFrame), evaluation.result?.relationalNncBoundaryFrame), evaluation.result?.adverbialNuclearFrame), evaluation.result?.adverbialAdjunctionBoundaryFrame), evaluation.result?.nuclearClauseShell, evaluation.result), evaluation.result?.sentenceLayer), evaluation.result, {
-                maxDiagnostics: 1
+                maxDiagnostics: 1,
+                includeDiagnostics: !isPreteritAgentiveLocativeNnc
               });
               renderGeneratedOutputSlotChips(personSub, evaluation.result);
               targetObject.applyConjugationEvaluationPresentation({
@@ -13892,6 +15728,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
           verb,
           containerId,
           tenseValue: resolvedTense,
+          predicateNominalSourceTense: normalizedSourceTense,
           modeKey
         });
       };
@@ -13995,6 +15832,13 @@ export function createUiRenderingModule(targetObject = globalThis) {
       tenseBlock.className = "tense-block tense-block--adjectival-nnc-function";
       tenseBlock.dataset.tenseBlock = "adjetivo-nnc-funcion";
       tenseBlock.dataset.andrewsFunctionBlock = String(frame.lessonRef || "Andrews 40").trim();
+      if (typeof targetObject.applyAndrewsTenseAuthorityDataset === "function") {
+        targetObject.applyAndrewsTenseAuthorityDataset(tenseBlock, {
+          tenseValue: "adjetivo-nnc-funcion",
+          mode: targetObject.TENSE_MODE.adjetivo,
+          blockKind: "CNN funcion adjetival"
+        });
+      }
       applyGrammarFrameRouteDataset(tenseBlock, result);
       if (typeof targetObject.applyTenseBlockComboPalette === "function") {
         targetObject.applyTenseBlockComboPalette(tenseBlock, "adjetivo|nnc-funcion");
@@ -14164,7 +16008,8 @@ export function createUiRenderingModule(targetObject = globalThis) {
       DEV_HOOKS_MODULE_LOADING_STATE = "loading";
       try {
         await loadDeveloperRuntimeChecksIfEnabled();
-        const hooksModule = await import("./scripts/dev_hooks.mjs");
+        const hooksModuleUrl = new targetObject.URL("./scripts/dev_hooks.mjs", targetObject.window.location.href).href;
+        const hooksModule = await import(hooksModuleUrl);
         if (hooksModule && typeof hooksModule.installDeveloperHooks === "function") {
           hooksModule.installDeveloperHooks(getDeveloperHookMap(targetObject.window), {
             windowObject: targetObject.window
@@ -14191,6 +16036,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.getNawatDenominalAndrewsRenderContextComparableInputs = getNawatDenominalAndrewsRenderContextComparableInputs;
     api.setActiveNawatDenominalAndrewsContractRouteRenderContext = setActiveNawatDenominalAndrewsContractRouteRenderContext;
     api.getActiveNawatDenominalAndrewsContractRouteRenderContextFromDocument = getActiveNawatDenominalAndrewsContractRouteRenderContextFromDocument;
+    api.getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel = getActiveNawatDenominalAndrewsContractRouteRenderContextFromModel;
     api.previewActiveNawatDenominalAndrewsContractRouteNextSourceForRendering = previewActiveNawatDenominalAndrewsContractRouteNextSourceForRendering;
     api.renderAllOutputs = renderAllOutputs;
     api.applyOutputPanelShellForTenseMode = applyOutputPanelShellForTenseMode;
@@ -14239,6 +16085,19 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.projectVisibleCnvFormulaEchoToSurface = projectVisibleCnvFormulaEchoToSurface;
     api.projectVisibleCnvFormulaSegmentToSurface = projectVisibleCnvFormulaSegmentToSurface;
     api.isVisibleCnvFormulaDirectionalPart = isVisibleCnvFormulaDirectionalPart;
+    api.normalizeVisibleCnvFormulaAlignmentToken = normalizeVisibleCnvFormulaAlignmentToken;
+    api.cloneVisibleCnvFormulaAlignmentFeatures = cloneVisibleCnvFormulaAlignmentFeatures;
+    api.getVisibleCnvFormulaAlignmentSlotFrame = getVisibleCnvFormulaAlignmentSlotFrame;
+    api.getVisibleCnvFormulaAlignmentSlotValue = getVisibleCnvFormulaAlignmentSlotValue;
+    api.getVisibleCnvFormulaAlignmentObjectMorph = getVisibleCnvFormulaAlignmentObjectMorph;
+    api.splitVisibleCnvFormulaAlignmentConnector = splitVisibleCnvFormulaAlignmentConnector;
+    api.resolveVisibleCnvFormulaAlignmentSurfaceSlots = resolveVisibleCnvFormulaAlignmentSurfaceSlots;
+    api.buildVisibleCnvFormulaAlignmentTargetFrame = buildVisibleCnvFormulaAlignmentTargetFrame;
+    api.buildVisibleCnvFormulaAlignmentSourceFrame = buildVisibleCnvFormulaAlignmentSourceFrame;
+    api.buildVisibleCnvFormulaAlignmentOperationFrame = buildVisibleCnvFormulaAlignmentOperationFrame;
+    api.getVisibleCnvFormulaAlignmentMismatch = getVisibleCnvFormulaAlignmentMismatch;
+    api.isVisibleCnvFormulaAlignmentSourceFrameComplete = isVisibleCnvFormulaAlignmentSourceFrameComplete;
+    api.getVisibleCnvFormulaAlignmentPathRecords = getVisibleCnvFormulaAlignmentPathRecords;
     api.alignVisibleCnvFormulaEchoToSurface = alignVisibleCnvFormulaEchoToSurface;
     api.getVisibleCnvFormulaSurfaceForms = getVisibleCnvFormulaSurfaceForms;
     api.getVisibleCnvFormulaSurfaceDisplay = getVisibleCnvFormulaSurfaceDisplay;
@@ -14246,6 +16105,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.normalizeGeneratedOutputVisibleCnvSlotValue = normalizeGeneratedOutputVisibleCnvSlotValue;
     api.visibleCnvFormulaEchoesCoverSurfaceForms = visibleCnvFormulaEchoesCoverSurfaceForms;
     api.dedupeVisibleCnvFormulaEchoEntries = dedupeVisibleCnvFormulaEchoEntries;
+    api.getCanonicalVisibleCnvFormulaEchoEntries = getCanonicalVisibleCnvFormulaEchoEntries;
     api.getVisibleCnvFormulaBaseRealizations = getVisibleCnvFormulaBaseRealizations;
     api.getVisibleCnvFormulaConnectorRealizations = getVisibleCnvFormulaConnectorRealizations;
     api.getVisibleCnvFormulaPathRecordValue = getVisibleCnvFormulaPathRecordValue;
@@ -14257,6 +16117,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.getVisibleCnvFormulaEchoes = getVisibleCnvFormulaEchoes;
     api.formatVisibleCnvFormulaEcho = formatVisibleCnvFormulaEcho;
     api.buildVisibleCnvFormulaEchoChips = buildVisibleCnvFormulaEchoChips;
+    api.formatVisibleCnvFormulaSurfacePairEcho = formatVisibleCnvFormulaSurfacePairEcho;
     api.createLesson4InspectorPanel = createLesson4InspectorPanel;
     api.collectLesson4TreeNodes = collectLesson4TreeNodes;
     api.getLesson4DiagramNodeLabel = getLesson4DiagramNodeLabel;
@@ -14344,6 +16205,39 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.createConjugationConversionActionsContainer = createConjugationConversionActionsContainer;
     api.getConjugationConversionActionsForValue = getConjugationConversionActionsForValue;
     api.syncConjugationConversionSurfaceRouteFrame = syncConjugationConversionSurfaceRouteFrame;
+    api.getAndrewsCnvCnnNominalRenderingFrame = getAndrewsCnvCnnNominalRenderingFrame;
+    api.normalizeAndrewsCnvCnnNominalSurfaceKey = normalizeAndrewsCnvCnnNominalSurfaceKey;
+    api.getAndrewsCnvCnnNominalFormulaSurfacePairs = getAndrewsCnvCnnNominalFormulaSurfacePairs;
+    api.getAndrewsCnvCnnNominalFormulaSurfacePairForSurface = getAndrewsCnvCnnNominalFormulaSurfacePairForSurface;
+    api.getGeneratedOutputResultFrame = getGeneratedOutputResultFrame;
+    api.getGeneratedOutputCanonicalFormulaRecords = getGeneratedOutputCanonicalFormulaRecords;
+    api.getGeneratedOutputCanonicalFormulaRecord = getGeneratedOutputCanonicalFormulaRecord;
+    api.getGeneratedOutputCanonicalFormulaSlots = getGeneratedOutputCanonicalFormulaSlots;
+    api.getGeneratedOutputCanonicalFormulaText = getGeneratedOutputCanonicalFormulaText;
+    api.getGeneratedOutputStructuredContinuationFormulaSlots = getGeneratedOutputStructuredContinuationFormulaSlots;
+    api.getGeneratedOutputStructuredContinuationFormulaEcho = getGeneratedOutputStructuredContinuationFormulaEcho;
+    api.normalizeGeneratedOutputStructuredContinuationStem = normalizeGeneratedOutputStructuredContinuationStem;
+    api.getGeneratedOutputStructuredContinuationPredicateStem = getGeneratedOutputStructuredContinuationPredicateStem;
+    api.getGeneratedOutputCanonicalRealizationRecords = getGeneratedOutputCanonicalRealizationRecords;
+    api.getCanonicalFormulaRealizationSurfaceForms = getCanonicalFormulaRealizationSurfaceForms;
+    api.getGeneratedOutputCanonicalRealizationSurfaceForms = getGeneratedOutputCanonicalRealizationSurfaceForms;
+    api.getGeneratedOutputSelectedRealizationVariant = getGeneratedOutputSelectedRealizationVariant;
+    api.getGeneratedOutputCanonicalFormulaRecordById = getGeneratedOutputCanonicalFormulaRecordById;
+    api.getGeneratedOutputCanonicalRealizationRecordById = getGeneratedOutputCanonicalRealizationRecordById;
+    api.buildGeneratedOutputTypedContinuationFrame = buildGeneratedOutputTypedContinuationFrame;
+    api.getCanonicalFormulaSurfacePairsForGeneratedOutput = getCanonicalFormulaSurfacePairsForGeneratedOutput;
+    api.getGeneratedOutputRouteContractIdentityParts = getGeneratedOutputRouteContractIdentityParts;
+    api.getGeneratedOutputCanonicalContinuationIdentityParts = getGeneratedOutputCanonicalContinuationIdentityParts;
+    api.getGeneratedOutputContinuationIdentityKey = getGeneratedOutputContinuationIdentityKey;
+    api.applyGeneratedOutputContinuationIdentityDataset = applyGeneratedOutputContinuationIdentityDataset;
+    api.getDenominalAndrewsRouteContinuationIdentityKey = getDenominalAndrewsRouteContinuationIdentityKey;
+    api.getFormulaSurfacePairsForGeneratedOutput = getFormulaSurfacePairsForGeneratedOutput;
+    api.getFormulaSurfacePairForGeneratedOutput = getFormulaSurfacePairForGeneratedOutput;
+    api.applyFormulaSurfacePairDatasetToSurfaceLine = applyFormulaSurfacePairDatasetToSurfaceLine;
+    api.appendFormulaSurfacePairDetailToSurfaceLine = appendFormulaSurfacePairDetailToSurfaceLine;
+    api.applyAndrewsCnvCnnNominalRenderingDataset = applyAndrewsCnvCnnNominalRenderingDataset;
+    api.getAndrewsCnvCnnNominalRenderedSurface = getAndrewsCnvCnnNominalRenderedSurface;
+    api.appendConjugationConversionSurfaceLines = appendConjugationConversionSurfaceLines;
     api.syncConjugationConversionSurfaceRouteFrameFromActions = syncConjugationConversionSurfaceRouteFrameFromActions;
     api.applyConjugationConversionColumnLayout = applyConjugationConversionColumnLayout;
     api.resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta = resolveAndrewsCnvCnnRouteRecordContinuationGroupMeta;
@@ -14357,8 +16251,11 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.ensureDenominalAndrewsRouteContinuationDisplay = ensureDenominalAndrewsRouteContinuationDisplay;
     api.getAndrewsCnvCnnRouteSourceRequirementIdsForRendering = getAndrewsCnvCnnRouteSourceRequirementIdsForRendering;
     api.getAndrewsCnvCnnRouteActionContractForRendering = getAndrewsCnvCnnRouteActionContractForRendering;
+    api.getVerbNominalContinuationRouteRecordIdFromSourceUnit = getVerbNominalContinuationRouteRecordIdFromSourceUnit;
+    api.buildVerbNominalContinuationRouteActionContractForRendering = buildVerbNominalContinuationRouteActionContractForRendering;
     api.formatAndrewsCnvCnnRouteTransitionForRendering = formatAndrewsCnvCnnRouteTransitionForRendering;
     api.appendAndrewsCnvCnnRouteActionTitle = appendAndrewsCnvCnnRouteActionTitle;
+    api.clearAndrewsCnvCnnRouteActionDataset = clearAndrewsCnvCnnRouteActionDataset;
     api.applyAndrewsCnvCnnRouteActionDataset = applyAndrewsCnvCnnRouteActionDataset;
     api.getFunctionUseContinuationRouteOwnershipOptions = getFunctionUseContinuationRouteOwnershipOptions;
     api.isAndrewsCnvCnnRouteActionFunctionUseHardBlocked = isAndrewsCnvCnnRouteActionFunctionUseHardBlocked;
@@ -14381,6 +16278,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.appendNuclearClauseShellSubLabels = appendNuclearClauseShellSubLabels;
     api.normalizeGeneratedOutputSlotChipValue = normalizeGeneratedOutputSlotChipValue;
     api.buildGeneratedOutputSlotPredicateValue = buildGeneratedOutputSlotPredicateValue;
+    api.isLesson46PreteritAgentiveLocativeResult = isLesson46PreteritAgentiveLocativeResult;
     api.buildGeneratedOutputVisibleCnvPredicateValue = buildGeneratedOutputVisibleCnvPredicateValue;
     api.buildGeneratedOutputVisibleCnvConnectorValue = buildGeneratedOutputVisibleCnvConnectorValue;
     api.getGeneratedOutputVisibleSurfaceForms = getGeneratedOutputVisibleSurfaceForms;
@@ -14400,7 +16298,9 @@ export function createUiRenderingModule(targetObject = globalThis) {
     });
     api.getGeneratedOutputCompactTenseValue = getGeneratedOutputCompactTenseValue;
     api.getGeneratedOutputShellSlots = getGeneratedOutputShellSlots;
+    api.buildGeneratedOutputFormulaSlotsFromCnvPath = buildGeneratedOutputFormulaSlotsFromCnvPath;
     api.getGeneratedOutputSlotFormulaType = getGeneratedOutputSlotFormulaType;
+    api.getFormulaSurfacePairFormulaType = getFormulaSurfacePairFormulaType;
     api.parseGeneratedOutputVncFormulaEchoSlots = parseGeneratedOutputVncFormulaEchoSlots;
     api.mergeGeneratedOutputFormulaSlots = mergeGeneratedOutputFormulaSlots;
     api.buildGeneratedOutputPatientiveStageValue = buildGeneratedOutputPatientiveStageValue;
@@ -14414,6 +16314,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.renderGeneratedOutputSlotChips = renderGeneratedOutputSlotChips;
     api.getGrammarFrameForRendering = getGrammarFrameForRendering;
     api.inferGrammarFrameDiagnosticLayerForRendering = inferGrammarFrameDiagnosticLayerForRendering;
+    api.buildGrammarFrameRouteAuditModelForRendering = buildGrammarFrameRouteAuditModelForRendering;
     api.applyGrammarFrameRouteDataset = applyGrammarFrameRouteDataset;
     api.attachUiRouteControlGrammarContract = attachUiRouteControlGrammarContract;
     api.getPatientivoRouteControlAndrewsRefs = getPatientivoRouteControlAndrewsRefs;
@@ -14505,6 +16406,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
     api.renderActiveConjugations = renderActiveConjugations;
     api.renderNonactiveConjugationRows = renderNonactiveConjugationRows;
     api.splitConjugationSurfaceText = splitConjugationSurfaceText;
+    api.getStructuredConjugationResultFrameSurfaceForms = getStructuredConjugationResultFrameSurfaceForms;
     api.getConjugationResultFrame = getConjugationResultFrame;
     api.hasConjugationResultFrame = hasConjugationResultFrame;
     api.getConjugationFrameSurfaceForms = getConjugationFrameSurfaceForms;
@@ -14567,7 +16469,7 @@ export function createUiRenderingModule(targetObject = globalThis) {
 }
 
 export function installUiRenderingGlobals(targetObject = globalThis) {
-    const api = createUiRenderingModule(targetObject);
+    const api = createUiRenderingApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

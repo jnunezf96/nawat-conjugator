@@ -120,6 +120,12 @@ function getGenerateRuntimeSurfaceForms(result = null) {
         ? grammarFrame.resultFrame
         : null;
     const hasResultFrame = Boolean(resultFrame);
+    const canonicalForms = typeof getGrammarResultFrameCanonicalSurfaceForms === "function"
+        ? getGrammarResultFrameCanonicalSurfaceForms(resultFrame)
+        : [];
+    if (canonicalForms.length) {
+        return canonicalForms;
+    }
     const forms = [];
     if (Array.isArray(resultFrame?.surfaceForms)) {
         forms.push(...resultFrame.surfaceForms);
@@ -129,7 +135,8 @@ function getGenerateRuntimeSurfaceForms(result = null) {
     }
     if (hasResultFrame) {
         return forms
-            .flatMap((entry) => splitGenerateRuntimeContractSurfaceText(entry))
+            .map((entry) => normalizeGenerateRuntimeContractSurface(entry))
+            .filter((entry) => entry && !entry.includes("/"))
             .filter((entry, index, list) => entry && list.indexOf(entry) === index);
     }
     if (!hasResultFrame && Array.isArray(result?.surfaceForms)) {
@@ -153,8 +160,9 @@ function resolveGenerateRuntimeContractSurface(result = null) {
         : null;
     const hasResultFrame = Boolean(resultFrame);
     const surfaceForms = getGenerateRuntimeSurfaceForms(result);
+    const frameSurface = normalizeGenerateRuntimeContractSurface(resultFrame?.surface || "");
     const rawSurface = surfaceForms[0]
-        || resultFrame?.surface
+        || (frameSurface && !frameSurface.includes("/") ? frameSurface : "")
         || (!hasResultFrame ? (result?.surface || result?.result) : "")
         || "";
     return normalizeGenerateRuntimeContractSurface(rawSurface);
@@ -213,7 +221,7 @@ function attachGenerateRuntimeBlockedContract(result = null, {
         orthographyFrame: {
             surface: normalizedSurface,
             surfaceForms: normalizedSurfaceForms,
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
         },
         morphBoundaryFrame: {

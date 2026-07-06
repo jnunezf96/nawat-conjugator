@@ -64,13 +64,13 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       possessive: "possessive",
       unknown: "unknown"
     });
-    const PLACE_GENTILIC_NNC_ANTI_CONFLATION_RULES = Object.freeze(["place-name/gentilic NNC boundary metadata is not generation", "ordinary NNC fixtures are not place-name or gentilic fixture evidence", "open-stem ordinary NNC previews are not place-name or gentilic data", "locative-temporal nominal outputs are not place-name NNC evidence", "relational NNC boundary metadata is not place-name or gentilic evidence", "place, profession, or gentilic translations are not Nawat/Pipil form evidence", "Andrews place-name and gentilic categories are architecture, not Nawat/Pipil form authority"]);
+    const PLACE_GENTILIC_NNC_ANTI_CONFLATION_RULES = Object.freeze(["place-name/gentilic NNC boundary metadata is not generation", "ordinary NNC fixtures are not place-name or gentilic fixture evidence", "open-stem ordinary NNC previews are not place-name or gentilic data", "locative-temporal nominal outputs are not place-name NNC evidence", "relational NNC boundary metadata is not place-name or gentilic evidence", "place, profession, or gentilic translations are not orthography-bridge form evidence", "Andrews place-name and gentilic categories are architecture, not Nawat/Pipil orthography authority"]);
     const PLACE_GENTILIC_NNC_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "placeNameSource",
-      asks: "Which Nawat/Pipil place-name NNC form is evidenced?"
+      asks: "Which Andrews place-name NNC form is licensed before Nawat/Pipil orthography realizes it?"
     }), Object.freeze({
       field: "gentilicSource",
-      asks: "Which Nawat/Pipil gentilic NNC form is evidenced?"
+      asks: "Which Andrews gentilic NNC form is licensed before Nawat/Pipil orthography realizes it?"
     }), Object.freeze({
       field: "placeGentilicKind",
       asks: "Is the candidate a place-name, gentilic, gentilic collective, profession/place association, calendar-name, or unknown?"
@@ -79,10 +79,10 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       asks: "What place is associated with the gentilic, collective, profession, or name?"
     }), Object.freeze({
       field: "collectivity",
-      asks: "Is collectivity evidenced by Nawat/Pipil data or only by a translation/category label?"
+      asks: "Is collectivity licensed by Andrews structure or only by a translation/category label?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided example supports place/gentilic status?"
+      asks: "Which Andrews source gate or structured route licenses place/gentilic status?"
     })]);
     function normalizePlaceGentilicNncEnum(value = "", allowedValues = [], fallback = "unknown") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
@@ -93,6 +93,147 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
     }
     function normalizePlaceGentilicNncFalsePositiveSource(value = "") {
       return normalizePlaceGentilicNncEnum(value, Object.values(PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE), PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown);
+    }
+    function normalizePlaceGentilicNncCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews place/gentilic NNC candidate formula",
+        slot: "place-gentilic-nounstem"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function hasPlaceGentilicNncAndrewsSourceGate({
+      sourceGate = "",
+      structuredSource = false
+    } = {}) {
+      return structuredSource === true || Boolean(String(sourceGate || "").trim());
+    }
+    function buildPlaceGentilicNncSourceFrame({
+      candidate = "",
+      placeNameSource = "",
+      gentilicSource = "",
+      placeGentilicKind = "",
+      associatedPlace = "",
+      collectivity = "",
+      evidenceSource = "",
+      sourceGate = "",
+      sourceKind = "",
+      targetFormulaSlots = null,
+      targetSegmentFrames = []
+    } = {}) {
+      const normalizedKind = normalizePlaceGentilicNncKind(placeGentilicKind);
+      if (normalizedKind === PLACE_GENTILIC_NNC_KIND.unknown) {
+        return null;
+      }
+      const segments = Array.isArray(targetSegmentFrames) ? targetSegmentFrames.map(segment => {
+        const surface = String(segment?.surface || "").trim();
+        if (!surface || /[A-Z_]/.test(surface)) {
+          return null;
+        }
+        return Object.freeze({
+          slot: String(segment?.slot || ""),
+          role: String(segment?.role || ""),
+          formulaValue: String(segment?.formulaValue || ""),
+          sourceStem: String(segment?.sourceStem || ""),
+          surface,
+          orthographyBridge: "Nawat/Pipil orthography bridge"
+        });
+      }).filter(Boolean) : [];
+      if (!segments.length) {
+        return null;
+      }
+      const targetSurface = segments.map(segment => segment.surface).join("");
+      if (!targetSurface) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "place-gentilic-nnc-source-frame",
+        version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
+        routeFamily: "place-gentilic-nnc",
+        placeGentilicKind: normalizedKind,
+        candidate: String(candidate || ""),
+        placeNameSource: String(placeNameSource || ""),
+        gentilicSource: String(gentilicSource || ""),
+        associatedPlace: String(associatedPlace || ""),
+        collectivity: String(collectivity || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        sourceKind: String(sourceKind || ""),
+        targetFormulaSlots,
+        targetSegmentFrames: Object.freeze(segments),
+        targetSurface,
+        authority: "Andrews Lesson 48 place/gentilic NNC source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildPlaceGentilicNncOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "place-gentilic-nnc-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-48-place-gentilic-nnc-realization",
+        routeFamily: "place-gentilic-nnc",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-place-gentilic-nnc-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourcePlaceGentilicKind: sourceFrame.placeGentilicKind,
+        sourcePlaceName: sourceFrame.placeNameSource,
+        sourceGentilic: sourceFrame.gentilicSource,
+        sourceAssociatedPlace: sourceFrame.associatedPlace,
+        targetFormulaSlots: sourceFrame.targetFormulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPlaceGentilicNncOperationFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "place-gentilic-nnc-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-48-place-gentilic-nnc-realization" || operationFrame.routeFamily !== "place-gentilic-nnc" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind || String(operationFrame.sourcePlaceGentilicKind || "") !== String(sourceFrame.placeGentilicKind || "") || String(operationFrame.sourcePlaceName || "") !== String(sourceFrame.placeNameSource || "") || String(operationFrame.sourceGentilic || "") !== String(sourceFrame.gentilicSource || "") || String(operationFrame.sourceAssociatedPlace || "") !== String(sourceFrame.associatedPlace || "")) {
+        return "contradictory-source-frame";
+      }
+      const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+      }
+      const targetSurface = targetSegmentFrames.map(segment => String(segment?.surface || "")).join("");
+      if (targetSurface !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "")) {
+        return "contradictory-target-frame";
+      }
+      if (sourceFrame.targetFormulaSlots && operationFrame.targetFormulaSlots !== sourceFrame.targetFormulaSlots) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getPlaceGentilicNncBlockedDiagnostic({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const mismatch = getPlaceGentilicNncOperationFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      return mismatch ? `place-gentilic-nnc-${mismatch}` : "";
     }
     function normalizePlaceGentilicNncUsage(value = "") {
       const normalized = String(value || "").trim().toLowerCase().replace(/[_\s]+/g, "-");
@@ -337,7 +478,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Los nombres de lugar son CNN adverbializadas con referencia social unica, no simples etiquetas locativas.",
       engineSurface: "diagnostic place-name frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-place-name-functions",
       andrewsSection: "48.1 ordinary-adverbial-adjectival",
@@ -361,7 +502,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "El grupo n hereda formaciones de 46.3-46.5 y agrega matrices ma-n y tla-n propias de nombres de lugar.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-imperfect",
       andrewsSection: "48.2.1",
@@ -369,7 +510,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "N puede embeder predicado imperfecto nominalizado de fuente activa o no activa.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-yan",
       andrewsSection: "48.2.2",
@@ -377,7 +518,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "La matriz ya-n de 46.5 puede formar nombres de lugar.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-man",
       andrewsSection: "48.2.3",
@@ -385,7 +526,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Ma-n significa lugar del area de y se usa solo en nombres de lugar.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-tlan",
       andrewsSection: "48.2.4",
@@ -393,7 +534,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Tla-n de nombres de lugar significa lugar en la vecindad de y se distingue de tlan relacional.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-can",
       andrewsSection: "48.2.5",
@@ -401,7 +542,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Ca-n puede formar nombres de lugar con embed nominal que no viene de VNC nominalizada.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-preterit-agentive",
       andrewsSection: "48.2.6",
@@ -409,7 +550,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "N puede embeder forma de uso general de un agentivo preterito, incluso de posesion.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-n-action-noun",
       andrewsSection: "48.2.7",
@@ -417,7 +558,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "N puede embeder nombre de accion; ca ante n es morfo de pasado remoto.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-pan-group",
       andrewsSection: "48.3",
@@ -425,7 +566,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Pan forma nombres de lugar integrados o con conectivo t; con cursos de agua puede sugerir cruce o vado.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-co-c-group",
       andrewsSection: "48.4",
@@ -433,7 +574,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Co/c forma nombres de lugar; los afectivos y la variante silenciosa pueden crear ambiguedad que requiere historia o evidencia.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-tlah-group",
       andrewsSection: "48.5",
@@ -441,7 +582,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Tlah forma nombres de lugar con embed normal o con pan relacional.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-tzalan-group",
       andrewsSection: "48.6",
@@ -449,7 +590,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Tzalan forma nombres de lugar de en medio o entre.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-ti-tlan-group",
       andrewsSection: "48.7",
@@ -457,7 +598,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Ti-tlan forma nombres de lugar basados en la estructura relacional con conectivo t.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-chan-group",
       andrewsSection: "48.8",
@@ -465,7 +606,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Chan forma nombres de lugar mediante suplementacion de poseedor; Tamoanchan queda incierto.",
       engineSurface: "diagnostic place-group frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-overview",
       andrewsSection: "48.9",
@@ -473,7 +614,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Los gentilicios nombran humanos asociados intimamente con un lugar nombrado y tienen cuatro vias principales.",
       engineSurface: "diagnostic gentilic frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-nonlocative",
       andrewsSection: "48.9.1",
@@ -481,7 +622,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "La formacion absolutiva no locativa se limita a nombres tribales.",
       engineSurface: "diagnostic gentilic frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-two-clause",
       andrewsSection: "48.9.2",
@@ -489,7 +630,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Una unidad gentilicia puede ser biclausal: nombre de lugar como modificador adjetival mas cabeza absolutiva.",
       engineSurface: "diagnostic gentilic frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-preterit-agentive",
       andrewsSection: "48.9.3",
@@ -497,7 +638,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Algunos nombres de lugar derivan de un gentilicio agentivo preterito de posesion o no posesion.",
       engineSurface: "diagnostic gentilic frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-ca-matrix",
       andrewsSection: "48.9.4",
@@ -505,7 +646,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Los demas nombres de lugar pueden embederse en ca-tl con forma completa, e-ca, m-e-ca, variante silenciosa o te-ca.",
       engineSurface: "diagnostic gentilic frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-spelling-ambiguity",
       andrewsSection: "48.9 notes",
@@ -521,7 +662,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Un tronco gentilicio puede incorporarse en compuestos o embederse en nombres de lugar; debe distinguirse de entidad asociada.",
       engineSurface: "diagnostic extensions frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-adjectival",
       andrewsSection: "48.11",
@@ -529,7 +670,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Las CNN gentilicias pueden usarse adjetivalmente.",
       engineSurface: "diagnostic extensions frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-gentilic-collectivity",
       andrewsSection: "48.12",
@@ -537,7 +678,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Yo-tl crea colectividad gentilicia o caracteristica del pueblo; las formas posesivas permiten num1 cero o uh.",
       engineSurface: "diagnostic extensions frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson48-profession-titles",
       andrewsSection: "48.13",
@@ -545,7 +686,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       directiveEs: "Algunos gentilicios se lexicalizan como profesion o titulo; admiten absolutivo o posesivo y pueden formar pertinencia con yo-tl.",
       engineSurface: "diagnostic extensions frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     })]);
     function clonePlaceGentilicNncLessonRecord(record) {
       if (!record || typeof record !== "object") {
@@ -561,7 +702,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON48_PLACE_GENTILIC_VALIDATION_REFS)
       }));
     }
@@ -571,7 +712,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       const placeGroupsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_PLACE_GROUPS_FRAME);
       const gentilicFrame = clonePlaceGentilicNncLessonRecord(LESSON48_GENTILIC_FRAME);
       const extensionsFrame = clonePlaceGentilicNncLessonRecord(LESSON48_EXTENSIONS_FRAME);
-      const remainingGaps = ["Current Lesson 48 support records Andrews' place-name and gentilic architecture as diagnostics and usage frames; it does not implement place-name fixture data, gentilic fixture data, or surface generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require confirmed Nawat/Pipil evidence before visible output.", "Parser/search detection, unique-reference place-name resolution, place-name group parsing, gentilic derivation routing, traditional spelling ambiguity, incorporation, collectivity, profession/title extension, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
+      const remainingGaps = ["Current Lesson 48 support records Andrews' place-name and gentilic architecture as diagnostics and usage frames; it does not implement place-name fixture data, gentilic fixture data, or surface generation.", "Classical examples and spelling-sensitive forms remain structural references only; Nawat/Pipil slot-scoped orthography and lexical surfaces require Andrews source models plus the orthography bridge before generating visible output.", "Parser/search detection, unique-reference place-name resolution, place-name group parsing, gentilic derivation routing, traditional spelling ambiguity, incorporation, collectivity, profession/title extension, acciones de interfaz, and sentence-level context inference remain partial or evidence-needed."];
       const frame = {
         kind: "lesson-48-place-gentilic-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -628,10 +769,10 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 48.1-48.13",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil place/gentilic evidence",
+          spellingAuthority: "Nawat/Pipil place/gentilic orthography bridge",
           noClassicalSurfaceImport: true,
           slotScopedOrthographyRequiredBeforeVisibleNawatSurface: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-plus-source-gate-required"
         },
         morphBoundaryFrame: {
           placeNameFrame,
@@ -657,7 +798,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-needs-nawat-evidence"]
+        diagnostics: ["place-gentilic-nnc-lesson-48-diagnostic-partial", "place-gentilic-nnc-source-gated"]
       });
     }
     function buildPlaceGentilicNncBoundaryMetadata() {
@@ -667,7 +808,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         lesson: 48,
         status: "partial",
         structuralSource: "Andrews Lesson 48",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getPlaceGentilicNncStructuralQuestions(),
@@ -702,12 +843,26 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
       associatedPlace = "",
       collectivity = "",
       evidenceSource = "",
+      sourceGate = "",
+      structuredSource = false,
       falsePositiveSource = "",
-      sourceKind = ""
+      sourceKind = "",
+      sourceFrame = null,
+      operationFrame = null
     } = {}) {
       const normalizedKind = normalizePlaceGentilicNncKind(placeGentilicKind);
       const normalizedFalsePositive = normalizePlaceGentilicNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+      const requiresTypedOperation = normalizedKind !== PLACE_GENTILIC_NNC_KIND.unknown && normalizedFalsePositive === PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown;
+      const blockedDiagnostic = requiresTypedOperation ? getPlaceGentilicNncBlockedDiagnostic({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      }) : "";
+      const sourceSurface = blockedDiagnostic ? "" : String(operationFrame?.targetSurface || "");
+      const canGenerate = Boolean(sourceSurface && !blockedDiagnostic && normalizedKind !== PLACE_GENTILIC_NNC_KIND.unknown && normalizedFalsePositive === PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown);
+      const targetFormulaSlots = canGenerate ? operationFrame.targetFormulaSlots : null;
+      const targetSegmentFrames = canGenerate && Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
       const classification = {
         kind: "place-gentilic-nnc-candidate-classification",
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
@@ -718,22 +873,66 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         associatedPlace: String(associatedPlace || ""),
         collectivity: String(collectivity || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
         sourceKind: String(sourceKind || ""),
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "place-gentilic-nnc-needs-validation" : "place-gentilic-nnc-needs-nawat-evidence", normalizedKind !== PLACE_GENTILIC_NNC_KIND.unknown ? "place-gentilic-nnc-kind-recognized" : "place-gentilic-nnc-kind-unconfirmed", normalizedFalsePositive !== PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown ? "place-gentilic-nnc-false-positive-source" : "place-gentilic-nnc-unconfirmed"],
+        ...(resolvedSourceFrame ? {
+          sourceFrame: resolvedSourceFrame
+        } : {}),
+        ...(operationFrame ? {
+          operationFrame
+        } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(canGenerate ? {
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames
+        } : {}),
+        diagnostics: [canGenerate ? "place-gentilic-nnc-andrews-source-generated" : blockedDiagnostic || (hasEvidence ? "place-gentilic-nnc-needs-validation" : "place-gentilic-nnc-source-gate-required"), normalizedKind !== PLACE_GENTILIC_NNC_KIND.unknown ? "place-gentilic-nnc-kind-recognized" : "place-gentilic-nnc-kind-unconfirmed", normalizedFalsePositive !== PLACE_GENTILIC_NNC_FALSE_POSITIVE_SOURCE.unknown ? "place-gentilic-nnc-false-positive-source" : canGenerate ? "place-gentilic-nnc-structured-source" : "place-gentilic-nnc-unconfirmed"],
         boundary: buildPlaceGentilicNncBoundaryMetadata()
       };
       return attachPlaceGentilicNncGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-place-gentilic-nnc" : "classify-boundary",
         sourceInput: classification.candidate || classification.placeNameSource || classification.gentilicSource,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
         morphBoundaryFrame: classification.boundary,
         stemFrame: {
           stemKind: "place-gentilic-source-candidate",
           sourceStem: classification.placeNameSource || classification.gentilicSource,
-          sourceKind: classification.placeGentilicKind
+          sourceKind: classification.placeGentilicKind,
+          sourceGate: classification.sourceGate,
+          targetStem: classification.surface,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
+        nuclearClauseFrame: canGenerate ? {
+          formulaFamily: "place/gentilic NNC",
+          placeGentilicKind: normalizedKind,
+          associatedPlace: classification.associatedPlace,
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames
+        } : null,
+        targetContract: {
+          metadataKind: "place-gentilic-nnc-candidate-classification",
+          generationAllowed: canGenerate,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false
         }
       });
     }
@@ -829,7 +1028,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         version: PLACE_GENTILIC_NNC_BOUNDARY_VERSION,
         lesson: 48,
         structuralSource: "Andrews Lesson 48",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         candidate: String(candidate || ""),
         placeNameSource: String(placeNameSource || ""),
         gentilicSource: String(gentilicSource || ""),
@@ -858,7 +1057,7 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
         translationWarning: {
           labelsAreMorphology: false,
           translationLabel: String(translationLabel || ""),
-          warning: "place, profession, and gentilic labels are translation-only unless Nawat/Pipil morphology is evidenced"
+          warning: "place, profession, and gentilic labels are translation-only unless orthography-bridge morphology is sourced"
         },
         diagnostics,
         boundary: buildPlaceGentilicNncBoundaryMetadata()
@@ -933,6 +1132,12 @@ export function createPlaceGentilicNncApi(targetObject = globalThis) {
     api.normalizePlaceGentilicNncEnum = normalizePlaceGentilicNncEnum;
     api.normalizePlaceGentilicNncKind = normalizePlaceGentilicNncKind;
     api.normalizePlaceGentilicNncFalsePositiveSource = normalizePlaceGentilicNncFalsePositiveSource;
+    api.normalizePlaceGentilicNncCandidateSurface = normalizePlaceGentilicNncCandidateSurface;
+    api.hasPlaceGentilicNncAndrewsSourceGate = hasPlaceGentilicNncAndrewsSourceGate;
+    api.buildPlaceGentilicNncSourceFrame = buildPlaceGentilicNncSourceFrame;
+    api.buildPlaceGentilicNncOperationFrame = buildPlaceGentilicNncOperationFrame;
+    api.getPlaceGentilicNncOperationFrameMismatch = getPlaceGentilicNncOperationFrameMismatch;
+    api.getPlaceGentilicNncBlockedDiagnostic = getPlaceGentilicNncBlockedDiagnostic;
     api.normalizePlaceGentilicNncUsage = normalizePlaceGentilicNncUsage;
     api.normalizePlaceGentilicNncPlaceGroup = normalizePlaceGentilicNncPlaceGroup;
     api.normalizePlaceGentilicNncGentilicFormation = normalizePlaceGentilicNncGentilicFormation;

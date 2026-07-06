@@ -16,17 +16,28 @@ function run(ctx) {
             typeof ctx.classifyAdjectivalNncFunctionCandidate,
             typeof ctx.classifyAdjectivalNncFalsePositive,
             typeof ctx.getAdjectivalNncAntiConflationRules,
+            typeof ctx.buildAdjectivalNncFunctionCandidateSourceFrame,
+            typeof ctx.buildAdjectivalNncFunctionCandidateOperationFrame,
+            typeof ctx.getAdjectivalNncFunctionCandidateOperationFrameMismatch,
             typeof ctx.buildPatientivoAdjectivalNncFunctionOutput,
             typeof ctx.buildIntensifiedAdjectivalNncOutput,
+            typeof ctx.buildIntensifiedAdjectivalNncOperationFrame,
+            typeof ctx.buildRootPlusYaAdjectivalNncSourceFrame,
+            typeof ctx.buildRootPlusYaAdjectivalNncOperationFrame,
             typeof ctx.shouldGenerateIntensifiedAdjectivalNnc,
             typeof ctx.shouldGeneratePatientiveAdjectivalNnc,
+            typeof ctx.buildPatientivoAdjectivalNncOperationFrame,
             typeof ctx.buildVncAdjectivalNncFunctionOutput,
+            typeof ctx.buildVncAdjectivalNncOperationFrame,
             typeof ctx.shouldGenerateVncAdjectivalNnc,
             typeof ctx.buildCompoundSourceAdjectivalNncFunctionOutput,
+            typeof ctx.buildCompoundSourceAdjectivalNncOperationFrame,
             typeof ctx.shouldGenerateCompoundSourceAdjectivalNnc,
             typeof ctx.buildDenominalCompoundAdjectivalNncFunctionOutput,
+            typeof ctx.buildDenominalCompoundAdjectivalNncOperationFrame,
             typeof ctx.shouldGenerateDenominalCompoundAdjectivalNnc,
             typeof ctx.buildNominalizedVncAdjectivalNncFunctionOutput,
+            typeof ctx.buildNominalizedVncAdjectivalNncOperationFrame,
             typeof ctx.shouldGenerateNominalizedVncAdjectivalNnc,
             typeof ctx.resolveAdjectivalNncSourceFormationFrame,
             typeof ctx.buildLesson40AdjectivalNncPursuitFrame,
@@ -56,8 +67,407 @@ function run(ctx) {
             "function",
             "function",
             "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
+            "function",
         ]
     );
+
+    const buildVncAdjectivalTypedInput = ({
+        surface = "nemi",
+        stem = "nemi",
+        formula = "#Ø-Ø(nemi)presente+Ø#",
+        formulaId = "vnc-adjectival-source-formula",
+        realizationId = "vnc-adjectival-source-realization",
+        objPrefix = "",
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            obj1: { slot: "obj1", prefix: objPrefix, displayPrefix: objPrefix || "Ø" },
+            predicateStem: { slot: "STEM", stem, displayStem: stem },
+            tensePosition: { slot: "tiempo", tense: "presente", displayTense: "presente" },
+            num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "VNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "VNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildVncAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            role: "predicate-surface",
+        });
+        const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...formulaRecord,
+                operationFrames: [operationFrame],
+            },
+        };
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+        };
+    };
+
+    const buildIntensifiedAdjectivalTypedInput = ({
+        stem = "yekti",
+        connector = "k",
+        surface = "yektik",
+        formula = "#Ø-Ø(yekti)k#",
+        formulaId = "intensified-adjectival-source-formula",
+        realizationId = "intensified-adjectival-source-realization",
+        sourceFormulaSlots = null,
+    } = {}) => {
+        const formulaSlots = sourceFormulaSlots || directFormulaSlots(stem, connector === "Ø" ? "zero" : connector);
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "NNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface: stem },
+                { slot: "num1-num2", formulaValue: connector, surface: connector === "Ø" ? "" : connector },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildIntensifiedAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            role: "predicate-surface",
+        });
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            operationFrame,
+        };
+    };
+
+    const buildRootPlusYaAdjectivalTypedInput = ({
+        stem = "yektiya",
+        state = "absolutive",
+        subject = null,
+        role = "predicate-surface",
+    } = {}) => {
+        const parsedVerb = ctx.resolveAdjectivalNncParsedVerb(stem);
+        const sourceFrame = ctx.buildRootPlusYaAdjectivalNncSourceFrame({
+            parsedVerb,
+            subject,
+            state,
+            role,
+        });
+        const operationFrame = ctx.buildRootPlusYaAdjectivalNncOperationFrame(sourceFrame);
+        return {
+            stem,
+            parsedVerb,
+            sourceFrame,
+            operationFrame,
+        };
+    };
+
+    const generateRootPlusYaAdjectivalTyped = (input = {}) => {
+        const typed = buildRootPlusYaAdjectivalTypedInput(input);
+        return ctx.generateRootPlusYaAdjectivalNncOutput({
+            ...input,
+            sourceFrame: typed.sourceFrame,
+            operationFrame: typed.operationFrame,
+        });
+    };
+
+    const buildPatientivoAdjectivalTypedInput = ({
+        surface = "tamachti",
+        stem = "tamach",
+        formula = "#Ø-Ø(tamach)ti#",
+        formulaId = "patientivo-adjectival-source-formula",
+        realizationId = "patientivo-adjectival-source-realization",
+        patientivoSource = "nonactive",
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            predicateStem: { slot: "STEM", stem, displayStem: stem },
+            num1Num2: { slot: "num1-num2", connector: "ti", displayConnector: "ti" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "NNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface: stem },
+                { slot: "num1-num2", formulaValue: "ti", surface: "ti" },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildPatientivoAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            patientivoSource,
+            role: "predicate-surface",
+        });
+        const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...formulaRecord,
+                operationFrames: [operationFrame],
+            },
+        };
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            patientivoSource,
+        };
+    };
+
+    const buildCompoundSourceAdjectivalTypedInput = ({
+        surface = "amikik",
+        stem = "amikik",
+        formula = "#Ø-Ø(amikik)Ø#",
+        formulaId = "compound-source-adjectival-source-formula",
+        realizationId = "compound-source-adjectival-source-realization",
+        sourceCompoundFrame = null,
+        nominalizationKind = "adjectival-surface",
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            predicateStem: { slot: "STEM", stem, displayStem: stem },
+            num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "NNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildCompoundSourceAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            sourceCompoundFrame,
+            nominalizationKind,
+            role: "predicate-surface",
+        });
+        const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...formulaRecord,
+                operationFrames: [operationFrame],
+            },
+        };
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            sourceCompoundFrame,
+            nominalizationKind,
+        };
+    };
+
+    const buildNominalizedVncAdjectivalTypedInput = ({
+        surface = "nemini",
+        stem = "nemini",
+        formula = "#Ø-Ø(nemini)Ø#",
+        formulaId = "nominalized-vnc-adjectival-source-formula",
+        realizationId = "nominalized-vnc-adjectival-source-realization",
+        nominalizationProfile = null,
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            predicateStem: { slot: "STEM", stem, displayStem: stem },
+            num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "NNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildNominalizedVncAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            nominalizationProfile,
+            role: "predicate-surface",
+        });
+        const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...formulaRecord,
+                operationFrames: [operationFrame],
+            },
+        };
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            nominalizationProfile,
+        };
+    };
+
+    const buildDenominalCompoundAdjectivalTypedInput = ({
+        surface = "xilotzontik",
+        stem = "xilotzonti",
+        formula = "#Ø-Ø(xilotzonti)k#",
+        formulaId = "denominal-compound-adjectival-source-formula",
+        realizationId = "denominal-compound-adjectival-source-realization",
+        sourceDenominalCompoundFrame = null,
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            predicateStem: { slot: "STEM", stem, displayStem: stem },
+            num1Num2: { slot: "num1-num2", connector: "k", displayConnector: "k" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: formulaId,
+            unit: "NNC",
+            formula,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: realizationId,
+            formulaRecord,
+            segmentFrames: [
+                { slot: "predicateStem", formulaValue: stem, surface: stem },
+                { slot: "num1Num2", formulaValue: "k", surface: "k" },
+            ],
+            surfaceForms: [surface],
+        });
+        const sourceContinuationFrame = {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            formulaSlots,
+        };
+        const operationFrame = ctx.buildDenominalCompoundAdjectivalNncOperationFrame({
+            sourceContinuationFrame,
+            sourceDenominalCompoundFrame,
+            role: "predicate-surface",
+        });
+        const targetContinuationFrame = {
+            ...sourceContinuationFrame,
+            role: "target",
+            operationFrame,
+            formulaRecord: {
+                ...formulaRecord,
+                operationFrames: [operationFrame],
+            },
+        };
+        return {
+            formulaSlots,
+            sourceFormulaEcho: formula,
+            formulaRecord,
+            formulaRealizationRecord,
+            sourceContinuationFrame,
+            targetContinuationFrame,
+            operationFrame,
+            sourceDenominalCompoundFrame,
+        };
+    };
 
     const boundary = ctx.buildAdjectivalNncFunctionBoundaryMetadata();
     s.eq(
@@ -119,17 +529,297 @@ function run(ctx) {
             predicateSurface: "chipaktik",
             adjectivalRole: "predicate-surface",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "adjetivo-route",
             hasNominalizationProfile: true,
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surface: "",
+            surfaceForms: [],
             diagnostics: [
-                "adjectival-nnc-needs-nawat-evidence",
+                "adjectival-nnc-source-gate-required",
                 "adjectival-nnc-function-recognized",
                 "nominalization-profile-adjectival-function-is-metadata",
                 "adjectival-nnc-false-positive-source",
             ],
             boundary,
+        }
+    );
+
+    s.eq(
+        "structured Andrews adjectival NNC candidate generates through orthography bridge",
+        (() => {
+            const formulaSlots = Object.freeze({
+                object: Object.freeze({ slot: "object-prefix", structural: "tla", surface: "ta" }),
+                predicateStem: Object.freeze({ slot: "STEM", structural: "piya", surface: "piya" }),
+                functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "ni", surface: "ni" }),
+            });
+            const sourceFrame = ctx.buildAdjectivalNncFunctionCandidateSourceFrame({
+                candidate: "display-poison",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "object-prefix", role: "object", formulaValue: "tla", surface: "ta" },
+                    { slot: "STEM", role: "predicate", formulaValue: "piya", surface: "piya" },
+                    { slot: "adjectival-function", role: "agentive", formulaValue: "ni", surface: "ni" },
+                ],
+            });
+            const operationFrame = ctx.buildAdjectivalNncFunctionCandidateOperationFrame(sourceFrame);
+            return ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "lying-candidate",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "lying-surface",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "lying gate",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+        })(),
+        {
+            kind: "adjectival-nnc-function-candidate-classification",
+            version: 1,
+            candidate: "lying-candidate",
+            functionKind: "vnc-adjectival",
+            sourceCategory: "customary-present-agentive",
+            predicateSurface: "lying-surface",
+            adjectivalRole: "Andrews adjectival function",
+            evidenceSource: "",
+            sourceGate: "lying gate",
+            structuredSource: true,
+            falsePositiveSource: "unknown",
+            hasNominalizationProfile: false,
+            sourceFrame: ctx.buildAdjectivalNncFunctionCandidateSourceFrame({
+                candidate: "display-poison",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                targetFormulaSlots: Object.freeze({
+                    object: Object.freeze({ slot: "object-prefix", structural: "tla", surface: "ta" }),
+                    predicateStem: Object.freeze({ slot: "STEM", structural: "piya", surface: "piya" }),
+                    functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "ni", surface: "ni" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "object-prefix", role: "object", formulaValue: "tla", surface: "ta" },
+                    { slot: "STEM", role: "predicate", formulaValue: "piya", surface: "piya" },
+                    { slot: "adjectival-function", role: "agentive", formulaValue: "ni", surface: "ni" },
+                ],
+            }),
+            operationFrame: ctx.buildAdjectivalNncFunctionCandidateOperationFrame(ctx.buildAdjectivalNncFunctionCandidateSourceFrame({
+                candidate: "display-poison",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                targetFormulaSlots: Object.freeze({
+                    object: Object.freeze({ slot: "object-prefix", structural: "tla", surface: "ta" }),
+                    predicateStem: Object.freeze({ slot: "STEM", structural: "piya", surface: "piya" }),
+                    functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "ni", surface: "ni" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "object-prefix", role: "object", formulaValue: "tla", surface: "ta" },
+                    { slot: "STEM", role: "predicate", formulaValue: "piya", surface: "piya" },
+                    { slot: "adjectival-function", role: "agentive", formulaValue: "ni", surface: "ni" },
+                ],
+            })),
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "tapiyani",
+            surfaceForms: ["tapiyani"],
+            formulaSlots: Object.freeze({
+                object: Object.freeze({ slot: "object-prefix", structural: "tla", surface: "ta" }),
+                predicateStem: Object.freeze({ slot: "STEM", structural: "piya", surface: "piya" }),
+                functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "ni", surface: "ni" }),
+            }),
+            targetSegmentFrames: [
+                {
+                    slot: "object-prefix",
+                    role: "object",
+                    formulaValue: "tla",
+                    sourceStem: "",
+                    surface: "ta",
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                },
+                {
+                    slot: "STEM",
+                    role: "predicate",
+                    formulaValue: "piya",
+                    sourceStem: "",
+                    surface: "piya",
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                },
+                {
+                    slot: "adjectival-function",
+                    role: "agentive",
+                    formulaValue: "ni",
+                    sourceStem: "",
+                    surface: "ni",
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                },
+            ],
+            diagnostics: [
+                "adjectival-nnc-andrews-source-generated",
+                "adjectival-nnc-function-recognized",
+                "nominalization-profile-absent",
+                "adjectival-nnc-structured-source",
+            ],
+            boundary,
+        }
+    );
+    s.eq(
+        "adjectival NNC function candidate blocks legacy string gates and contradictory frames",
+        (() => {
+            const formulaSlots = Object.freeze({
+                object: Object.freeze({ slot: "object-prefix", structural: "tla", surface: "ta" }),
+                predicateStem: Object.freeze({ slot: "STEM", structural: "piya", surface: "piya" }),
+                functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "ni", surface: "ni" }),
+            });
+            const sourceFrame = ctx.buildAdjectivalNncFunctionCandidateSourceFrame({
+                candidate: "tla-piya-ni",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "object-prefix", role: "object", formulaValue: "tla", surface: "ta" },
+                    { slot: "STEM", role: "predicate", formulaValue: "piya", surface: "piya" },
+                    { slot: "adjectival-function", role: "agentive", formulaValue: "ni", surface: "ni" },
+                ],
+            });
+            const operationFrame = ctx.buildAdjectivalNncFunctionCandidateOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildAdjectivalNncFunctionCandidateSourceFrame({
+                candidate: "chiwa-l",
+                functionKind: "patientive-adjectival",
+                sourceCategory: "patientive",
+                adjectivalRole: "Patientive adjectival function",
+                sourceGate: "Andrews patientive adjectival route",
+                targetFormulaSlots: Object.freeze({
+                    predicateStem: Object.freeze({ slot: "STEM", structural: "chiwa", surface: "chiwa" }),
+                    functionSuffix: Object.freeze({ slot: "adjectival-function", structural: "l", surface: "l" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "STEM", role: "predicate", formulaValue: "chiwa", surface: "chiwa" },
+                    { slot: "adjectival-function", role: "patientive", formulaValue: "l", surface: "l" },
+                ],
+            });
+            const otherOperationFrame = ctx.buildAdjectivalNncFunctionCandidateOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizeAdjectivalNncCandidateSurface;
+            if (typeof ctx.normalizeAdjectivalNncCandidateSurface === "function") {
+                ctx.normalizeAdjectivalNncCandidateSurface = () => "poison";
+            }
+            const poisoned = ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "poison",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "poison",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "poison",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizeAdjectivalNncCandidateSurface = originalNormalizer;
+            }
+            const stringOnly = ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "tla-piya-ni",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "tla-piya-ni",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                structuredSource: true,
+            });
+            const missingOperation = ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "tla-piya-ni",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "tla-piya-ni",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                structuredSource: true,
+                sourceFrame,
+            });
+            const contradictory = ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "tla-piya-ni",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "tla-piya-ni",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "Andrews 40.6 customary-present agentive adjectival route",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyAdjectivalNncFunctionCandidate({
+                candidate: "changed",
+                functionKind: "vnc-adjectival",
+                sourceCategory: "customary-present-agentive",
+                predicateSurface: "changed",
+                adjectivalRole: "Andrews adjectival function",
+                sourceGate: "changed",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    segments: poisoned.targetSegmentFrames.map((segment) => segment.surface),
+                },
+                stringOnly: {
+                    generationAllowed: stringOnly.generationAllowed,
+                    surface: stringOnly.surface,
+                    diagnostics: stringOnly.diagnostics,
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    segments: changedStrings.targetSegmentFrames.map((segment) => segment.surface),
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "tapiyani",
+                segments: ["ta", "piya", "ni"],
+            },
+            stringOnly: {
+                generationAllowed: false,
+                surface: "",
+                diagnostics: [
+                    "adjectival-nnc-function-source-frame-required",
+                    "adjectival-nnc-function-recognized",
+                    "nominalization-profile-absent",
+                    "adjectival-nnc-unconfirmed",
+                ],
+            },
+            missingOperation: [
+                "adjectival-nnc-function-operation-frame-required",
+                "adjectival-nnc-function-recognized",
+                "nominalization-profile-absent",
+                "adjectival-nnc-unconfirmed",
+            ],
+            contradictory: [
+                "adjectival-nnc-function-contradictory-source-frame",
+                "adjectival-nnc-function-recognized",
+                "nominalization-profile-absent",
+                "adjectival-nnc-unconfirmed",
+            ],
+            changedStrings: {
+                surface: "tapiyani",
+                segments: ["ta", "piya", "ni"],
+            },
         }
     );
 
@@ -278,10 +968,10 @@ function run(ctx) {
                 predicateAdjectiveSentenceGenerationImplemented: false,
                 modificationAstDeferredToLessons42_43: true,
                 fullLesson40GenerationImplemented: false,
-                finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+                finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
             },
             grammarRouteStage: "audit-lesson-40",
-            diagnosticIds: ["adjectival-nnc-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["adjectival-nnc-diagnostic-partial", "adjectival-nnc-source-gated"],
         }
     );
     s.eq(
@@ -418,7 +1108,7 @@ function run(ctx) {
                     functionUseOwnsObjectSlots: false,
                     sourceRouteFrameRequired: true,
                     andrewsSection: "Andrews 41.2.1",
-                    generationStatus: "diagnostic-only-nawat-evidence-required",
+                    generationStatus: "diagnostic-only-source-gated",
                 },
                 {
                     kind: "lesson-41-compound-source-route-frame",
@@ -437,7 +1127,7 @@ function run(ctx) {
                     functionUseOwnsObjectSlots: false,
                     sourceRouteFrameRequired: true,
                     andrewsSection: "Andrews 41.2.2",
-                    generationStatus: "diagnostic-only-nawat-evidence-required",
+                    generationStatus: "diagnostic-only-source-gated",
                 },
                 {
                     kind: "lesson-41-compound-source-route-frame",
@@ -456,7 +1146,7 @@ function run(ctx) {
                     functionUseOwnsObjectSlots: false,
                     sourceRouteFrameRequired: true,
                     andrewsSection: "Andrews 41.2.3",
-                    generationStatus: "diagnostic-only-nawat-evidence-required",
+                    generationStatus: "diagnostic-only-source-gated",
                 },
             ],
             participantCompoundSourceRoles: ["incorporated-adverb", "incorporated-complement", "incorporated-object"],
@@ -474,10 +1164,10 @@ function run(ctx) {
                 syntacticIntensifierGenerationImplemented: false,
                 fullLesson41GenerationImplemented: false,
                 modifierHeadAstDeferredToLessons42_43: true,
-                finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+                finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
             },
             grammarRouteStage: "audit-lesson-41",
-            diagnosticIds: ["adjectival-nnc-lesson-41-diagnostic-partial", "adjectival-nnc-needs-nawat-evidence"],
+            diagnosticIds: ["adjectival-nnc-lesson-41-diagnostic-partial", "adjectival-nnc-source-gated"],
         }
     );
     s.eq(
@@ -592,6 +1282,42 @@ function run(ctx) {
         }
     );
     s.eq(
+        "Andrews 40.1 adjectival NNC function emits canonical formula and realization records",
+        (() => {
+            const direct = ctx.generateAdjectivalNncFunctionOutput({
+                stem: "shuchi",
+                nounClass: "t",
+            });
+            const resultFrame = direct.grammarFrame?.resultFrame || {};
+            const formulaRecord = resultFrame.formulaRecord || null;
+            const realizationRecord = resultFrame.formulaRealizationRecord || null;
+            return {
+                formulaKind: formulaRecord?.kind || "",
+                formula: formulaRecord?.formulaText || formulaRecord?.formula || "",
+                hasFormulaSlots: Boolean(formulaRecord?.formulaSlots?.predicateStem),
+                routeFamily: formulaRecord?.routeContract?.routeFamily || "",
+                operationId: formulaRecord?.operationFrames?.[0]?.operationId || "",
+                realizationKind: realizationRecord?.kind || "",
+                realizationSurface: realizationRecord?.surface || "",
+                segmentSurface: Array.isArray(realizationRecord?.segmentFrames)
+                    ? realizationRecord.segmentFrames.map((segment) => segment.surface || "").join("")
+                    : "",
+                resultFrameSurface: resultFrame.surface || "",
+            };
+        })(),
+        {
+            formulaKind: "grammar-formula-record",
+            formula: "#Ø-Ø(shuchi)t#",
+            hasFormulaSlots: true,
+            routeFamily: "adjectival-nnc",
+            operationId: "andrews-40-adjectival-nnc-function",
+            realizationKind: "grammar-formula-realization-record",
+            realizationSurface: "shuchit",
+            segmentSurface: "shuchit",
+            resultFrameSurface: "shuchit",
+        }
+    );
+    s.eq(
         "Andrews 40.1 adjectival NNC function rejects possessive-state generation",
         ctx.generateAdjectivalNncFunctionOutput({
             stem: "kal",
@@ -620,18 +1346,28 @@ function run(ctx) {
                     tiempo: "patientivo",
                 },
             });
+            const typed = buildPatientivoAdjectivalTypedInput({
+                surface: patientivo.surfaceForms[0],
+                stem: "tamach",
+                formula: patientivo.nuclearClauseShell?.formulaEcho || "#Ø-Ø(tamach)ti#",
+                patientivoSource: patientivo.nominalizationProfile?.patientiveFamilyProfile?.family || "nonactive",
+            });
             const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
-                patientivoSurface: patientivo.surfaceForms[0],
+                patientivoSurface: "display-lie",
                 patientivoSource: patientivo.nominalizationProfile?.patientiveFamilyProfile?.family || "",
                 nominalizationProfile: patientivo.nominalizationProfile,
                 formulaSlots: patientivo.nuclearClauseShell?.formulaSlots || null,
                 formulaEcho: patientivo.nuclearClauseShell?.formulaEcho || "",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const routed = ctx.executeGenerateWordRequest({
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: patientivo.surfaceForms[0],
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -647,11 +1383,16 @@ function run(ctx) {
                         adjectivalNnc: {
                             enabled: true,
                             formation: "patientive-adjectival",
-                            patientivoSurface: patientivo.surfaceForms[0],
+                            patientivoSurface: "override-surface-lie",
+                            surface: "override-surface-lie",
+                            stem: "override-stem-lie",
                             patientivoSource: patientivo.nominalizationProfile?.patientiveFamilyProfile?.family || "",
                             nominalizationProfile: patientivo.nominalizationProfile,
                             formulaSlots: patientivo.nuclearClauseShell?.formulaSlots || null,
                             formulaEcho: patientivo.nuclearClauseShell?.formulaEcho || "",
+                            sourceContinuationFrame: typed.sourceContinuationFrame,
+                            targetContinuationFrame: typed.targetContinuationFrame,
+                            operationFrame: typed.operationFrame,
                         },
                     },
                 },
@@ -737,18 +1478,104 @@ function run(ctx) {
             }).diagnostics.map((item) => item.id),
         ],
         [
-            ["adjectival-nnc-requires-patientive-surface"],
-            ["adjectival-nnc-requires-patientive-source"],
+            ["adjectival-nnc-patientive-source-frame-required"],
+            ["adjectival-nnc-patientive-source-frame-required"],
             ["adjectival-nnc-requires-absolutive-state"],
         ]
     );
     s.eq(
+        "Andrews 40.4 patientive adjectival function consumes typed frames instead of display strings",
+        (() => {
+            const typed = buildPatientivoAdjectivalTypedInput();
+            const missingOperationTargetFrame = {
+                ...typed.targetContinuationFrame,
+                operationFrame: null,
+                formulaRecord: typed.formulaRecord,
+            };
+            const contradictoryTyped = buildPatientivoAdjectivalTypedInput({
+                surface: "contradictory",
+                stem: "contradictory",
+                formula: "#Ø-Ø(contradictory)ti#",
+                formulaId: "patientivo-adjectival-contradictory-formula",
+                realizationId: "patientivo-adjectival-contradictory-realization",
+            });
+            const contradictoryTargetFrame = {
+                ...contradictoryTyped.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                formulaRecord: {
+                    ...contradictoryTyped.formulaRecord,
+                    operationFrames: [typed.operationFrame],
+                },
+            };
+            const poisoned = ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSurface: "poison-surface",
+                surface: "poison-surface",
+                stem: "poison-stem",
+                patientivoSource: typed.patientivoSource,
+                formulaEcho: "#POISON#",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const missingOperation = ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSource: typed.patientivoSource,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: missingOperationTargetFrame,
+                requireStructuredContinuation: true,
+            });
+            const contradictory = ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSource: typed.patientivoSource,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: contradictoryTargetFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const stringOnly = ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                patientivoSurface: "tamachti",
+                patientivoSource: typed.patientivoSource,
+            });
+            return {
+                poisonedSupported: poisoned.supported,
+                poisonedResult: poisoned.result,
+                poisonedFrameSurface: poisoned.grammarFrame?.resultFrame?.surface || "",
+                missingOperationSupported: missingOperation.supported,
+                missingOperationDiagnostic: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictorySupported: contradictory.supported,
+                contradictoryDiagnostic: contradictory.diagnostics.map((entry) => entry.id),
+                stringOnlySupported: stringOnly.supported,
+                stringOnlyDiagnostic: stringOnly.diagnostics.map((entry) => entry.id),
+                operationConsumesRenderedInput: poisoned.operationFrame?.consumesRenderedInput,
+                displayStringsAuthorizeGrammar: poisoned.operationFrame?.displayStringsAuthorizeGrammar,
+            };
+        })(),
+        {
+            poisonedSupported: true,
+            poisonedResult: "tamachti",
+            poisonedFrameSurface: "tamachti",
+            missingOperationSupported: false,
+            missingOperationDiagnostic: ["adjectival-nnc-patientive-structured-operation-frame-required"],
+            contradictorySupported: false,
+            contradictoryDiagnostic: ["adjectival-nnc-patientive-contradictory-target-frame"],
+            stringOnlySupported: false,
+            stringOnlyDiagnostic: ["adjectival-nnc-patientive-source-frame-required"],
+            operationConsumesRenderedInput: false,
+            displayStringsAuthorizeGrammar: false,
+        }
+    );
+    s.eq(
         "adjectival NNC function UI promotion preserves the LCM route contract into execution",
         (() => {
+            const typed = buildPatientivoAdjectivalTypedInput();
             const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
-                patientivoSurface: "tamachti",
+                patientivoSurface: "surface-lie",
                 patientivoSource: "nonactive",
+                formulaSlots: typed.formulaSlots,
                 formulaEcho: "#Ø-Ø(tamach)ti#",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -759,8 +1586,13 @@ function run(ctx) {
                 surface: direct.result,
                 formation: "patientive-adjectival",
                 formulaEcho: direct.formulaEcho || "",
+                sourceFormulaSlots: direct.formulaSlots || typed.formulaSlots,
                 patientivoSource: direct.adjectivalNncFunctionFrame?.patientivoSource || "",
                 grammarFrame: direct.grammarFrame,
+                sourceContinuationFrame: direct.sourceContinuationFrame || null,
+                targetContinuationFrame: direct.targetContinuationFrame || null,
+                operationFrame: direct.operationFrame || null,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -768,7 +1600,7 @@ function run(ctx) {
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: direct.result,
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -842,22 +1674,21 @@ function run(ctx) {
     s.eq(
         "VNC adjectival function UI promotion preserves generated VNC source contract",
         (() => {
-            const sourceFormulaSlots = {
-                pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
-                obj1: { slot: "obj1", prefix: "", displayPrefix: "Ø" },
-                predicateStem: { slot: "STEM", stem: "nemi", displayStem: "nemi" },
-                tensePosition: { slot: "tiempo", tense: "presente", displayTense: "presente" },
-                num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
-            };
-            const sourceFormulaEcho = "#Ø-Ø(nemi)presente+Ø#";
+            const typed = buildVncAdjectivalTypedInput();
             const direct = ctx.buildVncAdjectivalNncFunctionOutput({
-                vncSurface: "nemi",
+                vncSurface: "lie-vnc-surface",
+                surface: "lie-surface",
+                stem: "lie-stem",
                 sourceVerb: "(nemi)",
                 sourceTenseValue: "presente",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
                 sourceVoiceMode: ctx.VOICE_MODE.active,
-                sourceFormulaSlots,
-                sourceFormulaEcho,
+                sourceFormulaSlots: typed.formulaSlots,
+                sourceFormulaEcho: typed.sourceFormulaEcho,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -865,9 +1696,13 @@ function run(ctx) {
                 ctx.clearAdjectivalNncFunctionEntryState(verbEl);
             }
             const entryContract = ctx.applyAdjectivalNncFunctionToVerbEntry({
-                surface: direct.result,
+                surface: "entry-surface-lie",
                 formation: "vnc-adjectival",
                 grammarFrame: direct.grammarFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -875,7 +1710,7 @@ function run(ctx) {
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: direct.result,
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -958,16 +1793,21 @@ function run(ctx) {
                     sourceFormulaSlots,
                     sourceFormulaEcho,
                     grammarFrame: direct.grammarFrame,
+                    sourceContinuationFrame: direct.sourceContinuationFrame || null,
+                    targetContinuationFrame: direct.targetContinuationFrame || null,
+                    operationFrame: direct.operationFrame || null,
+                    requireCanonicalFormulaRecords: formation === "vnc-adjectival",
                     refresh: false,
                 });
                 if (entryContract?.blocked === true) {
                     return {
                         ok: false,
                         result: "—",
-                        diagnostics: [{ id: entryContract.functionUseValenceGate?.diagnosticId || "" }],
+                        diagnostics: [{ id: entryContract.functionUseValenceGate?.diagnosticId || entryContract.blockReason || "" }],
                         functionUseValenceGate: entryContract.functionUseValenceGate || null,
                         entryMutationBlocked: true,
                         verbValueAfterBlockedMutation: verbEl.value,
+                        entryBlockReason: entryContract.blockReason || "",
                     };
                 }
                 const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -1005,23 +1845,33 @@ function run(ctx) {
                 formation: "ordinary-absolutive",
                 nestedObj1: "ki",
             });
-            const sourceFormulaSlots = {
-                pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
-                obj1: { slot: "obj1", prefix: "ki", displayPrefix: "ki" },
-                predicateStem: { slot: "STEM", stem: "nemi", displayStem: "nemi" },
-                tensePosition: { slot: "tiempo", tense: "presente", displayTense: "presente" },
-                num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
-            };
-            const sourceFormulaEcho = "#Ø-Ø+ki(nemi)presente+Ø#";
+            const typedVncFunction = buildVncAdjectivalTypedInput({
+                surface: "kinemi",
+                formula: "#Ø-Ø+ki(nemi)presente+Ø#",
+                objPrefix: "ki",
+                formulaId: "vnc-adjectival-valence-formula",
+                realizationId: "vnc-adjectival-valence-realization",
+            });
+            const sourceFormulaSlots = typedVncFunction.formulaSlots;
+            const sourceFormulaEcho = typedVncFunction.sourceFormulaEcho;
             const vncFunction = ctx.buildVncAdjectivalNncFunctionOutput({
-                vncSurface: "kinemi",
+                vncSurface: "surface-lie",
                 sourceVerb: "(nemi)",
                 sourceTenseValue: "presente",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
                 sourceVoiceMode: ctx.VOICE_MODE.active,
+                sourceFormulaSlots,
+                sourceFormulaEcho,
+                sourceContinuationFrame: typedVncFunction.sourceContinuationFrame,
+                targetContinuationFrame: typedVncFunction.targetContinuationFrame,
+                operationFrame: typedVncFunction.operationFrame,
+                requireStructuredContinuation: true,
             });
             const unresolvedVerbal = executeWithEntry({
-                direct: vncFunction,
+                direct: {
+                    result: "string-only-kinemi",
+                    grammarFrame: null,
+                },
                 formation: "vnc-adjectival",
                 obj1: "",
             });
@@ -1129,11 +1979,9 @@ function run(ctx) {
                 result: "—",
                 entryMutationBlocked: true,
                 verbValueAfterBlockedMutation: "before-vnc-adjectival",
-                diagnosticIds: ["function-use-valence-object-frame-unfixed"],
-                reason: "function-use-source-valence-frame-unfixed",
-                routeRankingAllowed: false,
-                sourceKind: "verbal-nuclear-clause",
-                hasFormulaValence: false,
+                diagnosticIds: ["missing-canonical-formula-or-realization-record"],
+                reason: "",
+                sourceKind: "",
             },
             reclassified: {
                 ok: false,
@@ -1224,10 +2072,16 @@ function run(ctx) {
     s.eq(
         "adjectival NNC function UI promotion clears stale nawat route stations",
         (() => {
+            const typed = buildPatientivoAdjectivalTypedInput();
             const direct = ctx.buildPatientivoAdjectivalNncFunctionOutput({
-                patientivoSurface: "tamachti",
+                patientivoSurface: "surface-lie",
                 patientivoSource: "nonactive",
+                formulaSlots: typed.formulaSlots,
                 formulaEcho: "#Ø-Ø(tamach)ti#",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -1249,8 +2103,13 @@ function run(ctx) {
                 surface: direct.result,
                 formation: "patientive-adjectival",
                 formulaEcho: direct.formulaEcho || "",
+                sourceFormulaSlots: direct.formulaSlots || typed.formulaSlots,
                 patientivoSource: direct.adjectivalNncFunctionFrame?.patientivoSource || "",
                 grammarFrame: direct.grammarFrame,
+                sourceContinuationFrame: direct.sourceContinuationFrame || null,
+                targetContinuationFrame: direct.targetContinuationFrame || null,
+                operationFrame: direct.operationFrame || null,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const summary = {
@@ -1284,7 +2143,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "adjectival NNC function UI promotion reads LCM result-frame surface before clicked surface",
+        "adjectival NNC function UI promotion blocks slash-joined LCM frame surfaces before clicked surface",
         (() => {
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -1335,10 +2194,10 @@ function run(ctx) {
             return summary;
         })(),
         {
-            inputValue: "frame-chip-a",
-            datasetSurface: "frame-chip-a",
-            contractSurface: "frame-chip-a",
-            serializedSurface: "frame-chip-a",
+            inputValue: "frame-chip-surface",
+            datasetSurface: "frame-chip-surface",
+            contractSurface: "frame-chip-surface",
+            serializedSurface: "frame-chip-surface",
             routeFamily: "adjectival-nnc",
         }
     );
@@ -1500,7 +2359,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "adjectival NNC generation routes read override LCM result-frame surface before stale surface fields",
+        "patientive adjectival route blocks frame/display-only override surfaces",
         (() => {
             const grammarFrame = ctx.buildGrammarFrame({
                 authorityFrame: ctx.buildGrammarAuthorityFrame({
@@ -1561,14 +2420,16 @@ function run(ctx) {
                 frameSurface: routed.grammarFrame?.resultFrame?.surface || "",
                 frameSurfaceForms: routed.grammarFrame?.resultFrame?.surfaceForms || [],
                 routeFamily: routed.grammarFrame?.routeContract?.routeFamily || "",
+                diagnosticIds: routed.diagnostics.map((entry) => entry.id),
             };
         })(),
         {
-            surface: "frame-patientive-a",
-            surfaceForms: ["frame-patientive-a"],
-            frameSurface: "frame-patientive-a",
-            frameSurfaceForms: ["frame-patientive-a"],
+            surface: "",
+            surfaceForms: [],
+            frameSurface: "",
+            frameSurfaceForms: [],
             routeFamily: "adjectival-nnc",
+            diagnosticIds: ["adjectival-nnc-patientive-source-frame-required"],
         }
     );
     s.eq(
@@ -1920,24 +2781,31 @@ function run(ctx) {
             generationAllowed: false,
             resultOk: false,
             diagnosticStatus: "blocked",
-            diagnosticIds: ["adjectival-nnc-requires-patientive-surface"],
-            noOutputLabel: "Patientive adjectival NNC generation requires a generated patientive noun surface from #3 salida.",
+            diagnosticIds: ["adjectival-nnc-patientive-source-frame-required"],
+            noOutputLabel: "Patientive adjectival function requires a typed source patientive NNC frame; display surface strings cannot authorize Andrews 40.4.",
         }
     );
     s.eq(
         "Andrews 40.3 VNC adjectival function preserves generated VNC surface without NNC formula",
         (() => {
+            const typed = buildVncAdjectivalTypedInput();
             const direct = ctx.buildVncAdjectivalNncFunctionOutput({
-                vncSurface: "nemi",
+                vncSurface: "surface-lie",
+                surface: "surface-lie",
+                stem: "stem-lie",
                 sourceVerb: "(nemi)",
                 sourceTenseValue: "presente",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const routed = ctx.executeGenerateWordRequest({
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: "nemi",
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -1953,10 +2821,15 @@ function run(ctx) {
                         adjectivalNnc: {
                             enabled: true,
                             formation: "vnc-adjectival",
-                            vncSurface: "nemi",
+                            vncSurface: "surface-lie",
+                            surface: "surface-lie",
+                            stem: "stem-lie",
                             sourceVerb: "(nemi)",
                             sourceTenseValue: "presente",
                             sourceCombinedMode: ctx.COMBINED_MODE.active,
+                            sourceContinuationFrame: typed.sourceContinuationFrame,
+                            targetContinuationFrame: typed.targetContinuationFrame,
+                            operationFrame: typed.operationFrame,
                         },
                     },
                 },
@@ -2018,12 +2891,12 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 40.3 VNC adjectival route requires a generated VNC surface",
+        "Andrews 40.3 VNC adjectival route requires a typed VNC source frame",
         ctx.buildVncAdjectivalNncFunctionOutput({}).diagnostics.map((item) => item.id),
-        ["adjectival-nnc-requires-vnc-surface"]
+        ["adjectival-nnc-vnc-source-frame-required"]
     );
     s.eq(
-        "Andrews 40.3 VNC adjectival route blocks at result/diagnostic layer without generated VNC output",
+        "Andrews 40.3 VNC adjectival route blocks at result/diagnostic layer without typed source frame",
         (() => {
             const blocked = ctx.buildVncAdjectivalNncFunctionOutput({});
             return {
@@ -2047,7 +2920,88 @@ function run(ctx) {
             resultOk: false,
             sourceInput: "",
             diagnosticStatus: "blocked",
-            diagnosticIds: ["adjectival-nnc-requires-vnc-surface"],
+            diagnosticIds: ["adjectival-nnc-vnc-source-frame-required"],
+        }
+    );
+    s.eq(
+        "Andrews 40.3 VNC adjectival function consumes typed frames instead of display strings",
+        (() => {
+            const typed = buildVncAdjectivalTypedInput();
+            const missingOperationTargetFrame = {
+                ...typed.targetContinuationFrame,
+                operationFrame: null,
+                formulaRecord: typed.formulaRecord,
+            };
+            const contradictoryTyped = buildVncAdjectivalTypedInput({
+                surface: "contradictory",
+                formula: "#Ø-Ø(contradictory)presente+Ø#",
+                stem: "contradictory",
+                formulaId: "vnc-adjectival-contradictory-formula",
+                realizationId: "vnc-adjectival-contradictory-realization",
+            });
+            const contradictoryTargetFrame = {
+                ...contradictoryTyped.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                formulaRecord: {
+                    ...contradictoryTyped.formulaRecord,
+                    operationFrames: [typed.operationFrame],
+                },
+            };
+            const poisoned = ctx.buildVncAdjectivalNncFunctionOutput({
+                vncSurface: "poison-surface",
+                surface: "poison-surface",
+                stem: "poison-stem",
+                sourceVerb: "poison-verb",
+                sourceTenseValue: "presente",
+                sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceFormulaEcho: "#POISON#",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const missingOperation = ctx.buildVncAdjectivalNncFunctionOutput({
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: missingOperationTargetFrame,
+                requireStructuredContinuation: true,
+            });
+            const contradictory = ctx.buildVncAdjectivalNncFunctionOutput({
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: contradictoryTargetFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const stringOnly = ctx.buildVncAdjectivalNncFunctionOutput({
+                vncSurface: "nemi",
+                surface: "nemi",
+                stem: "nemi",
+            });
+            return {
+                poisonedSupported: poisoned.supported,
+                poisonedResult: poisoned.result,
+                poisonedFrameSurface: poisoned.grammarFrame?.resultFrame?.surface || "",
+                missingOperationSupported: missingOperation.supported,
+                missingOperationDiagnostic: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictorySupported: contradictory.supported,
+                contradictoryDiagnostic: contradictory.diagnostics.map((entry) => entry.id),
+                stringOnlySupported: stringOnly.supported,
+                stringOnlyDiagnostic: stringOnly.diagnostics.map((entry) => entry.id),
+                operationConsumesRenderedInput: poisoned.operationFrame?.consumesRenderedInput,
+                displayStringsAuthorizeGrammar: poisoned.operationFrame?.displayStringsAuthorizeGrammar,
+            };
+        })(),
+        {
+            poisonedSupported: true,
+            poisonedResult: "nemi",
+            poisonedFrameSurface: "nemi",
+            missingOperationSupported: false,
+            missingOperationDiagnostic: ["adjectival-nnc-vnc-structured-operation-frame-required"],
+            contradictorySupported: false,
+            contradictoryDiagnostic: ["adjectival-nnc-vnc-contradictory-target-frame"],
+            stringOnlySupported: false,
+            stringOnlyDiagnostic: ["adjectival-nnc-vnc-source-frame-required"],
+            operationConsumesRenderedInput: false,
+            displayStringsAuthorizeGrammar: false,
         }
     );
     s.eq(
@@ -2116,23 +3070,59 @@ function run(ctx) {
                     tiempo: "potencial-habitual",
                 },
             });
-            const directCustomary = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
-                nominalizedSurface: customaryAgentive.surfaceForms[0],
+            const customaryTyped = buildNominalizedVncAdjectivalTypedInput({
+                surface: customaryAgentive.surfaceForms[0],
+                stem: customaryAgentive.surfaceForms[0],
+                formula: customaryAgentive.nuclearClauseShell?.formulaEcho || "",
                 nominalizationProfile: customaryAgentive.nominalizationProfile,
-                formulaSlots: customaryAgentive.nuclearClauseShell?.formulaSlots || null,
-                formulaEcho: customaryAgentive.nuclearClauseShell?.formulaEcho || "",
+            });
+            const potentialTyped = buildNominalizedVncAdjectivalTypedInput({
+                surface: potentialPatient.surfaceForms[0],
+                stem: potentialPatient.surfaceForms[0],
+                formula: potentialPatient.nuclearClauseShell?.formulaEcho || "",
+                nominalizationProfile: potentialPatient.nominalizationProfile,
+            });
+            const customaryPatientiveTyped = buildNominalizedVncAdjectivalTypedInput({
+                surface: customaryPatientive.surfaceForms[0],
+                stem: customaryPatientive.surfaceForms[0],
+                formula: customaryPatientive.nuclearClauseShell?.formulaEcho || "",
+                nominalizationProfile: customaryPatientive.nominalizationProfile,
+            });
+            const preteritTyped = buildNominalizedVncAdjectivalTypedInput({
+                surface: preteritAgentive.surfaceForms[0],
+                stem: preteritAgentive.surfaceForms[0],
+                formula: preteritAgentive.nuclearClauseShell?.formulaEcho || "",
+                nominalizationProfile: preteritAgentive.nominalizationProfile,
+            });
+            const directCustomary = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizedSurface: "display-lie",
+                nominalizationProfile: customaryAgentive.nominalizationProfile,
+                formulaSlots: customaryTyped.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: customaryTyped.sourceContinuationFrame,
+                targetContinuationFrame: customaryTyped.targetContinuationFrame,
+                operationFrame: customaryTyped.operationFrame,
+                requireStructuredContinuation: true,
             });
             const directPotential = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
-                nominalizedSurface: potentialPatient.surfaceForms[0],
+                nominalizedSurface: "display-lie",
                 nominalizationProfile: potentialPatient.nominalizationProfile,
-                formulaSlots: potentialPatient.nuclearClauseShell?.formulaSlots || null,
-                formulaEcho: potentialPatient.nuclearClauseShell?.formulaEcho || "",
+                formulaSlots: potentialTyped.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: potentialTyped.sourceContinuationFrame,
+                targetContinuationFrame: potentialTyped.targetContinuationFrame,
+                operationFrame: potentialTyped.operationFrame,
+                requireStructuredContinuation: true,
             });
             const directCustomaryPatientive = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
-                nominalizedSurface: customaryPatientive.surfaceForms[0],
+                nominalizedSurface: "display-lie",
                 nominalizationProfile: customaryPatientive.nominalizationProfile,
-                formulaSlots: customaryPatientive.nuclearClauseShell?.formulaSlots || null,
-                formulaEcho: customaryPatientive.nuclearClauseShell?.formulaEcho || "",
+                formulaSlots: customaryPatientiveTyped.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: customaryPatientiveTyped.sourceContinuationFrame,
+                targetContinuationFrame: customaryPatientiveTyped.targetContinuationFrame,
+                operationFrame: customaryPatientiveTyped.operationFrame,
+                requireStructuredContinuation: true,
             });
             const routedPreterit = ctx.executeGenerateWordRequest({
                 posicionesFormula: {
@@ -2156,8 +3146,11 @@ function run(ctx) {
                             formation: "nominalized-vnc-adjectival",
                             nominalizedSurface: preteritAgentive.surfaceForms[0],
                             nominalizationProfile: preteritAgentive.nominalizationProfile,
-                            formulaSlots: preteritAgentive.nuclearClauseShell?.formulaSlots || null,
-                            formulaEcho: preteritAgentive.nuclearClauseShell?.formulaEcho || "",
+                            formulaSlots: preteritTyped.formulaSlots,
+                            formulaEcho: "formulaEcho-lie",
+                            sourceContinuationFrame: preteritTyped.sourceContinuationFrame,
+                            targetContinuationFrame: preteritTyped.targetContinuationFrame,
+                            operationFrame: preteritTyped.operationFrame,
                         },
                     },
                 },
@@ -2172,6 +3165,9 @@ function run(ctx) {
                     lessonRef: directCustomary.adjectivalNncFunctionFrame.lessonRef,
                     functionKind: directCustomary.adjectivalNncFunctionFrame.functionKind,
                     nominalizationKind: directCustomary.adjectivalNncFunctionFrame.nominalizationKind,
+                    operationId: directCustomary.operationFrame?.operationId || "",
+                    consumesRenderedInput: directCustomary.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: directCustomary.operationFrame?.displayStringsAuthorizeGrammar,
                     surfacePreserved: directCustomary.adjectivalNncFunctionFrame.generatedSurfacePreserved,
                     hasModificationAst: directCustomary.adjectivalNncFunctionFrame.hasModificationAst,
                 },
@@ -2215,14 +3211,17 @@ function run(ctx) {
                 lessonRef: "Andrews 40.6",
                 functionKind: "agentive-adjectival",
                 nominalizationKind: "customary-present-agentive",
+                operationId: "andrews-40-5-40-8-nominalized-vnc-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
                 surfacePreserved: true,
                 hasModificationAst: false,
-            },
-            preterit: {
-                source: "mikik",
-                formula: "#Ø-Ø(miki)k#",
-                supported: true,
-                result: "mikik",
+                },
+                preterit: {
+                    source: "mikik",
+                    formula: "#Ø-Ø(miki-0)k-0#",
+                    supported: true,
+                    result: "mikik",
                 surfaceForms: ["mikik"],
                 lessonRef: "Andrews 40.8",
                 functionKind: "preterit-agentive-adjectival",
@@ -2250,27 +3249,156 @@ function run(ctx) {
     );
     s.eq(
         "Andrews 40.5 nominalized VNC adjectival route keeps unsupported kinds diagnostic",
+        (() => {
+            const unsupportedProfile = {
+                role: { nominalizationKind: "future-agentive" },
+            };
+            const unsupportedTyped = buildNominalizedVncAdjectivalTypedInput({
+                surface: "nemiski",
+                stem: "nemiski",
+                formula: "#Ø-Ø(nemiski)Ø#",
+                nominalizationProfile: unsupportedProfile,
+            });
+            return [
+                ctx.buildNominalizedVncAdjectivalNncFunctionOutput({}).diagnostics.map((item) => item.id),
+                ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                    nominalizedSurface: "display-lie",
+                    nominalizationProfile: unsupportedProfile,
+                    sourceContinuationFrame: unsupportedTyped.sourceContinuationFrame,
+                    targetContinuationFrame: unsupportedTyped.targetContinuationFrame,
+                    operationFrame: unsupportedTyped.operationFrame,
+                }).diagnostics.map((item) => item.id),
+                ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                    nominalizedSurface: "nemini",
+                    state: "possessive",
+                    nominalizationProfile: {
+                        role: { nominalizationKind: "customary-present-agentive" },
+                    },
+                }).diagnostics.map((item) => item.id),
+            ];
+        })(),
         [
-            ctx.buildNominalizedVncAdjectivalNncFunctionOutput({}).diagnostics.map((item) => item.id),
-            ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
-                nominalizedSurface: "nemiski",
-                nominalizationProfile: {
-                    role: { nominalizationKind: "future-agentive" },
-                },
-            }).diagnostics.map((item) => item.id),
-            ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
-                nominalizedSurface: "nemini",
-                state: "possessive",
-                nominalizationProfile: {
-                    role: { nominalizationKind: "customary-present-agentive" },
-                },
-            }).diagnostics.map((item) => item.id),
-        ],
-        [
-            ["adjectival-nnc-requires-nominalized-vnc-surface"],
+            ["adjectival-nnc-nominalized-vnc-source-frame-required"],
             ["adjectival-nnc-unsupported-nominalized-vnc-kind"],
             ["adjectival-nnc-requires-absolutive-state"],
         ]
+    );
+    s.eq(
+        "Andrews 40.5-40.8 nominalized VNC adjectival function consumes typed frames instead of display strings",
+        (() => {
+            const generated = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    tenseMode: ctx.TENSE_MODE.adjetivo,
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    voiceMode: ctx.VOICE_MODE.active,
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "-(nemi)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "habitual",
+                },
+            });
+            const nominalizationProfile = {
+                ...(generated.nominalizationProfile && typeof generated.nominalizationProfile === "object"
+                    ? generated.nominalizationProfile
+                    : {}),
+                role: { nominalizationKind: "customary-present-agentive" },
+                predicateState: { value: "absolutive" },
+            };
+            const typed = buildNominalizedVncAdjectivalTypedInput({
+                surface: "nemini",
+                stem: "nemini",
+                formula: "#Ø-Ø(nemini)Ø#",
+                nominalizationProfile,
+            });
+            const poisoned = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizedSurface: "surface-lie",
+                nominalizationProfile,
+                formulaSlots: {
+                    ...typed.formulaSlots,
+                    predicateStem: {
+                        ...typed.formulaSlots.predicateStem,
+                        stem: "formula-slot-lie",
+                        displayStem: "formula-slot-lie",
+                    },
+                },
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const targetWithoutOperation = {
+                ...typed.targetContinuationFrame,
+                operationFrame: null,
+                formulaRecord: {
+                    ...typed.targetContinuationFrame.formulaRecord,
+                    operationFrames: [],
+                },
+            };
+            const missingOperation = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizationProfile,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: targetWithoutOperation,
+            });
+            const contradictoryTarget = {
+                ...typed.targetContinuationFrame,
+                formulaRealizationRecord: {
+                    ...typed.targetContinuationFrame.formulaRealizationRecord,
+                    surfaceForms: ["contradiction"],
+                    surface: "contradiction",
+                },
+            };
+            const contradictory = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizationProfile,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: contradictoryTarget,
+                operationFrame: typed.operationFrame,
+            });
+            const stringOnly = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizedSurface: "nemini",
+                nominalizationProfile,
+            });
+            const legacyFalse = ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                nominalizedSurface: "nemini",
+                nominalizationProfile,
+                requireStructuredContinuation: false,
+            });
+            return {
+                poisoned: {
+                    supported: poisoned.supported,
+                    result: poisoned.result,
+                    formulaEcho: poisoned.formulaEcho,
+                    operationId: poisoned.operationFrame?.operationId || "",
+                    consumesRenderedInput: poisoned.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: poisoned.operationFrame?.displayStringsAuthorizeGrammar,
+                },
+                missingOperation: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictory: contradictory.diagnostics.map((entry) => entry.id),
+                stringOnly: stringOnly.diagnostics.map((entry) => entry.id),
+                legacyFalse: legacyFalse.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            poisoned: {
+                supported: true,
+                result: "nemini",
+                formulaEcho: "#Ø-Ø(nemini)Ø#",
+                operationId: "andrews-40-5-40-8-nominalized-vnc-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
+            },
+            missingOperation: ["adjectival-nnc-nominalized-vnc-structured-operation-frame-required"],
+            contradictory: ["adjectival-nnc-nominalized-vnc-contradictory-target-frame"],
+            stringOnly: ["adjectival-nnc-nominalized-vnc-source-frame-required"],
+            legacyFalse: ["adjectival-nnc-nominalized-vnc-source-frame-required"],
+        }
     );
     s.eq(
         "Andrews 41.2 compound-source adjetivo output keeps the generated surface and exposes source roles",
@@ -2388,12 +3516,25 @@ function run(ctx) {
                     },
                 },
             });
-            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
-                compoundSourceSurface: generated.result,
+            const typed = buildCompoundSourceAdjectivalTypedInput({
+                surface: generated.result,
+                stem: generated.result,
+                formula: generated.formulaEcho,
                 sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
                 nominalizationKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
-                formulaSlots: generated.adjectivalCompoundSourceFrame?.sourceFormulaSlots || null,
-                formulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+            });
+            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: "display-lie",
+                surface: "surface-lie",
+                stem: "stem-lie",
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                nominalizationKind: typed.nominalizationKind,
+                formulaSlots: typed.formulaSlots,
+                formulaEcho: typed.sourceFormulaEcho,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const blocked = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
                 compoundSourceSurface: generated.result,
@@ -2411,6 +3552,9 @@ function run(ctx) {
                     sourceEmbedRoles: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
                     sourceRouteFrameKind: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.compoundRouteFrame?.kind || "",
                     sourceRouteFrameShape: direct.adjectivalNncFunctionFrame?.sourceCompoundFrame?.compoundRouteFrame?.finalFormulaShape || "",
+                    operationId: direct.operationFrame?.operationId || "",
+                    consumesRenderedInput: direct.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: direct.operationFrame?.displayStringsAuthorizeGrammar,
                     generatedSurfacePreserved: direct.adjectivalNncFunctionFrame?.generatedSurfacePreserved,
                     hasModificationAst: direct.adjectivalNncFunctionFrame?.hasModificationAst,
                     routeFamily: direct.grammarFrame?.routeContract?.routeFamily || "",
@@ -2433,13 +3577,16 @@ function run(ctx) {
                 sourceEmbedRoles: ["adjacent-core-embed"],
                 sourceRouteFrameKind: "generated-compound-route-frame",
                 sourceRouteFrameShape: "compound-vnc-embed-before-matrix",
+                operationId: "andrews-41-2-compound-source-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
                 generatedSurfacePreserved: true,
                 hasModificationAst: false,
                 routeFamily: "adjectival-nnc",
                 grammarSourceRouteFrameKind: "generated-compound-route-frame",
                 resultOk: true,
             },
-            blocked: ["adjectival-nnc-requires-compound-source-frame"],
+            blocked: ["adjectival-nnc-compound-source-source-frame-required"],
         }
     );
     s.eq(
@@ -2467,12 +3614,25 @@ function run(ctx) {
                     },
                 },
             });
-            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
-                compoundSourceSurface: generated.result,
+            const typed = buildCompoundSourceAdjectivalTypedInput({
+                surface: generated.result,
+                stem: generated.result,
+                formula: generated.formulaEcho,
                 sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
                 nominalizationKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
-                formulaSlots: generated.adjectivalCompoundSourceFrame?.sourceFormulaSlots || null,
-                formulaEcho: generated.adjectivalCompoundSourceFrame?.sourceFormulaEcho || "",
+            });
+            const direct = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: "display-lie",
+                surface: "surface-lie",
+                stem: "stem-lie",
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                nominalizationKind: typed.nominalizationKind,
+                formulaSlots: typed.formulaSlots,
+                formulaEcho: typed.sourceFormulaEcho,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -2488,6 +3648,10 @@ function run(ctx) {
                 sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
                 nominalizedVncKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
                 grammarFrame: direct.grammarFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -2495,7 +3659,7 @@ function run(ctx) {
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: direct.result,
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -2518,6 +3682,7 @@ function run(ctx) {
                 routedFunctionKind: routed.adjectivalNncFunctionFrame?.functionKind || "",
                 routedSourceMatrix: routed.adjectivalNncFunctionFrame?.sourceCompoundFrame?.matrix?.stem || "",
                 routedEmbedRoles: routed.adjectivalNncFunctionFrame?.sourceCompoundFrame?.embeds?.map((entry) => entry.role) || [],
+                routedOperationId: routed.operationFrame?.operationId || "",
             };
             if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
                 ctx.clearAdjectivalNncFunctionEntryState(verbEl);
@@ -2533,23 +3698,173 @@ function run(ctx) {
             overrideFormation: "compound-source-adjectival",
             overrideCompoundSurface: "amikik",
             overrideSourceMatrix: "miki",
-            overrideFormulaEcho: "#Ø-Ø(amikik)Ø#",
+            overrideFormulaEcho: "",
             routedResult: "amikik",
             routedFormulaEcho: "#Ø-Ø(amikik)Ø#",
             routedFunctionKind: "compound-source-adjectival",
             routedSourceMatrix: "miki",
             routedEmbedRoles: ["adjacent-core-embed"],
+            routedOperationId: "andrews-41-2-compound-source-adjectival-function",
+        }
+    );
+    s.eq(
+        "Andrews 41.2 compound-source adjectival function consumes typed frames instead of display strings",
+        (() => {
+            const generated = ctx.executeGenerateWordRequest({
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(a/miki)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "adjetivo-preterito",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                    },
+                },
+            });
+            const typed = buildCompoundSourceAdjectivalTypedInput({
+                surface: generated.result,
+                stem: generated.result,
+                formula: generated.formulaEcho,
+                sourceCompoundFrame: generated.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
+                nominalizationKind: generated.adjectivalCompoundSourceFrame?.nominalizationKind || "",
+            });
+            const poisoned = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: "surface-lie",
+                surface: "result-lie",
+                stem: "stem-lie",
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                nominalizationKind: typed.nominalizationKind,
+                formulaSlots: typed.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const targetWithoutOperation = {
+                ...typed.targetContinuationFrame,
+                operationFrame: null,
+                formulaRecord: {
+                    ...typed.targetContinuationFrame.formulaRecord,
+                    operationFrames: [],
+                },
+            };
+            const missingOperation = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: targetWithoutOperation,
+                requireStructuredContinuation: true,
+            });
+            const contradictoryTarget = {
+                ...typed.targetContinuationFrame,
+                formulaRealizationRecord: {
+                    ...typed.targetContinuationFrame.formulaRealizationRecord,
+                    surfaceForms: ["contradiction"],
+                    surface: "contradiction",
+                },
+            };
+            const contradictory = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: contradictoryTarget,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const stringOnly = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+            });
+            const legacyFalse = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                requireStructuredContinuation: false,
+            });
+            const formulaOnlyChange = ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                compoundSourceSurface: generated.result,
+                sourceCompoundFrame: typed.sourceCompoundFrame,
+                nominalizationKind: typed.nominalizationKind,
+                formulaSlots: {
+                    ...typed.formulaSlots,
+                    predicateStem: {
+                        ...typed.formulaSlots.predicateStem,
+                        stem: "formula-slot-lie",
+                        displayStem: "formula-slot-lie",
+                    },
+                },
+                formulaEcho: "#Ø-Ø(formula-slot-lie)Ø#",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            return {
+                poisoned: {
+                    supported: poisoned.supported,
+                    result: poisoned.result,
+                    formulaEcho: poisoned.formulaEcho,
+                    operationId: poisoned.operationFrame?.operationId || "",
+                    consumesRenderedInput: poisoned.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: poisoned.operationFrame?.displayStringsAuthorizeGrammar,
+                },
+                missingOperation: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictory: contradictory.diagnostics.map((entry) => entry.id),
+                stringOnly: stringOnly.diagnostics.map((entry) => entry.id),
+                legacyFalse: legacyFalse.diagnostics.map((entry) => entry.id),
+                formulaOnlyChange: {
+                    supported: formulaOnlyChange.supported,
+                    result: formulaOnlyChange.result,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                supported: true,
+                result: "amikik",
+                formulaEcho: "#Ø-Ø(amikik)Ø#",
+                operationId: "andrews-41-2-compound-source-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
+            },
+            missingOperation: ["adjectival-nnc-compound-source-structured-operation-frame-required"],
+            contradictory: ["adjectival-nnc-compound-source-contradictory-target-frame"],
+            stringOnly: ["adjectival-nnc-compound-source-source-frame-required"],
+            legacyFalse: ["adjectival-nnc-compound-source-source-frame-required"],
+            formulaOnlyChange: {
+                supported: true,
+                result: "amikik",
+            },
         }
     );
     s.eq(
         "Andrews 41.3 denominal compound nounstem source preserves generated tiya surface as an executable contract",
         (() => {
-            const generated = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "(xilo/tzon/tiya)" });
-            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
-                denominalCompoundSurface: generated.result,
+            const generated = generateRootPlusYaAdjectivalTyped({ stem: "(xilo/tzon/tiya)" });
+            const typed = buildDenominalCompoundAdjectivalTypedInput({
+                surface: generated.result,
+                stem: "xilotzonti",
+                formula: generated.formulaEcho,
                 sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
-                formulaSlots: generated.formulaSlots || null,
-                formulaEcho: generated.formulaEcho || "",
+            });
+            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: "display-lie",
+                surface: "surface-lie",
+                stem: "stem-lie",
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                formulaSlots: typed.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const blocked = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
                 denominalCompoundSurface: generated.result,
@@ -2602,6 +3917,9 @@ function run(ctx) {
                     sourceRouteFrameKind: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.kind || "",
                     sourceRouteFrameShape: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.finalFormulaShape || "",
                     sourceRouteFrameOwnershipKind: direct.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.objectSlotOwnership?.kind || "",
+                    operationId: direct.operationFrame?.operationId || "",
+                    consumesRenderedInput: direct.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: direct.operationFrame?.displayStringsAuthorizeGrammar,
                     grammarSourceRouteFrameOwnershipKind: direct.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.objectSlotOwnership?.kind || "",
                     grammarSourceRouteFrameKind: direct.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
                     grammarTargetRouteFrameKind: direct.grammarFrame?.routeContract?.targetContract?.sourceRouteFrame?.kind || "",
@@ -2662,6 +3980,9 @@ function run(ctx) {
                 sourceRouteFrameKind: "denominal-compound-route-frame",
                 sourceRouteFrameShape: "compound-nounstem-denominal-ti-adjectival-nnc",
                 sourceRouteFrameOwnershipKind: "denominal-compound-object-slot-ownership-frame",
+                operationId: "andrews-41-3-denominal-compound-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
                 grammarSourceRouteFrameOwnershipKind: "denominal-compound-object-slot-ownership-frame",
                 grammarSourceRouteFrameKind: "denominal-compound-route-frame",
                 grammarTargetRouteFrameKind: "denominal-compound-route-frame",
@@ -2671,18 +3992,30 @@ function run(ctx) {
                 routeFamily: "adjectival-nnc",
                 resultOk: true,
             },
-            blocked: ["adjectival-nnc-requires-denominal-compound-frame"],
+            blocked: ["adjectival-nnc-denominal-compound-source-frame-required"],
         }
     );
     s.eq(
         "Andrews 41.3 denominal compound UI promotion keeps compound nounstem roles through execution",
         (() => {
-            const generated = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "(xilo/tzon/tiya)" });
-            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
-                denominalCompoundSurface: generated.result,
+            const generated = generateRootPlusYaAdjectivalTyped({ stem: "(xilo/tzon/tiya)" });
+            const typed = buildDenominalCompoundAdjectivalTypedInput({
+                surface: generated.result,
+                stem: "xilotzonti",
+                formula: generated.formulaEcho,
                 sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
-                formulaSlots: generated.formulaSlots || null,
-                formulaEcho: generated.formulaEcho || "",
+            });
+            const direct = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: "display-lie",
+                surface: "surface-lie",
+                stem: "stem-lie",
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                formulaSlots: typed.formulaSlots,
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
             });
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
@@ -2698,6 +4031,10 @@ function run(ctx) {
                 sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
                 nominalizedVncKind: "preterit-agentive",
                 grammarFrame: direct.grammarFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -2705,7 +4042,7 @@ function run(ctx) {
                 posicionesFormula: {
                     pers1: "",
                     obj1: "",
-                    tronco: direct.result,
+                    tronco: "posiciones-tronco-lie",
                     pers2: "",
                     num2: "",
                     poseedor: "",
@@ -2732,6 +4069,7 @@ function run(ctx) {
                 routedSourceRouteFrameKind: routed.adjectivalNncFunctionFrame?.sourceDenominalCompoundFrame?.compoundRouteFrame?.kind || "",
                 routedGrammarRouteFrameKind: routed.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.kind || "",
                 routedGrammarRouteFrameShape: routed.grammarFrame?.routeContract?.sourceContract?.sourceRouteFrame?.finalFormulaShape || "",
+                routedOperationId: routed.operationFrame?.operationId || "",
             };
             if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
                 ctx.clearAdjectivalNncFunctionEntryState(verbEl);
@@ -2747,7 +4085,7 @@ function run(ctx) {
             overrideFormation: "denominal-compound-adjectival",
             overrideDenominalSurface: "xilotzontik",
             overrideSourceMatrix: "tzon",
-            overrideFormulaEcho: "#Ø-Ø(xilotzonti)k#",
+            overrideFormulaEcho: "",
             overrideRouteFrameKind: "denominal-compound-route-frame",
             routedResult: "xilotzontik",
             routedFormulaEcho: "#Ø-Ø(xilotzonti)k#",
@@ -2757,12 +4095,115 @@ function run(ctx) {
             routedSourceRouteFrameKind: "denominal-compound-route-frame",
             routedGrammarRouteFrameKind: "denominal-compound-route-frame",
             routedGrammarRouteFrameShape: "compound-nounstem-denominal-ti-adjectival-nnc",
+            routedOperationId: "andrews-41-3-denominal-compound-adjectival-function",
+        }
+    );
+    s.eq(
+        "Andrews 41.3 denominal compound adjectival function consumes typed frames instead of display strings",
+        (() => {
+            const generated = generateRootPlusYaAdjectivalTyped({ stem: "(xilo/tzon/tiya)" });
+            const typed = buildDenominalCompoundAdjectivalTypedInput({
+                surface: generated.result,
+                stem: "xilotzonti",
+                formula: generated.formulaEcho,
+                sourceDenominalCompoundFrame: generated.denominalCompoundSourceFrame || null,
+            });
+            const poisoned = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: "surface-lie",
+                surface: "result-lie",
+                stem: "stem-lie",
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                formulaSlots: {
+                    ...typed.formulaSlots,
+                    predicateStem: {
+                        ...typed.formulaSlots.predicateStem,
+                        stem: "formula-slot-lie",
+                        displayStem: "formula-slot-lie",
+                    },
+                },
+                formulaEcho: "formulaEcho-lie",
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+                requireStructuredContinuation: true,
+            });
+            const targetWithoutOperation = {
+                ...typed.targetContinuationFrame,
+                operationFrame: null,
+                formulaRecord: {
+                    ...typed.targetContinuationFrame.formulaRecord,
+                    operationFrames: [],
+                },
+            };
+            const missingOperation = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: targetWithoutOperation,
+            });
+            const contradictoryTarget = {
+                ...typed.targetContinuationFrame,
+                formulaRealizationRecord: {
+                    ...typed.targetContinuationFrame.formulaRealizationRecord,
+                    surfaceForms: ["contradiction"],
+                    surface: "contradiction",
+                },
+            };
+            const contradictory = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: contradictoryTarget,
+                operationFrame: typed.operationFrame,
+            });
+            const stringOnly = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: generated.result,
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+            });
+            const legacyFalse = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                denominalCompoundSurface: generated.result,
+                sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                requireStructuredContinuation: false,
+            });
+            const missingFrame = ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                sourceContinuationFrame: typed.sourceContinuationFrame,
+                targetContinuationFrame: typed.targetContinuationFrame,
+                operationFrame: typed.operationFrame,
+            });
+            return {
+                poisoned: {
+                    supported: poisoned.supported,
+                    result: poisoned.result,
+                    formulaEcho: poisoned.formulaEcho,
+                    operationId: poisoned.operationFrame?.operationId || "",
+                    consumesRenderedInput: poisoned.operationFrame?.consumesRenderedInput,
+                    displayStringsAuthorizeGrammar: poisoned.operationFrame?.displayStringsAuthorizeGrammar,
+                },
+                missingOperation: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictory: contradictory.diagnostics.map((entry) => entry.id),
+                stringOnly: stringOnly.diagnostics.map((entry) => entry.id),
+                legacyFalse: legacyFalse.diagnostics.map((entry) => entry.id),
+                missingFrame: missingFrame.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            poisoned: {
+                supported: true,
+                result: "xilotzontik",
+                formulaEcho: "#Ø-Ø(xilotzonti)k#",
+                operationId: "andrews-41-3-denominal-compound-adjectival-function",
+                consumesRenderedInput: false,
+                displayStringsAuthorizeGrammar: false,
+            },
+            missingOperation: ["adjectival-nnc-denominal-compound-structured-operation-frame-required"],
+            contradictory: ["adjectival-nnc-denominal-compound-contradictory-target-frame"],
+            stringOnly: ["adjectival-nnc-denominal-compound-source-frame-required"],
+            legacyFalse: ["adjectival-nnc-denominal-compound-source-frame-required"],
+            missingFrame: ["adjectival-nnc-requires-denominal-compound-frame"],
         }
     );
     s.eq(
         "Andrews 40.9 root-plus-ya adjectival NNC generates obsolete-preterit surface, not a label",
         (() => {
-            const direct = ctx.generateRootPlusYaAdjectivalNncOutput({
+            const direct = generateRootPlusYaAdjectivalTyped({
                 stem: "(istaya)",
             });
             const generated = ctx.executeGenerateWordRequest({
@@ -2832,6 +4273,63 @@ function run(ctx) {
         }
     );
     s.eq(
+        "Andrews 40.9 root-plus-ya adjectival NNC consumes typed source and operation frames",
+        (() => {
+            const typed = buildRootPlusYaAdjectivalTypedInput({ stem: "yektiya" });
+            const framed = ctx.generateRootPlusYaAdjectivalNncOutput({
+                stem: "lying-display-stem",
+                sourceFrame: typed.sourceFrame,
+                operationFrame: typed.operationFrame,
+            });
+            const stringOnly = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "yektiya" });
+            const missingOperation = ctx.generateRootPlusYaAdjectivalNncOutput({
+                stem: "yektiya",
+                sourceFrame: typed.sourceFrame,
+            });
+            const otherTyped = buildRootPlusYaAdjectivalTypedInput({ stem: "istaya" });
+            const contradictory = ctx.generateRootPlusYaAdjectivalNncOutput({
+                stem: "yektiya",
+                sourceFrame: typed.sourceFrame,
+                operationFrame: otherTyped.operationFrame,
+            });
+            const poisonedFrame = {
+                ...typed.operationFrame,
+                targetSurface: "poisoned-output",
+            };
+            const poisoned = ctx.generateRootPlusYaAdjectivalNncOutput({
+                stem: "yektiya",
+                sourceFrame: typed.sourceFrame,
+                operationFrame: poisonedFrame,
+            });
+            return {
+                framed: {
+                    supported: framed.supported,
+                    result: framed.result,
+                    formulaEcho: framed.formulaEcho,
+                    operationId: framed.operationFrame?.operationId || "",
+                    displayStringsAuthorizeGrammar: framed.operationFrame?.displayStringsAuthorizeGrammar,
+                },
+                stringOnly: stringOnly.diagnostics.map((entry) => entry.id),
+                missingOperation: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictory: contradictory.diagnostics.map((entry) => entry.id),
+                poisoned: poisoned.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            framed: {
+                supported: true,
+                result: "yektik",
+                formulaEcho: "#Ø-Ø(yekti)k#",
+                operationId: "andrews-40-9-root-plus-ya-adjectival-nnc-realization",
+                displayStringsAuthorizeGrammar: false,
+            },
+            stringOnly: ["adjectival-nnc-root-plus-ya-source-frame-required"],
+            missingOperation: ["adjectival-nnc-root-plus-ya-operation-frame-required"],
+            contradictory: ["adjectival-nnc-root-plus-ya-operation-frame-required"],
+            poisoned: ["adjectival-nnc-root-plus-ya-operation-frame-required"],
+        }
+    );
+    s.eq(
         "adjectival NNC formula echo reads LCM result-frame slot surfaces before stale slot text",
         ctx.buildAdjectivalNncFormulaEchoFromSlots({
             pers1Pers2: { displayPrefix: "Ø", displaySuffix: "Ø" },
@@ -2855,6 +4353,241 @@ function run(ctx) {
             },
         }),
         "#Ø-Ø(frame-predicate)frame-connector#"
+    );
+    s.eq(
+        "adjectival NNC generated surfaces have one Andrews formula pair per surface",
+        (() => {
+            const summarize = (label, output) => ({
+                label,
+                result: output.result,
+                surfaces: Array.isArray(output.surfaceForms) ? output.surfaceForms : [],
+                pairs: (output.formulaSurfacePairs || []).map((entry) => `${entry.surface}=>${entry.targetFormulaEcho}`),
+                route: output.sourceToTargetFormulaEcho || "",
+            });
+            const patientivo = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {
+                    derivationMode: ctx.DERIVATION_MODE.active,
+                    patientivoSource: "nonactive",
+                },
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "ta",
+                    tronco: "-(mati)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "patientivo",
+                },
+            });
+            const customaryAgentive = ctx.generateWord({
+                silent: true,
+                skipValidation: true,
+                override: {},
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(nemi)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "agentivo",
+                },
+            });
+            const compoundSource = ctx.executeGenerateWordRequest({
+                posicionesFormula: {
+                    pers1: "",
+                    obj1: "",
+                    tronco: "(a/miki)",
+                    pers2: "",
+                    num2: "",
+                    poseedor: "",
+                    tiempo: "adjetivo-preterito",
+                },
+                options: {
+                    silent: true,
+                    skipValidation: true,
+                    override: {
+                        tenseMode: ctx.TENSE_MODE.adjetivo,
+                        derivationMode: ctx.DERIVATION_MODE.active,
+                        voiceMode: ctx.VOICE_MODE.active,
+                    },
+                },
+            });
+            const rootPlusYaSource = generateRootPlusYaAdjectivalTyped({ stem: "yektiya" });
+            const denominalCompoundSource = generateRootPlusYaAdjectivalTyped({ stem: "(xilo/tzon/tiya)" });
+            return [
+                summarize("ordinary-absolutive", ctx.generateAdjectivalNncFunctionOutput({
+                    stem: "shuchi",
+                    nounClass: "t",
+                })),
+                summarize("patientive", (() => {
+                    const typed = buildPatientivoAdjectivalTypedInput({
+                        surface: patientivo.surfaceForms[0],
+                        stem: "tamach",
+                        formula: patientivo.nuclearClauseShell?.formulaEcho || "#Ø-Ø(tamach)ti#",
+                        patientivoSource: patientivo.nominalizationProfile?.patientiveFamilyProfile?.family || "nonactive",
+                    });
+                    return ctx.buildPatientivoAdjectivalNncFunctionOutput({
+                        patientivoSurface: "surface-lie",
+                        patientivoSource: patientivo.nominalizationProfile?.patientiveFamilyProfile?.family || "",
+                        nominalizationProfile: patientivo.nominalizationProfile,
+                        formulaSlots: patientivo.nuclearClauseShell?.formulaSlots || null,
+                        formulaEcho: patientivo.nuclearClauseShell?.formulaEcho || "",
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        targetContinuationFrame: typed.targetContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                        requireStructuredContinuation: true,
+                    });
+                })()),
+                summarize("vnc-function", (() => {
+                    const typed = buildVncAdjectivalTypedInput();
+                    return ctx.buildVncAdjectivalNncFunctionOutput({
+                        vncSurface: "surface-lie",
+                        sourceVerb: "(nemi)",
+                        sourceTenseValue: "presente",
+                        sourceCombinedMode: ctx.COMBINED_MODE.active,
+                        sourceVoiceMode: ctx.VOICE_MODE.active,
+                        sourceFormulaSlots: typed.formulaSlots,
+                        sourceFormulaEcho: typed.sourceFormulaEcho,
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        targetContinuationFrame: typed.targetContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                        requireStructuredContinuation: true,
+                    });
+                })()),
+                summarize("nominalized-vnc", (() => {
+                    const typed = buildNominalizedVncAdjectivalTypedInput({
+                        surface: customaryAgentive.surfaceForms[0],
+                        stem: customaryAgentive.surfaceForms[0],
+                        formula: customaryAgentive.nuclearClauseShell?.formulaEcho || "",
+                        nominalizationProfile: customaryAgentive.nominalizationProfile,
+                    });
+                    return ctx.buildNominalizedVncAdjectivalNncFunctionOutput({
+                        nominalizedSurface: "nominalized-display-lie",
+                        nominalizationProfile: customaryAgentive.nominalizationProfile,
+                        formulaSlots: typed.formulaSlots,
+                        formulaEcho: "formulaEcho-lie",
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        targetContinuationFrame: typed.targetContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                        requireStructuredContinuation: true,
+                    });
+                })()),
+                summarize("root-plus-ya", generateRootPlusYaAdjectivalTyped({ stem: "(istaya)" })),
+                summarize("intensified", (() => {
+                    const typed = buildIntensifiedAdjectivalTypedInput({
+                        sourceFormulaSlots: rootPlusYaSource.formulaSlots,
+                        formula: rootPlusYaSource.formulaEcho,
+                        surface: rootPlusYaSource.result,
+                    });
+                    return ctx.buildIntensifiedAdjectivalNncOutput({
+                        sourceSurface: "intensified-display-lie",
+                        sourceFormulaSlots: directFormulaSlots("lying", "ti"),
+                        sourceFormulaEcho: "#Ø-Ø(lying)ti#",
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                    });
+                })()),
+                summarize("compound-source", (() => {
+                    const typed = buildCompoundSourceAdjectivalTypedInput({
+                        surface: compoundSource.result,
+                        stem: compoundSource.result,
+                        formula: compoundSource.formulaEcho,
+                        sourceCompoundFrame: compoundSource.adjectivalCompoundSourceFrame?.sourceCompoundFrame || null,
+                        nominalizationKind: compoundSource.adjectivalCompoundSourceFrame?.nominalizationKind || "",
+                    });
+                    return ctx.buildCompoundSourceAdjectivalNncFunctionOutput({
+                        compoundSourceSurface: "compound-source-display-lie",
+                        sourceCompoundFrame: typed.sourceCompoundFrame,
+                        nominalizationKind: typed.nominalizationKind,
+                        formulaSlots: typed.formulaSlots,
+                        formulaEcho: typed.sourceFormulaEcho,
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        targetContinuationFrame: typed.targetContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                        requireStructuredContinuation: true,
+                    });
+                })()),
+                summarize("denominal-compound", (() => {
+                    const typed = buildDenominalCompoundAdjectivalTypedInput({
+                        surface: denominalCompoundSource.result,
+                        stem: "xilotzonti",
+                        formula: denominalCompoundSource.formulaEcho,
+                        sourceDenominalCompoundFrame: denominalCompoundSource.denominalCompoundSourceFrame || null,
+                    });
+                    return ctx.buildDenominalCompoundAdjectivalNncFunctionOutput({
+                        denominalCompoundSurface: "denominal-display-lie",
+                        sourceDenominalCompoundFrame: typed.sourceDenominalCompoundFrame,
+                        formulaSlots: typed.formulaSlots,
+                        formulaEcho: "formulaEcho-lie",
+                        sourceContinuationFrame: typed.sourceContinuationFrame,
+                        targetContinuationFrame: typed.targetContinuationFrame,
+                        operationFrame: typed.operationFrame,
+                        requireStructuredContinuation: true,
+                    });
+                })()),
+            ];
+        })(),
+        [
+            {
+                label: "ordinary-absolutive",
+                result: "shuchit",
+                surfaces: ["shuchit"],
+                pairs: ["shuchit=>#Ø-Ø(shuchi)t-Ø#"],
+                route: "NNC(shuchi) -> #Ø-Ø(shuchi)t-Ø#",
+            },
+            {
+                label: "patientive",
+                result: "tamachti",
+                surfaces: ["tamachti"],
+                pairs: ["tamachti=>#Ø-Ø(tamach)ti#"],
+                route: "ADJ(tamachti) -> #Ø-Ø(tamach)ti#",
+            },
+            {
+                label: "vnc-function",
+                result: "nemi",
+                surfaces: ["nemi"],
+                pairs: ["nemi=>#Ø-Ø(nemi)presente+Ø#"],
+                route: "ADJ(nemi) -> #Ø-Ø(nemi)presente+Ø#",
+            },
+            {
+                label: "nominalized-vnc",
+                result: "nemini",
+                surfaces: ["nemini"],
+                pairs: ["nemini=>#Ø-Ø(nemini)Ø#"],
+                route: "ADJ(nemini) -> #Ø-Ø(nemini)Ø#",
+            },
+            {
+                label: "root-plus-ya",
+                result: "istak",
+                surfaces: ["istak"],
+                pairs: ["istak=>#Ø-Ø(ista)k#"],
+                route: "ADJ(istaya) -> #Ø-Ø(ista)k#",
+            },
+            {
+                label: "intensified",
+                result: "yejyektik",
+                surfaces: ["yejyektik"],
+                pairs: ["yejyektik=>#Ø-Ø(yejyekti)k#"],
+                route: "ADJ(yekti) -> #Ø-Ø(yejyekti)k#",
+            },
+            {
+                label: "compound-source",
+                result: "amikik",
+                surfaces: ["amikik"],
+                pairs: ["amikik=>#Ø-Ø(amikik)Ø#"],
+                route: "ADJ(amikik) -> #Ø-Ø(amikik)Ø#",
+            },
+            {
+                label: "denominal-compound",
+                result: "xilotzontik",
+                surfaces: ["xilotzontik"],
+                pairs: ["xilotzontik=>#Ø-Ø(xilotzonti)k#"],
+                route: "ADJ(xilotzontik) -> #Ø-Ø(xilotzonti)k#",
+            },
+        ]
     );
     s.eq(
         "adjectival NNC formula echo stops before stale slot text after an empty result frame",
@@ -2934,18 +4667,34 @@ function run(ctx) {
                     surfaceForms: [],
                 }),
             });
+            const framedInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: framedSlots,
+                formula: "#Ø-Ø(stale-predicate)t#",
+            });
+            const emptyPredicateInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: emptyPredicateSlots,
+                formula: "#Ø-Ø(stale-predicate)t#",
+            });
+            const emptyConnectorInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: emptyConnectorSlots,
+                formula: "#Ø-Ø(stale-predicate)t#",
+            });
             const framed = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: "stale-source-surface",
-                sourceFormulaSlots: framedSlots,
-                sourceFormulaEcho: "#Ø-Ø(stale-predicate)t#",
+                sourceFormulaSlots: directFormulaSlots("poison", "ti"),
+                sourceFormulaEcho: "#Ø-Ø(poison)ti#",
+                sourceContinuationFrame: framedInput.sourceContinuationFrame,
+                operationFrame: framedInput.operationFrame,
             });
             const emptyPredicate = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: "stale-source-surface",
-                sourceFormulaSlots: emptyPredicateSlots,
+                sourceContinuationFrame: emptyPredicateInput.sourceContinuationFrame,
+                operationFrame: emptyPredicateInput.operationFrame,
             });
             const emptyConnector = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: "stale-source-surface",
-                sourceFormulaSlots: emptyConnectorSlots,
+                sourceContinuationFrame: emptyConnectorInput.sourceContinuationFrame,
+                operationFrame: emptyConnectorInput.operationFrame,
             });
             return {
                 framed: {
@@ -2989,7 +4738,7 @@ function run(ctx) {
     );
     s.eq(
         "Andrews 40.9 root-plus-ya adjectival NNC keeps weya on its suppletive/pronoun-like path",
-        ctx.generateRootPlusYaAdjectivalNncOutput({
+        generateRootPlusYaAdjectivalTyped({
             stem: "(weya)",
         }).diagnostics.map((diagnostic) => diagnostic.id),
         ["adjectival-nnc-root-plus-ya-exception"]
@@ -3195,7 +4944,7 @@ function run(ctx) {
                 subtype: "segmented-denominal-tiya",
             },
         ].map(({ stem, result, base, subtype }) => {
-            const direct = ctx.generateRootPlusYaAdjectivalNncOutput({ stem });
+            const direct = generateRootPlusYaAdjectivalTyped({ stem });
             const generated = (() => {
                 const generated = ctx.executeGenerateWordRequest({
                     posicionesFormula: {
@@ -3387,7 +5136,7 @@ function run(ctx) {
                 synonymSetKind: "none",
             },
         ].map((example) => {
-            const direct = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: example.stem });
+            const direct = generateRootPlusYaAdjectivalTyped({ stem: example.stem });
             return {
                 stem: example.stem,
                 supported: direct.supported,
@@ -3464,11 +5213,18 @@ function run(ctx) {
     s.eq(
         "Andrews 41.1 intensified adjectival NNC derives from generated formula slots",
         (() => {
-            const source = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "yektiya" });
+            const source = generateRootPlusYaAdjectivalTyped({ stem: "yektiya" });
+            const typedInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: source.formulaSlots,
+                formula: source.formulaEcho,
+                surface: source.result,
+            });
             const direct = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: source.result,
                 sourceFormulaSlots: source.formulaSlots,
                 sourceFormulaEcho: source.formulaEcho,
+                sourceContinuationFrame: typedInput.sourceContinuationFrame,
+                operationFrame: typedInput.operationFrame,
             });
             const routed = ctx.executeGenerateWordRequest({
                 posicionesFormula: {
@@ -3491,6 +5247,8 @@ function run(ctx) {
                             sourceSurface: source.result,
                             sourceFormulaSlots: source.formulaSlots,
                             sourceFormulaEcho: source.formulaEcho,
+                            sourceContinuationFrame: typedInput.sourceContinuationFrame,
+                            operationFrame: typedInput.operationFrame,
                         },
                     },
                 },
@@ -3552,14 +5310,152 @@ function run(ctx) {
         }
     );
     s.eq(
+        "Andrews 41.1 intensified adjectival route consumes typed frames instead of display strings",
+        (() => {
+            const source = generateRootPlusYaAdjectivalTyped({ stem: "yektiya" });
+            const typedInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: source.formulaSlots,
+                formula: source.formulaEcho,
+                surface: source.result,
+            });
+            const sourceContinuationFrame = typedInput.sourceContinuationFrame;
+            const operationFrame = typedInput.operationFrame;
+            const originalLegacyBuilder = ctx.buildOrdinaryNncReduplicatedSurface;
+            ctx.buildOrdinaryNncReduplicatedSurface = () => "poisonedlegacy";
+            const poisoned = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: "lying-source-surface",
+                surface: "lying-target-surface",
+                sourceFormulaSlots: directFormulaSlots("lying", "ti"),
+                sourceFormulaEcho: "#Ø-Ø(lying)ti#",
+                formulaEcho: "#Ø-Ø(lying-target)ti#",
+                sourceContinuationFrame,
+                operationFrame,
+            });
+            if (originalLegacyBuilder) {
+                ctx.buildOrdinaryNncReduplicatedSurface = originalLegacyBuilder;
+            }
+            const missingSourceFrame = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: source.result,
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho,
+                operationFrame,
+            });
+            const missingOperation = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: source.result,
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho,
+                sourceContinuationFrame,
+            });
+            const otherInput = buildIntensifiedAdjectivalTypedInput({ stem: "naka", connector: "t", surface: "nakat" });
+            const contradictory = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: source.result,
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho,
+                sourceContinuationFrame,
+                operationFrame: otherInput.operationFrame,
+            });
+            const poisonedTargetSurface = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: source.result,
+                sourceFormulaSlots: source.formulaSlots,
+                sourceFormulaEcho: source.formulaEcho,
+                sourceContinuationFrame,
+                operationFrame: {
+                    ...operationFrame,
+                    targetSurface: "poisoned-output",
+                },
+            });
+            const formulaOnlyChange = ctx.buildIntensifiedAdjectivalNncOutput({
+                sourceSurface: "changed-source-surface",
+                sourceFormulaSlots: directFormulaSlots("changed", "zero"),
+                sourceFormulaEcho: "#Ø-Ø(changed)Ø#",
+                sourceContinuationFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    result: poisoned.result,
+                    formulaEcho: poisoned.formulaEcho,
+                    sourceStem: poisoned.adjectivalNncFunctionFrame?.sourcePredicateStem || "",
+                    intensifiedStem: poisoned.adjectivalNncFunctionFrame?.intensifiedStem || "",
+                },
+                missingSourceFrame: missingSourceFrame.diagnostics.map((entry) => entry.id),
+                missingOperation: missingOperation.diagnostics.map((entry) => entry.id),
+                contradictory: contradictory.diagnostics.map((entry) => entry.id),
+                poisonedTargetSurface: poisonedTargetSurface.diagnostics.map((entry) => entry.id),
+                formulaOnlyChange: {
+                    result: formulaOnlyChange.result,
+                    formulaEcho: formulaOnlyChange.formulaEcho,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                result: "yejyektik",
+                formulaEcho: "#Ø-Ø(yejyekti)k#",
+                sourceStem: "yekti",
+                intensifiedStem: "yejyekti",
+            },
+            missingSourceFrame: ["adjectival-nnc-intensified-source-frame-required"],
+            missingOperation: ["adjectival-nnc-intensified-operation-frame-required"],
+            contradictory: ["adjectival-nnc-intensified-operation-frame-required"],
+            poisonedTargetSurface: ["adjectival-nnc-intensified-operation-frame-required"],
+            formulaOnlyChange: {
+                result: "yejyektik",
+                formulaEcho: "#Ø-Ø(yejyekti)k#",
+            },
+        }
+    );
+    s.eq(
         "Andrews 41.1 intensified adjectival UI promotion reuses source formula slots without double reduplication",
         (() => {
-            const source = ctx.generateRootPlusYaAdjectivalNncOutput({ stem: "yektiya" });
+            const source = generateRootPlusYaAdjectivalTyped({ stem: "yektiya" });
+            const typedInput = buildIntensifiedAdjectivalTypedInput({
+                sourceFormulaSlots: source.formulaSlots,
+                formula: source.formulaEcho,
+                surface: source.result,
+            });
             const direct = ctx.buildIntensifiedAdjectivalNncOutput({
                 sourceSurface: source.result,
                 sourceFormulaSlots: source.formulaSlots,
                 sourceFormulaEcho: source.formulaEcho,
+                sourceContinuationFrame: typedInput.sourceContinuationFrame,
+                operationFrame: typedInput.operationFrame,
             });
+            const targetFormulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "intensified-adjectival-target-formula",
+                unit: "NNC",
+                formula: direct.formulaEcho,
+                formulaSlots: direct.formulaSlots,
+            });
+            const targetFormulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "intensified-adjectival-target-realization",
+                formulaRecord: targetFormulaRecord,
+                segmentFrames: [
+                    { slot: "predicateStem", formulaValue: "yejyekti", surface: "yejyekti" },
+                    { slot: "num1-num2", formulaValue: "k", surface: "k" },
+                ],
+                surfaceForms: [direct.result],
+            });
+            const sourceSelectedVariant = {
+                variantId: "source#variant:0",
+                formulaRecordId: typedInput.formulaRecord.id,
+                formulaRealizationRecordId: typedInput.formulaRealizationRecord.id,
+            };
+            const targetSelectedVariant = {
+                variantId: "target#variant:0",
+                formulaRecordId: targetFormulaRecord.id,
+                formulaRealizationRecordId: targetFormulaRealizationRecord.id,
+            };
+            const targetContinuationFrame = {
+                kind: "generated-output-typed-continuation-frame",
+                role: "target",
+                unit: "NNC",
+                formulaRecord: targetFormulaRecord,
+                formulaRealizationRecord: targetFormulaRealizationRecord,
+                formulaSlots: direct.formulaSlots,
+                operationFrame: typedInput.operationFrame,
+                sourceFrame: typedInput.sourceContinuationFrame,
+            };
             const restoreMode = typeof ctx.getActiveTenseMode === "function" ? ctx.getActiveTenseMode() : "";
             const verbEl = ctx.document.getElementById("verb");
             if (typeof ctx.clearAdjectivalNncFunctionEntryState === "function") {
@@ -3572,6 +5468,12 @@ function run(ctx) {
                 sourceFormulaSlots: source.formulaSlots,
                 sourceFormulaEcho: source.formulaEcho || "",
                 grammarFrame: direct.grammarFrame,
+                sourceSelectedVariant,
+                targetSelectedVariant,
+                sourceContinuationFrame: typedInput.sourceContinuationFrame,
+                targetContinuationFrame,
+                operationFrame: typedInput.operationFrame,
+                requireCanonicalFormulaRecords: true,
                 refresh: false,
             });
             const override = ctx.resolveAdjectivalNncFunctionOverrideFromInput(verbEl);
@@ -3616,7 +5518,7 @@ function run(ctx) {
             entrySourceFormulaEcho: "#Ø-Ø(yekti)k#",
             overrideFormation: "intensified-adjectival",
             overrideTargetSurface: "yejyektik",
-            overrideSourceFormulaEcho: "#Ø-Ø(yekti)k#",
+            overrideSourceFormulaEcho: "",
             overrideSourcePredicateStem: "yekti",
             routedResult: "yejyektik",
             routedFormulaEcho: "#Ø-Ø(yejyekti)k#",
@@ -3629,7 +5531,7 @@ function run(ctx) {
         ctx.buildIntensifiedAdjectivalNncOutput({
             sourceSurface: "yektik",
         }).diagnostics.map((item) => item.id),
-        ["adjectival-nnc-requires-formula-slots"]
+        ["adjectival-nnc-intensified-source-frame-required"]
     );
 
     return s;
@@ -3651,6 +5553,9 @@ function summarizeSourceFormationFrame(frame = null) {
 }
 
 function directFormulaSlots(stem, nounClass) {
+    const connector = nounClass === "zero" ? "Ø" : nounClass;
+    const surface = nounClass === "zero" ? "" : nounClass;
+    const displayNum1 = nounClass === "zero" ? "Ø" : nounClass;
     return {
         pers1Pers2: {
             role: "subject-person",
@@ -3671,8 +5576,16 @@ function directFormulaSlots(stem, nounClass) {
             role: "subject-number-connector",
             slot: "num1-num2",
             nounClass,
-            connector: nounClass === "zero" ? "Ø" : nounClass,
-            surface: nounClass === "zero" ? "" : nounClass,
+            connector,
+            surface,
+            compactDisplay: connector,
+            compactSurface: surface,
+            num1: surface,
+            num2: "",
+            displayNum1,
+            displayNum2: "Ø",
+            displayDyad: `${displayNum1}-Ø`,
+            dyadSource: "singular-common-class-connector",
             label: "subject number connector",
             belongsTo: "subject",
             referenceNumber: "singular",

@@ -18,8 +18,11 @@ function run(ctx) {
             typeof ctx.getPersonalNameNncAntiConflationRules,
             typeof ctx.getLesson56PersonalNameNncSubsectionInventory,
             typeof ctx.buildLesson56PersonalNameNncPursuitFrame,
+            typeof ctx.buildPersonalNameNncSourceFrame,
+            typeof ctx.buildPersonalNameNncOperationFrame,
+            typeof ctx.getPersonalNameNncOperationFrameMismatch,
         ],
-        ["function", "function", "function", "function", "function", "function"]
+        ["function", "function", "function", "function", "function", "function", "function", "function", "function"]
     );
 
     const boundary = ctx.buildPersonalNameNncBoundaryMetadata();
@@ -81,7 +84,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized personal-name source remains unconfirmed without Nawat evidence",
+        "recognized personal-name source remains blocked without Andrews source gate",
         ctx.classifyPersonalNameNncCandidate({
             candidate: "capitalized label",
             nameSource: "unknown",
@@ -100,11 +103,15 @@ function run(ctx) {
             adjunctionSource: "",
             conjunctionSource: "",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "capitalization-label",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "personal-name-nnc-needs-nawat-evidence",
+                "personal-name-nnc-source-gate-required",
                 "personal-name-nnc-kind-recognized",
                 "personal-name-nnc-false-positive-source",
             ],
@@ -136,8 +143,209 @@ function run(ctx) {
             routeStage: "classify-boundary",
             generationAllowed: false,
             stemKind: "personal-name-source-candidate",
-            diagnosticId: "personal-name-nnc-needs-nawat-evidence",
+            diagnosticId: "personal-name-nnc-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews personal-name candidate generates through orthography bridge",
+        (() => {
+            const formulaSlots = Object.freeze({
+                predicateStem: Object.freeze({ slot: "STEM", structural: "ti-chihua-c", surface: "tichiwak" }),
+            });
+            const sourceFrame = ctx.buildPersonalNameNncSourceFrame({
+                candidate: "ti-chihua-c",
+                nameSource: "CNV(ti-chihua-c-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                clauseSource: "downgraded-statement",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "STEM", role: "downgraded-statement-predicate", formulaValue: "ti-chihua-c", surface: "tichiwak" },
+                ],
+            });
+            const operationFrame = ctx.buildPersonalNameNncOperationFrame(sourceFrame);
+            const classification = ctx.classifyPersonalNameNncCandidate({
+                candidate: "lying-candidate",
+                nameSource: "lying-source",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                clauseSource: "downgraded-statement",
+                sourceGate: "lying gate",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                operationId: classification.operationFrame.operationId,
+                formulaStem: classification.formulaSlots.predicateStem.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "tichiwak",
+            operationId: "andrews-56-personal-name-nnc-realization",
+            formulaStem: "tichiwak",
+            diagnostics: [
+                "personal-name-nnc-andrews-source-generated",
+                "personal-name-nnc-kind-recognized",
+                "personal-name-nnc-structured-source",
+            ],
+            routeStage: "generate-structured-personal-name-nnc",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "tichiwak",
+        }
+    );
+    s.eq(
+        "personal-name NNC candidate blocks legacy string gates and contradictory frames",
+        (() => {
+            const formulaSlots = Object.freeze({
+                predicateStem: Object.freeze({ slot: "STEM", structural: "ti-chihua-c", surface: "tichiwak" }),
+            });
+            const sourceFrame = ctx.buildPersonalNameNncSourceFrame({
+                candidate: "ti-chihua-c",
+                nameSource: "CNV(ti-chihua-c-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                clauseSource: "downgraded-statement",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                targetFormulaSlots: formulaSlots,
+                targetSegmentFrames: [
+                    { slot: "STEM", role: "downgraded-statement-predicate", formulaValue: "ti-chihua-c", surface: "tichiwak" },
+                ],
+            });
+            const operationFrame = ctx.buildPersonalNameNncOperationFrame(sourceFrame);
+            const otherSourceFrame = ctx.buildPersonalNameNncSourceFrame({
+                candidate: "nehnemi",
+                nameSource: "CNV(nehnemi-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                clauseSource: "downgraded-statement",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                targetFormulaSlots: Object.freeze({
+                    predicateStem: Object.freeze({ slot: "STEM", structural: "nehnemi", surface: "nejnemi" }),
+                }),
+                targetSegmentFrames: [
+                    { slot: "STEM", role: "downgraded-statement-predicate", formulaValue: "nehnemi", surface: "nejnemi" },
+                ],
+            });
+            const otherOperationFrame = ctx.buildPersonalNameNncOperationFrame(otherSourceFrame);
+            const originalNormalizer = ctx.normalizePersonalNameNncCandidateSurface;
+            if (typeof ctx.normalizePersonalNameNncCandidateSurface === "function") {
+                ctx.normalizePersonalNameNncCandidateSurface = () => "poison";
+            }
+            const poisoned = ctx.classifyPersonalNameNncCandidate({
+                candidate: "poison",
+                nameSource: "poison",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                sourceGate: "poison",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            if (originalNormalizer) {
+                ctx.normalizePersonalNameNncCandidateSurface = originalNormalizer;
+            }
+            const stringOnly = ctx.classifyPersonalNameNncCandidate({
+                candidate: "ti-chihua-c",
+                nameSource: "CNV(ti-chihua-c-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                structuredSource: true,
+            });
+            const missingOperation = ctx.classifyPersonalNameNncCandidate({
+                candidate: "ti-chihua-c",
+                nameSource: "CNV(ti-chihua-c-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                structuredSource: true,
+                sourceFrame,
+            });
+            const contradictory = ctx.classifyPersonalNameNncCandidate({
+                candidate: "ti-chihua-c",
+                nameSource: "CNV(ti-chihua-c-0)",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                sourceGate: "Andrews 56.2 single-clause personal-name source",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame: otherOperationFrame,
+            });
+            const changedStrings = ctx.classifyPersonalNameNncCandidate({
+                candidate: "changed",
+                nameSource: "changed",
+                personalNameKind: "single-clause-name",
+                sourceClauseType: "single-clause-name",
+                sourceGate: "changed",
+                structuredSource: true,
+                sourceFrame,
+                operationFrame,
+            });
+            return {
+                poisoned: {
+                    surface: poisoned.surface,
+                    targetStem: poisoned.frames.stemFrame.targetStem,
+                },
+                stringOnly: {
+                    generationAllowed: stringOnly.generationAllowed,
+                    surface: stringOnly.surface,
+                    diagnostics: stringOnly.diagnostics,
+                },
+                missingOperation: missingOperation.diagnostics,
+                contradictory: contradictory.diagnostics,
+                changedStrings: {
+                    surface: changedStrings.surface,
+                    targetStem: changedStrings.frames.stemFrame.targetStem,
+                },
+            };
+        })(),
+        {
+            poisoned: {
+                surface: "tichiwak",
+                targetStem: "tichiwak",
+            },
+            stringOnly: {
+                generationAllowed: false,
+                surface: "",
+                diagnostics: [
+                    "personal-name-nnc-source-frame-required",
+                    "personal-name-nnc-kind-recognized",
+                    "personal-name-nnc-unconfirmed",
+                ],
+            },
+            missingOperation: [
+                "personal-name-nnc-operation-frame-required",
+                "personal-name-nnc-kind-recognized",
+                "personal-name-nnc-unconfirmed",
+            ],
+            contradictory: [
+                "personal-name-nnc-contradictory-source-frame",
+                "personal-name-nnc-kind-recognized",
+                "personal-name-nnc-unconfirmed",
+            ],
+            changedStrings: {
+                surface: "tichiwak",
+                targetStem: "tichiwak",
+            },
         }
     );
 
@@ -162,10 +370,10 @@ function run(ctx) {
         [
             "personal-name NNC boundary metadata is not generation",
             "ordinary NNC fixtures or open-stem previews are not personal-name fixture evidence",
-            "capitalization labels and proper-name translations are not Nawat/Pipil name evidence",
+            "capitalization labels and proper-name translations are not orthography-bridge name evidence",
             "place/gentilic, adjunction, or conjunction boundary metadata is not personal-name NNC evidence",
             "calendar roadmap text is not personal-name NNC data",
-            "Andrews personal-name categories are architecture, not Nawat/Pipil form authority",
+            "Andrews personal-name categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     const lesson56PursuitFrame = ctx.buildLesson56PersonalNameNncPursuitFrame();

@@ -1,7 +1,7 @@
 // core/nnc/nominalization/nominalization.js
 // Lessons 35-39 nominalization/deverbal/patientive boundary metadata. This
-// keeps current generated sustantivo/adjetivo surfaces separate from confirmed
-// ownerhood, complete z/liz fixture coverage, and full patientive-family generation.
+// keeps current generated sustantivo/adjetivo surfaces separate from Andrews
+// source-gated ownerhood, z/liz routes, and patientive-family generation.
 
 "use strict";
 
@@ -49,7 +49,7 @@ const NOMINALIZATION_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "sourceVnc",
-        asks: "Which Nawat/Pipil VNC source, tense/aspect, voice, and valency are evidenced?",
+        asks: "Which Andrews VNC source, tense/aspect, voice, and valency license the route?",
     }),
     Object.freeze({
         field: "stemUse",
@@ -61,9 +61,1211 @@ const NOMINALIZATION_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What repo data or user-provided Nawat/Pipil source confirms the form?",
+        asks: "Which Andrews source gate or structured route licenses generation before Nawat/Pipil orthography realizes it?",
     }),
 ]);
+
+function freezeNominalizationOperationalLayerOperation(operation = {}) {
+    return Object.freeze({
+        id: String(operation.id || ""),
+        broadLabel: String(operation.broadLabel || ""),
+        family: String(operation.family || ""),
+        andrewsSection: String(operation.andrewsSection || ""),
+        sourceUnit: String(operation.sourceUnit || "CNV"),
+        sourceFormula: String(operation.sourceFormula || "CNV"),
+        targetFormula: String(operation.targetFormula || "CNN"),
+        operation: String(operation.operation || ""),
+        requires: Object.freeze({ ...(operation.requires || {}) }),
+        transform: Object.freeze({ ...(operation.transform || {}) }),
+        builds: Object.freeze({ ...(operation.builds || {}) }),
+        generationStatus: String(operation.generationStatus || "source-gated"),
+        routeStage: String(operation.routeStage || "cnv-cnn-operational-layer"),
+        diagnostics: Object.freeze(Array.isArray(operation.diagnostics) ? Array.from(operation.diagnostics) : []),
+    });
+}
+
+function freezeNominalizationOperationalLayerOperations(operations = []) {
+    return Object.freeze(operations.map(freezeNominalizationOperationalLayerOperation));
+}
+
+const ANDREWS_CNV_CNN_OPERATIONAL_LAYER_BY_LABEL = Object.freeze({
+    "predicado-nominal": freezeNominalizationOperationalLayerOperations([
+        { id: "predicado-nominal-source-tense-inside-stem", broadLabel: "predicado-nominal", family: "predicate-nominal", andrewsSection: "4.4/35-36", operation: "reanalyze-cnv-predicate-as-cnn-predicate-stem", requires: { sourceUnit: "CNV predicate", sourceTense: "Andrews VNC source tense" }, transform: { sourceTense: "kept inside CNN predicate stem", vncTenseSlot: "not copied outside CNN stem" }, builds: { targetShell: "CNN", targetState: "nominal predicate", targetTenseSlot: "none" } },
+        { id: "predicado-nominal-andrews-source-tense-inventory", broadLabel: "predicado-nominal", family: "predicate-nominal", andrewsSection: "4.5/5.5/35-36", operation: "limit-predicate-nominal-source-to-andrews-vnc-tense-inventory", requires: { sourceTense: "present/customary/imperfect/preterit/distant-past/future" }, transform: { nonAndrewsFiniteExtensions: "diagnostic only", sourcePredicate: "kept as source predicate before CNN reanalysis" }, builds: { targetShell: "CNN", targetStatus: "source-tense-gate" } },
+        { id: "predicado-nominal-future-s-inside-stem", broadLabel: "predicado-nominal", family: "predicate-nominal", andrewsSection: "36.8/46.3.1.a", operation: "keep-future-s-inside-reanalyzed-predicate-stem", requires: { sourceTense: "future", sourceUnit: "CNV predicate" }, transform: { futureTns: "inside CNN predicate stem", numberConnector: "outside parentheses" }, builds: { targetShell: "CNN", targetTenseSlot: "none" } },
+        { id: "predicado-nominal-absolutive-t-ti-connector", broadLabel: "predicado-nominal", family: "predicate-nominal", andrewsSection: "12.2/46.3.1.a", operation: "resolve-absolutive-t-ti-after-predicate-stem", requires: { targetState: "absolutive", selector: "previous non-zero predicate-stem segment" }, transform: { connector: "t/ti as subject-number operation", stem: "unchanged inside parentheses" }, builds: { targetShell: "CNN", targetNumberConnector: "t/ti allomorph" } },
+    ]),
+    agentivo: freezeNominalizationOperationalLayerOperations([
+        { id: "customary-agentive-reanalysis", broadLabel: "agentivo", family: "customary-present-agentive", andrewsSection: "36.2", operation: "customary-present-active-predicate-reanalysis", requires: { sourceVoice: "active", sourceTense: "customary-present", sourceTns: "ni" }, transform: { sourcePredicate: "becomes CNN nounstem", valenceMaterial: "moves inside nounstem", numberDyads: "VNC dyads retained" }, builds: { targetShell: "CNN", targetState: "mostly absolutive", targetStemFinal: "ni" } },
+        { id: "customary-agentive-full-nominalization", broadLabel: "agentivo", family: "customary-present-agentive", andrewsSection: "36.3", operation: "customary-present-full-nominalization", requires: { sourceVoice: "active", sourceTense: "customary-present", sourceTns: "ni" }, transform: { numberDyads: "replaced by CNN ti subclass 1-A number", sourcePredicate: "becomes fully nominal nounstem" }, builds: { targetShell: "CNN", targetState: "fully nominal", targetUse: "compound-eligible" } },
+        { id: "customary-agentive-translation-contrast", broadLabel: "agentivo", family: "customary-present-agentive", andrewsSection: "36.4", operation: "keep-preterit-vs-customary-agentive-contrast", requires: { contrastSource: "preterit-agentive or customary-present agentive" }, transform: { translation: "diagnostic only", structure: "not merged by gloss" }, builds: { targetShell: "CNN", targetStatus: "diagnostic contrast" }, generationStatus: "diagnostic-only" },
+    ]),
+    "agentivo-presente": freezeNominalizationOperationalLayerOperations([
+        { id: "present-agentive-absolutive", broadLabel: "agentivo-presente", family: "present-agentive", andrewsSection: "36.7", operation: "present-indicative-predicate-to-agentive-nounstem", requires: { sourceTense: "present-indicative", sourceUnit: "VNC predicate" }, transform: { sourcePredicate: "converted to absolutive-state CNN nounstem" }, builds: { targetShell: "CNN", targetState: "absolutive", targetUse: "agentive nounstem" } },
+    ]),
+    "agentivo-preterito": freezeNominalizationOperationalLayerOperations([
+        { id: "preterit-agentive-restricted-use", broadLabel: "agentivo-preterito", family: "preterit-agentive", andrewsSection: "35.3", operation: "preterit-predicate-to-restricted-agentive-nounstem", requires: { sourceTense: "preterit", sourceUnit: "VNC predicate" }, transform: { sourcePredicate: "becomes restricted CNN nounstem", preteritMorph: "final inside nounstem", sourceSubjectNumber: "continues in absolutive reanalysis" }, builds: { targetShell: "CNN", targetState: "absolutive", targetUse: "restricted" } },
+        { id: "preterit-agentive-number-position", broadLabel: "agentivo-preterito", family: "preterit-agentive", andrewsSection: "35.4", operation: "resolve-preterit-agentive-number-position", requires: { sourceClass: "Class B/C/D or class-conditioned source", animacyTendency: "available when meaningful" }, transform: { numberDyad: "qui/zero alternation preserved", projectiveObject: "may activate into hybrid" }, builds: { targetShell: "CNN", targetStatus: "number-position branch" } },
+        { id: "preterit-agentive-general-use-ca", broadLabel: "agentivo-preterito", family: "preterit-agentive", andrewsSection: "35.5", operation: "embed-restricted-preterit-stem-before-ca-matrix", requires: { sourceStem: "restricted preterit-agentive nounstem" }, transform: { restrictedStem: "embed", reflexiveSource: "mainline reflexive becomes shuntline ne" }, builds: { targetShell: "CNN", targetState: "general-use or possessive-eligible", targetMatrix: "(ca)-tl" } },
+        { id: "preterit-agentive-possessive-state", broadLabel: "agentivo-preterito", family: "preterit-agentive", andrewsSection: "35.6", operation: "general-use-stem-to-possessive-state-agentive", requires: { sourceStem: "general-use preterit-agentive nounstem", possessor: "external possessor" }, transform: { possessor: "external to source VNC subject", numberDyad: "uh-0/hu-an" }, builds: { targetShell: "CNN", targetState: "possessive", targetClass: "ti subclass 1-A" } },
+        { id: "preterit-agentive-compound-embed", broadLabel: "agentivo-preterito", family: "preterit-agentive", andrewsSection: "35.7", operation: "general-use-preterit-agentive-as-compound-embed", requires: { sourceStem: "general-use preterit-agentive stem", matrix: "CNN/CNV compound matrix" }, transform: { sourceStem: "compound embed", targetMatrix: "kept explicit" }, builds: { targetShell: "CNN/CNV compound", targetStatus: "source-gated continuation" } },
+        { id: "preterit-agentive-old-woman-man", broadLabel: "agentivo-preterito", family: "preterit-agentive-old-person", andrewsSection: "35.8", operation: "old-woman-old-man-preterit-agentive-formation", requires: { sourceStem: "old-person noun/adjectival source", sourcePredicate: "become old woman/man" }, transform: { simpleNounstem: "kept distinct from preterit-agentive stem", preteritEnding: "inside derived nounstem" }, builds: { targetShell: "CNN", targetRole: "old-person agentive formation" }, generationStatus: "source-gated" },
+        { id: "preterit-agentive-ownerhood", broadLabel: "agentivo-preterito", family: "ownerhood-preterit-agentive", andrewsSection: "35.9", operation: "incorporated-object-ownerhood-matrix-to-preterit-agentive", requires: { sourceCompound: "incorporated-object compound", matrix: "tla-e or tla-hua" }, transform: { incorporatedObject: "inside source compound", matrixChoice: "by class and preceding sound" }, builds: { targetShell: "CNN", targetMeaningRole: "ownerhood" } },
+        { id: "preterit-agentive-abundant-ownerhood", broadLabel: "agentivo-preterito", family: "abundant-ownerhood", andrewsSection: "35.10", operation: "abundant-ownerhood-yua-yuwa-matrix-nominalization", requires: { sourceEnvironment: "preterit/connective-t ownerhood environment" }, transform: { yAssimilation: "applies", preteritAgentiveStem: "may incorporate as object" }, builds: { targetShell: "CNN", targetMeaningRole: "abundant ownerhood" } },
+        { id: "preterit-agentive-ownerhood-analysis", broadLabel: "agentivo-preterito", family: "ownerhood-preterit-agentive", andrewsSection: "35.11", operation: "analyze-ownerhood-translation-without-changing-route", requires: { sourceStem: "ownerhood preterit-agentive NNC" }, transform: { translation: "diagnostic only", route: "kept as ownerhood matrix plus preterit-agentive" }, builds: { targetShell: "CNN", targetStatus: "analysis diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-vnc-embed-adverbial", broadLabel: "agentivo-preterito", family: "preterit-agentive-adverbial", andrewsSection: "35.12", operation: "preterit-agentive-as-incorporated-object-or-adverb", requires: { sourceStem: "preterit-agentive nounstem", matrixValence: "intransitive or transitive VNC matrix" }, transform: { embeddedRole: "incorporated object or manner adverb", reflexiveShape: "depends on matrix valence" }, builds: { targetShell: "CNV matrix with CNN embed", targetStatus: "source-gated continuation" } },
+        { id: "preterit-agentive-vocative-particle-boundary", broadLabel: "agentivo-preterito", family: "preterit-agentive-vocative", andrewsSection: "35.13", operation: "keep-vocative-particle-outside-preterit-agentive-nnc", requires: { particleContext: "vocative", sourceStem: "preterit-agentive nounstem" }, transform: { particle: "not a CNN stem operation", numberDyad: "kept with NNC when present" }, builds: { targetShell: "particle plus CNN", targetStatus: "particle-boundary diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-vocative-c-zero-boundary", broadLabel: "agentivo-preterito", family: "preterit-agentive-vocative", andrewsSection: "35.13.1", operation: "vocative-boundary-with-c-zero-singular-number-dyad", requires: { particleContext: "vocative", numberDyad: "c-0" }, transform: { particle: "outside NNC", support: "number dyad remains part of preterit-agentive structure" }, builds: { targetShell: "particle plus CNN", targetStatus: "particle-boundary diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-vocative-qui-zero-supportive-i", broadLabel: "agentivo-preterito", family: "preterit-agentive-vocative", andrewsSection: "35.13.2", operation: "vocative-boundary-with-qui-zero-supportive-i-loss", requires: { particleContext: "vocative", numberDyad: "qui-0" }, transform: { supportiveI: "kept as source-conditioned and may be lost before vocative particle", particle: "outside CNN stem" }, builds: { targetShell: "particle plus CNN", targetStatus: "particle-boundary diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-vocative-perfective-class-band", broadLabel: "agentivo-preterito", family: "preterit-agentive-vocative", andrewsSection: "35.13.3", operation: "vocative-boundary-keeps-perfective-class-band", requires: { sourceClass: "perfective-ending class band", particleContext: "vocative" }, transform: { classBand: "diagnostic source metadata", particle: "not a stem suffix" }, builds: { targetShell: "particle plus CNN", targetStatus: "particle-boundary diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-vocative-intervocalic-boundary", broadLabel: "agentivo-preterito", family: "preterit-agentive-vocative", andrewsSection: "35.13.4", operation: "vocative-boundary-with-intervocalic-problem-diagnostic", requires: { particleContext: "vocative", phonologicalContext: "intervocalic boundary" }, transform: { intervocalicEffect: "diagnostic only", formulaBoundary: "NNC and particle remain separate" }, builds: { targetShell: "particle plus CNN", targetStatus: "particle-boundary diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "preterit-agentive-double-nucleus-compound", broadLabel: "agentivo-preterito", family: "preterit-agentive-compound", andrewsSection: "35.14", operation: "compound-nnc-with-double-nucleus-embed", requires: { compoundStem: "double nucleus source", sourceEmbeds: "two nucleus embeds" }, transform: { nuclei: "preserved as distinct embeds", flattening: "blocked" }, builds: { targetShell: "compound CNN", targetStatus: "source-gated continuation" } },
+    ]),
+    "agentivo-futuro": freezeNominalizationOperationalLayerOperations([
+        { id: "future-agentive-restricted-use", broadLabel: "agentivo-futuro", family: "future-agentive", andrewsSection: "36.8.1", operation: "future-predicate-to-restricted-agentive-nounstem", requires: { sourceTense: "future", sourceUnit: "VNC predicate" }, transform: { futureZ: "kept final in restricted stem", singularNumber: "qui-0", pluralNumber: "qu-eh" }, builds: { targetShell: "CNN", targetState: "absolutive", targetUse: "restricted" } },
+        { id: "future-agentive-general-use-ca", broadLabel: "agentivo-futuro", family: "future-agentive", andrewsSection: "36.8.2", operation: "future-restricted-stem-before-ca-matrix", requires: { sourceStem: "future-agentive restricted stem" }, transform: { restrictedStem: "embedded before ca matrix", possessor: "imported from outside source VNC" }, builds: { targetShell: "CNN", targetState: "general-use", targetClass: "ti subclass 1-A" } },
+    ]),
+    "sustantivo-verbal": freezeNominalizationOperationalLayerOperations([
+        { id: "active-action-z", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.2", operation: "future-verbcore-plus-z-active-action", requires: { sourceCore: "future-tense verbcore", stemClass: "normally i-final" }, transform: { classicalZ: "Nawat s", possessor: "responsible source subject" }, builds: { targetShell: "CNN", targetClass: "tli", targetRole: "active action" } },
+        { id: "active-action-z-replacive-imperfective", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.2.1", operation: "active-action-z-from-replacive-imperfective-source", requires: { sourceCore: "future/imperfective-related verbcore", sourceEnding: "replacive imperfective change" }, transform: { sourceEnding: "replaced before z active-action build", classConditioning: "retained as source metadata" }, builds: { targetShell: "CNN", targetRole: "active action" } },
+        { id: "active-action-z-base-replacive", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.2.2", operation: "active-action-z-from-base-with-replacive-change", requires: { sourceBase: "verbcore base with replacive behavior" }, transform: { base: "selected before z operation", replaciveChange: "applied as source-conditioned" }, builds: { targetShell: "CNN", targetRole: "active action" } },
+        { id: "active-action-z-class-sensitive-replacive", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.2.3", operation: "active-action-z-class-sensitive-replacive-variant", requires: { sourceClass: "Andrews class-conditioned source", sourceEnding: "replacive imperfective variant" }, transform: { classCondition: "selects active-action variant", ending: "not inferred from surface alone" }, builds: { targetShell: "CNN", targetStatus: "class-conditioned active-action" } },
+        { id: "active-action-z-root-source", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.2.4", operation: "active-action-z-from-intransitive-root-source", requires: { sourceCore: "intransitive root-plus-source", sourceReference: "Andrews root class" }, transform: { rootSource: "kept distinct from stem surface", zOperation: "applies after source core is fixed" }, builds: { targetShell: "CNN", targetRole: "active action from root source" } },
+        { id: "active-action-liz", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.3", operation: "future-verbcore-plus-liz-active-action", requires: { sourceCore: "future-tense verbcore", projectiveSources: "te/tla when transitive" }, transform: { classicalLiz: "Nawat lis", reflexiveSource: "shuntline ne", classAlternations: "preserved" }, builds: { targetShell: "CNN", targetRole: "action/process/manner nounstem" } },
+        { id: "active-action-liz-translation-value", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.4", operation: "keep-liz-translation-value-out-of-route-choice", requires: { sourceStem: "liz nounstem" }, transform: { translation: "way/nature/appearance diagnostic only", route: "not changed by gloss" }, builds: { targetShell: "CNN", targetStatus: "translation diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "active-action-compound-source", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.1", operation: "derive-active-action-from-compound-verbstem-source", requires: { sourceCore: "compound verbstem core" }, transform: { compoundSource: "preserved before z/liz operation" }, builds: { targetShell: "CNN", targetRole: "active action from compound source" } },
+        { id: "potential-patient-action", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.2", operation: "active-action-potential-patient-branch", requires: { sourceValence: "transitive or intransitive source disambiguated" }, transform: { objectPronoun: "dropped for potential patient branch", doubleObjectReflexive: "exception stays active-action" }, builds: { targetShell: "CNN", targetRole: "potential patient or active action" } },
+        { id: "potential-patient-action-intransitive-branch", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.2.a", operation: "intransitive-source-potential-patient-active-action-branch", requires: { sourceValence: "intransitive", sourceCore: "active-action compatible core" }, transform: { patientRole: "potential patient by source semantics", objectPronoun: "none introduced" }, builds: { targetShell: "CNN", targetRole: "potential patient from intransitive source" } },
+        { id: "potential-patient-action-transitive-branch", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.2.b", operation: "transitive-source-potential-patient-active-action-branch", requires: { sourceValence: "transitive", objectSource: "source object path disambiguated" }, transform: { objectPronoun: "dropped or retained only by Andrews branch", doubleObjectReflexive: "not collapsed into simple patientive" }, builds: { targetShell: "CNN", targetRole: "potential patient from transitive source" } },
+        { id: "impersonal-action-liz", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.3", operation: "impersonal-core-to-action-nounstem", requires: { sourceCore: "impersonal core" }, transform: { nonactiveOrTlaImpersonal: "source retained as branch", shortZSubtype: "not licensed" }, builds: { targetShell: "CNN", targetRole: "impersonal action" } },
+        { id: "impersonal-action-nonactive-suffix-source", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.3.a", operation: "impersonal-action-from-nonactive-suffix-source", requires: { sourceCore: "impersonal nonactive-suffix source" }, transform: { nonactiveSuffix: "kept as source branch", lizOperation: "added to impersonal core" }, builds: { targetShell: "CNN", targetRole: "impersonal action nounstem" } },
+        { id: "impersonal-action-tla-source", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.3.b", operation: "impersonal-action-from-tla-source", requires: { sourceCore: "impersonal tla source" }, transform: { tla: "source impersonal marker, not target object", lizOperation: "builds action nounstem" }, builds: { targetShell: "CNN", targetRole: "impersonal action nounstem" } },
+        { id: "active-action-compound-embed", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.4", operation: "active-action-nounstem-as-compound-embed", requires: { sourceStem: "active-action nounstem", matrix: "CNN or CNV compound matrix" }, transform: { sourceStem: "compound embed", matrixSubposition: "kept explicit" }, builds: { targetShell: "CNN/CNV compound", targetStatus: "source-gated continuation" } },
+        { id: "active-action-compound-embed-nominal-matrix", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.4.a", operation: "active-action-nounstem-fills-nominal-compound-matrix-subposition", requires: { sourceStem: "active-action nounstem", matrix: "nominal compound matrix" }, transform: { embed: "fills matrix subposition", outputFormula: "compound CNN" }, builds: { targetShell: "compound CNN", targetStatus: "source-gated continuation" } },
+        { id: "active-action-compound-embed-verbal-matrix", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.4.b", operation: "active-action-nounstem-fills-verbal-compound-matrix-subposition", requires: { sourceStem: "active-action nounstem", matrix: "verbal compound matrix" }, transform: { embed: "fills matrix subposition", outputFormula: "CNV matrix with CNN embed" }, builds: { targetShell: "compound CNV", targetStatus: "source-gated continuation" } },
+        { id: "active-action-affective-tzin-assimilation", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.5.5", operation: "active-action-liz-plus-tzin-affective-assimilation", requires: { sourceStem: "liz nounstem", affectiveMatrix: "tzin" }, transform: { assimilation: "licensed by Andrews; Nawat realization still separated" }, builds: { targetShell: "compound CNN", targetStatus: "orthography-bridge continuation" } },
+        { id: "passive-action-nnc", broadLabel: "sustantivo-verbal", family: "action-nnc", andrewsSection: "36.10", operation: "distant-past-passive-to-passive-action-nnc", requires: { sourceVoice: "passive", sourceTense: "distant-past" }, transform: { sourceSubject: "becomes possessor", ca: "final in general-use stem", restrictedStem: "yo compound" }, builds: { targetShell: "CNN", targetState: "possessive/general or absolutive restricted", targetRole: "passive action" } },
+        { id: "active-action-first-type", broadLabel: "sustantivo-verbal", family: "action-nnc", andrewsSection: "36.11", operation: "distant-past-active-to-active-action-nnc", requires: { sourceVoice: "active", sourceTense: "distant-past", sourceScope: "mostly intransitive or reflexive" }, transform: { sourceSubject: "becomes possessor", reflexiveSource: "mainline becomes shuntline", restrictedStem: "yo compound" }, builds: { targetShell: "CNN", targetRole: "active action/result/state" } },
+        { id: "active-action-passive-action-possessor-role-contrast", broadLabel: "sustantivo-verbal", family: "action-nnc", andrewsSection: "37.6", operation: "distinguish-active-vs-passive-action-possessor-role", requires: { sourceStem: "active-action or passive-action nounstem" }, transform: { activePossessor: "agent", passivePossessor: "patient" }, builds: { targetShell: "CNN", targetStatus: "role diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "active-action-multiple-nucleus-supplement", broadLabel: "sustantivo-verbal", family: "active-action", andrewsSection: "37.7", operation: "active-action-nnc-as-multiple-nucleus-supplement", requires: { sourceStem: "active-action NNC", sentenceFrame: "multiple nucleus construction" }, transform: { supplement: "sentence-level function, not word-internal suffix" }, builds: { targetShell: "sentence-level supplement", targetStatus: "diagnostic-only" }, generationStatus: "diagnostic-only" },
+    ]),
+    patientivo: freezeNominalizationOperationalLayerOperations([
+        { id: "customary-present-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "36.5", operation: "customary-present-passive-to-patientive", requires: { sourceVoice: "passive", sourceTense: "customary-present" }, transform: { passivePredicate: "becomes patientive nounstem", projectiveObject: "not retained as outside object", reflexiveSource: "shuntline ne" }, builds: { targetShell: "CNN", targetState: "absolutive", targetRole: "patient/undergoer" } },
+        { id: "patientive-source-family-overview", broadLabel: "patientivo", family: "patientive", andrewsSection: "37.8", operation: "classify-patientive-source-family-before-output", requires: { sourceFamily: "passive/impersonal/perfective/imperfective/root-or-stock" }, transform: { family: "kept as route branch", translation: "not used as source evidence" }, builds: { targetShell: "CNN", targetStatus: "source-family-gate" }, generationStatus: "diagnostic-only" },
+        { id: "passive-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "37.9", operation: "passive-core-to-patientive-nounstem", requires: { sourceCore: "passive VNC core", ultimateSource: "not intransitive" }, transform: { nonactiveSuffix: "deletion family lo/o/hua", objectMaterial: "only licensed source objects retained" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-nonactive-suffix-family", broadLabel: "patientivo", family: "patientive", andrewsSection: "37.9.1", operation: "derive-passive-patientive-from-nonactive-suffix-family", requires: { sourceCore: "passive VNC core", nonactiveSuffixFamily: "lo/o/hua variants" }, transform: { suffixDeletion: "source-family conditioned", classEffects: "preserved" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-reflexive-shuntline", broadLabel: "patientivo", family: "patientive", andrewsSection: "37.9.2", operation: "passive-reflexive-source-uses-shuntline-ne", requires: { sourceCore: "passive reflexive source" }, transform: { reflexive: "mainline source becomes shuntline ne", passiveSource: "kept passive, not impersonal" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-projective-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "37.9.3", operation: "passive-projective-source-object-pronoun-routing", requires: { sourceCore: "passive source with projective objects" }, transform: { objectPronouns: "retained/deleted by Andrews passive source contract", doubleProjective: "keeps one licensed object" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-lo-suffix-family", broadLabel: "patientivo", family: "patientive-passive-suffix-family", andrewsSection: "37.9.1.a", operation: "passive-patientive-from-lo-nonactive-source", requires: { sourceCore: "passive voice core", nonactiveSuffixFamily: "lo" }, transform: { nonactiveSuffix: "deleted or retained by passive-patientive family rule", patientiveStem: "not inferred from surface alone" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-o-suffix-family", broadLabel: "patientivo", family: "patientive-passive-suffix-family", andrewsSection: "37.9.1.b", operation: "passive-patientive-from-o-nonactive-source", requires: { sourceCore: "passive voice core", nonactiveSuffixFamily: "o" }, transform: { nonactiveSuffix: "source-family conditioned", patientiveStem: "keeps passive-source metadata" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "passive-patientive-hua-suffix-family", broadLabel: "patientivo", family: "patientive-passive-suffix-family", andrewsSection: "37.9.1.c", operation: "passive-patientive-from-hua-nonactive-source", requires: { sourceCore: "passive voice core", nonactiveSuffixFamily: "hua" }, transform: { huaSource: "converted through passive-patientive source contract", classEffects: "preserved before Nawat realization" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+        { id: "impersonal-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1", operation: "impersonal-core-to-patientive-nounstem", requires: { sourceCore: "impersonal VNC core" }, transform: { sourceVoice: "kept distinct from passive", nonspecificProjective: "depends on source", reflexive: "shuntline ne" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-intransitive-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.1", operation: "intransitive-active-source-to-impersonal-patientive", requires: { sourceCore: "intransitive active source impersonalized" }, transform: { rootPlusYa: "may use root not stem", nonactiveFamily: "source-conditioned" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-intransitive-nonactive-derived-a", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.1.a", operation: "intransitive-source-through-derived-impersonal-core-a", requires: { sourceCore: "intransitive active source", impersonalCore: "derived impersonal voice core" }, transform: { activeSource: "impersonalized before patientive", nonactiveFamily: "source-conditioned" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-intransitive-nonactive-derived-b", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.1.b", operation: "intransitive-source-through-derived-impersonal-core-b", requires: { sourceCore: "intransitive active source", impersonalCore: "derived impersonal voice core" }, transform: { sourceRoot: "may differ from visible stem", nonactiveFamily: "not collapsed with passive" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-intransitive-built-core-c", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.1.c", operation: "intransitive-source-built-impersonal-core-c", requires: { sourceCore: "intransitive active source", impersonalCore: "built impersonal core" }, transform: { impersonalCore: "explicit intermediate source", patientiveStem: "built from impersonal core" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-intransitive-built-core-d", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.1.d", operation: "intransitive-source-built-impersonal-core-d", requires: { sourceCore: "intransitive active source", impersonalCore: "built impersonal core" }, transform: { derivationHistory: "retained before patientive", finalSurface: "not source authority" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-reflexive-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.2", operation: "transitive-reflexive-source-to-impersonal-patientive", requires: { sourceCore: "transitive active reflexive source" }, transform: { reflexive: "mainline object becomes shuntline ne", objectPronoun: "not treated as external target object" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-projective-nonhuman-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.3", operation: "projective-nonhuman-source-to-impersonal-patientive", requires: { sourceCore: "transitive active projective source", directObject: "nonhuman" }, transform: { projective: "tla source routing", nonhumanPatient: "kept structural" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-projective-nonhuman-derived-a", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.3.a", operation: "projective-nonhuman-source-derived-impersonal-core-a", requires: { sourceCore: "transitive active projective source", projectiveObject: "nonhuman/tla" }, transform: { projectiveObject: "inside source core", impersonalCore: "intermediate source before patientive" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-projective-nonhuman-derived-b", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.3.b", operation: "projective-nonhuman-source-derived-impersonal-core-b", requires: { sourceCore: "transitive active projective source", projectiveObject: "nonhuman/tla" }, transform: { sourceVoice: "impersonal, not passive", objectPronoun: "not copied outside target CNN" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-projective-nonhuman-derived-c", broadLabel: "patientivo", family: "patientive-impersonal-source-family", andrewsSection: "38.1.3.c", operation: "projective-nonhuman-source-derived-impersonal-core-c", requires: { sourceCore: "transitive active projective source", projectiveObject: "nonhuman/tla" }, transform: { impersonalCore: "built before patientive operation", patientiveFamily: "kept distinct from active-action overlap" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-projective-human-te-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.4", operation: "projective-human-te-source-through-impersonalized-passive", requires: { sourceCore: "projective human te source" }, transform: { teSource: "routes through impersonalized passive/tla pattern", passiveVsImpersonal: "not collapsed" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+        { id: "impersonal-patientive-human-te-nonactive-a", broadLabel: "patientivo", family: "patientive-human-projective-source", andrewsSection: "38.1.4.a", operation: "human-te-source-through-nonactive-derived-branch-a", requires: { sourceCore: "projective human active source", projectiveObject: "te" }, transform: { humanProjective: "routes through nonactive/impersonalized branch", passiveContrast: "kept visible" }, builds: { targetShell: "CNN", targetRole: "human-source impersonal patientive" } },
+        { id: "impersonal-patientive-human-te-nonactive-b", broadLabel: "patientivo", family: "patientive-human-projective-source", andrewsSection: "38.1.4.b", operation: "human-te-source-through-nonactive-derived-branch-b", requires: { sourceCore: "projective human active source", nonactiveSuffix: "source-conditioned" }, transform: { teSource: "not a target object", nonactiveSuffix: "intermediate source branch" }, builds: { targetShell: "CNN", targetRole: "human-source impersonal patientive" } },
+        { id: "impersonal-patientive-human-te-hua-branch", broadLabel: "patientivo", family: "patientive-human-projective-source", andrewsSection: "38.1.4.c", operation: "human-te-source-through-hua-nonactive-branch", requires: { sourceCore: "projective human active source", nonactiveSuffixFamily: "hua" }, transform: { huaBranch: "kept as impersonalized source", targetObject: "none outside CNN" }, builds: { targetShell: "CNN", targetRole: "human-source impersonal patientive" } },
+        { id: "impersonal-patientive-human-nonhuman-contrast", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.5", operation: "preserve-human-vs-nonhuman-patientive-contrast", requires: { sourceContrast: "human/nonhuman projective source" }, transform: { anomalousTe: "diagnostic contrast", translation: "not route authority" }, builds: { targetShell: "CNN", targetStatus: "contrast diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "impersonal-patientive-active-action-overlap", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.1.6", operation: "keep-impersonal-patientive-and-active-action-overlap-separate", requires: { nearSurfacePair: "impersonal patientive or active-action nounstem" }, transform: { overlap: "translation overlap only", route: "kept by source family" }, builds: { targetShell: "CNN", targetStatus: "anti-conflation diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "compound-patientive-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.2.1", operation: "compound-verbstem-source-to-patientive", requires: { sourceCore: "compound verbstem source" }, transform: { embeddedObjects: "do not invert analysis", compoundSource: "preserved before patientive derivation" }, builds: { targetShell: "CNN", targetRole: "compound-source patientive" } },
+        { id: "compound-patientive-matrix", broadLabel: "patientivo", family: "patientive", andrewsSection: "38.2.2", operation: "deverbal-nounstem-as-compound-matrix", requires: { sourceStem: "patientive deverbal nounstem", embed: "compound embed" }, transform: { matrixRole: "patientive acts as matrix", embeddedStem: "kept distinct" }, builds: { targetShell: "compound CNN", targetStatus: "source-gated continuation" } },
+        { id: "perfective-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.1", operation: "perfective-active-core-to-patientive", requires: { sourceCore: "perfective active verbstem" }, transform: { analogy: "passive or impersonal", sourceEnding: "class-limited" }, builds: { targetShell: "CNN", targetClass: "tli", targetRole: "perfective patientive" } },
+        { id: "perfective-patientive-ending-gate", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.1.1", operation: "perfective-core-ending-gate", requires: { sourceCore: "perfective active core", sourceEnding: "Andrews-allowed ending" }, transform: { ending: "selects patientive class/variant", invalidEnding: "blocks route" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+        { id: "perfective-patientive-compound-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.1.3", operation: "perfective-compound-source-patientive", requires: { sourceCore: "compound perfective active source" }, transform: { compoundSource: "preserved before patientive operation" }, builds: { targetShell: "CNN", targetStatus: "source-gated" } },
+        { id: "imperfective-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.2", operation: "imperfective-active-stem-to-patientive", requires: { sourceCore: "imperfective active stem" }, transform: { analogy: "passive or impersonal", classCOrD: "preserved" }, builds: { targetShell: "CNN", targetClass: "ti", targetRole: "imperfective patientive" } },
+        { id: "imperfective-patientive-transitive-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.2.1", operation: "transitive-imperfective-source-to-patientive", requires: { sourceStem: "transitive imperfective active stem" }, transform: { objectSource: "controlled by source valence", targetClass: "ti" }, builds: { targetShell: "CNN", targetClass: "ti" } },
+        { id: "imperfective-patientive-intransitive-source", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.2.2", operation: "intransitive-imperfective-source-to-patientive", requires: { sourceStem: "intransitive imperfective active stem" }, transform: { sourceValence: "kept in source metadata", targetClass: "ti" }, builds: { targetShell: "CNN", targetClass: "ti" } },
+        { id: "characteristic-property-patientive", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3", operation: "imperfective-patientive-characteristic-property", requires: { sourceStem: "patientive characteristic source" }, transform: { yoMatrix: "kept as characteristic-property matrix", state: "quality/property role" }, builds: { targetShell: "CNN", targetRole: "characteristic property" } },
+        { id: "characteristic-property-state-quality", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.1", operation: "patientive-state-quality-meaning", requires: { sourceStem: "characteristic property patientive" }, transform: { meaning: "state/quality/inherent entity diagnostic" }, builds: { targetShell: "CNN", targetStatus: "semantic role diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "characteristic-property-pertaining-thing", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.2", operation: "patientive-thing-pertaining-to-incorporated-source", requires: { incorporatedSource: "nominal or verbal source inside property stem" }, transform: { sourceRelation: "pertaining-to role retained" }, builds: { targetShell: "CNN", targetRole: "characteristic property" } },
+        { id: "characteristic-property-intrinsic-thing", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.3", operation: "patientive-intrinsic-thing-incorporated-source", requires: { incorporatedSource: "source stem naming intrinsic quality" }, transform: { sourceRelation: "intrinsic role retained" }, builds: { targetShell: "CNN", targetRole: "characteristic property" } },
+        { id: "characteristic-property-organic-possession", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.4", operation: "organic-possession-characteristic-property", requires: { sourceRelation: "organic/integral possession" }, transform: { state: "possessive-state only", possessor: "part-whole relation" }, builds: { targetShell: "CNN", targetState: "possessive" } },
+        { id: "characteristic-property-compound-matrix", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.5", operation: "characteristic-property-as-compound-matrix", requires: { sourceStem: "characteristic-property nounstem", embed: "compound embed" }, transform: { matrixSubposition: "filled by source", derivationHistory: "retained" }, builds: { targetShell: "compound CNN", targetStatus: "source-gated continuation" } },
+        { id: "characteristic-property-action-embed", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.6", operation: "passive-or-active-action-nounstem-as-characteristic-property-embed", requires: { sourceEmbed: "passive-action or active-action nounstem" }, transform: { actionEmbed: "kept as embed before property matrix", yoTlOmission: "possible in later function use" }, builds: { targetShell: "CNN", targetRole: "characteristic property with action embed" } },
+        { id: "characteristic-property-passive-action-embed", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.6.a", operation: "passive-action-nounstem-as-characteristic-property-embed", requires: { sourceEmbed: "passive-action nounstem", matrix: "characteristic-property matrix" }, transform: { passiveActionHistory: "retained inside property embed", matrix: "yo/tl property layer" }, builds: { targetShell: "CNN characteristic property" } },
+        { id: "characteristic-property-active-action-embed", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.3.6.b", operation: "active-action-nounstem-as-characteristic-property-embed", requires: { sourceEmbed: "active-action nounstem", matrix: "characteristic-property matrix" }, transform: { activeActionHistory: "retained inside property embed", matrix: "yo/tl property layer" }, builds: { targetShell: "CNN characteristic property" } },
+        { id: "root-stock-patientive", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.4", operation: "root-or-stock-to-patientive", requires: { sourceCore: "destockal root or stock" }, transform: { suffixChoice: "c/x/z/ch or stock-conditioned", exactVariant: "not inferred from final surface alone" }, builds: { targetShell: "CNN", targetClass: "tli", targetRole: "root/stock patientive" } },
+        { id: "root-stock-patientive-ni-destockal", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.4.1", operation: "ni-destockal-root-to-patientive", requires: { sourceCore: "intransitive destockal root" }, transform: { suffixChoice: "c/x/z/ch", class: "tli" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+        { id: "root-stock-patientive-hua-destockal", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.4.2", operation: "hua-destockal-stock-to-patientive", requires: { sourceCore: "hua destockal stock" }, transform: { sourceClass: "stock-based", suffixChoice: "source-conditioned" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+        { id: "root-stock-patientive-ihui-ahui-destockal", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.4.3", operation: "ihui-ahui-destockal-stock-to-patientive", requires: { sourceCore: "i-hui/a-hui destockal source" }, transform: { sourceClass: "stock-based", suffixChoice: "source-conditioned" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+        { id: "root-stock-patientive-agentive-stock-meaning", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.4.4", operation: "stock-patientive-with-agentive-meaning-diagnostic", requires: { sourceCore: "certain intransitive destockal stock" }, transform: { meaning: "can read agentively without changing route" }, builds: { targetShell: "CNN", targetStatus: "semantic diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "multiple-patientive-derivation", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.5", operation: "preserve-multiple-patientive-procedures", requires: { sourceVerb: "one allowing multiple patientive procedures" }, transform: { translation: "not used to merge outputs", procedure: "kept as route branch" }, builds: { targetShell: "CNN", targetStatus: "multi-derivation diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "patientive-compound-embed", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.6", operation: "patientive-nounstem-as-compound-embed", requires: { sourceStem: "patientive nounstem", matrix: "nominal or verbal compound" }, transform: { derivationalHistory: "controls shape and meaning" }, builds: { targetShell: "CNN/CNV compound", targetStatus: "source-gated continuation" } },
+        { id: "patientive-nominal-compound-embed", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.6.1", operation: "patientive-nounstem-as-nominal-compound-embed", requires: { sourceStem: "patientive nounstem", matrix: "nominal compound matrix" }, transform: { embed: "inside nominal compound", surfaceMeaning: "matrix-controlled" }, builds: { targetShell: "compound CNN" } },
+        { id: "patientive-verbal-compound-embed", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.6.2", operation: "patientive-nounstem-as-verbal-compound-embed", requires: { sourceStem: "patientive nounstem", matrix: "verbal compound matrix" }, transform: { embed: "inside verbal compound", valence: "matrix controls object slots" }, builds: { targetShell: "CNV matrix with CNN embed" } },
+        { id: "patientive-incorporated-complement", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.7", operation: "patientive-as-incorporated-complement", requires: { sourceStem: "absolutive or possessive patientive nounstem", matrix: "object-complement matrix" }, transform: { possessorPronoun: "may become mainline object" }, builds: { targetShell: "CNV matrix with CNN complement", targetStatus: "source-gated continuation" } },
+        { id: "patientive-incorporated-complement-absolutive", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.7.1", operation: "absolutive-patientive-as-incorporated-complement", requires: { sourceStem: "absolutive patientive nounstem", matrix: "object-complement matrix" }, transform: { sourceSubject: "may map to outside object by matrix function", complementSlot: "consumed inside matrix" }, builds: { targetShell: "CNV matrix with CNN complement" } },
+        { id: "patientive-incorporated-complement-perception-matrix", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.1.a", operation: "absolutive-patientive-complement-with-perception-matrix", requires: { sourceStem: "absolutive patientive nounstem", matrix: "perception verb matrix" }, transform: { complement: "incorporated inside matrix", outsideObject: "licensed only by matrix role" }, builds: { targetShell: "CNV matrix with CNN complement" } },
+        { id: "patientive-incorporated-complement-mentioned-matrix", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.1.b", operation: "absolutive-patientive-complement-with-mentioned-matrix-family", requires: { sourceStem: "absolutive patientive nounstem", matrix: "Andrews-mentioned complement matrix" }, transform: { complement: "inside matrix source", routeFamily: "kept source-gated" }, builds: { targetShell: "CNV matrix with CNN complement" } },
+        { id: "patientive-incorporated-complement-desire-matrix", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.1.c", operation: "absolutive-patientive-complement-with-desire-matrix", requires: { sourceStem: "absolutive patientive nounstem", matrix: "m-o/tla/tlani desire matrix" }, transform: { complementSlot: "incorporated", matrixValence: "controls object behavior" }, builds: { targetShell: "CNV matrix with CNN complement" } },
+        { id: "patientive-possessive-incorporated-complement", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.2", operation: "possessive-patientive-as-incorporated-complement", requires: { sourceStem: "possessive-state patientive nounstem", matrix: "object-complement matrix" }, transform: { possessorPronoun: "may be promoted by matrix", possessiveState: "retained in embedded source" }, builds: { targetShell: "CNV matrix with possessive CNN complement" } },
+        { id: "patientive-possessive-complement-toca-matrix", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.2.a", operation: "possessive-patientive-complement-with-toca-matrix", requires: { sourceStem: "possessive-state patientive nounstem", matrix: "m-o/toca consider matrix" }, transform: { possessorPronoun: "matrix-controlled", complementRole: "incorporated complement" }, builds: { targetShell: "CNV matrix with possessive CNN complement" } },
+        { id: "patientive-possessive-complement-desire-matrix", broadLabel: "patientivo", family: "patientive-incorporated-complement", andrewsSection: "39.7.2.b", operation: "possessive-patientive-complement-with-desire-matrix", requires: { sourceStem: "possessive-state patientive nounstem", matrix: "tla/tlani desire matrix" }, transform: { possessorPronoun: "may become outside object by matrix", complementSlot: "inside matrix" }, builds: { targetShell: "CNV matrix with possessive CNN complement" } },
+        { id: "patientive-incorporated-object", broadLabel: "patientivo", family: "patientive", andrewsSection: "39.8", operation: "patientive-as-incorporated-object", requires: { sourceStem: "patientive nounstem", matrix: "tlani/ihtlani/temoa family" }, transform: { possessorPronoun: "becomes applicative object", matrixValence: "licenses inside and outside objects" }, builds: { targetShell: "CNV matrix with incorporated CNN object", targetStatus: "source-gated continuation" } },
+        { id: "patientive-characteristic-property-embed-continuation", broadLabel: "patientivo", family: "characteristic-property", andrewsSection: "39.9", operation: "characteristic-property-patientive-as-incorporated-object-with-yo-t-omission", requires: { sourceStem: "characteristic-property patientive nounstem", matrix: "supported incorporated-object matrix" }, transform: { yoTlMatrix: "may be omitted with full derived meaning", possessor: "may become outside object" }, builds: { targetShell: "CNV matrix with incorporated CNN object", targetStatus: "source-gated continuation" } },
+    ]),
+    "patientivo-pasivo": freezeNominalizationOperationalLayerOperations([
+        { id: "passive-patientive", broadLabel: "patientivo-pasivo", family: "patientive", andrewsSection: "37.9", operation: "passive-core-to-patientive-nounstem", requires: { sourceCore: "passive VNC core" }, transform: { objectMaterial: "only licensed source objects retained" }, builds: { targetShell: "CNN", targetRole: "passive patientive" } },
+    ]),
+    "patientivo-impersonal": freezeNominalizationOperationalLayerOperations([
+        { id: "impersonal-patientive", broadLabel: "patientivo-impersonal", family: "patientive", andrewsSection: "38.1", operation: "impersonal-core-to-patientive-nounstem", requires: { sourceCore: "impersonal VNC core" }, transform: { passiveVsImpersonal: "not collapsed", projectiveWitness: "tla/ta by source" }, builds: { targetShell: "CNN", targetRole: "impersonal patientive" } },
+    ]),
+    "patientivo-perfectivo": freezeNominalizationOperationalLayerOperations([
+        { id: "perfective-patientive", broadLabel: "patientivo-perfectivo", family: "patientive", andrewsSection: "39.1", operation: "perfective-active-core-to-patientive", requires: { sourceCore: "perfective active verbstem" }, transform: { analogy: "passive or impersonal" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+    ]),
+    "patientivo-imperfectivo": freezeNominalizationOperationalLayerOperations([
+        { id: "imperfective-patientive", broadLabel: "patientivo-imperfectivo", family: "patientive", andrewsSection: "39.2", operation: "imperfective-active-stem-to-patientive", requires: { sourceCore: "imperfective active stem" }, transform: { analogy: "passive or impersonal" }, builds: { targetShell: "CNN", targetClass: "ti" } },
+    ]),
+    "patientivo-tronco": freezeNominalizationOperationalLayerOperations([
+        { id: "root-stock-patientive", broadLabel: "patientivo-tronco", family: "patientive", andrewsSection: "39.4", operation: "root-or-stock-to-patientive", requires: { sourceCore: "destockal root or stock" }, transform: { suffixChoice: "source-conditioned", exactVariant: "diagnostic until source fixed" }, builds: { targetShell: "CNN", targetClass: "tli" } },
+    ]),
+    instrumentivo: freezeNominalizationOperationalLayerOperations([
+        { id: "instrumentive-absolutive", broadLabel: "instrumentivo", family: "instrumentive", andrewsSection: "36.6", operation: "impersonal-customary-source-to-absolutive-instrumentive", requires: { sourceVoice: "impersonal", sourceTense: "customary-present" }, transform: { sourcePredicate: "becomes nounstem", participant: "no specific possessor available" }, builds: { targetShell: "CNN", targetState: "absolutive", targetRole: "instrument/faculty/means" } },
+        { id: "instrumentive-possessive", broadLabel: "instrumentivo", family: "instrumentive", andrewsSection: "36.6", operation: "imperfect-active-source-to-possessive-instrumentive", requires: { sourceVoice: "active", sourceTense: "imperfect-indicative" }, transform: { sourceSubject: "becomes possessor", reflexiveSource: "mainline becomes shuntline", importedSubject: "outer nonanimate 0-0" }, builds: { targetShell: "CNN", targetState: "possessive", targetClass: "ti subclass 1-B" } },
+        { id: "instrumentive-cutting-tool", broadLabel: "instrumentivo", family: "instrumentive-example-operation", andrewsSection: "36.6.1", operation: "instrumentive-tool-from-cutting-source", requires: { sourcePredicate: "cutting-type source", sourceVoice: "impersonal/customary instrumentive source" }, transform: { toolRole: "instrument rather than agent/patient", projectiveMaterial: "kept in source predicate where licensed" }, builds: { targetShell: "CNN", targetRole: "cutting instrument" } },
+        { id: "instrumentive-sleeping-means", broadLabel: "instrumentivo", family: "instrumentive-example-operation", andrewsSection: "36.6.2", operation: "instrumentive-means-or-faculty-from-intransitive-source", requires: { sourcePredicate: "means/faculty source", sourceValence: "intransitive or impersonalized source" }, transform: { sourceSubject: "not copied as target subject", meansRole: "names means/faculty" }, builds: { targetShell: "CNN", targetRole: "means/faculty" } },
+        { id: "instrumentive-reflexive-curing-means", broadLabel: "instrumentivo", family: "instrumentive-example-operation", andrewsSection: "36.6.3", operation: "instrumentive-from-reflexive-curing-source", requires: { sourcePredicate: "reflexive curing-type source", reflexiveSource: "mainline reflexive present" }, transform: { reflexiveSource: "routes through shuntline/possessive interpretation when required", participantRole: "instrument/means, not patientive" }, builds: { targetShell: "CNN", targetRole: "means of self-action" } },
+    ]),
+    "calificativo-instrumentivo": freezeNominalizationOperationalLayerOperations([
+        { id: "characteristic-property", broadLabel: "calificativo-instrumentivo", family: "characteristic-property", andrewsSection: "39.3", operation: "tla-yo-a-characteristic-property-to-cnn", requires: { sourceMatrix: "tla-yo-a abundant/characteristic source" }, transform: { matrix: "yo-tl/yu-t realized after source fixed", embedMeaning: "kept separate from target function" }, builds: { targetShell: "CNN", targetRole: "quality/characteristic property" } },
+        { id: "organic-possession", broadLabel: "calificativo-instrumentivo", family: "characteristic-property", andrewsSection: "39.3.4", operation: "organic-possession-yo-matrix", requires: { sourceRelation: "organic or integral possession" }, transform: { possessionType: "organic uses possessive-state yo matrix" }, builds: { targetShell: "CNN", targetState: "possessive", targetRole: "organic characteristic" } },
+        { id: "characteristic-action-embed", broadLabel: "calificativo-instrumentivo", family: "characteristic-property", andrewsSection: "39.3.6", operation: "action-noun-as-characteristic-property-embed", requires: { sourceEmbed: "passive-action or active-action nounstem" }, transform: { derivationalSequence: "multi-step and retained" }, builds: { targetShell: "CNN", targetRole: "characteristic property with action embed" } },
+        { id: "exceptional-adjectival-huei", broadLabel: "calificativo-instrumentivo", family: "adjectival-nnc", andrewsSection: "40.2.1", operation: "exceptional-adjectival-nnc-huei-type", requires: { sourceStem: "exceptional adjectival NNC source" }, transform: { adjectiveFunction: "function use, not new formal adjective class", nounstem: "kept as CNN predicate" }, builds: { targetShell: "CNN", targetRole: "adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "exceptional-adjectival-nepapan", broadLabel: "calificativo-instrumentivo", family: "adjectival-nnc", andrewsSection: "40.2.2", operation: "exceptional-adjectival-nnc-nepapan-type", requires: { sourceStem: "exceptional adjectival NNC source" }, transform: { relationalAffinity: "not flattened into ordinary adjective", nounstem: "kept as CNN" }, builds: { targetShell: "CNN", targetRole: "adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "anomalous-adjectival-ce-l", broadLabel: "calificativo-instrumentivo", family: "adjectival-nnc", andrewsSection: "40.2.3.a", operation: "anomalous-adjectival-nnc-ce-l-type", requires: { sourceStem: "ce-l anomalous source" }, transform: { translation: "not route authority", numeralRelation: "diagnostic" }, builds: { targetShell: "CNN", targetRole: "adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "anomalous-adjectival-is", broadLabel: "calificativo-instrumentivo", family: "adjectival-nnc", andrewsSection: "40.2.3.b", operation: "anomalous-adjectival-nnc-is-type", requires: { sourceStem: "0-is anomalous source" }, transform: { translation: "diagnostic only", sourceStem: "kept separate from lexical adjective" }, builds: { targetShell: "CNN", targetRole: "adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "vnc-predicate-as-adjective", broadLabel: "calificativo-instrumentivo", family: "adjectival-function", andrewsSection: "40.3.1", operation: "vnc-predicate-functions-as-adjective", requires: { sourceUnit: "CNV predicate", functionUse: "adjectival modifier or predicate adjective" }, transform: { sourceShell: "kept CNV", adjectiveUse: "function layer only" }, builds: { targetShell: "CNV function use", targetStatus: "adjectival function diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "nnc-predicate-as-adjective", broadLabel: "calificativo-instrumentivo", family: "adjectival-function", andrewsSection: "40.3.2", operation: "nnc-predicate-functions-as-adjective", requires: { sourceUnit: "CNN predicate", functionUse: "adjectival modifier or predicate adjective" }, transform: { sourceShell: "kept CNN", adjectiveUse: "function layer only" }, builds: { targetShell: "CNN function use", targetStatus: "adjectival function diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "patientive-passive-adjectival-function", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.4.1.a", operation: "passive-patientive-nounstem-functions-as-adjective", requires: { sourceStem: "passive patientive nounstem" }, transform: { patientiveRoute: "retained as source", adjectiveFunction: "added without changing source family" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "patientive-impersonal-adjectival-function", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.4.1.b", operation: "impersonal-patientive-nounstem-functions-as-adjective", requires: { sourceStem: "impersonal patientive nounstem" }, transform: { patientiveRoute: "retained as source", adjectiveFunction: "added without changing source family" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "patientive-perfective-adjectival-function", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.4.1.c", operation: "perfective-patientive-nounstem-functions-as-adjective", requires: { sourceStem: "perfective patientive nounstem" }, transform: { patientiveRoute: "retained as source", adjectiveFunction: "added without changing source family" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "patientive-root-stock-adjectival-function", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.4.1.d", operation: "root-stock-patientive-nounstem-functions-as-adjective", requires: { sourceStem: "root/stock patientive nounstem" }, transform: { patientiveRoute: "retained as source", adjectiveFunction: "added without changing source family" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "potential-patient-adjectival-function", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.4.2", operation: "potential-patient-nounstem-functions-as-adjective", requires: { sourceStem: "potential-patient derived nounstem" }, transform: { potentialPatient: "kept distinct from active-action noun", adjectiveFunction: "function layer" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "customary-agentive-predicate-adjective", broadLabel: "calificativo-instrumentivo", family: "agentive-adjectival-function", andrewsSection: "40.6", operation: "customary-present-agentive-predicate-functions-as-adjective", requires: { sourceStem: "customary-present agentive NNC predicate" }, transform: { agentiveSource: "retained", adjectiveFunction: "function layer" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "customary-patientive-predicate-adjective", broadLabel: "calificativo-instrumentivo", family: "patientive-adjectival-function", andrewsSection: "40.7", operation: "customary-present-patientive-predicate-functions-as-adjective", requires: { sourceStem: "customary-present patientive NNC predicate" }, transform: { patientiveSource: "retained", adjectiveFunction: "function layer" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "preterit-agentive-predicate-adjective", broadLabel: "calificativo-instrumentivo", family: "agentive-adjectival-function", andrewsSection: "40.8", operation: "preterit-agentive-predicate-functions-as-adjective", requires: { sourceStem: "preterit-agentive NNC predicate" }, transform: { numberPosition: "retained by source subclass", adjectiveFunction: "function layer" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "preterit-agentive-adjective-class-branch", broadLabel: "calificativo-instrumentivo", family: "agentive-adjectival-function", andrewsSection: "40.8.1", operation: "preterit-agentive-adjectival-class-branch", requires: { sourceStem: "preterit-agentive including passive-source class" }, transform: { class: "controls adjectival behavior", sourceFamily: "not collapsed by translation" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "preterit-agentive-adjective-number-position-branch", broadLabel: "calificativo-instrumentivo", family: "agentive-adjectival-function", andrewsSection: "40.8.2-40.8.4", operation: "preterit-agentive-adjectival-number-position-branches", requires: { sourceStem: "preterit-agentive NNC", numberPosition: "Andrews subclass branch" }, transform: { singularCommonNumber: "source-conditioned", subjectPronoun: "retained structurally" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "preterit-agentive-compound-stem-adjective", broadLabel: "calificativo-instrumentivo", family: "agentive-adjectival-function", andrewsSection: "40.8.5", operation: "compound-stemmed-preterit-agentive-functions-as-adjective", requires: { sourceStem: "compound-stemmed preterit-agentive" }, transform: { compoundSource: "kept explicit", adjectiveFunction: "function layer" }, builds: { targetShell: "CNN adjectival function" } },
+        { id: "obsolete-preterit-predicate-adjective", broadLabel: "calificativo-instrumentivo", family: "obsolete-preterit-adjectival", andrewsSection: "40.9", operation: "obsolete-preterit-vnc-predicate-functions-as-adjective", requires: { sourceUnit: "obsolete preterit VNC predicate" }, transform: { obsoleteSource: "diagnostic source, not Nawat evidence", adjectiveFunction: "function layer" }, builds: { targetShell: "CNV/CNN adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "synonymous-adjectival-hui-pair", broadLabel: "calificativo-instrumentivo", family: "synonymous-adjectival-nnc", andrewsSection: "40.10.1", operation: "synonymous-adjectival-pair-from-hui-destockal-source", requires: { sourceStem: "intransitive destockal hui source" }, transform: { pairMembers: "kept as sibling routes", synonymy: "not used to merge source histories" }, builds: { targetShell: "CNN adjectival pair" } },
+        { id: "synonymous-adjectival-hua-pair", broadLabel: "calificativo-instrumentivo", family: "synonymous-adjectival-nnc", andrewsSection: "40.10.2", operation: "synonymous-adjectival-pair-from-hua-destockal-source", requires: { sourceStem: "intransitive destockal hua source" }, transform: { pairMembers: "kept as sibling routes", synonymy: "not used to merge source histories" }, builds: { targetShell: "CNN adjectival pair" } },
+        { id: "synonymous-adjectival-ihui-ahui-pair", broadLabel: "calificativo-instrumentivo", family: "synonymous-adjectival-nnc", andrewsSection: "40.10.3", operation: "synonymous-adjectival-pair-from-ihui-ahui-destockal-source", requires: { sourceStem: "i-hui/a-hui destockal source" }, transform: { pairMembers: "kept as sibling routes", synonymy: "not used to merge source histories" }, builds: { targetShell: "CNN adjectival pair" } },
+        { id: "synonymous-adjectival-triplet", broadLabel: "calificativo-instrumentivo", family: "synonymous-adjectival-nnc", andrewsSection: "40.11", operation: "synonymous-adjectival-triplet-keeps-three-source-histories", requires: { sourceSet: "Andrews synonym triplet" }, transform: { tripletMembers: "not collapsed by gloss", sourceHistory: "tracked per member" }, builds: { targetShell: "CNN adjectival triplet" } },
+        { id: "intensified-adjectival-result-route", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.1", operation: "intensified-adjectival-result-from-nominalization-or-deverbalization", requires: { sourceRoute: "nominalization or deverbalization source" }, transform: { sourceRoute: "kept as history", intensification: "added as compound/function layer" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-compound-template", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2", operation: "intensified-adjectival-compound-template", requires: { sourceStem: "adjectival source", matrix: "intensifying compound matrix" }, transform: { embed: "source adjective fills embed", matrix: "intensifier controls final compound" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-ti-embed", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2.a", operation: "intensified-adjectival-with-ti-0-kind-embed", requires: { sourceEmbed: "ti-0 adjectival kind embed" }, transform: { embed: "kept distinct from matrix", intensification: "compound layer" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-root-preterit-agentive-embed", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2.b", operation: "intensified-adjectival-with-root-preterit-agentive-embed", requires: { sourceEmbed: "root adjectival preterit-agentive" }, transform: { preteritAgentiveHistory: "retained", matrix: "intensifying compound matrix" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-general-use-preterit-agentive-embed", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2.c", operation: "intensified-adjectival-with-general-use-preterit-agentive-embed", requires: { sourceEmbed: "general-use adjectival preterit-agentive" }, transform: { generalUseStem: "kept explicit", matrix: "intensifying compound matrix" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-reduplication-embed", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2.d", operation: "intensified-adjectival-reduplication-embed", requires: { sourceEmbed: "reduplicated adjectival source" }, transform: { reduplication: "source operation before matrix", matrix: "intensifying compound matrix" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "intensified-adjectival-internal-expansion-matrix", broadLabel: "calificativo-instrumentivo", family: "intensified-adjectival-nnc", andrewsSection: "41.1.2.e", operation: "intensified-adjectival-matrix-internal-expansion", requires: { matrix: "augmented/internal expansion matrix" }, transform: { matrixExpansion: "kept in matrix, not source embed", soundPattern: "diagnostic/source-conditioned" }, builds: { targetShell: "compound CNN adjectival" } },
+        { id: "compound-verbstem-nominal-embed-adjectival", broadLabel: "calificativo-instrumentivo", family: "compound-verbstem-adjectival-nnc", andrewsSection: "41.2", operation: "adjectival-nounstem-from-compound-verbstem-with-nominal-embed", requires: { sourceUnit: "compound verbstem with nominal embed" }, transform: { nominalEmbed: "kept inside source compound", adjectivalTarget: "CNN function/output" }, builds: { targetShell: "CNN adjectival nounstem" } },
+        { id: "compound-verbstem-incorporated-adverb-adjectival", broadLabel: "calificativo-instrumentivo", family: "compound-verbstem-adjectival-nnc", andrewsSection: "41.2.1", operation: "adjectival-nounstem-from-incorporated-adverb-compound", requires: { sourceCompound: "incorporated-adverb compound" }, transform: { adverbEmbed: "source embed", matrix: "controls target adjectival role" }, builds: { targetShell: "CNN adjectival nounstem" } },
+        { id: "compound-verbstem-incorporated-complement-adjectival", broadLabel: "calificativo-instrumentivo", family: "compound-verbstem-adjectival-nnc", andrewsSection: "41.2.2", operation: "adjectival-nounstem-from-incorporated-complement-compound", requires: { sourceCompound: "incorporated-complement compound" }, transform: { complementEmbed: "source embed", matrix: "controls target adjectival role" }, builds: { targetShell: "CNN adjectival nounstem" } },
+        { id: "compound-verbstem-incorporated-object-adjectival", broadLabel: "calificativo-instrumentivo", family: "compound-verbstem-adjectival-nnc", andrewsSection: "41.2.3", operation: "adjectival-nounstem-from-incorporated-object-compound", requires: { sourceCompound: "incorporated-object compound" }, transform: { objectEmbed: "source embed", matrix: "controls target adjectival role" }, builds: { targetShell: "CNN adjectival nounstem" } },
+        { id: "denominal-verbstem-compound-nounstem-adjectival", broadLabel: "calificativo-instrumentivo", family: "compound-verbstem-adjectival-nnc", andrewsSection: "41.3", operation: "adjectival-nnc-from-denominal-verbstem-from-compound-nounstem", requires: { sourceRoute: "CNN compound nounstem -> CNV denominal verbstem" }, transform: { routeHistory: "CNN->CNV->CNN retained", adjectiveFunction: "target function layer" }, builds: { targetShell: "CNN adjectival nounstem" } },
+        { id: "adjectival-nounstem-compound-embed", broadLabel: "calificativo-instrumentivo", family: "adjectival-compound-continuation", andrewsSection: "41.4", operation: "adjectival-nounstem-as-embed-in-compound-nnc", requires: { sourceStem: "adjectival nounstem", matrix: "compound NNC matrix" }, transform: { adjectiveStem: "embed", matrix: "controls compound output" }, builds: { targetShell: "compound CNN" } },
+    ]),
+    "locativo-temporal": freezeNominalizationOperationalLayerOperations([
+        { id: "imperfective-locative-temporal", broadLabel: "locativo-temporal", family: "locative-temporal", andrewsSection: "46", operation: "imperfect-source-to-locative-temporal-nounstem", requires: { sourceTense: "imperfect", sourceUnit: "VNC predicate or core" }, transform: { sourcePredicate: "becomes locative/temporal nominal stem", connector: "locative n after source frame" }, builds: { targetShell: "CNN", targetRole: "place/time of action" } },
+        { id: "adverbialized-vnc-first-degree", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.3", operation: "vnc-functions-as-adverbial-nuclear-clause", requires: { sourceUnit: "CNV", functionUse: "adverbial" }, transform: { sourceShell: "kept CNV", adverbializationDegree: "source-dependent" }, builds: { targetShell: "CNV adverbial function" }, generationStatus: "diagnostic-only" },
+        { id: "adverbialized-nnc-first-degree", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.4.1", operation: "nnc-first-degree-adverbialization", requires: { sourceUnit: "CNN", adverbializationDegree: "first degree" }, transform: { sourceNnc: "kept as NNC", adverbialFunction: "function layer only" }, builds: { targetShell: "CNN adverbial function" }, generationStatus: "diagnostic-only" },
+        { id: "adverbialized-nnc-second-degree-absolutive", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.4.2", operation: "nnc-second-degree-adverbialization-as-absolutive-state", requires: { sourceUnit: "CNN", targetState: "absolutive" }, transform: { sourceNnc: "adverbialized", state: "absolutive required" }, builds: { targetShell: "CNN adverbial function" }, generationStatus: "diagnostic-only" },
+        { id: "particle-looking-nnc-boundary", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.5", operation: "classify-particle-looking-nnc-as-nnc-not-particle", requires: { sourceUnit: "particle-looking CNN" }, transform: { particleAppearance: "diagnostic only", shell: "kept CNN" }, builds: { targetShell: "CNN adverbial/particle-looking boundary" }, generationStatus: "diagnostic-only" },
+        { id: "adverbialized-absolutive-nnc-examples", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.6", operation: "absolutive-state-nnc-functions-adverbially", requires: { sourceUnit: "absolutive-state CNN" }, transform: { sourceState: "absolutive", adverbialRole: "function layer" }, builds: { targetShell: "CNN adverbial function" }, generationStatus: "diagnostic-only" },
+        { id: "adverbialized-preterit-agentive-nnc", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.7", operation: "preterit-agentive-nnc-functions-adverbially", requires: { sourceStem: "preterit-agentive NNC" }, transform: { preteritAgentiveHistory: "retained", adverbialFunction: "function layer" }, builds: { targetShell: "CNN adverbial function" } },
+        { id: "possessive-state-adverbialized-nnc", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.8", operation: "possessive-state-nnc-functions-adverbially", requires: { sourceUnit: "possessive-state CNN" }, transform: { possessiveState: "retained", adverbialFunction: "function layer" }, builds: { targetShell: "CNN adverbial function" } },
+        { id: "possessive-adverbial-iyo-a-source", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.8.1", operation: "possessive-state-adverbial-built-with-iyo-a-source", requires: { sourceStem: "iyo-a possessive-state source" }, transform: { sourceHistory: "retained", adverbialFunction: "function layer" }, builds: { targetShell: "CNN adverbial function" } },
+        { id: "possessive-adverbial-nohmati-conjectural", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.8.2", operation: "conjectural-nohmati-possessive-adverbial-analysis", requires: { sourceStem: "noh-mati analysis source" }, transform: { conjecture: "diagnostic source boundary", route: "not generated without source confirmation" }, builds: { targetShell: "CNN adverbial diagnostic" }, generationStatus: "diagnostic-only" },
+        { id: "possessive-adverbial-perfective-patientive-source", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.8.2.a", operation: "possessive-adverbial-from-perfective-patientive-source", requires: { sourceStem: "perfective patientive source" }, transform: { patientiveHistory: "retained", adverbialFunction: "function layer" }, builds: { targetShell: "CNN adverbial function" } },
+        { id: "possessive-adverbial-active-action-source", broadLabel: "locativo-temporal", family: "adverbial-nuclear-clause", andrewsSection: "44.8.2.b", operation: "possessive-adverbial-from-active-action-source", requires: { sourceStem: "active-action source" }, transform: { activeActionHistory: "retained", adverbialFunction: "function layer" }, builds: { targetShell: "CNN adverbial function" } },
+        { id: "relational-option-one-huan-company", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.1", operation: "relational-nounstem-option-one-company", requires: { sourceStem: "huan relational nounstem", usageOption: "option one only" }, transform: { relationalRole: "company/with", usageOption: "not generalized to all relationals" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-option-one-tloc-proximity", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.2", operation: "relational-nounstem-option-one-proximity", requires: { sourceStem: "tloc relational nounstem", usageOption: "option one only" }, transform: { relationalRole: "side/proximity", usageOption: "not generalized to all relationals" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-option-one-pal-sake", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.3", operation: "relational-nounstem-option-one-sake-favor-help", requires: { sourceStem: "pal relational nounstem", usageOption: "option one only" }, transform: { relationalRole: "grace/favor/sake/help", usageOption: "not generalized to all relationals" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-means-purpose-reason-time", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4", operation: "relational-nounstem-means-purpose-reason-time-family", requires: { sourceStem: "relational option-one family", semanticRole: "means/purpose/reason/cause/time" }, transform: { semanticRole: "diagnostic selector", nounstem: "kept relational CNN" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-means-function", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.a", operation: "relational-nounstem-means-function", requires: { sourceStem: "means relational source" }, transform: { role: "means", usageOption: "option one" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-purpose-function", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.b", operation: "relational-nounstem-purpose-function", requires: { sourceStem: "purpose relational source" }, transform: { role: "purpose", usageOption: "option one" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-reason-function", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.c", operation: "relational-nounstem-reason-function", requires: { sourceStem: "reason/cause relational source" }, transform: { role: "reason/cause", usageOption: "option one" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-time-function", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.d", operation: "relational-nounstem-time-function", requires: { sourceStem: "time relational source" }, transform: { role: "time", usageOption: "option one" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-special-call-function", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.e", operation: "relational-nounstem-special-call-function", requires: { sourceStem: "special relational source", semanticRole: "special among/call use" }, transform: { role: "special relation", usageOption: "option one" }, builds: { targetShell: "CNN relational function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-preceding-numeral-quantitive-equivalent", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.i", operation: "relational-preceding-numeral-quantitive-equivalent-function", requires: { sourceStem: "preceding numeral/quantitive source" }, transform: { quantitiveEquivalent: "function metadata", relationalStem: "kept as CNN" }, builds: { targetShell: "CNN relational/adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-adjectival-supplementary-possessor", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.i.ii", operation: "relational-adjectival-supplementary-possessor-function", requires: { sourceStem: "relational/adjectival source", possessor: "supplementary possessor context" }, transform: { possessorScope: "supplementary function", relationalStem: "not flattened into adjective" }, builds: { targetShell: "CNN relational/adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-cooperating-adjectival-descriptive", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.i.iii", operation: "relational-cooperation-with-adjectival-descriptive-function", requires: { sourceStem: "relational source", modifierContext: "cooperating adjectival descriptive" }, transform: { cooperation: "syntax/function layer", relationalStem: "kept distinct" }, builds: { targetShell: "CNN relational/adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "relational-preceding-adjectival-size-shape", broadLabel: "locativo-temporal", family: "relational-nnc", andrewsSection: "45.4.4.i.iv", operation: "relational-preceding-adjectival-size-length-shape-function", requires: { sourceStem: "preceding adjectival size/length/shape source" }, transform: { adjectivalMeasure: "function metadata", relationalStem: "kept as CNN" }, builds: { targetShell: "CNN relational/adjectival function" }, generationStatus: "diagnostic-only" },
+        { id: "locative-n-tli-option-two", broadLabel: "locativo-temporal", family: "locative-n-matrix", andrewsSection: "46.2", operation: "locative-n-tli-nounstem-option-two", requires: { matrix: "(-n)-tli", usageOption: "option two locative" }, transform: { locativeN: "matrix nounstem", embed: "source-dependent" }, builds: { targetShell: "CNN locative relational" } },
+        { id: "locative-n-tli-with-ca-tl-embed", broadLabel: "locativo-temporal", family: "locative-n-matrix", andrewsSection: "46.3", operation: "locative-n-tli-matrix-with-ca-tl-embed", requires: { matrix: "(-n)-tli", embed: "(ca)-tl source" }, transform: { embed: "precedes locative matrix", locativeN: "matrix element" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "locative-active-action-ca-tl-embed", broadLabel: "locativo-temporal", family: "locative-n-matrix", andrewsSection: "46.3.1.b", operation: "active-action-ca-tl-embed-plus-locative-n-matrix", requires: { sourceStem: "active-action general-use stem", matrix: "locative (-n)-tli" }, transform: { activeAction: "embed", locative: "matrix n", connector: "outer zero when adverbialized" }, builds: { targetShell: "compound CNN/adverbial locative" } },
+        { id: "locative-n-tli-ca-n-result-absent-component", broadLabel: "locativo-temporal", family: "locative-n-matrix", andrewsSection: "46.3.2.a", operation: "locative-n-tli-formation-with-absent-component", requires: { sourceComponent: "absent component in ca-n formation" }, transform: { caN: "resultant locative compound", missingComponent: "diagnostic source boundary" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "locative-n-tli-ca-n-result-present-component", broadLabel: "locativo-temporal", family: "locative-n-matrix", andrewsSection: "46.3.2.b", operation: "locative-n-tli-formation-with-present-component", requires: { sourceComponent: "present represented component" }, transform: { caN: "resultant locative compound", component: "kept visible as source" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "imperfect-active-locative-result", broadLabel: "locativo-temporal", family: "locative-imperfect-source", andrewsSection: "46.4.1", operation: "active-imperfect-predicate-to-resultant-locative", requires: { sourceVoice: "active", sourceTense: "imperfect" }, transform: { sourcePredicate: "nominalized as locative embed", locativeMatrix: "(-n)-tli" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "imperfect-passive-locative-result", broadLabel: "locativo-temporal", family: "locative-imperfect-source", andrewsSection: "46.4.2", operation: "passive-imperfect-predicate-to-resultant-locative", requires: { sourceVoice: "passive", sourceTense: "imperfect" }, transform: { sourcePredicate: "nominalized as locative embed", passiveHistory: "retained" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "imperfect-impersonal-locative-result", broadLabel: "locativo-temporal", family: "locative-imperfect-source", andrewsSection: "46.4.3", operation: "impersonal-imperfect-predicate-to-resultant-locative", requires: { sourceVoice: "impersonal", sourceTense: "imperfect" }, transform: { sourcePredicate: "nominalized as locative embed", impersonalHistory: "retained" }, builds: { targetShell: "compound CNN locative" } },
+        { id: "locative-yii-n-tli-matrix", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.5", operation: "locative-yii-n-tli-matrix-operation", requires: { matrix: "(-yii-n)-tli" }, transform: { relationalMatrix: "source-specific locative", embed: "source-gated" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "locative-tlah-tli-matrix", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.6", operation: "locative-tlah-tli-matrix-operation", requires: { matrix: "(-tlah)-tli" }, transform: { relationalMatrix: "source-specific locative", embed: "source-gated" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "locative-co-c-tli-matrix", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.7", operation: "locative-co-c-tli-matrix-operation", requires: { matrix: "(-co)-0 or (-c)-tli" }, transform: { relationalMatrix: "source-specific locative", spelling: "structural Classical only before Nawat conversion" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "seeming-compound-matrix-relational-overview", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8", operation: "seeming-compound-matrix-relational-nounstem-family", requires: { sourceStem: "relational nounstem with seeming compound matrix behavior" }, transform: { matrixAppearance: "diagnostic, not flattened", embed: "simple or compound source retained" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "nahuac-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.1.a", operation: "nahua-c-relational-with-simple-stemmed-embed", requires: { matrix: "nahua-c", embed: "simple-stemmed source" }, transform: { relationalRole: "place/audible distance", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "nahuac-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.1.b", operation: "nahua-c-relational-with-compound-stemmed-embed", requires: { matrix: "nahua-c", embed: "compound-stemmed source" }, transform: { relationalRole: "place/audible distance", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "ihtic-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.2.a", operation: "ihti-c-relational-with-simple-stemmed-embed", requires: { matrix: "ihti-c/ihte-c", embed: "simple-stemmed source" }, transform: { relationalRole: "interior/stomach/location", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "ihtic-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.2.b", operation: "ihti-c-relational-with-compound-stemmed-embed", requires: { matrix: "ihti-c/ihte-c", embed: "compound-stemmed source" }, transform: { relationalRole: "interior/stomach/location", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "ixco-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.3.a", operation: "ix-co-relational-with-simple-stemmed-embed", requires: { matrix: "ix-co", embed: "simple-stemmed source" }, transform: { relationalRole: "face/eyes/visual presence", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "ixco-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.3.b", operation: "ix-co-relational-with-compound-stemmed-embed", requires: { matrix: "ix-co", embed: "compound-stemmed source" }, transform: { relationalRole: "face/eyes/visual presence", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "tepotzco-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.4.a", operation: "tepotz-co-relational-with-simple-stemmed-embed", requires: { matrix: "tepotz-co", embed: "simple-stemmed source" }, transform: { relationalRole: "back/rear", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "tepotzco-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.4.b", operation: "tepotz-co-relational-with-compound-stemmed-embed", requires: { matrix: "tepotz-co", embed: "compound-stemmed source" }, transform: { relationalRole: "back/rear", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "tzonco-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.5.a", operation: "tzon-co-relational-with-simple-stemmed-embed", requires: { matrix: "tzon-co", embed: "simple-stemmed source" }, transform: { relationalRole: "hair/top/upper part", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "tzonco-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.5.b", operation: "tzon-co-relational-with-compound-stemmed-embed", requires: { matrix: "tzon-co", embed: "compound-stemmed source" }, transform: { relationalRole: "hair/top/upper part", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "yolloco-simple-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.6.a", operation: "yol-lo-h-co-relational-with-simple-stemmed-embed", requires: { matrix: "yol-lo-h-co", embed: "simple-stemmed source" }, transform: { relationalRole: "heart/middle", embed: "kept simple" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "yolloco-compound-embed-relational", broadLabel: "locativo-temporal", family: "seeming-compound-relational", andrewsSection: "46.8.6.b", operation: "yol-lo-h-co-relational-with-compound-stemmed-embed", requires: { matrix: "yol-lo-h-co", embed: "compound-stemmed source" }, transform: { relationalRole: "heart/middle", compoundEmbed: "kept explicit" }, builds: { targetShell: "CNN relational locative" }, generationStatus: "diagnostic-only" },
+        { id: "relational-ca-zero-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.9", operation: "relational-ca-zero-nounstem-operation", requires: { matrix: "(-ca)-0" }, transform: { relationalMatrix: "source-specific", outputRole: "relational function" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "directional-pa-zero-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.10", operation: "directional-pa-zero-nounstem-operation", requires: { matrix: "(-pa)-0", role: "directional" }, transform: { directionalMatrix: "source-specific", outputRole: "directional function" }, builds: { targetShell: "CNN directional relational" }, generationStatus: "diagnostic-only" },
+        { id: "frequency-pa-zero-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.11", operation: "frequency-pa-zero-nounstem-operation", requires: { matrix: "(-pa)-0", role: "frequency" }, transform: { frequencyMatrix: "kept distinct from directional pa", outputRole: "frequency function" }, builds: { targetShell: "CNN frequency relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-nal-li-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.12.1", operation: "relational-nal-li-far-bank-other-side-operation", requires: { matrix: "(nal)-li", embed: "source-gated" }, transform: { relationalRole: "far bank/other side", embed: "kept explicit" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-chi-direction-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.12.2", operation: "relational-chi-direction-toward-operation", requires: { matrix: "(chi)-0", groundSource: "tlal/ground or directional source" }, transform: { directionalRole: "toward", matrix: "kept relational" }, builds: { targetShell: "CNN directional relational" }, generationStatus: "diagnostic-only" },
+        { id: "another-directional-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.13", operation: "additional-directional-nounstem-operation", requires: { sourceStem: "Andrews directional nounstem" }, transform: { directionalRole: "source-specific", targetShell: "relational CNN" }, builds: { targetShell: "CNN directional relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-teuh-zero-nounstem", broadLabel: "locativo-temporal", family: "relational-locative-matrix", andrewsSection: "46.14", operation: "relational-teuh-zero-nounstem-operation", requires: { matrix: "(teuh)-0" }, transform: { relationalMatrix: "source-specific", targetShell: "relational CNN" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tech-option-three-family", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.1", operation: "tech-tli-side-surface-contact-relational-options", requires: { matrix: "tech-tli", usageOptions: "one/two/three" }, transform: { relationalRole: "side/surface/contact", option: "selected by source context" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tech-possessive-state", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.1.a", operation: "tech-tli-possessive-state-relational-use", requires: { matrix: "tech-tli", targetState: "possessive" }, transform: { state: "possessive-state option", relation: "surface/contact" }, builds: { targetShell: "possessive CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tech-integrated-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.1.b", operation: "tech-tli-integrated-structure-compound-use", requires: { matrix: "tech-tli", compoundType: "integrated structure" }, transform: { compound: "integrated structure", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tech-connective-t-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.1.c", operation: "tech-tli-connective-t-compound-use", requires: { matrix: "tech-tli", compoundType: "connective-t" }, transform: { connectiveT: "compound boundary", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tlan-option-three-family", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2", operation: "tlan-bottom-under-low-location-relational-options", requires: { matrix: "tlan", usageOptions: "one/two/three" }, transform: { relationalRole: "bottom/under/low location", option: "selected by source context" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tlan-possessive-state", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2.a", operation: "tlan-possessive-state-relational-use", requires: { matrix: "tlan", targetState: "possessive" }, transform: { state: "possessive-state option", relation: "under/bottom" }, builds: { targetShell: "possessive CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tlan-integrated-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2.b", operation: "tlan-integrated-structure-compound-use", requires: { matrix: "tlan", compoundType: "integrated structure" }, transform: { compound: "integrated structure", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-ixtlan-adjacency-subtype", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2.i", operation: "ix-tlan-eyes-adjacency-place-under-gaze-subtype", requires: { matrix: "ix-tlan", semanticSubtype: "eyes/adjacency/gaze" }, transform: { subtype: "kept as relational source", matrix: "tlan family" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tzintlan-adjacency-subtype", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2.i.ii", operation: "tzin-tlan-beneath-fundament-base-subtype", requires: { matrix: "tzin-tlan", semanticSubtype: "beneath/base" }, transform: { subtype: "kept as relational source", matrix: "tlan family" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-tlan-connective-t-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.2.c", operation: "tlan-connective-t-compound-use", requires: { matrix: "tlan", compoundType: "connective-t" }, transform: { connectiveT: "compound boundary", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-pan-option-three-family", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.3", operation: "pan-upper-surface-appearance-location-relational-options", requires: { matrix: "pan", usageOptions: "one/two/three" }, transform: { relationalRole: "upper/surface/appearance/location", option: "selected by source context" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-pan-possessive-state", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.3.a", operation: "pan-possessive-state-relational-use", requires: { matrix: "pan", targetState: "possessive" }, transform: { state: "possessive-state option", relation: "surface/upper" }, builds: { targetShell: "possessive CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-pan-integrated-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.3.b", operation: "pan-integrated-structure-compound-use", requires: { matrix: "pan", compoundType: "integrated structure" }, transform: { compound: "integrated structure", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "relational-pan-connective-t-compound", broadLabel: "locativo-temporal", family: "relational-option-one-two-three", andrewsSection: "47.3.3.c", operation: "pan-connective-t-compound-use", requires: { matrix: "pan", compoundType: "connective-t" }, transform: { connectiveT: "compound boundary", stateOptions: "absolutive/possessive retained" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "associated-entity-nnc", broadLabel: "locativo-temporal", family: "relational-associated-entity", andrewsSection: "47.4", operation: "associated-entity-nnc-relation", requires: { sourceUnit: "associated-entity CNN" }, transform: { association: "relation function, not lexical adjective", shell: "CNN retained" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "pertinency-nnc-adverbialized-embed", broadLabel: "locativo-temporal", family: "relational-pertinency", andrewsSection: "47.5.1", operation: "pertinency-nnc-with-directly-adverbialized-embed", requires: { sourceUnit: "pertinency CNN", embed: "adverbialized source" }, transform: { embed: "directly adverbialized", meaning: "pertinency relation" }, builds: { targetShell: "CNN relational" }, generationStatus: "diagnostic-only" },
+        { id: "pertinency-nnc-associated-entity-compound", broadLabel: "locativo-temporal", family: "relational-pertinency", andrewsSection: "47.5.2", operation: "pertinency-nnc-matrix-with-associated-entity-compound-embed", requires: { matrix: "pertinency relation", embed: "associated-entity compound" }, transform: { matrix: "pertinency", associatedEntity: "compound embed" }, builds: { targetShell: "compound CNN relational" }, generationStatus: "diagnostic-only" },
+    ]),
+    "locativo-agentivo-preterito": freezeNominalizationOperationalLayerOperations([
+        { id: "preterit-agentive-locative-46-3-1-a", broadLabel: "locativo-agentivo-preterito", family: "locative-agentive-preterit", andrewsSection: "46.3.1.a", operation: "preterit-agentive-general-use-plus-locative-n-plus-zero-connector", requires: { sourceStem: "preterit-agentive general-use stem", routeStack: "ordered IF->THEN operations" }, transform: { preterit: "inside source stem", generalUse: "ka matrix", locative: "n", connector: "outer zero" }, builds: { targetShell: "CNN/adverbial route", targetRole: "locative/adverbial from preterit-agentive" } },
+        { id: "active-action-locative-46-3-1-b", broadLabel: "locativo-agentivo-preterito", family: "locative-active-action", andrewsSection: "46.3.1.b", operation: "active-action-general-use-plus-locative-n-plus-zero-connector", requires: { sourceStem: "active-action general-use stem", routeStack: "embed plus locative matrix" }, transform: { activeAction: "inside source stem", generalUse: "ca/tl source matrix", locative: "n", connector: "outer zero" }, builds: { targetShell: "CNN/adverbial route", targetRole: "locative/adverbial from active-action" } },
+        { id: "locative-ca-n-absent-component-46-3-2-a", broadLabel: "locativo-agentivo-preterito", family: "locative-ca-n-formation", andrewsSection: "46.3.2.a", operation: "locative-ca-n-formation-with-absent-component", requires: { sourceComponent: "absent component", matrix: "locative n/tli" }, transform: { caN: "resultant locative formation", component: "recorded as absent" }, builds: { targetShell: "CNN locative route", targetStatus: "source-gated continuation" } },
+        { id: "locative-ca-n-present-component-46-3-2-b", broadLabel: "locativo-agentivo-preterito", family: "locative-ca-n-formation", andrewsSection: "46.3.2.b", operation: "locative-ca-n-formation-with-present-component", requires: { sourceComponent: "present represented component", matrix: "locative n/tli" }, transform: { caN: "resultant locative formation", component: "kept visible" }, builds: { targetShell: "CNN locative route", targetStatus: "source-gated continuation" } },
+        { id: "locative-imperfect-active-46-4-1", broadLabel: "locativo-agentivo-preterito", family: "locative-imperfect-source", andrewsSection: "46.4.1", operation: "active-imperfect-source-plus-locative-n-matrix", requires: { sourceTense: "imperfect", sourceVoice: "active" }, transform: { sourcePredicate: "nominalized before locative n matrix", route: "not preterit-agentive despite same output host" }, builds: { targetShell: "CNN locative route", targetStatus: "source-gated continuation" } },
+        { id: "locative-imperfect-passive-46-4-2", broadLabel: "locativo-agentivo-preterito", family: "locative-imperfect-source", andrewsSection: "46.4.2", operation: "passive-imperfect-source-plus-locative-n-matrix", requires: { sourceTense: "imperfect", sourceVoice: "passive" }, transform: { passiveSource: "retained", route: "resultant locative" }, builds: { targetShell: "CNN locative route", targetStatus: "source-gated continuation" } },
+        { id: "locative-imperfect-impersonal-46-4-3", broadLabel: "locativo-agentivo-preterito", family: "locative-imperfect-source", andrewsSection: "46.4.3", operation: "impersonal-imperfect-source-plus-locative-n-matrix", requires: { sourceTense: "imperfect", sourceVoice: "impersonal" }, transform: { impersonalSource: "retained", route: "resultant locative" }, builds: { targetShell: "CNN locative route", targetStatus: "source-gated continuation" } },
+    ]),
+});
+
+const ANDREWS_CNV_CNN_OPERATIONAL_EXPECTED_SECTION_REFS_BY_LABEL = Object.freeze({
+    "predicado-nominal": Object.freeze(["4.4/35-36", "4.5/5.5/35-36", "36.8/46.3.1.a", "12.2/46.3.1.a"]),
+    agentivo: Object.freeze(["36.2", "36.3", "36.4"]),
+    "agentivo-presente": Object.freeze(["36.7"]),
+    "agentivo-preterito": Object.freeze(["35.3", "35.4", "35.5", "35.6", "35.7", "35.8", "35.9", "35.10", "35.11", "35.12", "35.13", "35.13.1", "35.13.2", "35.13.3", "35.13.4", "35.14"]),
+    "agentivo-futuro": Object.freeze(["36.8.1", "36.8.2"]),
+    "sustantivo-verbal": Object.freeze(["36.10", "36.11", "37.2", "37.2.1", "37.2.2", "37.2.3", "37.2.4", "37.3", "37.4", "37.5.1", "37.5.2", "37.5.2.a", "37.5.2.b", "37.5.3", "37.5.3.a", "37.5.3.b", "37.5.4", "37.5.4.a", "37.5.4.b", "37.5.5", "37.6", "37.7"]),
+    patientivo: Object.freeze(["36.5", "37.8", "37.9", "37.9.1", "37.9.1.a", "37.9.1.b", "37.9.1.c", "37.9.2", "37.9.3", "38.1", "38.1.1", "38.1.1.a", "38.1.1.b", "38.1.1.c", "38.1.1.d", "38.1.2", "38.1.3", "38.1.3.a", "38.1.3.b", "38.1.3.c", "38.1.4", "38.1.4.a", "38.1.4.b", "38.1.4.c", "38.1.5", "38.1.6", "38.2.1", "38.2.2", "39.1", "39.1.1", "39.1.3", "39.2", "39.2.1", "39.2.2", "39.3", "39.3.1", "39.3.2", "39.3.3", "39.3.4", "39.3.5", "39.3.6", "39.3.6.a", "39.3.6.b", "39.4", "39.4.1", "39.4.2", "39.4.3", "39.4.4", "39.5", "39.6", "39.6.1", "39.6.2", "39.7", "39.7.1", "39.7.1.a", "39.7.1.b", "39.7.1.c", "39.7.2", "39.7.2.a", "39.7.2.b", "39.8", "39.9"]),
+    "patientivo-pasivo": Object.freeze(["37.9"]),
+    "patientivo-impersonal": Object.freeze(["38.1"]),
+    "patientivo-perfectivo": Object.freeze(["39.1"]),
+    "patientivo-imperfectivo": Object.freeze(["39.2"]),
+    "patientivo-tronco": Object.freeze(["39.4"]),
+    instrumentivo: Object.freeze(["36.6", "36.6.1", "36.6.2", "36.6.3"]),
+    "calificativo-instrumentivo": Object.freeze(["39.3", "39.3.4", "39.3.6", "40.2.1", "40.2.2", "40.2.3.a", "40.2.3.b", "40.3.1", "40.3.2", "40.4.1.a", "40.4.1.b", "40.4.1.c", "40.4.1.d", "40.4.2", "40.6", "40.7", "40.8", "40.8.1", "40.8.2-40.8.4", "40.8.5", "40.9", "40.10.1", "40.10.2", "40.10.3", "40.11", "41.1.1", "41.1.2", "41.1.2.a", "41.1.2.b", "41.1.2.c", "41.1.2.d", "41.1.2.e", "41.2", "41.2.1", "41.2.2", "41.2.3", "41.3", "41.4"]),
+    "locativo-temporal": Object.freeze(["44.3", "44.4.1", "44.4.2", "44.5", "44.6", "44.7", "44.8", "44.8.1", "44.8.2", "44.8.2.a", "44.8.2.b", "45.4.1", "45.4.2", "45.4.3", "45.4.4", "45.4.4.a", "45.4.4.b", "45.4.4.c", "45.4.4.d", "45.4.4.e", "45.4.4.i", "45.4.4.i.ii", "45.4.4.i.iii", "45.4.4.i.iv", "46.2", "46.3", "46.3.1.b", "46.3.2.a", "46.3.2.b", "46.4.1", "46.4.2", "46.4.3", "46.5", "46.6", "46.7", "46.8", "46.8.1.a", "46.8.1.b", "46.8.2.a", "46.8.2.b", "46.8.3.a", "46.8.3.b", "46.8.4.a", "46.8.4.b", "46.8.5.a", "46.8.5.b", "46.8.6.a", "46.8.6.b", "46.9", "46.10", "46.11", "46.12.1", "46.12.2", "46.13", "46.14", "47.3.1", "47.3.1.a", "47.3.1.b", "47.3.1.c", "47.3.2", "47.3.2.a", "47.3.2.b", "47.3.2.i", "47.3.2.i.ii", "47.3.2.c", "47.3.3", "47.3.3.a", "47.3.3.b", "47.3.3.c", "47.4", "47.5.1", "47.5.2"]),
+    "locativo-agentivo-preterito": Object.freeze(["46.3.1.a", "46.3.1.b", "46.3.2.a", "46.3.2.b", "46.4.1", "46.4.2", "46.4.3"]),
+});
+
+function cloneNominalizationOperationalLayerOperation(operation = null) {
+    if (!operation || typeof operation !== "object") {
+        return null;
+    }
+    return {
+        ...operation,
+        requires: { ...(operation.requires || {}) },
+        transform: { ...(operation.transform || {}) },
+        builds: { ...(operation.builds || {}) },
+        diagnostics: Array.isArray(operation.diagnostics) ? Array.from(operation.diagnostics) : [],
+    };
+}
+
+function getAndrewsCnvCnnOperationalLayerKeys() {
+    return Object.keys(ANDREWS_CNV_CNN_OPERATIONAL_LAYER_BY_LABEL);
+}
+
+function getAndrewsCnvCnnOperationalLayer(label = "") {
+    const key = String(label || "").trim();
+    const operations = ANDREWS_CNV_CNN_OPERATIONAL_LAYER_BY_LABEL[key] || Object.freeze([]);
+    const clonedOperations = operations
+        .map((operation) => cloneNominalizationOperationalLayerOperation(operation))
+        .filter(Boolean);
+    const operationPlans = clonedOperations
+        .map((operation) => compileAndrewsCnvCnnOperationalSuboperationPlan(operation))
+        .filter(Boolean);
+    const generatedCount = clonedOperations.filter((operation) => operation.generationStatus === "andrews-logic-generated").length;
+    const sourceGatedCount = clonedOperations.filter((operation) => operation.generationStatus !== "diagnostic-only").length - generatedCount;
+    const diagnosticOnlyCount = clonedOperations.filter((operation) => operation.generationStatus === "diagnostic-only").length;
+    return {
+        kind: "andrews-cnv-cnn-operational-layer",
+        version: 1,
+        label: key,
+        formulaTransition: clonedOperations.length ? "CNV->CNN" : "",
+        sourceFormulaType: clonedOperations.length ? "CNV" : "",
+        targetFormulaType: clonedOperations.length ? "CNN" : "",
+        operationCount: clonedOperations.length,
+        operationIds: clonedOperations.map((operation) => operation.id),
+        operations: clonedOperations,
+        operationPlans,
+        sourceRequirementKeys: Array.from(new Set(clonedOperations.flatMap((operation) => Object.keys(operation.requires || {})))),
+        transformKeys: Array.from(new Set(clonedOperations.flatMap((operation) => Object.keys(operation.transform || {})))),
+        buildKeys: Array.from(new Set(clonedOperations.flatMap((operation) => Object.keys(operation.builds || {})))),
+        logicSummary: {
+            executablePlanCount: operationPlans.filter((plan) => plan.executableLogic).length,
+            surfaceCapableCount: operationPlans.filter((plan) => plan.canAttemptSurface).length,
+            diagnosticOnlyCount: operationPlans.filter((plan) => plan.diagnosticOnly).length,
+            executionKinds: Array.from(new Set(operationPlans.map((plan) => plan.executionKind))).sort(),
+        },
+        generationSummary: {
+            generatedCount,
+            sourceGatedCount: Math.max(0, sourceGatedCount),
+            diagnosticOnlyCount,
+            complete: false,
+        },
+    };
+}
+
+function getAndrewsCnvCnnOperationalLayerExpectedSections(label = "") {
+    const key = String(label || "").trim();
+    const refs = ANDREWS_CNV_CNN_OPERATIONAL_EXPECTED_SECTION_REFS_BY_LABEL[key] || Object.freeze([]);
+    return Array.from(refs);
+}
+
+function auditAndrewsCnvCnnOperationalLayerCoverage(label = "") {
+    const key = String(label || "").trim();
+    const expectedSections = getAndrewsCnvCnnOperationalLayerExpectedSections(key);
+    const layer = getAndrewsCnvCnnOperationalLayer(key);
+    const representedSections = Array.from(new Set(layer.operations
+        .map((operation) => operation.andrewsSection)
+        .filter(Boolean)));
+    const missingSections = expectedSections.filter((section) => !representedSections.includes(section));
+    const uncoveredOperationIds = layer.operations
+        .filter((operation) => !expectedSections.includes(operation.andrewsSection))
+        .map((operation) => operation.id);
+    return {
+        kind: "andrews-cnv-cnn-operational-layer-coverage-audit",
+        version: 1,
+        label: key,
+        expectedSectionCount: expectedSections.length,
+        representedSectionCount: representedSections.length,
+        operationCount: layer.operationCount,
+        expectedSections,
+        representedSections,
+        missingSections,
+        uncoveredOperationIds,
+        complete: missingSections.length === 0,
+    };
+}
+
+function auditAllAndrewsCnvCnnOperationalLayerCoverage() {
+    const labels = getAndrewsCnvCnnOperationalLayerKeys();
+    const labelAudits = labels.map((label) => auditAndrewsCnvCnnOperationalLayerCoverage(label));
+    return {
+        kind: "andrews-cnv-cnn-operational-layer-coverage-audit-set",
+        version: 1,
+        labelCount: labels.length,
+        completeLabelCount: labelAudits.filter((audit) => audit.complete).length,
+        missingSectionCount: labelAudits.reduce((count, audit) => count + audit.missingSections.length, 0),
+        labels,
+        labelAudits,
+        complete: labelAudits.every((audit) => audit.complete),
+    };
+}
+
+function normalizeAndrewsCnvCnnOperationalToken(value = "") {
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "");
+}
+
+function classifyAndrewsCnvCnnOperationalExecutionKind(operation = null) {
+    const text = normalizeAndrewsCnvCnnOperationalToken([
+        operation?.id,
+        operation?.family,
+        operation?.operation,
+        ...Object.keys(operation?.requires || {}),
+        ...Object.keys(operation?.transform || {}),
+        ...Object.keys(operation?.builds || {}),
+    ].filter(Boolean).join(" "));
+    if (!text) {
+        return "unknown";
+    }
+    if (operation?.generationStatus === "diagnostic-only") {
+        return "diagnostic-boundary";
+    }
+    if (text.includes("patientive")) {
+        return "patientive-source";
+    }
+    if (text.includes("instrumentive")) {
+        return "instrumentive-source";
+    }
+    if (text.includes("locative") || text.includes("relational") || text.includes("adverbial")) {
+        return "locative-relational-route";
+    }
+    if (text.includes("compound") || text.includes("embed") || text.includes("matrix")) {
+        return "compound-route";
+    }
+    if (text.includes("adject") || text.includes("quality") || text.includes("characteristic")) {
+        return "adjectival-function-route";
+    }
+    if (text.includes("append") || text.includes("plus") || text.includes("suffix") || text.includes("future")) {
+        return "affixal-stem-operation";
+    }
+    if (text.includes("reanaly") || text.includes("predicate-to") || text.includes("source-to")) {
+        return "source-target-reanalysis";
+    }
+    if (text.includes("classify") || text.includes("contrast") || text.includes("translation")) {
+        return "classification-route";
+    }
+    return "structural-route";
+}
+
+function compileAndrewsCnvCnnOperationalSuboperationPlan(operation = null) {
+    if (!operation || typeof operation !== "object" || !operation.id) {
+        return null;
+    }
+    const requires = operation.requires && typeof operation.requires === "object" ? operation.requires : {};
+    const transform = operation.transform && typeof operation.transform === "object" ? operation.transform : {};
+    const builds = operation.builds && typeof operation.builds === "object" ? operation.builds : {};
+    const executionKind = classifyAndrewsCnvCnnOperationalExecutionKind(operation);
+    const diagnosticOnly = operation.generationStatus === "diagnostic-only";
+    const requirementChecks = Object.entries(requires).map(([slot, expected]) => ({
+        slot,
+        expected: String(expected || ""),
+        check: `require:${slot}`,
+    }));
+    const transformSteps = Object.entries(transform).map(([slot, action], index) => ({
+        order: index + 1,
+        slot,
+        action: String(action || ""),
+        step: `transform:${slot}`,
+    }));
+    const buildSteps = Object.entries(builds).map(([slot, value], index) => ({
+        order: index + 1,
+        slot,
+        value: String(value || ""),
+        step: `build:${slot}`,
+    }));
+    return {
+        kind: "andrews-cnv-cnn-operational-suboperation-plan",
+        version: 1,
+        operationId: operation.id,
+        label: operation.broadLabel || "",
+        family: operation.family || "",
+        andrewsSection: operation.andrewsSection || "",
+        executionKind,
+        executableLogic: requirementChecks.length > 0 || transformSteps.length > 0 || buildSteps.length > 0,
+        canAttemptSurface: !diagnosticOnly && [
+            "affixal-stem-operation",
+            "source-target-reanalysis",
+            "patientive-source",
+            "instrumentive-source",
+            "locative-relational-route",
+            "compound-route",
+            "adjectival-function-route",
+        ].includes(executionKind),
+        diagnosticOnly,
+        requirementChecks,
+        transformSteps,
+        buildSteps,
+        structuralBoundary: {
+            sourceFormula: operation.sourceFormula || "CNV",
+            targetFormula: operation.targetFormula || "CNN",
+            transition: "CNV->CNN",
+            classicalSpellingRole: "structural-only",
+            outputSpellingAuthority: "Nawat/Pipil orthography bridge",
+        },
+    };
+}
+
+function getAndrewsCnvCnnOperationalSuboperationPlan(operationId = "") {
+    const operation = findAndrewsCnvCnnOperationalSuboperation(operationId);
+    return compileAndrewsCnvCnnOperationalSuboperationPlan(operation);
+}
+
+function auditAndrewsCnvCnnOperationalLogicCoverage(label = "") {
+    const layer = getAndrewsCnvCnnOperationalLayer(label);
+    const plans = layer.operations
+        .map((operation) => compileAndrewsCnvCnnOperationalSuboperationPlan(operation))
+        .filter(Boolean);
+    const missingPlanIds = layer.operations
+        .filter((operation) => !plans.some((plan) => plan.operationId === operation.id && plan.executableLogic))
+        .map((operation) => operation.id);
+    return {
+        kind: "andrews-cnv-cnn-operational-logic-coverage-audit",
+        version: 1,
+        label: layer.label,
+        operationCount: layer.operationCount,
+        executablePlanCount: plans.filter((plan) => plan.executableLogic).length,
+        surfaceCapableCount: plans.filter((plan) => plan.canAttemptSurface).length,
+        diagnosticOnlyCount: plans.filter((plan) => plan.diagnosticOnly).length,
+        executionKinds: Array.from(new Set(plans.map((plan) => plan.executionKind))).sort(),
+        missingPlanIds,
+        complete: layer.operationCount > 0 && missingPlanIds.length === 0,
+    };
+}
+
+function auditAllAndrewsCnvCnnOperationalLogicCoverage() {
+    const labels = getAndrewsCnvCnnOperationalLayerKeys();
+    const labelAudits = labels.map((label) => auditAndrewsCnvCnnOperationalLogicCoverage(label));
+    return {
+        kind: "andrews-cnv-cnn-operational-logic-coverage-audit-set",
+        version: 1,
+        labelCount: labels.length,
+        operationCount: labelAudits.reduce((sum, audit) => sum + audit.operationCount, 0),
+        executablePlanCount: labelAudits.reduce((sum, audit) => sum + audit.executablePlanCount, 0),
+        surfaceCapableCount: labelAudits.reduce((sum, audit) => sum + audit.surfaceCapableCount, 0),
+        diagnosticOnlyCount: labelAudits.reduce((sum, audit) => sum + audit.diagnosticOnlyCount, 0),
+        missingPlanIds: labelAudits.flatMap((audit) => audit.missingPlanIds),
+        labelAudits,
+        complete: labelAudits.every((audit) => audit.complete),
+    };
+}
+
+const ANDREWS_CNV_CNN_OPERATIONAL_ROUTE_BY_NOMINAL_KIND = Object.freeze({
+    "agentivo": "customary-agentive-reanalysis",
+    "agentivo-presente": "present-agentive-absolutive",
+    "agentivo-preterito": "preterit-agentive-restricted-use",
+    "agentivo-futuro": "future-agentive-restricted-use",
+    "sustantivo-verbal": "active-action-liz",
+    "patientivo": "patientive-source-family-overview",
+    "patientivo-pasivo": "passive-patientive",
+    "patientivo-impersonal": "impersonal-patientive",
+    "patientivo-perfectivo": "perfective-patientive",
+    "patientivo-imperfectivo": "imperfective-patientive",
+    "patientivo-tronco": "root-stock-patientive",
+    "instrumentivo": "instrumentive-absolutive",
+    "calificativo-instrumentivo": "characteristic-property",
+    "locativo-temporal": "imperfective-locative-temporal",
+    "locativo-agentivo-preterito": "preterit-agentive-locative-46-3-1-a",
+});
+
+function normalizeAndrewsCnvCnnOperationalSourceStem(value = "") {
+    return String(value || "")
+        .trim()
+        .replace(/^CNV\(/, "")
+        .replace(/^VNC\(/, "")
+        .replace(/\)$/, "")
+        .replace(/[#+]/g, "")
+        .replace(/\s+/g, "")
+        .replace(/^-+|-+$/g, "");
+}
+
+function realizeAndrewsCnvCnnOperationalSurface(value = "", meta = {}) {
+    const operationFrame = meta && typeof meta === "object" ? meta.operationFrame : null;
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-cnv-cnn-operational-suboperation-realization"
+    ) {
+        return "";
+    }
+    const normalizedInput = String(value || "").replace(/[()#\s-]/g, "");
+    const framedInput = `${operationFrame.targetStem || ""}${
+        operationFrame.connector && operationFrame.connector !== "Ø" ? operationFrame.connector : ""
+    }`.replace(/[()#\s-]/g, "");
+    if (normalizedInput && normalizedInput !== framedInput) {
+        return "";
+    }
+    return String(operationFrame.targetSurface || "");
+}
+
+function findAndrewsCnvCnnOperationalSuboperation(operationId = "") {
+    const id = String(operationId || "").trim();
+    if (!id) {
+        return null;
+    }
+    for (const label of getAndrewsCnvCnnOperationalLayerKeys()) {
+        const operation = getAndrewsCnvCnnOperationalLayer(label).operations
+            .find((entry) => entry.id === id);
+        if (operation) {
+            return operation;
+        }
+    }
+    return null;
+}
+
+function resolveAndrewsCnvCnnOperationalSuboperationId({
+    operationId = "",
+    nominalKind = "",
+    nominalizationKind = "",
+    patientiveFamily = "",
+    predicateState = "",
+} = {}) {
+    const explicit = String(operationId || "").trim();
+    if (explicit) {
+        return explicit;
+    }
+    const kind = String(nominalKind || "").trim();
+    const role = String(nominalizationKind || "").trim();
+    const family = String(patientiveFamily || "").trim();
+    if (kind === "agentivo-preterito" && String(predicateState || "") === "possessive") {
+        return "preterit-agentive-general-use-ca";
+    }
+    if (kind === "patientivo") {
+        if (family === "passive" || family === "nonactive") {
+            return "passive-patientive";
+        }
+        if (family === "impersonal") {
+            return "impersonal-patientive";
+        }
+        if (family === "perfectivo") {
+            return "perfective-patientive";
+        }
+        if (family === "imperfectivo") {
+            return "imperfective-patientive";
+        }
+        if (family === "tronco-verbal") {
+            return "root-stock-patientive";
+        }
+    }
+    if (role === "passive-action-nominal") {
+        return "passive-action-nnc";
+    }
+    if (role === "active-action-nominal") {
+        return "active-action-first-type";
+    }
+    if (role === "impersonal-action-nominal") {
+        return "impersonal-action-liz";
+    }
+    return ANDREWS_CNV_CNN_OPERATIONAL_ROUTE_BY_NOMINAL_KIND[kind] || "";
+}
+
+function buildAndrewsCnvCnnOperationalSuboperationMissingRequirements(operation = null, input = {}) {
+    const requires = operation?.requires && typeof operation.requires === "object"
+        ? operation.requires
+        : {};
+    const sourceStem = normalizeAndrewsCnvCnnOperationalSourceStem(
+        input.sourceStem || input.sourceCore || input.sourcePredicate || input.sourceVnc || input.stem || ""
+    );
+    const sourceTense = String(input.sourceTense || "").trim();
+    const sourceVoice = String(input.sourceVoice || input.sourceCombinedMode || "").trim();
+    const missing = [];
+    if (
+        (requires.sourceStem || requires.sourceCore || requires.sourcePredicate || requires.sourceUnit)
+        && !sourceStem
+    ) {
+        missing.push("sourceStem");
+    }
+    if (requires.sourceTense && !sourceTense) {
+        missing.push("sourceTense");
+    }
+    if (requires.sourceVoice && !sourceVoice) {
+        missing.push("sourceVoice");
+    }
+    if (requires.sourceFamily && !String(input.patientiveFamily || input.sourceFamily || "").trim()) {
+        missing.push("sourceFamily");
+    }
+    return Array.from(new Set(missing));
+}
+
+function buildAndrewsCnvCnnOperationalFormulaEcho({
+    sourceStem = "",
+    targetStem = "",
+    connector = "",
+} = {}) {
+    const stem = String(targetStem || sourceStem || "").trim() || "TARGET_STEM";
+    const num = String(connector || "").trim() || "Ø";
+    return `#Ø-Ø(${stem})${num}#`;
+}
+
+function buildAndrewsCnvCnnOperationalSourceFormulaEcho({
+    sourceStem = "",
+} = {}) {
+    return `CNV(${String(sourceStem || "SOURCE_CORE")})`;
+}
+
+function realizeAndrewsCnvCnnOperationalTargetRawSurface(value = "", meta = {}) {
+    const source = String(value || "").replace(/[()#\s-]/g, "");
+    if (!source) {
+        return "";
+    }
+    const conversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(source, {
+            source: "Andrews CNV->CNN typed operational target",
+            ...meta,
+        })
+        : { output: source };
+    return String(conversion?.output || source || "");
+}
+
+function buildAndrewsCnvCnnOperationalSourceFrame({
+    operationId = "",
+    nominalKind = "",
+    nominalizationKind = "",
+    patientiveFamily = "",
+    sourceStem = "",
+    sourceCore = "",
+    sourcePredicate = "",
+    sourceVnc = "",
+    sourceTense = "",
+    sourceVoice = "",
+    sourceCombinedMode = "",
+    subjectNumber = "",
+    subjectSuffix = "",
+    predicateState = "",
+    possessorPrefix = "",
+    connector = "",
+    preteritStem = "",
+    patientiveStem = "",
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    const resolvedOperationId = resolveAndrewsCnvCnnOperationalSuboperationId({
+        operationId,
+        nominalKind,
+        nominalizationKind,
+        patientiveFamily,
+        predicateState,
+    });
+    const operation = findAndrewsCnvCnnOperationalSuboperation(resolvedOperationId);
+    if (!operation) {
+        return null;
+    }
+    const missingRequirements = buildAndrewsCnvCnnOperationalSuboperationMissingRequirements(operation, {
+        sourceStem,
+        sourceCore,
+        sourcePredicate,
+        sourceVnc,
+        sourceTense,
+        sourceVoice,
+        sourceCombinedMode,
+        patientiveFamily,
+    });
+    if (missingRequirements.length) {
+        return null;
+    }
+    const normalizedSourceStem = normalizeAndrewsCnvCnnOperationalSourceStem(
+        sourceStem || sourceCore || sourcePredicate || sourceVnc || ""
+    );
+    if (!normalizedSourceStem) {
+        return null;
+    }
+    const normalizedSubjectNumber = String(subjectNumber || subjectSuffix || "").trim();
+    const sourceSignature = [
+        resolvedOperationId,
+        normalizedSourceStem,
+        String(sourceTense || ""),
+        String(sourceVoice || sourceCombinedMode || ""),
+        String(patientiveFamily || ""),
+        normalizedSubjectNumber,
+        String(predicateState || ""),
+        String(possessorPrefix || ""),
+        String(connector || ""),
+        String(preteritStem || ""),
+        String(patientiveStem || ""),
+    ].join("|");
+    return Object.freeze({
+        kind: "andrews-cnv-cnn-operational-source-frame",
+        version: 1,
+        operationId: resolvedOperationId,
+        nominalKind: String(nominalKind || ""),
+        nominalizationKind: String(nominalizationKind || ""),
+        patientiveFamily: String(patientiveFamily || ""),
+        sourceStem: normalizedSourceStem,
+        sourceTense: String(sourceTense || ""),
+        sourceVoice: String(sourceVoice || sourceCombinedMode || ""),
+        sourceCombinedMode: String(sourceCombinedMode || ""),
+        subjectNumber: normalizedSubjectNumber,
+        predicateState: String(predicateState || ""),
+        possessorPrefix: String(possessorPrefix || ""),
+        connector: String(connector || ""),
+        preteritStem: String(preteritStem || ""),
+        patientiveStem: String(patientiveStem || ""),
+        sourceSignature,
+        operationPlan: compileAndrewsCnvCnnOperationalSuboperationPlan(operation),
+        operationRecord: operation,
+        authority: "Andrews CNV->CNN operational source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildAndrewsCnvCnnOperationalHandledTarget(sourceFrame = null) {
+    if (!sourceFrame || sourceFrame.kind !== "andrews-cnv-cnn-operational-source-frame") {
+        return null;
+    }
+    const id = String(sourceFrame.operationId || "");
+    const sourceStem = String(sourceFrame.sourceStem || "");
+    const subjectNumber = String(sourceFrame.subjectNumber || "").trim();
+    const plural = subjectNumber === "t" || subjectNumber === "p" || subjectNumber === "plural";
+    const possessive = String(sourceFrame.predicateState || "") === "possessive"
+        || Boolean(String(sourceFrame.possessorPrefix || "").trim());
+    const genericConnector = plural ? "ket" : "ki";
+    const handlers = {
+        "customary-agentive-reanalysis": () => ({
+            targetStem: `${sourceStem}ni`,
+            connector: plural ? "wan" : "Ø",
+            operationApplied: "append-customary-present-ni-inside-nounstem",
+        }),
+        "present-agentive-absolutive": () => ({
+            targetStem: sourceStem,
+            connector: subjectNumber || "Ø",
+            operationApplied: "reanalyze-present-predicate-as-agentive-nounstem",
+        }),
+        "preterit-agentive-restricted-use": () => ({
+            targetStem: sourceFrame.preteritStem || sourceStem,
+            connector: sourceFrame.connector || genericConnector,
+            operationApplied: "reanalyze-preterit-predicate-as-restricted-agentive-nounstem",
+        }),
+        "preterit-agentive-general-use-ca": () => ({
+            targetStem: `${sourceFrame.preteritStem || sourceStem}ka`,
+            connector: sourceFrame.connector || (possessive ? "w" : "Ø"),
+            operationApplied: "embed-restricted-preterit-agentive-before-ca-matrix",
+        }),
+        "future-agentive-restricted-use": () => ({
+            targetStem: `${sourceStem}s`,
+            connector: sourceFrame.connector || genericConnector,
+            operationApplied: "keep-future-s-inside-agentive-nounstem",
+        }),
+        "active-action-z": () => ({
+            targetStem: `${sourceStem}z`,
+            connector: "Ø",
+            operationApplied: "append-active-action-z-to-source-core",
+        }),
+        "active-action-liz": () => ({
+            targetStem: `${sourceStem}liz`,
+            connector: "Ø",
+            operationApplied: "append-active-action-liz-to-source-core",
+        }),
+        "impersonal-action-liz": () => ({
+            targetStem: `${sourceStem}liz`,
+            connector: "Ø",
+            operationApplied: "build-impersonal-action-nounstem-from-source-core",
+        }),
+        "passive-action-nnc": () => ({
+            targetStem: sourceStem,
+            connector: "Ø",
+            operationApplied: "reanalyze-distant-past-passive-as-passive-action-nnc",
+        }),
+        "active-action-first-type": () => ({
+            targetStem: sourceStem,
+            connector: "Ø",
+            operationApplied: "reanalyze-distant-past-active-as-active-action-nnc",
+        }),
+        "passive-patientive": () => ({
+            targetStem: sourceFrame.patientiveStem || sourceStem,
+            connector: sourceFrame.connector || "t",
+            operationApplied: "derive-passive-core-to-patientive-nounstem",
+        }),
+        "impersonal-patientive": () => ({
+            targetStem: sourceFrame.patientiveStem || sourceStem,
+            connector: sourceFrame.connector || "t",
+            operationApplied: "derive-impersonal-core-to-patientive-nounstem",
+        }),
+        "perfective-patientive": () => ({
+            targetStem: sourceFrame.patientiveStem || sourceStem,
+            connector: sourceFrame.connector || "t",
+            operationApplied: "derive-perfective-active-core-to-patientive-nounstem",
+        }),
+        "imperfective-patientive": () => ({
+            targetStem: sourceFrame.patientiveStem || sourceStem,
+            connector: sourceFrame.connector || "t",
+            operationApplied: "derive-imperfective-active-core-to-patientive-nounstem",
+        }),
+        "root-stock-patientive": () => ({
+            targetStem: sourceFrame.patientiveStem || sourceStem,
+            connector: sourceFrame.connector || "t",
+            operationApplied: "derive-root-or-stock-to-patientive-nounstem",
+        }),
+        "instrumentive-absolutive": () => ({
+            targetStem: sourceStem,
+            connector: sourceFrame.connector || "Ø",
+            operationApplied: "derive-customary-impersonal-source-to-instrumentive-nounstem",
+        }),
+        "instrumentive-possessive": () => ({
+            targetStem: sourceStem,
+            connector: sourceFrame.connector || "w",
+            operationApplied: "derive-imperfect-active-source-to-possessive-instrumentive",
+        }),
+        "characteristic-property": () => ({
+            targetStem: `${sourceStem}yo`,
+            connector: sourceFrame.connector || "Ø",
+            operationApplied: "derive-characteristic-property-through-yo-matrix",
+        }),
+        "imperfective-locative-temporal": () => ({
+            targetStem: sourceStem,
+            connector: sourceFrame.connector || "yan",
+            operationApplied: "derive-imperfect-source-to-locative-temporal-nounstem",
+        }),
+        "preterit-agentive-locative-46-3-1-a": () => ({
+            targetStem: `${sourceStem}kan`,
+            connector: sourceFrame.connector || "Ø",
+            operationApplied: "stack-preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+        }),
+    };
+    const handler = handlers[id];
+    return handler ? handler() : null;
+}
+
+function buildAndrewsCnvCnnOperationalOperationFrame(sourceFrame = null) {
+    const handled = buildAndrewsCnvCnnOperationalHandledTarget(sourceFrame);
+    if (!sourceFrame || !handled) {
+        return null;
+    }
+    const connector = String(handled.connector || "");
+    const targetRaw = `${handled.targetStem || ""}${connector && connector !== "Ø" ? connector : ""}`;
+    const targetSurface = realizeAndrewsCnvCnnOperationalTargetRawSurface(targetRaw, {
+        operationId: sourceFrame.operationId,
+    });
+    if (!targetSurface) {
+        return null;
+    }
+    const targetSegmentFrames = Object.freeze([
+        Object.freeze({
+            slot: "target-stem",
+            role: "cnv-cnn-operational-target-stem",
+            formulaValue: handled.targetStem || "",
+            surface: realizeAndrewsCnvCnnOperationalTargetRawSurface(handled.targetStem || "", {
+                operationId: sourceFrame.operationId,
+                slot: "target-stem",
+            }),
+        }),
+        Object.freeze({
+            slot: "target-connector",
+            role: "cnv-cnn-operational-target-connector",
+            formulaValue: connector || "Ø",
+            surface: connector && connector !== "Ø"
+                ? realizeAndrewsCnvCnnOperationalTargetRawSurface(connector, {
+                    operationId: sourceFrame.operationId,
+                    slot: "target-connector",
+                })
+                : "",
+        }),
+    ]);
+    const formulaEcho = buildAndrewsCnvCnnOperationalFormulaEcho({
+        sourceStem: sourceFrame.sourceStem,
+        targetStem: handled.targetStem,
+        connector,
+    });
+    const sourceFormulaEcho = buildAndrewsCnvCnnOperationalSourceFormulaEcho({
+        sourceStem: sourceFrame.sourceStem,
+    });
+    const targetSignature = [
+        handled.targetStem || "",
+        connector,
+        targetSurface,
+        formulaEcho,
+    ].join("|");
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-cnv-cnn-operational-suboperation-realization",
+        suboperationId: sourceFrame.operationId,
+        routeFamily: "cnv-cnn-operational-suboperation",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: handled.operationApplied || "",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetSignature,
+        targetStem: handled.targetStem || "",
+        connector,
+        sourceFormulaEcho,
+        targetFormulaEcho: formulaEcho,
+        renderedFormulaEcho: formulaEcho,
+        formulaEcho: `${sourceFormulaEcho} -> ${formulaEcho}`,
+        targetSegmentFrames,
+        targetSurface,
+        surfaceForms: [targetSurface],
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function getAndrewsCnvCnnOperationalFrameMismatch({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    if (!sourceFrame || sourceFrame.kind !== "andrews-cnv-cnn-operational-source-frame") {
+        return "source-frame-required";
+    }
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-cnv-cnn-operational-suboperation-realization"
+        || operationFrame.routeFamily !== "cnv-cnn-operational-suboperation"
+        || operationFrame.consumesRenderedInput !== false
+        || operationFrame.displayStringsAuthorizeGrammar !== false
+    ) {
+        return "operation-frame-required";
+    }
+    if (
+        operationFrame.sourceFrameKind !== sourceFrame.kind
+        || operationFrame.sourceSignature !== sourceFrame.sourceSignature
+        || operationFrame.suboperationId !== sourceFrame.operationId
+    ) {
+        return "contradictory-source-frame";
+    }
+    const targetSurface = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames.map((segment) => String(segment?.surface || "")).join("")
+        : "";
+    if (
+        !targetSurface
+        || targetSurface !== String(operationFrame.targetSurface || "")
+        || !String(operationFrame.targetStem || "").trim()
+        || !String(operationFrame.targetSignature || "").includes(String(operationFrame.targetSurface || ""))
+    ) {
+        return "contradictory-target-frame";
+    }
+    return "";
+}
+
+function executeAndrewsCnvCnnOperationalHandler(operation = null, input = {}) {
+    const mismatch = getAndrewsCnvCnnOperationalFrameMismatch({
+        sourceFrame: input.sourceFrame,
+        operationFrame: input.operationFrame,
+    });
+    if (mismatch || String(operation?.id || "") !== String(input.sourceFrame?.operationId || "")) {
+        return null;
+    }
+    return {
+        sourceStem: input.sourceFrame.sourceStem,
+        targetStem: input.operationFrame.targetStem,
+        connector: input.operationFrame.connector,
+        operationApplied: input.operationFrame.operationApplied,
+        surface: input.operationFrame.targetSurface,
+        surfaceForms: input.operationFrame.surfaceForms,
+        sourceFormulaEcho: input.operationFrame.sourceFormulaEcho,
+        formulaEcho: input.operationFrame.targetFormulaEcho,
+        operationFrame: input.operationFrame,
+    };
+}
+
+function buildAndrewsCnvCnnOperationalSuboperationFrame({
+    operationId = "",
+    nominalKind = "",
+    nominalizationKind = "",
+    patientiveFamily = "",
+    sourceStem = "",
+    sourceCore = "",
+    sourcePredicate = "",
+    sourceVnc = "",
+    sourceTense = "",
+    sourceVoice = "",
+    sourceCombinedMode = "",
+    subjectNumber = "",
+    subjectSuffix = "",
+    predicateState = "",
+    possessorPrefix = "",
+    connector = "",
+    preteritStem = "",
+    patientiveStem = "",
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    const resolvedOperationId = resolveAndrewsCnvCnnOperationalSuboperationId({
+        operationId,
+        nominalKind,
+        nominalizationKind,
+        patientiveFamily,
+        predicateState,
+    });
+    const operation = findAndrewsCnvCnnOperationalSuboperation(resolvedOperationId);
+    const operationPlan = compileAndrewsCnvCnnOperationalSuboperationPlan(operation);
+    const missingRequirements = buildAndrewsCnvCnnOperationalSuboperationMissingRequirements(operation, {
+        sourceStem,
+        sourceCore,
+        sourcePredicate,
+        sourceVnc,
+        sourceTense,
+        sourceVoice,
+        sourceCombinedMode,
+        patientiveFamily,
+    });
+    const frameMismatch = getAndrewsCnvCnnOperationalFrameMismatch({ sourceFrame, operationFrame });
+    const handled = operation && !frameMismatch
+        ? executeAndrewsCnvCnnOperationalHandler(operation, {
+            sourceFrame,
+            operationFrame,
+        })
+        : null;
+    const generated = Boolean(handled?.surface);
+    const sourceFormulaEcho = handled?.sourceFormulaEcho || buildAndrewsCnvCnnOperationalSourceFormulaEcho({
+        sourceStem: sourceStem || sourceCore || sourcePredicate || sourceVnc,
+    });
+    const targetFormulaEcho = handled?.formulaEcho || "";
+    const sourceToTargetFormulaEcho = sourceFormulaEcho && targetFormulaEcho
+        ? `${sourceFormulaEcho} -> ${targetFormulaEcho}`
+        : "";
+    return {
+        kind: "andrews-cnv-cnn-operational-suboperation-frame",
+        version: 1,
+        operationId: resolvedOperationId,
+        nominalKind: String(nominalKind || ""),
+        nominalizationKind: String(nominalizationKind || ""),
+        label: operation?.broadLabel || "",
+        family: operation?.family || "",
+        andrewsSection: operation?.andrewsSection || "",
+        formulaTransition: operation ? "CNV->CNN" : "",
+        sourceFormulaType: operation?.sourceFormula || "CNV",
+        targetFormulaType: operation?.targetFormula || "CNN",
+        operationPlan,
+        executionKind: operationPlan?.executionKind || "",
+        executableLogic: operationPlan?.executableLogic === true,
+        canAttemptSurface: operationPlan?.canAttemptSurface === true,
+        routeStage: generated ? "execute-cnv-cnn-operational-suboperation" : "classify-cnv-cnn-operational-suboperation",
+        generationAllowed: generated,
+        status: generated
+            ? "andrews-logic-generated"
+            : (operation ? "source-gated" : "unknown-suboperation"),
+        source: {
+            stem: sourceFrame?.sourceStem || "",
+            tense: sourceFrame?.sourceTense || "",
+            voice: sourceFrame?.sourceVoice || "",
+            patientiveFamily: sourceFrame?.patientiveFamily || "",
+            sourceFrameKind: sourceFrame?.kind || "",
+            operationFrameId: operationFrame?.operationId || "",
+        },
+        requirements: operation?.requires ? { ...operation.requires } : {},
+        transform: operation?.transform ? { ...operation.transform } : {},
+        builds: operation?.builds ? { ...operation.builds } : {},
+        missingRequirements: frameMismatch === "source-frame-required"
+            ? ["sourceFrame"]
+            : (frameMismatch === "operation-frame-required" ? ["operationFrame"] : missingRequirements),
+        frameMismatch,
+        operationApplied: handled?.operationApplied || "",
+        targetStem: handled?.targetStem || "",
+        connector: handled?.connector || "",
+        sourceFormulaEcho,
+        targetFormulaEcho,
+        renderedFormulaEcho: targetFormulaEcho,
+        formulaEcho: sourceToTargetFormulaEcho || targetFormulaEcho,
+        sourceToTargetFormulaEcho,
+        surface: handled?.surface || "",
+        surfaceForms: handled?.surfaceForms || [],
+        ...(sourceFrame ? { sourceFrame } : {}),
+        ...(operationFrame ? { operationFrame } : {}),
+        diagnostics: [
+            operation ? "andrews-cnv-cnn-suboperation-recognized" : "andrews-cnv-cnn-suboperation-unknown",
+            generated ? "andrews-cnv-cnn-suboperation-generated" : "andrews-cnv-cnn-suboperation-source-gated",
+            ...(frameMismatch ? [`andrews-cnv-cnn-operational-${frameMismatch}`] : []),
+            ...(frameMismatch === "source-frame-required"
+                ? ["missing-sourceFrame"]
+                : (frameMismatch === "operation-frame-required"
+                    ? ["missing-operationFrame"]
+                    : (frameMismatch ? [] : missingRequirements.map((key) => `missing-${key}`)))),
+        ],
+        orthography: {
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            classicalSpellingRole: "structural-only",
+            noClassicalSurfaceImport: true,
+        },
+    };
+}
 
 const LESSON35_PRETERIT_AGENTIVE_VALIDATION_REFS = Object.freeze([
     "src/tests/nnc_nominalization.test.js",
@@ -167,7 +1369,7 @@ const LESSON35_COMPOUND_EMBED_FRAME = Object.freeze({
     compoundVncsSupportedStructurally: true,
     compoundAffectiveNncsSupportedStructurally: true,
     activatedProjectiveHybridCanOccurInAffectiveNncs: true,
-    finiteExpansionRequiresNawatMatrixEvidence: true,
+    finiteExpansionRequiresStructuredMatrixSource: true,
 });
 
 const LESSON35_OLD_PERSON_FRAME = Object.freeze({
@@ -241,16 +1443,16 @@ const LESSON35_VNC_EMBED_ADVERBIAL_FRAME = Object.freeze({
 const LESSON35_PRETERIT_AGENTIVE_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson35-nominalization", andrewsSection: "35.1", category: "structural-nominalization", directiveEs: "La nominalizacion estructural convierte una CNV en una CNN; la suplementacion funcional queda fuera del motor de palabra.", engineSurface: "diagnostic nominalization overview frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson35-preterit-agentive", andrewsSection: "35.2", category: "preterit-agentive-nnc", directiveEs: "El agentivo preterito nombra al agente y separa tronco de uso restringido y tronco de uso general.", engineSurface: "diagnostic preterit-agentive overview frame", implementationState: "partial", redirectAction: "refactor-engine" }),
-    Object.freeze({ id: "lesson35-absolutive-preterit-agentive", andrewsSection: "35.3", category: "absolutive-preterit-agentive", directiveEs: "La CNN absolutiva reanaliza el predicado preterito como tronco nominal; el morfo preterito queda al final del tronco restringido.", engineSurface: "partial generated preterit-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson35-absolutive-preterit-agentive", andrewsSection: "35.3", category: "absolutive-preterit-agentive", directiveEs: "La CNN absolutiva reanaliza el predicado preterito como tronco nominal; el morfo preterito queda al final del tronco restringido.", engineSurface: "partial generated preterit-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson35-number-position", andrewsSection: "35.4", category: "preterit-agentive-number-position", directiveEs: "La posicion de numero alterna qui y cero segun clase, uso y tendencia animada/no animada; no debe ocultarse como regla unica.", engineSurface: "diagnostic number-position frame", implementationState: "partial", redirectAction: "refactor-engine" }),
-    Object.freeze({ id: "lesson35-general-use", andrewsSection: "35.5", category: "general-use-preterit-agentive", directiveEs: "El uso general es compuesto: predicado preterito incrustado mas matriz ca; el reflexivo de fuente pasa a ne.", engineSurface: "partial general-use stem continuations plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson35-possessive-state", andrewsSection: "35.6", category: "possessive-preterit-agentive", directiveEs: "La CNN posesiva usa el tronco general con conectores w/wan; el poseedor es externo al sujeto de la CNV fuente.", engineSurface: "partial possessive preterit-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson35-compound-embeds", andrewsSection: "35.7", category: "preterit-agentive-compound-embed", directiveEs: "El tronco general puede incrustarse en CNN/CNV compuestas y afectivas; matrices nuevas requieren evidencia Nawat.", engineSurface: "partial compound continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson35-general-use", andrewsSection: "35.5", category: "general-use-preterit-agentive", directiveEs: "El uso general es compuesto: predicado preterito incrustado mas matriz ca; el reflexivo de fuente pasa a ne.", engineSurface: "partial general-use stem continuations plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson35-possessive-state", andrewsSection: "35.6", category: "possessive-preterit-agentive", directiveEs: "La CNN posesiva usa el tronco general con conectores w/wan; el poseedor es externo al sujeto de la CNV fuente.", engineSurface: "partial possessive preterit-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson35-compound-embeds", andrewsSection: "35.7", category: "preterit-agentive-compound-embed", directiveEs: "El tronco general puede incrustarse en CNN/CNV compuestas y afectivas; matrices nuevas requieren fuente Andrews concreta y puente ortografico.", engineSurface: "partial compound continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson35-old-person", andrewsSection: "35.8", category: "old-woman-old-man", directiveEs: "Anciana y anciano suelen expresarse como agentivos preteritos; no se confunden con troncos simples ni con incrustados homofonos.", engineSurface: "diagnostic old-person boundary frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson35-ownerhood", andrewsSection: "35.9", category: "ownerhood-preterit-agentive", directiveEs: "La posesion se forma con compuestos de objeto incorporado y matrices e/wa; la seleccion depende de clase y sonido anterior.", engineSurface: "partial ownerhood continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson35-abundant-ownerhood", andrewsSection: "35.10", category: "abundant-ownerhood", directiveEs: "La posesion abundante usa matriz yua/yuwa estructural, restringida al entorno preterito/conectivo documentado.", engineSurface: "partial abundant-ownerhood continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson35-ownerhood", andrewsSection: "35.9", category: "ownerhood-preterit-agentive", directiveEs: "La posesion se forma con compuestos de objeto incorporado y matrices e/wa; la seleccion depende de clase y sonido anterior.", engineSurface: "partial ownerhood continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson35-abundant-ownerhood", andrewsSection: "35.10", category: "abundant-ownerhood", directiveEs: "La posesion abundante usa matriz yua/yuwa estructural, restringida al entorno preterito/conectivo documentado.", engineSurface: "partial abundant-ownerhood continuation contracts plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson35-ownerhood-analysis", andrewsSection: "35.11", category: "ownerhood-analysis-translation", directiveEs: "La glosa de tener depende de analisis, animacidad y contexto; la traduccion no autoriza formas.", engineSurface: "diagnostic ownerhood analysis frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson35-vnc-embed-adverbial", andrewsSection: "35.12", category: "preterit-agentive-vnc-embed-adverbial", directiveEs: "El agentivo preterito puede ser objeto incorporado o adverbio de modo; el reflexivo depende de la valencia de la matriz.", engineSurface: "partial incorporated-complement/adverbial continuations plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson35-vnc-embed-adverbial", andrewsSection: "35.12", category: "preterit-agentive-vnc-embed-adverbial", directiveEs: "El agentivo preterito puede ser objeto incorporado o adverbio de modo; el reflexivo depende de la valencia de la matriz.", engineSurface: "partial incorporated-complement/adverbial continuations plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function cloneNominalizationLessonRecord(record) {
@@ -311,7 +1513,7 @@ function buildLesson35PreteritAgentiveIncorporationRouteFrame({
     sourceExternalObjectSlots = [],
     remainingExternalObjectSlots = [],
     valenceDelta = {},
-    generationStatus = "diagnostic-only-nawat-evidence-required",
+    generationStatus = "diagnostic-only-source-gated",
 } = {}) {
     const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
     const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
@@ -366,7 +1568,7 @@ function getLesson35PreteritAgentiveSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON35_PRETERIT_AGENTIVE_VALIDATION_REFS),
     }));
 }
@@ -417,7 +1619,7 @@ function buildLesson35PreteritAgentivePursuitFrame() {
         "Current preterit-agentive generation and continuations are partial, not complete Lesson 35 coverage.",
         "Number-position alternations, affinity-stem selection, activated projective-object hybrids, old-person lexical boundaries, and all matrix subclass selections remain diagnostic.",
         "Ownerhood e/wa/yua continuations are limited to current Nawat data-backed matrices and class-compatible defaults.",
-        "Object-focused adverbial matrices, lexicalized reflexive exceptions, rare que-matrix absolutives, and complete Nawat/Pipil examples remain evidence-needed.",
+        "Object-focused adverbial matrices, lexicalized reflexive exceptions, rare que-matrix absolutives, and complete orthography-bridge examples remain evidence-needed.",
     ];
     const frame = {
         kind: "lesson-35-preterit-agentive-pursuit-frame",
@@ -465,7 +1667,7 @@ function buildLesson35PreteritAgentivePursuitFrame() {
             incorporatedComplementContinuationPartial: true,
             adverbialMannerContinuationPartial: true,
             fullLesson35GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -483,9 +1685,9 @@ function buildLesson35PreteritAgentivePursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 35.1-35.12",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
         },
         morphBoundaryFrame: {
             overviewFrame,
@@ -530,7 +1732,7 @@ function buildLesson35PreteritAgentivePursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["preterit-agentive-diagnostic-partial", "preterit-agentive-needs-nawat-evidence"],
+        diagnostics: ["preterit-agentive-diagnostic-partial", "preterit-agentive-source-gated"],
     });
 }
 
@@ -716,17 +1918,17 @@ const LESSON36_ACTION_NNC_FRAME = Object.freeze({
 });
 
 const LESSON36_NOMINALIZED_VNC_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson36-customary-present-agentive", andrewsSection: "36.1", category: "customary-present-agentive-overview", directiveEs: "El agentivo presente habitual tiene dos grados: reanalisis y nominalizacion plena.", engineSurface: "partial customary-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson36-customary-present-agentive", andrewsSection: "36.1", category: "customary-present-agentive-overview", directiveEs: "El agentivo presente habitual tiene dos grados: reanalisis y nominalizacion plena.", engineSurface: "partial customary-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson36-customary-present-reanalysis", andrewsSection: "36.2", category: "customary-present-agentive-reanalysis", directiveEs: "El reanalisis conserva dyadas de CNV y deja ni como ultimo constituyente del tronco.", engineSurface: "diagnostic reanalysis frame", implementationState: "partial", redirectAction: "refactor-engine" }),
-    Object.freeze({ id: "lesson36-fully-nominalized-customary-present", andrewsSection: "36.3", category: "fully-nominalized-customary-present-agentive", directiveEs: "La nominalizacion plena cambia a conectores de CNN de clase ti 1-A y puede incrustarse en compuestos.", engineSurface: "partial generated customary-agentive continuations plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson36-fully-nominalized-customary-present", andrewsSection: "36.3", category: "fully-nominalized-customary-present-agentive", directiveEs: "La nominalizacion plena cambia a conectores de CNN de clase ti 1-A y puede incrustarse en compuestos.", engineSurface: "partial generated customary-agentive continuations plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson36-agentive-contrast", andrewsSection: "36.4", category: "preterit-vs-customary-present-agentive", directiveEs: "La sinonimia puede ser espejismo de traduccion; el contraste temporal-semantic debe mantenerse visible en metadatos.", engineSurface: "diagnostic contrast frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson36-customary-present-patientive", andrewsSection: "36.5", category: "customary-present-patientive", directiveEs: "El patientivo presente habitual viene de pasiva, no toma posesivo, y expresa entidad apta o digna de ser tratada asi.", engineSurface: "partial patientive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson36-instrumentive", andrewsSection: "36.6", category: "instrumentive-nnc", directiveEs: "El instrumentivo usa dos fuentes: impersonal presente habitual para absolutivo y activa imperfecta para posesivo.", engineSurface: "partial instrumentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson36-present-agentive", andrewsSection: "36.7", category: "present-agentive", directiveEs: "El agentivo presente convierte el predicado indicativo presente y se restringe normalmente al absolutivo.", engineSurface: "partial present-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson36-future-agentive", andrewsSection: "36.8", category: "future-agentive", directiveEs: "El agentivo futuro es raro; el tronco restringido termina en z y el general usa matriz ca.", engineSurface: "partial future-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson36-customary-present-patientive", andrewsSection: "36.5", category: "customary-present-patientive", directiveEs: "El patientivo presente habitual viene de pasiva, no toma posesivo, y expresa entidad apta o digna de ser tratada asi.", engineSurface: "partial patientive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson36-instrumentive", andrewsSection: "36.6", category: "instrumentive-nnc", directiveEs: "El instrumentivo usa dos fuentes: impersonal presente habitual para absolutivo y activa imperfecta para posesivo.", engineSurface: "partial instrumentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson36-present-agentive", andrewsSection: "36.7", category: "present-agentive", directiveEs: "El agentivo presente convierte el predicado indicativo presente y se restringe normalmente al absolutivo.", engineSurface: "partial present-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson36-future-agentive", andrewsSection: "36.8", category: "future-agentive", directiveEs: "El agentivo futuro es raro; el tronco restringido termina en z y el general usa matriz ca.", engineSurface: "partial future-agentive output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson36-action-nncs", andrewsSection: "36.9", category: "action-nnc-overview", directiveEs: "Las CNN de accion nombran accion, proceso, evento, estado resultante o resultado; no son una sola etiqueta superficial.", engineSurface: "diagnostic action overview frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson36-passive-action", andrewsSection: "36.10", category: "passive-action-nnc", directiveEs: "La accion pasiva posesiva viene de pasiva remota con ca; el absolutivo restringido usa matriz yo.", engineSurface: "partial passive-action output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson36-active-action", andrewsSection: "36.11", category: "active-action-first-type", directiveEs: "La accion activa nominalizada usa fuentes intransitivas o reflexivas remotas; el sujeto fuente se vuelve poseedor.", engineSurface: "partial active-action output plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson36-passive-action", andrewsSection: "36.10", category: "passive-action-nnc", directiveEs: "La accion pasiva posesiva viene de pasiva remota con ca; el absolutivo restringido usa matriz yo.", engineSurface: "partial passive-action output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson36-active-action", andrewsSection: "36.11", category: "active-action-first-type", directiveEs: "La accion activa nominalizada usa fuentes intransitivas o reflexivas remotas; el sujeto fuente se vuelve poseedor.", engineSurface: "partial active-action output plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson36-active-action-vs-preterit-agentive", andrewsSection: "36.12", category: "active-action-preterit-agentive-contrast", directiveEs: "Accion activa y agentivo preterito pueden sonar parecidos, pero difieren en estructura, clase, poseedor y significado.", engineSurface: "diagnostic contrast frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
 ]);
 
@@ -735,7 +1937,7 @@ function getLesson36NominalizedVncSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON36_NOMINALIZED_VNC_VALIDATION_REFS),
     }));
 }
@@ -751,8 +1953,8 @@ function buildLesson36NominalizedVncPursuitFrame() {
     const remainingGaps = [
         "Current Lesson 36 nominalized VNC routes are partial and do not complete all customary-present, present, future, patientive, instrumentive, passive-action, or active-action paradigms.",
         "Customary-present reanalysis versus full nominalization, rare possessive reanalysis, object-activation hybrids, and translation contrasts remain diagnostic.",
-        "Instrumentive state-source exceptions, patientive passive variants, future-agentive rarity, and action-NNC restricted/general-use alternations need more Nawat/Pipil evidence.",
-        "Complete nounstem class routing, lexicalized exceptions, and confirmed Nawat/Pipil examples remain evidence-needed.",
+        "Instrumentive state-source exceptions, patientive passive variants, future-agentive rarity, and action-NNC restricted/general-use alternations need more Andrews source logic plus orthography-bridge support.",
+        "Complete nounstem class routing, lexicalized exceptions, and Andrews source models plus orthography-bridge fixtures remain evidence-needed.",
     ];
     const frame = {
         kind: "lesson-36-nominalized-vnc-pursuit-frame",
@@ -795,7 +1997,7 @@ function buildLesson36NominalizedVncPursuitFrame() {
             passiveActionGenerationPartial: true,
             activeActionGenerationPartial: true,
             fullLesson36GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -813,9 +2015,9 @@ function buildLesson36NominalizedVncPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 36.1-36.12",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
         },
         morphBoundaryFrame: {
             customaryPresentAgentiveFrame,
@@ -854,7 +2056,7 @@ function buildLesson36NominalizedVncPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["nominalized-vnc-diagnostic-partial", "nominalized-vnc-needs-nawat-evidence"],
+        diagnostics: ["nominalized-vnc-diagnostic-partial", "nominalized-vnc-source-gated"],
     });
 }
 
@@ -884,7 +2086,7 @@ const LESSON37_DEVERBAL_OVERVIEW_FRAME = Object.freeze({
     targetUnit: "deverbal nounstem",
     notMereVncReanalysis: true,
     notRelabeledConstituents: true,
-    finiteOutputExpansionRequiresNawatEvidence: true,
+    finiteOutputExpansionRequiresAndrewsSourceGate: true,
 });
 
 const LESSON37_ACTIVE_ACTION_Z_FRAME = Object.freeze({
@@ -962,7 +2164,7 @@ const LESSON37_ACTIVE_ACTION_PARTICULARS_FRAME = Object.freeze({
         sourceSection: "Andrews 37.5.4",
         activeActionNounstemCanEmbedInVnc: true,
         activeActionNounstemCanEmbedInNnc: true,
-        finiteMatrixRequiresNawatEvidence: true,
+        finiteMatrixRequiresAndrewsSourceGate: true,
     }),
     affectiveAssimilationFrame: Object.freeze({
         sourceSection: "Andrews 37.5.5",
@@ -1025,14 +2227,14 @@ const LESSON37_PASSIVE_PATIENTIVE_FRAME = Object.freeze({
 
 const LESSON37_DEVERBAL_NOUNSTEM_SUBSECTION_INVENTORY = Object.freeze([
     Object.freeze({ id: "lesson37-deverbal-nounstem-overview", andrewsSection: "37.1", category: "deverbal-nounstem-overview", directiveEs: "El tronco nominal deverbal deriva del nucleo de la CNV, no de un simple predicado CNV reetiquetado.", engineSurface: "diagnostic deverbal overview frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson37-active-action-z", andrewsSection: "37.2", category: "active-action-z", directiveEs: "La accion activa de segundo tipo usa z estructural, clase tli, fuente futura y restricciones de fuente; Nawat realiza la letra como s.", engineSurface: "partial sustantivo-verbal s subtype plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson37-active-action-liz", andrewsSection: "37.3", category: "active-action-liz", directiveEs: "Liz se agrega al nucleo futuro y conserva reglas de clase, proyectivos, reflexivo ne y alternancias de imperfectivo reemplazante.", engineSurface: "partial sustantivo-verbal lis subtype plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson37-active-action-z", andrewsSection: "37.2", category: "active-action-z", directiveEs: "La accion activa de segundo tipo usa z estructural, clase tli, fuente futura y restricciones de fuente; Nawat realiza la letra como s.", engineSurface: "partial sustantivo-verbal s subtype plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson37-active-action-liz", andrewsSection: "37.3", category: "active-action-liz", directiveEs: "Liz se agrega al nucleo futuro y conserva reglas de clase, proyectivos, reflexivo ne y alternancias de imperfectivo reemplazante.", engineSurface: "partial sustantivo-verbal lis subtype plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson37-liz-translation-value", andrewsSection: "37.4", category: "liz-translation-value", directiveEs: "Liz puede glosarse como modo, naturaleza o apariencia; la traduccion no autoriza superficie.", engineSurface: "diagnostic translation frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson37-active-action-particulars", andrewsSection: "37.5", category: "active-action-particulars", directiveEs: "Los particulares incluyen fuentes compuestas, valor de paciente potencial, accion impersonal, incrustacion en compuestos y asimilacion con tzin.", engineSurface: "partial potential/impersonal action routes plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson37-active-action-particulars", andrewsSection: "37.5", category: "active-action-particulars", directiveEs: "Los particulares incluyen fuentes compuestas, valor de paciente potencial, accion impersonal, incrustacion en compuestos y asimilacion con tzin.", engineSurface: "partial potential/impersonal action routes plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson37-active-vs-passive-action", andrewsSection: "37.6", category: "active-passive-action-contrast", directiveEs: "En accion activa el poseedor representa agente; en accion pasiva representa paciente.", engineSurface: "diagnostic possessor-role contrast frame", implementationState: "partial", redirectAction: "reframe-metadata" }),
     Object.freeze({ id: "lesson37-multiple-nucleus-action-nnc", andrewsSection: "37.7", category: "multiple-nucleus-action-nnc", directiveEs: "La CNN de accion activa puede funcionar como suplemento de nucleo multiple; eso es sintaxis, no generacion de palabra.", engineSurface: "diagnostic sentence-layer frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson37-patientive-nounstem-overview", andrewsSection: "37.8", category: "patientive-nounstem-overview", directiveEs: "El patientivo deverbal tiene cinco familias de fuente y significados amplios de capacidad, resultado o estado.", engineSurface: "partial patientiveFamilyProfile plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson37-passive-patientive", andrewsSection: "37.9", category: "passive-patientive", directiveEs: "El patientivo pasivo viene de nucleo pasivo, bloquea fuentes ultimas intransitivas y conserva solo los objetos licenciados por la fuente.", engineSurface: "partial passive patientivo generation gates plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson37-patientive-nounstem-overview", andrewsSection: "37.8", category: "patientive-nounstem-overview", directiveEs: "El patientivo deverbal tiene cinco familias de fuente y significados amplios de capacidad, resultado o estado.", engineSurface: "partial patientiveFamilyProfile plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson37-passive-patientive", andrewsSection: "37.9", category: "passive-patientive", directiveEs: "El patientivo pasivo viene de nucleo pasivo, bloquea fuentes ultimas intransitivas y conserva solo los objetos licenciados por la fuente.", engineSurface: "partial passive patientivo generation gates plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function getLesson37DeverbalNounstemSubsectionInventory() {
@@ -1040,7 +2242,7 @@ function getLesson37DeverbalNounstemSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON37_DEVERBAL_NOUNSTEM_VALIDATION_REFS),
     }));
 }
@@ -1058,7 +2260,7 @@ function buildLesson37DeverbalNounstemPursuitFrame() {
     const passivePatientiveFrame = cloneNominalizationLessonRecord(LESSON37_PASSIVE_PATIENTIVE_FRAME);
     const remainingGaps = [
         "Current Lesson 37 deverbal nounstem routes are partial and do not complete active-action z/liz, potential-patient, impersonal-action, compound-embed, multiple-nucleus, or passive-patientive coverage.",
-        "Active-action z/liz generation has Nawat s/lis support, but full fixture-backed source restrictions, a-final replacement, non-i vowel exceptions, tzin assimilation, and confirmed Nawat/Pipil examples remain evidence-needed.",
+        "Active-action z/liz generation has Nawat s/lis support, but full fixture-backed source restrictions, a-final replacement, non-i vowel exceptions, tzin assimilation, and Andrews source models plus orthography-bridge fixtures remain evidence-needed.",
         "Potential-patient and impersonal-action routes are implemented only for current data-backed paths and must not be treated as complete action-noun coverage.",
         "Passive-patientive gates are partial; nonactive suffix deletion, irregular passive source warnings, cultural semantic perspective, and double-projective alternatives need continued evidence and tests.",
     ];
@@ -1104,7 +2306,7 @@ function buildLesson37DeverbalNounstemPursuitFrame() {
             passivePatientiveGenerationPartial: true,
             multipleNucleusSupplementGenerationImplemented: false,
             fullLesson37GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -1122,9 +2324,9 @@ function buildLesson37DeverbalNounstemPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 37.1-37.9",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
             activeActionRuleLetters: Object.freeze({ classical: Object.freeze(["z", "liz"]), nawat: Object.freeze(["s", "lis"]) }),
         },
         morphBoundaryFrame: {
@@ -1166,7 +2368,7 @@ function buildLesson37DeverbalNounstemPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["deverbal-nounstem-diagnostic-partial", "deverbal-nounstem-needs-nawat-evidence"],
+        diagnostics: ["deverbal-nounstem-diagnostic-partial", "deverbal-nounstem-source-gated"],
     });
 }
 
@@ -1344,31 +2546,31 @@ const LESSON38_COMPOUND_PATIENTIVE_FRAME = Object.freeze({
         sourceSection: "Andrews 38.2.2",
         deverbalNounstemCanBeMatrixOfCompoundNounstem: true,
         patientiveAsEmbedDeferredToLesson39Point6: true,
-        compoundNounstemGenerationRequiresNawatEvidence: true,
+        compoundNounstemGenerationRequiresAndrewsSourceGate: true,
     }),
 });
 
 const LESSON38_IMPERSONAL_PATIENTIVE_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson38-impersonal-patientive-overview", andrewsSection: "38.1", category: "impersonal-patientive-overview", directiveEs: "El patientivo impersonal toma como fuente el nucleo de una CNV impersonal y no debe colapsarse con el pasivo.", engineSurface: "partial impersonal patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson38-intransitive-active-source", andrewsSection: "38.1.1", category: "intransitive-active-source", directiveEs: "Con fuente intransitiva, el agentivo nombra hacedor y el patientivo nombra resultado; ambos son entidades en CNN.", engineSurface: "partial impersonal patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson38-impersonal-patientive-overview", andrewsSection: "38.1", category: "impersonal-patientive-overview", directiveEs: "El patientivo impersonal toma como fuente el nucleo de una CNV impersonal y no debe colapsarse con el pasivo.", engineSurface: "partial impersonal patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson38-intransitive-active-source", andrewsSection: "38.1.1", category: "intransitive-active-source", directiveEs: "Con fuente intransitiva, el agentivo nombra hacedor y el patientivo nombra resultado; ambos son entidades en CNN.", engineSurface: "partial impersonal patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson38-intransitive-lo-source", andrewsSection: "38.1.1.a", category: "intransitive-lo-source", directiveEs: "La fuente con lo puede ser doble o triplemente impersonal; algunos troncos raiz+ya usan la raiz, no todo el tronco.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-intransitive-o-source", andrewsSection: "38.1.1.b", category: "intransitive-o-source", directiveEs: "La fuente con o u o-hua produce lecturas de resultado y puede llevar cambios fonicos o doble impersonalidad.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-intransitive-hua-source", andrewsSection: "38.1.1.c", category: "intransitive-hua-source", directiveEs: "La fuente con hua borra hua; i larga puede realizarse como i corta y los cambios fonicos quedan como diagnostico.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-intransitive-hua-lo-source", andrewsSection: "38.1.1.d", category: "intransitive-hua-lo-source", directiveEs: "La fuente con hua-lo se conserva como subfamilia impersonal separada.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
-    Object.freeze({ id: "lesson38-reflexive-source", andrewsSection: "38.1.2", category: "reflexive-source", directiveEs: "La fuente transitiva reflexiva usa ne de linea desviada; sin proyectivo puede parecerse al patientivo pasivo.", engineSurface: "partial reflexive patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson38-projective-nonhuman-source", andrewsSection: "38.1.3", category: "projective-nonhuman-source", directiveEs: "La fuente con ta o te+ta debe tener objeto no humano; el patientivo conserva ta principal o ta desviada.", engineSurface: "partial impersonal patientivo projective route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson38-reflexive-source", andrewsSection: "38.1.2", category: "reflexive-source", directiveEs: "La fuente transitiva reflexiva usa ne de linea desviada; sin proyectivo puede parecerse al patientivo pasivo.", engineSurface: "partial reflexive patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson38-projective-nonhuman-source", andrewsSection: "38.1.3", category: "projective-nonhuman-source", directiveEs: "La fuente con ta o te+ta debe tener objeto no humano; el patientivo conserva ta principal o ta desviada.", engineSurface: "partial impersonal patientivo projective route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson38-projective-nonhuman-lo-source", andrewsSection: "38.1.3.a", category: "projective-nonhuman-lo-source", directiveEs: "La subfamilia con lo permite borrado raro de ya y debe contrastarse con patientivos pasivos homofonos.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-projective-nonhuman-o-source", andrewsSection: "38.1.3.b", category: "projective-nonhuman-o-source", directiveEs: "La subfamilia con o mantiene el contraste con patientivos pasivos de fuente correspondiente.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-projective-nonhuman-hua-source", andrewsSection: "38.1.3.c", category: "projective-nonhuman-hua-source", directiveEs: "La subfamilia con hua acorta la vocal anterior salvo vocal larga fuente y reemplaza a final por i.", engineSurface: "diagnostic nonactive suffix-source frame", implementationState: "partial", redirectAction: "refactor-engine" }),
-    Object.freeze({ id: "lesson38-projective-te-source", andrewsSection: "38.1.4", category: "projective-human-te-source", directiveEs: "Con te humano de un solo objeto, el patientivo impersonal no lleva te; usa ta impersonal desde un pasivo impersonalizado.", engineSurface: "partial te-to-ta patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson38-projective-te-source", andrewsSection: "38.1.4", category: "projective-human-te-source", directiveEs: "Con te humano de un solo objeto, el patientivo impersonal no lleva te; usa ta impersonal desde un pasivo impersonalizado.", engineSurface: "partial te-to-ta patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson38-projective-te-lo-source", andrewsSection: "38.1.4.a", category: "projective-te-lo-source", directiveEs: "La subfamilia con lo debe registrar la secuencia nucleo activo, pasivo, pasivo impersonalizado, patientivo impersonal.", engineSurface: "diagnostic source-sequence frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-projective-te-o-source", andrewsSection: "38.1.4.b", category: "projective-te-o-source", directiveEs: "La subfamilia con o conserva la misma secuencia y no autoriza retener te como salida normal.", engineSurface: "diagnostic source-sequence frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-projective-te-hua-source", andrewsSection: "38.1.4.c", category: "projective-te-hua-source", directiveEs: "La subfamilia con hua borra hua y registra i larga como i corta al borrar.", engineSurface: "diagnostic source-sequence frame", implementationState: "partial", redirectAction: "refactor-engine" }),
     Object.freeze({ id: "lesson38-human-nonhuman-contrast", andrewsSection: "38.1.5", category: "human-nonhuman-contrast", directiveEs: "Algunas fuentes aplicativas contrastan humano/no humano; las formas con te son anomalas y no deben normalizarse.", engineSurface: "diagnostic contrast frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson38-translation-overlap", andrewsSection: "38.1.6", category: "translation-overlap", directiveEs: "Un patientivo impersonal y una accion activa pueden compartir traduccion sin compartir estructura.", engineSurface: "diagnostic translation frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson38-compound-patientive", andrewsSection: "38.2", category: "compound-patientive", directiveEs: "Los patientivos pasivos e impersonales pueden ser compuestos de fuente compuesta o matrices de compuestos nominales.", engineSurface: "partial patientive compound continuations plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson38-compound-source", andrewsSection: "38.2.1", category: "compound-source-patientive", directiveEs: "La fuente puede ser un tronco verbal compuesto; los objetos incrustados exigen cautela de traduccion y no invierten el analisis.", engineSurface: "partial compound-source patientive metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson38-compound-matrix", andrewsSection: "38.2.2", category: "compound-matrix-patientive", directiveEs: "El tronco deverbal puede servir como matriz de un compuesto nominal; el patientivo como incrustado queda para 39.6.", engineSurface: "partial compound-nounstem continuation metadata", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson38-compound-patientive", andrewsSection: "38.2", category: "compound-patientive", directiveEs: "Los patientivos pasivos e impersonales pueden ser compuestos de fuente compuesta o matrices de compuestos nominales.", engineSurface: "partial patientive compound continuations plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson38-compound-source", andrewsSection: "38.2.1", category: "compound-source-patientive", directiveEs: "La fuente puede ser un tronco verbal compuesto; los objetos incrustados exigen cautela de traduccion y no invierten el analisis.", engineSurface: "partial compound-source patientive metadata", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson38-compound-matrix", andrewsSection: "38.2.2", category: "compound-matrix-patientive", directiveEs: "El tronco deverbal puede servir como matriz de un compuesto nominal; el patientivo como incrustado queda para 39.6.", engineSurface: "partial compound-nounstem continuation metadata", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function getLesson38ImpersonalPatientiveSubsectionInventory() {
@@ -1376,7 +2578,7 @@ function getLesson38ImpersonalPatientiveSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON38_IMPERSONAL_PATIENTIVE_VALIDATION_REFS),
     }));
 }
@@ -1394,7 +2596,7 @@ function buildLesson38ImpersonalPatientivePursuitFrame() {
     const remainingGaps = [
         "Current Lesson 38 impersonal-patientive routes are partial and do not complete every nonactive suffix source family, human/nonhuman contrast, exceptional te patientive, or compound patientive pattern.",
         "Intransitive root-plus-ya source selection, lo/o/o-hua/hua/hua-lo source details, vowel shortening, final-a replacement, and sound-shift warnings remain diagnostic or evidence-needed.",
-        "Projective te-to-ta routing is implemented for current paths, but anomalous te contrasts and homonym disambiguation require Nawat/Pipil evidence.",
+        "Projective te-to-ta routing is implemented for current paths, but anomalous te contrasts and homonym disambiguation require Andrews source logic plus orthography-bridge support.",
         "Compound patientive source and matrix behavior is limited to current data-backed continuations and must not be treated as full compound-patientive generation.",
     ];
     const frame = {
@@ -1439,7 +2641,7 @@ function buildLesson38ImpersonalPatientivePursuitFrame() {
             projectiveTeToTaGenerationPartial: true,
             compoundPatientiveContinuationPartial: true,
             fullLesson38GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -1457,9 +2659,9 @@ function buildLesson38ImpersonalPatientivePursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 38.1-38.2",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
             projectiveBridge: Object.freeze({ classical: "tla", nawat: "ta" }),
         },
         morphBoundaryFrame: {
@@ -1500,7 +2702,7 @@ function buildLesson38ImpersonalPatientivePursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["impersonal-patientive-diagnostic-partial", "impersonal-patientive-needs-nawat-evidence"],
+        diagnostics: ["impersonal-patientive-diagnostic-partial", "impersonal-patientive-source-gated"],
     });
 }
 
@@ -1774,7 +2976,7 @@ function buildLesson39PatientiveIncorporationRouteFrame({
     sourceExternalObjectSlots = [],
     remainingExternalObjectSlots = [],
     valenceDelta = {},
-    generationStatus = "diagnostic-only-nawat-evidence-required",
+    generationStatus = "diagnostic-only-source-gated",
 } = {}) {
     const sourceSlots = Array.isArray(sourceExternalObjectSlots) ? sourceExternalObjectSlots : [];
     const remainingSlots = Array.isArray(remainingExternalObjectSlots) ? remainingExternalObjectSlots : [];
@@ -1825,30 +3027,30 @@ function buildLesson39PatientiveIncorporationRouteFrame({
 }
 
 const LESSON39_PATIENTIVE_OPERATIONS_SUBSECTION_INVENTORY = Object.freeze([
-    Object.freeze({ id: "lesson39-perfective-patientive", andrewsSection: "39.1", category: "perfective-patientive", directiveEs: "El patientivo perfectivo viene del tronco activo perfectivo, clase tli, y se modela por analogia pasiva o impersonal.", engineSurface: "partial perfective patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-perfective-passive-analogy", andrewsSection: "39.1.1", category: "perfective-passive-analogy", directiveEs: "Una fuente transitiva puede seguir analogia pasiva y usar los objetos que corresponderian a una CNV pasiva.", engineSurface: "partial perfective patientivo passive-analogy gate", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-perfective-impersonal-analogy", andrewsSection: "39.1.2", category: "perfective-impersonal-analogy", directiveEs: "Una fuente transitiva o intransitiva puede seguir analogia impersonal, incluso con reemplazo te por ta segun la ruta.", engineSurface: "partial perfective patientivo impersonal-analogy gate", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-perfective-compound-source", andrewsSection: "39.1.3", category: "perfective-compound-source", directiveEs: "La fuente perfectiva puede ser compuesta; las matrices de posesion adquirida quedan restringidas por parentesco y entorno.", engineSurface: "diagnostic compound-source frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-imperfective-patientive", andrewsSection: "39.2", category: "imperfective-patientive", directiveEs: "El patientivo imperfectivo viene del tronco activo imperfectivo, clase ti, con clases C/D y analogia pasiva o impersonal.", engineSurface: "partial imperfective patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-imperfective-passive-analogy", andrewsSection: "39.2.1", category: "imperfective-passive-analogy", directiveEs: "La analogia pasiva no conserva te/ta salvo que el nucleo pasivo fuente lo contenga.", engineSurface: "partial imperfective passive-analogy gate", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-imperfective-impersonal-analogy", andrewsSection: "39.2.2", category: "imperfective-impersonal-analogy", directiveEs: "La analogia impersonal puede venir de fuente transitiva o intransitiva y debe evitar lecturas de compuesto equivocadas.", engineSurface: "partial imperfective impersonal-analogy gate", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-characteristic-property", andrewsSection: "39.3", category: "characteristic-property", directiveEs: "La propiedad caracteristica deriva de posesion abundante con matriz yo y expresa pertenencia o caracterizacion.", engineSurface: "partial characteristic-property route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-characteristic-state-quality", andrewsSection: "39.3.1", category: "characteristic-state-quality", directiveEs: "Puede nombrar estado o cualidad inherente de la entidad incrustada.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-characteristic-pertaining", andrewsSection: "39.3.2", category: "characteristic-pertaining", directiveEs: "Puede nombrar cosa que pertenece al incrustado; la ortografia tradicional puede ocultar la fuente.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-characteristic-intrinsic", andrewsSection: "39.3.3", category: "characteristic-intrinsic", directiveEs: "Puede nombrar aspecto esencial o intrinseco; a veces el derivado reemplaza el significado del incrustado.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-organic-possession", andrewsSection: "39.3.4", category: "organic-possession", directiveEs: "La posesion organica usa matriz yo solo en estado posesivo; la posesion adventicia usa el tronco normal.", engineSurface: "partial organic possession route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-preterit-agentive-embed", andrewsSection: "39.3.5", category: "preterit-agentive-characteristic-embed", directiveEs: "Un agentivo preterito puede llenar el incrustado de la matriz yo y no debe leerse como posesivo si es absolutivo.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-action-noun-embed", andrewsSection: "39.3.6", category: "action-noun-characteristic-embed", directiveEs: "Accion pasiva o activa puede llenar el incrustado; homofonos absolutivos pueden ser ambiguos.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-root-stock-patientive", andrewsSection: "39.4", category: "root-stock-patientive", directiveEs: "Los patientivos de raiz o stock derivan de destockales; la seleccion exacta de variante no siempre se recupera en superficie.", engineSurface: "partial root-stock patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-ni-destockal-stock", andrewsSection: "39.4.1", category: "ni-destockal-stock", directiveEs: "Los destockales ni pueden agregar k/sh/s/ch al stock y acortar la vocal formativa salvo irregularidades.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-hua-destockal-stock", andrewsSection: "39.4.2", category: "hua-destockal-stock", directiveEs: "Los destockales hua suelen agregar k, a veces ch o stock desnudo, con lecturas de color o textura parcial.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-ihui-ahui-destockal-stock", andrewsSection: "39.4.3", category: "ihui-ahui-destockal-stock", directiveEs: "Los destockales ihui/ahui pueden agregar sh/k al stock; derivados causativos o-a requieren ta dentro del tronco.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson39-perfective-patientive", andrewsSection: "39.1", category: "perfective-patientive", directiveEs: "El patientivo perfectivo viene del tronco activo perfectivo, clase tli, y se modela por analogia pasiva o impersonal.", engineSurface: "partial perfective patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-perfective-passive-analogy", andrewsSection: "39.1.1", category: "perfective-passive-analogy", directiveEs: "Una fuente transitiva puede seguir analogia pasiva y usar los objetos que corresponderian a una CNV pasiva.", engineSurface: "partial perfective patientivo passive-analogy gate", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-perfective-impersonal-analogy", andrewsSection: "39.1.2", category: "perfective-impersonal-analogy", directiveEs: "Una fuente transitiva o intransitiva puede seguir analogia impersonal, incluso con reemplazo te por ta segun la ruta.", engineSurface: "partial perfective patientivo impersonal-analogy gate", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-perfective-compound-source", andrewsSection: "39.1.3", category: "perfective-compound-source", directiveEs: "La fuente perfectiva puede ser compuesta; las matrices de posesion adquirida quedan restringidas por parentesco y entorno.", engineSurface: "diagnostic compound-source frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-imperfective-patientive", andrewsSection: "39.2", category: "imperfective-patientive", directiveEs: "El patientivo imperfectivo viene del tronco activo imperfectivo, clase ti, con clases C/D y analogia pasiva o impersonal.", engineSurface: "partial imperfective patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-imperfective-passive-analogy", andrewsSection: "39.2.1", category: "imperfective-passive-analogy", directiveEs: "La analogia pasiva no conserva te/ta salvo que el nucleo pasivo fuente lo contenga.", engineSurface: "partial imperfective passive-analogy gate", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-imperfective-impersonal-analogy", andrewsSection: "39.2.2", category: "imperfective-impersonal-analogy", directiveEs: "La analogia impersonal puede venir de fuente transitiva o intransitiva y debe evitar lecturas de compuesto equivocadas.", engineSurface: "partial imperfective impersonal-analogy gate", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-characteristic-property", andrewsSection: "39.3", category: "characteristic-property", directiveEs: "La propiedad caracteristica deriva de posesion abundante con matriz yo y expresa pertenencia o caracterizacion.", engineSurface: "partial characteristic-property route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-characteristic-state-quality", andrewsSection: "39.3.1", category: "characteristic-state-quality", directiveEs: "Puede nombrar estado o cualidad inherente de la entidad incrustada.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-characteristic-pertaining", andrewsSection: "39.3.2", category: "characteristic-pertaining", directiveEs: "Puede nombrar cosa que pertenece al incrustado; la ortografia tradicional puede ocultar la fuente.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-characteristic-intrinsic", andrewsSection: "39.3.3", category: "characteristic-intrinsic", directiveEs: "Puede nombrar aspecto esencial o intrinseco; a veces el derivado reemplaza el significado del incrustado.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-organic-possession", andrewsSection: "39.3.4", category: "organic-possession", directiveEs: "La posesion organica usa matriz yo solo en estado posesivo; la posesion adventicia usa el tronco normal.", engineSurface: "partial organic possession route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-preterit-agentive-embed", andrewsSection: "39.3.5", category: "preterit-agentive-characteristic-embed", directiveEs: "Un agentivo preterito puede llenar el incrustado de la matriz yo y no debe leerse como posesivo si es absolutivo.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-action-noun-embed", andrewsSection: "39.3.6", category: "action-noun-characteristic-embed", directiveEs: "Accion pasiva o activa puede llenar el incrustado; homofonos absolutivos pueden ser ambiguos.", engineSurface: "diagnostic characteristic-property frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-root-stock-patientive", andrewsSection: "39.4", category: "root-stock-patientive", directiveEs: "Los patientivos de raiz o stock derivan de destockales; la seleccion exacta de variante no siempre se recupera en superficie.", engineSurface: "partial root-stock patientivo route plus diagnostic frame", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-ni-destockal-stock", andrewsSection: "39.4.1", category: "ni-destockal-stock", directiveEs: "Los destockales ni pueden agregar k/sh/s/ch al stock y acortar la vocal formativa salvo irregularidades.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-hua-destockal-stock", andrewsSection: "39.4.2", category: "hua-destockal-stock", directiveEs: "Los destockales hua suelen agregar k, a veces ch o stock desnudo, con lecturas de color o textura parcial.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-ihui-ahui-destockal-stock", andrewsSection: "39.4.3", category: "ihui-ahui-destockal-stock", directiveEs: "Los destockales ihui/ahui pueden agregar sh/k al stock; derivados causativos o-a requieren ta dentro del tronco.", engineSurface: "partial root-stock suffix contract", implementationState: "partial", redirectAction: "source-gated" }),
     Object.freeze({ id: "lesson39-agentive-stock-meaning", andrewsSection: "39.4.4", category: "agentive-stock-meaning", directiveEs: "Algunos stocks destockales funcionan como troncos nominales con sentido agentivo o fuente desconocida con objetos visibles.", engineSurface: "diagnostic root-stock frame", implementationState: "partial", redirectAction: "diagnostic-only" }),
     Object.freeze({ id: "lesson39-multiple-derivation", andrewsSection: "39.5", category: "multiple-patientive-derivation", directiveEs: "Una fuente puede permitir varias derivaciones patientivas; traducciones sinonimas no significan misma estructura.", engineSurface: "partial multiple-derivation metadata", implementationState: "partial", redirectAction: "diagnostic-only" }),
-    Object.freeze({ id: "lesson39-patientive-compound-embed", andrewsSection: "39.6", category: "patientive-compound-embed", directiveEs: "El patientivo puede incrustarse en compuestos nominales o verbales; la historia derivacional controla forma y significado.", engineSurface: "partial patientive compound continuations", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-incorporated-complement", andrewsSection: "39.7", category: "patientive-incorporated-complement", directiveEs: "Como complemento incorporado, el patientivo puede venir de CNN absolutiva o posesiva; el poseedor puede volverse objeto.", engineSurface: "partial incorporated-complement continuations", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-incorporated-object", andrewsSection: "39.8", category: "patientive-incorporated-object", directiveEs: "Como objeto incorporado, el patientivo usa matrices tlani/ihtlani/temoa y transfiere el poseedor a objeto aplicativo.", engineSurface: "partial incorporated-object continuations", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
-    Object.freeze({ id: "lesson39-characteristic-property-embed", andrewsSection: "39.9", category: "characteristic-property-embed", directiveEs: "El patientivo de propiedad caracteristica puede incrustarse completo o con omision de yo-t, sin cambiar el analisis.", engineSurface: "partial characteristic-property embed continuations", implementationState: "partial", redirectAction: "needs-nawat-evidence" }),
+    Object.freeze({ id: "lesson39-patientive-compound-embed", andrewsSection: "39.6", category: "patientive-compound-embed", directiveEs: "El patientivo puede incrustarse en compuestos nominales o verbales; la historia derivacional controla forma y significado.", engineSurface: "partial patientive compound continuations", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-incorporated-complement", andrewsSection: "39.7", category: "patientive-incorporated-complement", directiveEs: "Como complemento incorporado, el patientivo puede venir de CNN absolutiva o posesiva; el poseedor puede volverse objeto.", engineSurface: "partial incorporated-complement continuations", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-incorporated-object", andrewsSection: "39.8", category: "patientive-incorporated-object", directiveEs: "Como objeto incorporado, el patientivo usa matrices tlani/ihtlani/temoa y transfiere el poseedor a objeto aplicativo.", engineSurface: "partial incorporated-object continuations", implementationState: "partial", redirectAction: "source-gated" }),
+    Object.freeze({ id: "lesson39-characteristic-property-embed", andrewsSection: "39.9", category: "characteristic-property-embed", directiveEs: "El patientivo de propiedad caracteristica puede incrustarse completo o con omision de yo-t, sin cambiar el analisis.", engineSurface: "partial characteristic-property embed continuations", implementationState: "partial", redirectAction: "source-gated" }),
 ]);
 
 function getLesson39PatientiveOperationsSubsectionInventory() {
@@ -1856,7 +3058,7 @@ function getLesson39PatientiveOperationsSubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON39_PATIENTIVE_OPERATIONS_VALIDATION_REFS),
     }));
 }
@@ -1922,7 +3124,7 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
     incorporatedObjectFrame.objectSlotOwnership = incorporatedObjectRouteFrame.objectSlotOwnership;
     const remainingGaps = [
         "Current Lesson 39 patientive operations are partial and do not complete every perfective, imperfective, characteristic-property, root/stock, multiple-derivation, compound-embed, incorporated-complement, incorporated-object, or characteristic-property-embed pattern.",
-        "Perfective and imperfective patientive generation has current source gates, but full lexical source coverage, passive/impersonal analogies, compound ownerhood restrictions, and Nawat/Pipil examples remain evidence-needed.",
+        "Perfective and imperfective patientive generation has current source gates, but full lexical source coverage, passive/impersonal analogies, compound ownerhood restrictions, and orthography-bridge examples remain evidence-needed.",
         "Characteristic-property and organic-possession routes are partial; inherited/intrinsic/pertaining meanings, homophonous action embeds, and yo-t omission need focused evidence.",
         "Root/stock patientives, multiple derivation, and compound continuations preserve diagnostics because exact variant choice, matrix inventories, valence violations, and idiomatic restrictions remain incomplete.",
     ];
@@ -1973,7 +3175,7 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
             incorporatedObjectContinuationPartial: true,
             characteristicPropertyEmbedContinuationPartial: true,
             fullLesson39GenerationImplemented: false,
-            finiteOutputExpansionAllowedOnlyWithNawatEvidence: true,
+            finiteOutputExpansionAllowedOnlyWithAndrewsSource: true,
         },
         hitCount: 1,
         missCount: 0,
@@ -1991,9 +3193,9 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
         supported: true,
         sourceInput: "Andrews Lesson 39.1-39.9",
         orthographyFrame: {
-            spellingAuthority: "Nawat/Pipil evidence",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
             noClassicalSurfaceImport: true,
-            orthographyStatus: "nawat-evidence-required",
+            orthographyStatus: "orthography-bridge-plus-source-gate-required",
             rootStockRuleLettersNawat: Object.freeze(["k", "sh", "s", "ch"]),
         },
         morphBoundaryFrame: {
@@ -2036,7 +3238,7 @@ function buildLesson39PatientiveOperationsPursuitFrame() {
             closestPass: false,
             remainingGaps,
         },
-        diagnostics: ["patientive-operations-diagnostic-partial", "patientive-operations-needs-nawat-evidence"],
+        diagnostics: ["patientive-operations-diagnostic-partial", "patientive-operations-source-gated"],
     });
 }
 
@@ -2059,6 +3261,177 @@ function normalizeNominalizationFalsePositiveSource(value = "") {
         Object.values(NOMINALIZATION_FALSE_POSITIVE_SOURCE),
         NOMINALIZATION_FALSE_POSITIVE_SOURCE.unknown
     );
+}
+
+function normalizeNominalizationCandidateSurface(value = "") {
+    const raw = String(value || "").trim();
+    if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+    }
+    const source = raw
+        .replace(/\[[^\]]+\]/g, "")
+        .replace(/[Øø]/g, "")
+        .replace(/\b0\b/g, "")
+        .replace(/[#+(){}\s.-]/g, "")
+        .trim();
+    if (!source || /[A-Z_]/.test(source)) {
+        return "";
+    }
+    const conversion = typeof convertClassicalLettersToNawat === "function"
+        ? convertClassicalLettersToNawat(source, {
+            source: "Andrews nominalization candidate formula",
+            slot: "nominalized-stem",
+        })
+        : { output: source, diagnostics: [] };
+    return String(conversion?.output || source || "").trim();
+}
+
+function hasNominalizationAndrewsSourceGate({
+    sourceGate = "",
+    structuredSource = false,
+} = {}) {
+    return structuredSource === true || Boolean(String(sourceGate || "").trim());
+}
+
+function buildNominalizationBoundarySourceFrame({
+    candidate = "",
+    nominalizationKind = "",
+    sourceVnc = "",
+    stemUse = "",
+    semanticRole = "",
+    evidenceSource = "",
+    sourceGate = "",
+    targetFormulaSlots = null,
+    targetSegmentFrames = [],
+} = {}) {
+    const normalizedKind = normalizeNominalizationBoundaryKind(nominalizationKind);
+    if (normalizedKind === NOMINALIZATION_BOUNDARY_KIND.unknown) {
+        return null;
+    }
+    const segments = Array.isArray(targetSegmentFrames)
+        ? targetSegmentFrames
+            .map((segment) => {
+                const surface = String(segment?.surface || "").trim();
+                if (!surface || /[A-Z_]/.test(surface)) {
+                    return null;
+                }
+                return Object.freeze({
+                    slot: String(segment?.slot || ""),
+                    role: String(segment?.role || ""),
+                    formulaValue: String(segment?.formulaValue || ""),
+                    sourceStem: String(segment?.sourceStem || ""),
+                    surface,
+                    orthographyBridge: "Nawat/Pipil orthography bridge",
+                });
+            })
+            .filter(Boolean)
+        : [];
+    if (!segments.length) {
+        return null;
+    }
+    const targetSurface = segments.map((segment) => segment.surface).join("");
+    if (!targetSurface) {
+        return null;
+    }
+    return Object.freeze({
+        kind: "nominalization-boundary-source-frame",
+        version: NOMINALIZATION_BOUNDARY_VERSION,
+        routeFamily: "nominalization-boundary",
+        nominalizationKind: normalizedKind,
+        candidate: String(candidate || ""),
+        sourceVnc: String(sourceVnc || ""),
+        stemUse: String(stemUse || ""),
+        semanticRole: String(semanticRole || ""),
+        evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        targetFormulaSlots,
+        targetSegmentFrames: Object.freeze(segments),
+        targetSurface,
+        authority: "Andrews Lessons 35-39 nominalization source frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function buildNominalizationBoundaryOperationFrame(sourceFrame = null) {
+    if (!sourceFrame || sourceFrame.kind !== "nominalization-boundary-source-frame") {
+        return null;
+    }
+    return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-35-39-nominalization-boundary-realization",
+        routeFamily: "nominalization-boundary",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-nominalization-boundary-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceNominalizationKind: sourceFrame.nominalizationKind,
+        sourceVnc: sourceFrame.sourceVnc,
+        sourceStemUse: sourceFrame.stemUse,
+        sourceSemanticRole: sourceFrame.semanticRole,
+        targetFormulaSlots: sourceFrame.targetFormulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+    });
+}
+
+function getNominalizationBoundaryOperationFrameMismatch({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    if (!sourceFrame || sourceFrame.kind !== "nominalization-boundary-source-frame") {
+        return "source-frame-required";
+    }
+    if (
+        !operationFrame
+        || operationFrame.kind !== "andrews-typed-operation-frame"
+        || operationFrame.operationId !== "andrews-35-39-nominalization-boundary-realization"
+        || operationFrame.routeFamily !== "nominalization-boundary"
+        || operationFrame.consumesRenderedInput !== false
+        || operationFrame.displayStringsAuthorizeGrammar !== false
+    ) {
+        return "operation-frame-required";
+    }
+    if (
+        String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind
+        || String(operationFrame.sourceNominalizationKind || "") !== String(sourceFrame.nominalizationKind || "")
+        || String(operationFrame.sourceVnc || "") !== String(sourceFrame.sourceVnc || "")
+        || String(operationFrame.sourceStemUse || "") !== String(sourceFrame.stemUse || "")
+        || String(operationFrame.sourceSemanticRole || "") !== String(sourceFrame.semanticRole || "")
+    ) {
+        return "contradictory-source-frame";
+    }
+    const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
+    if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+    }
+    const targetSurface = targetSegmentFrames
+        .map((segment) => String(segment?.surface || ""))
+        .join("");
+    if (
+        targetSurface !== String(sourceFrame.targetSurface || "")
+        || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "")
+    ) {
+        return "contradictory-target-frame";
+    }
+    if (
+        sourceFrame.targetFormulaSlots
+        && operationFrame.targetFormulaSlots !== sourceFrame.targetFormulaSlots
+    ) {
+        return "contradictory-target-frame";
+    }
+    return "";
+}
+
+function getNominalizationBoundaryBlockedDiagnostic({
+    sourceFrame = null,
+    operationFrame = null,
+} = {}) {
+    const mismatch = getNominalizationBoundaryOperationFrameMismatch({ sourceFrame, operationFrame });
+    return mismatch ? `nominalization-${mismatch}` : "";
 }
 
 function getNominalizationBoundaryAntiConflationRules() {
@@ -2088,7 +3461,7 @@ function buildNominalizationBoundaryMetadata() {
         lessons: [35, 36, 37, 38, 39],
         status: "partial",
         grammarAuthority: "Andrews PDF Lessons 35-39",
-        orthographyAuthority: "Modern Nawat/Pipil orthography and confirmed Nawat forms",
+        orthographyAuthority: "Modern Nawat/Pipil orthography and confirmed orthographic realization examples",
         targetAuthority: "Andrews grammar rules with Nawat/Pipil orthographic realization",
         generationAllowed: false,
         confirmedExamples: [],
@@ -2121,13 +3494,36 @@ function classifyNominalizationBoundaryCandidate({
     stemUse = "",
     semanticRole = "",
     evidenceSource = "",
+    sourceGate = "",
+    structuredSource = false,
     falsePositiveSource = "",
     hasNominalizationProfile = false,
     hasPatientiveFamilyProfile = false,
+    sourceFrame = null,
+    operationFrame = null,
 } = {}) {
     const normalizedKind = normalizeNominalizationBoundaryKind(nominalizationKind);
     const normalizedFalsePositive = normalizeNominalizationFalsePositiveSource(falsePositiveSource);
     const hasEvidence = Boolean(String(evidenceSource || "").trim());
+    const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+    const requiresTypedOperation = (
+        normalizedKind !== NOMINALIZATION_BOUNDARY_KIND.unknown
+        && normalizedFalsePositive === NOMINALIZATION_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const blockedDiagnostic = requiresTypedOperation
+        ? getNominalizationBoundaryBlockedDiagnostic({ sourceFrame: resolvedSourceFrame, operationFrame })
+        : "";
+    const sourceSurface = blockedDiagnostic ? "" : String(operationFrame?.targetSurface || "");
+    const canGenerate = Boolean(
+        sourceSurface
+        && !blockedDiagnostic
+        && normalizedKind !== NOMINALIZATION_BOUNDARY_KIND.unknown
+        && normalizedFalsePositive === NOMINALIZATION_FALSE_POSITIVE_SOURCE.unknown
+    );
+    const targetFormulaSlots = canGenerate ? operationFrame.targetFormulaSlots : null;
+    const targetSegmentFrames = canGenerate && Array.isArray(operationFrame.targetSegmentFrames)
+        ? operationFrame.targetSegmentFrames
+        : [];
     const classification = {
         kind: "nominalization-boundary-candidate-classification",
         version: NOMINALIZATION_BOUNDARY_VERSION,
@@ -2137,13 +3533,26 @@ function classifyNominalizationBoundaryCandidate({
         stemUse: String(stemUse || ""),
         semanticRole: String(semanticRole || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
         hasNominalizationProfile: hasNominalizationProfile === true,
         hasPatientiveFamilyProfile: hasPatientiveFamilyProfile === true,
-        confirmed: false,
-        generationAllowed: false,
+        ...(resolvedSourceFrame ? { sourceFrame: resolvedSourceFrame } : {}),
+        ...(operationFrame ? { operationFrame } : {}),
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(canGenerate ? {
+            formulaSlots: targetFormulaSlots,
+            targetSegmentFrames,
+        } : {}),
         diagnostics: [
-            hasEvidence ? "nominalization-needs-validation" : "nominalization-needs-nawat-evidence",
+            canGenerate ? "nominalization-andrews-source-generated" : (
+                blockedDiagnostic || (hasEvidence ? "nominalization-needs-validation" : "nominalization-source-gate-required")
+            ),
             normalizedKind !== NOMINALIZATION_BOUNDARY_KIND.unknown
                 ? "nominalization-category-recognized"
                 : "nominalization-category-unconfirmed",
@@ -2151,19 +3560,49 @@ function classifyNominalizationBoundaryCandidate({
             hasPatientiveFamilyProfile ? "patientive-family-profile-is-partial" : "patientive-family-profile-absent",
             normalizedFalsePositive !== NOMINALIZATION_FALSE_POSITIVE_SOURCE.unknown
                 ? "nominalization-false-positive-source"
-                : "nominalization-unconfirmed",
+                : (canGenerate ? "nominalization-structured-source" : "nominalization-unconfirmed"),
         ],
         boundary: buildNominalizationBoundaryMetadata(),
     };
     return attachNominalizationGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: canGenerate ? "generate-structured-nominalization" : "classify-boundary",
         sourceInput: classification.candidate || classification.sourceVnc,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            noClassicalSurfaceImport: true,
+            orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+            surface: classification.surface,
+            surfaceForms: classification.surfaceForms,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame,
+        },
         morphBoundaryFrame: classification.boundary,
         stemFrame: {
             stemKind: "nominalization-source-candidate",
             sourceKind: classification.stemUse,
             sourceStem: classification.sourceVnc,
+            targetStem: classification.surface,
+            sourceGate: resolvedSourceFrame?.sourceGate || classification.sourceGate,
+            sourceFrame: resolvedSourceFrame,
+            operationFrame,
+        },
+        nuclearClauseFrame: canGenerate ? {
+            formulaFamily: "nominalization",
+            nominalizationKind: normalizedKind,
+            sourceVnc: classification.sourceVnc,
+            semanticRole: classification.semanticRole,
+            formulaSlots: targetFormulaSlots,
+            targetSegmentFrames,
+        } : null,
+        targetContract: {
+            metadataKind: "nominalization-boundary-candidate-classification",
+            generationAllowed: canGenerate,
+            consumesRenderedInput: false,
+            displayStringsAuthorizeGrammar: false,
         },
     });
 }

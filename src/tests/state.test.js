@@ -126,8 +126,8 @@ function run(ctx) {
                     : 0,
                 profileSource: route.denominalFamilyProfile?.routeProfileSource || "",
                 noNewSurfaceForms: route.denominalFamilyProfile?.boundaries?.noNewSurfaceForms === true,
-            }))
-            : [],
+        }))
+        : [],
         firstRouteStages: Array.isArray(preview.routes?.[0]?.stages)
             ? preview.routes[0].stages.map((stage) => ({
                 key: stage.key,
@@ -219,6 +219,99 @@ function run(ctx) {
         ["function", "function", "function", "function", "function", "function", "function"]
     );
     s.eq(
+        "unit source-target route options are authorized by typed Andrews source and operation frames",
+        (() => {
+            const sourceFrame = ctx.buildAndrewsUnitSourceTargetRouteOptionsSourceFrame("verbo");
+            const operationFrame = ctx.buildAndrewsUnitSourceTargetRouteOptionsOperationFrame(sourceFrame);
+            const result = ctx.getAndrewsUnitSourceTargetRouteOptionsFromOperationFrame(operationFrame);
+            return {
+                ok: result.ok,
+                targetFormulaType: result.targetFormulaType,
+                sourceTargetOptions: result.sourceTargetOptions,
+                sourceTargetOptionList: result.sourceTargetOptionList,
+                sourceKind: operationFrame.sourceFrame?.kind || "",
+                operation: operationFrame.operation || "",
+            };
+        })(),
+        {
+            ok: true,
+            targetFormulaType: "CNV",
+            sourceTargetOptions: "CNV->CNV|CNN->CNV|CNV/CNN->CNV/CNN",
+            sourceTargetOptionList: ["CNV->CNV", "CNN->CNV", "CNV/CNN->CNV/CNN"],
+            sourceKind: "andrews-unit-source-target-route-options-source-frame",
+            operation: "resolve-unit-target-route-options-from-andrews-source-frame",
+        }
+    );
+    s.eq(
+        "unit source-target route options block string-only and contradictory operation authority",
+        (() => {
+            const sourceFrame = ctx.buildAndrewsUnitSourceTargetRouteOptionsSourceFrame("sustantivo");
+            const poisonedDisplaySourceFrame = {
+                ...sourceFrame,
+                displaySourceTargetOptions: "CNV->CNV|CNN->CNV",
+                sourceTargetOptions: "CNV->CNV|CNN->CNV",
+                formulaEcho: "CNV->CNV",
+                result: "CNV->CNV",
+                surface: "CNV->CNV",
+            };
+            const displayPoisonResult = ctx.getAndrewsUnitSourceTargetRouteOptionsFromOperationFrame(
+                ctx.buildAndrewsUnitSourceTargetRouteOptionsOperationFrame(poisonedDisplaySourceFrame),
+            );
+            const operationFrame = ctx.buildAndrewsUnitSourceTargetRouteOptionsOperationFrame(sourceFrame);
+            const contradictoryTarget = {
+                ...operationFrame,
+                targetFrame: {
+                    ...operationFrame.targetFrame,
+                    targetFormulaFrame: {
+                        ...operationFrame.targetFrame.targetFormulaFrame,
+                        formulaType: "CNV",
+                    },
+                },
+            };
+            const fakeOperators = {
+                dataset: {
+                    sourceTargetOptions: "CNV->CNV|CNN->CNV",
+                    targetFormulaType: "CNV",
+                },
+            };
+            const applied = ctx.applyAndrewsUnitSourceTargetRouteOptionsDataset(fakeOperators, operationFrame);
+            return {
+                directString: ctx.getAndrewsUnitSourceTargetRouteOptionsFromOperationFrame("CNV->CNV|CNN->CNV").diagnosticId,
+                missingOperation: ctx.getAndrewsUnitSourceTargetRouteOptionsFromOperationFrame(null).diagnosticId,
+                displayPoison: {
+                    ok: displayPoisonResult.ok,
+                    targetFormulaType: displayPoisonResult.targetFormulaType,
+                    sourceTargetOptions: displayPoisonResult.sourceTargetOptions,
+                },
+                contradictoryTarget: ctx.getAndrewsUnitSourceTargetRouteOptionsFromOperationFrame(contradictoryTarget).diagnosticId,
+                applied: {
+                    ok: applied.ok,
+                    sourceTargetOptions: fakeOperators.dataset.sourceTargetOptions,
+                    targetFormulaType: fakeOperators.dataset.targetFormulaType,
+                    status: fakeOperators.dataset.sourceTargetOptionsStatus,
+                    authority: fakeOperators.dataset.sourceTargetOptionsAuthority,
+                },
+            };
+        })(),
+        {
+            directString: "andrews-unit-source-target-route-options-missing-operation-frame",
+            missingOperation: "andrews-unit-source-target-route-options-missing-operation-frame",
+            displayPoison: {
+                ok: true,
+                targetFormulaType: "CNN",
+                sourceTargetOptions: "CNV->CNN|CNN->CNN|CNV/CNN->CNV/CNN",
+            },
+            contradictoryTarget: "andrews-unit-source-target-route-options-contradictory-target-frame",
+            applied: {
+                ok: true,
+                sourceTargetOptions: "CNV->CNN|CNN->CNN|CNV/CNN->CNV/CNN",
+                targetFormulaType: "CNN",
+                status: "andrews-structured-authorized",
+                authority: "andrews-unit-source-target-route-options-operation-frame",
+            },
+        }
+    );
+    s.eq(
         "ordinary NNC UI state helpers are exported",
         [
             typeof ctx.isOrdinaryNncGenerationModeEnabled,
@@ -273,7 +366,7 @@ function run(ctx) {
             null,
             {
                 severity: "info",
-                message: "Ortografia: correspondencia candidata; requiere evidencia Nawat/Pipil.",
+                message: "Ortografia: correspondencia candidata; requiere verificacion ortografica.",
                 correspondenceIds: ["same-tz", "qu-k"],
                 blocked: [],
                 generationAllowed: false,
@@ -420,6 +513,27 @@ function run(ctx) {
             buildOrdinaryNncGenerateWordRequest({ stem: "xilun", nounClass }).options.override.ordinaryNnc.nounClass
         )),
         ["t", "ti", "in", "zero"]
+    );
+    s.eq(
+        "ordinary NNC UI request builder carries an explicit Andrews p294 output set",
+        buildOrdinaryNncGenerateWordRequest({
+            stem: "pil",
+            outputSet: "lesson32-pil-child-nnc-side",
+        }).options.override.ordinaryNnc,
+        {
+            enabled: true,
+            stem: "pil",
+            state: "absolutive",
+            number: "plural",
+            pluralType: "auto",
+            subjectPrefix: "an",
+            subjectSuffix: "t",
+            subjectKey: "2pl",
+            possessor: "",
+            nounClass: "",
+            animacy: "animate",
+            outputSet: "lesson32-pil-child-nnc-side",
+        }
     );
     setOrdinaryNncGenerationState({ nounClass: "zero" });
     s.eq(
@@ -802,9 +916,134 @@ function run(ctx) {
             ok: true,
             enumerableGrammarFrame: false,
             routeFamily: "patientivo-tronco-conversion",
-            routeStage: "finite-surface",
+            routeStage: "finite-surface-structural-class-b",
             authorityRef: "Andrews Lessons 54-55",
             outputKind: "nawat-route-finite-surface-result",
+        }
+    );
+    const poisonedDefaultTiRouteTarget = {
+        ...tiPreteritTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        targetVerbSourceFrame: {
+            ...tiPreteritTarget.targetVerbSourceFrame,
+            targetVerb: "poison",
+            stem: "poison",
+            surface: "poison",
+            result: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    const poisonedDefaultTiSurfaceResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: poisonedDefaultTiRouteTarget,
+    });
+    s.eq(
+        "default denominal VI -ti finite route uses structural target frame over display strings",
+        {
+            surface: poisonedDefaultTiSurfaceResult.surface,
+            stage: poisonedDefaultTiSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceVerb: poisonedDefaultTiSurfaceResult.sourceResult?.classBSourceFrame?.sourceVerbFrame?.text || "",
+        },
+        {
+            surface: "pusuktik",
+            stage: "finite-surface-structural-class-b",
+            sourceVerb: "pusukti",
+        }
+    );
+    const originalExecuteNuclearClauseSurfaceRequestForDefaultTiRoute = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+        });
+        s.eq(
+            "default denominal VI -ti finite route ignores poisoned legacy nuclear string executor",
+            ctx.getNawatRouteFiniteSurfaceForm(tiPreteritRoute, {
+                sourceVerb: "(pusuni)",
+                routeTarget: poisonedDefaultTiRouteTarget,
+            }),
+            "pusuktik"
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalExecuteNuclearClauseSurfaceRequestForDefaultTiRoute;
+    }
+    const directDefaultTiStringRouteResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+    });
+    s.eq(
+        "default denominal VI -ti finite route blocks direct string API without target frame",
+        {
+            surface: directDefaultTiStringRouteResult.surface,
+            stage: directDefaultTiStringRouteResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: directDefaultTiStringRouteResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-missing-source-frame",
+        }
+    );
+    const missingDefaultTiOperationFrameResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...tiPreteritTarget,
+            targetVerb: "pusukti",
+            targetVerbSourceFrame: {
+                ...tiPreteritTarget.targetVerbSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "default denominal VI -ti finite route missing operation frame blocks string fallback",
+        {
+            surface: missingDefaultTiOperationFrameResult.surface,
+            stage: missingDefaultTiOperationFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: missingDefaultTiOperationFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-missing-operation-frame",
+        }
+    );
+    const contradictoryDefaultTiFrameResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...tiPreteritTarget,
+            targetVerb: "pusukti",
+            targetVerbSourceFrame: {
+                ...tiPreteritTarget.targetVerbSourceFrame,
+                targetVerbFrame: {
+                    ...tiPreteritTarget.targetVerbSourceFrame.targetVerbFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "default denominal VI -ti finite route contradictory target frame blocks string fallback",
+        {
+            surface: contradictoryDefaultTiFrameResult.surface,
+            stage: contradictoryDefaultTiFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: contradictoryDefaultTiFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-contradictory-source-frame",
         }
     );
     const framedStateSurface = {
@@ -872,7 +1111,7 @@ function run(ctx) {
         frames: ctx.buildGrammarFrame({
             resultFrame: ctx.buildGrammarResultFrame({
                 ok: true,
-                surfaceForms: ["frame-route-a / frame-route-b"],
+                surfaceForms: ["frame-route-a", "frame-route-b"],
                 outputKind: "nawat-static-route-target",
                 generationRoute: "test-frame-reader",
             }),
@@ -1104,6 +1343,133 @@ function run(ctx) {
         }),
         "(pusuni) → pusuchti → (pusuchtiti) → pusuchtitik"
     );
+    const poisonClickedRouteTarget = {
+        ...tiRouteFromTroncoOutputTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        targetVerbSourceFrame: {
+            ...tiRouteFromTroncoOutputTarget.targetVerbSourceFrame,
+            targetVerb: "poison",
+            stem: "poison",
+            surface: "poison",
+            result: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "clicked tronco route finite surface ignores lying display strings when source frame is unchanged",
+        ctx.getNawatRouteFiniteSurfaceForm(tiPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            sourceStem: "pusuchti",
+            routeTarget: poisonClickedRouteTarget,
+        }),
+        "pusuchtitik"
+    );
+    const originalBuildClassBasedResultForClickedRoute = ctx.buildClassBasedResult;
+    try {
+        ctx.buildClassBasedResult = () => ({
+            result: "poison",
+            forms: ["poison"],
+        });
+        s.eq(
+            "clicked tronco route finite surface ignores poisoned legacy class builder",
+            ctx.getNawatRouteFiniteSurfaceForm(tiPreteritRoute, {
+                sourceVerb: "(pusuni)",
+                sourceStem: "pusuchti",
+                routeTarget: poisonClickedRouteTarget,
+            }),
+            "pusuchtitik"
+        );
+    } finally {
+        ctx.buildClassBasedResult = originalBuildClassBasedResultForClickedRoute;
+    }
+    const missingClickedRouteTargetFrameResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+        routeTarget: {
+            ...tiRouteFromTroncoOutputTarget,
+            targetVerbSourceFrame: null,
+            targetVerb: "pusuchtiti",
+        },
+    });
+    s.eq(
+        "clicked tronco route missing target source frame blocks string target fallback",
+        {
+            surface: missingClickedRouteTargetFrameResult.surface,
+            stage: missingClickedRouteTargetFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: missingClickedRouteTargetFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-missing-source-frame",
+        }
+    );
+    const missingClickedRouteOperationFrame = {
+        ...tiRouteFromTroncoOutputTarget.targetVerbSourceFrame,
+        operationFrame: null,
+    };
+    const missingClickedRouteOperationResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+        routeTarget: {
+            ...tiRouteFromTroncoOutputTarget,
+            targetVerbSourceFrame: missingClickedRouteOperationFrame,
+            targetVerb: "pusuchtiti",
+        },
+    });
+    s.eq(
+        "clicked tronco route missing target operation frame blocks string target fallback",
+        {
+            surface: missingClickedRouteOperationResult.surface,
+            stage: missingClickedRouteOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: missingClickedRouteOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-missing-operation-frame",
+        }
+    );
+    const contradictoryClickedRouteFrame = {
+        ...tiRouteFromTroncoOutputTarget.targetVerbSourceFrame,
+        targetVerbFrame: {
+            ...tiRouteFromTroncoOutputTarget.targetVerbSourceFrame.targetVerbFrame,
+            text: "poison",
+        },
+    };
+    const contradictoryClickedRouteResult = ctx.getNawatRouteFiniteSurfaceResult(tiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+        routeTarget: {
+            ...tiRouteFromTroncoOutputTarget,
+            targetVerbSourceFrame: contradictoryClickedRouteFrame,
+            targetVerb: "pusuchtiti",
+        },
+    });
+    s.eq(
+        "clicked tronco route contradictory target frame blocks string target fallback",
+        {
+            surface: contradictoryClickedRouteResult.surface,
+            stage: contradictoryClickedRouteResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: contradictoryClickedRouteResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-contradictory-source-frame",
+        }
+    );
     const naPerfectRoute = ctx.getNawatRouteProfile("denominal-vt-na-perfect");
     s.eq("canonical future nawat route resolves route tense", naPerfectRoute.routeTenseValue, "adjetivo-perfecto-naj");
     s.eq("canonical future nawat route keeps denominal VT verbalizer", naPerfectRoute.verbalizer, "-na");
@@ -1326,17 +1692,87 @@ function run(ctx) {
         }),
         "pusukiwik"
     );
+    const iwiRouteFromTroncoOutputTarget = ctx.resolveNawatRouteTarget("denominal-vi-iwi-preterit", {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+    });
+    const poisonedIwiClickedRouteTarget = {
+        ...iwiRouteFromTroncoOutputTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        targetVerbSourceFrame: {
+            ...iwiRouteFromTroncoOutputTarget.targetVerbSourceFrame,
+            targetVerb: "poison",
+            stem: "poison",
+            surface: "poison",
+            result: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    const iwiClickedFiniteResult = ctx.getNawatRouteFiniteSurfaceResult(iwiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+        routeTarget: poisonedIwiClickedRouteTarget,
+    });
+    s.eq(
+        "clicked tronco -iwi route finite surface uses structural target frame over display strings",
+        {
+            surface: iwiClickedFiniteResult.surface,
+            stage: iwiClickedFiniteResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceVerb: iwiClickedFiniteResult.sourceResult?.classBSourceFrame?.sourceVerbFrame?.text || "",
+        },
+        {
+            surface: "pusuchtiiwik",
+            stage: "finite-surface-structural-class-b",
+            sourceVerb: "pusuchtiiwi",
+        }
+    );
+    const missingIwiClickedRouteOperationResult = ctx.getNawatRouteFiniteSurfaceResult(iwiPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        sourceStem: "pusuchti",
+        routeTarget: {
+            ...iwiRouteFromTroncoOutputTarget,
+            targetVerbSourceFrame: {
+                ...iwiRouteFromTroncoOutputTarget.targetVerbSourceFrame,
+                operationFrame: null,
+            },
+            targetVerb: "pusuchtiiwi",
+        },
+    });
+    s.eq(
+        "clicked tronco -iwi route missing operation frame blocks string fallback",
+        {
+            surface: missingIwiClickedRouteOperationResult.surface,
+            stage: missingIwiClickedRouteOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: missingIwiClickedRouteOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-structural-class-b-blocked",
+            diagnostic: "nawat-route-verbalized-verb-missing-operation-frame",
+        }
+    );
     const iwiPerfectRoute = ctx.getNawatRouteProfile("denominal-vi-iwi-perfect");
     const iwiPerfectTarget = ctx.resolveNawatRouteTarget("denominal-vi-iwi-perfect", {
         sourceVerb: "(pusuni)",
     });
     s.eq(
-        "future nawat -iwi perfect follows patientivo tronco trail",
+        "future nawat -iwi perfect keeps route stem but blocks finite CNV extension output",
         ctx.formatNawatRouteSurfaceTrailLabel(iwiPerfectRoute, {
             sourceVerb: "(pusuni)",
             routeTarget: iwiPerfectTarget,
         }),
-        "(pusuni) → pusuk → (pusukiwi) → pusukiwtuk"
+        "(pusuni) → pusuk → (pusukiwi)"
     );
     const awiPreteritRoute = ctx.getNawatRouteProfile("denominal-vi-awi-preterit");
     const awiPreteritTarget = ctx.resolveNawatRouteTarget("denominal-vi-awi-preterit", {
@@ -1398,12 +1834,12 @@ function run(ctx) {
         sourceVerb: "(pusuni)",
     });
     s.eq(
-        "future nawat -awi perfect follows patientivo tronco trail",
+        "future nawat -awi perfect keeps route stem but blocks finite CNV extension output",
         ctx.formatNawatRouteSurfaceTrailLabel(awiPerfectRoute, {
             sourceVerb: "(pusuni)",
             routeTarget: awiPerfectTarget,
         }),
-        "(pusuni) → pusuk → (pusukawi) → pusukawtuk"
+        "(pusuni) → pusuk → (pusukawi)"
     );
     s.eq(
         "Lessons 54-55 route-family inventory is data-driven and partial",
@@ -1437,7 +1873,7 @@ function run(ctx) {
                 routeProfileSource: "static-modes",
                 routeIds: ["denominal-vi-iwi-preterit", "denominal-vi-iwi-perfect"],
                 targetTenses: ["preterito", "perfecto"],
-                surfaceSuffixes: ["-iwik", "-iwtuk/-ijtuk"],
+                surfaceSuffixes: ["-iwik", "-iwtuk", "-ijtuk"],
                 sourceSlots: ["noun/inc.root"],
                 supportStatus: "current-route-supported-partial",
                 isCompleteLesson54_55: false,
@@ -1454,7 +1890,7 @@ function run(ctx) {
                 routeProfileSource: "static-modes",
                 routeIds: ["denominal-vi-awi-preterit", "denominal-vi-awi-perfect"],
                 targetTenses: ["preterito", "perfecto"],
-                surfaceSuffixes: ["-awik", "-awtuk/-ajtuk"],
+                surfaceSuffixes: ["-awik", "-awtuk", "-ajtuk"],
                 sourceSlots: ["noun/inc.root"],
                 supportStatus: "current-route-supported-partial",
                 isCompleteLesson54_55: false,
@@ -1478,6 +1914,47 @@ function run(ctx) {
                 noNewSurfaceForms: true,
             },
         ]
+    );
+    const iwiPerfectProfile = ctx.getNawatRouteProfile("denominal-vi-iwi-perfect");
+    const iwiPerfectSuffixSourceFrame = ctx.buildNawatRouteSurfaceSuffixInventorySourceFrame(iwiPerfectProfile);
+    const iwiPerfectSuffixOperationFrame = ctx.buildNawatRouteSurfaceSuffixInventoryOperationFrame(iwiPerfectSuffixSourceFrame);
+    s.eq(
+        "denominal perfect route suffix variants require structured suffix frames",
+        {
+            sourceKind: iwiPerfectSuffixSourceFrame.kind,
+            sourceLayer: iwiPerfectSuffixSourceFrame.sourceLayer,
+            displaySurfaceSuffix: iwiPerfectSuffixSourceFrame.displaySurfaceSuffix,
+            suffixFrames: iwiPerfectSuffixSourceFrame.suffixFrames.map((frame) => frame.suffix),
+            operationKind: iwiPerfectSuffixOperationFrame.kind,
+            operationStatus: iwiPerfectSuffixOperationFrame.status,
+            suffixes: ctx.getNawatRouteSurfaceSuffixesFromOperationFrame(iwiPerfectProfile, iwiPerfectSuffixOperationFrame),
+            directMissingOperation: ctx.getNawatRouteSurfaceSuffixesFromOperationFrame(iwiPerfectProfile),
+            staleDisplayProfile: ctx.getNawatRouteSurfaceSuffixesFromOperationFrame({
+                ...iwiPerfectProfile,
+                surfaceSuffix: "-stale/-display",
+            }, iwiPerfectSuffixOperationFrame),
+            missingStructuredArrayBlock: ctx.buildNawatRouteSurfaceSuffixInventorySourceFrame({
+                ...iwiPerfectProfile,
+                surfaceSuffixes: [],
+            }).blockReason,
+            slashStructuredArrayBlock: ctx.buildNawatRouteSurfaceSuffixInventorySourceFrame({
+                ...iwiPerfectProfile,
+                surfaceSuffixes: ["-iwtuk/-ijtuk"],
+            }).blockReason,
+        },
+        {
+            sourceKind: "nawat-route-surface-suffix-inventory-source-frame",
+            sourceLayer: "static-route-profile-structured-suffixes",
+            displaySurfaceSuffix: "-iwtuk/-ijtuk",
+            suffixFrames: ["-iwtuk", "-ijtuk"],
+            operationKind: "andrews-nawat-route-surface-suffix-inventory-operation-frame",
+            operationStatus: "authorized",
+            suffixes: ["-iwtuk", "-ijtuk"],
+            directMissingOperation: [],
+            staleDisplayProfile: [],
+            missingStructuredArrayBlock: "missing-structured-surface-suffixes",
+            slashStructuredArrayBlock: "slash-delimited-structured-suffix",
+        }
     );
     const andrewsDenominalContracts = ctx.getNawatDenominalAndrewsContractInventory();
     s.eq(
@@ -1689,7 +2166,7 @@ function run(ctx) {
             denominalFormulaTransition: "VNC->VNC",
             denominalGateIds: ["generated-ti-verbstem-required"],
             cnvCnnFormulaTransition: "CNN->CNV",
-            cnvCnnRequiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente, objeto, tiempo o evidencia Nawat/Pipil.",
+            cnvCnnRequiredBoundary: "No ejecutar generación finita desde un blanco de tronco si falta fuente Andrews concreta, objeto, tiempo o puente ortografico.",
             lesson1Formula: "CONCEPT_TOKEN -> GRAMMAR_CONCEPT_FRAME(CN/CNV/CNN/STEM/SLOT/AFFIX)",
             lesson1ConceptCount: 26,
             lesson1Gate: "concept-token-or-registry-source-required",
@@ -1791,6 +2268,1074 @@ function run(ctx) {
             complete: true,
             noFixtureEvidence: true,
             formulaAndStructureRequired: true,
+        }
+    );
+    s.eq(
+        "derivational route formula workbench exposes source, operation, target, and source gates",
+        (() => {
+            const generated = ctx.buildDerivationalRouteFormulaWorkbenchSlice({ inputValue: "mich-namaka" });
+            const pending = ctx.buildDerivationalRouteFormulaWorkbenchSlice({ inputValue: "kal" });
+            const model = ctx.getAndrewsFormulaWorkbenchModel({
+                activeId: "derivational-routes",
+                inputValue: "mich-namaka",
+            });
+            const sourceSlot = generated.parsedSlots.find((slot) => slot.key === "sourceFormula");
+            const operationSlot = generated.parsedSlots.find((slot) => slot.key === "operation");
+            const targetSlot = generated.parsedSlots.find((slot) => slot.key === "targetFormula");
+            const examples = Object.fromEntries(generated.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                surface: example.surface,
+                routeFamily: example.routeFamily,
+                sourceGateStatus: example.sourceGateStatus,
+                generationAllowed: example.generationAllowed,
+            }]));
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                formula: generated.formula,
+                structuralFormulaEcho: generated.structuralFormulaEcho,
+                compactFormulaEcho: generated.compactFormulaEcho,
+                generation: {
+                    status: generated.generation.status,
+                    allowed: generated.generation.allowed,
+                    surface: generated.generation.surface,
+                },
+                pending: {
+                    structuralFormulaEcho: pending.structuralFormulaEcho,
+                    status: pending.generation.status,
+                    allowed: pending.generation.allowed,
+                    surface: pending.generation.surface,
+                    diagnostics: pending.diagnostics.map((diagnostic) => diagnostic.id),
+                },
+                sourceSlot: {
+                    role: sourceSlot.role,
+                    owner: sourceSlot.owner,
+                    path: sourceSlot.path,
+                    value: sourceSlot.value,
+                },
+                operationSlot: {
+                    role: operationSlot.role,
+                    owner: operationSlot.owner,
+                    path: operationSlot.path,
+                    value: operationSlot.value,
+                    notSurfaceShortcut: operationSlot.modelFields.some((field) => field.label === "no" && field.value === "atajo de superficie"),
+                },
+                targetSlot: {
+                    role: targetSlot.role,
+                    owner: targetSlot.owner,
+                    path: targetSlot.path,
+                    value: targetSlot.value,
+                },
+                routeRegistrySummary: generated.routeRegistrySummary,
+                realizationBoundary: generated.realizationBoundary,
+                examples,
+            };
+        })(),
+        {
+            modelActiveId: "derivational-routes",
+            modelSliceKind: "derivational-route-formula-workbench-slice",
+            formula: "SOURCE -> OP -> TARGET",
+            structuralFormulaEcho: "(mich-namaka) -> preterit-agentive-general-use-plus-locative-n-plus-zero-connector -> (mich-namaka-0-ka-n)-0-",
+            compactFormulaEcho: "CNV->CNN: preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+            generation: {
+                status: "generated-scoped",
+                allowed: true,
+                surface: "michnamakakan",
+            },
+            pending: {
+                structuralFormulaEcho: "(kal) -> preterit-agentive-general-use-plus-locative-n-plus-zero-connector -> (kal-0-ka-n)-0-",
+                status: "andrews-logic-generated",
+                allowed: true,
+                surface: "kalkan",
+                diagnostics: [
+                    "derivational-route-source-gate-required",
+                ],
+            },
+            sourceSlot: {
+                role: "source-formula",
+                owner: "route",
+                path: "route.source",
+                value: "(mich-namaka)",
+            },
+            operationSlot: {
+                role: "derivational-operation",
+                owner: "route",
+                path: "route.operation",
+                value: "preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+                notSurfaceShortcut: true,
+            },
+            targetSlot: {
+                role: "target-formula",
+                owner: "route",
+                path: "route.target",
+                value: "(mich-namaka-0-ka-n)-0-",
+            },
+            routeRegistrySummary: {
+                routeCount: 96,
+                familyCounts: {
+                    "cnv-cnn-back-and-forth": 7,
+                    "denominal-andrews-executable-rule": 30,
+                    "foundation-metadata-route": 3,
+                    "relational-nnc": 1,
+                    "valency-voice": 2,
+                    "vnc-source-route": 2,
+                    "foundation-route": 16,
+                    "forward-derivation": 3,
+                    nominalization: 5,
+                    "derivational-boundary": 8,
+                    "nnc-function": 9,
+                    "clause-relation": 5,
+                    "diagnostic-analysis": 3,
+                    "denominal-lesson": 2,
+                },
+                sourceGatedRouteCount: 96,
+                generationAllowedRouteCount: 2,
+                coverageScope: "all-andrews-route-contract-coverage",
+            },
+            realizationBoundary: {
+                structuralFormulaEcho: "(mich-namaka) -> preterit-agentive-general-use-plus-locative-n-plus-zero-connector -> (mich-namaka-0-ka-n)-0-",
+                nawatFormulaEcho: "(mich-namaka) -> preterit-agentive-general-use-plus-locative-n-plus-zero-connector -> (mich-namaka-0-ka-n)-0-",
+                compactFormulaEcho: "CNV->CNN: preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: ["CNV->CNV", "CNV->CNN", "CNN->CNV", "EMBED+MATRIX"],
+                nawatAuthority: "la ortografia Nawat/Pipil realiza la logica de ruta autorizada por Andrews; los ejemplos ortograficos no deciden la puerta gramatical",
+                logicAuthority: "Andrews PDF",
+                generationGate: "andrews-licensed-route-plus-required-source-context",
+            },
+            examples: {
+                "route-46-3-1-a": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "(mich-namaka) -> preterit-agentive-general-use-plus-locative-n-plus-zero-connector -> (mich-namaka-0-ka-n)-0-",
+                    compactFormulaEcho: "CNV->CNN: preterit-agentive-general-use-plus-locative-n-plus-zero-connector",
+                    surface: "michnamakakan",
+                    routeFamily: "relational-nnc",
+                    sourceGateStatus: "source-formula-required",
+                    generationAllowed: true,
+                },
+                "route-24-causative": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(panu) -> type-one-causative-source-to-causative-stem -> CNV(panawia)",
+                    compactFormulaEcho: "CNV->CNV: type-one-causative-source-to-causative-stem",
+                    surface: "panawia",
+                    routeFamily: "forward-derivation",
+                    sourceGateStatus: "type-one-causative-compatible-source-required",
+                    generationAllowed: true,
+                },
+                "route-25-causative": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(nemi) -> type-two-causative-source-to-causative-stem -> CNV(nemitia)",
+                    compactFormulaEcho: "CNV->CNV: type-two-causative-source-to-causative-stem",
+                    surface: "nemitia",
+                    routeFamily: "forward-derivation",
+                    sourceGateStatus: "type-two-causative-compatible-source-required",
+                    generationAllowed: true,
+                },
+                "route-26-applicative": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(maka) -> applicative-source-to-applicative-stem -> CNV(makilia)",
+                    compactFormulaEcho: "CNV->CNV: applicative-source-to-applicative-stem",
+                    surface: "makilia",
+                    routeFamily: "forward-derivation",
+                    sourceGateStatus: "applicative-compatible-source-required",
+                    generationAllowed: true,
+                },
+                "route-27-frequentative": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(nemi) -> source-stem-reduplication-to-frequentative-stem -> CNV(ne-nemi)",
+                    compactFormulaEcho: "CNV->CNV: source-stem-reduplication-to-frequentative-stem",
+                    surface: "nenemi",
+                    routeFamily: "derivational-boundary",
+                    sourceGateStatus: "frequentative-source-stem-required",
+                    generationAllowed: true,
+                },
+                "route-35-agentive-nominalization": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(chiwa-0) -> preterit-vnc-core-to-agentive-nounstem -> CNN(chiwa-0-ka)",
+                    compactFormulaEcho: "CNV->CNN: preterit-vnc-core-to-agentive-nounstem",
+                    surface: "chiwaka",
+                    routeFamily: "nominalization",
+                    sourceGateStatus: "preterit-source-core-required",
+                    generationAllowed: true,
+                },
+                "route-28-compound": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "NNC(kal)+VNC(chanti) -> embedded-verbal-source-before-matrix-compound -> COMPOUND(kal-chanti)",
+                    compactFormulaEcho: "CNV/CNN->CNV/CNN: embedded-verbal-source-before-matrix-compound",
+                    surface: "kalchanti",
+                    routeFamily: "derivational-boundary",
+                    sourceGateStatus: "verbal-embed-source-and-matrix-required",
+                    generationAllowed: true,
+                },
+                "route-29-purposive": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNV(chiwa) -> future-embed-plus-directional-matrix-purposive -> #ti-0(chiwa-□-t-i-hui)0+0-h#",
+                    compactFormulaEcho: "CNV+CNV->CNV: future-embed-plus-directional-matrix-purposive",
+                    surface: "chiwatiwi",
+                    routeFamily: "derivational-boundary",
+                    sourceGateStatus: "purposive-embed-and-directional-matrix-required",
+                    generationAllowed: true,
+                },
+                "route-54-denominal": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "CNN(kal) -> nounstem-source-to-denominal-verbstem-route-family -> CNV(kal-ti)",
+                    compactFormulaEcho: "CNN->CNV: nounstem-source-to-denominal-verbstem-route-family",
+                    surface: "kalti",
+                    routeFamily: "denominal-lesson",
+                    sourceGateStatus: "lesson-54-denominal-source-required",
+                    generationAllowed: true,
+                },
+                "route-56-personal-name": {
+                    status: "generated-scoped",
+                    structuralFormulaEcho: "SOURCE_STATEMENT(ti-chihua-c) -> downgraded-statement-source-to-personal-name-nnc -> CNN(ti-chihua-c)",
+                    compactFormulaEcho: "CN->CNN: downgraded-statement-source-to-personal-name-nnc",
+                    surface: "tichiwak",
+                    routeFamily: "diagnostic-analysis",
+                    sourceGateStatus: "personal-name-source-statement-required",
+                    generationAllowed: true,
+                },
+            },
+        }
+    );
+    s.eq(
+        "compound stem formula workbench generates from embed, matrix, and output slots",
+        (() => {
+            const slice = ctx.buildCompoundStemFormulaWorkbenchSlice({ inputValue: "NNC(kal)+VNC(chanti)" });
+            const defaultSlice = ctx.buildCompoundStemFormulaWorkbenchSlice();
+            const model = ctx.getAndrewsFormulaWorkbenchModel({
+                activeId: "compound-stems",
+                inputValue: "NNC(kal)+VNC(chanti)",
+            });
+            const slotMap = Object.fromEntries(slice.parsedSlots
+                .filter((slot) => ["embeddedStem", "matrixStem", "compoundStem"].includes(slot.key))
+                .map((slot) => [slot.key, {
+                    role: slot.role,
+                    owner: slot.owner,
+                    path: slot.path,
+                    value: slot.value,
+                    status: slot.status,
+                    orderedEmbed: slot.modelFields.some((field) => field.label === "orden" && field.value === "incluido precede matriz"),
+                    matrixDeterminesOutput: slot.modelFields.some((field) => field.label === "salida" && field.value === "la matriz decide VNC/NNC"),
+                    noFlattening: slot.modelFields.some((field) => field.label === "no" && field.value === "aplanar cadenas"),
+                }]));
+            const examples = Object.fromEntries(slice.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                surface: example.surface,
+                generationAllowed: example.generationAllowed,
+            }]));
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                formula: slice.formula,
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                defaultStructuralFormulaEcho: defaultSlice.structuralFormulaEcho,
+                defaultCompactFormulaEcho: defaultSlice.compactFormulaEcho,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                    routeFamily: slice.generation.routeFamily,
+                },
+                sourceMaterial: {
+                    rawInput: slice.sourceMaterial.rawInput,
+                    inputKind: slice.sourceMaterial.inputKind,
+                    sourceKind: slice.sourceMaterial.sourceKind,
+                },
+                slotMap,
+                families: slice.formulaFamilies.map((family) => family.formula),
+                diagnostics: slice.diagnostics.map((diagnostic) => diagnostic.id),
+                realizationBoundary: slice.realizationBoundary,
+                examples,
+            };
+        })(),
+        {
+            modelActiveId: "compound-stems",
+            modelSliceKind: "compound-stem-formula-workbench-slice",
+            formula: "EMBED + MATRIX -> COMPOUND",
+            structuralFormulaEcho: "NNC(kal) + VNC(chanti) -> compound VNC(kal-chanti)",
+            nawatFormulaEcho: "kalchanti",
+            compactFormulaEcho: "NNC + VNC = compound VNC",
+            defaultStructuralFormulaEcho: "VNC(nemi) + VNC(mati) -> compound VNC(nemi-mati)",
+            defaultCompactFormulaEcho: "VNC + VNC = compound VNC",
+            generation: {
+                status: "andrews-logic-generated",
+                allowed: true,
+                surface: "kalchanti",
+                routeFamily: "compound-stems",
+            },
+            sourceMaterial: {
+                rawInput: "NNC(kal)+VNC(chanti)",
+                inputKind: "compound-stem",
+                sourceKind: "compound-source",
+            },
+            slotMap: {
+                embeddedStem: {
+                    role: "embedded-stem",
+                    owner: "stem",
+                    path: "stem.embedded",
+                    value: "NNC(kal)",
+                    status: "resolved",
+                    orderedEmbed: true,
+                    matrixDeterminesOutput: false,
+                    noFlattening: false,
+                },
+                matrixStem: {
+                    role: "matrix-stem",
+                    owner: "stem",
+                    path: "stem.matrix",
+                    value: "VNC(chanti)",
+                    status: "resolved",
+                    orderedEmbed: false,
+                    matrixDeterminesOutput: true,
+                    noFlattening: false,
+                },
+                compoundStem: {
+                    role: "compound-stem",
+                    owner: "stem",
+                    path: "stem.compound",
+                    value: "compound VNC(kal-chanti)",
+                    status: "andrews-logic-generated",
+                    orderedEmbed: false,
+                    matrixDeterminesOutput: false,
+                    noFlattening: true,
+                },
+            },
+            families: [
+                "VNC + VNC = compound VNC",
+                "NNC + VNC = compound VNC",
+                "NNC + NNC = compound NNC",
+                "[NNC + NNC] + NNC = compound NNC",
+                "VNC(preterit embed) + t/ti + MATRIX = diagnostic",
+            ],
+            diagnostics: [
+                "compound-stem-andrews-logic-generated",
+                "compound-stem-matrix-determines-output",
+                "compound-stem-no-string-flattening",
+            ],
+            realizationBoundary: {
+                structuralFormulaEcho: "NNC(kal) + VNC(chanti) -> compound VNC(kal-chanti)",
+                nawatFormulaEcho: "kalchanti",
+                compactFormulaEcho: "NNC + VNC = compound VNC",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: [
+                    "VNC + VNC = compound VNC",
+                    "NNC + VNC = compound VNC",
+                    "NNC + NNC = compound NNC",
+                    "connective-t",
+                ],
+                nawatAuthority: "los compuestos preservan incluido, matriz y recursion como arquitectura Andrews; la superficie se realiza por el puente ortografico Nawat/Pipil",
+            },
+            examples: {
+                "vnc-vnc-compound": {
+                    status: "andrews-logic-generated",
+                    structuralFormulaEcho: "VNC(nemi) + VNC(mati) -> compound VNC(nemi-mati)",
+                    compactFormulaEcho: "VNC + VNC = compound VNC",
+                    nawatFormulaEcho: "nemimati",
+                    surface: "nemimati",
+                    generationAllowed: true,
+                },
+                "nnc-vnc-compound": {
+                    status: "andrews-logic-generated",
+                    structuralFormulaEcho: "NNC(kal) + VNC(chanti) -> compound VNC(kal-chanti)",
+                    compactFormulaEcho: "NNC + VNC = compound VNC",
+                    nawatFormulaEcho: "kalchanti",
+                    surface: "kalchanti",
+                    generationAllowed: true,
+                },
+                "nnc-nnc-compound": {
+                    status: "andrews-logic-generated",
+                    structuralFormulaEcho: "NNC(kal) + NNC(tan) -> compound NNC(kal-tan)",
+                    compactFormulaEcho: "NNC + NNC = compound NNC",
+                    nawatFormulaEcho: "kaltan",
+                    surface: "kaltan",
+                    generationAllowed: true,
+                },
+                "recursive-nnc-compound": {
+                    status: "andrews-logic-generated",
+                    structuralFormulaEcho: "[NNC(kal) + NNC(tan)] + NNC(techan) -> compound NNC(kal-tan-techan)",
+                    compactFormulaEcho: "[NNC + NNC] + NNC = compound NNC",
+                    nawatFormulaEcho: "kaltantechan",
+                    surface: "kaltantechan",
+                    generationAllowed: true,
+                },
+                "connective-t-compound": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "VNC(PRETERIT_EMBED) + t/ti + VNC(MATRIX) -> compound VNC",
+                    compactFormulaEcho: "preterit embed + t/ti + matrix = diagnostic",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de compuesto pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+            },
+        }
+    );
+    s.eq(
+        "nominalization formula workbench generates concrete Andrews target stems",
+        (() => {
+            const slice = ctx.buildNominalizationFormulaWorkbenchSlice({ inputValue: "chiwa-0" });
+            const defaultSlice = ctx.buildNominalizationFormulaWorkbenchSlice();
+            const model = ctx.getAndrewsFormulaWorkbenchModel({
+                activeId: "nominalizations",
+                inputValue: "chiwa-0",
+            });
+            const slotMap = Object.fromEntries(slice.parsedSlots
+                .filter((slot) => ["sourceCnv", "sourceCore", "targetCnn", "nominalizedStem"].includes(slot.key))
+                .map((slot) => [slot.key, {
+                    role: slot.role,
+                    owner: slot.owner,
+                    path: slot.path,
+                    value: slot.value,
+                    status: slot.status,
+                    sourceCoreGate: slot.modelFields.some((field) => field.label === "fuente" && field.value === "nucleo verbal con tiempo fuente"),
+                    targetNominalGate: slot.modelFields.some((field) => field.label === "puerta" && field.value === "fuente Andrews"),
+                    targetFormula: slot.modelFields.some((field) => field.label === "salida" && field.value === "formula nominal externa"),
+                }]));
+            const examples = Object.fromEntries(slice.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                surface: example.surface,
+                generationAllowed: example.generationAllowed,
+            }]));
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                formula: slice.formula,
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                defaultStructuralFormulaEcho: defaultSlice.structuralFormulaEcho,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                    routeFamily: slice.generation.routeFamily,
+                },
+                sourceMaterial: {
+                    rawInput: slice.sourceMaterial.rawInput,
+                    inputKind: slice.sourceMaterial.inputKind,
+                    sourceKind: slice.sourceMaterial.sourceKind,
+                },
+                hasTensePosition: slice.hasTensePosition,
+                slotMap,
+                families: slice.formulaFamilies.map((family) => family.formula),
+                diagnostics: slice.diagnostics.map((diagnostic) => diagnostic.id),
+                realizationBoundary: slice.realizationBoundary,
+                operationalLayerSummary: {
+                    kind: slice.operationalLayerSummary?.kind || "",
+                    source: slice.operationalLayerSummary?.source || "",
+                    labelCount: slice.operationalLayerSummary?.labelCount || 0,
+                    operationCount: slice.operationalLayerSummary?.operationCount || 0,
+                    missingSectionCount: slice.operationalLayerSummary?.missingSectionCount || 0,
+                    complete: slice.operationalLayerSummary?.complete === true,
+                    importantCounts: Object.fromEntries((slice.operationalLayerSummary?.items || [])
+                        .filter((item) => [
+                            "agentivo-preterito",
+                            "sustantivo-verbal",
+                            "patientivo",
+                            "instrumentivo",
+                            "locativo-temporal",
+                        ].includes(item.key))
+                        .map((item) => [item.key, {
+                            operationCount: item.operationCount,
+                            expectedSectionCount: item.expectedSectionCount,
+                            missingSectionCount: item.missingSectionCount,
+                            complete: item.complete,
+                        }])),
+                },
+                examples,
+            };
+        })(),
+        {
+            modelActiveId: "nominalizations",
+            modelSliceKind: "nominalization-formula-workbench-slice",
+            formula: "CNV(SOURCE_CORE) -> CNN(NOMINALIZED_STEM)",
+            structuralFormulaEcho: "CNV(chiwa-0) -> CNN(nominalized(chiwa-0))",
+            nawatFormulaEcho: "chiwa",
+            compactFormulaEcho: "CNV source -> CNN nominalized target",
+            defaultStructuralFormulaEcho: "CNV(PRETERIT_SOURCE_CORE) -> CNN(PRETERIT_AGENTIVE_NOUNSTEM)",
+            generation: {
+                status: "andrews-logic-generated",
+                allowed: true,
+                surface: "chiwa",
+                routeFamily: "nominalizations",
+            },
+            sourceMaterial: {
+                rawInput: "chiwa-0",
+                inputKind: "nominalization-route",
+                sourceKind: "nominalization-source",
+            },
+            hasTensePosition: "source-only",
+            slotMap: {
+                sourceCnv: {
+                    role: "source-formula",
+                    owner: "route",
+                    path: "route.source.cnv",
+                    value: "CNV",
+                    status: "resolved",
+                    sourceCoreGate: false,
+                    targetNominalGate: false,
+                    targetFormula: false,
+                },
+                sourceCore: {
+                    role: "source-core",
+                    owner: "stem",
+                    path: "route.source.core",
+                    value: "chiwa-0",
+                    status: "resolved",
+                    sourceCoreGate: true,
+                    targetNominalGate: false,
+                    targetFormula: false,
+                },
+                targetCnn: {
+                    role: "target-formula",
+                    owner: "route",
+                    path: "route.target.cnn",
+                    value: "CNN",
+                    status: "resolved",
+                    sourceCoreGate: false,
+                    targetNominalGate: false,
+                    targetFormula: true,
+                },
+                nominalizedStem: {
+                    role: "target-stem",
+                    owner: "stem",
+                    path: "route.target.stem",
+                    value: "nominalized(chiwa-0)",
+                    status: "andrews-logic-generated",
+                    sourceCoreGate: false,
+                    targetNominalGate: true,
+                    targetFormula: false,
+                },
+            },
+            families: [
+                "preterit source -> agentive nominal stem",
+                "customary-present source -> agentive nominal stem",
+                "passive source -> patientive nominal stem",
+                "source subject/impersonal source -> instrumentive nominal stem",
+                "active/passive action source -> action nominal stem",
+            ],
+            diagnostics: [
+                "nominalization-andrews-target-generated",
+                "nominalization-source-tense-not-target-tense",
+                "nominalization-nawat-realization-separated",
+            ],
+            realizationBoundary: {
+                structuralFormulaEcho: "CNV(chiwa-0) -> CNN(nominalized(chiwa-0))",
+                nawatFormulaEcho: "chiwa",
+                compactFormulaEcho: "CNV source -> CNN nominalized target",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: [
+                    "preterit-agentive",
+                    "customary-present agentive",
+                    "patientive",
+                    "instrumentive",
+                    "future-agentive",
+                ],
+                nawatAuthority: "la nominalizacion conserva la ruta fuente y destino como arquitectura Andrews; la superficie se realiza por el puente ortografico Nawat/Pipil",
+            },
+            operationalLayerSummary: {
+                kind: "andrews-cnv-cnn-operational-layer",
+                source: "andrews-pdf-section-map",
+                labelCount: 16,
+                operationCount: 238,
+                missingSectionCount: 0,
+                complete: true,
+                importantCounts: {
+                    "agentivo-preterito": {
+                        operationCount: 16,
+                        expectedSectionCount: 16,
+                        missingSectionCount: 0,
+                        complete: true,
+                    },
+                    "sustantivo-verbal": {
+                        operationCount: 22,
+                        expectedSectionCount: 22,
+                        missingSectionCount: 0,
+                        complete: true,
+                    },
+                    patientivo: {
+                        operationCount: 62,
+                        expectedSectionCount: 62,
+                        missingSectionCount: 0,
+                        complete: true,
+                    },
+                    instrumentivo: {
+                        operationCount: 5,
+                        expectedSectionCount: 4,
+                        missingSectionCount: 0,
+                        complete: true,
+                    },
+                    "locativo-temporal": {
+                        operationCount: 73,
+                        expectedSectionCount: 72,
+                        missingSectionCount: 0,
+                        complete: true,
+                    },
+                },
+            },
+            examples: {
+                "preterit-agentive-concrete": {
+                    status: "andrews-logic-generated",
+                    structuralFormulaEcho: "CNV(chiwa-0) -> CNN(chiwa-0-ka)",
+                    compactFormulaEcho: "preterit source + -ka -> agentive nounstem",
+                    nawatFormulaEcho: "chiwaka",
+                    surface: "chiwaka",
+                    generationAllowed: true,
+                },
+                "preterit-agentive-nominalization": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(PRETERIT_SOURCE_CORE) -> CNN(PRETERIT_AGENTIVE_NOUNSTEM)",
+                    compactFormulaEcho: "preterit source -> agentive nominal stem",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "customary-agentive-reanalysis": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(CUSTOMARY_PRESENT_NI_CORE) -> CNN(AGENTIVE_NI_NOUNSTEM)",
+                    compactFormulaEcho: "customary present -> agentive reanalysis",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "fully-nominalized-customary-agentive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(CUSTOMARY_PRESENT_NI_CORE) -> CNN(FULL_NOMINAL_AGENTIVE_NOUNSTEM)",
+                    compactFormulaEcho: "customary present -> full nominal number system",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "customary-patientive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(PASSIVE_CUSTOMARY_SOURCE) -> CNN(PATIENTIVE_NOUNSTEM)",
+                    compactFormulaEcho: "passive customary source -> patientive nominal stem",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "instrumentive-possessive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(IMPERFECT_ACTIVE_SOURCE) -> CNN(POSSESSIVE_INSTRUMENTIVE_NOUNSTEM)",
+                    compactFormulaEcho: "source subject -> possessor; outer nonanimate subject imported",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "future-agentive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "CNV(FUTURE_SOURCE_CORE) -> CNN(FUTURE_AGENTIVE_RESTRICTED_STEM)",
+                    compactFormulaEcho: "future source -> restricted/general nominal stems",
+                    nawatFormulaEcho: "sin superficie: puerta Andrews de nominalizacion pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+            },
+        }
+    );
+    s.eq(
+        "personal-name embedded NNC formula workbench separates outer shell from inner clause",
+        (() => {
+            const slice = ctx.buildPersonalNameEmbeddedNncFormulaWorkbenchSlice({ inputValue: "CNV(ti-chihua-c-0)" });
+            const defaultSlice = ctx.buildPersonalNameEmbeddedNncFormulaWorkbenchSlice();
+            const model = ctx.getAndrewsFormulaWorkbenchModel({
+                activeId: "personal-name-embedded-nnc",
+                inputValue: "CNV(ti-chihua-c-0)",
+            });
+            const slotMap = Object.fromEntries(slice.parsedSlots
+                .filter((slot) => ["outerSubject", "innerClause", "outerNumber"].includes(slot.key))
+                .map((slot) => [slot.key, {
+                    role: slot.role,
+                    owner: slot.owner,
+                    path: slot.path,
+                    value: slot.value,
+                    status: slot.status,
+                    outerSubject: slot.modelFields.some((field) => field.label === "capa" && field.value === "sujeto externo"),
+                    innerClauseStem: slot.modelFields.some((field) => field.label === "capa" && field.value === "clausula incluida dentro del tallo"),
+                    fixedOuterNumber: slot.modelFields.some((field) => field.label === "dyada" && field.value === "externa fija 0-0"),
+                    innerNumberNotOuter: slot.modelFields.some((field) => field.label === "no" && field.value === "numero interno como c-0"),
+                }]));
+            const examples = Object.fromEntries(slice.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                surface: example.surface,
+                generationAllowed: example.generationAllowed,
+            }]));
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                formula: slice.formula,
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                defaultStructuralFormulaEcho: defaultSlice.structuralFormulaEcho,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                    routeFamily: slice.generation.routeFamily,
+                },
+                sourceMaterial: {
+                    rawInput: slice.sourceMaterial.rawInput,
+                    inputKind: slice.sourceMaterial.inputKind,
+                    sourceKind: slice.sourceMaterial.sourceKind,
+                },
+                hasTensePosition: slice.hasTensePosition,
+                slotMap,
+                families: slice.formulaFamilies.map((family) => family.formula),
+                diagnostics: slice.diagnostics.map((diagnostic) => diagnostic.id),
+                realizationBoundary: slice.realizationBoundary,
+                examples,
+            };
+        })(),
+        {
+            modelActiveId: "personal-name-embedded-nnc",
+            modelSliceKind: "personal-name-embedded-nnc-formula-workbench-slice",
+            formula: "#pers1-pers2(INNER_CLAUSE)0-0#",
+            structuralFormulaEcho: "#Ø-Ø(CNV(ti-chihua-c-0))0-0#",
+            nawatFormulaEcho: "tichiwak",
+            compactFormulaEcho: "#outer-subject(INNER_CLAUSE_AS_STEM)0-0#",
+            defaultStructuralFormulaEcho: "#Ø-Ø(CNV(PRETERIT_AGENTIVE_SOURCE))0-0#",
+            generation: {
+                status: "andrews-logic-generated",
+                allowed: true,
+                surface: "tichiwak",
+                routeFamily: "personal-name-embedded-nnc",
+            },
+            sourceMaterial: {
+                rawInput: "CNV(ti-chihua-c-0)",
+                inputKind: "personal-name-embedded-nnc",
+                sourceKind: "personal-name-inner-clause",
+            },
+            hasTensePosition: false,
+            slotMap: {
+                outerSubject: {
+                    role: "outer-subject",
+                    owner: "outer-shell",
+                    path: "outer.subject",
+                    value: "Ø-Ø",
+                    status: "resolved",
+                    outerSubject: true,
+                    innerClauseStem: false,
+                    fixedOuterNumber: false,
+                    innerNumberNotOuter: false,
+                },
+                innerClause: {
+                    role: "embedded-clause-stem",
+                    owner: "predicate",
+                    path: "predicate.inner-clause",
+                    value: "CNV(ti-chihua-c-0)",
+                    status: "andrews-logic-generated",
+                    outerSubject: false,
+                    innerClauseStem: true,
+                    fixedOuterNumber: false,
+                    innerNumberNotOuter: false,
+                },
+                outerNumber: {
+                    role: "outer-number",
+                    owner: "outer-shell",
+                    path: "outer.num1-num2",
+                    value: "0-0",
+                    status: "resolved",
+                    outerSubject: false,
+                    innerClauseStem: false,
+                    fixedOuterNumber: true,
+                    innerNumberNotOuter: true,
+                },
+            },
+            families: [
+                "#outer-subject(CNV-as-stem)0-0#",
+                "#outer-subject(CNN-as-stem)0-0#",
+                "#outer-subject(CN+CN unit as stem)0-0#",
+                "inner c-0 stays inside predicate stem",
+            ],
+            diagnostics: [
+                "personal-name-outer-number-fixed-zero",
+                "personal-name-inner-outer-subjects-separated",
+                "personal-name-andrews-source-generated",
+            ],
+            realizationBoundary: {
+                structuralFormulaEcho: "#Ø-Ø(CNV(ti-chihua-c-0))0-0#",
+                nawatFormulaEcho: "tichiwak",
+                compactFormulaEcho: "#outer-subject(INNER_CLAUSE_AS_STEM)0-0#",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: [
+                    "inner CNV",
+                    "inner CNN",
+                    "inner c-0",
+                    "multiple-clause unit",
+                ],
+                nawatAuthority: "Andrews decide capas, fuente interna y 0-0 externo; la superficie se realiza por el puente ortografico Nawat/Pipil desde una fuente concreta",
+            },
+            examples: {
+                "personal-name-preterit-agentive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(PRETERIT_AGENTIVE_SOURCE))0-0#",
+                    compactFormulaEcho: "outer CNN + inner preterit-agentive clause",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-present-agentive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(PRESENT_AGENTIVE_SOURCE))0-0#",
+                    compactFormulaEcho: "outer CNN + inner present-agentive clause",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-customary-agentive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(CUSTOMARY_AGENTIVE_SOURCE))0-0#",
+                    compactFormulaEcho: "outer CNN + inner customary-present clause",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-purposive": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(PURPOSIVE_SOURCE))0-0#",
+                    compactFormulaEcho: "outer CNN + inner purposive clause",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-reflexive-object": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(REFLEXIVE_OBJECT_SOURCE))0-0#",
+                    compactFormulaEcho: "inner reflexive/object material stays inside stem",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-inner-number-dyad": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(CNV(INNER_SUBJECT+c-0))0-0#",
+                    compactFormulaEcho: "final c-0 belongs to inner clause, not outer number",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+                "personal-name-multiple-clause-unit": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "#Ø-Ø(ADJUNCTION_OR_CONJUNCTION(CN+CN))0-0#",
+                    compactFormulaEcho: "outer CNN + multiple-clause unit as stem",
+                    nawatFormulaEcho: "sin superficie: fuente interna Andrews concreta pendiente",
+                    surface: "",
+                    generationAllowed: false,
+                },
+            },
+        }
+    );
+    s.eq(
+        "unsupported route diagnostics workbench blocks incoherent and evidence-missing routes",
+        (() => {
+            const slice = ctx.buildUnsupportedRouteDiagnosticsFormulaWorkbenchSlice({ inputValue: "CNN + tns" });
+            const defaultSlice = ctx.buildUnsupportedRouteDiagnosticsFormulaWorkbenchSlice();
+            const model = ctx.getAndrewsFormulaWorkbenchModel({
+                activeId: "unsupported-route-diagnostics",
+                inputValue: "CNN + tns",
+            });
+            const activeKindsByCategory = Object.fromEntries(ctx.getAndrewsFormulaWorkbenchCategories()
+                .map((category) => {
+                    const categoryModel = ctx.getAndrewsFormulaWorkbenchModel({
+                        activeId: category.id,
+                        inputValue: category.id === "compound-stems"
+                            ? "NNC(kal)+VNC(chanti)"
+                            : (category.id === "nominalizations"
+                                ? "chiwa-0"
+                                : (category.id === "personal-name-embedded-nnc"
+                                    ? "CNV(INNER_SUBJECT+c-0)"
+                                    : "kal")),
+                    });
+                    return [category.id, categoryModel.activeSlice?.kind || ""];
+                }));
+            const slotMap = Object.fromEntries(slice.parsedSlots
+                .filter((slot) => ["input", "diagnosticOnly"].includes(slot.key))
+                .map((slot) => [slot.key, {
+                    role: slot.role,
+                    owner: slot.owner,
+                    path: slot.path,
+                    value: slot.value,
+                    status: slot.status,
+                    blockedOutput: slot.modelFields.some((field) => field.label === "bloqueo" && field.value === "sin superficie inventada"),
+                    sourceInput: slot.modelFields.some((field) => field.label === "fuente" && field.value === "ruta o forma a evaluar"),
+                }]));
+            const examples = Object.fromEntries(slice.examples.map((example) => [example.id, {
+                status: example.status,
+                structuralFormulaEcho: example.structuralFormulaEcho,
+                compactFormulaEcho: example.compactFormulaEcho,
+                nawatFormulaEcho: example.nawatFormulaEcho,
+                surface: example.surface,
+                generationAllowed: example.generationAllowed,
+                diagnosticIds: example.diagnostics.map((diagnostic) => diagnostic.id),
+            }]));
+            return {
+                modelActiveId: model.activeId,
+                modelSliceKind: model.activeSlice?.kind || "",
+                formula: slice.formula,
+                structuralFormulaEcho: slice.structuralFormulaEcho,
+                nawatFormulaEcho: slice.nawatFormulaEcho,
+                compactFormulaEcho: slice.compactFormulaEcho,
+                defaultStructuralFormulaEcho: defaultSlice.structuralFormulaEcho,
+                generation: {
+                    status: slice.generation.status,
+                    allowed: slice.generation.allowed,
+                    surface: slice.generation.surface,
+                    routeFamily: slice.generation.routeFamily,
+                },
+                sourceMaterial: {
+                    rawInput: slice.sourceMaterial.rawInput,
+                    inputKind: slice.sourceMaterial.inputKind,
+                    sourceKind: slice.sourceMaterial.sourceKind,
+                },
+                slotMap,
+                diagnostics: slice.diagnostics.map((diagnostic) => diagnostic.id),
+                realizationBoundary: slice.realizationBoundary,
+                activeKindsByCategory,
+                examples,
+            };
+        })(),
+        {
+            modelActiveId: "unsupported-route-diagnostics",
+            modelSliceKind: "unsupported-route-diagnostics-formula-workbench-slice",
+            formula: "INPUT -> DIAGNOSTIC_ONLY",
+            structuralFormulaEcho: "CNN + tns -> DIAGNOSTIC_ONLY",
+            nawatFormulaEcho: "sin salida Nawat/Pipil",
+            compactFormulaEcho: "entrada -> diagnostico sin superficie",
+            defaultStructuralFormulaEcho: "unsupported-route -> DIAGNOSTIC_ONLY",
+            generation: {
+                status: "unsupported",
+                allowed: false,
+                surface: "",
+                routeFamily: "unsupported-route-diagnostics",
+            },
+            sourceMaterial: {
+                rawInput: "CNN + tns",
+                inputKind: "unsupported-route-diagnostics",
+                sourceKind: "diagnostic-input",
+            },
+            slotMap: {
+                input: {
+                    role: "source-input",
+                    owner: "diagnostic",
+                    path: "diagnostic.input",
+                    value: "CNN + tns",
+                    status: "resolved",
+                    blockedOutput: false,
+                    sourceInput: true,
+                },
+                diagnosticOnly: {
+                    role: "blocked-output",
+                    owner: "diagnostic",
+                    path: "diagnostic.output",
+                    value: "DIAGNOSTIC_ONLY",
+                    status: "unsupported",
+                    blockedOutput: true,
+                    sourceInput: false,
+                },
+            },
+            diagnostics: [
+                "unsupported-route-no-surface",
+                "unsupported-route-slot-boundary-required",
+                "unsupported-route-diagnostic-is-output",
+            ],
+            realizationBoundary: {
+                structuralFormulaEcho: "CNN + tns -> DIAGNOSTIC_ONLY",
+                nawatFormulaEcho: "sin salida Nawat/Pipil",
+                compactFormulaEcho: "entrada -> diagnostico sin superficie",
+                classicalStructuralOnly: true,
+                noClassicalSurfaceImport: true,
+                structuralExamples: [
+                    "CNN no tense",
+                    "valence outside stem",
+                    "Classical structural-only",
+                    "source gate",
+                ],
+                nawatAuthority: "las rutas incompletas, contradictorias o sin puerta Andrews satisfecha quedan bloqueadas; el diagnostico es la salida correcta",
+            },
+            activeKindsByCategory: {
+                "vnc-shell": "vnc-shell-formula-workbench-slice",
+                "ordinary-nnc-shell": "ordinary-nnc-formula-workbench-slice",
+                "possessive-state-nnc": "possessive-state-nnc-formula-workbench-slice",
+                "valence-object-slots": "vnc-valence-formula-workbench-slice",
+                "subject-number-connectors": "subject-number-connector-formula-workbench-slice",
+                "derivational-routes": "derivational-route-formula-workbench-slice",
+                "compound-stems": "compound-stem-formula-workbench-slice",
+                nominalizations: "nominalization-formula-workbench-slice",
+                "personal-name-embedded-nnc": "personal-name-embedded-nnc-formula-workbench-slice",
+                "unsupported-route-diagnostics": "unsupported-route-diagnostics-formula-workbench-slice",
+            },
+            examples: {
+                "unsupported-nnc-tense-slot": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "CNN + tns -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "CNN tense slot -> blocked",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["nnc-tense-slot-blocked"],
+                },
+                "unsupported-valence-inside-stem": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "STEM(va1-va2) -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "valence inside stem -> blocked",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["valence-inside-stem-blocked"],
+                },
+                "unsupported-classical-surface-import": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "Classical surface as Nawat output -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "Classical spelling -> structural evidence only",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["classical-surface-import-blocked"],
+                },
+                "unsupported-compound-flattening": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "EMBED+MATRIX -> word -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "compound string flattening -> blocked",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["compound-flattening-blocked"],
+                },
+                "unsupported-personal-name-surface": {
+                    status: "unsupported",
+                    structuralFormulaEcho: "#outer(INNER)c-0# -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "inner number read as outer -> blocked",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["personal-name-inner-number-outer-read-blocked"],
+                },
+                "source-gated-andrews-route": {
+                    status: "source-gated",
+                    structuralFormulaEcho: "Andrews route with unmet source gate -> DIAGNOSTIC_ONLY",
+                    compactFormulaEcho: "Andrews source gate -> diagnostic",
+                    nawatFormulaEcho: "sin salida Nawat/Pipil",
+                    surface: "",
+                    generationAllowed: false,
+                    diagnosticIds: ["route-source-gate-unmet"],
+                },
+            },
         }
     );
     s.eq(
@@ -2221,11 +3766,23 @@ function run(ctx) {
             contractCoverage: {
                 contractCount: 14,
                 routeCoveredContractCount: 2,
+                sourceContextRequiredContractCount: 9,
                 sourceEvidenceRequiredContractCount: 9,
                 executableRuleContractCount: 13,
                 routeCoveredContractIds: [
                     "54.2.1-inceptive-stative-ti",
                     "54.4-possession-ti",
+                ],
+                sourceContextRequiredContractIds: [
+                    "54.2.2-hui-lia-causative",
+                    "54.2.3-ti-ya-deverbal",
+                    "54.2.3-hui-ya-deverbal",
+                    "54.2.3-ya-lia-causative",
+                    "54.2.5-inceptive-stative-hua",
+                    "54.3-included-possessor-ti",
+                    "54.2-54.4-ti-lia-causative",
+                    "54.5-ti-a-causative",
+                    "54.6-t-ia-applicative",
                 ],
                 sourceEvidenceRequiredContractIds: [
                     "54.2.2-hui-lia-causative",
@@ -2304,9 +3861,21 @@ function run(ctx) {
             contractCoverage: {
                 contractCount: 12,
                 routeCoveredContractCount: 1,
+                sourceContextRequiredContractCount: 9,
                 sourceEvidenceRequiredContractCount: 9,
                 executableRuleContractCount: 17,
                 routeCoveredContractIds: [
+                    "55.6-i-hui-a-hui-to-o-a",
+                ],
+                sourceContextRequiredContractIds: [
+                    "55.1-temporal-tia",
+                    "55.2-tla-ti-lia-applicative",
+                    "55.2-intransitive-tla",
+                    "55.2-intransitive-tla-ti-a-causative",
+                    "55.2-intransitive-tla-ti-lia-applicative",
+                    "55.3-o-a-il-huia-al-huia-applicative-note",
+                    "55.4-adverbial-huia",
+                    "55.5-relational-compound-o-a-huia",
                     "55.6-i-hui-a-hui-to-o-a",
                 ],
                 sourceEvidenceRequiredContractIds: [
@@ -2362,6 +3931,7 @@ function run(ctx) {
             finiteRouteRequestCount: andrewsContractRoutePreview.finiteRouteRequestCount,
             finiteRouteObjectPrefixRequiredCount: andrewsContractRoutePreview.finiteRouteObjectPrefixRequiredCount,
             finiteRouteStemClassContractCount: andrewsContractRoutePreview.finiteRouteStemClassContractCount,
+            finiteRouteSourceContextRequiredCount: andrewsContractRoutePreview.finiteRouteSourceContextRequiredCount,
             finiteRouteSourceEvidenceRequiredCount: andrewsContractRoutePreview.finiteRouteSourceEvidenceRequiredCount,
             routeDiagnosticCount: andrewsContractRoutePreview.routeDiagnosticCount,
             routeWarningCount: andrewsContractRoutePreview.routeWarningCount,
@@ -2374,9 +3944,10 @@ function run(ctx) {
             sourceStem: "pusuk",
             contractCount: 26,
             routeCount: 31,
-            finiteRouteRequestCount: 11,
-            finiteRouteObjectPrefixRequiredCount: 3,
-            finiteRouteStemClassContractCount: 10,
+            finiteRouteRequestCount: 31,
+            finiteRouteObjectPrefixRequiredCount: 17,
+            finiteRouteStemClassContractCount: 18,
+            finiteRouteSourceContextRequiredCount: 20,
             finiteRouteSourceEvidenceRequiredCount: 20,
             routeDiagnosticCount: 42,
             routeWarningCount: 0,
@@ -2393,6 +3964,34 @@ function run(ctx) {
                 finiteGenerationRequiresExplicitRequest: true,
                 finiteGenerationRequiresTargetTense: true,
             },
+        }
+    );
+    s.eq(
+        "Andrews contract inventory exposes source-context support statuses before legacy source-evidence labels",
+        (() => {
+            const sourceContextRequired = andrewsDenominalContracts
+                .filter((contract) => /source-context-required/.test(String(contract.sourceContextSupportStatus || "")))
+                .map((contract) => contract.id);
+            const missingContextStatus = andrewsDenominalContracts
+                .filter((contract) => /source-evidence-required/.test(String(contract.supportStatus || "")))
+                .filter((contract) => !/source-context-required/.test(String(contract.sourceContextSupportStatus || "")))
+                .map((contract) => contract.id);
+            const sourceEvidenceAliasBoundaries = andrewsDenominalContracts
+                .filter((contract) => /source-context-required/.test(String(contract.sourceContextSupportStatus || "")))
+                .filter((contract) => contract.boundaries?.sourceEvidenceStatusCompatibilityAlias !== true)
+                .map((contract) => contract.id);
+            return {
+                count: sourceContextRequired.length,
+                first: sourceContextRequired[0] || "",
+                missingContextStatus,
+                sourceEvidenceAliasBoundaries,
+            };
+        })(),
+        {
+            count: 18,
+            first: "54.2.2-hui-lia-causative",
+            missingContextStatus: [],
+            sourceEvidenceAliasBoundaries: [],
         }
     );
     const findAndrewsContractRoute = (contractId, routeTemplateId) => (
@@ -2499,6 +4098,45 @@ function run(ctx) {
                 frameStatus: "blocked",
                 routeGenerationAllowed: false,
                 blockingFailedLayer: "agreement",
+            },
+        }
+    );
+    s.eq(
+        "Andrews executable rule contracts expose sourceContext as the primary generation gate",
+        (() => {
+            const contracts = ctx.getNawatDenominalAndrewsContractInventory()
+                .flatMap((contract) => Array.isArray(contract.executableRuleIds) ? contract.executableRuleIds : [])
+                .map((id) => ctx.getNawatDenominalAndrewsExecutableRuleContract(id))
+                .filter(Boolean);
+            const withLegacyEvidence = contracts.filter((rule) => rule.input?.sourceEvidence);
+            const missingSourceContext = withLegacyEvidence
+                .filter((rule) => !rule.input?.sourceContext)
+                .map((rule) => rule.id);
+            const aliasMismatches = withLegacyEvidence
+                .filter((rule) => rule.input.sourceContext !== rule.input.sourceEvidence)
+                .map((rule) => rule.id);
+            const firstGated = withLegacyEvidence[0] || {};
+            return {
+                checked: withLegacyEvidence.length,
+                missingSourceContext,
+                aliasMismatches,
+                first: {
+                    id: firstGated.id || "",
+                    sourceContext: firstGated.input?.sourceContext || "",
+                    sourceEvidence: firstGated.input?.sourceEvidence || "",
+                    boundary: firstGated.boundaries?.andrewsSourceContextDecidesGenerationGate === true,
+                },
+            };
+        })(),
+        {
+            checked: 30,
+            missingSourceContext: [],
+            aliasMismatches: [],
+            first: {
+                id: "andrews-54-2-1-ti",
+                sourceContext: "nawat-source-stem-or-generated-nnc-predicate",
+                sourceEvidence: "nawat-source-stem-or-generated-nnc-predicate",
+                boundary: true,
             },
         }
     );
@@ -2631,7 +4269,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.2 hui-lia is an executable rule contract gated by generated hui source evidence",
+        "Andrews 54.2.2 hui-lia can generate from Andrews hui source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-2-hui-lia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -2748,8 +4386,8 @@ function run(ctx) {
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-2-hui-lia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwilia",
                 diagnosticId: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
                 diagnosticLayer: "authority",
             },
@@ -2774,12 +4412,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2.2-hui-lia-hui-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusukwilia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -2920,7 +4558,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.3 ti-ya is an executable rule contract gated by generated ti source evidence",
+        "Andrews 54.2.3 ti-ya can generate from Andrews ti source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -3036,8 +4674,8 @@ function run(ctx) {
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-3-ti-ya",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktiya",
                 diagnosticId: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
                 diagnosticLayer: "authority",
             },
@@ -3061,12 +4699,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2.3-ti-ya-ti-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuktiya",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -3079,7 +4717,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.3 hui-ya is an executable rule contract gated by generated hui source evidence",
+        "Andrews 54.2.3 hui-ya can generate from Andrews hui source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-hui-ya");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -3195,8 +4833,8 @@ function run(ctx) {
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-3-hui-ya",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwiya",
                 diagnosticId: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
                 diagnosticLayer: "authority",
             },
@@ -3220,12 +4858,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2.3-hui-ya-hui-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusukwiya",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -3238,7 +4876,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.3 ya-lia is an executable rule contract gated by generated ya source evidence",
+        "Andrews 54.2.3 ya-lia can generate from Andrews ya source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ya-lia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -3356,8 +4994,8 @@ function run(ctx) {
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-3-ya-lia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuklia",
                 diagnosticId: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
                 diagnosticLayer: "authority",
             },
@@ -3382,12 +5020,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2.3-ya-lia-ya-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuklia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -3537,7 +5175,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.5 hua is an executable rule contract gated by deverbal yu nounstem source evidence",
+        "Andrews 54.2.5 hua can generate from Andrews deverbal yu source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-5-hua");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -3658,7 +5296,7 @@ function run(ctx) {
                     unit: "deverbal-nounstem",
                     state: "absolutive",
                     sourceCategory: "deverbal-yu-nounstem",
-                    sourceEvidence: "confirmed-deverbal-yo-tl-yu-source-required",
+                    sourceEvidence: "andrews-deverbal-yo-tl-yu-source-context-required",
                 },
                 operation: {
                     type: "deverbal-yo-nounstem-inceptive-stative-verbstem",
@@ -3671,15 +5309,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "intransitive",
                     stemClass: ["A"],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-54-2-5-hua"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-5-hua",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukwa",
                 diagnosticId: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -3706,12 +5344,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2.5-hua-deverbal-yo-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "tukayuwa",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -3863,7 +5501,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.3 included-possessor ti is an executable rule contract gated by possessive NNC evidence",
+        "Andrews 54.3 included-possessor ti can generate from Andrews possessive source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-3-included-possessor-ti");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -3985,7 +5623,7 @@ function run(ctx) {
                     unit: "nnc-predicate",
                     state: "possessive",
                     sourceCategory: "possessive-state-nnc-predicate",
-                    sourceEvidence: "confirmed-possessive-state-nnc-predicate-required",
+                    sourceEvidence: "andrews-possessive-state-nnc-predicate-context-required",
                 },
                 operation: {
                     type: "possessive-state-predicate-included-possessor-verbstem",
@@ -4006,8 +5644,8 @@ function run(ctx) {
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-3-included-possessor-ti",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukti",
                 diagnosticId: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -4035,12 +5673,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.3-included-possessor-ti-possessive-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "nukalti",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedAbsolutiveSource: {
                 ok: false,
@@ -4061,7 +5699,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.2.1 and 54.4 ti-lia is an executable rule contract gated by generated ti source evidence",
+        "Andrews 54.2.1 and 54.4 ti-lia can generate from Andrews ti source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-54-4-ti-lia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -4197,15 +5835,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "single-object-causative",
                     stemClass: ["C"],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-54-2-54-4-ti-lia"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-2-54-4-ti-lia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktilia",
                 diagnosticId: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -4235,12 +5873,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.2-54.4-ti-lia-ti-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuktilia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -4261,7 +5899,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.5 ti-a is an executable single-object rule contract gated by generated ti source evidence",
+        "Andrews 54.5 ti-a can generate from Andrews ti source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-5-ti-a");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -4397,15 +6035,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "single-object-causative",
                     stemClass: ["C"],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-54-5-ti-a"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-5-ti-a",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
                 diagnosticId: "andrews-54.5-ti-a-ti-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -4435,12 +6073,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.5-ti-a-ti-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuktia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -4461,7 +6099,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 54.6 t-ia is an executable applicative rule contract gated by generated ti source evidence",
+        "Andrews 54.6 t-ia can generate from Andrews ti source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-54-6-t-ia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -4598,15 +6236,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "applicative",
                     stemClass: ["C"],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-54-6-t-ia"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-54-6-t-ia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
                 diagnosticId: "andrews-54.6-t-ia-ti-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -4636,12 +6274,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-54.6-t-ia-ti-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuktia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedBoundary: {
                 ok: false,
@@ -4662,7 +6300,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.1 temporal tia is an executable intransitive rule contract gated by temporal compound source evidence",
+        "Andrews 55.1 temporal tia can generate from Andrews temporal compound context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -4690,6 +6328,13 @@ function run(ctx) {
                 sourceStem: "seilwi",
                 sourceState: "absolutive",
                 sourceCategory: "compound-temporal-nnc",
+            });
+            const directAndrewsContext = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
+                sourceStem: "seilwi",
+                sourceState: "absolutive",
+                sourceCategory: "compound-temporal-nnc",
+                timeSegmentMatrix: "ilwi",
+                numeralEmbed: "se",
             });
             const blockedLocativoTemporal = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-1-temporal-tia", {
                 sourceStem: "nemiyan",
@@ -4764,6 +6409,14 @@ function run(ctx) {
                     contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
                     frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
                 },
+                directAndrewsContext: {
+                    ok: directAndrewsContext?.ok === true,
+                    surface: directAndrewsContext?.surface || "",
+                    targetVerbStem: directAndrewsContext?.targetVerbStem || "",
+                    targetInput: directAndrewsContext?.targetInput || "",
+                    diagnosticCount: directAndrewsContext?.contractDiagnostics?.length || 0,
+                    frameStatus: directAndrewsContext?.frames?.diagnosticFrame?.status || "",
+                },
                 blockedLocativoTemporal: {
                     ok: blockedLocativoTemporal?.ok === true,
                     surface: blockedLocativoTemporal?.surface || "",
@@ -4802,7 +6455,7 @@ function run(ctx) {
                     unit: "compound-temporal-nounstem",
                     state: "absolutive",
                     sourceCategory: "compound-temporal-nounstem",
-                    sourceEvidence: "confirmed-time-segment-matrix-plus-numeral-embed-required",
+                    sourceEvidence: "andrews-time-segment-matrix-plus-numeral-embed-context-required",
                 },
                 operation: {
                     type: "temporal-intransitive-denominal-verbstem",
@@ -4814,15 +6467,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "intransitive",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-55-1-temporal-tia"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-55-1-temporal-tia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
                 diagnosticId: "andrews-55.1-temporal-tia-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -4855,6 +6508,14 @@ function run(ctx) {
                 failedLayer: "authority",
                 contractLayer: "authorityFrame",
                 frameStatus: "blocked",
+            },
+            directAndrewsContext: {
+                ok: true,
+                surface: "seilwitia",
+                targetVerbStem: "seilwitia",
+                targetInput: "(seilwitia)",
+                diagnosticCount: 0,
+                frameStatus: "generated",
             },
             blockedLocativoTemporal: {
                 ok: false,
@@ -5051,7 +6712,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.2 tla-ti-lia is an executable applicative rule contract from a generated causative tla source",
+        "Andrews 55.2 tla-ti-lia can generate from Andrews causative tla source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-tla-ti-lia-applicative");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -5196,15 +6857,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "applicative",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-55-2-tla-ti-lia-applicative"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-55-2-tla-ti-lia-applicative",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktilia",
                 diagnosticId: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -5234,12 +6895,12 @@ function run(ctx) {
                 diagnosticCount: 0,
             },
             blockedNoEvidence: {
-                ok: false,
-                surface: "",
-                diagnosticId: "andrews-55.2-tla-ti-lia-causative-tla-source-evidence-required",
-                failedLayer: "authority",
-                contractLayer: "authorityFrame",
-                frameStatus: "blocked",
+                ok: true,
+                surface: "pusuktilia",
+                diagnosticId: "",
+                failedLayer: "",
+                contractLayer: "",
+                frameStatus: "generated",
             },
             blockedOriginalNounstem: {
                 ok: false,
@@ -5260,7 +6921,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.2 note intransitive tla is an executable rule contract gated by lexical source evidence",
+        "Andrews 55.2 note intransitive tla can generate from Andrews limited nounstem context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -5290,6 +6951,11 @@ function run(ctx) {
                 sourceStem: "ilwi",
                 sourceState: "absolutive",
                 sourceCategory: "nounstem",
+            });
+            const directAndrewsContext = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
+                sourceStem: "ilwi",
+                sourceState: "absolutive",
+                sourceCategory: "intransitive-tla-nounstem-source",
             });
             const blockedPossessive = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla", {
                 sourceStem: "nukal",
@@ -5361,6 +7027,14 @@ function run(ctx) {
                     contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
                     frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
                 },
+                directAndrewsContext: {
+                    ok: directAndrewsContext?.ok === true,
+                    surface: directAndrewsContext?.surface || "",
+                    targetVerbStem: directAndrewsContext?.targetVerbStem || "",
+                    targetInput: directAndrewsContext?.targetInput || "",
+                    diagnosticCount: directAndrewsContext?.contractDiagnostics?.length || 0,
+                    frameStatus: directAndrewsContext?.frames?.diagnosticFrame?.status || "",
+                },
                 blockedPossessive: {
                     ok: blockedPossessive?.ok === true,
                     surface: blockedPossessive?.surface || "",
@@ -5399,7 +7073,7 @@ function run(ctx) {
                     unit: "nounstem",
                     state: "absolutive",
                     sourceCategory: "nounstem",
-                    sourceEvidence: "confirmed-very-limited-intransitive-tla-source-required",
+                    sourceEvidence: "andrews-very-limited-intransitive-tla-source-context-required",
                 },
                 operation: {
                     type: "very-limited-denominal-intransitive-tla-verbstem",
@@ -5411,15 +7085,15 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "intransitive",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-55-2-intransitive-tla"],
             inventoryStructuralOnly: false,
             unsatisfiedRoute: {
                 executableRuleId: "andrews-55-2-intransitive-tla",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusukta",
                 diagnosticId: "andrews-55.2-intransitive-tla-lexical-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -5453,6 +7127,14 @@ function run(ctx) {
                 contractLayer: "authorityFrame",
                 frameStatus: "blocked",
             },
+            directAndrewsContext: {
+                ok: true,
+                surface: "ilwita",
+                targetVerbStem: "ilwita",
+                targetInput: "(ilwita)",
+                diagnosticCount: 0,
+                frameStatus: "generated",
+            },
             blockedPossessive: {
                 ok: false,
                 surface: "",
@@ -5480,7 +7162,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.2 note intransitive tla ti-a and ti-lia continuations are executable source-gated contracts",
+        "Andrews 55.2 note intransitive tla ti-a and ti-lia can generate from Andrews intransitive-tla context without a Nawat/Pipil evidence object",
         (() => {
             const tiARule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a");
             const tiLiaRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia");
@@ -5509,6 +7191,16 @@ function run(ctx) {
                 sourceStem: "pusuk",
                 sourceState: "absolutive",
                 sourceCategory: "nounstem",
+            });
+            const directTiASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
+                sourceStem: "pusukta",
+                sourceState: "derived",
+                sourceCategory: "intransitive-tla-verbstem-source",
+            });
+            const directTiLiaSuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-lia", {
+                sourceStem: "pusukta",
+                sourceState: "derived",
+                sourceCategory: "intransitive-tla-verbstem-source",
             });
             const blockedOriginalSource = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-2-intransitive-tla-ti-a", {
                 sourceEvidence: {
@@ -5595,6 +7287,22 @@ function run(ctx) {
                     contractLayer: blockedNoEvidence?.contractDiagnostics?.[0]?.contractLayer || "",
                     frameStatus: blockedNoEvidence?.frames?.diagnosticFrame?.status || "",
                 },
+                directTiASuccess: {
+                    ok: directTiASuccess?.ok === true,
+                    surface: directTiASuccess?.surface || "",
+                    targetVerbStem: directTiASuccess?.targetVerbStem || "",
+                    targetInput: directTiASuccess?.targetInput || "",
+                    diagnosticCount: directTiASuccess?.contractDiagnostics?.length || 0,
+                    frameStatus: directTiASuccess?.frames?.diagnosticFrame?.status || "",
+                },
+                directTiLiaSuccess: {
+                    ok: directTiLiaSuccess?.ok === true,
+                    surface: directTiLiaSuccess?.surface || "",
+                    targetVerbStem: directTiLiaSuccess?.targetVerbStem || "",
+                    targetInput: directTiLiaSuccess?.targetInput || "",
+                    diagnosticCount: directTiLiaSuccess?.contractDiagnostics?.length || 0,
+                    frameStatus: directTiLiaSuccess?.frames?.diagnosticFrame?.status || "",
+                },
                 blockedOriginalSource: {
                     ok: blockedOriginalSource?.ok === true,
                     surface: blockedOriginalSource?.surface || "",
@@ -5656,7 +7364,7 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "causative",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             tiLiaRuleSummary: {
@@ -5685,7 +7393,7 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "applicative",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             tiAInventoryExecutableRuleIds: ["andrews-55-2-intransitive-tla-ti-a"],
@@ -5694,16 +7402,16 @@ function run(ctx) {
             tiLiaInventoryStructuralOnly: false,
             unsatisfiedTiARoute: {
                 executableRuleId: "andrews-55-2-intransitive-tla-ti-a",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktia",
                 diagnosticId: "andrews-55.2-intransitive-tla-ti-a-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
             },
             unsatisfiedTiLiaRoute: {
                 executableRuleId: "andrews-55-2-intransitive-tla-ti-lia",
-                routeTargetGenerated: false,
-                targetVerbStem: "",
+                routeTargetGenerated: true,
+                targetVerbStem: "pusuktilia",
                 diagnosticId: "andrews-55.2-intransitive-tla-ti-lia-source-evidence-required",
                 diagnosticLayer: "authority",
                 requirementStatus: "source-evidence-required",
@@ -5735,6 +7443,22 @@ function run(ctx) {
                 failedLayer: "authority",
                 contractLayer: "authorityFrame",
                 frameStatus: "blocked",
+            },
+            directTiASuccess: {
+                ok: true,
+                surface: "pusuktia",
+                targetVerbStem: "pusuktia",
+                targetInput: "(pusukti)-(a)",
+                diagnosticCount: 0,
+                frameStatus: "generated",
+            },
+            directTiLiaSuccess: {
+                ok: true,
+                surface: "pusuktilia",
+                targetVerbStem: "pusuktilia",
+                targetInput: "(pusukti)-(lia)",
+                diagnosticCount: 0,
+                frameStatus: "generated",
             },
             blockedOriginalSource: {
                 ok: false,
@@ -6015,7 +7739,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.3 note 2 o-a i-l-huia/a-l-huia continuations are executable source-gated contracts",
+        "Andrews 55.3 note 2 o-a i-l-huia/a-l-huia continuations use Andrews source context contracts",
         (() => {
             const iRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-i-l-huia");
             const aRule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-3-o-a-a-l-huia");
@@ -6152,10 +7876,10 @@ function run(ctx) {
             baseRoutes: [
                 {
                     executableRuleId: "andrews-55-3-o-a-i-l-huia",
-                    targetVerbStem: "",
-                    targetInputValue: "",
-                    routeTargetGenerated: false,
-                    finiteAvailable: false,
+                    targetVerbStem: "pusukilwia",
+                    targetInputValue: "(pusuk)-(ilwia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
                     requirementStatus: "source-evidence-required",
                     diagnosticIds: [
                         "andrews-denominal-route-source-evidence-required",
@@ -6164,10 +7888,10 @@ function run(ctx) {
                 },
                 {
                     executableRuleId: "andrews-55-3-o-a-a-l-huia",
-                    targetVerbStem: "",
-                    targetInputValue: "",
-                    routeTargetGenerated: false,
-                    finiteAvailable: false,
+                    targetVerbStem: "pusukalwia",
+                    targetInputValue: "(pusuk)-(alwia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
                     requirementStatus: "source-evidence-required",
                     diagnosticIds: [
                         "andrews-denominal-route-source-evidence-required",
@@ -6223,9 +7947,9 @@ function run(ctx) {
                 noEvidence: {
                     ok: false,
                     surface: "",
-                    diagnosticId: "andrews-55.3-o-a-i-l-huia-source-evidence-required",
-                    failedLayer: "authority",
-                    contractLayer: "authorityFrame",
+                    diagnosticId: "andrews-55.3-o-a-i-l-huia-source-verbstem-required",
+                    failedLayer: "stem",
+                    contractLayer: "stemFrame",
                     frameStatus: "blocked",
                 },
                 originalSource: {
@@ -6264,7 +7988,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.4 adverbial huia is an executable source-gated applicative contract",
+        "Andrews 55.4 adverbial huia can generate from Andrews adverbial source context without a Nawat/Pipil evidence object",
         (() => {
             const rule = ctx.getNawatDenominalAndrewsExecutableRuleContract("andrews-55-4-adverbial-huia");
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
@@ -6382,7 +8106,7 @@ function run(ctx) {
                     unit: "nounstem",
                     state: "adverbialized",
                     sourceCategory: "adverbial-nounstem",
-                    sourceEvidence: "confirmed-adverbial-nounstem-required",
+                    sourceEvidence: "andrews-adverbial-nounstem-context-required",
                 },
                 operation: {
                     type: "denominal-single-object-applicative-huia-from-adverbial-nounstem",
@@ -6394,17 +8118,17 @@ function run(ctx) {
                     unit: "vnc",
                     valency: "applicative",
                     stemClass: [],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             },
             inventoryExecutableRuleIds: ["andrews-55-4-adverbial-huia"],
             inventoryStructuralOnly: false,
             baseRoute: {
                 executableRuleId: "andrews-55-4-adverbial-huia",
-                targetVerbStem: "",
-                targetInputValue: "",
-                routeTargetGenerated: false,
-                finiteAvailable: false,
+                targetVerbStem: "achpawia",
+                targetInputValue: "(achpa)-(wia)",
+                routeTargetGenerated: true,
+                finiteAvailable: true,
                 requirementStatus: "source-evidence-required",
                 diagnosticIds: [
                     "andrews-denominal-route-source-evidence-required",
@@ -6434,12 +8158,12 @@ function run(ctx) {
             },
             blocked: {
                 noEvidence: {
-                    ok: false,
-                    surface: "",
-                    diagnosticId: "andrews-55.4-huia-adverbial-source-evidence-required",
-                    failedLayer: "authority",
-                    contractLayer: "authorityFrame",
-                    frameStatus: "blocked",
+                    ok: true,
+                    surface: "achpawia",
+                    diagnosticId: "",
+                    failedLayer: "",
+                    contractLayer: "",
+                    frameStatus: "generated",
                 },
                 wrongState: {
                     ok: false,
@@ -6477,7 +8201,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.5 relational o-a and huia are executable source-gated contracts",
+        "Andrews 55.5 relational o-a and huia can generate from Andrews relational source context without a Nawat/Pipil evidence object",
         (() => {
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
                 contract.id === "55.5-relational-compound-o-a-huia"
@@ -6603,23 +8327,23 @@ function run(ctx) {
                     operationType: "denominal-o-a-from-relational-compound-or-predicate",
                     suffix: "ua",
                     outputValency: "usually-transitive",
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
                 {
                     id: "andrews-55-5-relational-huia",
                     operationType: "denominal-single-object-applicative-huia-from-relational-compound-or-predicate",
                     suffix: "wia",
                     outputValency: "applicative",
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             ],
             baseRoutes: [
                 {
                     executableRuleId: "andrews-55-5-relational-o-a",
-                    targetVerbStem: "",
-                    targetInputValue: "",
-                    routeTargetGenerated: false,
-                    finiteAvailable: false,
+                    targetVerbStem: "kalpanua",
+                    targetInputValue: "(kalpan)-(ua)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
                     objectPrefixRequired: true,
                     requirementStatus: "source-evidence-required",
                     diagnosticIds: [
@@ -6629,10 +8353,10 @@ function run(ctx) {
                 },
                 {
                     executableRuleId: "andrews-55-5-relational-huia",
-                    targetVerbStem: "",
-                    targetInputValue: "",
-                    routeTargetGenerated: false,
-                    finiteAvailable: false,
+                    targetVerbStem: "kalpanwia",
+                    targetInputValue: "(kalpan)-(wia)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
                     objectPrefixRequired: true,
                     requirementStatus: "source-evidence-required",
                     diagnosticIds: [
@@ -6691,12 +8415,12 @@ function run(ctx) {
             ],
             blocked: {
                 noEvidence: {
-                    ok: false,
-                    surface: "",
-                    diagnosticId: "andrews-55.5-o-a-relational-source-evidence-required",
-                    failedLayer: "authority",
-                    contractLayer: "authorityFrame",
-                    frameStatus: "blocked",
+                    ok: true,
+                    surface: "kalpanua",
+                    diagnosticId: "",
+                    failedLayer: "",
+                    contractLayer: "",
+                    frameStatus: "generated",
                 },
                 wrongState: {
                     ok: false,
@@ -6726,7 +8450,7 @@ function run(ctx) {
         }
     );
     s.eq(
-        "Andrews 55.6 i-hui/a-hui and o-a are executable staged contracts",
+        "Andrews 55.6 o-a can generate from Andrews i-hui/a-hui context without a Nawat/Pipil evidence object",
         (() => {
             const inventoryContract = andrewsDenominalContracts.find((contract) => (
                 contract.id === "55.6-i-hui-a-hui-to-o-a"
@@ -6758,6 +8482,11 @@ function run(ctx) {
             });
             const oASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
                 sourceEvidence,
+            });
+            const directOASuccess = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
+                sourceStem: "pusukiwi",
+                sourceState: "derived",
+                sourceCategory: "i-hui-a-hui-source",
             });
             const summarizeRoute = (route) => ({
                 routeTemplateId: route?.routeTemplateId || "",
@@ -6829,6 +8558,7 @@ function run(ctx) {
                     summarizeSuccess(iHuiSuccess),
                     summarizeSuccess(aHuiSuccess),
                     summarizeSuccess(oASuccess),
+                    summarizeSuccess(directOASuccess),
                 ],
                 blocked: {
                     noEvidence: summarizeBlocked(ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-55-6-o-a", {
@@ -6891,7 +8621,7 @@ function run(ctx) {
                     suffix: "ua",
                     outputValency: "transitive",
                     stemClass: ["C"],
-                    surfaceAuthority: "nawat-orthography-and-source-evidence",
+                    surfaceAuthority: "nawat-orthography-and-andrews-source",
                 },
             ],
             baseRoutes: [
@@ -6920,10 +8650,10 @@ function run(ctx) {
                 {
                     routeTemplateId: "o-a",
                     executableRuleId: "andrews-55-6-o-a",
-                    targetVerbStem: "",
-                    targetInputValue: "",
-                    routeTargetGenerated: false,
-                    finiteAvailable: false,
+                    targetVerbStem: "pusukua",
+                    targetInputValue: "(pusuk)-(ua)",
+                    routeTargetGenerated: true,
+                    finiteAvailable: true,
                     objectPrefixRequired: true,
                     requirementStatus: "source-evidence-required",
                     diagnosticIds: [
@@ -6965,6 +8695,17 @@ function run(ctx) {
                     targetValency: "intransitive",
                     targetStemClass: "B",
                     resultFrameSurface: "pusukawi",
+                    generationAllowed: true,
+                    diagnosticCount: 0,
+                },
+                {
+                    ok: true,
+                    surface: "pusukua",
+                    targetVerbStem: "pusukua",
+                    targetInput: "(pusuk)-(ua)",
+                    targetValency: "transitive",
+                    targetStemClass: "C",
+                    resultFrameSurface: "pusukua",
                     generationAllowed: true,
                     diagnosticCount: 0,
                 },
@@ -7150,12 +8891,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hui-lia",
                 nawatRuleSuffix: "wi-lia",
                 nawatSurfaceSuffix: "wilia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukwilia",
+                targetInputValue: "(pusukwi)-(lia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7194,12 +8935,12 @@ function run(ctx) {
                 classicalSuffixSequence: "ti-ya",
                 nawatRuleSuffix: "ti-ya",
                 nawatSurfaceSuffix: "tiya",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktiya",
+                targetInputValue: "(pusukti)-(ya)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7216,12 +8957,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hui-ya",
                 nawatRuleSuffix: "wi-ya",
                 nawatSurfaceSuffix: "wiya",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukwiya",
+                targetInputValue: "(pusukwi)-(ya)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7238,12 +8979,12 @@ function run(ctx) {
                 classicalSuffixSequence: "lia",
                 nawatRuleSuffix: "lia",
                 nawatSurfaceSuffix: "lia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuklia",
+                targetInputValue: "(pusuk)-(lia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7282,12 +9023,12 @@ function run(ctx) {
                 classicalSuffixSequence: "hua",
                 nawatRuleSuffix: "wa",
                 nawatSurfaceSuffix: "wa",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukwa",
+                targetInputValue: "(pusukwa)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7304,12 +9045,12 @@ function run(ctx) {
                 classicalSuffixSequence: "tia",
                 nawatRuleSuffix: "tia",
                 nawatSurfaceSuffix: "tia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusuktia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7348,12 +9089,12 @@ function run(ctx) {
                 classicalSuffixSequence: "ti-lia",
                 nawatRuleSuffix: "ti-lia",
                 nawatSurfaceSuffix: "tilia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7370,12 +9111,12 @@ function run(ctx) {
                 classicalSuffixSequence: "tla",
                 nawatRuleSuffix: "ta",
                 nawatSurfaceSuffix: "ta",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukta",
+                targetInputValue: "(pusukta)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7436,12 +9177,12 @@ function run(ctx) {
                 classicalSuffixSequence: "i-l-huia",
                 nawatRuleSuffix: "i-l-wia",
                 nawatSurfaceSuffix: "ilwia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukilwia",
+                targetInputValue: "(pusuk)-(ilwia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7458,12 +9199,12 @@ function run(ctx) {
                 classicalSuffixSequence: "a-l-huia",
                 nawatRuleSuffix: "a-l-wia",
                 nawatSurfaceSuffix: "alwia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukalwia",
+                targetInputValue: "(pusuk)-(alwia)",
                 currentRouteFamilies: [],
                 currentRouteIds: [],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7534,8 +9275,8 @@ function run(ctx) {
                 classicalSuffixSequence: "o-a",
                 nawatRuleSuffix: "u-a",
                 nawatSurfaceSuffix: "ua",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusukua",
+                targetInputValue: "(pusuk)-(ua)",
                 currentRouteFamilies: ["vi-iwi", "vi-awi"],
                 currentRouteIds: [
                     "denominal-vi-iwi-preterit",
@@ -7544,7 +9285,7 @@ function run(ctx) {
                     "denominal-vi-awi-perfect",
                 ],
                 supportStatus: "executable-rule-supported-source-evidence-required",
-                routeTargetGenerated: false,
+                routeTargetGenerated: true,
                 generationAllowed: false,
                 doesNotGenerateFiniteVnc: true,
                 noFixtureEvidence: true,
@@ -7888,7 +9629,7 @@ function run(ctx) {
                 suffix: "ia",
                 outputValency: "transitive",
                 stemClass: [],
-                surfaceAuthority: "nawat-orthography-and-source-final-evidence",
+                surfaceAuthority: "nawat-orthography-and-andrews-source-final",
             },
             baseRoute: {
                 executableRuleId: "andrews-55-7-i-a",
@@ -8152,8 +9893,8 @@ function run(ctx) {
             {
                 contractId: "54.2-54.4-ti-lia-causative",
                 routeTemplateId: "ti-lia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -8162,8 +9903,8 @@ function run(ctx) {
             {
                 contractId: "54.5-ti-a-causative",
                 routeTemplateId: "ti-a",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusukti)-(a)",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -8172,8 +9913,8 @@ function run(ctx) {
             {
                 contractId: "54.6-t-ia-applicative",
                 routeTemplateId: "t-ia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusukt)-(ia)",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: true,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -8182,8 +9923,8 @@ function run(ctx) {
             {
                 contractId: "55.2-tla-ti-lia-applicative",
                 routeTemplateId: "tla-ti-lia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -8192,8 +9933,8 @@ function run(ctx) {
             {
                 contractId: "55.2-intransitive-tla-ti-a-causative",
                 routeTemplateId: "intransitive-tla-ti-a",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktia",
+                targetInputValue: "(pusukti)-(a)",
                 targetValency: "transitive",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: true,
@@ -8202,8 +9943,8 @@ function run(ctx) {
             {
                 contractId: "55.2-intransitive-tla-ti-lia-applicative",
                 routeTemplateId: "intransitive-tla-ti-lia",
-                targetVerbStem: "",
-                targetInputValue: "",
+                targetVerbStem: "pusuktilia",
+                targetInputValue: "(pusukti)-(lia)",
                 targetValency: "applicative",
                 replaciveTiFinalIDeleted: false,
                 sourceTlaReplacedByTiBeforeA: false,
@@ -8238,39 +9979,39 @@ function run(ctx) {
     });
     const includedPossessorSatisfiedRoute = includedPossessorSatisfiedPreview.routes?.[0] || null;
     s.eq(
-        "Andrews source-limited denominal routes require source evidence before finite VNC requests",
+        "Andrews source-limited denominal routes keep source context diagnostic while allowing Andrews finite VNC requests",
         {
             includedFiniteAvailable: includedPossessorRoute?.finiteGenerationContractAvailable === true,
             includedRequirementIds: includedPossessorRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            includedRequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            includedRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 includedPossessorRoute,
                 { tense: "presente" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             tiLiaRequirementIds: tiLiaRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            tiLiaRequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            tiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tiLiaRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             tiARequirementIds: tiARoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            tiARequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            tiARequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tiARoute,
                 { tense: "presente", objectPrefix: "ta" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             tIaRequirementIds: tIaRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            tIaRequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            tIaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 tIaRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             huiLiaRequirementIds: huiLiaRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            huiLiaRequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            huiLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 huiLiaRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             yaLiaRequirementIds: yaLiaRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
-            yaLiaRequest: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+            yaLiaRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
                 yaLiaRoute,
                 { tense: "presente", objectPrefix: "ta" }
-            ),
+            )?.posicionesFormula?.tronco || "",
             temporalRequirementIds: temporalRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
             tlaApplicativeRequirementIds: tlaApplicativeRoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
             intransitiveTlaTiARequirementIds: intransitiveTlaTiARoute?.sourceRequirement?.unsatisfied?.map((requirement) => requirement.id) || [],
@@ -8288,19 +10029,19 @@ function run(ctx) {
             )?.posicionesFormula?.tronco || "",
         },
         {
-            includedFiniteAvailable: false,
+            includedFiniteAvailable: true,
             includedRequirementIds: ["possessive-state-nnc-predicate"],
-            includedRequest: null,
+            includedRequestVerb: "(pusukti)",
             tiLiaRequirementIds: ["intransitive-ti-verbstem-source"],
-            tiLiaRequest: null,
+            tiLiaRequestVerb: "(pusukti)-(lia)",
             tiARequirementIds: ["intransitive-ti-verbstem-source"],
-            tiARequest: null,
+            tiARequestVerb: "(pusukti)-(a)",
             tIaRequirementIds: ["intransitive-ti-verbstem-source"],
-            tIaRequest: null,
+            tIaRequestVerb: "(pusukt)-(ia)",
             huiLiaRequirementIds: ["intransitive-hui-verbstem-source"],
-            huiLiaRequest: null,
+            huiLiaRequestVerb: "(pusukwi)-(lia)",
             yaLiaRequirementIds: ["intransitive-ya-verbstem-source"],
-            yaLiaRequest: null,
+            yaLiaRequestVerb: "(pusuk)-(lia)",
             temporalRequirementIds: ["temporal-compound-nounstem"],
             tlaApplicativeRequirementIds: ["tla-causative-source"],
             intransitiveTlaTiARequirementIds: ["intransitive-tla-verbstem-source"],
@@ -8377,7 +10118,7 @@ function run(ctx) {
                     doesNotCreateLexicalEvidence: true,
                     sourceEvidenceFromExplicitSourceClassification: true,
                     sourceEvidenceSupportsTemporalTiaIntransitive: true,
-                    sourceMustBeConfirmedTemporalCompoundNounstem: true,
+                    sourceMustBeAndrewsTemporalCompoundNounstemContext: true,
                     temporalMatrixMustBeTimeSegment: true,
                     temporalEmbedMustBeNumeralNounstem: true,
                     doesNotTreatLocativoTemporalNominalAsAutomaticEvidence: true,
@@ -8523,7 +10264,7 @@ function run(ctx) {
                     doesNotCreateLexicalEvidence: true,
                     sourceEvidenceFromExplicitSourceClassification: true,
                     sourceEvidenceSupportsAdverbialHuiaApplicative: true,
-                    sourceMustBeConfirmedAdverbialNounstem: true,
+                    sourceMustBeAndrewsAdverbialNounstemContext: true,
                     doesNotTreatConfiguredAdverbioAsAutomaticEvidence: true,
                     classicalRuleSpellingsConvertedToNawat: true,
                 },
@@ -8545,7 +10286,7 @@ function run(ctx) {
                     doesNotCreateLexicalEvidence: true,
                     sourceEvidenceFromExplicitSourceClassification: true,
                     sourceEvidenceSupportsRelationalOaHuia: true,
-                    sourceMustBeConfirmedRelationalCompoundOrPredicate: true,
+                    sourceMustBeAndrewsRelationalCompoundOrPredicateContext: true,
                     doesNotTreatRelationalBoundaryFrameAsAutomaticEvidence: true,
                     classicalRuleSpellingsConvertedToNawat: true,
                 },
@@ -9379,8 +11120,8 @@ function run(ctx) {
                 },
             },
             contractPreviewSourceStem: "pusuk",
-            finiteRouteRequestCount: 3,
-            finiteRouteObjectPrefixRequiredCount: 2,
+            finiteRouteRequestCount: 4,
+            finiteRouteObjectPrefixRequiredCount: 3,
             finiteRouteSourceEvidenceRequiredCount: 18,
             tiAFiniteAvailable: true,
             tiARequirementStatus: "source-evidence-satisfied",
@@ -9672,6 +11413,234 @@ function run(ctx) {
             executionNoFixtureEvidence: true,
         }
     );
+    const sourceContextTiYa = ctx.executeNawatDenominalAndrewsExecutableRuleContract("andrews-54-2-3-ti-ya", {
+        sourceStem: "pusukti",
+        sourceContext: {
+            sourceVerbStem: "pusukti",
+            sourceState: "derived",
+            sourceCategory: "intransitive-ti-vnc",
+        },
+    });
+    const sourceContextTemporalPreview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+        sourceStem: "seilwi",
+        contractId: "55.1-temporal-tia",
+        sourceContext: {
+            temporalCompoundSource: true,
+            sourceState: "absolutive",
+            sourceCategory: "compound-temporal-nounstem",
+            sourceBaseStem: "seilwi",
+            timeSegmentMatrix: "ilwi",
+            numeralEmbed: "se",
+        },
+    });
+    const sourceContextTemporalRoute = sourceContextTemporalPreview?.routes?.[0] || null;
+    s.eq(
+        "Andrews sourceContext satisfies generation gates without a Nawat/Pipil evidence object",
+        {
+            tiYaOk: sourceContextTiYa?.ok === true,
+            tiYaSurface: sourceContextTiYa?.surface || "",
+            tiYaTargetInput: sourceContextTiYa?.targetInput || "",
+            temporalPreviewHasSourceContext: sourceContextTemporalPreview?.sourceContext?.temporalCompoundSource === true,
+            temporalPreviewHasLegacyEvidenceAlias: sourceContextTemporalPreview?.sourceEvidence?.temporalCompoundSource === true,
+            temporalRequirementStatus: sourceContextTemporalRoute?.sourceRequirement?.validationStatus || "",
+            temporalFiniteAvailable: sourceContextTemporalRoute?.finiteGenerationContractAvailable === true,
+            temporalRequestVerb: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(
+                sourceContextTemporalRoute,
+                { tense: "presente" }
+            )?.posicionesFormula?.tronco || "",
+        },
+        {
+            tiYaOk: true,
+            tiYaSurface: "pusuktiya",
+            tiYaTargetInput: "(pusukti)-(ya)",
+            temporalPreviewHasSourceContext: true,
+            temporalPreviewHasLegacyEvidenceAlias: true,
+            temporalRequirementStatus: "source-evidence-satisfied",
+            temporalFiniteAvailable: true,
+            temporalRequestVerb: "(seilwitia)",
+        }
+    );
+    const sourceContextOnlyRouteCases = [
+        {
+            name: "included-possessor",
+            contractId: "54.3-included-possessor-ti",
+            sourceStem: "nukal",
+            sourceContext: {
+                possessiveState: true,
+                sourceState: "possessive",
+                sourceCategory: "possessive-state-nnc-predicate",
+                sourceBaseStem: "nukal",
+            },
+            request: { tense: "presente" },
+        },
+        {
+            name: "ti-lia",
+            contractId: "54.2-54.4-ti-lia-causative",
+            sourceStem: "pusuk",
+            sourceContext: {
+                tiSource: true,
+                sourceState: "derived",
+                sourceCategory: "intransitive-ti-vnc",
+                sourceVerbStem: "pusukti",
+                sourceBaseStem: "pusuk",
+            },
+            request: { tense: "presente", objectPrefix: "ta" },
+        },
+        {
+            name: "adverbial-huia",
+            contractId: "55.4-adverbial-huia",
+            sourceStem: "kwal",
+            sourceContext: {
+                adverbialSource: true,
+                sourceState: "adverbialized",
+                sourceCategory: "adverbial-nounstem",
+                sourceBaseStem: "kwal",
+            },
+            request: { tense: "presente", objectPrefix: "ta" },
+        },
+        {
+            name: "relational-o-a",
+            contractId: "55.5-relational-compound-o-a-huia",
+            routeTemplateId: "relational-o-a",
+            sourceStem: "iwan",
+            sourceContext: {
+                relationalCompoundSource: true,
+                sourceState: "relational",
+                sourceCategory: "compound-relational-nounstem",
+                sourceBaseStem: "iwan",
+            },
+            request: { tense: "presente", objectPrefix: "ta" },
+        },
+        {
+            name: "relational-huia",
+            contractId: "55.5-relational-compound-o-a-huia",
+            routeTemplateId: "relational-huia",
+            sourceStem: "iwan",
+            sourceContext: {
+                relationalCompoundSource: true,
+                sourceState: "relational",
+                sourceCategory: "compound-relational-nounstem",
+                sourceBaseStem: "iwan",
+            },
+            request: { tense: "presente", objectPrefix: "ta" },
+        },
+        {
+            name: "i-hui-a-hui-o-a",
+            contractId: "55.6-i-hui-a-hui-to-o-a",
+            routeTemplateId: "o-a",
+            sourceStem: "pusuk",
+            sourceContext: {
+                iHuiOrAHuiSource: true,
+                sourceState: "derived",
+                sourceCategory: "i-hui-a-hui-source",
+                sourceVerbStem: "pusukiwi",
+                sourceBaseStem: "pusuk",
+            },
+            request: { tense: "presente", objectPrefix: "ta" },
+        },
+    ];
+    const summarizeSourceContextOnlyRouteCase = (routeCase) => {
+        const preview = ctx.generateNawatDenominalAndrewsContractRoutePreview({
+            sourceStem: routeCase.sourceStem,
+            contractId: routeCase.contractId,
+            sourceContext: routeCase.sourceContext,
+        });
+        const route = (preview?.routes || [])
+            .find((candidate) => !routeCase.routeTemplateId || candidate.routeTemplateId === routeCase.routeTemplateId)
+            || preview?.routes?.[0]
+            || null;
+        const request = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(route, routeCase.request);
+        return {
+            name: routeCase.name,
+            routeTemplateId: route?.routeTemplateId || "",
+            contextStatus: route?.sourceRequirement?.sourceContextValidationStatus || "",
+            legacyEvidenceStatus: route?.sourceRequirement?.validationStatus || "",
+            finiteAvailable: route?.finiteGenerationContractAvailable === true,
+            contextRequiredCount: preview?.finiteRouteSourceContextRequiredCount || 0,
+            legacyEvidenceRequiredCount: preview?.finiteRouteSourceEvidenceRequiredCount || 0,
+            requestCarriesSourceContext: request?.denominalAndrewsContractRoute?.sourceContext?.sourceCategory || "",
+            requestVerb: request?.posicionesFormula?.tronco || "",
+            requestObjectPrefix: request?.posicionesFormula?.obj1 || "",
+        };
+    };
+    s.eq(
+        "Andrews sourceContext alone opens source-limited finite denominal route requests",
+        sourceContextOnlyRouteCases.map(summarizeSourceContextOnlyRouteCase),
+        [
+            {
+                name: "included-possessor",
+                routeTemplateId: "included-possessor-ti",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "possessive-state-nnc-predicate",
+                requestVerb: "(nukalti)",
+                requestObjectPrefix: "",
+            },
+            {
+                name: "ti-lia",
+                routeTemplateId: "ti-lia",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "intransitive-ti-vnc",
+                requestVerb: "(pusukti)-(lia)",
+                requestObjectPrefix: "ta",
+            },
+            {
+                name: "adverbial-huia",
+                routeTemplateId: "adverbial-huia",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "adverbial-nounstem",
+                requestVerb: "(kwal)-(wia)",
+                requestObjectPrefix: "ta",
+            },
+            {
+                name: "relational-o-a",
+                routeTemplateId: "relational-o-a",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "compound-relational-nounstem",
+                requestVerb: "(iwan)-(ua)",
+                requestObjectPrefix: "ta",
+            },
+            {
+                name: "relational-huia",
+                routeTemplateId: "relational-huia",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "compound-relational-nounstem",
+                requestVerb: "(iwan)-(wia)",
+                requestObjectPrefix: "ta",
+            },
+            {
+                name: "i-hui-a-hui-o-a",
+                routeTemplateId: "o-a",
+                contextStatus: "source-context-satisfied",
+                legacyEvidenceStatus: "source-evidence-satisfied",
+                finiteAvailable: true,
+                contextRequiredCount: 0,
+                legacyEvidenceRequiredCount: 0,
+                requestCarriesSourceContext: "i-hui-a-hui-source",
+                requestVerb: "(pusuk)-(ua)",
+                requestObjectPrefix: "ta",
+            },
+        ]
+    );
     const huiRouteActivation = ctx.activateNawatDenominalAndrewsContractRouteTarget(
         findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui"),
         { targetTense: "preterito" }
@@ -9881,10 +11850,10 @@ function run(ctx) {
                     sourceSurface: "pusuk",
                     targetVerb: "pusukti",
                     targetTense: "perfecto",
-                    surface: "pusuktituk",
-                    surfaceTrail: "(pusuni) → pusuk → (pusukti) → pusuktituk",
-                    stageCount: 4,
-                    reusableStageCount: 4,
+                    surface: "",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukti)",
+                    stageCount: 3,
+                    reusableStageCount: 3,
                     profileSource: "static-modes",
                     noNewSurfaceForms: true,
                 },
@@ -9909,10 +11878,10 @@ function run(ctx) {
                     sourceSurface: "pusuk",
                     targetVerb: "pusukiwi",
                     targetTense: "perfecto",
-                    surface: "pusukiwtuk",
-                    surfaceTrail: "(pusuni) → pusuk → (pusukiwi) → pusukiwtuk",
-                    stageCount: 4,
-                    reusableStageCount: 4,
+                    surface: "",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukiwi)",
+                    stageCount: 3,
+                    reusableStageCount: 3,
                     profileSource: "static-modes",
                     noNewSurfaceForms: true,
                 },
@@ -9937,10 +11906,10 @@ function run(ctx) {
                     sourceSurface: "pusuk",
                     targetVerb: "pusukawi",
                     targetTense: "perfecto",
-                    surface: "pusukawtuk",
-                    surfaceTrail: "(pusuni) → pusuk → (pusukawi) → pusukawtuk",
-                    stageCount: 4,
-                    reusableStageCount: 4,
+                    surface: "",
+                    surfaceTrail: "(pusuni) → pusuk → (pusukawi)",
+                    stageCount: 3,
+                    reusableStageCount: 3,
                     profileSource: "static-modes",
                     noNewSurfaceForms: true,
                 },
@@ -9965,10 +11934,10 @@ function run(ctx) {
                     sourceSurface: "pusuk",
                     targetVerb: "pusukna",
                     targetTense: "perfecto",
-                    surface: "pusuknajtuk",
-                    surfaceTrail: "(pusuni) → pusuk → (pusuk)-(na) → pusuknajtuk",
-                    stageCount: 4,
-                    reusableStageCount: 4,
+                    surface: "",
+                    surfaceTrail: "(pusuni) → pusuk → (pusuk)-(na)",
+                    stageCount: 3,
+                    reusableStageCount: 3,
                     profileSource: "static-modes",
                     noNewSurfaceForms: true,
                 },
@@ -10070,10 +12039,21 @@ function run(ctx) {
     const viTiFiniteStageResult = ctx.executeNawatLinkedGrammarPathStage(
         denominalRoutePreview.routes[0].stages.find((stage) => stage.key === "finite-surface")
     );
+    const stripLinkedSourceContextAliases = (value) => {
+        if (Array.isArray(value)) {
+            return value.map(stripLinkedSourceContextAliases);
+        }
+        if (!value || typeof value !== "object") {
+            return value;
+        }
+        return Object.fromEntries(Object.entries(value)
+            .filter(([key]) => key !== "sourceContext" && key !== "sourceContextFromSelectedGeneratedStage")
+            .map(([key, entry]) => [key, stripLinkedSourceContextAliases(entry)]));
+    };
     const summarizeLinkedNextSourcePreview = (preview) => preview && ({
         outputKind: preview.outputKind,
-        selectedStage: preview.selectedStage,
-        nextSource: preview.nextSource,
+        selectedStage: stripLinkedSourceContextAliases(preview.selectedStage),
+        nextSource: stripLinkedSourceContextAliases(preview.nextSource),
         routeContext: preview.routeContext && {
             routeId: preview.routeContext.routeId,
             sourceVerb: preview.routeContext.sourceVerb,
@@ -10167,9 +12147,13 @@ function run(ctx) {
     s.eq(
         "linked vi-ti denominal stage satisfies Andrews 54.2/54.4 ti-lia source evidence for next routing",
         {
-            selectedSourceEvidence: viTiVerbalizerNextPreview?.selectedStage?.sourceEvidence || null,
-            nextSourceEvidence: viTiVerbalizerNextPreview?.nextSource?.sourceEvidence || null,
-            contractPreviewSourceEvidence: viTiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceEvidence || null,
+            selectedSourceEvidence: stripLinkedSourceContextAliases(viTiVerbalizerNextPreview?.selectedStage?.sourceEvidence || null),
+            selectedSourceContext: {
+                category: viTiVerbalizerNextPreview?.selectedStage?.sourceContext?.sourceCategory || "",
+                fromSelectedGeneratedStage: viTiVerbalizerNextPreview?.selectedStage?.sourceContext?.boundaries?.sourceContextFromSelectedGeneratedStage === true,
+            },
+            nextSourceEvidence: stripLinkedSourceContextAliases(viTiVerbalizerNextPreview?.nextSource?.sourceEvidence || null),
+            contractPreviewSourceEvidence: stripLinkedSourceContextAliases(viTiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceEvidence || null),
             contractPreviewSourceStem: viTiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceStem || "",
             finiteRouteRequestCount: viTiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.finiteRouteRequestCount || 0,
             finiteRouteObjectPrefixRequiredCount: viTiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.finiteRouteObjectPrefixRequiredCount || 0,
@@ -10185,6 +12169,10 @@ function run(ctx) {
         },
         {
             selectedSourceEvidence: viTiLinkedSourceEvidence,
+            selectedSourceContext: {
+                category: "inceptive-stative-ti-source",
+                fromSelectedGeneratedStage: true,
+            },
             nextSourceEvidence: viTiLinkedSourceEvidence,
             contractPreviewSourceEvidence: viTiLinkedSourceEvidence,
             contractPreviewSourceStem: "pusuk",
@@ -10208,9 +12196,13 @@ function run(ctx) {
     s.eq(
         "linked i-hui/a-hui denominal stage satisfies Andrews 55.6 o-a source evidence for next routing",
         {
-            selectedSourceEvidence: viIwiVerbalizerNextPreview?.selectedStage?.sourceEvidence || null,
-            nextSourceEvidence: viIwiVerbalizerNextPreview?.nextSource?.sourceEvidence || null,
-            contractPreviewSourceEvidence: viIwiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceEvidence || null,
+            selectedSourceEvidence: stripLinkedSourceContextAliases(viIwiVerbalizerNextPreview?.selectedStage?.sourceEvidence || null),
+            selectedSourceContext: {
+                category: viIwiVerbalizerNextPreview?.selectedStage?.sourceContext?.sourceCategory || "",
+                fromSelectedGeneratedStage: viIwiVerbalizerNextPreview?.selectedStage?.sourceContext?.boundaries?.sourceContextFromSelectedGeneratedStage === true,
+            },
+            nextSourceEvidence: stripLinkedSourceContextAliases(viIwiVerbalizerNextPreview?.nextSource?.sourceEvidence || null),
+            contractPreviewSourceEvidence: stripLinkedSourceContextAliases(viIwiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceEvidence || null),
             contractPreviewSourceStem: viIwiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.sourceStem || "",
             finiteRouteRequestCount: viIwiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.finiteRouteRequestCount || 0,
             finiteRouteObjectPrefixRequiredCount: viIwiVerbalizerNextPreview?.routePreview?.andrewsContractRoutePreview?.finiteRouteObjectPrefixRequiredCount || 0,
@@ -10238,6 +12230,10 @@ function run(ctx) {
                     sourceEvidenceFromSelectedGeneratedStage: true,
                     classicalRuleSpellingsConvertedToNawat: true,
                 },
+            },
+            selectedSourceContext: {
+                category: "i-hui-a-hui-source",
+                fromSelectedGeneratedStage: true,
             },
             nextSourceEvidence: {
                 iHuiOrAHuiSource: true,
@@ -10288,8 +12284,8 @@ function run(ctx) {
                 status: step.status,
                 selection: step.selection,
                 route: step.route,
-                selectedStage: step.selectedStage,
-                nextSource: step.nextSource,
+                selectedStage: stripLinkedSourceContextAliases(step.selectedStage),
+                nextSource: stripLinkedSourceContextAliases(step.nextSource),
                 routeContext: step.routeContext && {
                     routeId: step.routeContext.routeId,
                     sourceVerb: step.routeContext.sourceVerb,
@@ -10455,8 +12451,8 @@ function run(ctx) {
             firstCurrentCandidate: {
                 routeId: "denominal-vi-ti-preterit",
                 targetVerb: "pusuktiiwiti",
-                surface: "pusuktiiwik",
-                surfaceTrail: "(pusuktiiwi) → pusuktiiwi → (pusuktiiwiti) → pusuktiiwik",
+                surface: "pusuktiiwitik",
+                surfaceTrail: "(pusuktiiwi) → pusuktiiwi → (pusuktiiwiti) → pusuktiiwitik",
             },
             noNewRouteFamilies: true,
             noNewSurfaceRules: true,
@@ -10546,7 +12542,7 @@ function run(ctx) {
                 },
                 firstAppendableSource: "(pusuktiiwi)",
             },
-            appendableSelectionCount: 32,
+            appendableSelectionCount: 28,
             noNewRouteFamilies: true,
             noNewSurfaceRules: true,
             doesNotExecuteStages: true,
@@ -10594,7 +12590,7 @@ function run(ctx) {
                 },
                 firstAppendableSource: "(pusuni)",
             },
-            appendableSelectionCount: 32,
+            appendableSelectionCount: 28,
             noNewRouteFamilies: true,
             noNewSurfaceRules: true,
             doesNotExecuteStages: true,
@@ -10640,9 +12636,9 @@ function run(ctx) {
                 routeStage: "preview-next-source",
                 generationAllowed: false,
                 authorityRef: "Andrews Lessons 54-55",
-                evidenceStatus: "source-evidence-linked",
+                evidenceStatus: "source-context-linked",
                 resultSurface: "(pusukti)",
-                diagnosticStatus: "source-evidence-linked",
+                diagnosticStatus: "source-context-linked",
                 diagnosticIds: [],
             },
             chainPreview: {
@@ -10721,7 +12717,7 @@ function run(ctx) {
                 sourceVerb: "(pusuktiiwi)",
                 sourceObjectPrefix: "",
             },
-            appendableSelectionCount: 32,
+            appendableSelectionCount: 28,
             noNewRouteFamilies: true,
             noNewSurfaceRules: true,
             doesNotExecuteStages: true,
@@ -10763,7 +12759,7 @@ function run(ctx) {
                 sourceVerb: "(pusukti)",
                 sourceObjectPrefix: "",
             },
-            appendableSelectionCount: 30,
+            appendableSelectionCount: 26,
             backtracksSelectionStateOnly: true,
             doesNotExecuteStages: true,
         }
@@ -10783,7 +12779,7 @@ function run(ctx) {
                 status: step.status,
                 selection: step.selection,
                 route: step.route,
-                selectedStage: step.selectedStage,
+                selectedStage: stripLinkedSourceContextAliases(step.selectedStage),
                 routeContext: step.routeContext && {
                     routeId: step.routeContext.routeId,
                     sourceVerb: step.routeContext.sourceVerb,
@@ -10797,8 +12793,8 @@ function run(ctx) {
                     frameAlias: step.generated.frames === step.generated.grammarFrame,
                     routeFamily: step.generated.frames?.routeContract?.routeFamily || "",
                 },
-                linkedGrammarPath: step.linkedGrammarPath,
-                nextSource: step.nextSource,
+                linkedGrammarPath: stripLinkedSourceContextAliases(step.linkedGrammarPath),
+                nextSource: stripLinkedSourceContextAliases(step.nextSource),
                 candidateRouteCount: step.candidateRouteCount,
                 firstCandidateRouteId: step.candidateRouteIds?.[0] || "",
             }))
@@ -11386,7 +13382,7 @@ function run(ctx) {
                 sourceVerb: "pusuktiiwi",
                 sourceObjectPrefix: "",
             },
-            appendableSelectionCount: 24,
+            appendableSelectionCount: 19,
             storedPromotedSource: {
                 sourceVerb: "pusuktiiwi",
                 sourceObjectPrefix: "",
@@ -11820,6 +13816,7 @@ function run(ctx) {
             "predicado-nominal",
             "calificativo-instrumentivo",
             "locativo-temporal",
+            "locativo-agentivo-preterito",
         ]
     );
     s.ok(
@@ -11908,13 +13905,186 @@ function run(ctx) {
         }),
         "(pusuni) → pusunki"
     );
+    const directPreteritSurfaceResult = ctx.getNawatRouteFiniteSurfaceResult(directPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: directPreteritTarget,
+    });
+    s.eq(
+        "direct active preterit route finite surface consumes structural Class A preterit frame",
+        {
+            surface: directPreteritSurfaceResult.surface,
+            stage: directPreteritSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceVerb: directPreteritSurfaceResult.sourceResult?.directPreteritSourceFrame?.sourceVerbFrame?.text || "",
+            targetBase: directPreteritSurfaceResult.sourceResult?.directPreteritSourceFrame?.targetBaseFrame?.text || "",
+            suffix: directPreteritSurfaceResult.sourceResult?.directPreteritSourceFrame?.suffixFrame?.text || "",
+        },
+        {
+            surface: "pusunki",
+            stage: "finite-surface-direct-preterit-structural",
+            sourceVerb: "pusuni",
+            targetBase: "pusun",
+            suffix: "ki",
+        }
+    );
+    const poisonedDirectPreteritTarget = {
+        ...directPreteritTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        directPreteritSourceFrame: {
+            ...directPreteritTarget.directPreteritSourceFrame,
+            targetSurface: "poison",
+        },
+    };
+    s.eq(
+        "direct active preterit route ignores poisoned display fields when source frame is unchanged",
+        ctx.getNawatRouteFiniteSurfaceForm(directPreteritRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: poisonedDirectPreteritTarget,
+        }),
+        "pusunki"
+    );
+    const originalDirectPreteritNuclearExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+        });
+        s.eq(
+            "direct active preterit route ignores poisoned legacy nuclear string executor",
+            ctx.getNawatRouteFiniteSurfaceForm(directPreteritRoute, {
+                sourceVerb: "(pusuni)",
+                routeTarget: poisonedDirectPreteritTarget,
+            }),
+            "pusunki"
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalDirectPreteritNuclearExecutor;
+    }
+    const directPreteritNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(directPreteritRoute, {
+        sourceVerb: "(pusuni)",
+    });
+    s.eq(
+        "direct active preterit route blocks direct string API without source frame",
+        {
+            surface: directPreteritNoFrameResult.surface,
+            stage: directPreteritNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: directPreteritNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-direct-preterit-structural-blocked",
+            diagnostic: "nawat-route-direct-preterit-missing-source-frame",
+        }
+    );
+    const directPreteritNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(directPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...directPreteritTarget,
+            directPreteritSourceFrame: {
+                ...directPreteritTarget.directPreteritSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "direct active preterit route missing operation frame blocks string fallback",
+        {
+            surface: directPreteritNoOperationResult.surface,
+            stage: directPreteritNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: directPreteritNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-direct-preterit-structural-blocked",
+            diagnostic: "nawat-route-direct-preterit-missing-operation-frame",
+        }
+    );
+    const directPreteritContradictoryFrameResult = ctx.getNawatRouteFiniteSurfaceResult(directPreteritRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...directPreteritTarget,
+            directPreteritSourceFrame: {
+                ...directPreteritTarget.directPreteritSourceFrame,
+                targetBaseFrame: {
+                    ...directPreteritTarget.directPreteritSourceFrame.targetBaseFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "direct active preterit route contradictory target base frame blocks string fallback",
+        {
+            surface: directPreteritContradictoryFrameResult.surface,
+            stage: directPreteritContradictoryFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: directPreteritContradictoryFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-direct-preterit-structural-blocked",
+            diagnostic: "nawat-route-direct-preterit-contradictory-source-frame",
+        }
+    );
     const directPerfectRoute = ctx.getNawatRouteProfile("direct-active-perfect");
     s.eq(
-        "direct active perfect route lands in ordinary verb perfect",
+        "direct active perfect route keeps source only because Andrews blocks the finite extension",
         ctx.formatNawatRouteSurfaceTrailLabel(directPerfectRoute, {
             sourceVerb: "(pusuni)",
         }),
-        "(pusuni) → pusuntuk"
+        "(pusuni)"
+    );
+    s.eq(
+        "poisoned verbalizer route cannot infer target verb by stripping finite surface strings",
+        (() => {
+            const poisonedProfile = {
+                ...directPreteritRoute,
+                id: "poisoned-finite-surface-verbalizer",
+                routePlacement: "direct-finite",
+                routeTenseValue: "preterito",
+                routeMode: "verbo",
+                targetMode: "verbo",
+                targetTenseValue: "preterito",
+                verbalizer: "-ti",
+                surfaceSuffix: "-ki",
+                valency: "intransitive",
+            };
+            const stringOnly = ctx.resolveNawatRouteTarget(poisonedProfile, {
+                sourceVerb: "(paka)",
+            });
+            const explicitStem = ctx.resolveNawatRouteTarget(poisonedProfile, {
+                sourceVerb: "(paka)",
+                sourceStem: "kal",
+            });
+            return {
+                stringOnlyTargetVerb: stringOnly?.targetVerb || "",
+                stringOnlyGate: stringOnly?.targetVerbSourceFrame?.status || "",
+                stringOnlyDiagnostic: stringOnly?.targetVerbSourceFrame?.diagnosticId || "",
+                blocksFiniteSuffixInference: stringOnly?.targetVerbSourceFrame?.boundaries?.noFiniteSurfaceSuffixInference === true,
+                explicitStemTargetVerb: explicitStem?.targetVerb || "",
+                explicitStemGate: explicitStem?.targetVerbSourceFrame?.status || "",
+                explicitStemSourceKind: explicitStem?.targetVerbSourceFrame?.sourceKind || "",
+            };
+        })(),
+        {
+            stringOnlyTargetVerb: "",
+            stringOnlyGate: "blocked",
+            stringOnlyDiagnostic: "nawat-route-verbalized-verb-structural-source-required",
+            blocksFiniteSuffixInference: true,
+            explicitStemTargetVerb: "kalti",
+            explicitStemGate: "authorized",
+            explicitStemSourceKind: "explicit-source-stem",
+        }
     );
     const patientivoNonactiveRoute = ctx.getNawatRouteProfile("patientivo-nonactive-ti");
     s.eq(
@@ -11990,6 +14160,169 @@ function run(ctx) {
         }),
         "(kuchi) → kuchiya → patientivo · imperfectivo → -t → kuchit"
     );
+    const patientivoImperfectiveSourceSurfaceResult = ctx.getNawatRouteSourceSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: patientivoImperfectiveNounTarget,
+    });
+    const patientivoImperfectiveFiniteSurfaceResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: patientivoImperfectiveNounTarget,
+    });
+    s.eq(
+        "patientivo imperfective noun route consumes structural source-stem frame",
+        {
+            sourceSurface: patientivoImperfectiveSourceSurfaceResult.surface,
+            sourceRouteStage: patientivoImperfectiveSourceSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            finiteSurface: patientivoImperfectiveFiniteSurfaceResult.surface,
+            finiteRouteStage: patientivoImperfectiveFiniteSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            targetStem: patientivoImperfectiveFiniteSurfaceResult.sourceResult?.patientivoImperfectiveSourceFrame?.targetStemFrame?.text || "",
+            suffix: patientivoImperfectiveFiniteSurfaceResult.sourceResult?.patientivoImperfectiveSourceFrame?.suffixFrame?.text || "",
+        },
+        {
+            sourceSurface: "kuchiya",
+            sourceRouteStage: "source-surface-patientivo-imperfective-structural",
+            finiteSurface: "kuchit",
+            finiteRouteStage: "finite-surface",
+            targetStem: "kuchi",
+            suffix: "t",
+        }
+    );
+    const poisonedPatientivoImperfectiveTarget = {
+        ...patientivoImperfectiveNounTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        patientivoImperfectiveSourceFrame: {
+            ...patientivoImperfectiveNounTarget.patientivoImperfectiveSourceFrame,
+            targetSurface: "poison",
+            result: "poison",
+            surface: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "patientivo imperfective noun route ignores poisoned display strings when source frame is unchanged",
+        {
+            sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoImperfectiveNounRoute, {
+                sourceVerb: "(kuchi)",
+                routeTarget: poisonedPatientivoImperfectiveTarget,
+            }),
+            finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoImperfectiveNounRoute, {
+                sourceVerb: "(kuchi)",
+                routeTarget: poisonedPatientivoImperfectiveTarget,
+            }),
+        },
+        {
+            sourceSurface: "kuchiya",
+            finiteSurface: "kuchit",
+        }
+    );
+    const originalPatientivoImperfectiveNuclearExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+            num1Num2: { surface: "poison" },
+        });
+        s.eq(
+            "patientivo imperfective noun route ignores poisoned legacy patientivo string executor",
+            {
+                sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoImperfectiveNounRoute, {
+                    sourceVerb: "(kuchi)",
+                    routeTarget: poisonedPatientivoImperfectiveTarget,
+                }),
+                finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoImperfectiveNounRoute, {
+                    sourceVerb: "(kuchi)",
+                    routeTarget: poisonedPatientivoImperfectiveTarget,
+                }),
+            },
+            {
+                sourceSurface: "kuchiya",
+                finiteSurface: "kuchit",
+            }
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalPatientivoImperfectiveNuclearExecutor;
+    }
+    const patientivoImperfectiveNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: {
+            ...patientivoImperfectiveNounTarget,
+            patientivoImperfectiveSourceFrame: null,
+        },
+    });
+    s.eq(
+        "patientivo imperfective noun route blocks selected structural route without source frame",
+        {
+            surface: patientivoImperfectiveNoFrameResult.surface,
+            stage: patientivoImperfectiveNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoImperfectiveNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-imperfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-imperfective-missing-source-frame",
+        }
+    );
+    const patientivoImperfectiveNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: {
+            ...patientivoImperfectiveNounTarget,
+            patientivoImperfectiveSourceFrame: {
+                ...patientivoImperfectiveNounTarget.patientivoImperfectiveSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "patientivo imperfective noun route missing operation frame blocks string fallback",
+        {
+            surface: patientivoImperfectiveNoOperationResult.surface,
+            stage: patientivoImperfectiveNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoImperfectiveNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-imperfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-imperfective-missing-operation-frame",
+        }
+    );
+    const patientivoImperfectiveContradictoryResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoImperfectiveNounRoute, {
+        sourceVerb: "(kuchi)",
+        routeTarget: {
+            ...patientivoImperfectiveNounTarget,
+            patientivoImperfectiveSourceFrame: {
+                ...patientivoImperfectiveNounTarget.patientivoImperfectiveSourceFrame,
+                targetStemFrame: {
+                    ...patientivoImperfectiveNounTarget.patientivoImperfectiveSourceFrame.targetStemFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "patientivo imperfective noun route contradictory target frame blocks string fallback",
+        {
+            surface: patientivoImperfectiveContradictoryResult.surface,
+            stage: patientivoImperfectiveContradictoryResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoImperfectiveContradictoryResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-imperfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-imperfective-contradictory-source-frame",
+        }
+    );
     const patientivoPerfectiveNounRoute = ctx.getNawatRouteProfile("patientivo-perfective-ti-noun");
     const patientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
         sourceVerb: "(ketza)",
@@ -12023,14 +14356,150 @@ function run(ctx) {
             finiteRouteStage: patientivoPerfectiveFiniteSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
             authorityRef: patientivoPerfectiveFiniteSurfaceResult.grammarFrame?.authorityFrame?.andrewsRefs?.[0] || "",
             generationAllowed: patientivoPerfectiveFiniteSurfaceResult.grammarFrame?.routeContract?.generationAllowed,
+            targetStem: patientivoPerfectiveFiniteSurfaceResult.sourceResult?.patientivoPerfectiveSourceFrame?.targetStemFrame?.text || "",
+            suffix: patientivoPerfectiveFiniteSurfaceResult.sourceResult?.patientivoPerfectiveSourceFrame?.suffixFrame?.text || "",
         },
         {
             sourceSurface: "ketzki",
-            sourceRouteStage: "source-surface",
+            sourceRouteStage: "source-surface-patientivo-perfective-structural",
             finiteSurface: "ketzti",
             finiteRouteStage: "finite-surface",
             authorityRef: "Andrews Lesson 39",
             generationAllowed: true,
+            targetStem: "ketz",
+            suffix: "ti",
+        }
+    );
+    const poisonedPatientivoPerfectiveTarget = {
+        ...patientivoPerfectiveNounTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        patientivoPerfectiveSourceFrame: {
+            ...patientivoPerfectiveNounTarget.patientivoPerfectiveSourceFrame,
+            targetSurface: "poison",
+            result: "poison",
+            surface: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "patientivo perfective noun route ignores poisoned display strings when source frame is unchanged",
+        {
+            sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoPerfectiveNounRoute, {
+                sourceVerb: "(ketza)",
+                routeTarget: poisonedPatientivoPerfectiveTarget,
+            }),
+            finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoPerfectiveNounRoute, {
+                sourceVerb: "(ketza)",
+                routeTarget: poisonedPatientivoPerfectiveTarget,
+            }),
+        },
+        {
+            sourceSurface: "ketzki",
+            finiteSurface: "ketzti",
+        }
+    );
+    const originalPatientivoPerfectiveNuclearExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+            num1Num2: { surface: "poison" },
+        });
+        s.eq(
+            "patientivo perfective noun route ignores poisoned legacy patientivo string executor",
+            {
+                sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoPerfectiveNounRoute, {
+                    sourceVerb: "(ketza)",
+                    routeTarget: poisonedPatientivoPerfectiveTarget,
+                }),
+                finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoPerfectiveNounRoute, {
+                    sourceVerb: "(ketza)",
+                    routeTarget: poisonedPatientivoPerfectiveTarget,
+                }),
+            },
+            {
+                sourceSurface: "ketzki",
+                finiteSurface: "ketzti",
+            }
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalPatientivoPerfectiveNuclearExecutor;
+    }
+    const patientivoPerfectiveNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPerfectiveNounRoute, {
+        sourceVerb: "(ketza)",
+    });
+    s.eq(
+        "patientivo perfective noun route blocks direct string API without source frame",
+        {
+            surface: patientivoPerfectiveNoFrameResult.surface,
+            stage: patientivoPerfectiveNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPerfectiveNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-perfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-perfective-missing-source-frame",
+        }
+    );
+    const patientivoPerfectiveNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPerfectiveNounRoute, {
+        sourceVerb: "(ketza)",
+        routeTarget: {
+            ...patientivoPerfectiveNounTarget,
+            patientivoPerfectiveSourceFrame: {
+                ...patientivoPerfectiveNounTarget.patientivoPerfectiveSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "patientivo perfective noun route missing operation frame blocks string fallback",
+        {
+            surface: patientivoPerfectiveNoOperationResult.surface,
+            stage: patientivoPerfectiveNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPerfectiveNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-perfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-perfective-missing-operation-frame",
+        }
+    );
+    const patientivoPerfectiveContradictoryResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPerfectiveNounRoute, {
+        sourceVerb: "(ketza)",
+        routeTarget: {
+            ...patientivoPerfectiveNounTarget,
+            patientivoPerfectiveSourceFrame: {
+                ...patientivoPerfectiveNounTarget.patientivoPerfectiveSourceFrame,
+                targetStemFrame: {
+                    ...patientivoPerfectiveNounTarget.patientivoPerfectiveSourceFrame.targetStemFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "patientivo perfective noun route contradictory target frame blocks string fallback",
+        {
+            surface: patientivoPerfectiveContradictoryResult.surface,
+            stage: patientivoPerfectiveContradictoryResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPerfectiveContradictoryResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-perfective-structural-blocked",
+            diagnostic: "nawat-route-patientivo-perfective-contradictory-source-frame",
         }
     );
     const blockedPatientivoPerfectiveNounTarget = ctx.resolveNawatRouteTarget(patientivoPerfectiveNounRoute, {
@@ -12054,7 +14523,7 @@ function run(ctx) {
             sourceCombinedMode: ctx.COMBINED_MODE.active,
             routeTarget: blockedPatientivoPerfectiveNounTarget,
         }),
-        "(kuchi) → kuchki → patientivo · perfectivo"
+        "(kuchi) → patientivo · perfectivo"
     );
     const patientivoNonactiveNounRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
     const patientivoNonactiveNounTarget = ctx.resolveNawatRouteTarget(patientivoNonactiveNounRoute, {
@@ -12252,6 +14721,190 @@ function run(ctx) {
             },
         }
     );
+    const patientivoPassiveNonactiveRoute = ctx.getNawatRouteProfile("patientivo-nonactive-t");
+    const patientivoPassiveNonactiveTarget = ctx.resolveNawatRouteTarget(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        sourceTenseValue: "preterito",
+        sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+        patientivoSource: "passive",
+    });
+    const patientivoPassiveSourceSurfaceResult = ctx.getNawatRouteSourceSurfaceResult(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        routeTarget: patientivoPassiveNonactiveTarget,
+    });
+    const patientivoPassiveFiniteSurfaceResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        routeTarget: patientivoPassiveNonactiveTarget,
+    });
+    s.eq(
+        "patientivo passive nonactive noun route consumes structural source frame",
+        {
+            sourceSurface: patientivoPassiveSourceSurfaceResult.surface,
+            sourceRouteStage: patientivoPassiveSourceSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            finiteSurface: patientivoPassiveFiniteSurfaceResult.surface,
+            finiteRouteStage: patientivoPassiveFiniteSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceBase: patientivoPassiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.sourceBaseFrame?.text || "",
+            sourceEnding: patientivoPassiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.sourceEndingFrame?.text || "",
+            targetStem: patientivoPassiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.targetStemFrame?.text || "",
+            operation: patientivoPassiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveOperationFrame?.operation || "",
+        },
+        {
+            sourceSurface: "machu",
+            sourceRouteStage: "source-surface-patientivo-nonactive-structural",
+            finiteSurface: "machit",
+            finiteRouteStage: "finite-surface",
+            sourceBase: "ma",
+            sourceEnding: "ti",
+            targetStem: "machi",
+            operation: "append-nonactive-patientivo-suffix-to-source-stem-frame",
+        }
+    );
+    const poisonedPatientivoPassiveNonactiveTarget = {
+        ...patientivoPassiveNonactiveTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        patientivoNonactiveSourceFrame: {
+            ...patientivoPassiveNonactiveTarget.patientivoNonactiveSourceFrame,
+            targetSurface: "poison",
+            result: "poison",
+            surface: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "patientivo passive nonactive noun route ignores poisoned display strings when source frame is unchanged",
+        {
+            sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoPassiveNonactiveRoute, {
+                sourceVerb: "-(mati)",
+                sourceObjectPrefix: "ta",
+                routeTarget: poisonedPatientivoPassiveNonactiveTarget,
+            }),
+            finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoPassiveNonactiveRoute, {
+                sourceVerb: "-(mati)",
+                sourceObjectPrefix: "ta",
+                routeTarget: poisonedPatientivoPassiveNonactiveTarget,
+            }),
+        },
+        {
+            sourceSurface: "machu",
+            finiteSurface: "machit",
+        }
+    );
+    const originalPatientivoNonactiveNuclearExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+            num1Num2: { surface: "poison" },
+        });
+        s.eq(
+            "patientivo passive nonactive noun route ignores poisoned legacy patientivo string executor",
+            {
+                sourceSurface: ctx.getNawatRouteSourceSurfaceForm(patientivoPassiveNonactiveRoute, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    routeTarget: poisonedPatientivoPassiveNonactiveTarget,
+                }),
+                finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(patientivoPassiveNonactiveRoute, {
+                    sourceVerb: "-(mati)",
+                    sourceObjectPrefix: "ta",
+                    routeTarget: poisonedPatientivoPassiveNonactiveTarget,
+                }),
+            },
+            {
+                sourceSurface: "machu",
+                finiteSurface: "machit",
+            }
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalPatientivoNonactiveNuclearExecutor;
+    }
+    const patientivoPassiveNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        routeTarget: {
+            ...patientivoPassiveNonactiveTarget,
+            patientivoNonactiveSourceFrame: null,
+        },
+    });
+    s.eq(
+        "patientivo passive nonactive noun route blocks selected structural route without source frame",
+        {
+            surface: patientivoPassiveNoFrameResult.surface,
+            stage: patientivoPassiveNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPassiveNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-missing-source-frame",
+        }
+    );
+    const patientivoPassiveNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        routeTarget: {
+            ...patientivoPassiveNonactiveTarget,
+            patientivoNonactiveSourceFrame: {
+                ...patientivoPassiveNonactiveTarget.patientivoNonactiveSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "patientivo passive nonactive noun route missing operation frame blocks string fallback",
+        {
+            surface: patientivoPassiveNoOperationResult.surface,
+            stage: patientivoPassiveNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPassiveNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-missing-operation-frame",
+        }
+    );
+    const patientivoPassiveContradictoryResult = ctx.getNawatRouteFiniteSurfaceResult(patientivoPassiveNonactiveRoute, {
+        sourceVerb: "-(mati)",
+        sourceObjectPrefix: "ta",
+        routeTarget: {
+            ...patientivoPassiveNonactiveTarget,
+            patientivoNonactiveSourceFrame: {
+                ...patientivoPassiveNonactiveTarget.patientivoNonactiveSourceFrame,
+                targetStemFrame: {
+                    ...patientivoPassiveNonactiveTarget.patientivoNonactiveSourceFrame.targetStemFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "patientivo passive nonactive noun route contradictory target frame blocks string fallback",
+        {
+            surface: patientivoPassiveContradictoryResult.surface,
+            stage: patientivoPassiveContradictoryResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: patientivoPassiveContradictoryResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-contradictory-source-frame",
+        }
+    );
     const activeRemotePatientivoRoute = ctx.getNawatRouteProfile(activeRemotePatientivoSpec.routeKey);
     const activeRemotePatientivoTarget = ctx.resolveNawatRouteTarget(activeRemotePatientivoRoute, {
         sourceVerb: "(kuchi)",
@@ -12436,8 +15089,8 @@ function run(ctx) {
         }
     );
     s.eq(
-        "active patientivo source rows do not leak finite tense material into the derived CNN predicate",
-        ["presente", "imperfecto", "pasado-remoto", "futuro", "condicional", "optativo"].map((sourceTenseValue) => {
+        "active patientivo source rows do not leak Andrews-licensed finite tense material into the derived CNN predicate",
+        ["presente", "imperfecto", "pasado-remoto", "futuro", "optativo"].map((sourceTenseValue) => {
             const routeKey = ctx.resolveNawatVerbNounConversionRouteKeyForSource({
                 sourceTenseValue,
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
@@ -12469,7 +15122,7 @@ function run(ctx) {
                 nominalHasTenseSlot: Boolean(nominalSurface.sourceResult?.nuclearClauseShell?.formulaSlots?.tensePosition),
             };
         }),
-        ["presente", "imperfecto", "pasado-remoto", "futuro", "condicional", "optativo"].map((sourceTenseValue) => ({
+        ["presente", "imperfecto", "pasado-remoto", "futuro", "optativo"].map((sourceTenseValue) => ({
             sourceTenseValue,
             routeKey: "patientivo-imperfective-t",
             finiteSourceFormula: "#pers1-pers2+va(STEM)tns+num1-num2#",
@@ -12501,6 +15154,175 @@ function run(ctx) {
         }),
         "(pulua) → pululu → patientivo · pasivo → -ti → pululti"
     );
+    const puluaNonactiveSourceSurfaceResult = ctx.getNawatRouteSourceSurfaceResult(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        routeTarget: puluaNonactivePatientivoTarget,
+    });
+    const puluaNonactiveFiniteSurfaceResult = ctx.getNawatRouteFiniteSurfaceResult(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        routeTarget: puluaNonactivePatientivoTarget,
+    });
+    s.eq(
+        "pulua nonactive V→S consumes structural nonactive source frame",
+        {
+            sourceSurface: puluaNonactiveSourceSurfaceResult.surface,
+            sourceRouteStage: puluaNonactiveSourceSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            finiteSurface: puluaNonactiveFiniteSurfaceResult.surface,
+            finiteRouteStage: puluaNonactiveFiniteSurfaceResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceBase: puluaNonactiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.sourceBaseFrame?.text || "",
+            sourceEnding: puluaNonactiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.sourceEndingFrame?.text || "",
+            targetStem: puluaNonactiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.targetStemFrame?.text || "",
+            suffix: puluaNonactiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveSourceFrame?.suffixFrame?.text || "",
+            operation: puluaNonactiveFiniteSurfaceResult.sourceResult?.sourceResult?.patientivoNonactiveOperationFrame?.operation || "",
+        },
+        {
+            sourceSurface: "pululu",
+            sourceRouteStage: "source-surface-patientivo-nonactive-structural",
+            finiteSurface: "pululti",
+            finiteRouteStage: "finite-surface",
+            sourceBase: "pul",
+            sourceEnding: "ua",
+            targetStem: "pulul",
+            suffix: "ti",
+            operation: "append-nonactive-patientivo-suffix-to-source-stem-frame",
+        }
+    );
+    const poisonedPuluaNonactiveTarget = {
+        ...puluaNonactivePatientivoTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        patientivoNonactiveSourceFrame: {
+            ...puluaNonactivePatientivoTarget.patientivoNonactiveSourceFrame,
+            targetSurface: "poison",
+            result: "poison",
+            surface: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "pulua nonactive V→S ignores poisoned display strings when source frame is unchanged",
+        {
+            sourceSurface: ctx.getNawatRouteSourceSurfaceForm(puluaNonactivePatientivoRoute, {
+                sourceVerb: "(pulua)",
+                routeTarget: poisonedPuluaNonactiveTarget,
+            }),
+            finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(puluaNonactivePatientivoRoute, {
+                sourceVerb: "(pulua)",
+                routeTarget: poisonedPuluaNonactiveTarget,
+            }),
+        },
+        {
+            sourceSurface: "pululu",
+            finiteSurface: "pululti",
+        }
+    );
+    const originalPuluaNonactiveNuclearExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    try {
+        ctx.executeNuclearClauseSurfaceRequest = () => ({
+            result: "poison",
+            surface: "poison",
+            surfaceForms: ["poison"],
+            num1Num2: { surface: "poison" },
+        });
+        s.eq(
+            "pulua nonactive V→S ignores poisoned legacy patientivo string executor",
+            {
+                sourceSurface: ctx.getNawatRouteSourceSurfaceForm(puluaNonactivePatientivoRoute, {
+                    sourceVerb: "(pulua)",
+                    routeTarget: poisonedPuluaNonactiveTarget,
+                }),
+                finiteSurface: ctx.getNawatRouteFiniteSurfaceForm(puluaNonactivePatientivoRoute, {
+                    sourceVerb: "(pulua)",
+                    routeTarget: poisonedPuluaNonactiveTarget,
+                }),
+            },
+            {
+                sourceSurface: "pululu",
+                finiteSurface: "pululti",
+            }
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalPuluaNonactiveNuclearExecutor;
+    }
+    const puluaNonactiveNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        routeTarget: {
+            ...puluaNonactivePatientivoTarget,
+            patientivoNonactiveSourceFrame: null,
+        },
+    });
+    s.eq(
+        "pulua nonactive V→S blocks selected structural route without source frame",
+        {
+            surface: puluaNonactiveNoFrameResult.surface,
+            stage: puluaNonactiveNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: puluaNonactiveNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-missing-source-frame",
+        }
+    );
+    const puluaNonactiveNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        routeTarget: {
+            ...puluaNonactivePatientivoTarget,
+            patientivoNonactiveSourceFrame: {
+                ...puluaNonactivePatientivoTarget.patientivoNonactiveSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "pulua nonactive V→S missing operation frame blocks string fallback",
+        {
+            surface: puluaNonactiveNoOperationResult.surface,
+            stage: puluaNonactiveNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: puluaNonactiveNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-missing-operation-frame",
+        }
+    );
+    const puluaNonactiveContradictoryResult = ctx.getNawatRouteFiniteSurfaceResult(puluaNonactivePatientivoRoute, {
+        sourceVerb: "(pulua)",
+        routeTarget: {
+            ...puluaNonactivePatientivoTarget,
+            patientivoNonactiveSourceFrame: {
+                ...puluaNonactivePatientivoTarget.patientivoNonactiveSourceFrame,
+                targetStemFrame: {
+                    ...puluaNonactivePatientivoTarget.patientivoNonactiveSourceFrame.targetStemFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "pulua nonactive V→S contradictory target frame blocks string fallback",
+        {
+            surface: puluaNonactiveContradictoryResult.surface,
+            stage: puluaNonactiveContradictoryResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: puluaNonactiveContradictoryResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-patientivo-nonactive-structural-blocked",
+            diagnostic: "nawat-route-patientivo-nonactive-contradictory-source-frame",
+        }
+    );
     const nonactiveHabitualRoute = ctx.getNawatRouteProfile("nonactive-habitual-potential");
     const nonactiveHabitualTarget = ctx.resolveNawatRouteTarget(nonactiveHabitualRoute, { sourceVerb: "(pusuni)" });
     const nonactiveHabitualStations = ctx.getNawatRouteStationModels(nonactiveHabitualRoute, {
@@ -12525,6 +15347,148 @@ function run(ctx) {
             stationModels: nonactiveHabitualStations,
         }),
         "(pusuni) → no activo → pusuniwani"
+    );
+    const nonactiveHabitualFiniteResult = ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: nonactiveHabitualTarget,
+    });
+    s.eq(
+        "nonactive habitual route consumes structural source frame",
+        {
+            surface: nonactiveHabitualFiniteResult.surface,
+            stage: nonactiveHabitualFiniteResult.grammarFrame?.routeContract?.routeStage || "",
+            sourceStem: nonactiveHabitualFiniteResult.sourceResult?.nonactiveHabitualSourceFrame?.sourceStemFrame?.text || "",
+            targetStem: nonactiveHabitualFiniteResult.sourceResult?.nonactiveHabitualSourceFrame?.targetStemFrame?.text || "",
+            suffix: nonactiveHabitualFiniteResult.sourceResult?.nonactiveHabitualSourceFrame?.suffixFrame?.text || "",
+            variants: nonactiveHabitualFiniteResult.sourceResult?.surfaceForms || [],
+            operation: nonactiveHabitualFiniteResult.sourceResult?.nonactiveHabitualOperationFrame?.operation || "",
+        },
+        {
+            surface: "pusuniwani",
+            stage: "finite-surface-nonactive-habitual-structural",
+            sourceStem: "pusuni",
+            targetStem: "pusuniwa",
+            suffix: "ni",
+            variants: ["pusuniwani", "pusunuwani"],
+            operation: "derive-nonactive-habitual-from-source-frame",
+        }
+    );
+    const poisonedNonactiveHabitualTarget = {
+        ...nonactiveHabitualTarget,
+        targetVerb: "poison",
+        stem: "poison",
+        surface: "poison",
+        result: "poison",
+        formulaEcho: "#poison#",
+        dataset: {
+            targetVerb: "poison",
+            surface: "poison",
+        },
+        posicionesFormula: {
+            tronco: "poison",
+        },
+        nonactiveHabitualSourceFrame: {
+            ...nonactiveHabitualTarget.nonactiveHabitualSourceFrame,
+            targetSurface: "poison",
+            result: "poison",
+            surface: "poison",
+            formulaEcho: "#poison#",
+        },
+    };
+    s.eq(
+        "nonactive habitual route ignores poisoned display strings when source frame is unchanged",
+        ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+            sourceVerb: "(pusuni)",
+            routeTarget: poisonedNonactiveHabitualTarget,
+        }).surface,
+        "pusuniwani"
+    );
+    const originalNonactiveHabitualExecutor = ctx.executeNuclearClauseSurfaceRequest;
+    ctx.executeNuclearClauseSurfaceRequest = () => ({
+        result: "poison",
+        surface: "poison",
+        surfaceForms: ["poison"],
+    });
+    try {
+        s.eq(
+            "nonactive habitual route ignores poisoned legacy route string executor",
+            ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+                sourceVerb: "(pusuni)",
+                routeTarget: poisonedNonactiveHabitualTarget,
+            }).surface,
+            "pusuniwani"
+        );
+    } finally {
+        ctx.executeNuclearClauseSurfaceRequest = originalNonactiveHabitualExecutor;
+    }
+    const nonactiveHabitualNoFrameResult = ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...nonactiveHabitualTarget,
+            nonactiveHabitualSourceFrame: null,
+        },
+    });
+    s.eq(
+        "nonactive habitual route blocks selected structural route without source frame",
+        {
+            surface: nonactiveHabitualNoFrameResult.surface,
+            stage: nonactiveHabitualNoFrameResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: nonactiveHabitualNoFrameResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-nonactive-habitual-structural-blocked",
+            diagnostic: "nawat-route-nonactive-habitual-missing-source-frame",
+        }
+    );
+    const nonactiveHabitualNoOperationResult = ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...nonactiveHabitualTarget,
+            nonactiveHabitualSourceFrame: {
+                ...nonactiveHabitualTarget.nonactiveHabitualSourceFrame,
+                operationFrame: null,
+            },
+        },
+    });
+    s.eq(
+        "nonactive habitual route missing operation frame blocks string fallback",
+        {
+            surface: nonactiveHabitualNoOperationResult.surface,
+            stage: nonactiveHabitualNoOperationResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: nonactiveHabitualNoOperationResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-nonactive-habitual-structural-blocked",
+            diagnostic: "nawat-route-nonactive-habitual-missing-operation-frame",
+        }
+    );
+    const nonactiveHabitualContradictoryResult = ctx.getNawatRouteFiniteSurfaceResult(nonactiveHabitualRoute, {
+        sourceVerb: "(pusuni)",
+        routeTarget: {
+            ...nonactiveHabitualTarget,
+            nonactiveHabitualSourceFrame: {
+                ...nonactiveHabitualTarget.nonactiveHabitualSourceFrame,
+                targetStemFrame: {
+                    ...nonactiveHabitualTarget.nonactiveHabitualSourceFrame.targetStemFrame,
+                    text: "poison",
+                },
+            },
+        },
+    });
+    s.eq(
+        "nonactive habitual route contradictory target frame blocks string fallback",
+        {
+            surface: nonactiveHabitualContradictoryResult.surface,
+            stage: nonactiveHabitualContradictoryResult.grammarFrame?.routeContract?.routeStage || "",
+            diagnostic: nonactiveHabitualContradictoryResult.diagnostics?.[0]?.id || "",
+        },
+        {
+            surface: "",
+            stage: "finite-surface-nonactive-habitual-structural-blocked",
+            diagnostic: "nawat-route-nonactive-habitual-contradictory-source-frame",
+        }
     );
     s.eq("route helper resolves future nawat route id", ctx.getRouteTenseForNawatRoute("denominal-vi-ti-perfect"), "adjetivo-perfecto-tik");
     s.eq(

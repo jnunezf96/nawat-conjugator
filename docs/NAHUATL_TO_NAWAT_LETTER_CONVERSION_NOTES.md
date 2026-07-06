@@ -148,6 +148,30 @@ or expected by the current project.
 | predicate state | Absolutive or possessive state of the predicate | `absolutive` or `possessive`; state belongs to the predicate, not to the connector | `categoryProfile.predicateState` |
 | possessor | Possessor participant in possessive-state NNCs | Nawat possessor prefix, e.g. `nu`, `mu`, `i`, `tu`, `anmu`, `in` | `possessor`, `categoryProfile.possessiveState` |
 
+### Core NNC Slot Realization Table
+
+These rows are slot-scoped realizations. They do not replace the Andrews
+formula-source spellings in `docs/ANDREWS_FORMULA_INVENTORY.md`.
+
+| Andrews/Classical slot | Nawat/Pipil slot realization |
+| --- | --- |
+| `tl-0` | `t-0` |
+| `tli-0 ~ li-0` | `ti-0` |
+| `in-0` | `in-0` |
+| `0-0` | `0-0` |
+| `t-in` | `t-in` |
+| `m-eh` | `m-et` |
+| `0-h` | `0-t` |
+| `st = ne` | `ne` |
+| `st = te` | `te` |
+| `st = tla` | `ta` |
+| `n-o ~ n-□` | `n-u ~ n-□` |
+| `t-o ~ t-□` | `t-u ~ t-□` |
+| `m-o ~ m-□` | `m-u ~ m-□` |
+| `am-o ~ am-□` | `anm-u ~ anm-□` |
+| `i-0` | `i-0` |
+| `i-m ~ i-n ...` | `i-n ~ i-nh` |
+
 ### Subject-Person Slot Analogues
 
 | Person/number | Classical subject analogue | Nawat subject analogue | Slot note |
@@ -297,7 +321,7 @@ conversion, morphology, and UI labels.
 | state | Predicate state such as absolutive or possessive | State belongs to the predicate; it is not the subject connector. |
 | number/reference | Singular, plural, distributive/common reference, and `num1-num2` connector behavior | Classical `-h` maps to Nawat `-t` only when it is the slot filler, not as blind spelling. |
 | inflection | VNC tense/aspect/mood | VNC-only. NNC formulas do not receive a tense slot. |
-| derivation/source route | Causative, applicative, nonactive, patientive, denominal, stock/formative, and nominalization routes | Apply the Andrews operation structurally, then realize Nawat spelling; keep route diagnostics if Nawat evidence is incomplete. |
+| derivation/source route | Causative, applicative, nonactive, patientive, denominal, stock/formative, and nominalization routes | Apply the Andrews operation structurally, then realize Nawat spelling; keep route diagnostics if the Andrews source context or orthography bridge is incomplete. |
 | AST/sentence relation | Compound, supplementation, topic, included-referent, or clause-level relation | Clause/sentence metadata. Do not force it into ordinary NNC noun classes or VNC tense slots. |
 | result/diagnostic | Generated surface or blocked/unsupported explanation | Output is valid only when the active slot/route supports it; otherwise keep diagnostics visible. |
 
@@ -312,8 +336,9 @@ Status labels:
 - `opt-in`: available only when an explicit mode/route requests it.
 - `metadata-only`: current code can describe or classify the slot, but should
   not generate a new Nawat surface from it.
-- `evidence-gated`: Andrews supplies the architecture, but Nawat/Pipil fixture
-  evidence is still needed before generation expands.
+- `source-context-gated`: Andrews supplies the architecture, but a required
+  Andrews source context or orthography-bridge rule is still needed before
+  generation expands.
 - `pending`: do not implement from labels, translations, or Classical examples
   alone.
 
@@ -328,21 +353,21 @@ Status labels:
 | mainline reflexive object class | engine-active as one Nawat surface | Andrews has `n-o`, `t-o`, `m-o`; Nawat uses `mu` for all persons, with person/number supplied by the subject slot. |
 | shuntline reflexive object replacement | route-active / metadata-sensitive | Andrews `ne` maps to Nawat `ne`; it appears through passive, impersonal, causative/applicative, active-action, patientive, and other source routes, not as an ordinary possessor. |
 | silent shuntline projective replacements | partial / metadata-sensitive | Silent `0-0`, `0-im`, `0-0`-type histories are real slots; preserve them in provenance before trying to render every combination. |
-| object ordering priorities | partial / evidence-gated for full Appendix C | Order is form-based: specific projective, reflexive, nonspecific human, nonspecific nonhuman; do not sort UI chips by English object-role labels. |
+| object ordering priorities | partial / source-context-gated for full Appendix C | Order is form-based: specific projective, reflexive, nonspecific human, nonspecific nonhuman; do not sort UI chips by English object-role labels. |
 | directional/locative object-prefix position | metadata-only or route-specific | Keep `hual/on`-type structure separate from object/reflexive classes; Nawat route data decides `wal/un` or other surfaces. |
 | nonactive stem source suffixes | engine-active | Current nonactive/passive/impersonal and patientive routes preserve source suffix contracts and Nawat orthography. |
 | passive voice | engine-active | Passive rejects intransitive ultimate sources, clears or preserves object slots according to source contract, and maps source reflexive `mu` to shuntline `ne` where Andrews requires it. |
 | impersonal voice | engine-active | Impersonal keeps passive/impersonal source categories distinct and handles `ta`, `te`, `mu -> ne`, and double-projective source cases through route metadata. |
 | causative type one / type two | engine-active | Current forward derivation handles causative routes; mainline/shuntline object history should remain visible as metadata when object chips multiply. |
 | applicative | engine-active | Current forward derivation handles applicative routes; source reflexive versus imported reflexive must stay distinct. |
-| frequentative and object-pronoun reduplication | metadata-only / evidence-gated | Lesson 27 boundary exists; do not generate reduplicated object/reflexive forms from Andrews alone. |
-| verbal and nominal compound embeds | partial | Parser/composer/generation support selected compound inputs and `compoundAst`; full compound semantics remain metadata/evidence-gated. |
+| frequentative and object-pronoun reduplication | metadata-only / source-context-gated | Lesson 27 boundary exists; do not generate reduplicated object/reflexive forms until the Andrews route/source contract is implemented. |
+| verbal and nominal compound embeds | partial | Parser/composer/generation support selected compound inputs and `compoundAst`; full compound semantics remain metadata/source-context-gated. |
 | purposive/directional VNCs | metadata-only | Boundary metadata exists; no broad purposive generation from Classical examples. |
 | honorific/pejorative reflexive use | metadata-only | Andrews uses reflexive architecture in honorific/reverential routes; current project keeps this as boundary metadata unless confirmed Nawat behavior is implemented. |
 | ordinary NNC `#pers1-pers2(STEM)num1-num2#` | opt-in engine-active | Ordinary noun generation is explicit opt-in; `formulaSlots` is source-of-truth structure. |
-| NNC predicate state | partial / evidence-gated | Absolutive and ordinary possessive states exist for supported data; natural/required possession and state-case behavior remain Lesson 15 pending. |
+| NNC predicate state | partial / source-context-gated | Absolutive and ordinary possessive states exist for supported data; natural/required possession and state-case behavior remain Lesson 15 pending. |
 | NNC possessor participant | partial | Nawat `nu`, `mu`, `i`, `tu`, `anmu`, `in`; do not confuse possessor `mu` with reflexive object `mu`. |
-| NNC nounstem class connector | partial | Valid classes are `t`, `ti`, `in`, `zero`; fixture-backed `t` and `zero` exist, while `ti` and `in` remain open/evidence-gated. |
+| NNC nounstem class connector | partial | Valid classes are `t`, `ti`, `in`, `zero`; fixture-backed `t` and `zero` exist, while `ti` and `in` remain open/source-context-gated. |
 | NNC animacy/reference/plural behavior | partial | Current metadata and UI expose animate/inanimate and reference labels; broader paradigms need evidence-backed fixtures. |
 | pronominal NNCs | pending | Lesson 16 is documented as evidence-blocked; pronoun labels are not fixture evidence. |
 | supplementation/topic | pending | Lessons 17-19 need clause/sentence metadata and confirmed examples; do not force them into ordinary NNC or VNC word generation. |
@@ -351,13 +376,14 @@ Status labels:
 | relational/place/gentilic/name/numeral NNCs | metadata-only | Boundary/usage frames exist; confirmed Nawat fixture data is required before generation. |
 | adjectival/adverbial modification | metadata-only / AST-only | Current AST/boundary routes may compose supplied surfaces and record structure; they must not generate new Nawat forms. |
 | complement/conjunction/comparison | metadata-only / AST-only | Clause-level relation metadata exists; no generation from single words, parser separators, translations, or Classical examples. |
-| denominal source routes | partial opt-in engine-active | Current route previews/generation cover selected configured Nawat routes and Andrews-backed suffix contracts; source evidence gates continuations. |
-| analysis/miscellany/textual diagnostics | metadata-only | Keep Lessons 57-58 as analysis boundaries until confirmed examples justify behavior. |
+| denominal source routes | partial opt-in engine-active | Current route previews/generation cover selected configured routes and Andrews-backed suffix contracts; Andrews source context gates continuations. |
+| analysis/miscellany/textual diagnostics | metadata-only | Keep Lessons 57-58 as analysis boundaries until Andrews analysis contracts and the orthography bridge justify behavior. |
 
 The implementation rule is: first preserve the Andrews slot as metadata, then
-decide whether Nawat evidence permits generation. UI chips should show available
-slots only when the active route actually supports them; otherwise they should
-show diagnostics or remain metadata.
+let Andrews route logic decide whether generation is licensed. Nawat/Pipil
+evidence may confirm fixture spelling only after the grammar route exists. UI
+chips should show available slots only when the active route actually supports
+them; otherwise they should show diagnostics or remain metadata.
 
 ### NNC Subject-Number Connector Analogues
 

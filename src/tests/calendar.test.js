@@ -61,7 +61,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized calendar kind remains unconfirmed without Nawat evidence",
+        "recognized calendar kind remains blocked without Andrews source gate",
         ctx.classifyCalendarNameCandidate({
             candidate: "calendar roadmap label",
             calendarKind: "day-name",
@@ -79,11 +79,15 @@ function run(ctx) {
             sourceName: "unknown",
             nameFunction: "date-label",
             evidenceSource: "",
+            sourceGate: "",
+            structuredSource: false,
             falsePositiveSource: "calendar-roadmap-text",
             confirmed: false,
+            supported: false,
             generationAllowed: false,
+            surfaceForms: [],
             diagnostics: [
-                "calendar-name-needs-nawat-evidence",
+                "calendar-name-source-gate-required",
                 "calendar-name-kind-recognized",
                 "calendar-name-false-positive-source",
             ],
@@ -112,8 +116,51 @@ function run(ctx) {
             unitKind: "calendar-name",
             routeStage: "classify-boundary",
             generationAllowed: false,
-            diagnosticId: "calendar-name-needs-nawat-evidence",
+            diagnosticId: "calendar-name-source-gate-required",
             enumerableGrammarFrame: false,
+        }
+    );
+
+    s.eq(
+        "structured Andrews calendar-name candidate generates through orthography bridge",
+        (() => {
+            const classification = ctx.classifyCalendarNameCandidate({
+                candidate: "ce-acatl",
+                calendarKind: "day-name",
+                calendarCycle: "day-sign",
+                sourceName: "ce acatl",
+                nameFunction: "date-label",
+                sourceGate: "Andrews Appendix E day-name route",
+                structuredSource: true,
+            });
+            return {
+                confirmed: classification.confirmed,
+                supported: classification.supported,
+                generationAllowed: classification.generationAllowed,
+                surface: classification.surface,
+                diagnostics: classification.diagnostics,
+                routeStage: classification.frames.routeContract.routeStage,
+                frameGenerationAllowed: classification.frames.routeContract.generationAllowed,
+                orthographyStatus: classification.frames.orthographyFrame.orthographyStatus,
+                spellingAuthority: classification.frames.orthographyFrame.spellingAuthority,
+                targetStem: classification.frames.stemFrame.targetStem,
+            };
+        })(),
+        {
+            confirmed: true,
+            supported: true,
+            generationAllowed: true,
+            surface: "seakat",
+            diagnostics: [
+                "calendar-name-andrews-source-generated",
+                "calendar-name-kind-recognized",
+                "calendar-name-structured-source",
+            ],
+            routeStage: "generate-structured-calendar-name",
+            frameGenerationAllowed: true,
+            orthographyStatus: "orthography-bridge-realized",
+            spellingAuthority: "Nawat/Pipil orthography bridge",
+            targetStem: "seakat",
         }
     );
 
@@ -138,11 +185,11 @@ function run(ctx) {
         ctx.getCalendarNameAntiConflationRules(),
         [
             "calendar-name boundary metadata is not generation",
-            "day, month, year, or cycle labels are not Nawat/Pipil calendar-name fixture data",
+            "day, month, year, or cycle labels are not calendar-name orthography fixture data",
             "personal-name NNC boundary metadata is not calendar-name data",
             "place/gentilic boundary metadata and calendar roadmap text are not confirmed calendar names",
             "ordinary NNC fixtures or open-stem previews are not calendar-name evidence",
-            "Andrews calendar categories are architecture, not Nawat/Pipil form authority",
+            "Andrews calendar categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("calendar-name boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));

@@ -1069,21 +1069,56 @@ function applyStaticConstants(data) {
     if (!data || typeof data !== "object") {
         return;
     }
-    const makeRegex = (entry) => {
-        if (!entry || typeof entry.pattern !== "string") {
+    const escapeRegexToken = (token) => String(token || "").replace(/[\\^$.*+?()[\]{}|/-]/g, "\\$&");
+    const normalizeTokenList = (value) => (
+        Array.isArray(value)
+            ? value.map((token) => String(token || "")).filter(Boolean)
+            : []
+    );
+    const normalizeLetterRanges = (value) => (
+        Array.isArray(value)
+            ? value.map((range) => {
+                const from = String(range?.from || "").trim();
+                const to = String(range?.to || "").trim();
+                return from && to ? `${escapeRegexToken(from)}-${escapeRegexToken(to)}` : "";
+            }).filter(Boolean)
+            : []
+    );
+    const buildRegexFromTokenClass = ({
+        tokens = [],
+        flags = "",
+        negate = false,
+        letterRanges = [],
+    } = {}) => {
+        const tokenBody = normalizeTokenList(tokens).map(escapeRegexToken).join("");
+        const rangeBody = normalizeLetterRanges(letterRanges).join("");
+        if (!tokenBody && !rangeBody) {
             return null;
         }
-        const flags = typeof entry.flags === "string" ? entry.flags : "";
-        try {
-            return new RegExp(entry.pattern, flags);
-        } catch (error) {
-            console.warn("Invalid regex pattern in static constants.", error);
-            return null;
-        }
+        return new RegExp(`[${negate ? "^" : ""}${rangeBody}${tokenBody}]`, flags);
     };
-    const markerRe = makeRegex(data.compoundMarkerRe);
-    const markerSplitRe = makeRegex(data.compoundMarkerSplitRe);
-    const allowedRe = makeRegex(data.compoundAllowedRe);
+    const compoundTokenClasses = data.compoundTokenClasses && typeof data.compoundTokenClasses === "object"
+        ? data.compoundTokenClasses
+        : null;
+    const markerRe = compoundTokenClasses
+        ? buildRegexFromTokenClass({
+            tokens: compoundTokenClasses.markerTokens,
+            flags: "g",
+        })
+        : null;
+    const markerSplitRe = compoundTokenClasses
+        ? buildRegexFromTokenClass({
+            tokens: compoundTokenClasses.splitTokens,
+        })
+        : null;
+    const allowedRe = compoundTokenClasses
+        ? buildRegexFromTokenClass({
+            tokens: compoundTokenClasses.markerTokens,
+            letterRanges: compoundTokenClasses.letterRanges,
+            flags: "g",
+            negate: true,
+        })
+        : null;
     if (markerRe) {
         COMPOUND_MARKER_RE = markerRe;
     }

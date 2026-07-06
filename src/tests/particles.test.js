@@ -160,11 +160,11 @@ function run(ctx) {
         ctx.getParticleAntiConflationRules(),
         [
             "particle placement metadata is not particle generation",
-            "particle-looking string is not confirmed Nawat/Pipil particle evidence",
+            "particle-looking string is not an Andrews-licensed particle source",
             "particle mode label is not a particle inventory",
             "preposed output segment is not a Lesson 3 particle engine",
             "topic/focus label is not supplementation",
-            "Andrews particle categories are architecture, not Nawat/Pipil form authority",
+            "Andrews particle categories are architecture, not Nawat/Pipil orthography authority",
             "particle categories do not occupy CNV/CNN formula slots",
         ]
     );

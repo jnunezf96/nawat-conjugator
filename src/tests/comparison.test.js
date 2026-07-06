@@ -64,7 +64,7 @@ function run(ctx) {
     );
 
     s.eq(
-        "recognized comparison relation remains unconfirmed without Nawat clause evidence",
+        "recognized comparison relation remains unconfirmed without Andrews clause-source context",
         ctx.classifyComparisonCandidate({
             target: "unknown",
             standard: "translation",
@@ -86,7 +86,7 @@ function run(ctx) {
             confirmed: false,
             generationAllowed: false,
             diagnostics: [
-                "comparison-needs-nawat-clause-evidence",
+                "comparison-source-gated",
                 "comparison-relation-recognized",
                 "comparison-false-positive-source",
             ],
@@ -117,7 +117,7 @@ function run(ctx) {
             unitKind: "comparison-clause-unit",
             routeStage: "classify-boundary",
             generationAllowed: false,
-            diagnosticId: "comparison-needs-nawat-clause-evidence",
+            diagnosticId: "comparison-source-gated",
             enumerableGrammarFrame: false,
         }
     );
@@ -144,9 +144,9 @@ function run(ctx) {
             "comparison boundary metadata is not generation",
             "adjective-like word output is not comparison syntax",
             "adjectival modification metadata is not similarity or comparison evidence",
-            "degree, question, or translation labels are not Nawat/Pipil comparison forms",
+            "degree, question, or translation labels are not comparison surface forms",
             "single generated words do not prove equality, similarity, comparative, or superlative relations",
-            "Andrews comparison categories are architecture, not Nawat/Pipil form authority",
+            "Andrews comparison categories are architecture, not Nawat/Pipil orthography authority",
         ]
     );
     s.no("comparison boundary does not expose surface forms", Object.prototype.hasOwnProperty.call(boundary, "surfaceForms"));
@@ -280,7 +280,7 @@ function run(ctx) {
             grammarRouteStage: "audit-lesson-53",
             diagnosticIds: [
                 "comparison-lesson-53-diagnostic-partial",
-                "comparison-needs-nawat-clause-evidence",
+                "comparison-source-gated",
             ],
         }
     );

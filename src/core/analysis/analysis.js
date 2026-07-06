@@ -1,7 +1,7 @@
 // core/analysis/analysis.js
 // Lessons 57-58 textual/miscellany boundary metadata. This keeps current
 // sentence, clause, VNC, NNC, and parser diagnostics separate from confirmed
-// textual-analysis or miscellany engines until Nawat/Pipil evidence supports
+// textual-analysis or miscellany engines until Andrews source logic plus the orthography bridge supports
 // them.
 
 "use strict";
@@ -44,7 +44,7 @@ const ANALYSIS_ANTI_CONFLATION_RULES = Object.freeze([
     "topic/focus UI labels are not absolute-topic evidence",
     "a bare mah-looking string is not a confirmed mah construction",
     "CSV verb rows and translation labels are not textual problem evidence",
-    "Andrews miscellany categories are architecture, not Nawat/Pipil form authority",
+    "Andrews miscellany categories are architecture, not Nawat/Pipil orthography authority",
 ]);
 
 const ANALYSIS_STRUCTURAL_QUESTIONS = Object.freeze([
@@ -78,7 +78,7 @@ const ANALYSIS_STRUCTURAL_QUESTIONS = Object.freeze([
     }),
     Object.freeze({
         field: "evidenceSource",
-        asks: "What Nawat/Pipil repo or user-provided text supports the analysis?",
+        asks: "What Andrews text-source model or user-provided text context supports the analysis?",
     }),
 ]);
 
@@ -446,7 +446,7 @@ function buildAnalysisBoundaryMetadata() {
         status: "partial",
         structuralSource: "Andrews Lessons 57-58",
         pdfRefs: ["Andrews Lessons 57-58"],
-        targetAuthority: "Nawat/Pipil repo data and user-provided texts",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided texts",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getAnalysisStructuralQuestions(),
@@ -507,7 +507,7 @@ function classifyAnalysisIssueCandidate({
         confirmed: false,
         generationAllowed: false,
         diagnostics: [
-            hasEvidence ? "analysis-issue-needs-validation" : "analysis-issue-needs-nawat-text-evidence",
+            hasEvidence ? "analysis-issue-needs-validation" : "analysis-issue-source-gated",
             normalizedIssue !== ANALYSIS_ISSUE.unknown
                 ? "analysis-issue-kind-recognized"
                 : "analysis-issue-kind-unconfirmed",

@@ -1,6 +1,6 @@
 // Native wrapper generated from src/core/nnc/nnc.js.
 
-export function createNncModule(targetObject = globalThis) {
+export function createNncApi(targetObject = globalThis) {
     const ORDINARY_NNC_STATE = Object.freeze({
       absolutive: "absolutive",
       possessive: "possessive"
@@ -25,8 +25,17 @@ export function createNncModule(targetObject = globalThis) {
       unsupportedSubject: "ordinary-nnc-unsupported-subject",
       nounClassMismatch: "ordinary-nnc-noun-class-mismatch",
       classStemIncompatible: "ordinary-nnc-class-stem-incompatible",
+      legacyFormulaStringBlocked: "ordinary-nnc-legacy-formula-string-blocked",
+      legacyFormulaStringConflictsWithSlots: "ordinary-nnc-legacy-formula-string-conflicts-with-slots",
+      organicPossessionMissingSourceFrame: "ordinary-nnc-organic-possession-missing-source-frame",
+      organicPossessionMissingOperationFrame: "ordinary-nnc-organic-possession-missing-operation-frame",
+      organicPossessionContradictoryFrame: "ordinary-nnc-organic-possession-contradictory-frame",
       organicPossessionRequiresPossessiveState: "ordinary-nnc-organic-possession-requires-possessive-state",
-      organicPossessionRequiresPossessor: "ordinary-nnc-organic-possession-requires-possessor"
+      organicPossessionRequiresPossessor: "ordinary-nnc-organic-possession-requires-possessor",
+      possessiveStateMonadicMissingSourceFrame: "possessive-state-nnc-monadic-missing-source-frame",
+      possessiveStateMonadicMissingOperationFrame: "possessive-state-nnc-monadic-missing-operation-frame",
+      possessiveStateMonadicContradictoryFrame: "possessive-state-nnc-monadic-contradictory-frame",
+      resultTextMissingTypedOperationFrame: "ordinary-nnc-result-text-missing-typed-operation-frame"
     });
     const NNC_LESSON12_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON12_PDF_REFS = Object.freeze(["Andrews Lesson 12.1", "Andrews Lesson 12.2", "Andrews Lesson 12.3", "Andrews Lesson 12.4", "Andrews Lesson 12.5", "Andrews Lesson 12.6", "Andrews Lesson 12.7"]);
@@ -67,6 +76,14 @@ export function createNncModule(targetObject = globalThis) {
         sensitiveToPredicateState: true,
         singularCommonDyads: Object.freeze(["tl-0", "tli-0", "li-0", "in-0", "0-0"]),
         pluralDyads: Object.freeze(["t-in", "m-eh", "0-h"]),
+        nawatPluralDyadBridge: Object.freeze([Object.freeze({
+          classicalDyad: "m-eh",
+          currentNawatDyad: "m-et",
+          num1: "m",
+          classicalNum2: "eh",
+          currentNawatNum2: "et",
+          orthographyRule: "Classical final -h maps to current Nawat/Pipil -t."
+        })]),
         singularNum1Morphs: Object.freeze(["tl", "tli", "li", "in", "0"]),
         pluralNum1Morphs: Object.freeze(["t", "m", "0"]),
         singularNum2Morphs: Object.freeze(["0"]),
@@ -207,7 +224,7 @@ export function createNncModule(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const NNC_LESSON12_REMAINING_GAPS = Object.freeze(["The full Andrews 12.3-12.4 absolutive subject-pronoun filler inventory is not generated as a complete paradigm.", "Current ordinary NNC output remains Nawat/Pipil evidence-bound and cannot import Classical num1-num2 surfaces directly.", "Discourse time reference, definiteness/article choice, metaphorical animacy overrides, and state-restriction exceptions remain diagnostic or deferred."]);
+    const NNC_LESSON12_REMAINING_GAPS = Object.freeze(["The full Andrews 12.3-12.4 absolutive subject-pronoun filler inventory is not generated as a complete paradigm.", "Current ordinary NNC output follows Andrews slot logic and cannot import Classical num1-num2 surfaces directly; Nawat/Pipil realization still passes through the orthography bridge.", "Discourse time reference, definiteness/article choice, metaphorical animacy overrides, and state-restriction exceptions remain diagnostic or deferred."]);
     const NNC_LESSON13_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON13_PDF_REFS = Object.freeze(["Andrews Lesson 13.1", "Andrews Lesson 13.2", "Andrews Lesson 13.3", "Andrews Lesson 13.4", "Andrews Lesson 13.5", "Andrews Lesson 13.6"]);
     const NNC_LESSON13_POSSESSIVE_FORMULA_FRAME = Object.freeze({
@@ -278,7 +295,7 @@ export function createNncModule(targetObject = globalThis) {
         number: "plural",
         variants: Object.freeze(["hu-an"])
       })]),
-      nawatRealizationStatus: "current Nawat subject/connector output remains evidence-bound and does not import Classical connector paradigms",
+      nawatRealizationStatus: "current Nawat subject/connector output is orthography-bridge realization, not imported Classical connector paradigms",
       generationAllowed: false
     });
     const NNC_LESSON13_MONADIC_STATE_FRAME = Object.freeze({
@@ -294,14 +311,14 @@ export function createNncModule(targetObject = globalThis) {
         andrewsMorph: "ne",
         meaning: "one another's / each other's",
         restrictions: Object.freeze(["third-person only", "highly infrequent", "narrower than shuntline reflexive/reciprocal object ne"]),
-        nawatStatus: "requires Nawat/Pipil evidence before generation"
+        nawatStatus: "requires an Andrews source gate plus orthography bridge before generation"
       }), Object.freeze({
         id: "human-nonspecific-possessor",
         andrewsMorph: "te",
         meaning: "someone's / anyone's / everyone's",
         frequency: "frequent",
         nawatCandidate: "te",
-        nawatStatus: "requires Nawat/Pipil evidence before generation"
+        nawatStatus: "requires an Andrews source gate plus orthography bridge before generation"
       }), Object.freeze({
         id: "nonhuman-nonspecific-possessor",
         andrewsMorph: "tla",
@@ -309,7 +326,7 @@ export function createNncModule(targetObject = globalThis) {
         primaryUse: "relational nounstems",
         lessonRefs: Object.freeze(["Andrews Lessons 45-47", "Andrews §15.1.6"]),
         nawatCandidate: "ta",
-        nawatStatus: "orthography-adapted candidate only; requires Nawat/Pipil evidence before generation"
+        nawatStatus: "orthography-adapted candidate only; requires an Andrews source gate plus orthography bridge before generation"
       })]),
       generationAllowed: false
     });
@@ -420,7 +437,7 @@ export function createNncModule(targetObject = globalThis) {
       andrewsSection: "13.4",
       category: "monadic-possessive-state",
       directiveEs: "El Estado monadico concentra persona, numero y caso posesivo en un solo pronombre prefijal: ne, te o tla.",
-      engineSurface: "blocked monadic-state taxonomy",
+      engineSurface: "Andrews-licensed monadic-state taxonomy",
       redirectAction: "block-generation",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
@@ -439,11 +456,11 @@ export function createNncModule(targetObject = globalThis) {
       category: "specific-possessor-pronouns",
       directiveEs: "Los poseedores especificos son pronombres posesivos; sus realizaciones Nawat se toman de evidencia del repo, no de importacion grafica clasica.",
       engineSurface: "current possessor-prefix metadata",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const NNC_LESSON13_REMAINING_GAPS = Object.freeze(["The full Andrews possessive-state subject connector inventory is not generated as a complete paradigm.", "Monadic possessive-state NNCs with ne, te, and nonhuman tla/ta remain blocked until confirmed Nawat/Pipil evidence licenses them.", "Current specific possessor prefixes are Nawat repo evidence, while Andrews st1/st2 allomorphy and traditional-spelling caveats remain diagnostic metadata.", "Lesson 14 stem selection is required before possessive-state NNC generation can claim full Andrews coverage."]);
+    const NNC_LESSON13_REMAINING_GAPS = Object.freeze(["The full Andrews possessive-state subject connector inventory is not generated as a complete paradigm.", "Monadic possessive-state NNCs with ne, te, and nonhuman tla/ta are Andrews-licensed when the source stem is present; Classical letters still realize through the orthography bridge.", "Current specific possessor prefixes are orthography-bridge realizations of Andrews st1/st2 logic, while full allomorphy and traditional-spelling caveats remain diagnostic metadata.", "Lesson 14 stem selection is required before possessive-state NNC generation can claim full Andrews coverage."]);
     const NNC_LESSON14_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON14_PDF_REFS = Object.freeze(["Andrews Lesson 14.1", "Andrews Lesson 14.2", "Andrews Lesson 14.3", "Andrews Lesson 14.4", "Andrews Lesson 14.5", "Andrews Lesson 14.6", "Andrews Lesson 14.7", "Andrews Lesson 14.8"]);
     const NNC_LESSON14_USE_STEM_FRAME = Object.freeze({
@@ -494,7 +511,7 @@ export function createNncModule(targetObject = globalThis) {
       alternativeClassMembershipPossible: true,
       supportiveInitialVowelMayHaveVariantWithoutVowel: true,
       currentEngineClasses: Object.freeze(["t", "ti", "in", "zero"]),
-      currentEngineBoundary: "class/stem-final compatibility is enforced; lexical class membership and alternatives remain evidence-bound",
+      currentEngineBoundary: "class/stem-final compatibility is enforced; lexical class membership and alternatives remain source-gated",
       generationAllowed: false
     });
     const NNC_LESSON14_NOUNSTEM_NUMBER_FRAME = Object.freeze({
@@ -630,7 +647,7 @@ export function createNncModule(targetObject = globalThis) {
       ambiguousBackConstituents: Object.freeze(["uh can be stem-final consonant or num1 filler", "ti can be stem-final consonant sequence or num1 filler", "tli can rarely be stem-final material or num1 filler"]),
       ambiguousFrontConstituents: Object.freeze(["o after n/t/am can belong to the stem or to st2", "m after long i can belong to the stem or to st2"]),
       spellingProblemRefs: Object.freeze(["amo ambiguity from Andrews §13.6", "long o missing in traditional spelling", "i-0 before long i or glottal-stop-initial stems", "supportive i dropped after i-0"]),
-      diagnosticRule: "keep alternative analyses open unless vocabulary, filler morphs, sound changes, and Nawat/Pipil evidence settle the parse",
+      diagnosticRule: "keep alternative analyses open unless vocabulary, filler morphs, sound changes, and Andrews source logic plus orthography-bridge support settle the parse",
       generationAllowed: false
     });
     const NNC_LESSON14_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
@@ -675,7 +692,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "absolutive-plural-stem-selection",
       directiveEs: "La CNN absolutiva plural puede usar tronco simple, de afinidad o distributivo/varietal, con num1 lexicamente aprendido.",
       engineSurface: "plural-subject diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -684,7 +701,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "possessive-plural-stem-selection",
       directiveEs: "La CNN posesiva plural normalmente usa tronco simple, salvo necesidad semantica de afinidad o distribucion.",
       engineSurface: "possessive plural diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -693,7 +710,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "possessive-singular-common-stem-selection",
       directiveEs: "La CNN posesiva singular/comun selecciona forma base o truncada segun clase y subclase; num1 sigue siendo del sujeto.",
       engineSurface: "possessive class/subclass diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -706,7 +723,7 @@ export function createNncModule(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const NNC_LESSON14_REMAINING_GAPS = Object.freeze(["Current ordinary NNC class handling enforces Nawat t/ti/in/zero shape compatibility, but full Andrews lexical class membership and class alternatives are not data-complete.", "Restricted-use versus general-use stem selection is not yet a complete engine contract for possessive NNCs and compound embed positions.", "Affinity and distributive/varietal nounstem derivation, plural-subject alternatives, and class/subclass num1 choices remain diagnostic or Nawat/Pipil-evidence-needed.", "Constituent-analysis ambiguities around uh, ti, tli, o, m, and traditional spelling remain diagnostic metadata until vocabulary and Nawat/Pipil evidence settle them."]);
+    const NNC_LESSON14_REMAINING_GAPS = Object.freeze(["Current ordinary NNC class handling enforces Nawat t/ti/in/zero shape compatibility, but full Andrews lexical class membership and class alternatives are not data-complete.", "Restricted-use versus general-use stem selection is not yet a complete engine contract for possessive NNCs and compound embed positions.", "Affinity and distributive/varietal nounstem derivation, plural-subject alternatives, and class/subclass num1 choices remain diagnostic or source-gated.", "Constituent-analysis ambiguities around uh, ti, tli, o, m, and traditional spelling remain diagnostic metadata until vocabulary and Andrews source logic plus orthography-bridge support settle them."]);
     const NNC_LESSON15_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON15_PDF_REFS = Object.freeze(["Andrews Lesson 15.1", "Andrews Lesson 15.2", "Andrews Lesson 15.3"]);
     const NNC_LESSON15_POSSESSIVE_PECULIARITIES_FRAME = Object.freeze({
@@ -808,7 +825,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "natural-possession-state-cases",
       directiveEs: "Distinguir posesion natural, obligatoria o restringida de posesion ordinaria; los sufijos absolutivos de diccionario solo identifican clase.",
       engineSurface: "natural-possession evidence boundary",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -821,7 +838,7 @@ export function createNncModule(targetObject = globalThis) {
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const NNC_LESSON15_REMAINING_GAPS = Object.freeze(["Possessive plural assimilation, suppletive possessive stems, te/tla secondary stems, possessor reduplication, and ti-subclass reclassification remain diagnostic until Nawat/Pipil evidence licenses concrete forms.", "Natural-possession state cases require lexical metadata for required, optional, unavailable, possessive-only, absolutive-unavailable, and irregular nouns.", "Current fixture-backed possessive forms and organic -yu generation do not prove complete Lesson 15 natural-possession coverage.", "NNC sentence-structure behavior remains sentence-layer metadata; sentence generation and particle placement are not licensed by ordinary NNC output alone."]);
+    const NNC_LESSON15_REMAINING_GAPS = Object.freeze(["Possessive plural assimilation, suppletive possessive stems, te/tla secondary stems, possessor reduplication, and ti-subclass reclassification remain diagnostic until Andrews source models plus the orthography bridge can license concrete forms.", "Natural-possession state cases require lexical metadata for required, optional, unavailable, possessive-only, absolutive-unavailable, and irregular nouns.", "Current fixture-backed possessive forms and organic -yu generation do not prove complete Lesson 15 natural-possession coverage.", "NNC sentence-structure behavior remains sentence-layer metadata; sentence generation and particle placement are not licensed by ordinary NNC output alone."]);
     const NNC_LESSON16_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON16_PDF_REFS = Object.freeze(["Andrews Lesson 16.1", "Andrews Lesson 16.2", "Andrews Lesson 16.3", "Andrews Lesson 16.4", "Andrews Lesson 16.5", "Andrews Lesson 16.6", "Andrews Lesson 16.7", "Andrews Lesson 16.8", "Andrews Lesson 16.9"]);
     const NNC_LESSON16_OVERVIEW_FRAME = Object.freeze({
@@ -836,7 +853,7 @@ export function createNncModule(targetObject = globalThis) {
       pluralStructuralTypes: Object.freeze(["plain-stem plural", "pluralized-stem plural"]),
       pluralizedStemRule: "plural-number morph n is derivational suffix inside the stem",
       pluralizedStemSubjectNumberDyads: Object.freeze(["t-in", "0-0"]),
-      currentEngineBoundary: "ordinary NNC formula slots are not reused as generated pronominal NNC paradigms without a separate Nawat evidence model",
+      currentEngineBoundary: "ordinary NNC formula slots are not reused as generated pronominal NNC paradigms without a separate Andrews source model",
       generationAllowed: false
     });
     const NNC_LESSON16_ENTITIVE_FRAME = Object.freeze({
@@ -1053,7 +1070,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "personal-pronominal-nnc",
       directiveEs: "Los pronombres personales reales son afijales; eh/yeh y eh-hua/yeh-hua son predicados CNN de entidad y suelen servir como suplementos.",
       engineSurface: "personal-pronominal diagnostic metadata",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -1080,7 +1097,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "indefinite-pronominal-nnc",
       directiveEs: "acah e itlah son compuestos indefinidos menos generales que los prefijos te y tla.",
       engineSurface: "indefinite pronominal diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -1098,7 +1115,7 @@ export function createNncModule(targetObject = globalThis) {
       category: "quantitive-quich-pronominal",
       directiveEs: "ixquich y quexquich pertenecen a la matriz qui-ch y mantienen reglas de posicion interrogativa.",
       engineSurface: "qui-ch quantitive diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     }), Object.freeze({
@@ -1107,11 +1124,11 @@ export function createNncModule(targetObject = globalThis) {
       category: "quantitive-qui-chi-pronominal",
       directiveEs: "Las matrices qui/c y chi/ch pluralizan por n derivacional en el tronco cuando corresponde; no se generan paradigmas sin evidencia.",
       engineSurface: "qui/chi quantitive diagnostics",
-      redirectAction: "needs-nawat-evidence",
+      redirectAction: "source-gated",
       evidenceStatus: "direct-pdf-partial",
       implementationState: "partial"
     })]);
-    const NNC_LESSON16_REMAINING_GAPS = Object.freeze(["Confirmed Nawat/Pipil pronominal NNC examples are still needed before any personal, interrogative, demonstrative, indefinite, or quantitive paradigms can generate.", "The current ordinary NNC formula slot model is not yet extended to a safe pronominal NNC route.", "Fused spellings such as tlein/aquin and demonstrative inin/inon remain diagnostic text-analysis metadata, not generated Nawat fixtures.", "Quantitive matrix allomorphy, derivational plural n, adjectival-function use, and supplementation behavior remain diagnostic or deferred to later lessons."]);
+    const NNC_LESSON16_REMAINING_GAPS = Object.freeze(["A complete Andrews pronominal-NNC route contract and orthography-bridge mapping are still needed before personal, interrogative, demonstrative, indefinite, or quantitive paradigms can generate.", "The current ordinary NNC formula slot model is not yet extended to a safe pronominal NNC route.", "Fused spellings such as tlein/aquin and demonstrative inin/inon remain diagnostic text-analysis metadata, not generated Nawat fixtures.", "Quantitive matrix allomorphy, derivational plural n, adjectival-function use, and supplementation behavior remain diagnostic or deferred to later lessons."]);
     function buildVerbDerivedNominalDiagnostic({
       id = "verb-derived-nominal-blocked",
       message = "La generacion no produjo una forma.",
@@ -1287,7 +1304,7 @@ export function createNncModule(targetObject = globalThis) {
         orthographyFrame: {
           surface,
           surfaceForms,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
@@ -1484,6 +1501,15 @@ export function createNncModule(targetObject = globalThis) {
         ...options
       });
     }
+    function getOrdinaryNncFormulaSchema() {
+      return typeof targetObject.getAndrewsFormulaSlotSchema === "function" ? targetObject.getAndrewsFormulaSlotSchema("ordinary-nnc-shell") : null;
+    }
+    function getOrdinaryNncFormulaSlotDefinition(slotId = "") {
+      return typeof targetObject.getAndrewsFormulaSlotDefinition === "function" ? targetObject.getAndrewsFormulaSlotDefinition("ordinary-nnc-shell", slotId) : null;
+    }
+    function renderOrdinaryNncFormulaTemplate() {
+      return typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("ordinary-nnc-shell") : "#pers1-pers2(STEM)num1-num2#";
+    }
     function cloneNncLessonRecord(value) {
       if (Array.isArray(value)) {
         return value.map(entry => cloneNncLessonRecord(entry));
@@ -1519,7 +1545,7 @@ export function createNncModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(NNC_LESSON12_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no importa conectores clasicos ni genera paradigmas completos sin evidencia Nawat/Pipil"
+        generationPolicy: "diagnostico; no importa conectores clasicos ni genera paradigmas completos sin fuente Andrews concreta y puente ortografico"
       }));
     }
     function getNncLesson12RemainingGaps() {
@@ -1581,7 +1607,9 @@ export function createNncModule(targetObject = globalThis) {
         stemFrame: predicateFrame,
         nuclearClauseFrame: {
           clauseKind: ORDINARY_NNC_CLAUSE_KIND,
-          formula: absolutiveFormulaFrame.linearFormula,
+          formulaSchemaId: "ordinary-nnc-shell",
+          formula: renderOrdinaryNncFormulaTemplate(),
+          formulaSlots: getOrdinaryNncFormulaSchema()?.slots || [],
           statePosition: "vacant",
           hasTensePosition: false
         },
@@ -1623,7 +1651,7 @@ export function createNncModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(NNC_LESSON13_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no importa poseedores clasicos ni genera paradigmas posesivos completos sin evidencia Nawat/Pipil"
+        generationPolicy: "diagnostico; no importa poseedores clasicos ni genera paradigmas posesivos completos sin fuente Andrews concreta y puente ortografico"
       }));
     }
     function getNncLesson13RemainingGaps() {
@@ -1652,7 +1680,7 @@ export function createNncModule(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-13-possessive-nnc-audit",
           result: "hit",
-          correction: "Lesson 13 now carries subsection PDF refs, Spanish directives, possessive-state formula metadata, subject num1-num2 ownership, monadic and dyadic State taxonomy, specific possessor frames, and blockers for unlicensed Classical-to-Nawat possessive paradigms.",
+          correction: "Lesson 13 now carries subsection PDF refs, Spanish directives, possessive-state formula metadata, subject num1-num2 ownership, monadic and dyadic State taxonomy, specific possessor frames, and Andrews-governed Classical-to-Nawat orthography boundaries.",
           andrewsRefs: Array.from(NNC_LESSON13_PDF_REFS),
           feedbackRefs: Array.from(NNC_LESSON13_VALIDATION_REFS)
         }],
@@ -1665,8 +1693,8 @@ export function createNncModule(targetObject = globalThis) {
         specificPossessorFrame,
         currentEngineBoundary: {
           ordinaryNncPossessiveStateExists: true,
-          currentSpecificPossessorPrefixesAreNawatEvidence: true,
-          monadicPossessiveStateGenerated: false,
+          currentSpecificPossessorPrefixesUseOrthographyBridge: true,
+          monadicPossessiveStateGenerated: true,
           completeAndrewsPossessiveParadigmGenerated: false,
           noTenseSlot: true
         },
@@ -1742,7 +1770,7 @@ export function createNncModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(NNC_LESSON14_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no completa clases, subclases, derivaciones de tronco ni alternativas sin evidencia Nawat/Pipil"
+        generationPolicy: "diagnostico; no completa clases, subclases, derivaciones de tronco ni alternativas sin fuente Andrews concreta y puente ortografico"
       }));
     }
     function getNncLesson14RemainingGaps() {
@@ -1862,7 +1890,7 @@ export function createNncModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(NNC_LESSON15_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no genera suplencias, posesion natural ni oraciones CNN sin evidencia Nawat/Pipil y capa sintactica"
+        generationPolicy: "diagnostico; no genera suplencias, posesion natural ni oraciones CNN sin fuente Andrews concreta y puente ortografico y capa sintactica"
       }));
     }
     function getNncLesson15RemainingGaps() {
@@ -1980,7 +2008,7 @@ export function createNncModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(NNC_LESSON16_VALIDATION_REFS),
-        generationPolicy: "diagnostico; no genera CNN pronominales sin ejemplos Nawat/Pipil confirmados y contrato de ruta separado"
+        generationPolicy: "diagnostico; no genera CNN pronominales sin contrato de ruta Andrews separado y puente ortografico"
       }));
     }
     function getNncLesson16RemainingGaps() {
@@ -2030,7 +2058,7 @@ export function createNncModule(targetObject = globalThis) {
         currentEngineBoundary: {
           pronominalNncRouteGenerated: false,
           ordinaryNncFormulaSlotsReused: false,
-          confirmedNawatPronominalFixtures: false,
+          confirmedOrthographyBridgePronominalFixtures: false,
           absolutiveOnly: true,
           noTenseSlot: true
         },
@@ -2199,20 +2227,155 @@ export function createNncModule(targetObject = globalThis) {
     function buildOrdinaryNncClassStemCompatibilityDiagnostic(compatibility = {}) {
       return buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.classStemIncompatible, `Nominal nuclear clause class "${compatibility.nounClass || ""}" requires a ${compatibility.requiredStemShape || "compatible"} stem; "${compatibility.stem || ""}" is ${compatibility.actualStemShape || "not compatible"}.`);
     }
-    function buildOrdinaryNncOrganicPossessionStem(stem = "") {
-      const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
-      if (!normalizedStem) {
-        return "";
+    function getOrdinaryNncOrganicPossessionSourceSignature({
+      sourceStem = "",
+      possessorPrefix = "",
+      possessionKind = ORDINARY_NNC_POSSESSION_KIND.organic
+    } = {}) {
+      return [String(sourceStem || ""), String(possessorPrefix || ""), String(possessionKind || ""), "Andrews 39.3.4"].join("|");
+    }
+    function getOrdinaryNncOrganicPossessionSourceStemFromFormulaSlots(formulaSlots = null) {
+      return getOrdinaryNncRequestFormulaSlotStem(formulaSlots);
+    }
+    function buildOrdinaryNncOrganicPossessionSourceFrame({
+      formulaSlots = null,
+      possessor = null,
+      possessionKind = ORDINARY_NNC_POSSESSION_KIND.organic
+    } = {}) {
+      const sourceStem = getOrdinaryNncOrganicPossessionSourceStemFromFormulaSlots(formulaSlots);
+      if (!sourceStem || normalizeOrdinaryNncPossessionKind(possessionKind) !== ORDINARY_NNC_POSSESSION_KIND.organic) {
+        return null;
       }
-      return normalizedStem.endsWith("yu") ? normalizedStem : `${normalizedStem}yu`;
+      const possessorPrefix = String(possessor?.prefix || "");
+      const sourceSignature = getOrdinaryNncOrganicPossessionSourceSignature({
+        sourceStem,
+        possessorPrefix,
+        possessionKind: ORDINARY_NNC_POSSESSION_KIND.organic
+      });
+      return Object.freeze({
+        kind: "ordinary-nnc-organic-possession-source-frame",
+        version: 1,
+        formulaSchemaId: "ordinary-nnc-shell",
+        routeFamily: "ordinary-nnc",
+        routeStage: "organic-possession",
+        lessonRef: "Andrews 39.3.4",
+        sourceStem,
+        sourceFormulaSlots: formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null,
+        possessorPrefix,
+        possessionKind: ORDINARY_NNC_POSSESSION_KIND.organic,
+        stateCase: "organic-possession",
+        matrixStem: "yu",
+        classicalAnalogue: "(-yo)-tl",
+        operation: "append-organic-possession-yu",
+        sourceSignature,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil orthography bridge"
+      });
+    }
+    function buildOrdinaryNncOrganicPossessionOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-organic-possession-source-frame") {
+        return null;
+      }
+      const sourceStem = String(sourceFrame.sourceStem || "");
+      if (!sourceStem) {
+        return null;
+      }
+      const matrixSurface = sourceStem.endsWith("yu") ? "" : "yu";
+      const predicateStem = `${sourceStem}${matrixSurface}`;
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-organic-possession-target-frame",
+        predicateStem,
+        sourceStem,
+        matrixStem: "yu",
+        matrixSurface,
+        state: ORDINARY_NNC_STATE.possessive,
+        nounClass: "t",
+        stateCase: "organic-possession",
+        possessionKind: ORDINARY_NNC_POSSESSION_KIND.organic,
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        targetSegmentFrames: Object.freeze([Object.freeze({
+          role: "predicate",
+          slot: "source-stem",
+          surface: sourceStem,
+          formulaValue: sourceStem
+        }), Object.freeze({
+          role: "organic-possession-matrix",
+          slot: "organic-matrix",
+          surface: matrixSurface,
+          formulaValue: "yu"
+        })])
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-organic-possession-yu-realization",
+        family: "ordinary-nnc",
+        routeFamily: "ordinary-nnc",
+        routeStage: "organic-possession",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        operationApplied: "append-organic-possession-yu-from-source-frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getOrdinaryNncOrganicPossessionFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-organic-possession-source-frame") {
+        return "ordinary-nnc-organic-possession-source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-organic-possession-yu-realization" || operationFrame.routeFamily !== "ordinary-nnc" || operationFrame.operationApplied !== "append-organic-possession-yu-from-source-frame" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "ordinary-nnc-organic-possession-operation-frame-required";
+      }
+      if (String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "ordinary-nnc-organic-possession-contradictory-source-frame";
+      }
+      const expectedPredicateStem = `${sourceFrame.sourceStem || ""}${String(sourceFrame.sourceStem || "").endsWith("yu") ? "" : "yu"}`;
+      if (String(operationFrame.targetFrame?.predicateStem || "") !== expectedPredicateStem) {
+        return "ordinary-nnc-organic-possession-contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildOrdinaryNncOrganicPossessionProfile({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const mismatch = getOrdinaryNncOrganicPossessionFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      if (mismatch) {
+        return null;
+      }
+      return {
+        sourceStem: sourceFrame.sourceStem || "",
+        organicStem: operationFrame.targetFrame?.predicateStem || "",
+        targetFrame: operationFrame.targetFrame || null,
+        sourceFrame,
+        operationFrame
+      };
+    }
+    function buildOrdinaryNncOrganicPossessionStem(stem = "", options = {}) {
+      void stem;
+      return buildOrdinaryNncOrganicPossessionProfile(options)?.organicStem || "";
     }
     function buildOrdinaryNncOrganicPossessionFrame({
       sourceStem = "",
       organicStem = "",
-      possessor = null
+      possessor = null,
+      sourceFrame = null,
+      operationFrame = null
     } = {}) {
-      const resolvedSourceStem = normalizeOrdinaryNncText(sourceStem).replace(/[()]/g, "");
-      const resolvedOrganicStem = normalizeOrdinaryNncText(organicStem).replace(/[()]/g, "") || buildOrdinaryNncOrganicPossessionStem(resolvedSourceStem);
+      const profile = buildOrdinaryNncOrganicPossessionProfile({
+        sourceFrame,
+        operationFrame
+      });
+      const resolvedSourceStem = profile?.sourceStem || normalizeOrdinaryNncText(sourceStem).replace(/[()]/g, "");
+      const resolvedOrganicStem = profile?.organicStem || normalizeOrdinaryNncText(organicStem).replace(/[()]/g, "");
       return {
         version: 1,
         outputKind: "ordinary-nnc-organic-possession",
@@ -2228,7 +2391,9 @@ export function createNncModule(targetObject = globalThis) {
         possessorPrefix: String(possessor?.prefix || ""),
         semanticRelation: "integral-part-to-whole",
         spellingAuthority: "Nawat/Pipil orthography",
-        grammarAuthority: "Andrews PDF"
+        grammarAuthority: "Andrews PDF",
+        sourceFrame: sourceFrame || null,
+        operationFrame: operationFrame || null
       };
     }
     function buildOrdinaryNncSurfaceChainText({
@@ -2337,21 +2502,287 @@ export function createNncModule(targetObject = globalThis) {
       return possessor?.number === "plural" || ["tu", "anmu", "in"].includes(prefix);
     }
     function buildOrdinaryNncOpenStemPossessiveSurface(stem = "", possessivePrefix = "", animacy = "") {
-      return String(buildOrdinaryNncOpenStemPossessiveSurfaceCell(stem, possessivePrefix, animacy).surfaceForms?.[0] || "");
+      void stem;
+      void possessivePrefix;
+      void animacy;
+      return "";
     }
-    function buildOrdinaryNncOpenStemPossessiveSurfaceCell(stem = "", possessivePrefix = "", animacy = "") {
-      const prefix = String(possessivePrefix || "");
-      const resolvedPossessor = resolveOrdinaryNncPossessor(prefix);
-      const isAnimate = normalizeOrdinaryNncAnimacy(animacy) === "animate";
-      const usesPluralPossessorShape = isAnimate && isOrdinaryNncPluralPossessor(resolvedPossessor);
-      const core = isAnimate && prefix === "in" ? buildOrdinaryNncReduplicatedSurface(stem) : stem;
-      const result = buildOrdinaryNncSurfaceChainResult({
-        possessivePrefix: prefix,
-        core: `${core}${usesPluralPossessorShape ? "wan" : ""}`
+    function getOrdinaryNncAbsolutiveSingularSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        nounClass: sourceFrame.nounClass || "",
+        nounClassSurface: sourceFrame.nounClassSurface || "",
+        state: sourceFrame.state || "",
+        number: sourceFrame.number || "",
+        animacy: sourceFrame.animacy || ""
       });
+    }
+    function buildOrdinaryNncAbsolutiveSingularSourceFrame({
+      sourceStem = "",
+      nounClass = "",
+      state = ORDINARY_NNC_STATE.absolutive,
+      number = "singular",
+      animacy = ""
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const normalizedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
+      const nounClassSurface = getOrdinaryNncNum1Num2Surface(normalizedNounClass);
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedNumber = normalizeOrdinaryNncNumber(number);
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-absolutive-singular-missing-source-stem");
+      }
+      if (!normalizedNounClass) {
+        diagnostics.push("ordinary-nnc-absolutive-singular-missing-noun-class-frame");
+      }
+      if (normalizedState !== ORDINARY_NNC_STATE.absolutive) {
+        diagnostics.push("ordinary-nnc-absolutive-singular-state-required");
+      }
+      if (normalizedNumber !== "singular") {
+        diagnostics.push("ordinary-nnc-absolutive-singular-number-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-absolutive-singular-source-frame",
+        routeId: "ordinary-nnc-absolutive-singular-realization",
+        sourceStem: normalizedSourceStem,
+        sourceStemRole: "ordinary-nnc-structural-predicate-stem",
+        sourceStemIsGeneratedDisplay: false,
+        nounClass: normalizedNounClass,
+        nounClassSurface,
+        state: normalizedState,
+        number: normalizedNumber,
+        animacy: normalizeOrdinaryNncAnimacy(animacy),
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAbsolutiveSingularSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAbsolutiveSingularOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-absolutive-singular-source-frame") {
+        return null;
+      }
+      const targetSurface = sourceFrame.supported === true ? `${sourceFrame.sourceStem || ""}${sourceFrame.nounClassSurface || ""}` : "";
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-absolutive-singular-target-frame",
+        surface: targetSurface,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || "",
+          surface: sourceFrame.sourceStem || "",
+          operationId: "ordinary-nnc-absolutive-singular-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-number-connector",
+          slot: "num1-num2",
+          formulaValue: sourceFrame.nounClass || "",
+          surface: sourceFrame.nounClassSurface || "",
+          operationId: "ordinary-nnc-absolutive-singular-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-absolutive-singular-realization",
+        routeId: "ordinary-nnc-absolutive-singular-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-absolutive-singular-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-absolutive-singular-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-absolutive-singular-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAbsolutiveSingularOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncOpenStemPossessiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        formulaStem: sourceFrame.formulaStem || "",
+        sourceStemRole: sourceFrame.sourceStemRole || "",
+        sourceStemEvidence: sourceFrame.sourceStemEvidence || "",
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        possessorNumber: sourceFrame.possessorNumber || "",
+        animacy: sourceFrame.animacy || "",
+        pluralPossessorSuffix: sourceFrame.pluralPossessorSuffix || "",
+        requiresReduplicatedStem: sourceFrame.requiresReduplicatedStem === true
+      });
+    }
+    function buildOrdinaryNncOpenStemPossessiveSourceFrame({
+      sourceStem = "",
+      formulaStem = "",
+      sourceStemEvidence = "",
+      possessor = null,
+      animacy = ""
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const normalizedFormulaStem = String(formulaStem || sourceStem || "").trim();
+      const normalizedSourceStemEvidence = String(sourceStemEvidence || "ordinary-nnc-formula-stem").trim();
+      const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+      const possessorPrefix = String(resolvedPossessor?.prefix || "").trim();
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const pluralPossessorSuffix = normalizedAnimacy === "animate" && isOrdinaryNncPluralPossessor(resolvedPossessor) ? "wan" : "";
+      const requiresReduplicatedStem = normalizedAnimacy === "animate" && possessorPrefix === "in";
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-open-stem-possessive-missing-source-stem");
+      }
+      if (!possessorPrefix || resolvedPossessor?.unsupported) {
+        diagnostics.push("ordinary-nnc-open-stem-possessive-missing-possessor-frame");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-open-stem-possessive-source-frame",
+        routeId: "ordinary-nnc-open-stem-possessive-realization",
+        sourceStem: normalizedSourceStem,
+        formulaStem: normalizedFormulaStem,
+        sourceStemRole: normalizedSourceStemEvidence === "static-nnc-structured-possessive-stem" ? "ordinary-nnc-structured-possessive-predicate-stem" : "ordinary-nnc-structural-predicate-stem",
+        sourceStemEvidence: normalizedSourceStemEvidence,
+        sourceStemIsGeneratedDisplay: false,
+        possessorPrefix,
+        possessorNumber: String(resolvedPossessor?.number || ""),
+        animacy: normalizedAnimacy,
+        pluralPossessorSuffix,
+        requiresReduplicatedStem,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncOpenStemPossessiveSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncOpenStemPossessiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-open-stem-possessive-source-frame") {
+        return null;
+      }
+      const targetStemSurface = sourceFrame.supported === true ? sourceFrame.requiresReduplicatedStem === true ? buildOrdinaryNncReduplicatedSurfaceLegacy(sourceFrame.sourceStem || "") : String(sourceFrame.sourceStem || "") : "";
+      const targetPossessorSurface = sourceFrame.supported === true && String(sourceFrame.possessorPrefix || "") === "in" && /^[aeiou]/.test(targetStemSurface) ? "inh" : String(sourceFrame.possessorPrefix || "");
+      const targetSurface = sourceFrame.supported === true ? `${targetPossessorSurface}${targetStemSurface}${sourceFrame.pluralPossessorSuffix || ""}` : "";
+      const soundSpellingFrames = sourceFrame.possessorPrefix === "in" && targetPossessorSurface === "inh" ? Object.freeze([Object.freeze({
+        ruleId: "n-open-transition-nh",
+        source: "n",
+        sourceSurface: "n",
+        target: "nh",
+        grammarSlot: "poseedor",
+        segmentRole: "poseedor",
+        sourceSegmentValue: "in",
+        targetSegmentValue: "inh"
+      })]) : Object.freeze([]);
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-open-stem-possessive-target-frame",
+        surface: targetSurface,
+        soundSpellingFrames,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessor-prefix",
+          slot: "st1-st2",
+          formulaValue: sourceFrame.possessorPrefix || "",
+          surface: targetPossessorSurface,
+          operationId: "ordinary-nnc-open-stem-possessive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: sourceFrame.requiresReduplicatedStem === true ? "predicate-possessive-reduplicated" : "predicate",
+          slot: "STEM",
+          formulaValue: sourceFrame.formulaStem || sourceFrame.sourceStem || "",
+          surface: targetStemSurface,
+          operationId: "ordinary-nnc-open-stem-possessive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessive-plural-suffix",
+          slot: "st1-st2-number",
+          formulaValue: sourceFrame.pluralPossessorSuffix || "",
+          surface: sourceFrame.pluralPossessorSuffix || "",
+          operationId: "ordinary-nnc-open-stem-possessive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-open-stem-possessive-realization",
+        routeId: "ordinary-nnc-open-stem-possessive-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-open-stem-possessive-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-open-stem-possessive-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-open-stem-possessive-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function buildOrdinaryNncOpenStemPossessiveSurfaceCell(stem = "", possessivePrefix = "", animacy = "", options = {}) {
+      const sourceFrame = options?.sourceFrame || null;
+      const operationFrame = options?.operationFrame || null;
+      const surface = buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+        sourceFrame,
+        operationFrame
+      });
+      if (!surface) {
+        return {
+          surfaceForms: [],
+          soundSpellingFrames: [],
+          sourceFrame,
+          operationFrame,
+          segmentFrames: []
+        };
+      }
       return {
-        surfaceForms: result.surface ? [result.surface] : [],
-        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+        surfaceForms: [surface],
+        soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+        sourceFrame,
+        operationFrame,
+        segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
       };
     }
     function buildOrdinaryNncOpenStemFixture(stem = "", {
@@ -2366,7 +2797,16 @@ export function createNncModule(targetObject = globalThis) {
       const absolutiveSurface = `${normalizedStem}${getOrdinaryNncNum1Num2Surface(normalizedClass)}`;
       const singularPossessives = {};
       getOrdinaryNncPossessorInventory().forEach(prefix => {
-        singularPossessives[prefix] = buildOrdinaryNncOpenStemPossessiveSurfaceCell(normalizedStem, prefix, animacy);
+        const sourceFrame = buildOrdinaryNncOpenStemPossessiveSourceFrame({
+          sourceStem: normalizedStem,
+          possessor: resolveOrdinaryNncPossessor(prefix),
+          animacy
+        });
+        const operationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame(sourceFrame);
+        singularPossessives[prefix] = buildOrdinaryNncOpenStemPossessiveSurfaceCell(normalizedStem, prefix, animacy, {
+          sourceFrame,
+          operationFrame
+        });
       });
       const states = {
         [ORDINARY_NNC_STATE.absolutive]: {
@@ -2413,6 +2853,21 @@ export function createNncModule(targetObject = globalThis) {
       }
       return [];
     }
+    function getOrdinaryNncPossessiveStemFromCell(cell = null, {
+      pluralType = ""
+    } = {}) {
+      if (!cell || typeof cell !== "object" || Array.isArray(cell)) {
+        return "";
+      }
+      if (pluralType && cell.formsByPluralType) {
+        const byPluralType = cell.formsByPluralType?.[normalizeOrdinaryNncPluralType(pluralType)];
+        const pluralTypeStem = getOrdinaryNncPossessiveStemFromCell(byPluralType);
+        if (pluralTypeStem) {
+          return pluralTypeStem;
+        }
+      }
+      return String(cell.possessiveStem || "").trim();
+    }
     function getOrdinaryNncSoundSpellingFramesFromCell(cell = null, {
       pluralType = ""
     } = {}) {
@@ -2427,6 +2882,50 @@ export function createNncModule(targetObject = globalThis) {
         }
       }
       return collectOrdinaryNncSurfaceSoundSpellingFrames(cell);
+    }
+    function getOrdinaryNncFixtureStateCell(fixture = null, state = "", {
+      number = "singular",
+      possessor = null,
+      pluralType = ""
+    } = {}) {
+      const stateData = fixture?.states?.[state] || null;
+      if (!stateData) {
+        return null;
+      }
+      if (state === ORDINARY_NNC_STATE.possessive) {
+        const possessorPrefix = possessor?.prefix || "";
+        const byNumber = stateData.numberFormsByPossessor?.[number]?.[possessorPrefix] || null;
+        if (byNumber) {
+          return byNumber;
+        }
+        return stateData.surfaceByPossessor?.[possessorPrefix] || null;
+      }
+      return stateData.numberForms?.[number] || stateData || null;
+    }
+    function getOrdinaryNncSurfaceSegmentRecordsFromCell(cell = null, {
+      pluralType = ""
+    } = {}) {
+      if (!cell || typeof cell !== "object" || Array.isArray(cell)) {
+        return [];
+      }
+      if (pluralType && cell.formsByPluralType) {
+        const byPluralType = cell.formsByPluralType?.[normalizeOrdinaryNncPluralType(pluralType)];
+        const pluralTypeRecords = getOrdinaryNncSurfaceSegmentRecordsFromCell(byPluralType);
+        if (pluralTypeRecords.length) {
+          return pluralTypeRecords;
+        }
+      }
+      if (!Array.isArray(cell.segmentFrames) || !cell.segmentFrames.length) {
+        return [];
+      }
+      return (Array.isArray(cell.surfaceForms) ? cell.surfaceForms : []).map((surface, index) => ({
+        kind: "ordinary-nnc-derived-plural-surface-segment-record",
+        index,
+        surface: String(surface || ""),
+        sourceFrame: cell.sourceFrame || null,
+        operationFrame: cell.operationFrame || null,
+        segmentFrames: cell.segmentFrames || []
+      })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length);
     }
     function getOrdinaryNncFixtureStateForms(fixture = null, state = "", {
       number = "singular",
@@ -2496,10 +2995,125 @@ export function createNncModule(targetObject = globalThis) {
         pluralType
       });
     }
+    function getOrdinaryNncFixtureStateSurfaceSegmentRecords(fixture = null, state = "", {
+      number = "singular",
+      possessor = null,
+      pluralType = ""
+    } = {}) {
+      const stateData = fixture?.states?.[state] || null;
+      if (!stateData) {
+        return [];
+      }
+      if (state === ORDINARY_NNC_STATE.possessive) {
+        const possessorPrefix = possessor?.prefix || "";
+        const byNumber = stateData.numberFormsByPossessor?.[number]?.[possessorPrefix];
+        const recordsByNumber = getOrdinaryNncSurfaceSegmentRecordsFromCell(byNumber, {
+          pluralType
+        });
+        if (recordsByNumber.length) {
+          return recordsByNumber;
+        }
+        const byPossessor = stateData.surfaceByPossessor?.[possessorPrefix];
+        return getOrdinaryNncSurfaceSegmentRecordsFromCell(byPossessor, {
+          pluralType
+        });
+      }
+      const byNumber = stateData.numberForms?.[number];
+      const recordsByNumber = getOrdinaryNncSurfaceSegmentRecordsFromCell(byNumber, {
+        pluralType
+      });
+      if (recordsByNumber.length) {
+        return recordsByNumber;
+      }
+      return getOrdinaryNncSurfaceSegmentRecordsFromCell(stateData, {
+        pluralType
+      });
+    }
+    function buildOrdinaryNncStructuredPossessiveSurfaceResults({
+      fixture = null,
+      stateCell = null,
+      state = "",
+      number = "",
+      possessor = null,
+      nounClass = "",
+      animacy = ""
+    } = {}) {
+      if (state !== ORDINARY_NNC_STATE.possessive || number !== "singular" || !fixture || typeof fixture !== "object") {
+        return [];
+      }
+      if (!stateCell || typeof stateCell !== "object" || Array.isArray(stateCell)) {
+        return [];
+      }
+      const normalizedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || fixture?.nounClass || "");
+      const structuredPossessiveStem = getOrdinaryNncPossessiveStemFromCell(stateCell);
+      const possessiveStem = structuredPossessiveStem || (normalizedNounClass === "zero" && fixture.openStem !== true ? String(fixture.stem || "").trim() : "");
+      if (!possessiveStem) {
+        return [];
+      }
+      const sourceFrame = buildOrdinaryNncOpenStemPossessiveSourceFrame({
+        sourceStem: possessiveStem,
+        formulaStem: fixture.stem || "",
+        sourceStemEvidence: structuredPossessiveStem ? "static-nnc-structured-possessive-stem" : "ordinary-nnc-zero-class-formula-stem",
+        possessor,
+        animacy
+      });
+      const operationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame(sourceFrame);
+      const surface = buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+        sourceFrame,
+        operationFrame
+      });
+      if (!surface) {
+        return [];
+      }
+      return [{
+        surface,
+        soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+        sourceFrame,
+        operationFrame,
+        segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+      }];
+    }
+    function buildOrdinaryNncStructuredAbsolutiveSingularSurfaceResults({
+      fixture = null,
+      state = "",
+      number = "",
+      nounClass = "",
+      animacy = ""
+    } = {}) {
+      if (state !== ORDINARY_NNC_STATE.absolutive || number !== "singular" || !fixture || typeof fixture !== "object") {
+        return [];
+      }
+      const sourceFrame = buildOrdinaryNncAbsolutiveSingularSourceFrame({
+        sourceStem: fixture.stem || "",
+        nounClass,
+        state,
+        number,
+        animacy
+      });
+      const operationFrame = buildOrdinaryNncAbsolutiveSingularOperationFrame(sourceFrame);
+      const surface = buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+        sourceFrame,
+        operationFrame
+      });
+      if (!surface) {
+        return [];
+      }
+      return [{
+        surface,
+        soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+        sourceFrame,
+        operationFrame,
+        segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+      }];
+    }
     function isOrdinaryNncThirdSingularSubject(subject = null) {
       return !subject || String(subject.subjectPrefix || "") === "" && String(subject.subjectSuffix || "") === "";
     }
     function buildOrdinaryNncReduplicatedSurface(surface = "") {
+      void surface;
+      return "";
+    }
+    function buildOrdinaryNncReduplicatedSurfaceLegacy(surface = "") {
       const normalized = String(surface || "").trim();
       if (!normalized) {
         return "";
@@ -2511,23 +3125,613 @@ export function createNncModule(targetObject = globalThis) {
       }
       return `${first.onset || ""}${first.nucleus || ""}j${normalized}`;
     }
+    function getOrdinaryNncDistributiveReduplicationSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceSurface: sourceFrame.sourceSurface || "",
+        sourceSurfaceRole: sourceFrame.sourceSurfaceRole || "",
+        sourceStem: sourceFrame.sourceStem || "",
+        nounClass: sourceFrame.nounClass || "",
+        priorSourceFrameKind: sourceFrame.priorSourceFrameKind || "",
+        priorSourceSignature: sourceFrame.priorSourceSignature || "",
+        priorOperationId: sourceFrame.priorOperationId || "",
+        priorOperationSourceSignature: sourceFrame.priorOperationSourceSignature || "",
+        priorOperationTargetFrameKind: sourceFrame.priorOperationTargetFrameKind || "",
+        priorOperationTargetSurface: sourceFrame.priorOperationTargetSurface || "",
+        syllableFrames: sourceFrame.syllableFrames || [],
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || ""
+      });
+    }
+    function buildOrdinaryNncDistributiveReduplicationSourceFrame({
+      sourceSurface = "",
+      sourceSurfaceRole = "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+      priorSourceFrame = null,
+      priorOperationFrame = null,
+      state = ORDINARY_NNC_STATE.absolutive,
+      animacy = "",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.distributive
+    } = {}) {
+      const priorTargetSurface = String(priorOperationFrame?.targetFrame?.surface || "").trim();
+      const normalizedSourceSurface = String(sourceSurface || priorTargetSurface || "").trim();
+      const syllables = normalizedSourceSurface && typeof targetObject.splitVerbSyllables === "function" ? targetObject.splitVerbSyllables(normalizedSourceSurface) : [];
+      const syllableFrames = (Array.isArray(syllables) ? syllables : []).map((syllable, index) => ({
+        kind: "ordinary-nnc-distributive-source-syllable-frame",
+        index,
+        onset: String(syllable?.onset || ""),
+        nucleus: String(syllable?.nucleus || ""),
+        coda: String(syllable?.coda || "")
+      })).filter(syllable => syllable.nucleus);
+      const first = syllableFrames[0] || null;
+      const reduplicant = first ? `${first.onset}${first.nucleus}j` : "";
+      const diagnostics = [];
+      const priorSurface = buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+        sourceFrame: priorSourceFrame,
+        operationFrame: priorOperationFrame
+      });
+      if (!priorSourceFrame || priorSourceFrame.kind !== "ordinary-nnc-absolutive-singular-source-frame") {
+        diagnostics.push("ordinary-nnc-distributive-missing-prior-absolutive-source-frame");
+      }
+      if (!priorOperationFrame || priorOperationFrame.kind !== "andrews-typed-operation-frame" || priorOperationFrame.operationId !== "ordinary-nnc-absolutive-singular-realization") {
+        diagnostics.push("ordinary-nnc-distributive-missing-prior-absolutive-operation-frame");
+      }
+      if (priorSourceFrame && priorOperationFrame && (!priorSurface || !priorTargetSurface || priorSurface !== priorTargetSurface)) {
+        diagnostics.push("ordinary-nnc-distributive-contradictory-prior-absolutive-frame");
+      }
+      if (priorTargetSurface && normalizedSourceSurface && priorTargetSurface !== normalizedSourceSurface) {
+        diagnostics.push("ordinary-nnc-distributive-source-surface-contradicts-prior-target");
+      }
+      if (!normalizedSourceSurface) {
+        diagnostics.push("ordinary-nnc-distributive-missing-source-surface");
+      }
+      if (!reduplicant) {
+        diagnostics.push("ordinary-nnc-distributive-missing-source-syllable-frame");
+      }
+      if (normalizeOrdinaryNncPluralType(pluralType) !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
+        diagnostics.push("ordinary-nnc-distributive-plural-type-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-distributive-reduplication-source-frame",
+        routeId: "ordinary-nnc-distributive-reduplication",
+        sourceSurface: normalizedSourceSurface,
+        sourceSurfaceRole,
+        sourceSurfaceIsGeneratedDisplay: false,
+        sourceStem: String(priorSourceFrame?.sourceStem || ""),
+        nounClass: String(priorSourceFrame?.nounClass || ""),
+        priorSourceFrameKind: priorSourceFrame?.kind || "",
+        priorSourceSignature: priorSourceFrame?.sourceSignature || "",
+        priorOperationId: priorOperationFrame?.operationId || "",
+        priorOperationSourceSignature: priorOperationFrame?.sourceSignature || "",
+        priorOperationTargetFrameKind: priorOperationFrame?.targetFrame?.kind || "",
+        priorOperationTargetSurface: priorTargetSurface,
+        state: normalizeOrdinaryNncState(state),
+        animacy: normalizeOrdinaryNncAnimacy(animacy),
+        pluralType: normalizeOrdinaryNncPluralType(pluralType),
+        syllableFrames: Object.freeze(syllableFrames.map(Object.freeze)),
+        reduplicant,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncDistributiveReduplicationSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncDistributiveReduplicationOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-distributive-reduplication-source-frame") {
+        return null;
+      }
+      const targetSurface = sourceFrame.supported === true ? `${sourceFrame.reduplicant || ""}${sourceFrame.sourceSurface || ""}` : "";
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-distributive-reduplication-target-frame",
+        surface: targetSurface,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-distributive-reduplicated",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceSurface || "",
+          surface: targetSurface,
+          operationId: "ordinary-nnc-distributive-reduplication",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })])
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-distributive-reduplication",
+        routeId: "ordinary-nnc-distributive-reduplication",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-distributive-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-distributive-reduplication-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-distributive-reduplication" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncDistributiveReduplicationOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncAnimateDistributiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        subjectPrefix: sourceFrame.subjectPrefix || "",
+        subjectSuffix: sourceFrame.subjectSuffix || "",
+        numberConnectorSurface: sourceFrame.numberConnectorSurface || "",
+        syllableFrames: sourceFrame.syllableFrames || [],
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || ""
+      });
+    }
+    function buildOrdinaryNncAnimateDistributiveSourceFrame({
+      sourceStem = "",
+      subject = null,
+      state = ORDINARY_NNC_STATE.absolutive,
+      animacy = "animate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.distributive
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const resolvedSubject = resolveOrdinaryNncSubject(subject);
+      const subjectPrefix = String(resolvedSubject?.subjectPrefix || "");
+      const subjectSuffix = String(resolvedSubject?.subjectSuffix || "");
+      const numberConnectorSurface = "met";
+      const syllables = normalizedSourceStem && typeof targetObject.splitVerbSyllables === "function" ? targetObject.splitVerbSyllables(normalizedSourceStem) : [];
+      const syllableFrames = (Array.isArray(syllables) ? syllables : []).map((syllable, index) => ({
+        kind: "ordinary-nnc-animate-distributive-source-syllable-frame",
+        index,
+        onset: String(syllable?.onset || ""),
+        nucleus: String(syllable?.nucleus || ""),
+        coda: String(syllable?.coda || "")
+      })).filter(syllable => syllable.nucleus);
+      const first = syllableFrames[0] || null;
+      const reduplicant = first ? `${first.onset}${first.nucleus}j` : "";
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-animate-distributive-missing-source-stem");
+      }
+      if (!reduplicant) {
+        diagnostics.push("ordinary-nnc-animate-distributive-missing-source-syllable-frame");
+      }
+      if (normalizeOrdinaryNncState(state) !== ORDINARY_NNC_STATE.absolutive) {
+        diagnostics.push("ordinary-nnc-animate-distributive-absolutive-state-required");
+      }
+      if (normalizeOrdinaryNncAnimacy(animacy) !== "animate") {
+        diagnostics.push("ordinary-nnc-animate-distributive-animate-reference-required");
+      }
+      if (normalizeOrdinaryNncPluralType(pluralType) !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
+        diagnostics.push("ordinary-nnc-animate-distributive-plural-type-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-animate-distributive-source-frame",
+        routeId: "ordinary-nnc-animate-distributive-realization",
+        sourceStem: normalizedSourceStem,
+        sourceStemRole: "ordinary-nnc-structural-predicate-stem",
+        sourceStemIsGeneratedDisplay: false,
+        subjectPrefix,
+        subjectSuffix,
+        numberConnectorSurface,
+        state: normalizeOrdinaryNncState(state),
+        animacy: normalizeOrdinaryNncAnimacy(animacy),
+        pluralType: normalizeOrdinaryNncPluralType(pluralType),
+        syllableFrames: Object.freeze(syllableFrames.map(Object.freeze)),
+        reduplicant,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAnimateDistributiveSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAnimateDistributiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-distributive-source-frame") {
+        return null;
+      }
+      const targetStemSurface = sourceFrame.supported === true ? `${sourceFrame.reduplicant || ""}${sourceFrame.sourceStem || ""}` : "";
+      const targetSurface = sourceFrame.supported === true ? `${sourceFrame.subjectPrefix || ""}${targetStemSurface}${sourceFrame.numberConnectorSurface || ""}` : "";
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-animate-distributive-target-frame",
+        surface: targetSurface,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-person-prefix",
+          slot: "pers1-pers2",
+          formulaValue: sourceFrame.subjectPrefix || "",
+          surface: sourceFrame.subjectPrefix || "",
+          operationId: "ordinary-nnc-animate-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-animate-distributive-reduplicated",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || "",
+          surface: targetStemSurface,
+          operationId: "ordinary-nnc-animate-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-number-connector",
+          slot: "num1-num2",
+          formulaValue: sourceFrame.numberConnectorSurface || "",
+          surface: sourceFrame.numberConnectorSurface || "",
+          operationId: "ordinary-nnc-animate-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-animate-distributive-realization",
+        routeId: "ordinary-nnc-animate-distributive-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-animate-distributive-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAnimateDistributiveSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-distributive-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-animate-distributive-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAnimateDistributiveOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncAnimateCountPluralSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        sourceSurface: sourceFrame.sourceSurface || "",
+        sourceSurfaceRole: sourceFrame.sourceSurfaceRole || "",
+        priorSourceFrameKind: sourceFrame.priorSourceFrameKind || "",
+        priorSourceSignature: sourceFrame.priorSourceSignature || "",
+        priorOperationId: sourceFrame.priorOperationId || "",
+        subjectPrefix: sourceFrame.subjectPrefix || "",
+        subjectSuffix: sourceFrame.subjectSuffix || "",
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || "",
+        numberConnectorSurface: sourceFrame.numberConnectorSurface || ""
+      });
+    }
+    function buildOrdinaryNncAnimateCountPluralSourceFrame({
+      sourceStem = "",
+      sourceSurface = "",
+      subject = null,
+      state = ORDINARY_NNC_STATE.absolutive,
+      animacy = "animate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.count
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const normalizedSourceSurface = String(sourceSurface || normalizedSourceStem || "").trim();
+      const resolvedSubject = resolveOrdinaryNncClauseSubject(subject, "plural", "animate");
+      const subjectPrefix = String(resolvedSubject?.subjectPrefix || "");
+      const subjectSuffix = String(resolvedSubject?.subjectSuffix || "");
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const effectivePluralType = getEffectiveOrdinaryNncPluralType(pluralType, normalizedAnimacy);
+      const diagnostics = [];
+      if (!normalizedSourceSurface) {
+        diagnostics.push("ordinary-nnc-animate-count-plural-missing-source-surface");
+      }
+      if (normalizedAnimacy !== "animate") {
+        diagnostics.push("ordinary-nnc-animate-count-plural-requires-animate-source");
+      }
+      if (effectivePluralType !== ORDINARY_NNC_PLURAL_TYPE.count) {
+        diagnostics.push("ordinary-nnc-animate-count-plural-requires-count-plural");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-animate-count-plural-source-frame",
+        routeId: "ordinary-nnc-animate-count-plural-realization",
+        sourceStem: normalizedSourceStem,
+        sourceSurface: normalizedSourceSurface,
+        sourceSurfaceRole: "ordinary-nnc-authorized-singular-source-form",
+        sourceSurfaceIsGeneratedDisplay: false,
+        subjectPrefix,
+        subjectSuffix,
+        state: normalizedState,
+        animacy: normalizedAnimacy,
+        pluralType: effectivePluralType,
+        numberConnectorSurface: "met",
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAnimateCountPluralSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAnimateCountPluralOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-count-plural-source-frame") {
+        return null;
+      }
+      const targetSubjectSurface = sourceFrame.supported === true && String(sourceFrame.subjectPrefix || "").endsWith("n") && /^[aeiou]/.test(String(sourceFrame.sourceSurface || "")) ? `${sourceFrame.subjectPrefix || ""}h` : String(sourceFrame.subjectPrefix || "");
+      const targetSurface = sourceFrame.supported === true ? `${targetSubjectSurface}${sourceFrame.sourceSurface || ""}${sourceFrame.numberConnectorSurface || ""}` : "";
+      const soundSpellingFrames = targetSubjectSurface !== String(sourceFrame.subjectPrefix || "") ? Object.freeze([Object.freeze({
+        ruleId: "n-open-transition-nh",
+        source: "n",
+        sourceSurface: "n",
+        target: "nh",
+        grammarSlot: "pers1",
+        segmentRole: "pers1",
+        sourceSegmentValue: sourceFrame.subjectPrefix || "",
+        targetSegmentValue: targetSubjectSurface
+      })]) : Object.freeze([]);
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-animate-count-plural-target-frame",
+        surface: targetSurface,
+        soundSpellingFrames,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-person-prefix",
+          slot: "pers1-pers2",
+          formulaValue: sourceFrame.subjectPrefix || "",
+          surface: targetSubjectSurface,
+          operationId: "ordinary-nnc-animate-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-authorized-singular-source",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || sourceFrame.sourceSurface || "",
+          surface: sourceFrame.sourceSurface || "",
+          operationId: "ordinary-nnc-animate-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-number-connector",
+          slot: "num1-num2",
+          formulaValue: sourceFrame.subjectSuffix || sourceFrame.numberConnectorSurface || "",
+          surface: sourceFrame.numberConnectorSurface || "",
+          operationId: "ordinary-nnc-animate-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-animate-count-plural-realization",
+        routeId: "ordinary-nnc-animate-count-plural-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-animate-count-plural-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAnimateCountPluralSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-count-plural-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-animate-count-plural-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAnimateCountPluralOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncAnimateSubjectPrefixSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        sourceSurface: sourceFrame.sourceSurface || "",
+        subjectPrefix: sourceFrame.subjectPrefix || "",
+        subjectSuffix: sourceFrame.subjectSuffix || "",
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || ""
+      });
+    }
+    function buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+      sourceStem = "",
+      sourceSurface = "",
+      sourceSurfaceRole = "ordinary-nnc-authorized-singular-source-form",
+      priorSourceFrame = null,
+      priorOperationFrame = null,
+      subject = null,
+      state = ORDINARY_NNC_STATE.absolutive,
+      animacy = "animate"
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const normalizedSourceSurface = String(sourceSurface || normalizedSourceStem || "").trim();
+      const resolvedSubject = resolveOrdinaryNncClauseSubject(subject, "singular", "animate");
+      const subjectPrefix = String(resolvedSubject?.subjectPrefix || "");
+      const subjectSuffix = String(resolvedSubject?.subjectSuffix || "");
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const diagnostics = [];
+      if (!normalizedSourceSurface) {
+        diagnostics.push("ordinary-nnc-animate-subject-prefix-missing-source-surface");
+      }
+      if (normalizedAnimacy !== "animate") {
+        diagnostics.push("ordinary-nnc-animate-subject-prefix-requires-animate-source");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-animate-subject-prefix-source-frame",
+        routeId: "ordinary-nnc-animate-subject-prefix-realization",
+        sourceStem: normalizedSourceStem,
+        sourceSurface: normalizedSourceSurface,
+        sourceSurfaceRole: String(sourceSurfaceRole || "ordinary-nnc-authorized-singular-source-form"),
+        sourceSurfaceIsGeneratedDisplay: false,
+        priorSourceFrameKind: String(priorSourceFrame?.kind || ""),
+        priorSourceSignature: String(priorSourceFrame?.sourceSignature || ""),
+        priorOperationId: String(priorOperationFrame?.operationId || ""),
+        priorOperationTargetSurface: String(priorOperationFrame?.targetFrame?.surface || ""),
+        subjectPrefix,
+        subjectSuffix,
+        state: normalizedState,
+        animacy: normalizedAnimacy,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAnimateSubjectPrefixSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAnimateSubjectPrefixOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-subject-prefix-source-frame") {
+        return null;
+      }
+      const sourceSurface = String(sourceFrame.sourceSurface || "");
+      const sourcePrefix = String(sourceFrame.subjectPrefix || "");
+      const initial = sourceSurface.charAt(0);
+      const targetSubjectSurface = (() => {
+        if (sourceFrame.supported !== true) {
+          return "";
+        }
+        if ((sourcePrefix === "ni" || sourcePrefix === "ti") && initial === "i") {
+          return sourcePrefix.slice(0, -1);
+        }
+        if (sourcePrefix.endsWith("n") && /^[aeiou]/.test(sourceSurface)) {
+          return `${sourcePrefix}h`;
+        }
+        return sourcePrefix;
+      })();
+      const targetSurface = sourceFrame.supported === true ? `${targetSubjectSurface}${sourceSurface}` : "";
+      const soundSpellingFrames = (() => {
+        if (targetSubjectSurface === sourcePrefix) {
+          return Object.freeze([]);
+        }
+        if ((sourcePrefix === "ni" || sourcePrefix === "ti") && initial === "i") {
+          return Object.freeze([Object.freeze({
+            ruleId: "subject-i-stem-i-reduction",
+            source: "i",
+            sourceSurface: "i",
+            target: "",
+            grammarSlot: "pers1",
+            segmentRole: "pers1",
+            sourceSegmentValue: sourcePrefix,
+            targetSegmentValue: targetSubjectSurface
+          })]);
+        }
+        return Object.freeze([Object.freeze({
+          ruleId: "n-open-transition-nh",
+          source: "n",
+          sourceSurface: "n",
+          target: "nh",
+          grammarSlot: "pers1",
+          segmentRole: "pers1",
+          sourceSegmentValue: sourcePrefix,
+          targetSegmentValue: targetSubjectSurface
+        })]);
+      })();
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-animate-subject-prefix-target-frame",
+        surface: targetSurface,
+        soundSpellingFrames,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-person-prefix",
+          slot: "pers1-pers2",
+          formulaValue: sourcePrefix,
+          surface: targetSubjectSurface,
+          operationId: "ordinary-nnc-animate-subject-prefix-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-authorized-singular-source",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || sourceSurface,
+          surface: sourceSurface,
+          operationId: "ordinary-nnc-animate-subject-prefix-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-animate-subject-prefix-realization",
+        routeId: "ordinary-nnc-animate-subject-prefix-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-animate-subject-prefix-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-subject-prefix-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-animate-subject-prefix-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAnimateSubjectPrefixOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
     function applyOrdinaryNncSubjectPrefix(surface = "", subject = null, state = ORDINARY_NNC_STATE.absolutive, animacy = "") {
       return applyOrdinaryNncSubjectPrefixResult(surface, subject, state, animacy).surface;
     }
-    function applyOrdinaryNncSubjectPrefixResult(surface = "", subject = null, state = ORDINARY_NNC_STATE.absolutive, animacy = "") {
+    function applyOrdinaryNncSubjectPrefixResult(surface = "", subject = null, state = ORDINARY_NNC_STATE.absolutive, animacy = "", options = {}) {
+      void options;
       if (animacy !== "animate") {
         return {
           surface,
           soundSpellingFrames: []
         };
       }
-      const result = buildOrdinaryNncSurfaceChainResult({
-        subjectPrefix: subject?.subjectPrefix || "",
-        core: surface
-      });
       return {
-        surface: result.surface,
-        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
+        surface: "",
+        soundSpellingFrames: []
       };
     }
     function stripOrdinaryNncPossessiveSurfacePrefix(surface = "", possessor = null) {
@@ -2541,59 +3745,840 @@ export function createNncModule(targetObject = globalThis) {
       return matched ? normalizedSurface.slice(matched.length) : normalizedSurface;
     }
     function buildOrdinaryNncPossessiveDistributiveSurface(surface = "", possessor = null) {
-      return buildOrdinaryNncPossessiveDistributiveSurfaceResult(surface, possessor).surface;
+      void surface;
+      void possessor;
+      return "";
     }
     function buildOrdinaryNncPossessiveDistributiveSurfaceResult(surface = "", possessor = null) {
-      const core = stripOrdinaryNncPossessiveSurfacePrefix(surface, possessor);
-      const distributiveCore = buildOrdinaryNncReduplicatedSurface(core);
-      const result = buildOrdinaryNncSurfaceChainResult({
-        possessivePrefix: possessor?.prefix || "",
-        core: distributiveCore
-      });
-      if (result.surface) {
-        return {
-          surface: result.surface,
-          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result)
-        };
-      }
+      void surface;
+      void possessor;
       return {
-        surface: buildOrdinaryNncReduplicatedSurface(surface),
+        surface: "",
         soundSpellingFrames: []
       };
+    }
+    function getOrdinaryNncNonanimatePossessiveDistributiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        formulaStem: sourceFrame.formulaStem || "",
+        sourceStemEvidence: sourceFrame.sourceStemEvidence || "",
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        possessorNumber: sourceFrame.possessorNumber || "",
+        syllableFrames: sourceFrame.syllableFrames || [],
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || ""
+      });
+    }
+    function buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame({
+      sourceStem = "",
+      formulaStem = "",
+      sourceStemEvidence = "",
+      possessor = null,
+      state = ORDINARY_NNC_STATE.possessive,
+      animacy = "inanimate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.distributive
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+      const possessorPrefix = String(resolvedPossessor?.prefix || "").trim();
+      const possessorNumber = String(resolvedPossessor?.number || "").trim();
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const normalizedPluralType = normalizeOrdinaryNncPluralType(pluralType);
+      const syllables = normalizedSourceStem && typeof targetObject.splitVerbSyllables === "function" ? targetObject.splitVerbSyllables(normalizedSourceStem) : [];
+      const syllableFrames = (Array.isArray(syllables) ? syllables : []).map((syllable, index) => ({
+        kind: "ordinary-nnc-nonanimate-possessive-distributive-source-syllable-frame",
+        index,
+        onset: String(syllable?.onset || ""),
+        nucleus: String(syllable?.nucleus || ""),
+        coda: String(syllable?.coda || "")
+      })).filter(syllable => syllable.nucleus);
+      const first = syllableFrames[0] || null;
+      const reduplicant = first ? `${first.onset}${first.nucleus}j` : "";
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-missing-source-stem");
+      }
+      if (!possessorPrefix || resolvedPossessor?.unsupported) {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-missing-possessor-frame");
+      }
+      if (!reduplicant) {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-missing-source-syllable-frame");
+      }
+      if (normalizedState !== ORDINARY_NNC_STATE.possessive) {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-possessive-state-required");
+      }
+      if (normalizedAnimacy !== "inanimate") {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-nonanimate-reference-required");
+      }
+      if (normalizedPluralType !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
+        diagnostics.push("ordinary-nnc-nonanimate-possessive-distributive-plural-type-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-nonanimate-possessive-distributive-source-frame",
+        routeId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+        sourceStem: normalizedSourceStem,
+        formulaStem: String(formulaStem || sourceStem || "").trim(),
+        sourceStemRole: "ordinary-nnc-possessive-predicate-stem",
+        sourceStemEvidence: String(sourceStemEvidence || "ordinary-nnc-formula-stem").trim(),
+        sourceStemIsGeneratedDisplay: false,
+        possessorPrefix,
+        possessorNumber,
+        state: normalizedState,
+        animacy: normalizedAnimacy,
+        pluralType: normalizedPluralType,
+        syllableFrames: Object.freeze(syllableFrames.map(Object.freeze)),
+        reduplicant,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncNonanimatePossessiveDistributiveSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-nonanimate-possessive-distributive-source-frame") {
+        return null;
+      }
+      const targetStemSurface = sourceFrame.supported === true ? `${sourceFrame.reduplicant || ""}${sourceFrame.sourceStem || ""}` : "";
+      const targetPossessorSurface = sourceFrame.supported === true && String(sourceFrame.possessorPrefix || "") === "in" && /^[aeiou]/.test(targetStemSurface) ? "inh" : String(sourceFrame.possessorPrefix || "");
+      const targetSurface = sourceFrame.supported === true ? `${targetPossessorSurface}${targetStemSurface}` : "";
+      const soundSpellingFrames = sourceFrame.possessorPrefix === "in" && targetPossessorSurface === "inh" ? Object.freeze([Object.freeze({
+        ruleId: "n-open-transition-nh",
+        source: "n",
+        sourceSurface: "n",
+        target: "nh",
+        grammarSlot: "poseedor",
+        segmentRole: "poseedor",
+        sourceSegmentValue: "in",
+        targetSegmentValue: "inh"
+      })]) : Object.freeze([]);
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-nonanimate-possessive-distributive-target-frame",
+        surface: targetSurface,
+        soundSpellingFrames,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessor-prefix",
+          slot: "st1-st2",
+          formulaValue: sourceFrame.possessorPrefix || "",
+          surface: targetPossessorSurface,
+          operationId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-possessive-distributive-reduplicated",
+          slot: "STEM",
+          formulaValue: sourceFrame.formulaStem || sourceFrame.sourceStem || "",
+          surface: targetStemSurface,
+          operationId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+        routeId: "ordinary-nnc-nonanimate-possessive-distributive-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-nonanimate-possessive-distributive-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-nonanimate-possessive-distributive-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-nonanimate-possessive-distributive-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncPossessiveDistributiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        possessorNumber: sourceFrame.possessorNumber || "",
+        pluralPossessorSuffix: sourceFrame.pluralPossessorSuffix || "",
+        syllableFrames: sourceFrame.syllableFrames || [],
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || ""
+      });
+    }
+    function buildOrdinaryNncPossessiveDistributiveSourceFrame({
+      sourceStem = "",
+      possessor = null,
+      state = ORDINARY_NNC_STATE.possessive,
+      animacy = "animate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.distributive
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+      const possessorPrefix = String(resolvedPossessor?.prefix || "").trim();
+      const possessorNumber = String(resolvedPossessor?.number || "").trim();
+      const pluralPossessorSuffix = isOrdinaryNncPluralPossessor(resolvedPossessor) ? "wan" : "";
+      const syllables = normalizedSourceStem && typeof targetObject.splitVerbSyllables === "function" ? targetObject.splitVerbSyllables(normalizedSourceStem) : [];
+      const syllableFrames = (Array.isArray(syllables) ? syllables : []).map((syllable, index) => ({
+        kind: "ordinary-nnc-possessive-distributive-source-syllable-frame",
+        index,
+        onset: String(syllable?.onset || ""),
+        nucleus: String(syllable?.nucleus || ""),
+        coda: String(syllable?.coda || "")
+      })).filter(syllable => syllable.nucleus);
+      const first = syllableFrames[0] || null;
+      const reduplicant = first ? `${first.onset}${first.nucleus}j` : "";
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-possessive-distributive-missing-source-stem");
+      }
+      if (!possessorPrefix || resolvedPossessor?.unsupported) {
+        diagnostics.push("ordinary-nnc-possessive-distributive-missing-possessor-frame");
+      }
+      if (!pluralPossessorSuffix || possessorPrefix === "in") {
+        diagnostics.push("ordinary-nnc-possessive-distributive-plural-possessor-required");
+      }
+      if (!reduplicant) {
+        diagnostics.push("ordinary-nnc-possessive-distributive-missing-source-syllable-frame");
+      }
+      if (normalizeOrdinaryNncState(state) !== ORDINARY_NNC_STATE.possessive) {
+        diagnostics.push("ordinary-nnc-possessive-distributive-possessive-state-required");
+      }
+      if (normalizeOrdinaryNncAnimacy(animacy) !== "animate") {
+        diagnostics.push("ordinary-nnc-possessive-distributive-animate-reference-required");
+      }
+      if (normalizeOrdinaryNncPluralType(pluralType) !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
+        diagnostics.push("ordinary-nnc-possessive-distributive-plural-type-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-possessive-distributive-source-frame",
+        routeId: "ordinary-nnc-possessive-distributive-realization",
+        sourceStem: normalizedSourceStem,
+        sourceStemRole: "ordinary-nnc-structural-predicate-stem",
+        sourceStemIsGeneratedDisplay: false,
+        possessorPrefix,
+        possessorNumber,
+        pluralPossessorSuffix,
+        state: normalizeOrdinaryNncState(state),
+        animacy: normalizeOrdinaryNncAnimacy(animacy),
+        pluralType: normalizeOrdinaryNncPluralType(pluralType),
+        syllableFrames: Object.freeze(syllableFrames.map(Object.freeze)),
+        reduplicant,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncPossessiveDistributiveSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncPossessiveDistributiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-possessive-distributive-source-frame") {
+        return null;
+      }
+      const targetStemSurface = sourceFrame.supported === true ? `${sourceFrame.reduplicant || ""}${sourceFrame.sourceStem || ""}` : "";
+      const targetSurface = sourceFrame.supported === true ? `${sourceFrame.possessorPrefix || ""}${targetStemSurface}${sourceFrame.pluralPossessorSuffix || ""}` : "";
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-possessive-distributive-target-frame",
+        surface: targetSurface,
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessor-prefix",
+          slot: "st1-st2",
+          formulaValue: sourceFrame.possessorPrefix || "",
+          surface: sourceFrame.possessorPrefix || "",
+          operationId: "ordinary-nnc-possessive-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "predicate-possessive-distributive-reduplicated",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || "",
+          surface: targetStemSurface,
+          operationId: "ordinary-nnc-possessive-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessive-plural-suffix",
+          slot: "st1-st2-number",
+          formulaValue: sourceFrame.pluralPossessorSuffix || "",
+          surface: sourceFrame.pluralPossessorSuffix || "",
+          operationId: "ordinary-nnc-possessive-distributive-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-possessive-distributive-realization",
+        routeId: "ordinary-nnc-possessive-distributive-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-possessive-distributive-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-possessive-distributive-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-possessive-distributive-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncPossessiveDistributiveOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncAnimatePossessiveCountPluralSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        possessorNumber: sourceFrame.possessorNumber || "",
+        subjectPrefix: sourceFrame.subjectPrefix || "",
+        subjectSuffix: sourceFrame.subjectSuffix || "",
+        pluralPossessorSuffix: sourceFrame.pluralPossessorSuffix || "",
+        requiresReduplicatedStem: sourceFrame.requiresReduplicatedStem === true,
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || ""
+      });
+    }
+    function buildOrdinaryNncAnimatePossessiveCountPluralSourceFrame({
+      sourceStem = "",
+      possessor = null,
+      subject = null,
+      state = ORDINARY_NNC_STATE.possessive,
+      animacy = "animate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.count
+    } = {}) {
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+      const possessorPrefix = String(resolvedPossessor?.prefix || "").trim();
+      const possessorNumber = String(resolvedPossessor?.number || "").trim();
+      const resolvedSubject = resolveOrdinaryNncClauseSubject(subject, "plural", "animate");
+      const subjectPrefix = String(resolvedSubject?.subjectPrefix || "");
+      const subjectSuffix = String(resolvedSubject?.subjectSuffix || "");
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const effectivePluralType = getEffectiveOrdinaryNncPluralType(pluralType, normalizedAnimacy);
+      const pluralPossessorSuffix = normalizedAnimacy === "animate" && isOrdinaryNncPluralPossessor(resolvedPossessor) ? "wan" : "";
+      const requiresReduplicatedStem = normalizedAnimacy === "animate" && possessorPrefix === "in";
+      const syllables = requiresReduplicatedStem && normalizedSourceStem && typeof targetObject.splitVerbSyllables === "function" ? targetObject.splitVerbSyllables(normalizedSourceStem) : [];
+      const syllableFrames = (Array.isArray(syllables) ? syllables : []).map((syllable, index) => ({
+        kind: "ordinary-nnc-animate-possessive-count-plural-source-syllable-frame",
+        index,
+        onset: String(syllable?.onset || ""),
+        nucleus: String(syllable?.nucleus || ""),
+        coda: String(syllable?.coda || "")
+      })).filter(syllable => syllable.nucleus);
+      const first = syllableFrames[0] || null;
+      const reduplicant = first ? `${first.onset}${first.nucleus}j` : "";
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-missing-source-stem");
+      }
+      if (!possessorPrefix || resolvedPossessor?.unsupported) {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-missing-possessor-frame");
+      }
+      if (requiresReduplicatedStem && !reduplicant) {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-missing-source-syllable-frame");
+      }
+      if (normalizedState !== ORDINARY_NNC_STATE.possessive) {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-possessive-state-required");
+      }
+      if (normalizedAnimacy !== "animate") {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-animate-reference-required");
+      }
+      if (effectivePluralType !== ORDINARY_NNC_PLURAL_TYPE.count) {
+        diagnostics.push("ordinary-nnc-animate-possessive-count-plural-count-type-required");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-animate-possessive-count-plural-source-frame",
+        routeId: "ordinary-nnc-animate-possessive-count-plural-realization",
+        sourceStem: normalizedSourceStem,
+        sourceStemRole: "ordinary-nnc-structural-predicate-stem",
+        sourceStemIsGeneratedDisplay: false,
+        possessorPrefix,
+        possessorNumber,
+        subjectPrefix,
+        subjectSuffix,
+        pluralPossessorSuffix,
+        requiresReduplicatedStem,
+        syllableFrames: Object.freeze(syllableFrames.map(Object.freeze)),
+        reduplicant,
+        state: normalizedState,
+        animacy: normalizedAnimacy,
+        pluralType: effectivePluralType,
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAnimatePossessiveCountPluralSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-possessive-count-plural-source-frame") {
+        return null;
+      }
+      const targetStemSurface = sourceFrame.supported === true ? `${sourceFrame.requiresReduplicatedStem ? sourceFrame.reduplicant || "" : ""}${sourceFrame.sourceStem || ""}` : "";
+      const targetPossessorSurface = sourceFrame.supported === true && String(sourceFrame.possessorPrefix || "") === "in" && /^[aeiou]/.test(targetStemSurface) ? "inh" : String(sourceFrame.possessorPrefix || "");
+      const possessiveBaseSurface = sourceFrame.supported === true ? `${targetPossessorSurface}${targetStemSurface}${sourceFrame.pluralPossessorSuffix || ""}` : "";
+      const sourceSubjectPrefix = String(sourceFrame.subjectPrefix || "");
+      const targetSubjectSurface = (() => {
+        if (sourceFrame.supported !== true) {
+          return "";
+        }
+        if ((sourceSubjectPrefix === "ni" || sourceSubjectPrefix === "ti") && possessiveBaseSurface.charAt(0) === "i") {
+          return sourceSubjectPrefix.slice(0, -1);
+        }
+        if (sourceSubjectPrefix.endsWith("n") && /^[aeiou]/.test(possessiveBaseSurface)) {
+          return `${sourceSubjectPrefix}h`;
+        }
+        return sourceSubjectPrefix;
+      })();
+      const subjectSoundSpellingFrames = (() => {
+        if (!sourceSubjectPrefix || targetSubjectSurface === sourceSubjectPrefix) {
+          return [];
+        }
+        if ((sourceSubjectPrefix === "ni" || sourceSubjectPrefix === "ti") && possessiveBaseSurface.charAt(0) === "i") {
+          return [{
+            ruleId: "subject-i-stem-i-reduction",
+            source: "i",
+            sourceSurface: "i",
+            target: "",
+            grammarSlot: "pers1",
+            segmentRole: "pers1",
+            sourceSegmentValue: sourceSubjectPrefix,
+            targetSegmentValue: targetSubjectSurface
+          }];
+        }
+        return [{
+          ruleId: "n-open-transition-nh",
+          source: "n",
+          sourceSurface: "n",
+          target: "nh",
+          grammarSlot: "pers1",
+          segmentRole: "pers1",
+          sourceSegmentValue: sourceSubjectPrefix,
+          targetSegmentValue: targetSubjectSurface
+        }];
+      })();
+      const possessorSoundSpellingFrames = sourceFrame.possessorPrefix === "in" && targetPossessorSurface === "inh" ? [{
+        ruleId: "n-open-transition-nh",
+        source: "n",
+        sourceSurface: "n",
+        target: "nh",
+        grammarSlot: "poseedor",
+        segmentRole: "poseedor",
+        sourceSegmentValue: "in",
+        targetSegmentValue: "inh"
+      }] : [];
+      const targetSurface = sourceFrame.supported === true ? `${targetSubjectSurface}${possessiveBaseSurface}` : "";
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-animate-possessive-count-plural-target-frame",
+        surface: targetSurface,
+        soundSpellingFrames: Object.freeze([...subjectSoundSpellingFrames, ...possessorSoundSpellingFrames].map(Object.freeze)),
+        segmentFrames: Object.freeze([Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "subject-person-prefix",
+          slot: "pers1-pers2",
+          formulaValue: sourceSubjectPrefix,
+          surface: targetSubjectSurface,
+          operationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessor-prefix",
+          slot: "st1-st2",
+          formulaValue: sourceFrame.possessorPrefix || "",
+          surface: targetPossessorSurface,
+          operationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: sourceFrame.requiresReduplicatedStem ? "predicate-possessive-reduplicated" : "predicate",
+          slot: "STEM",
+          formulaValue: sourceFrame.sourceStem || "",
+          surface: targetStemSurface,
+          operationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        }), Object.freeze({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          role: "possessive-plural-suffix",
+          slot: "st1-st2-number",
+          formulaValue: sourceFrame.pluralPossessorSuffix || "",
+          surface: sourceFrame.pluralPossessorSuffix || "",
+          operationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+          sourceFrameKind: sourceFrame.kind,
+          sourceSignature: sourceFrame.sourceSignature || ""
+        })].filter(segment => segment.surface))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-animate-possessive-count-plural-realization",
+        routeId: "ordinary-nnc-animate-possessive-count-plural-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-animate-possessive-count-plural-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-possessive-count-plural-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-animate-possessive-count-plural-realization" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
+    }
+    function getOrdinaryNncAnimatePossessivePluralIdentitySourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        sourceStem: sourceFrame.sourceStem || "",
+        possessorPrefix: sourceFrame.possessorPrefix || "",
+        possessorNumber: sourceFrame.possessorNumber || "",
+        state: sourceFrame.state || "",
+        animacy: sourceFrame.animacy || "",
+        pluralType: sourceFrame.pluralType || "",
+        priorSourceFrameKind: sourceFrame.priorSourceFrameKind || "",
+        priorSourceSignature: sourceFrame.priorSourceSignature || "",
+        priorOperationId: sourceFrame.priorOperationId || "",
+        priorOperationSourceSignature: sourceFrame.priorOperationSourceSignature || "",
+        priorOperationTargetFrameKind: sourceFrame.priorOperationTargetFrameKind || "",
+        priorOperationTargetSurface: sourceFrame.priorOperationTargetSurface || ""
+      });
+    }
+    function buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame({
+      sourceStem = "",
+      possessor = null,
+      state = ORDINARY_NNC_STATE.possessive,
+      animacy = "animate",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.distributive,
+      priorSourceFrame = null,
+      priorOperationFrame = null
+    } = {}) {
+      const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+      const possessorPrefix = String(resolvedPossessor?.prefix || "").trim();
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedAnimacy = normalizeOrdinaryNncAnimacy(animacy);
+      const normalizedPluralType = normalizeOrdinaryNncPluralType(pluralType);
+      const normalizedSourceStem = String(sourceStem || priorSourceFrame?.sourceStem || "").trim();
+      const priorTargetSurface = String(priorOperationFrame?.targetFrame?.surface || "").trim();
+      const priorSurface = buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+        sourceFrame: priorSourceFrame,
+        operationFrame: priorOperationFrame
+      });
+      const diagnostics = [];
+      if (!normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-missing-source-stem");
+      }
+      if (!possessorPrefix || resolvedPossessor?.unsupported) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-missing-possessor-frame");
+      }
+      if (isOrdinaryNncPluralPossessor(resolvedPossessor) || possessorPrefix === "in") {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-requires-singular-possessor");
+      }
+      if (normalizedState !== ORDINARY_NNC_STATE.possessive) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-state-required");
+      }
+      if (normalizedAnimacy !== "animate") {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-animate-required");
+      }
+      if (normalizedPluralType !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-distributive-required");
+      }
+      if (!priorSourceFrame || priorSourceFrame.kind !== "ordinary-nnc-open-stem-possessive-source-frame") {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-missing-prior-possessive-source-frame");
+      }
+      if (!priorOperationFrame || priorOperationFrame.kind !== "andrews-typed-operation-frame" || priorOperationFrame.operationId !== "ordinary-nnc-open-stem-possessive-realization") {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-missing-prior-possessive-operation-frame");
+      }
+      if (priorSourceFrame && priorOperationFrame && (!priorSurface || !priorTargetSurface || priorSurface !== priorTargetSurface)) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-contradictory-prior-possessive-frame");
+      }
+      if (priorSourceFrame && normalizedSourceStem && String(priorSourceFrame.sourceStem || "") !== normalizedSourceStem) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-source-stem-contradicts-prior-frame");
+      }
+      if (priorSourceFrame && possessorPrefix && String(priorSourceFrame.possessorPrefix || "") !== possessorPrefix) {
+        diagnostics.push("ordinary-nnc-animate-possessive-plural-identity-possessor-contradicts-prior-frame");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-animate-possessive-plural-identity-source-frame",
+        routeId: "ordinary-nnc-animate-possessive-plural-identity",
+        sourceStem: normalizedSourceStem,
+        sourceStemRole: "ordinary-nnc-structural-predicate-stem",
+        sourceStemIsGeneratedDisplay: false,
+        possessorPrefix,
+        possessorNumber: String(resolvedPossessor?.number || ""),
+        state: normalizedState,
+        animacy: normalizedAnimacy,
+        pluralType: normalizedPluralType,
+        priorSourceFrameKind: priorSourceFrame?.kind || "",
+        priorSourceSignature: priorSourceFrame?.sourceSignature || "",
+        priorOperationId: priorOperationFrame?.operationId || "",
+        priorOperationSourceSignature: priorOperationFrame?.sourceSignature || "",
+        priorOperationTargetFrameKind: priorOperationFrame?.targetFrame?.kind || "",
+        priorOperationTargetSurface: priorTargetSurface,
+        priorTargetSegmentFrames: Object.freeze((Array.isArray(priorOperationFrame?.targetFrame?.segmentFrames) ? priorOperationFrame.targetFrame.segmentFrames : []).map(Object.freeze)),
+        supported: diagnostics.length === 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncAnimatePossessivePluralIdentitySourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-possessive-plural-identity-source-frame") {
+        return null;
+      }
+      const targetSurface = sourceFrame.supported === true ? String(sourceFrame.priorOperationTargetSurface || "") : "";
+      const priorSegmentFrames = Array.isArray(sourceFrame.priorTargetSegmentFrames) ? sourceFrame.priorTargetSegmentFrames : [];
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-animate-possessive-plural-identity-target-frame",
+        surface: targetSurface,
+        segmentFrames: Object.freeze(priorSegmentFrames.map(Object.freeze))
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-animate-possessive-plural-identity",
+        routeId: "ordinary-nnc-animate-possessive-plural-identity",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && Boolean(targetSurface),
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-animate-possessive-plural-identity-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-animate-possessive-plural-identity-source-frame" || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-animate-possessive-plural-identity" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "";
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return "";
+      }
+      return String(operationFrame.targetFrame.surface || "");
     }
     function buildOrdinaryNncAnimatePossessivePluralForms(singularForms = [], {
       possessor = null,
       pluralType = ORDINARY_NNC_PLURAL_TYPE.auto
     } = {}) {
-      const effectivePluralType = normalizeOrdinaryNncPluralType(pluralType);
-      if (String(possessor?.prefix || "") === "in") {
-        return singularForms.filter(Boolean);
-      }
-      if (!isOrdinaryNncPluralPossessor(possessor)) {
-        return singularForms.filter(Boolean);
-      }
-      if (effectivePluralType !== ORDINARY_NNC_PLURAL_TYPE.distributive) {
-        return singularForms.filter(Boolean);
-      }
-      return singularForms.map(form => buildOrdinaryNncPossessiveDistributiveSurface(form, possessor)).filter(Boolean);
+      void singularForms;
+      void possessor;
+      void pluralType;
+      return [];
     }
     function buildOrdinaryNncDerivedPluralForms(singularForms = [], {
       state = ORDINARY_NNC_STATE.absolutive,
       subject = null,
       possessor = null,
       animacy = "",
-      pluralType = ORDINARY_NNC_PLURAL_TYPE.auto
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.auto,
+      nounClass = "",
+      sourceStem = "",
+      sourcePossessiveStem = ""
     } = {}) {
       const effectivePluralType = getEffectiveOrdinaryNncPluralType(pluralType, animacy);
+      const normalizedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
+      const normalizedSourceStem = String(sourceStem || "").trim();
+      const normalizedSourcePossessiveStem = String(sourcePossessiveStem || "").trim();
       if (state === ORDINARY_NNC_STATE.possessive && animacy === "animate") {
-        const pluralResults = buildOrdinaryNncAnimatePossessivePluralForms(singularForms, {
-          possessor,
-          pluralType: effectivePluralType
-        }).map(form => applyOrdinaryNncSubjectPrefixResult(form, subject, state, animacy));
+        const resolvedPossessor = resolveOrdinaryNncPossessor(possessor);
+        const useTypedPossessiveDistributive = effectivePluralType === ORDINARY_NNC_PLURAL_TYPE.distributive && isOrdinaryNncPluralPossessor(resolvedPossessor) && String(resolvedPossessor?.prefix || "") !== "in" && String(sourceStem || "").trim();
+        const pluralEntries = useTypedPossessiveDistributive ? (() => {
+          const sourceFrame = buildOrdinaryNncPossessiveDistributiveSourceFrame({
+            sourceStem,
+            possessor: resolvedPossessor,
+            state,
+            animacy,
+            pluralType: effectivePluralType
+          });
+          const operationFrame = buildOrdinaryNncPossessiveDistributiveOperationFrame(sourceFrame);
+          const surface = buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame({
+            sourceFrame,
+            operationFrame
+          });
+          return [{
+            surface,
+            soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+            sourceFrame,
+            operationFrame,
+            segmentFrames: operationFrame?.targetFrame?.segmentFrames || [],
+            subjectAlreadyApplied: false
+          }];
+        })() : (() => {
+          if (effectivePluralType !== ORDINARY_NNC_PLURAL_TYPE.count && String(resolvedPossessor?.prefix || "") !== "in") {
+            const priorSourceFrame = buildOrdinaryNncOpenStemPossessiveSourceFrame({
+              sourceStem,
+              possessor: resolvedPossessor,
+              animacy
+            });
+            const priorOperationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame(priorSourceFrame);
+            const sourceFrame = buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame({
+              sourceStem,
+              possessor: resolvedPossessor,
+              state,
+              animacy,
+              pluralType: effectivePluralType,
+              priorSourceFrame,
+              priorOperationFrame
+            });
+            const operationFrame = buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame(sourceFrame);
+            const surface = buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame({
+              sourceFrame,
+              operationFrame
+            });
+            return [{
+              surface,
+              soundSpellingFrames: priorOperationFrame?.targetFrame?.soundSpellingFrames || [],
+              sourceFrame,
+              operationFrame,
+              segmentFrames: operationFrame?.targetFrame?.segmentFrames || [],
+              subjectAlreadyApplied: false
+            }];
+          }
+          const sourceFrame = buildOrdinaryNncAnimatePossessiveCountPluralSourceFrame({
+            sourceStem,
+            possessor: resolvedPossessor,
+            subject,
+            state,
+            animacy,
+            pluralType: ORDINARY_NNC_PLURAL_TYPE.count
+          });
+          const operationFrame = buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame(sourceFrame);
+          const surface = buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame({
+            sourceFrame,
+            operationFrame
+          });
+          return [{
+            surface,
+            soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+            sourceFrame,
+            operationFrame,
+            segmentFrames: operationFrame?.targetFrame?.segmentFrames || [],
+            subjectAlreadyApplied: true
+          }];
+        })();
+        const pluralResults = pluralEntries.map(entry => {
+          if (entry.subjectAlreadyApplied) {
+            return {
+              surface: entry.surface,
+              soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry),
+              sourceFrame: entry.sourceFrame || null,
+              operationFrame: entry.operationFrame || null,
+              segmentFrames: entry.segmentFrames || []
+            };
+          }
+          if (isOrdinaryNncThirdSingularSubject(subject)) {
+            return {
+              surface: entry.surface,
+              soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry),
+              sourceFrame: entry.sourceFrame || null,
+              operationFrame: entry.operationFrame || null,
+              segmentFrames: entry.segmentFrames || []
+            };
+          }
+          const priorTargetSurface = String(entry.operationFrame?.targetFrame?.surface || "");
+          const subjectSourceFrame = entry.sourceFrame && entry.operationFrame?.supported === true && priorTargetSurface && priorTargetSurface === String(entry.surface || "") ? buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+            sourceStem,
+            sourceSurface: priorTargetSurface,
+            sourceSurfaceRole: "ordinary-nnc-prior-typed-derived-source-form",
+            priorSourceFrame: entry.sourceFrame,
+            priorOperationFrame: entry.operationFrame,
+            subject,
+            state,
+            animacy
+          }) : null;
+          const subjectOperationFrame = buildOrdinaryNncAnimateSubjectPrefixOperationFrame(subjectSourceFrame);
+          const surface = buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+            sourceFrame: subjectSourceFrame,
+            operationFrame: subjectOperationFrame
+          });
+          return {
+            surface,
+            soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry, subjectOperationFrame?.targetFrame?.soundSpellingFrames || []),
+            sourceFrame: subjectSourceFrame,
+            operationFrame: subjectOperationFrame,
+            segmentFrames: subjectOperationFrame?.targetFrame?.segmentFrames || []
+          };
+        });
         return {
           pluralType: effectivePluralType,
           forms: pluralResults.map(entry => entry.surface).filter(Boolean),
-          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults)
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults),
+          sourceFrame: pluralResults[0]?.sourceFrame || null,
+          operationFrame: pluralResults[0]?.operationFrame || null,
+          surfaceSegmentRecords: pluralResults.map((entry, index) => ({
+            kind: "ordinary-nnc-derived-plural-surface-segment-record",
+            index,
+            surface: entry.surface || "",
+            sourceFrame: entry.sourceFrame || null,
+            operationFrame: entry.operationFrame || null,
+            segmentFrames: entry.segmentFrames || []
+          })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length)
         };
       }
       if (effectivePluralType === ORDINARY_NNC_PLURAL_TYPE.count) {
@@ -2603,11 +4588,40 @@ export function createNncModule(targetObject = globalThis) {
             pluralType: effectivePluralType
           };
         }
-        const pluralResults = singularForms.map(form => `${form}met`).map(form => applyOrdinaryNncSubjectPrefixResult(form, subject, state, animacy));
+        const sourceFrame = buildOrdinaryNncAnimateCountPluralSourceFrame({
+          sourceStem,
+          sourceSurface: singularForms.find(Boolean) || sourceStem,
+          subject,
+          state,
+          animacy,
+          pluralType: effectivePluralType
+        });
+        const operationFrame = buildOrdinaryNncAnimateCountPluralOperationFrame(sourceFrame);
+        const surface = buildOrdinaryNncAnimateCountPluralSurfaceFromFrame({
+          sourceFrame,
+          operationFrame
+        });
+        const pluralResults = [{
+          surface,
+          soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+          sourceFrame,
+          operationFrame,
+          segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+        }];
         return {
           pluralType: effectivePluralType,
           forms: pluralResults.map(entry => entry.surface).filter(Boolean),
-          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults)
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...pluralResults),
+          sourceFrame,
+          operationFrame,
+          surfaceSegmentRecords: pluralResults.map((entry, index) => ({
+            kind: "ordinary-nnc-derived-plural-surface-segment-record",
+            index,
+            surface: entry.surface || "",
+            sourceFrame: entry.sourceFrame || null,
+            operationFrame: entry.operationFrame || null,
+            segmentFrames: entry.segmentFrames || []
+          })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length)
         };
       }
       if (state !== ORDINARY_NNC_STATE.absolutive && state !== ORDINARY_NNC_STATE.possessive) {
@@ -2616,23 +4630,149 @@ export function createNncModule(targetObject = globalThis) {
           pluralType: effectivePluralType
         };
       }
-      const distributiveResults = singularForms.map(form => state === ORDINARY_NNC_STATE.possessive ? buildOrdinaryNncPossessiveDistributiveSurfaceResult(form, possessor) : {
-        surface: buildOrdinaryNncReduplicatedSurface(form),
-        soundSpellingFrames: []
+      if (state === ORDINARY_NNC_STATE.absolutive && animacy === "animate" && String(sourceStem || "").trim()) {
+        const sourceFrame = buildOrdinaryNncAnimateDistributiveSourceFrame({
+          sourceStem,
+          subject,
+          state,
+          animacy,
+          pluralType: effectivePluralType
+        });
+        const operationFrame = buildOrdinaryNncAnimateDistributiveOperationFrame(sourceFrame);
+        const surface = buildOrdinaryNncAnimateDistributiveSurfaceFromFrame({
+          sourceFrame,
+          operationFrame
+        });
+        const result = {
+          surface,
+          soundSpellingFrames: [],
+          sourceFrame,
+          operationFrame,
+          segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+        };
+        return {
+          pluralType: effectivePluralType,
+          forms: [result.surface].filter(Boolean),
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(result),
+          surfaceSegmentRecords: [{
+            kind: "ordinary-nnc-derived-plural-surface-segment-record",
+            index: 0,
+            surface: result.surface || "",
+            sourceFrame: result.sourceFrame || null,
+            operationFrame: result.operationFrame || null,
+            segmentFrames: result.segmentFrames || []
+          }].filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length)
+        };
+      }
+      const priorAbsolutiveSingularSourceFrame = state === ORDINARY_NNC_STATE.absolutive && normalizedSourceStem && normalizedNounClass ? buildOrdinaryNncAbsolutiveSingularSourceFrame({
+        sourceStem: normalizedSourceStem,
+        nounClass: normalizedNounClass,
+        state: ORDINARY_NNC_STATE.absolutive,
+        number: "singular",
+        animacy
+      }) : null;
+      const priorAbsolutiveSingularOperationFrame = buildOrdinaryNncAbsolutiveSingularOperationFrame(priorAbsolutiveSingularSourceFrame);
+      const priorAbsolutiveSingularSurface = buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame({
+        sourceFrame: priorAbsolutiveSingularSourceFrame,
+        operationFrame: priorAbsolutiveSingularOperationFrame
+      });
+      const distributiveSourceEntries = state === ORDINARY_NNC_STATE.absolutive ? priorAbsolutiveSingularSurface ? [{
+        sourceSurface: priorAbsolutiveSingularSurface,
+        priorSourceFrame: priorAbsolutiveSingularSourceFrame,
+        priorOperationFrame: priorAbsolutiveSingularOperationFrame
+      }] : [] : singularForms.map(form => ({
+        sourceSurface: form
+      }));
+      const distributiveResults = distributiveSourceEntries.map(entry => {
+        if (state === ORDINARY_NNC_STATE.possessive) {
+          const typedPossessiveDistributiveStem = normalizedSourcePossessiveStem || (normalizedNounClass === "zero" ? normalizedSourceStem : "");
+          if (animacy === "inanimate" && typedPossessiveDistributiveStem) {
+            const sourceFrame = buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame({
+              sourceStem: typedPossessiveDistributiveStem,
+              formulaStem: normalizedSourceStem,
+              sourceStemEvidence: normalizedSourcePossessiveStem ? "static-nnc-structured-possessive-stem" : "ordinary-nnc-formula-stem",
+              possessor,
+              state,
+              animacy,
+              pluralType: effectivePluralType
+            });
+            const operationFrame = buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame(sourceFrame);
+            const surface = buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame({
+              sourceFrame,
+              operationFrame
+            });
+            return {
+              surface,
+              soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+              sourceFrame,
+              operationFrame,
+              segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+            };
+          }
+          return {
+            surface: "",
+            soundSpellingFrames: [],
+            sourceFrame: null,
+            operationFrame: null,
+            segmentFrames: []
+          };
+        }
+        const sourceFrame = buildOrdinaryNncDistributiveReduplicationSourceFrame({
+          sourceSurface: entry.sourceSurface,
+          sourceSurfaceRole: "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+          priorSourceFrame: entry.priorSourceFrame || null,
+          priorOperationFrame: entry.priorOperationFrame || null,
+          state,
+          animacy,
+          pluralType: effectivePluralType
+        });
+        const operationFrame = buildOrdinaryNncDistributiveReduplicationOperationFrame(sourceFrame);
+        const surface = buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame({
+          sourceFrame,
+          operationFrame
+        });
+        return {
+          surface,
+          soundSpellingFrames: [],
+          sourceFrame,
+          operationFrame,
+          segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+        };
       }).map(entry => ({
         ...entry,
         surface: animacy === "animate" ? `${entry.surface}met` : entry.surface
       })).map(entry => {
-        const subjectResult = applyOrdinaryNncSubjectPrefixResult(entry.surface, subject, state, animacy);
+        if (animacy !== "animate" || isOrdinaryNncThirdSingularSubject(subject)) {
+          return {
+            surface: entry.surface,
+            soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry),
+            sourceFrame: entry.sourceFrame || null,
+            operationFrame: entry.operationFrame || null,
+            segmentFrames: entry.segmentFrames || []
+          };
+        }
         return {
-          surface: subjectResult.surface,
-          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry, subjectResult)
+          surface: "",
+          soundSpellingFrames: [],
+          sourceFrame: null,
+          operationFrame: null,
+          segmentFrames: []
         };
       });
       return {
         pluralType: effectivePluralType,
         forms: distributiveResults.map(entry => entry.surface).filter(Boolean),
-        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...distributiveResults)
+        soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(...distributiveResults),
+        sourceFrame: distributiveResults[0]?.sourceFrame || null,
+        operationFrame: distributiveResults[0]?.operationFrame || null,
+        surfaceSegmentRecords: distributiveResults.map((entry, index) => ({
+          kind: "ordinary-nnc-derived-plural-surface-segment-record",
+          index,
+          surface: entry.surface || "",
+          sourceFrame: entry.sourceFrame || null,
+          operationFrame: entry.operationFrame || null,
+          segmentFrames: entry.segmentFrames || []
+        })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length)
       };
     }
     function normalizeOrdinaryNncNum1Num2Class(nounClass = "") {
@@ -2653,11 +4793,62 @@ export function createNncModule(targetObject = globalThis) {
       }
       return ["t", "ti", "in"].includes(normalized) ? normalized : "";
     }
-    function parseOrdinaryNncPredicateFormulaInput(value = "") {
+    function formatOrdinaryNncFormulaDyadSegment(value = "") {
+      const normalized = String(value || "").trim();
+      return normalized || "Ø";
+    }
+    function buildOrdinaryNncNum1Num2Dyad({
+      nounClass = "",
+      number = "singular",
+      pluralType = ""
+    } = {}) {
+      const normalizedNumber = normalizeOrdinaryNncNumber(number);
+      const normalizedPluralType = normalizeOrdinaryNncPluralType(pluralType);
+      const normalizedClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
+      if (normalizedNumber === "plural" && normalizedPluralType === ORDINARY_NNC_PLURAL_TYPE.count) {
+        return {
+          num1: "m",
+          num2: "et",
+          displayNum1: "m",
+          displayNum2: "et",
+          displayDyad: "m-et",
+          compactDisplay: "met",
+          compactSurface: "met",
+          source: "animate-count-plural-evidence-classical-m-eh-to-nawat-m-et"
+        };
+      }
+      const num1 = normalizedClass === "zero" ? "" : getOrdinaryNncNum1Num2Surface(normalizedClass);
+      const num2 = "";
+      return {
+        num1,
+        num2,
+        displayNum1: formatOrdinaryNncFormulaDyadSegment(num1),
+        displayNum2: formatOrdinaryNncFormulaDyadSegment(num2),
+        displayDyad: `${formatOrdinaryNncFormulaDyadSegment(num1)}-${formatOrdinaryNncFormulaDyadSegment(num2)}`,
+        compactDisplay: num1 || "Ø",
+        compactSurface: num1,
+        source: normalizedNumber === "plural" ? "plural-stem-route-keeps-zero-subject-number-dyad" : "singular-common-class-connector"
+      };
+    }
+    function parseOrdinaryNncPredicateFormulaInput(value = "", {
+      diagnosticOnly = false
+    } = {}) {
       const raw = String(value || "").trim().toLowerCase();
       const match = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
       if (!match) {
         return null;
+      }
+      if (diagnosticOnly !== true) {
+        return {
+          status: "blocked",
+          diagnosticId: "ordinary-nnc-predicate-formula-string-diagnostic-only",
+          authorization: "blocked",
+          boundaries: {
+            noStemInference: true,
+            noNounClassInference: true,
+            noGenerationAuthority: true
+          }
+        };
       }
       const stem = normalizeOrdinaryNncText(match[1]).replace(/[()]/g, "");
       if (!stem) {
@@ -2673,6 +4864,28 @@ export function createNncModule(targetObject = globalThis) {
           nounClass
         })
       };
+    }
+    function isOrdinaryNncLegacyFormulaString(value = "") {
+      const raw = String(value || "").trim();
+      const predicateMatch = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
+      return Boolean(raw && (predicateMatch || /^#.*#$/u.test(raw)));
+    }
+    function getOrdinaryNncRequestFormulaSlots({
+      formulaSlots = null,
+      clauseFrame = null,
+      nuclearClauseFrame = null,
+      routeContract = null
+    } = {}) {
+      const candidates = [formulaSlots, clauseFrame?.formulaSlots, nuclearClauseFrame?.formulaSlots, routeContract?.formulaSlots, routeContract?.clauseFrame?.formulaSlots, routeContract?.nuclearClauseFrame?.formulaSlots, routeContract?.morphBoundaryFrame?.formulaSlots];
+      return candidates.find(candidate => candidate && typeof candidate === "object") || null;
+    }
+    function getOrdinaryNncRequestFormulaSlotStem(formulaSlots = null) {
+      const predicate = formulaSlots?.predicateStem || formulaSlots?.STEM || formulaSlots?.["predicate.stem"] || null;
+      return normalizeOrdinaryNncText(predicate?.stem || predicate?.displayStem || predicate?.formulaDisplayStem || predicate?.surface || "").replace(/[()#]/g, "");
+    }
+    function getOrdinaryNncRequestFormulaSlotNounClass(formulaSlots = null) {
+      const connector = formulaSlots?.num1Num2 || formulaSlots?.["num1-num2"] || formulaSlots?.["subject.num1-num2"] || null;
+      return normalizeOrdinaryNncNum1Num2Class(connector?.nounClass || connector?.nounStemClass || connector?.compactSurface || connector?.surface || connector?.connector || connector?.compactDisplay || "");
     }
     function stripOrdinaryNncNum1Num2FromInput(stem = "", nounClass = "") {
       const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
@@ -2700,20 +4913,41 @@ export function createNncModule(targetObject = globalThis) {
       pluralType = ""
     } = {}) {
       const connectorClass = normalizeOrdinaryNncNum1Num2Class(nounClass);
-      const surface = getOrdinaryNncNum1Num2Surface(connectorClass);
+      const dyad = buildOrdinaryNncNum1Num2Dyad({
+        nounClass: connectorClass,
+        number,
+        pluralType
+      });
+      const surface = dyad.compactSurface;
+      const schema = getOrdinaryNncFormulaSchema();
+      const slotDefinition = getOrdinaryNncFormulaSlotDefinition("num1-num2") || {};
+      const blockedInterpretations = Array.isArray(slotDefinition.blockedInterpretations) ? Array.from(slotDefinition.blockedInterpretations) : ["tense", "stem-suffix", "nounstem", "predicate-state"];
       return {
         role: "subject-number-connector",
-        slot: "subject.num1-num2",
-        belongsTo: "subject",
+        formulaSchemaId: schema?.id || "ordinary-nnc-shell",
+        formulaSlot: slotDefinition.id || "num1-num2",
+        slot: slotDefinition.path || "subject.num1-num2",
+        belongsTo: slotDefinition.owner || "subject",
         nounStemClass: connectorClass,
         classLabel: formatOrdinaryNncNum1Num2Class(connectorClass),
         surface,
-        displaySurface: surface || "Ø",
+        displaySurface: dyad.compactDisplay || surface || "Ø",
+        compactDisplay: dyad.compactDisplay,
+        compactSurface: dyad.compactSurface,
+        num1: dyad.num1,
+        num2: dyad.num2,
+        displayNum1: dyad.displayNum1,
+        displayNum2: dyad.displayNum2,
+        displayDyad: dyad.displayDyad,
+        dyadSource: dyad.source,
         predicateState: state,
         referenceNumber: number,
         pluralType: pluralType || "",
+        blockedInterpretations,
         notNounSuffix: true,
-        notStatePosition: true
+        notStemSuffix: blockedInterpretations.includes("stem-suffix"),
+        notStatePosition: true,
+        notTense: blockedInterpretations.includes("tense")
       };
     }
     function getOrdinaryNncSubjectAffixLabel(subject = null) {
@@ -2735,10 +4969,13 @@ export function createNncModule(targetObject = globalThis) {
         number,
         pluralType
       });
+      const subjectSlotDefinition = getOrdinaryNncFormulaSlotDefinition("pers1-pers2") || {};
+      const predicateSlotDefinition = getOrdinaryNncFormulaSlotDefinition("STEM") || {};
+      const connectorSlotDefinition = getOrdinaryNncFormulaSlotDefinition("num1-num2") || {};
       return {
         pers1Pers2: {
-          role: "subject-person",
-          slot: "pers1-pers2",
+          role: subjectSlotDefinition.role || "subject-person",
+          slot: subjectSlotDefinition.id || "pers1-pers2",
           prefix: String(subject?.subjectPrefix || ""),
           suffix: String(subject?.subjectSuffix || ""),
           displayPrefix: String(subject?.subjectPrefix || "") || "Ø",
@@ -2747,16 +4984,24 @@ export function createNncModule(targetObject = globalThis) {
         },
         predicateStem: {
           role: "predicate",
-          slot: "STEM",
+          slot: predicateSlotDefinition.id || "STEM",
           stem,
           state
         },
         num1Num2: {
-          role: "subject-number-connector",
-          slot: "num1-num2",
+          role: connectorSlotDefinition.role || "subject-number-connector",
+          slot: connectorSlotDefinition.id || "num1-num2",
           nounClass: connector.nounStemClass,
           connector: connector.displaySurface,
           surface: connector.surface,
+          compactDisplay: connector.compactDisplay,
+          compactSurface: connector.compactSurface,
+          num1: connector.num1,
+          num2: connector.num2,
+          displayNum1: connector.displayNum1,
+          displayNum2: connector.displayNum2,
+          displayDyad: connector.displayDyad,
+          dyadSource: connector.dyadSource,
           label: "subject number connector",
           belongsTo: connector.belongsTo,
           referenceNumber: connector.referenceNumber,
@@ -2799,7 +5044,9 @@ export function createNncModule(targetObject = globalThis) {
       }
       return "";
     }
-    function buildOrdinaryNncFormulaEchoFromSlots(formulaSlots = null) {
+    function buildOrdinaryNncFormulaEchoFromSlots(formulaSlots = null, {
+      expanded = false
+    } = {}) {
       if (!formulaSlots || typeof formulaSlots !== "object") {
         return "";
       }
@@ -2812,8 +5059,38 @@ export function createNncModule(targetObject = globalThis) {
       }
       const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
       const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
-      const connector = resolveOrdinaryNncFormulaSlotText(numberConnector, ["connector", "surface"]) || "Ø";
-      return `#${prefix}-${suffix}(${stem})${connector}#`;
+      const compactConnector = resolveOrdinaryNncFormulaSlotText(numberConnector, ["connector", "surface"]) || "Ø";
+      const expandedConnector = String(numberConnector.displayDyad || "").trim() || `${formatOrdinaryNncFormulaDyadSegment(numberConnector.num1)}-${formatOrdinaryNncFormulaDyadSegment(numberConnector.num2)}`;
+      if (typeof targetObject.renderAndrewsFormulaEchoFromSchema === "function") {
+        return targetObject.renderAndrewsFormulaEchoFromSchema("ordinary-nnc-shell", {
+          pers1Pers2: {
+            displayPrefix: prefix,
+            displaySuffix: suffix
+          },
+          predicateStem: {
+            stem
+          },
+          num1Num2: {
+            ...(expanded ? {
+              displayDyad: expandedConnector,
+              displayConnector: compactConnector
+            } : {
+              displayConnector: compactConnector
+            })
+          }
+        });
+      }
+      return `#${prefix}-${suffix}(${stem})${expanded ? expandedConnector : compactConnector}#`;
+    }
+    function buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots = null) {
+      return buildOrdinaryNncFormulaEchoFromSlots(formulaSlots, {
+        expanded: true
+      });
+    }
+    function buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots = null) {
+      return buildOrdinaryNncFormulaEchoFromSlots(formulaSlots, {
+        expanded: false
+      });
     }
     function buildOrdinaryNncPredicateStateFrame({
       state = ORDINARY_NNC_STATE.absolutive,
@@ -2946,9 +5223,14 @@ export function createNncModule(targetObject = globalThis) {
           range: "12-19",
           role: "curriculum-index"
         },
-        formula: "#pers1-pers2(STEM)num1-num2#",
+        formulaSchemaId: "ordinary-nnc-shell",
+        formulaSchemaVersion: getOrdinaryNncFormulaSchema()?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: renderOrdinaryNncFormulaTemplate(),
         formulaSlots,
         formulaEcho: buildOrdinaryNncFormulaEchoFromSlots(formulaSlots),
+        fullFormulaEcho: buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots),
+        compactFormulaEcho: buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots),
         categoryProfile,
         hasTensePosition: false,
         stateReplacesValence: true,
@@ -3027,9 +5309,14 @@ export function createNncModule(targetObject = globalThis) {
       });
       return {
         kind: ORDINARY_NNC_CLAUSE_KIND,
-        formula: "#pers1-pers2(STEM)num1-num2#",
+        formulaSchemaId: "ordinary-nnc-shell",
+        formulaSchemaVersion: getOrdinaryNncFormulaSchema()?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: renderOrdinaryNncFormulaTemplate(),
         formulaSlots,
         formulaEcho: buildOrdinaryNncFormulaEchoFromSlots(formulaSlots),
+        fullFormulaEcho: buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots),
+        compactFormulaEcho: buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots),
         predicateFormula,
         hasTensePosition: false,
         tense: null,
@@ -3046,6 +5333,280 @@ export function createNncModule(targetObject = globalThis) {
         possessor: state === ORDINARY_NNC_STATE.possessive ? possessor : null,
         referenceNumber: number,
         surfaceStrategy: pluralType || "plain"
+      };
+    }
+    function buildOrdinaryNncFormulaSurfacePairs({
+      surfaceForms = [],
+      clauseFrame = null,
+      sourceStem = "",
+      surfaceSegmentRecords = []
+    } = {}) {
+      const targetFormulaEcho = String(clauseFrame?.fullFormulaEcho || clauseFrame?.formulaEcho || "").trim();
+      if (!targetFormulaEcho) {
+        return Object.freeze([]);
+      }
+      const normalizedSourceStem = String(sourceStem || clauseFrame?.predicate?.stem || clauseFrame?.formulaSlots?.predicateStem?.stem || "STEM").trim() || "STEM";
+      const sourceLabel = `NNC(${normalizedSourceStem})`;
+      const formulaRecord = typeof targetObject.buildGrammarFormulaRecord === "function" ? targetObject.buildGrammarFormulaRecord({
+        id: `ordinary-nnc:${targetFormulaEcho}`,
+        unit: "NNC",
+        formula: targetFormulaEcho,
+        formulaSlots: clauseFrame?.formulaSlots || null,
+        sourceFrame: {
+          label: sourceLabel,
+          formula: sourceLabel
+        },
+        source: "ordinary-nnc-formula-slots"
+      }) : null;
+      const baseSegmentFrames = [{
+        slot: "pers1-pers2",
+        role: "subject-person",
+        formulaValue: clauseFrame?.formulaSlots?.pers1Pers2?.displayPrefix || "",
+        surface: clauseFrame?.formulaSlots?.pers1Pers2?.prefix || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }, {
+        slot: "STEM",
+        role: "predicate",
+        formulaValue: clauseFrame?.formulaSlots?.predicateStem?.stem || "",
+        surface: clauseFrame?.formulaSlots?.predicateStem?.surface || clauseFrame?.formulaSlots?.predicateStem?.stem || clauseFrame?.predicate?.stem || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }, {
+        slot: "num1-num2",
+        role: "subject-number-connector",
+        formulaValue: clauseFrame?.formulaSlots?.num1Num2?.displayDyad || clauseFrame?.formulaSlots?.num1Num2?.connector || "",
+        surface: clauseFrame?.formulaSlots?.num1Num2?.surface || clauseFrame?.formulaSlots?.num1Num2?.compactSurface || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }];
+      const seen = new Set();
+      return Object.freeze((Array.isArray(surfaceForms) ? surfaceForms : []).map(surface => String(surface || "").trim()).filter(surface => {
+        if (!surface || seen.has(surface)) {
+          return false;
+        }
+        seen.add(surface);
+        return true;
+      }).map((surface, surfaceIndex) => {
+        const surfaceSegmentRecord = (Array.isArray(surfaceSegmentRecords) ? surfaceSegmentRecords : []).find(record => String(record?.surface || "").trim() === surface) || null;
+        const recordSegmentFrames = Array.isArray(surfaceSegmentRecord?.segmentFrames) ? surfaceSegmentRecord.segmentFrames : [];
+        const candidateSegmentFrames = recordSegmentFrames.length ? recordSegmentFrames : baseSegmentFrames;
+        const candidateSegmentDerivedSurface = candidateSegmentFrames.map(segment => String(segment?.surface || "").trim()).join("");
+        const formulaRealizationRecord = typeof targetObject.buildGrammarFormulaRealizationRecord === "function" ? targetObject.buildGrammarFormulaRealizationRecord({
+          id: `ordinary-nnc:${targetFormulaEcho}:surface-${surfaceIndex}`,
+          formulaRecord,
+          unit: "NNC",
+          segmentFrames: candidateSegmentFrames,
+          surfaceForms: [surface],
+          deriveSurfaceFromSegments: candidateSegmentDerivedSurface === surface,
+          source: "ordinary-nnc-structured-segments"
+        }) : null;
+        const pair = {
+          surface,
+          targetFormulaEcho,
+          sourceToTargetFormulaEcho: `${sourceLabel} -> ${targetFormulaEcho}`
+        };
+        Object.defineProperties(pair, {
+          sourceFormulaEcho: {
+            enumerable: false,
+            value: sourceLabel
+          },
+          andrewsFormulaEcho: {
+            enumerable: false,
+            value: targetFormulaEcho
+          },
+          conjugatorFormulaEcho: {
+            enumerable: false,
+            value: targetFormulaEcho
+          },
+          andrewsToConjugatorFormulaEcho: {
+            enumerable: false,
+            value: `${sourceLabel} -> ${targetFormulaEcho}`
+          },
+          formulaRecord: {
+            enumerable: false,
+            value: formulaRecord
+          },
+          formulaRealizationRecord: {
+            enumerable: false,
+            value: formulaRealizationRecord
+          },
+          segmentFrames: {
+            enumerable: false,
+            value: candidateSegmentFrames
+          }
+        });
+        return Object.freeze(pair);
+      }));
+    }
+    function buildOrdinaryNncFormulaSurfacePairFields({
+      surfaceForms = [],
+      clauseFrame = null,
+      sourceStem = "",
+      surfaceSegmentRecords = []
+    } = {}) {
+      const formulaSurfacePairs = buildOrdinaryNncFormulaSurfacePairs({
+        surfaceForms,
+        clauseFrame,
+        sourceStem,
+        surfaceSegmentRecords
+      });
+      return {
+        formulaSurfacePairs,
+        formulaRecord: formulaSurfacePairs.map(entry => entry.formulaRecord).filter(Boolean)[0] || null,
+        formulaRecords: Array.from(new Set(formulaSurfacePairs.map(entry => entry.formulaRecord).filter(Boolean))),
+        formulaRealizationRecord: formulaSurfacePairs.map(entry => entry.formulaRealizationRecord).filter(Boolean)[0] || null,
+        formulaRealizationRecords: formulaSurfacePairs.map(entry => entry.formulaRealizationRecord).filter(Boolean),
+        targetFormulaEchoes: formulaSurfacePairs.map(entry => entry.targetFormulaEcho),
+        sourceFormulaEcho: formulaSurfacePairs.map(entry => entry.sourceFormulaEcho).filter(Boolean)[0] || "",
+        sourceFormulaEchoes: Array.from(new Set(formulaSurfacePairs.map(entry => entry.sourceFormulaEcho).filter(Boolean))),
+        andrewsFormulaEcho: formulaSurfacePairs.map(entry => entry.andrewsFormulaEcho).filter(Boolean)[0] || "",
+        andrewsFormulaEchoes: Array.from(new Set(formulaSurfacePairs.map(entry => entry.andrewsFormulaEcho).filter(Boolean))),
+        conjugatorFormulaEcho: formulaSurfacePairs.map(entry => entry.conjugatorFormulaEcho).filter(Boolean)[0] || "",
+        conjugatorFormulaEchoes: Array.from(new Set(formulaSurfacePairs.map(entry => entry.conjugatorFormulaEcho).filter(Boolean))),
+        sourceToTargetFormulaEcho: formulaSurfacePairs.map(entry => entry.sourceToTargetFormulaEcho).join(" | "),
+        andrewsToConjugatorFormulaEcho: formulaSurfacePairs.map(entry => entry.andrewsToConjugatorFormulaEcho).join(" | ")
+      };
+    }
+    function normalizeOrdinaryNncResultTextRecords(formulaSurfacePairs = []) {
+      return (Array.isArray(formulaSurfacePairs) ? formulaSurfacePairs : []).map((pair, index) => {
+        const realizationRecord = pair?.formulaRealizationRecord || null;
+        if (!realizationRecord || realizationRecord.kind !== "grammar-formula-realization-record" || !Array.isArray(realizationRecord.segmentFrames)) {
+          return null;
+        }
+        const segmentFrames = realizationRecord.segmentFrames.map((segment, segmentIndex) => ({
+          kind: "ordinary-nnc-result-text-segment-frame",
+          index: segmentIndex,
+          slot: String(segment?.slot || ""),
+          role: String(segment?.role || ""),
+          formulaValue: String(segment?.formulaValue || ""),
+          surface: String(segment?.surface || "").trim()
+        })).filter(segment => segment.surface);
+        const segmentSurface = segmentFrames.map(segment => segment.surface).join("");
+        const recordSurface = String(realizationRecord.surface || "").trim();
+        if (!segmentSurface || segmentSurface !== recordSurface) {
+          return null;
+        }
+        return Object.freeze({
+          kind: "ordinary-nnc-result-text-record-frame",
+          index,
+          formulaRealizationRecordId: String(realizationRecord.id || ""),
+          formulaRecordId: String(realizationRecord.formulaRecordId || ""),
+          surface: segmentSurface,
+          segmentFrames: Object.freeze(segmentFrames.map(Object.freeze))
+        });
+      }).filter(Boolean);
+    }
+    function getOrdinaryNncResultTextSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object") {
+        return "";
+      }
+      return JSON.stringify({
+        records: (Array.isArray(sourceFrame.resultRecordFrames) ? sourceFrame.resultRecordFrames : []).map(record => ({
+          formulaRealizationRecordId: record.formulaRealizationRecordId || "",
+          formulaRecordId: record.formulaRecordId || "",
+          surface: record.surface || "",
+          segmentFrames: record.segmentFrames || []
+        }))
+      });
+    }
+    function buildOrdinaryNncResultTextSourceFrame({
+      formulaSurfacePairs = []
+    } = {}) {
+      const resultRecordFrames = normalizeOrdinaryNncResultTextRecords(formulaSurfacePairs);
+      const surfaceForms = resultRecordFrames.map(record => record.surface).filter((surface, index, list) => surface && list.indexOf(surface) === index);
+      const diagnostics = [];
+      if (!resultRecordFrames.length) {
+        diagnostics.push("ordinary-nnc-result-text-missing-realization-records");
+      }
+      if (!surfaceForms.length) {
+        diagnostics.push("ordinary-nnc-result-text-missing-surface-forms");
+      }
+      const sourceFrame = {
+        kind: "ordinary-nnc-result-text-source-frame",
+        routeId: "ordinary-nnc-result-text-render",
+        resultRecordFrames: Object.freeze(resultRecordFrames),
+        surfaceForms: Object.freeze(surfaceForms),
+        supported: resultRecordFrames.length > 0 && surfaceForms.length > 0,
+        diagnostics: Object.freeze(diagnostics),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      };
+      return Object.freeze({
+        ...sourceFrame,
+        sourceSignature: getOrdinaryNncResultTextSourceSignature(sourceFrame)
+      });
+    }
+    function buildOrdinaryNncResultTextOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-result-text-source-frame") {
+        return null;
+      }
+      const targetSurfaceForms = (Array.isArray(sourceFrame.surfaceForms) ? sourceFrame.surfaceForms : []).map(surface => String(surface || "").trim()).filter(Boolean);
+      const targetFrame = Object.freeze({
+        kind: "ordinary-nnc-result-text-target-frame",
+        surfaceForms: Object.freeze(targetSurfaceForms),
+        resultText: targetSurfaceForms.join(" / ")
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nnc-result-text-render",
+        routeId: "ordinary-nnc-result-text-render",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        supported: sourceFrame.supported === true && targetSurfaceForms.length > 0,
+        diagnostics: sourceFrame.supported === true ? Object.freeze([]) : Object.freeze(["ordinary-nnc-result-text-unsupported-source-frame"]),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        displayOnlyFieldsExcluded: Object.freeze(["formulaEcho", "result", "surface", "surfaceForms"])
+      });
+    }
+    function validateOrdinaryNncResultTextOperationFrame({
+      formulaSurfacePairs = [],
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const rebuiltSourceFrame = buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs
+      });
+      if (!sourceFrame || sourceFrame.kind !== "ordinary-nnc-result-text-source-frame" || String(sourceFrame.sourceSignature || "") !== String(rebuiltSourceFrame.sourceSignature || "") || !operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "ordinary-nnc-result-text-render" || operationFrame.supported !== true || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false || String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return null;
+      }
+      const rebuiltOperationFrame = buildOrdinaryNncResultTextOperationFrame(sourceFrame);
+      if (!operationFrame.targetFrame || !rebuiltOperationFrame?.targetFrame || JSON.stringify(operationFrame.targetFrame) !== JSON.stringify(rebuiltOperationFrame.targetFrame)) {
+        return null;
+      }
+      return operationFrame.targetFrame;
+    }
+    function buildOrdinaryNncResultText(formulaSurfacePairs = [], options = {}) {
+      const targetFrame = validateOrdinaryNncResultTextOperationFrame({
+        formulaSurfacePairs,
+        sourceFrame: options?.sourceFrame || null,
+        operationFrame: options?.operationFrame || null
+      });
+      return targetFrame ? String(targetFrame.resultText || "") : "";
+    }
+    function resolveOrdinaryNncResultTextFromFrames({
+      formulaSurfacePairs = [],
+      sourceFrame = null,
+      operationFrame = null,
+      fallbackSurfaceForms = []
+    } = {}) {
+      const typedResultText = buildOrdinaryNncResultText(formulaSurfacePairs, {
+        sourceFrame,
+        operationFrame
+      });
+      if (sourceFrame?.supported === true) {
+        return {
+          supported: Boolean(typedResultText),
+          resultText: typedResultText,
+          diagnostic: typedResultText ? null : buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.resultTextMissingTypedOperationFrame, "Ordinary NNC result text requires a matching typed source and operation frame."),
+          typedRouteRequired: true
+        };
+      }
+      return {
+        supported: true,
+        resultText: (Array.isArray(fallbackSurfaceForms) ? fallbackSurfaceForms : []).map(surface => String(surface || "").trim()).filter(Boolean).join(" / "),
+        diagnostic: null,
+        typedRouteRequired: false
       };
     }
     function buildOrdinaryNncUnsupportedResult({
@@ -3118,26 +5679,126 @@ export function createNncModule(targetObject = globalThis) {
       animacy = "",
       possessionKind = "",
       stateCase = "",
-      possessionType = ""
+      possessionType = "",
+      formulaSlots = null,
+      clauseFrame: requestClauseFrame = null,
+      nuclearClauseFrame: requestNuclearClauseFrame = null,
+      routeContract = null,
+      organicPossessionSourceFrame = null,
+      organicPossessionOperationFrame = null
     } = {}) {
-      const analogueInput = parseOrdinaryNncPredicateFormulaInput(stem);
-      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || analogueInput?.nounClass || "");
-      const normalizedStem = analogueInput?.stem || normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
+      const legacyFormulaInput = parseOrdinaryNncPredicateFormulaInput(stem, {
+        diagnosticOnly: true
+      });
+      const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(stem);
+      const requestFormulaSlots = getOrdinaryNncRequestFormulaSlots({
+        formulaSlots,
+        clauseFrame: requestClauseFrame,
+        nuclearClauseFrame: requestNuclearClauseFrame,
+        routeContract
+      });
+      const structuralStem = getOrdinaryNncRequestFormulaSlotStem(requestFormulaSlots);
+      const structuralNounClass = getOrdinaryNncRequestFormulaSlotNounClass(requestFormulaSlots);
+      const plainStem = normalizeOrdinaryNncText(stem).replace(/[()#]/g, "");
+      const normalizedStem = structuralStem || (hasLegacyFormulaString ? "" : plainStem);
+      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || structuralNounClass || "");
       let resolvedSubject = resolveOrdinaryNncSubject(subject);
       const resolvedPossessor = resolveOrdinaryNncPossessor(possessor, possessivePrefix);
       const normalizedState = normalizeOrdinaryNncState(state, resolvedPossessor);
       const normalizedNumber = normalizeOrdinaryNncNumber(number);
       const normalizedPluralType = normalizeOrdinaryNncPluralType(pluralType);
       const normalizedPossessionKind = normalizeOrdinaryNncPossessionKind(possessionKind || stateCase || possessionType);
+      const legacyConflictsWithSlots = Boolean(hasLegacyFormulaString && legacyFormulaInput && requestFormulaSlots && (structuralStem && legacyFormulaInput.stem && structuralStem !== legacyFormulaInput.stem || structuralNounClass && legacyFormulaInput.nounClass && structuralNounClass !== legacyFormulaInput.nounClass));
+      if (hasLegacyFormulaString && !requestFormulaSlots || legacyConflictsWithSlots) {
+        const diagnosticId = legacyConflictsWithSlots ? ORDINARY_NNC_DIAGNOSTIC_IDS.legacyFormulaStringConflictsWithSlots : ORDINARY_NNC_DIAGNOSTIC_IDS.legacyFormulaStringBlocked;
+        const diagnosticMessage = legacyConflictsWithSlots ? "Ordinary NNC generation rejected a formula-looking string because it conflicts with the supplied Andrews formula slots." : "Ordinary NNC generation no longer lets formula-looking strings authorize or infer grammar; pass Andrews formula slots or a route contract instead.";
+        return buildOrdinaryNncUnsupportedResult({
+          stem: structuralStem || legacyFormulaInput?.stem || plainStem,
+          state: normalizedState,
+          number: normalizedNumber,
+          pluralType: normalizedNumber === "plural" ? normalizedPluralType : "",
+          subject: resolvedSubject,
+          possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+          nounClass: requestedNounClass || structuralNounClass || legacyFormulaInput?.nounClass || "",
+          animacy,
+          diagnostic: buildOrdinaryNncDiagnostic(diagnosticId, diagnosticMessage)
+        });
+      }
       if (normalizedPossessionKind === ORDINARY_NNC_POSSESSION_KIND.organic) {
-        const organicStem = buildOrdinaryNncOrganicPossessionStem(normalizedStem);
         const organicNounClass = requestedNounClass || "t";
         const organicAnimacy = normalizeOrdinaryNncAnimacy(animacy);
         resolvedSubject = resolveOrdinaryNncClauseSubject(subject, normalizedNumber, organicAnimacy);
+        const organicSourceFrame = organicPossessionSourceFrame || buildOrdinaryNncOrganicPossessionSourceFrame({
+          formulaSlots: requestFormulaSlots,
+          possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+          possessionKind: normalizedPossessionKind
+        });
+        if (!organicSourceFrame) {
+          return {
+            ...buildOrdinaryNncUnsupportedResult({
+              stem: structuralStem || "",
+              state: normalizedState,
+              number: normalizedNumber,
+              pluralType: normalizedNumber === "plural" ? normalizedPluralType : "",
+              subject: resolvedSubject,
+              possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+              nounClass: organicNounClass,
+              animacy: organicAnimacy,
+              openStem: true,
+              diagnostic: buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.organicPossessionMissingSourceFrame, "Organic possession NNC generation requires an Andrews formula-slot source frame; stem strings cannot authorize the target.")
+            }),
+            possessionKind: normalizedPossessionKind,
+            source: {
+              fixtureId: "",
+              sourceRefs: ["Andrews 39.3.4"],
+              sourceKind: "open-stem",
+              sourceStem: structuralStem || ""
+            }
+          };
+        }
+        const organicOperationFrame = organicPossessionOperationFrame || buildOrdinaryNncOrganicPossessionOperationFrame(organicSourceFrame);
+        const organicFrameMismatch = getOrdinaryNncOrganicPossessionFrameMismatch({
+          sourceFrame: organicSourceFrame,
+          operationFrame: organicOperationFrame
+        });
+        if (organicFrameMismatch) {
+          const diagnosticId = organicFrameMismatch.includes("operation") ? ORDINARY_NNC_DIAGNOSTIC_IDS.organicPossessionMissingOperationFrame : ORDINARY_NNC_DIAGNOSTIC_IDS.organicPossessionContradictoryFrame;
+          return {
+            ...buildOrdinaryNncUnsupportedResult({
+              stem: organicSourceFrame.sourceStem || "",
+              state: normalizedState,
+              number: normalizedNumber,
+              pluralType: normalizedNumber === "plural" ? normalizedPluralType : "",
+              subject: resolvedSubject,
+              possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+              nounClass: organicNounClass,
+              animacy: organicAnimacy,
+              openStem: true,
+              diagnostic: buildOrdinaryNncDiagnostic(diagnosticId, organicFrameMismatch)
+            }),
+            possessionKind: normalizedPossessionKind,
+            organicPossessionSourceFrame: organicSourceFrame,
+            organicPossessionOperationFrame: organicOperationFrame || null,
+            source: {
+              fixtureId: "",
+              sourceRefs: ["Andrews 39.3.4"],
+              sourceKind: "open-stem",
+              sourceStem: organicSourceFrame.sourceStem || ""
+            }
+          };
+        }
+        const organicProfile = buildOrdinaryNncOrganicPossessionProfile({
+          sourceFrame: organicSourceFrame,
+          operationFrame: organicOperationFrame
+        });
+        const organicStem = organicProfile?.organicStem || "";
+        const organicSourceStem = organicProfile?.sourceStem || "";
         const organicFrame = buildOrdinaryNncOrganicPossessionFrame({
-          sourceStem: normalizedStem,
+          sourceStem: organicSourceStem,
           organicStem,
-          possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor
+          possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+          sourceFrame: organicSourceFrame,
+          operationFrame: organicOperationFrame
         });
         if (normalizedState !== ORDINARY_NNC_STATE.possessive) {
           return {
@@ -3159,7 +5820,7 @@ export function createNncModule(targetObject = globalThis) {
               fixtureId: "",
               sourceRefs: ["Andrews 39.3.4"],
               sourceKind: "open-stem",
-              sourceStem: normalizedStem
+              sourceStem: organicSourceStem
             }
           };
         }
@@ -3183,7 +5844,7 @@ export function createNncModule(targetObject = globalThis) {
               fixtureId: "",
               sourceRefs: ["Andrews 39.3.4"],
               sourceKind: "open-stem",
-              sourceStem: normalizedStem
+              sourceStem: organicSourceStem
             }
           };
         }
@@ -3208,21 +5869,44 @@ export function createNncModule(targetObject = globalThis) {
               fixtureId: "",
               sourceRefs: ["Andrews 39.3.4"],
               sourceKind: "open-stem",
-              sourceStem: normalizedStem
+              sourceStem: organicSourceStem
             }
           };
         }
-        const singularSurfaceResult = buildOrdinaryNncSurfaceChainResult({
-          possessivePrefix: resolvedPossessor.prefix,
-          core: organicStem
+        const organicSurfaceSourceFrame = buildOrdinaryNncOpenStemPossessiveSourceFrame({
+          sourceStem: organicStem,
+          possessor: resolvedPossessor,
+          animacy: organicAnimacy
         });
-        const singularSurface = singularSurfaceResult.surface;
+        const organicSurfaceOperationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame(organicSurfaceSourceFrame);
+        const singularSurface = buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame({
+          sourceFrame: organicSurfaceSourceFrame,
+          operationFrame: organicSurfaceOperationFrame
+        });
+        const singularSurfaceResult = {
+          surface: singularSurface,
+          surfaceForms: singularSurface ? [singularSurface] : [],
+          soundSpellingFrames: organicSurfaceOperationFrame?.targetFrame?.soundSpellingFrames || [],
+          sourceFrame: organicSurfaceSourceFrame,
+          operationFrame: organicSurfaceOperationFrame,
+          segmentFrames: organicSurfaceOperationFrame?.targetFrame?.segmentFrames || []
+        };
+        const singularSurfaceSegmentRecords = singularSurface && singularSurfaceResult.segmentFrames.length ? [{
+          kind: "ordinary-nnc-derived-plural-surface-segment-record",
+          index: 0,
+          surface: singularSurface,
+          sourceFrame: organicSurfaceSourceFrame,
+          operationFrame: organicSurfaceOperationFrame,
+          segmentFrames: singularSurfaceResult.segmentFrames
+        }] : [];
         const derivedPlural = normalizedNumber === "plural" ? buildOrdinaryNncDerivedPluralForms([singularSurface], {
           state: ORDINARY_NNC_STATE.possessive,
           subject: resolvedSubject,
           possessor: resolvedPossessor,
           animacy: organicAnimacy,
-          pluralType: normalizedPluralType
+          pluralType: normalizedPluralType,
+          nounClass: organicNounClass,
+          sourceStem: organicStem
         }) : null;
         const resolvedSurfaceForms = normalizedNumber === "plural" ? derivedPlural?.forms || [] : [singularSurface].filter(Boolean);
         const effectivePluralType = normalizedNumber === "plural" ? getEffectiveOrdinaryNncPluralType(normalizedPluralType, organicAnimacy) : "";
@@ -3250,14 +5934,54 @@ export function createNncModule(targetObject = globalThis) {
           markingRequested: true,
           markingAvailable: true
         });
+        const formulaSurfacePairFields = buildOrdinaryNncFormulaSurfacePairFields({
+          surfaceForms: resolvedSurfaceForms,
+          clauseFrame,
+          sourceStem: organicStem,
+          surfaceSegmentRecords: derivedPlural?.surfaceSegmentRecords || singularSurfaceSegmentRecords
+        });
+        const ordinaryNncResultTextSourceFrame = buildOrdinaryNncResultTextSourceFrame({
+          formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs
+        });
+        const ordinaryNncResultTextOperationFrame = buildOrdinaryNncResultTextOperationFrame(ordinaryNncResultTextSourceFrame);
+        const resultTextFrame = resolveOrdinaryNncResultTextFromFrames({
+          formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs,
+          sourceFrame: ordinaryNncResultTextSourceFrame,
+          operationFrame: ordinaryNncResultTextOperationFrame,
+          fallbackSurfaceForms: resolvedSurfaceForms
+        });
+        if (!resultTextFrame.supported) {
+          return {
+            ...buildOrdinaryNncUnsupportedResult({
+              stem: organicStem,
+              state: ORDINARY_NNC_STATE.possessive,
+              number: normalizedNumber,
+              pluralType: effectivePluralType,
+              subject: resolvedSubject,
+              possessor: resolvedPossessor,
+              nounClass: organicNounClass,
+              animacy: organicAnimacy,
+              openStem: true,
+              diagnostic: resultTextFrame.diagnostic
+            }),
+            formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs,
+            ordinaryNncResultTextSourceFrame,
+            ordinaryNncResultTextOperationFrame,
+            organicPossessionFrame: organicFrame,
+            organicPossessionSourceFrame: organicSourceFrame,
+            organicPossessionOperationFrame: organicOperationFrame,
+            organicSurfaceSourceFrame,
+            organicSurfaceOperationFrame
+          };
+        }
         return {
           outputKind: ORDINARY_NNC_CLAUSE_KIND,
           clauseKind: ORDINARY_NNC_CLAUSE_KIND,
           supported: resolvedSurfaceForms.length > 0,
-          result: resolvedSurfaceForms.join(" / "),
+          result: resultTextFrame.resultText,
           surfaceForms: resolvedSurfaceForms,
           stem: organicStem,
-          sourceStem: normalizedStem,
+          sourceStem: organicSourceStem,
           state: ORDINARY_NNC_STATE.possessive,
           possessionKind: normalizedPossessionKind,
           stateCase: "organic-possession",
@@ -3271,14 +5995,23 @@ export function createNncModule(targetObject = globalThis) {
           predicateFormula: clauseFrame.predicateFormula,
           clauseFrame,
           nncBasic,
+          ...formulaSurfacePairFields,
+          ordinaryNncResultTextSourceFrame,
+          ordinaryNncResultTextOperationFrame,
+          ordinaryNncDerivedPluralSourceFrame: derivedPlural?.sourceFrame || null,
+          ordinaryNncDerivedPluralOperationFrame: derivedPlural?.operationFrame || null,
           organicPossessionFrame: organicFrame,
+          organicPossessionSourceFrame: organicSourceFrame,
+          organicPossessionOperationFrame: organicOperationFrame,
+          organicSurfaceSourceFrame,
+          organicSurfaceOperationFrame,
           soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(singularSurfaceResult, derivedPlural?.soundSpellingFrames),
           diagnostics: [],
           source: {
             fixtureId: "",
             sourceRefs: ["Andrews 39.3.4"],
             sourceKind: "open-stem",
-            sourceStem: normalizedStem
+            sourceStem: organicSourceStem
           }
         };
       }
@@ -3361,29 +6094,132 @@ export function createNncModule(targetObject = globalThis) {
           diagnostic: buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.unsupportedSubject, `Nominal nuclear clause ${isOpenStemFixture ? "open stem" : "fixture"} "${fixture.stem || normalizedStem}" is nonanimate and only supports 3rd singular subject agreement.`)
         });
       }
-      const surfaceForms = getOrdinaryNncFixtureStateForms(fixture, normalizedState, {
+      const fixtureStateCell = getOrdinaryNncFixtureStateCell(fixture, normalizedState, {
         number: normalizedNumber,
         possessor: resolvedPossessor,
         pluralType: normalizedPluralType
       });
-      const sourceSoundSpellingFrames = getOrdinaryNncFixtureStateSoundSpellingFrames(fixture, normalizedState, {
+      const structuredPossessiveSurfaceResults = buildOrdinaryNncStructuredPossessiveSurfaceResults({
+        fixture,
+        stateCell: fixtureStateCell,
+        state: normalizedState,
+        number: normalizedNumber,
+        possessor: resolvedPossessor,
+        nounClass: fixtureClass,
+        animacy: fixtureAnimacy
+      });
+      const structuredAbsolutiveSurfaceResults = isOrdinaryNncThirdSingularSubject(resolvedSubject) || normalizedState === ORDINARY_NNC_STATE.absolutive && normalizedNumber === "singular" && fixtureAnimacy === "animate" ? buildOrdinaryNncStructuredAbsolutiveSingularSurfaceResults({
+        fixture,
+        state: normalizedState,
+        number: normalizedNumber,
+        nounClass: fixtureClass,
+        animacy: fixtureAnimacy
+      }) : [];
+      const structuredSurfaceResults = structuredPossessiveSurfaceResults.length ? structuredPossessiveSurfaceResults : structuredAbsolutiveSurfaceResults;
+      const surfaceForms = structuredSurfaceResults.length ? [] : getOrdinaryNncFixtureStateForms(fixture, normalizedState, {
         number: normalizedNumber,
         possessor: resolvedPossessor,
         pluralType: normalizedPluralType
       });
+      const sourceSoundSpellingFrames = structuredSurfaceResults.length ? collectOrdinaryNncSurfaceSoundSpellingFrames(...structuredSurfaceResults) : getOrdinaryNncFixtureStateSoundSpellingFrames(fixture, normalizedState, {
+        number: normalizedNumber,
+        possessor: resolvedPossessor,
+        pluralType: normalizedPluralType
+      });
+      const sourceSurfaceSegmentRecords = structuredSurfaceResults.length ? structuredSurfaceResults.map((entry, index) => ({
+        kind: structuredPossessiveSurfaceResults.length ? "ordinary-nnc-structured-possessive-surface-segment-record" : "ordinary-nnc-structured-absolutive-singular-surface-segment-record",
+        index,
+        surface: entry.surface || "",
+        sourceFrame: entry.sourceFrame || null,
+        operationFrame: entry.operationFrame || null,
+        segmentFrames: entry.segmentFrames || []
+      })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length) : getOrdinaryNncFixtureStateSurfaceSegmentRecords(fixture, normalizedState, {
+        number: normalizedNumber,
+        possessor: resolvedPossessor,
+        pluralType: normalizedPluralType
+      });
+      const singularSourceCell = normalizedNumber === "plural" ? getOrdinaryNncFixtureStateCell(fixture, normalizedState, {
+        number: "singular",
+        possessor: resolvedPossessor
+      }) : null;
+      const sourcePossessiveStem = normalizedState === ORDINARY_NNC_STATE.possessive ? getOrdinaryNncPossessiveStemFromCell(singularSourceCell) : "";
       const singularForms = normalizedNumber === "plural" ? getOrdinaryNncFixtureStateForms(fixture, normalizedState, {
         number: "singular",
         possessor: resolvedPossessor
       }) : [];
-      const derivedPlural = normalizedNumber === "plural" && !surfaceForms.length ? buildOrdinaryNncDerivedPluralForms(singularForms, {
+      const derivedPlural = normalizedNumber === "plural" && !surfaceForms.length && !structuredSurfaceResults.length ? buildOrdinaryNncDerivedPluralForms(singularForms, {
         state: normalizedState,
         subject: resolvedSubject,
         possessor: resolvedPossessor,
         animacy: fixtureAnimacy,
-        pluralType: normalizedPluralType
+        pluralType: normalizedPluralType,
+        nounClass: fixtureClass,
+        sourceStem: fixture.stem || normalizedStem,
+        sourcePossessiveStem
       }) : null;
-      const subjectAppliedSurfaceResults = surfaceForms.length ? surfaceForms.map(form => applyOrdinaryNncSubjectPrefixResult(form, resolvedSubject, normalizedState, fixtureAnimacy)) : [];
-      const resolvedSurfaceForms = surfaceForms.length ? subjectAppliedSurfaceResults.map(entry => entry.surface).filter(Boolean) : derivedPlural?.forms || [];
+      const subjectAppliedSurfaceResults = structuredSurfaceResults.length && fixtureAnimacy === "animate" && !isOrdinaryNncThirdSingularSubject(resolvedSubject) ? structuredSurfaceResults.map(entry => {
+        const priorTargetSurface = String(entry.operationFrame?.targetFrame?.surface || "");
+        const sourceFrame = entry.sourceFrame && entry.operationFrame?.supported === true && priorTargetSurface && priorTargetSurface === String(entry.surface || "") ? buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+          sourceStem: fixture.stem || normalizedStem,
+          sourceSurface: priorTargetSurface,
+          sourceSurfaceRole: structuredPossessiveSurfaceResults.length ? "ordinary-nnc-prior-typed-possessive-singular-source-form" : "ordinary-nnc-prior-typed-absolutive-singular-source-form",
+          priorSourceFrame: entry.sourceFrame,
+          priorOperationFrame: entry.operationFrame,
+          subject: resolvedSubject,
+          state: normalizedState,
+          animacy: fixtureAnimacy
+        }) : null;
+        const operationFrame = buildOrdinaryNncAnimateSubjectPrefixOperationFrame(sourceFrame);
+        const surface = buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+          sourceFrame,
+          operationFrame
+        });
+        return {
+          surface,
+          soundSpellingFrames: collectOrdinaryNncSurfaceSoundSpellingFrames(entry, operationFrame?.targetFrame?.soundSpellingFrames || []),
+          sourceFrame,
+          operationFrame,
+          segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+        };
+      }) : structuredSurfaceResults.length ? structuredSurfaceResults : surfaceForms.length ? surfaceForms.map(form => {
+        if (fixtureAnimacy !== "animate") {
+          return {
+            surface: form,
+            soundSpellingFrames: [],
+            sourceFrame: null,
+            operationFrame: null,
+            segmentFrames: []
+          };
+        }
+        const sourceFrame = buildOrdinaryNncAnimateSubjectPrefixSourceFrame({
+          sourceStem: fixture.stem || normalizedStem,
+          sourceSurface: form,
+          subject: resolvedSubject,
+          state: normalizedState,
+          animacy: fixtureAnimacy
+        });
+        const operationFrame = buildOrdinaryNncAnimateSubjectPrefixOperationFrame(sourceFrame);
+        const surface = buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame({
+          sourceFrame,
+          operationFrame
+        });
+        return {
+          surface,
+          soundSpellingFrames: operationFrame?.targetFrame?.soundSpellingFrames || [],
+          sourceFrame,
+          operationFrame,
+          segmentFrames: operationFrame?.targetFrame?.segmentFrames || []
+        };
+      }) : [];
+      const subjectAppliedSurfaceSegmentRecords = subjectAppliedSurfaceResults.map((entry, index) => ({
+        kind: "ordinary-nnc-subject-prefixed-surface-segment-record",
+        index,
+        surface: entry.surface || "",
+        sourceFrame: entry.sourceFrame || null,
+        operationFrame: entry.operationFrame || null,
+        segmentFrames: entry.segmentFrames || []
+      })).filter(entry => entry.surface && Array.isArray(entry.segmentFrames) && entry.segmentFrames.length);
+      const resolvedSurfaceForms = structuredSurfaceResults.length ? subjectAppliedSurfaceResults.map(entry => entry.surface).filter(Boolean) : surfaceForms.length ? subjectAppliedSurfaceResults.map(entry => entry.surface).filter(Boolean) : derivedPlural?.forms || [];
       const resolvedSoundSpellingFrames = collectOrdinaryNncSurfaceSoundSpellingFrames(sourceSoundSpellingFrames, ...subjectAppliedSurfaceResults, derivedPlural?.soundSpellingFrames);
       if (!resolvedSurfaceForms.length) {
         const stateData = fixture.states?.[normalizedState] || null;
@@ -3428,11 +6264,53 @@ export function createNncModule(targetObject = globalThis) {
         markingRequested: normalizedState === ORDINARY_NNC_STATE.possessive,
         markingAvailable: normalizedState === ORDINARY_NNC_STATE.possessive
       });
+      const formulaSurfacePairFields = buildOrdinaryNncFormulaSurfacePairFields({
+        surfaceForms: resolvedSurfaceForms,
+        clauseFrame,
+        sourceStem: fixture.stem || normalizedStem,
+        surfaceSegmentRecords: derivedPlural?.surfaceSegmentRecords || (subjectAppliedSurfaceSegmentRecords.length ? subjectAppliedSurfaceSegmentRecords : sourceSurfaceSegmentRecords)
+      });
+      const ordinaryNncResultTextSourceFrame = buildOrdinaryNncResultTextSourceFrame({
+        formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs
+      });
+      const ordinaryNncResultTextOperationFrame = buildOrdinaryNncResultTextOperationFrame(ordinaryNncResultTextSourceFrame);
+      const resultTextFrame = resolveOrdinaryNncResultTextFromFrames({
+        formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs,
+        sourceFrame: ordinaryNncResultTextSourceFrame,
+        operationFrame: ordinaryNncResultTextOperationFrame,
+        fallbackSurfaceForms: resolvedSurfaceForms
+      });
+      if (!resultTextFrame.supported) {
+        return {
+          ...buildOrdinaryNncUnsupportedResult({
+            stem: fixture.stem || normalizedStem,
+            state: normalizedState,
+            number: normalizedNumber,
+            pluralType: effectivePluralType,
+            subject: resolvedSubject,
+            possessor: normalizedState === ORDINARY_NNC_STATE.possessive ? resolvedPossessor : null,
+            nounClass: fixtureClass,
+            animacy: fixtureAnimacy,
+            openStem: isOpenStemFixture,
+            diagnostic: resultTextFrame.diagnostic,
+            markingAvailable: normalizedState === ORDINARY_NNC_STATE.possessive
+          }),
+          formulaSurfacePairs: formulaSurfacePairFields.formulaSurfacePairs,
+          ordinaryNncResultTextSourceFrame,
+          ordinaryNncResultTextOperationFrame,
+          ordinaryNncSubjectPrefixSourceFrames: subjectAppliedSurfaceSegmentRecords.map(entry => entry.sourceFrame).filter(Boolean),
+          ordinaryNncSubjectPrefixOperationFrames: subjectAppliedSurfaceSegmentRecords.map(entry => entry.operationFrame).filter(Boolean),
+          ordinaryNncAbsolutiveSingularSourceFrames: structuredAbsolutiveSurfaceResults.map(entry => entry.sourceFrame).filter(Boolean),
+          ordinaryNncAbsolutiveSingularOperationFrames: structuredAbsolutiveSurfaceResults.map(entry => entry.operationFrame).filter(Boolean),
+          ordinaryNncStructuredPossessiveSourceFrames: structuredPossessiveSurfaceResults.map(entry => entry.sourceFrame).filter(Boolean),
+          ordinaryNncStructuredPossessiveOperationFrames: structuredPossessiveSurfaceResults.map(entry => entry.operationFrame).filter(Boolean)
+        };
+      }
       return {
         outputKind: ORDINARY_NNC_CLAUSE_KIND,
         clauseKind: ORDINARY_NNC_CLAUSE_KIND,
         supported: true,
-        result: resolvedSurfaceForms.join(" / "),
+        result: resultTextFrame.resultText,
         surfaceForms: resolvedSurfaceForms,
         stem: fixture.stem || normalizedStem,
         state: normalizedState,
@@ -3446,6 +6324,17 @@ export function createNncModule(targetObject = globalThis) {
         predicateFormula: clauseFrame.predicateFormula,
         clauseFrame,
         nncBasic,
+        ...formulaSurfacePairFields,
+        ordinaryNncResultTextSourceFrame,
+        ordinaryNncResultTextOperationFrame,
+        ordinaryNncSubjectPrefixSourceFrames: subjectAppliedSurfaceSegmentRecords.map(entry => entry.sourceFrame).filter(Boolean),
+        ordinaryNncSubjectPrefixOperationFrames: subjectAppliedSurfaceSegmentRecords.map(entry => entry.operationFrame).filter(Boolean),
+        ordinaryNncAbsolutiveSingularSourceFrames: structuredAbsolutiveSurfaceResults.map(entry => entry.sourceFrame).filter(Boolean),
+        ordinaryNncAbsolutiveSingularOperationFrames: structuredAbsolutiveSurfaceResults.map(entry => entry.operationFrame).filter(Boolean),
+        ordinaryNncStructuredPossessiveSourceFrames: structuredPossessiveSurfaceResults.map(entry => entry.sourceFrame).filter(Boolean),
+        ordinaryNncStructuredPossessiveOperationFrames: structuredPossessiveSurfaceResults.map(entry => entry.operationFrame).filter(Boolean),
+        ordinaryNncDerivedPluralSourceFrame: derivedPlural?.sourceFrame || null,
+        ordinaryNncDerivedPluralOperationFrame: derivedPlural?.operationFrame || null,
         soundSpellingFrames: resolvedSoundSpellingFrames,
         diagnostics: [],
         source: isOpenStemFixture ? {
@@ -3593,8 +6482,9 @@ export function createNncModule(targetObject = globalThis) {
       animacy = ""
     } = {}) {
       const analogueInput = parseOrdinaryNncPredicateFormulaInput(stem);
+      const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(stem);
       const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || analogueInput?.nounClass || "");
-      const normalizedStem = analogueInput?.stem || normalizeOrdinaryNncText(stem).replace(/[()]/g, "");
+      const normalizedStem = analogueInput?.stem || (hasLegacyFormulaString ? "" : normalizeOrdinaryNncText(stem).replace(/[()]/g, ""));
       const fixture = findOrdinaryNncFixture(normalizedStem) || buildOrdinaryNncOpenStemFixture(normalizedStem, {
         nounClass: requestedNounClass,
         animacy
@@ -3716,6 +6606,1313 @@ export function createNncModule(targetObject = globalThis) {
     function generateOrdinaryNncClause(request = {}) {
       return generateOrdinaryNncParadigm(request);
     }
+    function getOrdinaryNncFormulaWorkbenchSlotValue(slot = null, formulaSlots = {}) {
+      if (!slot || typeof slot !== "object") {
+        return "";
+      }
+      if (typeof targetObject.getAndrewsFormulaEchoSlotValue === "function") {
+        return targetObject.getAndrewsFormulaEchoSlotValue(slot, formulaSlots);
+      }
+      if (slot.key === "predicateStem" || slot.id === "STEM") {
+        return String(formulaSlots?.predicateStem?.stem || "");
+      }
+      if (slot.key === "pers1Pers2" || slot.id === "pers1-pers2") {
+        const subject = formulaSlots?.pers1Pers2 || {};
+        return `${subject.displayPrefix || subject.prefix || "Ø"}-${subject.displaySuffix || subject.suffix || "Ø"}`;
+      }
+      if (slot.key === "num1Num2" || slot.id === "num1-num2") {
+        const connector = formulaSlots?.num1Num2 || {};
+        return connector.displayConnector || connector.connector || connector.surface || "Ø";
+      }
+      return slot.token || "";
+    }
+    function buildOrdinaryNncFormulaWorkbenchSlotRecords(schema = null, formulaSlots = {}) {
+      const slots = Array.isArray(schema?.slots) ? schema.slots : [];
+      return slots.map(slot => {
+        const value = getOrdinaryNncFormulaWorkbenchSlotValue(slot, formulaSlots);
+        const sourceSlot = formulaSlots?.[slot.key] || formulaSlots?.[slot.id] || formulaSlots?.[slot.path] || {};
+        const compactValue = slot.key === "num1Num2" || slot.id === "num1-num2" ? String(sourceSlot.compactDisplay || sourceSlot.connector || sourceSlot.surface || "Ø") : value;
+        const missing = slot.requiredForEcho === true && !String(value || "").trim();
+        return {
+          id: slot.id || "",
+          key: slot.key || "",
+          label: slot.label || "",
+          role: slot.role || "",
+          owner: slot.owner || "",
+          path: slot.path || "",
+          boundary: slot.boundary || "",
+          layer: slot.layer || "",
+          position: slot.position || "",
+          token: typeof targetObject.renderAndrewsFormulaSlotTemplate === "function" ? targetObject.renderAndrewsFormulaSlotTemplate(slot) : slot.wrapper === "parentheses" ? `(${slot.token || ""})` : slot.token || "",
+          value,
+          compactValue,
+          renderedValue: missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${value})` : value}${slot.trailing || ""}`,
+          compactRenderedValue: missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${compactValue})` : compactValue}${slot.trailing || ""}`,
+          status: missing ? "missing" : slot.role === "nuclear-boundary" ? "structural" : "resolved",
+          blockedInterpretations: Array.isArray(slot.blockedInterpretations) ? Array.from(slot.blockedInterpretations) : []
+        };
+      });
+    }
+    function normalizeOrdinaryNncFormulaWorkbenchInput(value = "") {
+      const rawInput = String(value || "").trim();
+      const analogueInput = parseOrdinaryNncPredicateFormulaInput(rawInput);
+      const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(rawInput);
+      const normalizedStem = analogueInput?.stem || (hasLegacyFormulaString ? "" : normalizeOrdinaryNncText(rawInput).replace(/[()#]/g, ""));
+      return {
+        rawInput,
+        stem: normalizedStem,
+        nounClass: normalizeOrdinaryNncNum1Num2Class(analogueInput?.nounClass || "") || "",
+        predicateFormula: analogueInput?.predicateFormula || ""
+      };
+    }
+    function buildOrdinaryNncFormulaWorkbenchExample({
+      id = "",
+      label = "",
+      request = {}
+    } = {}) {
+      const result = generateOrdinaryNncParadigm(request);
+      const formulaSlots = result?.clauseFrame?.formulaSlots || null;
+      const connector = formulaSlots?.num1Num2 || result?.clauseFrame?.subject?.numberConnector || null;
+      return {
+        id: String(id || request.stem || ""),
+        label: String(label || request.stem || ""),
+        stem: result?.stem || request.stem || "",
+        nounClass: result?.nounClass || request.nounClass || "",
+        number: result?.number || request.number || "singular",
+        pluralType: result?.pluralType || request.pluralType || "",
+        supported: result?.supported === true,
+        status: result?.supported === true ? "generated" : "unsupported",
+        fullFormulaEcho: result?.clauseFrame?.fullFormulaEcho || (formulaSlots ? buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots) : ""),
+        compactFormulaEcho: result?.clauseFrame?.compactFormulaEcho || result?.clauseFrame?.formulaEcho || (formulaSlots ? buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots) : ""),
+        surface: result?.result || "",
+        surfaceForms: Array.isArray(result?.surfaceForms) ? Array.from(result.surfaceForms) : [],
+        connectorDyad: connector?.displayDyad || "",
+        connectorCompact: connector?.compactDisplay || connector?.connector || "",
+        diagnostics: Array.isArray(result?.diagnostics) ? result.diagnostics : []
+      };
+    }
+    function buildOrdinaryNncFormulaWorkbenchExamples() {
+      return [buildOrdinaryNncFormulaWorkbenchExample({
+        id: "zero-common-kal",
+        label: "zero/common",
+        request: {
+          stem: "kal",
+          state: "absolutive",
+          number: "singular"
+        }
+      }), buildOrdinaryNncFormulaWorkbenchExample({
+        id: "t-class-siwa",
+        label: "t class",
+        request: {
+          stem: "siwa",
+          state: "absolutive",
+          nounClass: "t",
+          number: "singular"
+        }
+      }), buildOrdinaryNncFormulaWorkbenchExample({
+        id: "ti-class-xilun",
+        label: "ti class",
+        request: {
+          stem: "xilun",
+          state: "absolutive",
+          nounClass: "ti",
+          number: "singular"
+        }
+      }), buildOrdinaryNncFormulaWorkbenchExample({
+        id: "in-class-tekpan",
+        label: "in class",
+        request: {
+          stem: "tekpan",
+          state: "absolutive",
+          nounClass: "in",
+          number: "singular"
+        }
+      }), buildOrdinaryNncFormulaWorkbenchExample({
+        id: "animate-count-mistun",
+        label: "animate plural count",
+        request: {
+          stem: "mistun",
+          state: "absolutive",
+          number: "plural",
+          pluralType: "count"
+        }
+      })];
+    }
+    function buildOrdinaryNncFormulaWorkbenchSlice({
+      inputValue = "",
+      state = ORDINARY_NNC_STATE.absolutive,
+      number = "singular",
+      pluralType = ORDINARY_NNC_PLURAL_TYPE.auto,
+      subject = null,
+      nounClass = "",
+      animacy = ""
+    } = {}) {
+      const schema = getOrdinaryNncFormulaSchema();
+      const parsedInput = normalizeOrdinaryNncFormulaWorkbenchInput(inputValue);
+      const resolvedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || parsedInput.nounClass || "") || "";
+      const normalizedState = normalizeOrdinaryNncState(state);
+      const normalizedNumber = normalizeOrdinaryNncNumber(number);
+      const formula = renderOrdinaryNncFormulaTemplate();
+      const baseFormulaSlots = buildOrdinaryNncFormulaSlots({
+        stem: parsedInput.stem,
+        state: normalizedState,
+        number: normalizedNumber,
+        pluralType,
+        subject,
+        nounClass: resolvedNounClass
+      });
+      const sourceRequirementCheck = typeof targetObject.evaluateAndrewsFormulaSourceRequirements === "function" ? targetObject.evaluateAndrewsFormulaSourceRequirements("ordinary-nnc-shell", {
+        inputValue: parsedInput.stem,
+        slotValues: baseFormulaSlots,
+        sourceValues: {
+          predicateStem: parsedInput.stem,
+          "predicate.stem": parsedInput.stem,
+          STEM: parsedInput.stem
+        }
+      }) : {
+        ok: Boolean(parsedInput.stem),
+        diagnostics: parsedInput.stem ? [] : [{
+          id: "ordinary-nnc-missing-predicate-stem",
+          severity: "blocked",
+          message: "Ordinary NNC/S requires a predicate nounstem inside the parentheses."
+        }],
+        generationContract: schema?.generationContract || null,
+        sourceRequirements: schema?.sourceRequirements || [],
+        missingRequirements: parsedInput.stem ? [] : [{
+          id: "ordinary-nnc-predicate-stem"
+        }],
+        satisfiedRequirements: parsedInput.stem ? [{
+          id: "ordinary-nnc-predicate-stem"
+        }] : []
+      };
+      const formulaAuthority = typeof targetObject.evaluateAndrewsFormulaGenerationAuthority === "function" ? targetObject.evaluateAndrewsFormulaGenerationAuthority("ordinary-nnc-shell", {
+        inputValue: parsedInput.stem,
+        slotValues: baseFormulaSlots,
+        sourceValues: {
+          predicateStem: parsedInput.stem,
+          "predicate.stem": parsedInput.stem,
+          STEM: parsedInput.stem
+        }
+      }) : {
+        ok: Boolean(parsedInput.stem && sourceRequirementCheck.ok),
+        allowed: Boolean(parsedInput.stem && sourceRequirementCheck.ok),
+        gate: parsedInput.stem && sourceRequirementCheck.ok ? "andrews-formula-authorized-generation" : "andrews-formula-generation-blocked",
+        status: parsedInput.stem && sourceRequirementCheck.ok ? "generated" : "blocked",
+        authority: "Andrews PDF",
+        logicAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil orthography bridge",
+        orthographyBoundary: "orthography-realization",
+        spellingEvidenceRole: "spelling-realization-only",
+        classicalSurfaceImport: "blocked",
+        blockedReasons: parsedInput.stem && sourceRequirementCheck.ok ? [] : ["formula-source-requirement-missing"],
+        generationContract: sourceRequirementCheck.generationContract || null
+      };
+      const result = parsedInput.stem ? generateOrdinaryNncParadigm({
+        stem: parsedInput.stem,
+        state: normalizedState,
+        subject,
+        number: normalizedNumber,
+        pluralType,
+        nounClass: resolvedNounClass,
+        animacy
+      }) : null;
+      const formulaSlots = result?.clauseFrame?.formulaSlots || baseFormulaSlots;
+      const slotRecords = buildOrdinaryNncFormulaWorkbenchSlotRecords(schema, formulaSlots);
+      const compactFormulaEcho = result?.clauseFrame?.compactFormulaEcho || result?.clauseFrame?.formulaEcho || buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots) || "";
+      const fullFormulaEcho = result?.clauseFrame?.fullFormulaEcho || buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots) || "";
+      const slotBlockDiagnostics = ["tense", "stem-suffix"].map(interpretation => typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation("ordinary-nnc-shell", "num1-num2", interpretation).diagnostic : null).filter(Boolean);
+      const resultDiagnostics = Array.isArray(result?.diagnostics) ? result.diagnostics : [];
+      const generationAllowed = Boolean(formulaAuthority.allowed && result?.supported === true);
+      const generationStatus = !parsedInput.stem ? "blocked" : generationAllowed ? "generated" : "unsupported";
+      return {
+        kind: "ordinary-nnc-formula-workbench-slice",
+        version: 1,
+        formulaSchemaId: schema?.id || "ordinary-nnc-shell",
+        formulaSchemaVersion: schema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula,
+        formulaEcho: compactFormulaEcho,
+        compactFormulaEcho,
+        fullFormulaEcho,
+        hasTensePosition: schema?.hasTensePosition === true,
+        sourceMaterial: {
+          rawInput: parsedInput.rawInput,
+          stem: parsedInput.stem,
+          nounClass: resolvedNounClass || result?.nounClass || "",
+          sourceKind: result?.source?.sourceKind || (parsedInput.stem ? "open-stem-or-fixture" : ""),
+          fixtureId: result?.source?.fixtureId || ""
+        },
+        sourceRequirements: sourceRequirementCheck.sourceRequirements || [],
+        missingRequirements: sourceRequirementCheck.missingRequirements || [],
+        satisfiedRequirements: sourceRequirementCheck.satisfiedRequirements || [],
+        parsedSlots: slotRecords,
+        examples: buildOrdinaryNncFormulaWorkbenchExamples(),
+        evidenceRefs: [...(Array.isArray(schema?.evidenceRefs) ? schema.evidenceRefs : []), ...(Array.isArray(result?.source?.sourceRefs) ? result.source.sourceRefs : [])].filter(Boolean),
+        generation: {
+          allowed: generationAllowed,
+          status: generationStatus,
+          formulaAuthorityAllowed: formulaAuthority.allowed === true,
+          formulaAuthorityGate: formulaAuthority.gate || "",
+          formulaAuthorityStatus: formulaAuthority.status || "",
+          logicAuthority: formulaAuthority.logicAuthority || formulaAuthority.authority || "Andrews PDF",
+          orthographyAuthority: formulaAuthority.orthographyAuthority || "Nawat/Pipil orthography bridge",
+          orthographyBoundary: formulaAuthority.orthographyBoundary || "orthography-realization",
+          spellingEvidenceRole: formulaAuthority.spellingEvidenceRole || "spelling-realization-only",
+          classicalSurfaceImport: formulaAuthority.classicalSurfaceImport || "blocked",
+          formulaAuthorityBlockedReasons: Array.isArray(formulaAuthority.blockedReasons) ? Array.from(formulaAuthority.blockedReasons) : [],
+          routeFamily: sourceRequirementCheck.generationContract?.routeFamily || "ordinary-nnc",
+          routeStage: sourceRequirementCheck.generationContract?.routeStage || "formula-workbench",
+          outputPolicy: sourceRequirementCheck.generationContract?.outputPolicy || "",
+          surface: result?.result || "",
+          surfaceForms: Array.isArray(result?.surfaceForms) ? Array.from(result.surfaceForms) : [],
+          sourceKind: result?.source?.sourceKind || ""
+        },
+        diagnostics: [...(Array.isArray(sourceRequirementCheck.diagnostics) ? sourceRequirementCheck.diagnostics : []), ...resultDiagnostics, ...slotBlockDiagnostics]
+      };
+    }
+    const POSSESSIVE_STATE_NNC_SPECIFIC_POSSESSOR_SPECS = Object.freeze({
+      nu: Object.freeze({
+        id: "1sg",
+        personSubKey: "1sg",
+        andrewsStructural: "n-o",
+        nawatFormula: "n-u",
+        nawatRealization: "nu",
+        gloss: "my",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      }),
+      tu: Object.freeze({
+        id: "1pl",
+        personSubKey: "1pl",
+        andrewsStructural: "t-o",
+        nawatFormula: "t-u",
+        nawatRealization: "tu",
+        gloss: "our",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      }),
+      mu: Object.freeze({
+        id: "2sg",
+        personSubKey: "2sg",
+        andrewsStructural: "m-o",
+        nawatFormula: "m-u",
+        nawatRealization: "mu",
+        gloss: "your (sg)",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      }),
+      anmu: Object.freeze({
+        id: "2pl",
+        personSubKey: "2pl",
+        andrewsStructural: "am-o",
+        nawatFormula: "an-mu",
+        nawatRealization: "anmu",
+        gloss: "your (pl)",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      }),
+      i: Object.freeze({
+        id: "3sg",
+        personSubKey: "3sg",
+        andrewsStructural: "i-0",
+        nawatFormula: "i-Ø",
+        nawatRealization: "i",
+        gloss: "his/her/its",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      }),
+      in: Object.freeze({
+        id: "3pl",
+        personSubKey: "3pl",
+        andrewsStructural: "i-n",
+        nawatFormula: "i-n",
+        nawatRealization: "in",
+        gloss: "their",
+        source: "Andrews 13.6 + current Nawat possessor prefix"
+      })
+    });
+    const POSSESSIVE_STATE_NNC_MONADIC_POSSESSOR_SPECS = Object.freeze({
+      te: Object.freeze({
+        id: "human-nonspecific",
+        andrewsStructural: "te",
+        nawatRealization: "te",
+        gloss: "someone's",
+        source: "Andrews 13.4",
+        status: "andrews-logic-generated"
+      }),
+      ta: Object.freeze({
+        id: "nonhuman-nonspecific",
+        andrewsStructural: "tla",
+        nawatRealization: "ta",
+        gloss: "something's",
+        source: "Andrews 13.4; Classical tla maps structurally to Nawat ta",
+        status: "andrews-logic-generated"
+      }),
+      ne: Object.freeze({
+        id: "reciprocative",
+        andrewsStructural: "ne",
+        nawatRealization: "ne",
+        gloss: "one another's",
+        source: "Andrews 13.4",
+        status: "andrews-logic-generated"
+      })
+    });
+    function getPossessiveStateNncFormulaSchema() {
+      return typeof targetObject.getAndrewsFormulaSlotSchema === "function" ? targetObject.getAndrewsFormulaSlotSchema("possessive-state-nnc") : null;
+    }
+    function getPossessiveStateNncFormulaSlotDefinition(slotId = "") {
+      return typeof targetObject.getAndrewsFormulaSlotDefinition === "function" ? targetObject.getAndrewsFormulaSlotDefinition("possessive-state-nnc", slotId) : null;
+    }
+    function normalizePossessiveStateNncWorkbenchInput(value = "") {
+      const rawInput = String(value || "").trim();
+      const normalizedStem = normalizeOrdinaryNncText(rawInput).replace(/[()#]/g, "");
+      return {
+        rawInput,
+        stem: normalizedStem
+      };
+    }
+    function getPossessiveStateNncSpecificPossessorSpec(prefix = "nu") {
+      const normalized = String(prefix || "nu").trim();
+      return POSSESSIVE_STATE_NNC_SPECIFIC_POSSESSOR_SPECS[normalized] || POSSESSIVE_STATE_NNC_SPECIFIC_POSSESSOR_SPECS.nu;
+    }
+    function getPossessiveStateNncMonadicPossessorSpec(key = "te") {
+      const normalized = String(key || "te").trim();
+      return POSSESSIVE_STATE_NNC_MONADIC_POSSESSOR_SPECS[normalized] || POSSESSIVE_STATE_NNC_MONADIC_POSSESSOR_SPECS.te;
+    }
+    function buildPossessiveStateNncStateSlot({
+      kind = "specific",
+      possessor = "nu"
+    } = {}) {
+      const schema = getPossessiveStateNncFormulaSchema();
+      const slotDefinition = getPossessiveStateNncFormulaSlotDefinition("st1-st2") || {};
+      const isMonadic = String(kind || "") === "monadic";
+      const spec = isMonadic ? getPossessiveStateNncMonadicPossessorSpec(possessor) : getPossessiveStateNncSpecificPossessorSpec(possessor);
+      const structuralDisplay = spec.andrewsStructural || "";
+      const nawatFormulaDisplay = spec.nawatFormula || spec.nawatDisplay || spec.nawatRealization || structuralDisplay;
+      const compactDisplay = spec.nawatRealization || nawatFormulaDisplay;
+      return {
+        role: slotDefinition.role || "possessive-state",
+        formulaSchemaId: schema?.id || "possessive-state-nnc",
+        formulaSlot: isMonadic ? "st" : slotDefinition.id || "st1-st2",
+        slot: slotDefinition.path || "predicate.state.st1-st2",
+        owner: slotDefinition.owner || "predicate",
+        belongsTo: slotDefinition.owner || "predicate",
+        statePosition: isMonadic ? "monadic" : "dyadic",
+        stateSlot: isMonadic ? "st" : "st1-st2",
+        possessorKind: isMonadic ? "nonspecific-monadic" : "specific-dyadic",
+        possessorId: spec.id || "",
+        possessorPrefix: isMonadic ? "" : compactDisplay,
+        andrewsStructural: structuralDisplay,
+        structuralDisplay,
+        display: structuralDisplay,
+        value: structuralDisplay,
+        nawatRealization: nawatFormulaDisplay,
+        nawatDisplay: nawatFormulaDisplay,
+        compactDisplay,
+        surface: compactDisplay,
+        gloss: spec.gloss || "",
+        evidenceSource: spec.source || "",
+        spellingAuthority: "Nawat/Pipil orthography bridge",
+        classicalStructuralOnly: true,
+        noClassicalSurfaceImport: true,
+        generationStatus: isMonadic ? spec.status || "source-gated" : "generated",
+        blockedInterpretations: Array.isArray(slotDefinition.blockedInterpretations) ? Array.from(slotDefinition.blockedInterpretations) : ["subject-connector", "tense"],
+        notSubjectConnector: true,
+        notSubjectNumber: true,
+        notTense: true
+      };
+    }
+    function buildPossessiveStateNncFormulaSlots({
+      stem = "",
+      subject = null,
+      number = "singular",
+      pluralType = "",
+      nounClass = "zero",
+      possessorKind = "specific",
+      possessor = "nu"
+    } = {}) {
+      const subjectSlotDefinition = getPossessiveStateNncFormulaSlotDefinition("pers1-pers2") || {};
+      const predicateSlotDefinition = getPossessiveStateNncFormulaSlotDefinition("STEM") || {};
+      const connectorSlotDefinition = getPossessiveStateNncFormulaSlotDefinition("num1-num2") || {};
+      const connector = buildOrdinaryNncNum1Num2({
+        nounClass,
+        state: ORDINARY_NNC_STATE.possessive,
+        number,
+        pluralType
+      });
+      return {
+        pers1Pers2: {
+          role: subjectSlotDefinition.role || "subject-person",
+          slot: subjectSlotDefinition.id || "pers1-pers2",
+          prefix: String(subject?.subjectPrefix || ""),
+          suffix: String(subject?.subjectSuffix || ""),
+          displayPrefix: String(subject?.subjectPrefix || "") || "Ø",
+          displaySuffix: String(subject?.subjectSuffix || "") || "Ø",
+          label: String(subject?.personSubKey || "3sg")
+        },
+        possessiveState: buildPossessiveStateNncStateSlot({
+          kind: possessorKind,
+          possessor
+        }),
+        predicateStem: {
+          role: "predicate",
+          slot: predicateSlotDefinition.id || "STEM",
+          stem,
+          state: ORDINARY_NNC_STATE.possessive
+        },
+        num1Num2: {
+          role: connectorSlotDefinition.role || "subject-number-connector",
+          slot: connectorSlotDefinition.id || "num1-num2",
+          nounClass: connector.nounStemClass,
+          connector: connector.displaySurface,
+          surface: connector.surface,
+          compactDisplay: connector.compactDisplay,
+          compactSurface: connector.compactSurface,
+          num1: connector.num1,
+          num2: connector.num2,
+          displayNum1: connector.displayNum1,
+          displayNum2: connector.displayNum2,
+          displayDyad: connector.displayDyad,
+          dyadSource: connector.dyadSource,
+          label: "subject number connector",
+          belongsTo: connector.belongsTo,
+          referenceNumber: connector.referenceNumber,
+          pluralType: connector.pluralType,
+          blockedInterpretations: Array.isArray(connectorSlotDefinition.blockedInterpretations) ? Array.from(connectorSlotDefinition.blockedInterpretations) : ["tense", "stem-suffix", "nounstem", "predicate-state"],
+          notPossessiveState: true,
+          notTense: true
+        }
+      };
+    }
+    function getPossessiveStateNncFormulaSlotStateToken(formulaSlots = null) {
+      return formulaSlots?.possessiveState?.statePosition === "monadic" ? "st" : "st1-st2";
+    }
+    function renderPossessiveStateNncFormulaTemplate(formulaSlots = null) {
+      if (typeof targetObject.renderAndrewsFormulaTemplate !== "function") {
+        return "";
+      }
+      return targetObject.renderAndrewsFormulaTemplate("possessive-state-nnc", {
+        slotTokens: {
+          possessiveState: getPossessiveStateNncFormulaSlotStateToken(formulaSlots)
+        }
+      });
+    }
+    function buildPossessiveStateNncFormulaEchoFromSlots(formulaSlots = null, {
+      mode = "structural",
+      expanded = true
+    } = {}) {
+      if (!formulaSlots || typeof formulaSlots !== "object") {
+        return "";
+      }
+      const stateSlot = formulaSlots.possessiveState || {};
+      const displayState = mode === "compact" ? stateSlot.compactDisplay || stateSlot.surface || stateSlot.nawatDisplay || stateSlot.nawatRealization || stateSlot.display || "" : mode === "nawat" ? stateSlot.nawatDisplay || stateSlot.nawatRealization || stateSlot.compactDisplay || stateSlot.display || "" : stateSlot.structuralDisplay || stateSlot.andrewsStructural || stateSlot.display || "";
+      const numberConnector = formulaSlots.num1Num2 || {};
+      const compactConnector = numberConnector.compactDisplay || numberConnector.connector || numberConnector.surface || "Ø";
+      const renderedNumberConnector = expanded ? {
+        displayDyad: numberConnector.displayDyad || `${formatOrdinaryNncFormulaDyadSegment(numberConnector.num1)}-${formatOrdinaryNncFormulaDyadSegment(numberConnector.num2)}`,
+        displayConnector: compactConnector
+      } : {
+        displayConnector: compactConnector
+      };
+      const echoSlots = {
+        ...formulaSlots,
+        possessiveState: {
+          ...stateSlot,
+          display: displayState,
+          value: displayState,
+          surface: displayState
+        },
+        num1Num2: renderedNumberConnector
+      };
+      if (typeof targetObject.renderAndrewsFormulaEchoFromSchema === "function") {
+        return targetObject.renderAndrewsFormulaEchoFromSchema("possessive-state-nnc", echoSlots);
+      }
+      const subject = formulaSlots.pers1Pers2 || {};
+      const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
+      const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
+      const stem = String(formulaSlots.predicateStem?.stem || "");
+      const connector = expanded ? renderedNumberConnector.displayDyad : renderedNumberConnector.displayConnector;
+      return stem ? `#${prefix}-${suffix}+${displayState}(${stem})${connector}#` : "";
+    }
+    function buildPossessiveStateNncFormulaWorkbenchSlotRecords(schema = null, formulaSlots = {}) {
+      const slots = Array.isArray(schema?.slots) ? schema.slots : [];
+      return slots.map(slot => {
+        const sourceSlot = formulaSlots?.[slot.key] || formulaSlots?.[slot.id] || formulaSlots?.[slot.path] || {};
+        const structuralValue = slot.key === "possessiveState" ? String(sourceSlot.structuralDisplay || sourceSlot.andrewsStructural || sourceSlot.display || "") : getOrdinaryNncFormulaWorkbenchSlotValue(slot, formulaSlots);
+        const nawatValue = slot.key === "possessiveState" ? String(sourceSlot.nawatDisplay || sourceSlot.nawatRealization || sourceSlot.compactDisplay || structuralValue) : slot.key === "num1Num2" || slot.id === "num1-num2" ? String(sourceSlot.displayDyad || structuralValue || "Ø") : structuralValue;
+        const compactValue = slot.key === "num1Num2" || slot.id === "num1-num2" ? String(sourceSlot.compactDisplay || sourceSlot.connector || sourceSlot.surface || "Ø") : slot.key === "possessiveState" ? String(sourceSlot.compactDisplay || nawatValue || structuralValue) : structuralValue;
+        const missing = slot.requiredForEcho === true && !String(structuralValue || "").trim();
+        const renderedValue = missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${structuralValue})` : structuralValue}${slot.trailing || ""}`;
+        return {
+          id: slot.id || "",
+          key: slot.key || "",
+          label: slot.label || "",
+          role: slot.role || "",
+          owner: slot.owner || "",
+          path: slot.path || "",
+          boundary: slot.boundary || "",
+          layer: slot.layer || "",
+          position: slot.position || "",
+          token: slot.key === "possessiveState" ? sourceSlot.stateSlot || slot.token || slot.id || "" : typeof targetObject.renderAndrewsFormulaSlotTemplate === "function" ? targetObject.renderAndrewsFormulaSlotTemplate(slot) : slot.wrapper === "parentheses" ? `(${slot.token || ""})` : slot.token || "",
+          value: structuralValue,
+          structuralValue,
+          nawatValue,
+          compactValue,
+          renderedValue,
+          compactRenderedValue: missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${compactValue})` : compactValue}${slot.trailing || ""}`,
+          status: missing ? "missing" : slot.role === "nuclear-boundary" ? "structural" : "resolved",
+          modelFields: [{
+            label: "owner",
+            value: slot.owner || ""
+          }, {
+            label: "path",
+            value: slot.path || ""
+          }, ...(slot.key === "possessiveState" ? [{
+            label: "Andrews",
+            value: structuralValue
+          }, {
+            label: "Nawat",
+            value: nawatValue
+          }, {
+            label: "position",
+            value: sourceSlot.statePosition || ""
+          }] : []), ...(slot.key === "num1Num2" ? [{
+            label: "dyad",
+            value: structuralValue
+          }, {
+            label: "not",
+            value: "tense/state"
+          }] : [])].filter(entry => entry.value),
+          blockedInterpretations: Array.isArray(slot.blockedInterpretations) ? Array.from(slot.blockedInterpretations) : []
+        };
+      });
+    }
+    function getPossessiveStateNncMonadicSourceSignature(formulaSlots = null) {
+      const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : {};
+      return JSON.stringify({
+        stem: String(slots.predicateStem?.stem || ""),
+        statePosition: String(slots.possessiveState?.statePosition || ""),
+        stateSlot: String(slots.possessiveState?.stateSlot || ""),
+        compactDisplay: String(slots.possessiveState?.compactDisplay || slots.possessiveState?.surface || ""),
+        connector: String(slots.num1Num2?.compactDisplay || slots.num1Num2?.connector || slots.num1Num2?.surface || "")
+      });
+    }
+    function buildPossessiveStateNncMonadicSourceFrame({
+      formulaSlots = null
+    } = {}) {
+      const slots = formulaSlots && typeof formulaSlots === "object" ? formulaSlots : null;
+      const stem = normalizeOrdinaryNncText(slots?.predicateStem?.stem || "").replace(/[()#]/g, "");
+      const stateSlot = slots?.possessiveState || null;
+      const stateSurface = String(stateSlot?.compactDisplay || stateSlot?.surface || stateSlot?.nawatRealization || "").trim();
+      if (!slots || !stem || stateSlot?.statePosition !== "monadic" || !stateSurface) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "possessive-state-nnc-monadic-source-frame",
+        version: 1,
+        formulaSchemaId: "possessive-state-nnc",
+        routeFamily: "possessive-state-nnc",
+        routeStage: "monadic-state-realization",
+        formulaSlots: slots,
+        predicateStem: stem,
+        stateSlot: stateSlot.stateSlot || "st",
+        stateSurface,
+        sourceSignature: getPossessiveStateNncMonadicSourceSignature(slots),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil orthography bridge"
+      });
+    }
+    function buildPossessiveStateNncMonadicOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "possessive-state-nnc-monadic-source-frame") {
+        return null;
+      }
+      const stateSurface = String(sourceFrame.stateSurface || "");
+      const predicateStem = String(sourceFrame.predicateStem || "");
+      if (!stateSurface || !predicateStem) {
+        return null;
+      }
+      const targetFrame = Object.freeze({
+        kind: "possessive-state-nnc-monadic-target-frame",
+        surface: `${stateSurface}${predicateStem}`,
+        segmentFrames: Object.freeze([Object.freeze({
+          role: "predicate-state",
+          slot: "possessiveState",
+          surface: stateSurface,
+          formulaValue: sourceFrame.stateSlot || "st"
+        }), Object.freeze({
+          role: "predicate",
+          slot: "STEM",
+          surface: predicateStem,
+          formulaValue: predicateStem
+        })])
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "possessive-state-nnc-monadic-realization",
+        family: "possessive-state-nnc",
+        routeFamily: "possessive-state-nnc",
+        routeStage: "monadic-state-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature || "",
+        targetFrame,
+        operationApplied: "realize-monadic-possessive-state-from-formula-frame",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPossessiveStateNncMonadicFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "possessive-state-nnc-monadic-source-frame") {
+        return "possessive-state-nnc-monadic-source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "possessive-state-nnc-monadic-realization" || operationFrame.routeFamily !== "possessive-state-nnc" || operationFrame.operationApplied !== "realize-monadic-possessive-state-from-formula-frame" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "possessive-state-nnc-monadic-operation-frame-required";
+      }
+      if (String(operationFrame.sourceSignature || "") !== String(sourceFrame.sourceSignature || "")) {
+        return "possessive-state-nnc-monadic-contradictory-source-frame";
+      }
+      const expectedSurface = `${sourceFrame.stateSurface || ""}${sourceFrame.predicateStem || ""}`;
+      if (String(operationFrame.targetFrame?.surface || "") !== expectedSurface) {
+        return "possessive-state-nnc-monadic-contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPossessiveStateNncFormulaWorkbenchExample({
+      id = "",
+      label = "",
+      stem = "kal",
+      possessorKind = "specific",
+      possessor = "nu",
+      number = "singular",
+      nounClass = "zero",
+      formulaSlots: sourceFormulaSlots = null,
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "") || "kal";
+      const normalizedKind = possessorKind === "monadic" ? "monadic" : "specific";
+      const formulaSlots = sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : normalizedKind === "specific" ? buildPossessiveStateNncFormulaSlots({
+        stem: normalizedStem,
+        number,
+        nounClass,
+        possessorKind: normalizedKind,
+        possessor
+      }) : null;
+      const structuralFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(formulaSlots, {
+        mode: "structural",
+        expanded: true
+      });
+      const nawatFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(formulaSlots, {
+        mode: "nawat",
+        expanded: true
+      });
+      const compactFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(formulaSlots, {
+        mode: "compact",
+        expanded: false
+      });
+      const result = normalizedKind === "specific" ? generateOrdinaryNncParadigm({
+        stem: normalizedStem,
+        state: ORDINARY_NNC_STATE.possessive,
+        possessor,
+        number,
+        nounClass
+      }) : null;
+      const resolvedSourceFrame = normalizedKind === "monadic" ? sourceFrame || buildPossessiveStateNncMonadicSourceFrame({
+        formulaSlots
+      }) : null;
+      const resolvedOperationFrame = normalizedKind === "monadic" ? operationFrame || buildPossessiveStateNncMonadicOperationFrame(resolvedSourceFrame) : null;
+      const monadicMismatch = normalizedKind === "monadic" ? getPossessiveStateNncMonadicFrameMismatch({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame: resolvedOperationFrame
+      }) : "";
+      const monadicSurface = normalizedKind === "monadic" && !monadicMismatch ? String(resolvedOperationFrame?.targetFrame?.surface || "") : "";
+      const supported = normalizedKind === "specific" ? result?.supported === true : Boolean(monadicSurface);
+      const surface = normalizedKind === "specific" ? supported ? result?.result || "" : "" : monadicSurface;
+      const surfaceForms = normalizedKind === "specific" ? supported && Array.isArray(result?.surfaceForms) ? Array.from(result.surfaceForms) : [] : monadicSurface ? [monadicSurface] : [];
+      const monadicDiagnostic = (() => {
+        if (normalizedKind !== "monadic" || !monadicMismatch) {
+          return null;
+        }
+        if (monadicMismatch.includes("operation")) {
+          return buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.possessiveStateMonadicMissingOperationFrame, monadicMismatch);
+        }
+        if (monadicMismatch.includes("contradictory")) {
+          return buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.possessiveStateMonadicContradictoryFrame, monadicMismatch);
+        }
+        return buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.possessiveStateMonadicMissingSourceFrame, monadicMismatch);
+      })();
+      return {
+        id: String(id || `${normalizedKind}-${possessor}-${normalizedStem}`),
+        label: String(label || (normalizedKind === "specific" ? "specific possessor" : "monadic possessor")),
+        stem: normalizedKind === "monadic" ? String(formulaSlots?.predicateStem?.stem || normalizedStem) : normalizedStem,
+        state: ORDINARY_NNC_STATE.possessive,
+        statePosition: formulaSlots?.possessiveState?.statePosition || normalizedKind,
+        possessorKind: formulaSlots?.possessiveState?.possessorKind || normalizedKind,
+        possessor,
+        formulaTemplate: renderPossessiveStateNncFormulaTemplate(formulaSlots),
+        structuralFormulaEcho,
+        fullFormulaEcho: structuralFormulaEcho,
+        nawatFormulaEcho,
+        compactFormulaEcho,
+        surface,
+        surfaceForms,
+        supported,
+        status: supported ? normalizedKind === "monadic" ? "andrews-logic-generated" : "generated" : "blocked",
+        formulaSlots,
+        slotModel: {
+          possessiveState: formulaSlots?.possessiveState || null,
+          num1Num2: formulaSlots?.num1Num2 || null
+        },
+        sourceFrame: resolvedSourceFrame,
+        operationFrame: resolvedOperationFrame,
+        diagnostics: monadicDiagnostic ? [monadicDiagnostic] : []
+      };
+    }
+    function buildPossessiveStateNncFormulaWorkbenchExamples(stem = "kal") {
+      const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "") || "kal";
+      const monadicFormulaSlots = buildPossessiveStateNncFormulaSlots({
+        stem: normalizedStem,
+        possessorKind: "monadic",
+        possessor: "te"
+      });
+      return [buildPossessiveStateNncFormulaWorkbenchExample({
+        id: "specific-1sg-nu-kal",
+        label: "specific 1sg",
+        stem: normalizedStem,
+        possessorKind: "specific",
+        possessor: "nu"
+      }), buildPossessiveStateNncFormulaWorkbenchExample({
+        id: "monadic-human-te-kal",
+        label: "monadic nonspecific",
+        stem: "display-stem-ignored",
+        possessorKind: "monadic",
+        possessor: "te",
+        formulaSlots: monadicFormulaSlots
+      })];
+    }
+    function buildPossessiveStateNncFormulaWorkbenchSlice({
+      inputValue = "",
+      possessor = "nu"
+    } = {}) {
+      const schema = getPossessiveStateNncFormulaSchema();
+      const parsedInput = normalizePossessiveStateNncWorkbenchInput(inputValue);
+      const normalizedStem = parsedInput.stem;
+      const formulaSlots = buildPossessiveStateNncFormulaSlots({
+        stem: normalizedStem,
+        possessorKind: "specific",
+        possessor
+      });
+      const sourceRequirementCheck = typeof targetObject.evaluateAndrewsFormulaSourceRequirements === "function" ? targetObject.evaluateAndrewsFormulaSourceRequirements("possessive-state-nnc", {
+        inputValue: normalizedStem,
+        slotValues: formulaSlots,
+        sourceValues: {
+          predicateStem: normalizedStem,
+          "predicate.stem": normalizedStem,
+          STEM: normalizedStem
+        }
+      }) : {
+        ok: Boolean(normalizedStem),
+        diagnostics: normalizedStem ? [] : [{
+          id: "possessive-nnc-missing-predicate-stem",
+          severity: "blocked",
+          message: "Possessive-state NNC requires a predicate nounstem inside the parentheses."
+        }],
+        generationContract: schema?.generationContract || null,
+        sourceRequirements: schema?.sourceRequirements || [],
+        missingRequirements: normalizedStem ? [] : [{
+          id: "possessive-nnc-predicate-stem"
+        }],
+        satisfiedRequirements: normalizedStem ? [{
+          id: "possessive-nnc-predicate-stem"
+        }] : []
+      };
+      const formulaAuthority = typeof targetObject.evaluateAndrewsFormulaGenerationAuthority === "function" ? targetObject.evaluateAndrewsFormulaGenerationAuthority("possessive-state-nnc", {
+        inputValue: normalizedStem,
+        slotValues: formulaSlots,
+        sourceValues: {
+          predicateStem: normalizedStem,
+          "predicate.stem": normalizedStem,
+          STEM: normalizedStem
+        }
+      }) : {
+        ok: Boolean(normalizedStem && sourceRequirementCheck.ok),
+        allowed: Boolean(normalizedStem && sourceRequirementCheck.ok),
+        gate: normalizedStem && sourceRequirementCheck.ok ? "andrews-formula-authorized-generation" : "andrews-formula-generation-blocked",
+        status: normalizedStem && sourceRequirementCheck.ok ? "source-gated" : "blocked",
+        authority: "Andrews PDF",
+        logicAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil orthography bridge",
+        orthographyBoundary: "orthography-realization",
+        spellingEvidenceRole: "spelling-realization-only",
+        classicalSurfaceImport: "blocked",
+        blockedReasons: normalizedStem && sourceRequirementCheck.ok ? [] : ["formula-source-requirement-missing"],
+        generationContract: sourceRequirementCheck.generationContract || null
+      };
+      const result = normalizedStem ? generateOrdinaryNncParadigm({
+        stem: normalizedStem,
+        state: ORDINARY_NNC_STATE.possessive,
+        possessor,
+        number: "singular"
+      }) : null;
+      const resultSlots = result?.supported && result?.clauseFrame?.formulaSlots ? buildPossessiveStateNncFormulaSlots({
+        stem: result.stem || normalizedStem,
+        number: result.number || "singular",
+        nounClass: result.nounClass || "zero",
+        possessorKind: "specific",
+        possessor
+      }) : formulaSlots;
+      const structuralFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(resultSlots, {
+        mode: "structural",
+        expanded: true
+      });
+      const nawatFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(resultSlots, {
+        mode: "nawat",
+        expanded: true
+      });
+      const compactFormulaEcho = buildPossessiveStateNncFormulaEchoFromSlots(resultSlots, {
+        mode: "compact",
+        expanded: false
+      });
+      const resultDiagnostics = Array.isArray(result?.diagnostics) ? result.diagnostics : [];
+      const slotBlockDiagnostics = ["subject-connector", "tense"].map(interpretation => typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation("possessive-state-nnc", "st1-st2", interpretation).diagnostic : null).filter(Boolean);
+      const numBlockDiagnostics = ["predicate-state", "tense"].map(interpretation => typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation("possessive-state-nnc", "num1-num2", interpretation).diagnostic : null).filter(Boolean);
+      const generationAllowed = Boolean(formulaAuthority.allowed && result?.supported === true);
+      const generationStatus = !normalizedStem ? "blocked" : generationAllowed ? "generated" : "unsupported";
+      return {
+        kind: "possessive-state-nnc-formula-workbench-slice",
+        version: 1,
+        formulaSchemaId: schema?.id || "possessive-state-nnc",
+        formulaSchemaVersion: schema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: renderPossessiveStateNncFormulaTemplate(resultSlots),
+        formulaFamilies: [{
+          id: "monadic-possessive-state",
+          label: "monadic",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("possessive-state-nnc", {
+            slotTokens: {
+              possessiveState: "st"
+            }
+          }) : "#pers1-pers2+st(STEM)num1-num2#"
+        }, {
+          id: "dyadic-possessive-state",
+          label: "dyadic",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("possessive-state-nnc", {
+            slotTokens: {
+              possessiveState: "st1-st2"
+            }
+          }) : "#pers1-pers2+st1-st2(STEM)num1-num2#"
+        }],
+        formulaEcho: structuralFormulaEcho,
+        fullFormulaEcho: structuralFormulaEcho,
+        structuralFormulaEcho,
+        nawatFormulaEcho,
+        compactFormulaEcho,
+        hasTensePosition: false,
+        sourceMaterial: {
+          rawInput: parsedInput.rawInput,
+          stem: normalizedStem,
+          inputKind: "possessive-state-nnc",
+          placeholder: "kal",
+          inputLabel: "Predicado posesivo",
+          sourceKind: result?.source?.sourceKind || (normalizedStem ? "open-stem-or-fixture" : ""),
+          fixtureId: result?.source?.fixtureId || ""
+        },
+        sourceRequirements: sourceRequirementCheck.sourceRequirements || [],
+        missingRequirements: sourceRequirementCheck.missingRequirements || [],
+        satisfiedRequirements: sourceRequirementCheck.satisfiedRequirements || [],
+        parsedSlots: buildPossessiveStateNncFormulaWorkbenchSlotRecords(schema, resultSlots),
+        examples: buildPossessiveStateNncFormulaWorkbenchExamples(normalizedStem || "kal"),
+        evidenceRefs: [...(Array.isArray(schema?.evidenceRefs) ? schema.evidenceRefs : []), ...(Array.isArray(result?.source?.sourceRefs) ? result.source.sourceRefs : [])].filter(Boolean),
+        realizationBoundary: {
+          structuralFormulaEcho,
+          nawatFormulaEcho,
+          compactFormulaEcho,
+          classicalStructuralOnly: true,
+          noClassicalSurfaceImport: true,
+          structuralExamples: ["hu-an", "uh-0", "hui-0"],
+          nawatAuthority: "Nawat/Pipil orthography bridge; examples illustrate spelling only and do not gate grammar logic"
+        },
+        generation: {
+          allowed: generationAllowed,
+          status: generationStatus,
+          formulaAuthorityAllowed: formulaAuthority.allowed === true,
+          formulaAuthorityGate: formulaAuthority.gate || "",
+          formulaAuthorityStatus: formulaAuthority.status || "",
+          logicAuthority: formulaAuthority.logicAuthority || formulaAuthority.authority || "Andrews PDF",
+          orthographyAuthority: formulaAuthority.orthographyAuthority || "Nawat/Pipil orthography bridge",
+          orthographyBoundary: formulaAuthority.orthographyBoundary || "orthography-realization",
+          spellingEvidenceRole: formulaAuthority.spellingEvidenceRole || "spelling-realization-only",
+          classicalSurfaceImport: formulaAuthority.classicalSurfaceImport || "blocked",
+          formulaAuthorityBlockedReasons: Array.isArray(formulaAuthority.blockedReasons) ? Array.from(formulaAuthority.blockedReasons) : [],
+          routeFamily: sourceRequirementCheck.generationContract?.routeFamily || "possessive-state-nnc",
+          routeStage: sourceRequirementCheck.generationContract?.routeStage || "formula-workbench",
+          outputPolicy: sourceRequirementCheck.generationContract?.outputPolicy || "",
+          surface: generationAllowed ? result?.result || "" : "",
+          surfaceForms: generationAllowed && Array.isArray(result?.surfaceForms) ? Array.from(result.surfaceForms) : [],
+          sourceKind: result?.source?.sourceKind || ""
+        },
+        diagnostics: [...(Array.isArray(sourceRequirementCheck.diagnostics) ? sourceRequirementCheck.diagnostics : []), ...resultDiagnostics, ...slotBlockDiagnostics, ...numBlockDiagnostics, {
+          id: "possessive-state-classical-spelling-structural-only",
+          severity: "note",
+          message: "Andrews hu-an, uh-0, and hui-0 are structural connector evidence; displayed Nawat/Pipil surfaces pass through the orthography bridge."
+        }]
+      };
+    }
+    const SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID = "subject-number-connectors";
+    function getSubjectNumberConnectorFormulaSchema() {
+      return typeof targetObject.getAndrewsFormulaSlotSchema === "function" ? targetObject.getAndrewsFormulaSlotSchema(SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID) : null;
+    }
+    function normalizeSubjectNumberConnectorWorkbenchInput(value = "") {
+      const rawInput = String(value || "").trim();
+      const analogueInput = parseOrdinaryNncPredicateFormulaInput(rawInput);
+      const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(rawInput);
+      const normalizedStem = analogueInput?.stem || (hasLegacyFormulaString ? "" : normalizeOrdinaryNncText(rawInput).replace(/[()#]/g, ""));
+      return {
+        rawInput,
+        stem: normalizedStem || "kal",
+        explicitStem: Boolean(normalizedStem)
+      };
+    }
+    function buildSubjectNumberConnectorFormulaWorkbenchSlotRecords(schema = null, {
+      stem = "kal",
+      subjectDyad = "Ø-Ø",
+      numberStructural = "Ø-Ø",
+      numberNawat = "Ø-Ø",
+      numberCompact = "Ø"
+    } = {}) {
+      const slots = Array.isArray(schema?.slots) ? schema.slots : [];
+      return slots.map(slot => {
+        const structuralValue = (() => {
+          if (slot.key === "pers1Pers2" || slot.id === "pers1-pers2") {
+            return subjectDyad;
+          }
+          if (slot.key === "num1Num2" || slot.id === "num1-num2") {
+            return numberStructural;
+          }
+          if (slot.key === "predicateSide" || slot.id === "predicate-side") {
+            return `(${stem || "STEM"})`;
+          }
+          return slot.token || "";
+        })();
+        const nawatValue = slot.key === "num1Num2" || slot.id === "num1-num2" ? numberNawat : structuralValue;
+        const compactValue = slot.key === "num1Num2" || slot.id === "num1-num2" ? numberCompact : structuralValue;
+        return {
+          id: slot.id || "",
+          key: slot.key || "",
+          label: slot.label || "",
+          role: slot.role || "",
+          owner: slot.owner || "",
+          path: slot.path || "",
+          boundary: slot.boundary || "",
+          layer: slot.layer || "",
+          position: slot.position || "",
+          token: typeof targetObject.renderAndrewsFormulaSlotTemplate === "function" ? targetObject.renderAndrewsFormulaSlotTemplate(slot) : slot.token || slot.id || "",
+          value: structuralValue,
+          structuralValue,
+          nawatValue,
+          compactValue,
+          renderedValue: structuralValue,
+          compactRenderedValue: compactValue,
+          status: "resolved",
+          modelFields: [{
+            label: "owner",
+            value: slot.owner || ""
+          }, {
+            label: "path",
+            value: slot.path || ""
+          }, ...(slot.key === "pers1Pers2" ? [{
+            label: "dyad",
+            value: subjectDyad
+          }, {
+            label: "outside",
+            value: "predicate"
+          }, {
+            label: "not",
+            value: "state/tense/object"
+          }] : []), ...(slot.key === "predicateSide" ? [{
+            label: "boundary",
+            value: "connectors stay outside"
+          }, {
+            label: "context",
+            value: "stem/state/valence/tns differ by shell"
+          }] : []), ...(slot.key === "num1Num2" ? [{
+            label: "dyad",
+            value: numberStructural
+          }, {
+            label: "Nawat",
+            value: numberNawat
+          }, {
+            label: "not",
+            value: "tense/object/state/stem suffix"
+          }] : [])].filter(entry => entry.value),
+          blockedInterpretations: Array.isArray(slot.blockedInterpretations) ? Array.from(slot.blockedInterpretations) : []
+        };
+      });
+    }
+    function buildSubjectNumberConnectorOrdinaryExample({
+      id = "",
+      label = "",
+      stem = "kal",
+      nounClass = "zero",
+      number = "singular",
+      pluralType = "",
+      structuralNumberDyad = "",
+      structuralConnectorSource = ""
+    } = {}) {
+      const result = generateOrdinaryNncParadigm({
+        stem,
+        state: ORDINARY_NNC_STATE.absolutive,
+        nounClass,
+        number,
+        pluralType
+      });
+      const formulaSlots = result?.clauseFrame?.formulaSlots || buildOrdinaryNncFormulaSlots({
+        stem,
+        state: ORDINARY_NNC_STATE.absolutive,
+        nounClass,
+        number,
+        pluralType
+      });
+      const connector = formulaSlots.num1Num2 || {};
+      const structuralSlots = structuralNumberDyad ? {
+        ...formulaSlots,
+        num1Num2: {
+          ...connector,
+          displayDyad: structuralNumberDyad
+        }
+      } : formulaSlots;
+      const structuralFormulaEcho = buildOrdinaryNncExpandedFormulaEchoFromSlots(structuralSlots);
+      const nawatFormulaEcho = buildOrdinaryNncExpandedFormulaEchoFromSlots(formulaSlots);
+      const compactFormulaEcho = buildOrdinaryNncCompactFormulaEchoFromSlots(formulaSlots);
+      return {
+        id: String(id || `ordinary-${stem}`),
+        label: String(label || "ordinary NNC/S"),
+        shell: "ordinary-nnc-shell",
+        routeFamily: "ordinary-nnc",
+        hasTensePosition: false,
+        structuralFormulaEcho,
+        fullFormulaEcho: structuralFormulaEcho,
+        nawatFormulaEcho,
+        compactFormulaEcho,
+        surface: result?.result || "",
+        surfaceForms: Array.isArray(result?.surfaceForms) ? Array.from(result.surfaceForms) : [],
+        supported: result?.supported === true,
+        status: result?.supported === true ? "generated" : "unsupported",
+        connectorDyad: connector.displayDyad || "",
+        connectorStructural: structuralNumberDyad || connector.displayDyad || "",
+        connectorNawat: connector.displayDyad || "",
+        connectorCompact: connector.compactDisplay || connector.connector || "",
+        connectorSource: structuralConnectorSource || connector.dyadSource || "",
+        numberOwner: connector.belongsTo || "subject",
+        numberPath: "subject.num1-num2",
+        stateOwner: "",
+        valenceOwner: "",
+        tenseOwner: "",
+        formulaSlots,
+        diagnostics: Array.isArray(result?.diagnostics) ? result.diagnostics : []
+      };
+    }
+    function buildSubjectNumberConnectorPossessiveExample({
+      stem = "kal",
+      possessor = "nu"
+    } = {}) {
+      const example = buildPossessiveStateNncFormulaWorkbenchExample({
+        id: "possessive-specific-1sg-nu-kal",
+        label: "possessive state",
+        stem,
+        possessorKind: "specific",
+        possessor
+      });
+      return {
+        ...example,
+        shell: "possessive-state-nnc",
+        routeFamily: "possessive-state-nnc",
+        hasTensePosition: false,
+        connectorDyad: example.formulaSlots?.num1Num2?.displayDyad || "",
+        connectorStructural: example.formulaSlots?.num1Num2?.displayDyad || "",
+        connectorNawat: example.formulaSlots?.num1Num2?.displayDyad || "",
+        connectorCompact: example.formulaSlots?.num1Num2?.compactDisplay || "",
+        numberOwner: example.formulaSlots?.num1Num2?.belongsTo || "subject",
+        numberPath: "subject.num1-num2",
+        stateOwner: example.formulaSlots?.possessiveState?.owner || "predicate",
+        statePath: example.formulaSlots?.possessiveState?.slot || "predicate.state.st1-st2",
+        valenceOwner: "",
+        tenseOwner: ""
+      };
+    }
+    function buildSubjectNumberConnectorVncExample() {
+      const vncSlice = typeof targetObject.buildVncValenceFormulaWorkbenchSlice === "function" ? targetObject.buildVncValenceFormulaWorkbenchSlice({
+        inputValue: "ki-piya"
+      }) : null;
+      const slots = vncSlice?.parsedSlots || [];
+      const valenceSlot = slots.find(slot => slot.key === "valence") || {};
+      const tenseSlot = slots.find(slot => slot.key === "tensePosition") || {};
+      const numberSlot = slots.find(slot => slot.key === "num1Num2") || {};
+      return {
+        id: "vnc-preterit-ki-piya",
+        label: "VNC preterit number",
+        shell: "vnc-shell",
+        routeFamily: "vnc-valence",
+        hasTensePosition: true,
+        structuralFormulaEcho: vncSlice?.structuralFormulaEcho || "",
+        fullFormulaEcho: vncSlice?.structuralFormulaEcho || "",
+        nawatFormulaEcho: vncSlice?.nawatFormulaEcho || "",
+        compactFormulaEcho: vncSlice?.compactFormulaEcho || "",
+        surface: vncSlice?.generation?.surface || "",
+        surfaceForms: Array.isArray(vncSlice?.generation?.surfaceForms) ? Array.from(vncSlice.generation.surfaceForms) : [],
+        supported: vncSlice?.generation?.allowed === true,
+        status: vncSlice?.generation?.status || "source-gated",
+        connectorDyad: numberSlot.structuralValue || "",
+        connectorStructural: numberSlot.structuralValue || "",
+        connectorNawat: numberSlot.nawatValue || "",
+        connectorCompact: numberSlot.compactValue || "",
+        numberOwner: numberSlot.owner || "subject",
+        numberPath: numberSlot.path || "subject.num1-num2",
+        valenceOwner: valenceSlot.owner || "predicate",
+        valencePath: valenceSlot.path || "predicate.valence.va1-va2",
+        valenceStructural: valenceSlot.structuralValue || "",
+        valenceNawat: valenceSlot.nawatValue || "",
+        tenseOwner: tenseSlot.owner || "predicate",
+        tensePath: tenseSlot.path || "predicate.tense",
+        tenseStructural: tenseSlot.structuralValue || "",
+        formulaSlots: vncSlice?.formulaSlots || null,
+        diagnostics: Array.isArray(vncSlice?.diagnostics) ? Array.from(vncSlice.diagnostics) : []
+      };
+    }
+    function buildSubjectNumberConnectorDiagnosticExample() {
+      const diagnostic = typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation(SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID, "num1-num2", "tense").diagnostic : {
+        id: "formula-slot-num1-num2-not-tense",
+        severity: "blocked",
+        message: "num1-num2 cannot be interpreted as tense."
+      };
+      return {
+        id: "blocked-num1-num2-as-tense",
+        label: "blocked tense reading",
+        shell: SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID,
+        routeFamily: "connector-diagnostic",
+        hasTensePosition: false,
+        structuralFormulaEcho: "#pers1-pers2(STEM)num1-num2#",
+        fullFormulaEcho: "#pers1-pers2(STEM)num1-num2#",
+        nawatFormulaEcho: "",
+        compactFormulaEcho: "num1-num2 != tns",
+        surface: "",
+        surfaceForms: [],
+        supported: false,
+        status: "unsupported",
+        connectorDyad: "num1-num2",
+        connectorStructural: "num1-num2",
+        connectorNawat: "",
+        connectorCompact: "",
+        numberOwner: "subject",
+        numberPath: "subject.num1-num2",
+        tenseOwner: "",
+        valenceOwner: "",
+        diagnostics: [diagnostic].filter(Boolean)
+      };
+    }
+    function buildSubjectNumberConnectorFormulaWorkbenchExamples(stem = "kal") {
+      const normalizedStem = normalizeOrdinaryNncText(stem).replace(/[()]/g, "") || "kal";
+      return [buildSubjectNumberConnectorOrdinaryExample({
+        id: "ordinary-zero-common",
+        label: "ordinary zero/common",
+        stem: normalizedStem,
+        nounClass: "zero",
+        number: "singular"
+      }), buildSubjectNumberConnectorOrdinaryExample({
+        id: "ordinary-animate-count",
+        label: "animate plural",
+        stem: "mistun",
+        nounClass: "zero",
+        number: "plural",
+        pluralType: ORDINARY_NNC_PLURAL_TYPE.count,
+        structuralNumberDyad: "m-eh",
+        structuralConnectorSource: "Andrews structural m-eh; Nawat/Pipil realization m-et"
+      }), buildSubjectNumberConnectorPossessiveExample({
+        stem: normalizedStem,
+        possessor: "nu"
+      }), buildSubjectNumberConnectorVncExample(), buildSubjectNumberConnectorDiagnosticExample()];
+    }
+    function buildSubjectNumberConnectorFormulaWorkbenchSlice({
+      inputValue = ""
+    } = {}) {
+      const schema = getSubjectNumberConnectorFormulaSchema();
+      const parsedInput = normalizeSubjectNumberConnectorWorkbenchInput(inputValue);
+      const activeOrdinary = buildSubjectNumberConnectorOrdinaryExample({
+        id: "active-ordinary-zero-common",
+        label: "active ordinary",
+        stem: parsedInput.stem,
+        nounClass: "zero",
+        number: "singular"
+      });
+      const slotBlockDiagnostics = [[SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID, "num1-num2", "tense"], [SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID, "num1-num2", "stem-suffix"], [SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID, "num1-num2", "object-valence"], [SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID, "num1-num2", "predicate-state"], ["vnc-shell", "tns", "subject-number-connector"]].map(([schemaId, slotId, interpretation]) => typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation(schemaId, slotId, interpretation).diagnostic : null).filter(Boolean);
+      return {
+        kind: "subject-number-connector-formula-workbench-slice",
+        version: 1,
+        formulaSchemaId: schema?.id || SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID,
+        formulaSchemaVersion: schema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: schema?.compactFormula || "pers1-pers2 ... num1-num2",
+        formulaFamilies: [{
+          id: "ordinary-nnc-subject-number",
+          label: "CNN/S",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("ordinary-nnc-shell") : "#pers1-pers2(STEM)num1-num2#"
+        }, {
+          id: "possessive-nnc-subject-number",
+          label: "CNN posesiva",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("possessive-state-nnc") : "#pers1-pers2+st1-st2(STEM)num1-num2#"
+        }, {
+          id: "vnc-subject-number",
+          label: "CNV",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("vnc-shell") : "#pers1-pers2+va1-va2(STEM)tns+num1-num2#"
+        }],
+        formulaEcho: activeOrdinary.structuralFormulaEcho,
+        fullFormulaEcho: activeOrdinary.structuralFormulaEcho,
+        structuralFormulaEcho: activeOrdinary.structuralFormulaEcho,
+        nawatFormulaEcho: activeOrdinary.nawatFormulaEcho,
+        compactFormulaEcho: activeOrdinary.compactFormulaEcho,
+        hasTensePosition: null,
+        sourceMaterial: {
+          rawInput: parsedInput.explicitStem ? parsedInput.rawInput : "",
+          stem: parsedInput.stem,
+          inputKind: "subject-number-connectors",
+          placeholder: "kal",
+          inputLabel: "Predicado para auditar conectores",
+          sourceKind: parsedInput.explicitStem ? "open-stem" : "default-example"
+        },
+        parsedSlots: buildSubjectNumberConnectorFormulaWorkbenchSlotRecords(schema, {
+          stem: parsedInput.stem,
+          subjectDyad: "Ø-Ø",
+          numberStructural: activeOrdinary.connectorStructural || "Ø-Ø",
+          numberNawat: activeOrdinary.connectorNawat || "Ø-Ø",
+          numberCompact: activeOrdinary.connectorCompact || "Ø"
+        }),
+        examples: buildSubjectNumberConnectorFormulaWorkbenchExamples(parsedInput.stem),
+        evidenceRefs: Array.isArray(schema?.evidenceRefs) ? Array.from(schema.evidenceRefs) : [],
+        realizationBoundary: {
+          structuralFormulaEcho: activeOrdinary.structuralFormulaEcho,
+          nawatFormulaEcho: activeOrdinary.nawatFormulaEcho,
+          compactFormulaEcho: activeOrdinary.compactFormulaEcho,
+          classicalStructuralOnly: true,
+          noClassicalSurfaceImport: true,
+          structuralExamples: ["m-eh", "qui-0", "Ø-Ø"],
+          nawatAuthority: "Nawat/Pipil connector realization: m-et for animate count plural and ki-0 ~ k-0 for scoped VNC preterit number"
+        },
+        generation: {
+          allowed: activeOrdinary.supported === true,
+          status: activeOrdinary.status || "generated",
+          routeFamily: "subject-number-connectors",
+          routeStage: "formula-workbench",
+          outputPolicy: "Audit subject connector dyads across formula shells; do not treat num1-num2 as tense, object valence, state, or stem suffix.",
+          surface: activeOrdinary.surface || "",
+          surfaceForms: Array.isArray(activeOrdinary.surfaceForms) ? Array.from(activeOrdinary.surfaceForms) : [],
+          sourceKind: "formula-workbench"
+        },
+        diagnostics: [...slotBlockDiagnostics, {
+          id: "subject-number-connectors-preserve-dyads",
+          severity: "note",
+          message: "pers1-pers2 and num1-num2 are modeled as dyads even when compact display collapses zero or fused Nawat realization."
+        }]
+      };
+    }
     function generateOrdinaryNncClauseSet(request = {}) {
       return generateOrdinaryNncParadigmSet(request);
     }
@@ -3725,7 +7922,8 @@ export function createNncModule(targetObject = globalThis) {
       };
       const rawInput = source.stem ?? source.input ?? source.rawStem ?? source.rawInput ?? source.value ?? "";
       const analogueInput = parseOrdinaryNncPredicateFormulaInput(rawInput);
-      const normalizedInput = analogueInput?.stem || normalizeOrdinaryNncText(rawInput).replace(/[()]/g, "");
+      const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(rawInput);
+      const normalizedInput = analogueInput?.stem || (hasLegacyFormulaString ? "" : normalizeOrdinaryNncText(rawInput).replace(/[()]/g, ""));
       const fixture = findOrdinaryNncFixture(normalizedInput);
       if (!fixture) {
         return null;
@@ -3785,8 +7983,289 @@ export function createNncModule(targetObject = globalThis) {
     function resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix = "", subjectSuffix = "") {
       return resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
     }
+    function buildAndrewsSourceSubjectFrame({
+      subjectPrefix = "",
+      subjectSuffix = "",
+      sourceUnit = "CNV",
+      sourceTense = "",
+      sourceFormulaRecord = null,
+      sourceFormulaSlots = null
+    } = {}) {
+      const prefix = String(subjectPrefix || "").trim();
+      const suffix = String(subjectSuffix || "").trim();
+      const frame = {
+        version: 1,
+        kind: "andrews-source-subject-frame",
+        sourceUnit: String(sourceUnit || "CNV").trim(),
+        sourceTense: String(sourceTense || "").trim(),
+        subject: {
+          prefix,
+          suffix,
+          formulaSlots: {
+            pers1: prefix,
+            pers2: suffix,
+            num2: suffix
+          }
+        },
+        sourceFormulaRecord: sourceFormulaRecord && typeof sourceFormulaRecord === "object" ? sourceFormulaRecord : null,
+        sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null
+      };
+      return Object.freeze(frame);
+    }
+    function isAndrewsSourceSubjectFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-source-subject-frame" && frame.subject && typeof frame.subject === "object");
+    }
+    function getAndrewsSourceSubjectFramePossessorPrefix(frame = null) {
+      if (!isAndrewsSourceSubjectFrame(frame)) {
+        return "";
+      }
+      return resolveNawatPossessorPrefixFromSourceSubject(frame.subject.prefix || "", frame.subject.suffix || "");
+    }
+    function buildSourceSubjectPossessorOperationFrame({
+      sourceSubjectFrame = null,
+      targetPossessivePrefix = "",
+      nominalKind = "calificativo-instrumentivo",
+      operationId = "",
+      andrewsRef = ""
+    } = {}) {
+      const frame = isAndrewsSourceSubjectFrame(sourceSubjectFrame) ? sourceSubjectFrame : null;
+      const resolvedOperationId = String(operationId || "").trim() || (String(nominalKind || "") === "instrumentivo" ? "andrews-36-6-instrumentive-source-subject-to-possessor" : "andrews-36-11-active-action-source-subject-to-possessor");
+      const resolvedTargetPossessivePrefix = String(targetPossessivePrefix || "").trim() || getAndrewsSourceSubjectFramePossessorPrefix(frame);
+      return Object.freeze({
+        version: 1,
+        kind: "andrews-source-subject-possessor-operation-frame",
+        operationId: resolvedOperationId,
+        operationApplied: "source-subject-transforms-to-target-possessor",
+        nominalKind: String(nominalKind || "").trim(),
+        andrewsRef: String(andrewsRef || "").trim() || (String(nominalKind || "") === "instrumentivo" ? "Andrews 36.6" : "Andrews 36.11"),
+        sourceSubjectFrame: frame,
+        sourceSubject: frame ? {
+          prefix: String(frame.subject?.prefix || ""),
+          suffix: String(frame.subject?.suffix || "")
+        } : null,
+        targetPossessivePrefix: resolvedTargetPossessivePrefix,
+        operationFrame: {
+          kind: "andrews-typed-operation-frame",
+          operationId: resolvedOperationId,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false,
+          sourceRole: "source-vnc-subject",
+          targetRole: "target-nnc-possessor"
+        }
+      });
+    }
+    function getSourceSubjectPossessorOperationFrameMismatch({
+      operationFrame = null,
+      sourceSubjectFrame = null,
+      targetPossessivePrefix = "",
+      nominalKind = "",
+      operationId = ""
+    } = {}) {
+      if (!isAndrewsSourceSubjectFrame(sourceSubjectFrame)) {
+        return "missing-source-subject-frame";
+      }
+      const expectedPossessor = getAndrewsSourceSubjectFramePossessorPrefix(sourceSubjectFrame);
+      if (!expectedPossessor) {
+        return "unmapped-source-subject";
+      }
+      if (!operationFrame || typeof operationFrame !== "object") {
+        return "missing-operation-frame";
+      }
+      if (operationFrame.kind !== "andrews-source-subject-possessor-operation-frame" || operationFrame.operationFrame?.kind !== "andrews-typed-operation-frame") {
+        return "missing-operation-frame";
+      }
+      const expectedOperationId = String(operationId || "").trim();
+      if (expectedOperationId && String(operationFrame.operationId || "") !== expectedOperationId) {
+        return "contradictory-operation-frame";
+      }
+      const expectedNominalKind = String(nominalKind || "").trim();
+      if (expectedNominalKind && String(operationFrame.nominalKind || "") !== expectedNominalKind) {
+        return "contradictory-operation-frame";
+      }
+      if (String(operationFrame.sourceSubject?.prefix || "") !== String(sourceSubjectFrame.subject?.prefix || "") || String(operationFrame.sourceSubject?.suffix || "") !== String(sourceSubjectFrame.subject?.suffix || "")) {
+        return "contradictory-source-frame";
+      }
+      if (operationFrame.sourceSubjectFrame && operationFrame.sourceSubjectFrame !== sourceSubjectFrame) {
+        const embedded = operationFrame.sourceSubjectFrame;
+        if (!isAndrewsSourceSubjectFrame(embedded) || String(embedded.subject?.prefix || "") !== String(sourceSubjectFrame.subject?.prefix || "") || String(embedded.subject?.suffix || "") !== String(sourceSubjectFrame.subject?.suffix || "")) {
+          return "contradictory-source-frame";
+        }
+      }
+      const targetPrefix = String(targetPossessivePrefix || "").trim();
+      const operationTargetPrefix = String(operationFrame.targetPossessivePrefix || "").trim();
+      if (operationTargetPrefix !== expectedPossessor || targetPrefix && targetPrefix !== expectedPossessor) {
+        return "contradictory-target-frame";
+      }
+      if (operationFrame.operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "missing-operation-frame";
+      }
+      return "";
+    }
+    function isSourceSubjectPossessorOperationFrame(operationFrame = null, options = {}) {
+      return !getSourceSubjectPossessorOperationFrameMismatch({
+        operationFrame,
+        ...options
+      });
+    }
     function isInstrumentivoImperfectActiveAbsolutiveMode(mode = "") {
       return String(mode || "") === "absolutivo-imperfecto-activo" || String(mode || "") === String(targetObject.INSTRUMENTIVO_MODE.absolutivoImperfectoActivo || "");
+    }
+    function getPredicateNominalPreviousNonZeroSegment(value = "") {
+      const tokens = String(value || "").toLowerCase().match(/[a-z]+/g) || [];
+      return tokens.filter(token => token && token !== "0").pop() || "";
+    }
+    function resolvePredicateNominalAbsolutiveTtiConnector(value = "", fallback = "t", options = {}) {
+      if (options.allowDiagnosticStringResolution !== true) {
+        return "";
+      }
+      if (typeof targetObject.getTClassSuffixForStem === "function") {
+        return targetObject.getTClassSuffixForStem(value) || String(fallback || "t");
+      }
+      const previousSegment = getPredicateNominalPreviousNonZeroSegment(value);
+      const finalLetter = previousSegment.slice(-1);
+      if (!finalLetter) {
+        return String(fallback || "t");
+      }
+      return /[aeiou]/.test(finalLetter) ? "t" : "ti";
+    }
+    function shouldResolvePredicateNominalConnectorAsTti(connector = "") {
+      return ["", "t", "ti"].includes(String(connector || ""));
+    }
+    function getPredicateNominalPreviousNonZeroSegmentFromStemSpec(stemSpec = null) {
+      if (!stemSpec || typeof stemSpec !== "object") {
+        return "";
+      }
+      if (stemSpec.kind === "literal") {
+        return getPredicateNominalPreviousNonZeroSegment(stemSpec.surfaceStem || "");
+      }
+      if (stemSpec.kind === "base-suffix") {
+        return getPredicateNominalPreviousNonZeroSegment(stemSpec.resultSuffix || stemSpec.sourceBase || "");
+      }
+      if (stemSpec.kind === "transform") {
+        const transformKind = String(stemSpec.transformKind || "");
+        if (transformKind === "append" && stemSpec.appendText) {
+          const appendSegment = getPredicateNominalPreviousNonZeroSegment(stemSpec.appendText);
+          if (appendSegment) {
+            return appendSegment;
+          }
+        }
+        if (transformKind === "prepend" && stemSpec.sourceStemSpec) {
+          const sourceSegment = getPredicateNominalPreviousNonZeroSegmentFromStemSpec(stemSpec.sourceStemSpec);
+          if (sourceSegment) {
+            return sourceSegment;
+          }
+        }
+        if (transformKind === "replace-suffix" && stemSpec.replacement) {
+          const replacementSegment = getPredicateNominalPreviousNonZeroSegment(stemSpec.replacement);
+          if (replacementSegment) {
+            return replacementSegment;
+          }
+        }
+        const sourceSpecSegment = getPredicateNominalPreviousNonZeroSegmentFromStemSpec(stemSpec.sourceStemSpec);
+        if (sourceSpecSegment) {
+          return sourceSpecSegment;
+        }
+        return getPredicateNominalPreviousNonZeroSegment(stemSpec.sourceStem || "");
+      }
+      return "";
+    }
+    function buildPredicateNominalConnectorOperationFrame({
+      sourceTense = "imperfecto",
+      nominalKind = targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+      nominalConnector = "t",
+      operationId = "andrews-36-6-note-2-predicate-nominal-absolutive-tti-connector",
+      andrewsRef = "Andrews 36.6 note 2"
+    } = {}) {
+      const resolvedOperationId = String(operationId || "").trim() || "andrews-36-6-note-2-predicate-nominal-absolutive-tti-connector";
+      return Object.freeze({
+        version: 1,
+        kind: "andrews-predicate-nominal-connector-operation-frame",
+        operationId: resolvedOperationId,
+        operationApplied: "derive-target-absolutive-t-ti-from-source-predicate-stem-frame",
+        nominalKind: String(nominalKind || targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal).trim(),
+        sourceUnit: "vnc-predicate",
+        sourceTense: targetObject.normalizePredicateNominalSourceTense(sourceTense),
+        requestedConnector: String(nominalConnector || "t").trim(),
+        targetConnectorFamily: "t/ti",
+        andrewsRef: String(andrewsRef || "Andrews 36.6 note 2").trim(),
+        operationFrame: {
+          kind: "andrews-typed-operation-frame",
+          operationId: resolvedOperationId,
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false,
+          sourceRole: "source-vnc-predicate-stem-frame",
+          targetRole: "target-nnc-absolutive-connector"
+        }
+      });
+    }
+    function getPredicateNominalConnectorOperationFrameMismatch({
+      operationFrame = null,
+      sourceTense = "imperfecto",
+      nominalKind = targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+      nominalConnector = "t",
+      operationId = "andrews-36-6-note-2-predicate-nominal-absolutive-tti-connector"
+    } = {}) {
+      if (!operationFrame || typeof operationFrame !== "object") {
+        return "missing-operation-frame";
+      }
+      if (operationFrame.kind !== "andrews-predicate-nominal-connector-operation-frame" || operationFrame.operationFrame?.kind !== "andrews-typed-operation-frame") {
+        return "missing-operation-frame";
+      }
+      if (operationFrame.operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "missing-operation-frame";
+      }
+      const expectedOperationId = String(operationId || "").trim();
+      if (expectedOperationId && String(operationFrame.operationId || "") !== expectedOperationId) {
+        return "contradictory-operation-frame";
+      }
+      if (String(operationFrame.targetConnectorFamily || "") !== "t/ti") {
+        return "contradictory-operation-frame";
+      }
+      const expectedKind = String(nominalKind || targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal).trim();
+      if (expectedKind && String(operationFrame.nominalKind || "") !== expectedKind) {
+        return "contradictory-operation-frame";
+      }
+      const expectedSourceTense = targetObject.normalizePredicateNominalSourceTense(sourceTense);
+      if (expectedSourceTense && String(operationFrame.sourceTense || "") !== expectedSourceTense) {
+        return "contradictory-source-frame";
+      }
+      const requestedConnector = String(nominalConnector || "t").trim();
+      if (!shouldResolvePredicateNominalConnectorAsTti(requestedConnector)) {
+        return "";
+      }
+      const frameRequestedConnector = String(operationFrame.requestedConnector || "t").trim();
+      if (!shouldResolvePredicateNominalConnectorAsTti(frameRequestedConnector)) {
+        return "contradictory-operation-frame";
+      }
+      return "";
+    }
+    function resolvePredicateNominalAbsolutiveTtiConnectorFromFrame({
+      operationFrame = null,
+      predicateStemSpec = null,
+      fallback = "t"
+    } = {}) {
+      if (!operationFrame || typeof operationFrame !== "object") {
+        return "";
+      }
+      if (!predicateStemSpec || typeof predicateStemSpec !== "object" || !predicateStemSpec.kind) {
+        return "";
+      }
+      const previousSegment = getPredicateNominalPreviousNonZeroSegmentFromStemSpec(predicateStemSpec);
+      const finalLetter = previousSegment.slice(-1);
+      if (!finalLetter) {
+        return String(fallback || "t");
+      }
+      return /[aeiou]/.test(finalLetter) ? "t" : "ti";
+    }
+    function buildPredicateNominalFormulaDisplayStem(baseStem = "", sourceTenseSuffix = "", surfaceObjectPrefix = "") {
+      const stem = String(baseStem || "");
+      const suffix = String(sourceTenseSuffix || "");
+      const objectPrefix = String(surfaceObjectPrefix || "");
+      const displayStem = objectPrefix && stem && !stem.startsWith(objectPrefix) ? typeof targetObject.buildOutputPrefixedChain === "function" ? targetObject.buildOutputPrefixedChain({
+        obj1: objectPrefix,
+        tronco: stem
+      }) : `${objectPrefix}${stem}` : stem;
+      return displayStem && suffix ? `${displayStem}-${suffix}` : displayStem;
     }
     function getPredicateNominalResult({
       rawVerb,
@@ -3805,7 +8284,8 @@ export function createNncModule(targetObject = globalThis) {
       sourceRouteFrame = null,
       routeFrame = null,
       valenceFrameFixed = null,
-      sourceValenceFrameFixed = null
+      sourceValenceFrameFixed = null,
+      predicateNominalConnectorOperationFrame = null
     }) {
       const resolvedSourceTense = targetObject.normalizePredicateNominalSourceTense(sourceTense);
       const resolvedNominalKind = targetObject.isPredicateNominalTense(nominalKind) ? String(nominalKind || "") : targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal;
@@ -3841,6 +8321,7 @@ export function createNncModule(targetObject = globalThis) {
         indirectObjectMarker: resolvedIndirectObjectMarker,
         thirdObjectMarker: resolvedThirdObjectMarker
       } = context;
+      const hasResolvedNonactiveSourceStem = isNonactive && verbMeta?.predicateNominalSourceStemResolved === true;
       const nonactivePassiveObjectPrefix = isNonactive ? targetObject.applyPassiveImpersonal({
         pers1: subjectPrefix,
         pers2: subjectSuffix,
@@ -3881,6 +8362,22 @@ export function createNncModule(targetObject = globalThis) {
         }
       }
       const connector = String(nominalConnector || "t");
+      const resolveTtiConnector = shouldResolvePredicateNominalConnectorAsTti(connector);
+      if (resolveTtiConnector) {
+        const connectorOperationMismatch = getPredicateNominalConnectorOperationFrameMismatch({
+          operationFrame: predicateNominalConnectorOperationFrame,
+          sourceTense: resolvedSourceTense,
+          nominalKind: resolvedNominalKind,
+          nominalConnector: connector
+        });
+        if (connectorOperationMismatch) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.predicadoNominal,
+            rawVerb,
+            diagnosticId: `predicado-nominal-absolutive-connector-${connectorOperationMismatch}`
+          });
+        }
+      }
       const entries = [];
       forwardStemContexts.forEach(stemContext => {
         let sourceStemEntries = [{
@@ -3890,7 +8387,7 @@ export function createNncModule(targetObject = globalThis) {
           isYawi: derivedIsYawi,
           isWeya: derivedIsWeya
         }];
-        if (isNonactive) {
+        if (isNonactive && !hasResolvedNonactiveSourceStem) {
           const nonactiveSourceChain = targetObject.buildNonactiveSourceChain(verbMeta, stemContext.verb, stemContext.analysisVerb);
           const nonactiveBaseVerb = targetObject.normalizeDerivationStemValue(nonactiveSourceChain?.baseVerb || "");
           const nonactiveRuleBase = targetObject.getNounNonactiveRuleBase(nonactiveBaseVerb, verbMeta);
@@ -3966,11 +8463,19 @@ export function createNncModule(targetObject = globalThis) {
           const predicateStemSpec = sourceTenseSuffix ? targetObject.buildAppendMorphStemSpec(nominalSurface.verb, sourceTenseSuffix, {
             sourceStemSpec: placedStemSpec
           }) : placedStemSpec;
+          const resolvedConnector = resolveTtiConnector ? resolvePredicateNominalAbsolutiveTtiConnectorFromFrame({
+            operationFrame: predicateNominalConnectorOperationFrame,
+            predicateStemSpec,
+            fallback: connector || "t"
+          }) : connector;
+          if (resolveTtiConnector && !resolvedConnector) {
+            return;
+          }
           entries.push(targetObject.buildVerbDerivedNominalEntry({
             kind: resolvedNominalKind,
             sourceModel: nounSourceModel,
             verb: predicateStem,
-            subjectSuffix: connector,
+            subjectSuffix: resolvedConnector,
             stemSpec: predicateStemSpec,
             surfaceObjectPrefix: nominalSurface.objectPrefix,
             runtimeObjectPrefix: sourceObjectPrefix,
@@ -3978,6 +8483,14 @@ export function createNncModule(targetObject = globalThis) {
             sourceTense: resolvedSourceTense,
             provenance: {
               forward: stemContext.derivationProvenance || null
+            },
+            metadata: {
+              formulaDisplayStem: sourceTenseSuffix === "s" ? buildPredicateNominalFormulaDisplayStem(nominalSurface.verb, sourceTenseSuffix, nominalSurface.objectPrefix) : "",
+              sourceTenseSuffix,
+              absolutiveConnectorFamily: resolveTtiConnector ? "t/ti" : "",
+              absolutiveConnectorSelector: sourceTenseSuffix ? "typed-predicate-stem-frame-previous-non-zero-segment" : "",
+              absolutiveConnectorInput: "",
+              absolutiveConnectorOperationFrame: resolveTtiConnector ? predicateNominalConnectorOperationFrame : null
             }
           }));
         });
@@ -3998,8 +8511,11 @@ export function createNncModule(targetObject = globalThis) {
           grammarSource: "Andrews 36.6 note 2",
           sourceUnit: "vnc-predicate",
           sourceTense: resolvedSourceTense,
-          connectorClass: connector || "t"
-        }
+          connectorClass: connector || "t",
+          connectorFamily: resolveTtiConnector ? "t/ti" : connector,
+          connectorSelector: resolveTtiConnector ? "typed-predicate-stem-frame-previous-non-zero-segment" : ""
+        },
+        predicateNominalConnectorOperationFrame: resolveTtiConnector ? predicateNominalConnectorOperationFrame : null
       }, {
         kind: resolvedNominalKind,
         rawVerb
@@ -4020,7 +8536,9 @@ export function createNncModule(targetObject = globalThis) {
       sourceRouteFrame = null,
       routeFrame = null,
       valenceFrameFixed = null,
-      sourceValenceFrameFixed = null
+      sourceValenceFrameFixed = null,
+      sourceSubjectFrame = null,
+      sourceSubjectPossessorOperationFrame = null
     }) {
       const commonNumberSuffix = "";
       const context = targetObject.buildVerbDerivedNominalBuilderContext({
@@ -4201,8 +8719,42 @@ export function createNncModule(targetObject = globalThis) {
         });
       }
       const explicitPossessivePrefix = typeof possessivePrefix === "string" ? possessivePrefix : "";
-      const sourceSubjectPossessivePrefix = resolveInstrumentivoPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix);
-      const resolvedPossessivePrefix = explicitPossessivePrefix || (mode === targetObject.INSTRUMENTIVO_MODE.posesivo ? sourceSubjectPossessivePrefix : "");
+      let resolvedPossessivePrefix = explicitPossessivePrefix;
+      let resolvedSourceSubjectPossessorFrame = null;
+      let resolvedSourceSubjectPossessorOperationFrame = null;
+      if (mode === targetObject.INSTRUMENTIVO_MODE.posesivo && !explicitPossessivePrefix) {
+        resolvedSourceSubjectPossessorFrame = isAndrewsSourceSubjectFrame(sourceSubjectFrame) ? sourceSubjectFrame : null;
+        if (!resolvedSourceSubjectPossessorFrame) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: "instrumentivo-source-subject-frame-required"
+          });
+        }
+        resolvedPossessivePrefix = getAndrewsSourceSubjectFramePossessorPrefix(resolvedSourceSubjectPossessorFrame);
+        if (!resolvedPossessivePrefix) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: "instrumentivo-possessor-unmapped"
+          });
+        }
+        const operationMismatch = getSourceSubjectPossessorOperationFrameMismatch({
+          operationFrame: sourceSubjectPossessorOperationFrame,
+          sourceSubjectFrame: resolvedSourceSubjectPossessorFrame,
+          targetPossessivePrefix: resolvedPossessivePrefix,
+          nominalKind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+          operationId: "andrews-36-6-instrumentive-source-subject-to-possessor"
+        });
+        if (operationMismatch) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.instrumentivo,
+            rawVerb,
+            diagnosticId: operationMismatch === "contradictory-source-frame" || operationMismatch === "contradictory-target-frame" || operationMismatch === "contradictory-operation-frame" ? "instrumentivo-source-subject-contradictory-frame" : "instrumentivo-source-subject-typed-operation-frame-required"
+          });
+        }
+        resolvedSourceSubjectPossessorOperationFrame = sourceSubjectPossessorOperationFrame;
+      }
       const activeAbsolutiveException = isInstrumentivoImperfectActiveAbsolutiveMode(mode);
       const activeBranchSubjectSuffix = activeAbsolutiveException ? "t" : "";
       const entries = [];
@@ -4279,11 +8831,13 @@ export function createNncModule(targetObject = globalThis) {
         ...result,
         instrumentivoSourceSubjectPossessor: mode === targetObject.INSTRUMENTIVO_MODE.posesivo ? {
           grammarSource: "Andrews 36.6",
-          sourceSubjectPrefix: subjectPrefix || "",
-          sourceSubjectSuffix: subjectSuffix || "",
+          sourceSubjectPrefix: resolvedSourceSubjectPossessorFrame?.subject?.prefix ?? (subjectPrefix || ""),
+          sourceSubjectSuffix: resolvedSourceSubjectPossessorFrame?.subject?.suffix ?? (subjectSuffix || ""),
           possessivePrefix: resolvedPossessivePrefix,
           explicitPossessivePrefix,
-          derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix)
+          derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
+          sourceSubjectFrame: resolvedSourceSubjectPossessorFrame,
+          operationFrame: resolvedSourceSubjectPossessorOperationFrame
         } : null,
         instrumentivoImperfectActiveAbsolutiveException: activeAbsolutiveException ? {
           grammarSource: "Andrews 36.6 note 2",
@@ -4313,7 +8867,9 @@ export function createNncModule(targetObject = globalThis) {
       sourceRouteFrame = null,
       routeFrame = null,
       valenceFrameFixed = null,
-      sourceValenceFrameFixed = null
+      sourceValenceFrameFixed = null,
+      sourceSubjectFrame = null,
+      sourceSubjectPossessorOperationFrame = null
     }) {
       const resolvedActionNounStemUse = String(actionNounStemUse || "");
       const context = targetObject.buildVerbDerivedNominalBuilderContext({
@@ -4347,8 +8903,42 @@ export function createNncModule(targetObject = globalThis) {
       } = context;
       const explicitPossessivePrefix = typeof possessivePrefix === "string" ? possessivePrefix : "";
       const useGeneralActionStem = resolvedActionNounStemUse === "general-use";
-      const sourceSubjectPossessivePrefix = useGeneralActionStem ? resolveNawatPossessorPrefixFromSourceSubject(subjectPrefix, subjectSuffix) : "";
-      const resolvedPossessivePrefix = explicitPossessivePrefix || sourceSubjectPossessivePrefix;
+      let resolvedPossessivePrefix = explicitPossessivePrefix;
+      let resolvedSourceSubjectPossessorFrame = null;
+      let resolvedSourceSubjectPossessorOperationFrame = null;
+      if (useGeneralActionStem && !explicitPossessivePrefix) {
+        resolvedSourceSubjectPossessorFrame = isAndrewsSourceSubjectFrame(sourceSubjectFrame) ? sourceSubjectFrame : null;
+        if (!resolvedSourceSubjectPossessorFrame) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-source-subject-frame-required"
+          });
+        }
+        resolvedPossessivePrefix = getAndrewsSourceSubjectFramePossessorPrefix(resolvedSourceSubjectPossessorFrame);
+        if (!resolvedPossessivePrefix) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: "calificativo-instrumentivo-possessor-unmapped"
+          });
+        }
+        const operationMismatch = getSourceSubjectPossessorOperationFrameMismatch({
+          operationFrame: sourceSubjectPossessorOperationFrame,
+          sourceSubjectFrame: resolvedSourceSubjectPossessorFrame,
+          targetPossessivePrefix: resolvedPossessivePrefix,
+          nominalKind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+          operationId: "andrews-36-11-active-action-source-subject-to-possessor"
+        });
+        if (operationMismatch) {
+          return buildVerbDerivedNominalBlockedResult({
+            kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
+            rawVerb,
+            diagnosticId: operationMismatch === "contradictory-source-frame" || operationMismatch === "contradictory-target-frame" || operationMismatch === "contradictory-operation-frame" ? "calificativo-instrumentivo-source-subject-contradictory-frame" : "calificativo-instrumentivo-source-subject-typed-operation-frame-required"
+          });
+        }
+        resolvedSourceSubjectPossessorOperationFrame = sourceSubjectPossessorOperationFrame;
+      }
       if (useGeneralActionStem && !resolvedPossessivePrefix) {
         return buildVerbDerivedNominalBlockedResult({
           kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
@@ -4529,11 +9119,13 @@ export function createNncModule(targetObject = globalThis) {
         ...result,
         actionNounSourceSubjectPossessor: useGeneralActionStem ? {
           grammarSource: isActiveActionSource ? "Andrews 36.11" : "Andrews 36.10",
-          sourceSubjectPrefix: subjectPrefix || "",
-          sourceSubjectSuffix: subjectSuffix || "",
+          sourceSubjectPrefix: resolvedSourceSubjectPossessorFrame?.subject?.prefix ?? (subjectPrefix || ""),
+          sourceSubjectSuffix: resolvedSourceSubjectPossessorFrame?.subject?.suffix ?? (subjectSuffix || ""),
           possessivePrefix: resolvedPossessivePrefix,
           explicitPossessivePrefix,
-          derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix)
+          derivedFromSourceSubject: !explicitPossessivePrefix && Boolean(resolvedPossessivePrefix),
+          sourceSubjectFrame: resolvedSourceSubjectPossessorFrame,
+          operationFrame: resolvedSourceSubjectPossessorOperationFrame
         } : null
       }, {
         kind: targetObject.VERB_DERIVED_NOMINAL_KIND.calificativoInstrumentivo,
@@ -5053,6 +9645,9 @@ export function createNncModule(targetObject = globalThis) {
     api.getOrdinaryNncSubjectEntries = getOrdinaryNncSubjectEntries;
     api.buildOrdinaryNncDiagnostic = buildOrdinaryNncDiagnostic;
     api.attachNncLessonGrammarContract = attachNncLessonGrammarContract;
+    api.getOrdinaryNncFormulaSchema = getOrdinaryNncFormulaSchema;
+    api.getOrdinaryNncFormulaSlotDefinition = getOrdinaryNncFormulaSlotDefinition;
+    api.renderOrdinaryNncFormulaTemplate = renderOrdinaryNncFormulaTemplate;
     api.cloneNncLessonRecord = cloneNncLessonRecord;
     api.getNncLesson12FormulaContrastFrame = getNncLesson12FormulaContrastFrame;
     api.getNncLesson12AbsolutiveFormulaFrame = getNncLesson12AbsolutiveFormulaFrame;
@@ -5112,6 +9707,12 @@ export function createNncModule(targetObject = globalThis) {
     api.getOrdinaryNncStemShapeLabel = getOrdinaryNncStemShapeLabel;
     api.getOrdinaryNncClassStemCompatibility = getOrdinaryNncClassStemCompatibility;
     api.buildOrdinaryNncClassStemCompatibilityDiagnostic = buildOrdinaryNncClassStemCompatibilityDiagnostic;
+    api.getOrdinaryNncOrganicPossessionSourceSignature = getOrdinaryNncOrganicPossessionSourceSignature;
+    api.getOrdinaryNncOrganicPossessionSourceStemFromFormulaSlots = getOrdinaryNncOrganicPossessionSourceStemFromFormulaSlots;
+    api.buildOrdinaryNncOrganicPossessionSourceFrame = buildOrdinaryNncOrganicPossessionSourceFrame;
+    api.buildOrdinaryNncOrganicPossessionOperationFrame = buildOrdinaryNncOrganicPossessionOperationFrame;
+    api.getOrdinaryNncOrganicPossessionFrameMismatch = getOrdinaryNncOrganicPossessionFrameMismatch;
+    api.buildOrdinaryNncOrganicPossessionProfile = buildOrdinaryNncOrganicPossessionProfile;
     api.buildOrdinaryNncOrganicPossessionStem = buildOrdinaryNncOrganicPossessionStem;
     api.buildOrdinaryNncOrganicPossessionFrame = buildOrdinaryNncOrganicPossessionFrame;
     api.buildOrdinaryNncSurfaceChainText = buildOrdinaryNncSurfaceChainText;
@@ -5119,25 +9720,78 @@ export function createNncModule(targetObject = globalThis) {
     api.buildOrdinaryNncSurfaceChainResult = buildOrdinaryNncSurfaceChainResult;
     api.isOrdinaryNncPluralPossessor = isOrdinaryNncPluralPossessor;
     api.buildOrdinaryNncOpenStemPossessiveSurface = buildOrdinaryNncOpenStemPossessiveSurface;
+    api.getOrdinaryNncAbsolutiveSingularSourceSignature = getOrdinaryNncAbsolutiveSingularSourceSignature;
+    api.buildOrdinaryNncAbsolutiveSingularSourceFrame = buildOrdinaryNncAbsolutiveSingularSourceFrame;
+    api.buildOrdinaryNncAbsolutiveSingularOperationFrame = buildOrdinaryNncAbsolutiveSingularOperationFrame;
+    api.buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame = buildOrdinaryNncAbsolutiveSingularSurfaceFromFrame;
+    api.getOrdinaryNncOpenStemPossessiveSourceSignature = getOrdinaryNncOpenStemPossessiveSourceSignature;
+    api.buildOrdinaryNncOpenStemPossessiveSourceFrame = buildOrdinaryNncOpenStemPossessiveSourceFrame;
+    api.buildOrdinaryNncOpenStemPossessiveOperationFrame = buildOrdinaryNncOpenStemPossessiveOperationFrame;
+    api.buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame = buildOrdinaryNncOpenStemPossessiveSurfaceFromFrame;
     api.buildOrdinaryNncOpenStemPossessiveSurfaceCell = buildOrdinaryNncOpenStemPossessiveSurfaceCell;
     api.buildOrdinaryNncOpenStemFixture = buildOrdinaryNncOpenStemFixture;
     api.getOrdinaryNncSurfaceFormsFromCell = getOrdinaryNncSurfaceFormsFromCell;
+    api.getOrdinaryNncPossessiveStemFromCell = getOrdinaryNncPossessiveStemFromCell;
     api.getOrdinaryNncSoundSpellingFramesFromCell = getOrdinaryNncSoundSpellingFramesFromCell;
+    api.getOrdinaryNncFixtureStateCell = getOrdinaryNncFixtureStateCell;
+    api.getOrdinaryNncSurfaceSegmentRecordsFromCell = getOrdinaryNncSurfaceSegmentRecordsFromCell;
     api.getOrdinaryNncFixtureStateForms = getOrdinaryNncFixtureStateForms;
     api.getOrdinaryNncFixtureStateSoundSpellingFrames = getOrdinaryNncFixtureStateSoundSpellingFrames;
+    api.getOrdinaryNncFixtureStateSurfaceSegmentRecords = getOrdinaryNncFixtureStateSurfaceSegmentRecords;
+    api.buildOrdinaryNncStructuredPossessiveSurfaceResults = buildOrdinaryNncStructuredPossessiveSurfaceResults;
+    api.buildOrdinaryNncStructuredAbsolutiveSingularSurfaceResults = buildOrdinaryNncStructuredAbsolutiveSingularSurfaceResults;
     api.isOrdinaryNncThirdSingularSubject = isOrdinaryNncThirdSingularSubject;
     api.buildOrdinaryNncReduplicatedSurface = buildOrdinaryNncReduplicatedSurface;
+    api.buildOrdinaryNncReduplicatedSurfaceLegacy = buildOrdinaryNncReduplicatedSurfaceLegacy;
+    api.getOrdinaryNncDistributiveReduplicationSourceSignature = getOrdinaryNncDistributiveReduplicationSourceSignature;
+    api.buildOrdinaryNncDistributiveReduplicationSourceFrame = buildOrdinaryNncDistributiveReduplicationSourceFrame;
+    api.buildOrdinaryNncDistributiveReduplicationOperationFrame = buildOrdinaryNncDistributiveReduplicationOperationFrame;
+    api.buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame = buildOrdinaryNncDistributiveReduplicatedSurfaceFromFrame;
+    api.getOrdinaryNncAnimateDistributiveSourceSignature = getOrdinaryNncAnimateDistributiveSourceSignature;
+    api.buildOrdinaryNncAnimateDistributiveSourceFrame = buildOrdinaryNncAnimateDistributiveSourceFrame;
+    api.buildOrdinaryNncAnimateDistributiveOperationFrame = buildOrdinaryNncAnimateDistributiveOperationFrame;
+    api.buildOrdinaryNncAnimateDistributiveSurfaceFromFrame = buildOrdinaryNncAnimateDistributiveSurfaceFromFrame;
+    api.getOrdinaryNncAnimateCountPluralSourceSignature = getOrdinaryNncAnimateCountPluralSourceSignature;
+    api.buildOrdinaryNncAnimateCountPluralSourceFrame = buildOrdinaryNncAnimateCountPluralSourceFrame;
+    api.buildOrdinaryNncAnimateCountPluralOperationFrame = buildOrdinaryNncAnimateCountPluralOperationFrame;
+    api.buildOrdinaryNncAnimateCountPluralSurfaceFromFrame = buildOrdinaryNncAnimateCountPluralSurfaceFromFrame;
+    api.getOrdinaryNncAnimateSubjectPrefixSourceSignature = getOrdinaryNncAnimateSubjectPrefixSourceSignature;
+    api.buildOrdinaryNncAnimateSubjectPrefixSourceFrame = buildOrdinaryNncAnimateSubjectPrefixSourceFrame;
+    api.buildOrdinaryNncAnimateSubjectPrefixOperationFrame = buildOrdinaryNncAnimateSubjectPrefixOperationFrame;
+    api.buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame = buildOrdinaryNncAnimateSubjectPrefixedSurfaceFromFrame;
     api.applyOrdinaryNncSubjectPrefix = applyOrdinaryNncSubjectPrefix;
     api.applyOrdinaryNncSubjectPrefixResult = applyOrdinaryNncSubjectPrefixResult;
     api.stripOrdinaryNncPossessiveSurfacePrefix = stripOrdinaryNncPossessiveSurfacePrefix;
     api.buildOrdinaryNncPossessiveDistributiveSurface = buildOrdinaryNncPossessiveDistributiveSurface;
     api.buildOrdinaryNncPossessiveDistributiveSurfaceResult = buildOrdinaryNncPossessiveDistributiveSurfaceResult;
+    api.getOrdinaryNncNonanimatePossessiveDistributiveSourceSignature = getOrdinaryNncNonanimatePossessiveDistributiveSourceSignature;
+    api.buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame = buildOrdinaryNncNonanimatePossessiveDistributiveSourceFrame;
+    api.buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame = buildOrdinaryNncNonanimatePossessiveDistributiveOperationFrame;
+    api.buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame = buildOrdinaryNncNonanimatePossessiveDistributiveSurfaceFromFrame;
+    api.getOrdinaryNncPossessiveDistributiveSourceSignature = getOrdinaryNncPossessiveDistributiveSourceSignature;
+    api.buildOrdinaryNncPossessiveDistributiveSourceFrame = buildOrdinaryNncPossessiveDistributiveSourceFrame;
+    api.buildOrdinaryNncPossessiveDistributiveOperationFrame = buildOrdinaryNncPossessiveDistributiveOperationFrame;
+    api.buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame = buildOrdinaryNncPossessiveDistributiveSurfaceFromFrame;
+    api.getOrdinaryNncAnimatePossessiveCountPluralSourceSignature = getOrdinaryNncAnimatePossessiveCountPluralSourceSignature;
+    api.buildOrdinaryNncAnimatePossessiveCountPluralSourceFrame = buildOrdinaryNncAnimatePossessiveCountPluralSourceFrame;
+    api.buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame = buildOrdinaryNncAnimatePossessiveCountPluralOperationFrame;
+    api.buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame = buildOrdinaryNncAnimatePossessiveCountPluralSurfaceFromFrame;
+    api.getOrdinaryNncAnimatePossessivePluralIdentitySourceSignature = getOrdinaryNncAnimatePossessivePluralIdentitySourceSignature;
+    api.buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame = buildOrdinaryNncAnimatePossessivePluralIdentitySourceFrame;
+    api.buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame = buildOrdinaryNncAnimatePossessivePluralIdentityOperationFrame;
+    api.buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame = buildOrdinaryNncAnimatePossessivePluralIdentitySurfaceFromFrame;
     api.buildOrdinaryNncAnimatePossessivePluralForms = buildOrdinaryNncAnimatePossessivePluralForms;
     api.buildOrdinaryNncDerivedPluralForms = buildOrdinaryNncDerivedPluralForms;
     api.normalizeOrdinaryNncNum1Num2Class = normalizeOrdinaryNncNum1Num2Class;
     api.formatOrdinaryNncNum1Num2Class = formatOrdinaryNncNum1Num2Class;
     api.getOrdinaryNncNum1Num2Surface = getOrdinaryNncNum1Num2Surface;
+    api.formatOrdinaryNncFormulaDyadSegment = formatOrdinaryNncFormulaDyadSegment;
+    api.buildOrdinaryNncNum1Num2Dyad = buildOrdinaryNncNum1Num2Dyad;
     api.parseOrdinaryNncPredicateFormulaInput = parseOrdinaryNncPredicateFormulaInput;
+    api.isOrdinaryNncLegacyFormulaString = isOrdinaryNncLegacyFormulaString;
+    api.getOrdinaryNncRequestFormulaSlots = getOrdinaryNncRequestFormulaSlots;
+    api.getOrdinaryNncRequestFormulaSlotStem = getOrdinaryNncRequestFormulaSlotStem;
+    api.getOrdinaryNncRequestFormulaSlotNounClass = getOrdinaryNncRequestFormulaSlotNounClass;
     api.stripOrdinaryNncNum1Num2FromInput = stripOrdinaryNncNum1Num2FromInput;
     api.buildOrdinaryNncPredicateFormula = buildOrdinaryNncPredicateFormula;
     api.buildOrdinaryNncNum1Num2 = buildOrdinaryNncNum1Num2;
@@ -5147,12 +9801,23 @@ export function createNncModule(targetObject = globalThis) {
     api.getOrdinaryNncFormulaSlotFramedSurface = getOrdinaryNncFormulaSlotFramedSurface;
     api.resolveOrdinaryNncFormulaSlotText = resolveOrdinaryNncFormulaSlotText;
     api.buildOrdinaryNncFormulaEchoFromSlots = buildOrdinaryNncFormulaEchoFromSlots;
+    api.buildOrdinaryNncExpandedFormulaEchoFromSlots = buildOrdinaryNncExpandedFormulaEchoFromSlots;
+    api.buildOrdinaryNncCompactFormulaEchoFromSlots = buildOrdinaryNncCompactFormulaEchoFromSlots;
     api.buildOrdinaryNncPredicateStateFrame = buildOrdinaryNncPredicateStateFrame;
     api.getOrdinaryNncPredicateStateCategoryLabel = getOrdinaryNncPredicateStateCategoryLabel;
     api.getOrdinaryNncAnimacyCategoryLabel = getOrdinaryNncAnimacyCategoryLabel;
     api.buildOrdinaryNncCategoryProfile = buildOrdinaryNncCategoryProfile;
     api.buildOrdinaryNncBasicMetadata = buildOrdinaryNncBasicMetadata;
     api.buildOrdinaryNncClauseFrame = buildOrdinaryNncClauseFrame;
+    api.buildOrdinaryNncFormulaSurfacePairs = buildOrdinaryNncFormulaSurfacePairs;
+    api.buildOrdinaryNncFormulaSurfacePairFields = buildOrdinaryNncFormulaSurfacePairFields;
+    api.normalizeOrdinaryNncResultTextRecords = normalizeOrdinaryNncResultTextRecords;
+    api.getOrdinaryNncResultTextSourceSignature = getOrdinaryNncResultTextSourceSignature;
+    api.buildOrdinaryNncResultTextSourceFrame = buildOrdinaryNncResultTextSourceFrame;
+    api.buildOrdinaryNncResultTextOperationFrame = buildOrdinaryNncResultTextOperationFrame;
+    api.validateOrdinaryNncResultTextOperationFrame = validateOrdinaryNncResultTextOperationFrame;
+    api.buildOrdinaryNncResultText = buildOrdinaryNncResultText;
+    api.resolveOrdinaryNncResultTextFromFrames = resolveOrdinaryNncResultTextFromFrames;
     api.buildOrdinaryNncUnsupportedResult = buildOrdinaryNncUnsupportedResult;
     api.generateOrdinaryNncParadigm = generateOrdinaryNncParadigm;
     api.normalizeOrdinaryNncRequestedList = normalizeOrdinaryNncRequestedList;
@@ -5166,11 +9831,73 @@ export function createNncModule(targetObject = globalThis) {
     api.buildOrdinaryNncParadigmSetResult = buildOrdinaryNncParadigmSetResult;
     api.generateOrdinaryNncParadigmSet = generateOrdinaryNncParadigmSet;
     api.generateOrdinaryNncClause = generateOrdinaryNncClause;
+    api.getOrdinaryNncFormulaWorkbenchSlotValue = getOrdinaryNncFormulaWorkbenchSlotValue;
+    api.buildOrdinaryNncFormulaWorkbenchSlotRecords = buildOrdinaryNncFormulaWorkbenchSlotRecords;
+    api.normalizeOrdinaryNncFormulaWorkbenchInput = normalizeOrdinaryNncFormulaWorkbenchInput;
+    api.buildOrdinaryNncFormulaWorkbenchExample = buildOrdinaryNncFormulaWorkbenchExample;
+    api.buildOrdinaryNncFormulaWorkbenchExamples = buildOrdinaryNncFormulaWorkbenchExamples;
+    api.buildOrdinaryNncFormulaWorkbenchSlice = buildOrdinaryNncFormulaWorkbenchSlice;
+    Object.defineProperty(api, "POSSESSIVE_STATE_NNC_SPECIFIC_POSSESSOR_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return POSSESSIVE_STATE_NNC_SPECIFIC_POSSESSOR_SPECS; },
+    });
+    Object.defineProperty(api, "POSSESSIVE_STATE_NNC_MONADIC_POSSESSOR_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return POSSESSIVE_STATE_NNC_MONADIC_POSSESSOR_SPECS; },
+    });
+    api.getPossessiveStateNncFormulaSchema = getPossessiveStateNncFormulaSchema;
+    api.getPossessiveStateNncFormulaSlotDefinition = getPossessiveStateNncFormulaSlotDefinition;
+    api.normalizePossessiveStateNncWorkbenchInput = normalizePossessiveStateNncWorkbenchInput;
+    api.getPossessiveStateNncSpecificPossessorSpec = getPossessiveStateNncSpecificPossessorSpec;
+    api.getPossessiveStateNncMonadicPossessorSpec = getPossessiveStateNncMonadicPossessorSpec;
+    api.buildPossessiveStateNncStateSlot = buildPossessiveStateNncStateSlot;
+    api.buildPossessiveStateNncFormulaSlots = buildPossessiveStateNncFormulaSlots;
+    api.getPossessiveStateNncFormulaSlotStateToken = getPossessiveStateNncFormulaSlotStateToken;
+    api.renderPossessiveStateNncFormulaTemplate = renderPossessiveStateNncFormulaTemplate;
+    api.buildPossessiveStateNncFormulaEchoFromSlots = buildPossessiveStateNncFormulaEchoFromSlots;
+    api.buildPossessiveStateNncFormulaWorkbenchSlotRecords = buildPossessiveStateNncFormulaWorkbenchSlotRecords;
+    api.getPossessiveStateNncMonadicSourceSignature = getPossessiveStateNncMonadicSourceSignature;
+    api.buildPossessiveStateNncMonadicSourceFrame = buildPossessiveStateNncMonadicSourceFrame;
+    api.buildPossessiveStateNncMonadicOperationFrame = buildPossessiveStateNncMonadicOperationFrame;
+    api.getPossessiveStateNncMonadicFrameMismatch = getPossessiveStateNncMonadicFrameMismatch;
+    api.buildPossessiveStateNncFormulaWorkbenchExample = buildPossessiveStateNncFormulaWorkbenchExample;
+    api.buildPossessiveStateNncFormulaWorkbenchExamples = buildPossessiveStateNncFormulaWorkbenchExamples;
+    api.buildPossessiveStateNncFormulaWorkbenchSlice = buildPossessiveStateNncFormulaWorkbenchSlice;
+    Object.defineProperty(api, "SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID", {
+        configurable: true,
+        enumerable: true,
+        get() { return SUBJECT_NUMBER_CONNECTOR_SCHEMA_ID; },
+    });
+    api.getSubjectNumberConnectorFormulaSchema = getSubjectNumberConnectorFormulaSchema;
+    api.normalizeSubjectNumberConnectorWorkbenchInput = normalizeSubjectNumberConnectorWorkbenchInput;
+    api.buildSubjectNumberConnectorFormulaWorkbenchSlotRecords = buildSubjectNumberConnectorFormulaWorkbenchSlotRecords;
+    api.buildSubjectNumberConnectorOrdinaryExample = buildSubjectNumberConnectorOrdinaryExample;
+    api.buildSubjectNumberConnectorPossessiveExample = buildSubjectNumberConnectorPossessiveExample;
+    api.buildSubjectNumberConnectorVncExample = buildSubjectNumberConnectorVncExample;
+    api.buildSubjectNumberConnectorDiagnosticExample = buildSubjectNumberConnectorDiagnosticExample;
+    api.buildSubjectNumberConnectorFormulaWorkbenchExamples = buildSubjectNumberConnectorFormulaWorkbenchExamples;
+    api.buildSubjectNumberConnectorFormulaWorkbenchSlice = buildSubjectNumberConnectorFormulaWorkbenchSlice;
     api.generateOrdinaryNncClauseSet = generateOrdinaryNncClauseSet;
     api.resolveOrdinaryNncFixture = resolveOrdinaryNncFixture;
     api.resolveNawatPossessorPrefixFromSourceSubject = resolveNawatPossessorPrefixFromSourceSubject;
     api.resolveInstrumentivoPossessorPrefixFromSourceSubject = resolveInstrumentivoPossessorPrefixFromSourceSubject;
+    api.buildAndrewsSourceSubjectFrame = buildAndrewsSourceSubjectFrame;
+    api.isAndrewsSourceSubjectFrame = isAndrewsSourceSubjectFrame;
+    api.getAndrewsSourceSubjectFramePossessorPrefix = getAndrewsSourceSubjectFramePossessorPrefix;
+    api.buildSourceSubjectPossessorOperationFrame = buildSourceSubjectPossessorOperationFrame;
+    api.getSourceSubjectPossessorOperationFrameMismatch = getSourceSubjectPossessorOperationFrameMismatch;
+    api.isSourceSubjectPossessorOperationFrame = isSourceSubjectPossessorOperationFrame;
     api.isInstrumentivoImperfectActiveAbsolutiveMode = isInstrumentivoImperfectActiveAbsolutiveMode;
+    api.getPredicateNominalPreviousNonZeroSegment = getPredicateNominalPreviousNonZeroSegment;
+    api.resolvePredicateNominalAbsolutiveTtiConnector = resolvePredicateNominalAbsolutiveTtiConnector;
+    api.shouldResolvePredicateNominalConnectorAsTti = shouldResolvePredicateNominalConnectorAsTti;
+    api.getPredicateNominalPreviousNonZeroSegmentFromStemSpec = getPredicateNominalPreviousNonZeroSegmentFromStemSpec;
+    api.buildPredicateNominalConnectorOperationFrame = buildPredicateNominalConnectorOperationFrame;
+    api.getPredicateNominalConnectorOperationFrameMismatch = getPredicateNominalConnectorOperationFrameMismatch;
+    api.resolvePredicateNominalAbsolutiveTtiConnectorFromFrame = resolvePredicateNominalAbsolutiveTtiConnectorFromFrame;
+    api.buildPredicateNominalFormulaDisplayStem = buildPredicateNominalFormulaDisplayStem;
     api.getPredicateNominalResult = getPredicateNominalResult;
     api.getInstrumentivoResult = getInstrumentivoResult;
     api.getCalificativoInstrumentivoResult = getCalificativoInstrumentivoResult;
@@ -5179,7 +9906,7 @@ export function createNncModule(targetObject = globalThis) {
 }
 
 export function installNncGlobals(targetObject = globalThis) {
-    const api = createNncModule(targetObject);
+    const api = createNncApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

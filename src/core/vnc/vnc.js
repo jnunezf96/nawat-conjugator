@@ -146,8 +146,8 @@ const VNC_LESSON5_SUBSECTION_INVENTORY = Object.freeze([
         andrewsSection: "5.3",
         category: "subject-morphic-fillers",
         directiveEs: "Los rellenos de sujeto son morfos portadores de persona, caso y número; las variantes clásicas no se importan como formas nawat.",
-        engineSurface: "agreement slot inventory and Nawat evidence-gated subject prefixes/suffixes",
-        redirectAction: "needs-nawat-evidence",
+        engineSurface: "agreement slot inventory and Andrews source-gated subject prefixes/suffixes",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
     }),
@@ -638,7 +638,7 @@ const VNC_LESSON7_CLASS_B_CHANGE_FRAME = Object.freeze({
         Object.freeze({ pattern: "k spelling", example: "(miqui) > (mic)", nawatBoundary: "Nawat realization must use repo orthography, not Classical c/qu spelling" }),
         Object.freeze({ pattern: "s spelling", example: "(neci) > (nez)", nawatBoundary: "Nawat realization must use repo orthography" }),
         Object.freeze({ pattern: "m to n-like nasal", example: "(nemi) > (nen)", nawatBoundary: "current preterit classes decide attested output" }),
-        Object.freeze({ pattern: "y to s/x", example: "(tlaoco-ya) > (tlaoco-x)", nawatBoundary: "Nawat h/j/x/s choices remain evidence-gated" }),
+        Object.freeze({ pattern: "y to s/x", example: "(tlaoco-ya) > (tlaoco-x)", nawatBoundary: "Nawat h/j/x/s choices remain source-gated" }),
     ]),
     traditionalSpellingWarning: "oa/ia spellings can obscure w/y and mislead class assignment",
 });
@@ -655,7 +655,7 @@ const VNC_LESSON7_VARIABLE_CLASS_FRAME = Object.freeze({
 const VNC_LESSON7_CLASS_GUIDELINES = Object.freeze([
     Object.freeze({ id: "monosyllabic-long-a", sourceSection: "Andrews §7.6.1", classId: "D", directiveEs: "Monosílabos con a larga final pertenecen a clase D; otros monosílabos tienden a clase A." }),
     Object.freeze({ id: "final-vowel-after-cluster", sourceSection: "Andrews §7.6.2", classId: "A", directiveEs: "Final precedido por dos consonantes o consonante larga apunta a clase A." }),
-    Object.freeze({ id: "final-ka", sourceSection: "Andrews §7.6.3", classId: "A", directiveEs: "Sílabas finales ka apuntan a clase A, con excepciones evidence-gated." }),
+    Object.freeze({ id: "final-ka", sourceSection: "Andrews §7.6.3", classId: "A", directiveEs: "Sílabas finales ka apuntan a clase A, con excepciones source-gated." }),
     Object.freeze({ id: "final-tla", sourceSection: "Andrews §7.6.4", classId: "A", directiveEs: "Sílabas finales tla apuntan a clase A en la regla clásica; en Nawat la letra visible pasa por ta." }),
     Object.freeze({ id: "intransitive-wa-change", sourceSection: "Andrews §7.6.5", classId: "A", directiveEs: "Intransitivos en wa que significan cambio apuntan a clase A." }),
     Object.freeze({ id: "final-ya", sourceSection: "Andrews §7.6.6", classId: "B", directiveEs: "Final ya apunta a clase B, con opción A frecuente en intransitivos." }),
@@ -742,9 +742,9 @@ const VNC_LESSON7_SUBSECTION_INVENTORY = Object.freeze([
         id: "lesson7-class-b-changes",
         andrewsSection: "7.4",
         category: "class-b-perfective-changes",
-        directiveEs: "La pérdida o silencio de la vocal final en clase B provoca cambios ortográficos o fonológicos; la realización Nawat requiere evidencia local.",
+        directiveEs: "La pérdida o silencio de la vocal final en clase B provoca cambios ortográficos o fonológicos; la realización Nawat requiere fuente Andrews concreta y verificación ortográfica local.",
         engineSurface: "preterit class allomorphy and orthography bridge diagnostics",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-with-nawat-realization",
         implementationState: "implemented-adapted",
     }),
@@ -764,7 +764,7 @@ const VNC_LESSON7_SUBSECTION_INVENTORY = Object.freeze([
         category: "class-determination-guidelines",
         directiveEs: "Las guías de clase orientan clasificación; no sustituyen evidencia léxica Nawat/Pipil.",
         engineSurface: "class guessers, parsed metadata, and preterit class tests",
-        redirectAction: "needs-nawat-evidence",
+        redirectAction: "source-gated",
         evidenceStatus: "direct-pdf-diagnostic",
         implementationState: "implemented-diagnostic",
     }),
@@ -851,7 +851,7 @@ function getVncLesson5SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON5_VALIDATION_REFS),
-        generationPolicy: "solo por rutas de cláusula verbal existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures",
+        generationPolicy: "solo por rutas de cláusula verbal existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures",
     }));
 }
 
@@ -949,7 +949,7 @@ function getVncLesson6SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON6_VALIDATION_REFS),
-        generationPolicy: "solo por rutas CNV existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures",
+        generationPolicy: "solo por rutas CNV existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures",
     }));
 }
 
@@ -1075,7 +1075,7 @@ function getVncLesson7SubsectionInventory() {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         validationRefs: Array.from(VNC_LESSON7_VALIDATION_REFS),
-        generationPolicy: "solo por rutas CNV existentes con evidencia Nawat/Pipil; esta auditoría no crea fixtures",
+        generationPolicy: "solo por rutas CNV existentes con fuente Andrews concreta y puente ortografico; esta auditoría no crea fixtures",
     }));
 }
 
@@ -1135,6 +1135,11 @@ function parseAdjectivalNncFunctionEntryContract(dataset = {}) {
     }
 }
 
+function getAdjectivalNncFunctionEntryObjectContract(troncoControl = null) {
+    const contract = troncoControl?.__adjectivalNncFunctionEntryContract;
+    return contract && typeof contract === "object" ? contract : null;
+}
+
 function normalizeAdjectivalNncFunctionSurfaceValue(value = "") {
     const surface = String(value || "").trim();
     return surface === "—" ? "" : surface;
@@ -1160,12 +1165,47 @@ function hasAdjectivalNncFunctionEntryContractResultFrame(contract = null) {
     return Boolean(frame?.resultFrame && typeof frame.resultFrame === "object");
 }
 
+function isAdjectivalNncFunctionTypedContinuationFrame(frame = null) {
+    return Boolean(
+        frame
+        && typeof frame === "object"
+        && frame.kind === "generated-output-typed-continuation-frame"
+        && frame.formulaRecord?.kind === "grammar-formula-record"
+        && frame.formulaRealizationRecord?.kind === "grammar-formula-realization-record"
+    );
+}
+
+function getAdjectivalNncFunctionTypedFrameSurface(frame = null, selectedVariant = null) {
+    if (!isAdjectivalNncFunctionTypedContinuationFrame(frame)) {
+        return "";
+    }
+    const record = frame.formulaRealizationRecord;
+    const surfaces = [
+        ...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []),
+        record.surface || "",
+    ].map((entry) => normalizeAdjectivalNncFunctionSurfaceValue(entry))
+        .filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    if (!surfaces.length) {
+        return "";
+    }
+    const selectedIndex = Number.isInteger(Number(selectedVariant?.variantIndex))
+        ? Number(selectedVariant.variantIndex)
+        : 0;
+    return surfaces[selectedIndex] || surfaces[0] || "";
+}
+
 function getAdjectivalNncFunctionEntryContractSurface(contract = null) {
     const source = contract && typeof contract === "object" ? contract : {};
     const frame = getAdjectivalNncFunctionEntryContractFrame(source);
     const resultFrame = frame?.resultFrame && typeof frame.resultFrame === "object"
         ? frame.resultFrame
         : null;
+    const canonicalForms = typeof getGrammarResultFrameCanonicalSurfaceForms === "function"
+        ? getGrammarResultFrameCanonicalSurfaceForms(resultFrame)
+        : [];
+    if (canonicalForms.length) {
+        return canonicalForms[0] || "";
+    }
     const forms = [];
     if (Array.isArray(resultFrame?.surfaceForms)) {
         forms.push(...resultFrame.surfaceForms);
@@ -1223,22 +1263,40 @@ function getAdjectivalNncFunctionEntryNounClass(connectorSlot = null) {
 }
 
 function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
-    const dataset = troncoControl?.dataset || {};
     const currentSurface = String(troncoControl?.value || "").trim();
-    const entryRouteContract = parseAdjectivalNncFunctionEntryContract(dataset);
+    const entryRouteContract = getAdjectivalNncFunctionEntryObjectContract(troncoControl);
     const entryGrammarFrame = getAdjectivalNncFunctionEntryContractFrame(entryRouteContract);
     const hasEntryResultFrame = hasAdjectivalNncFunctionEntryContractResultFrame(entryRouteContract);
-    const targetSurface = getAdjectivalNncFunctionEntryContractSurface(entryRouteContract)
-        || (!hasEntryResultFrame
-            ? normalizeAdjectivalNncFunctionSurfaceValue(dataset.adjectivalNncFunctionSurface)
-            : "");
-    if (!currentSurface || !targetSurface || currentSurface !== targetSurface) {
+    const formation = String(entryRouteContract?.formation || "").trim();
+    const sourceContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame(entryRouteContract?.sourceContinuationFrame)
+        ? entryRouteContract.sourceContinuationFrame
+        : null;
+    const targetContinuationFrame = isAdjectivalNncFunctionTypedContinuationFrame(entryRouteContract?.targetContinuationFrame)
+        ? entryRouteContract.targetContinuationFrame
+        : null;
+    const entryOperationFrame = entryRouteContract?.operationFrame && typeof entryRouteContract.operationFrame === "object"
+        ? entryRouteContract.operationFrame
+        : (targetContinuationFrame?.operationFrame && typeof targetContinuationFrame.operationFrame === "object"
+            ? targetContinuationFrame.operationFrame
+            : null);
+    const requiresStructuredContinuation = entryRouteContract?.requiresCanonicalFormulaRecords === true;
+    if (requiresStructuredContinuation && (!sourceContinuationFrame || !targetContinuationFrame)) {
         return null;
     }
-    const formation = String(dataset.adjectivalNncFormation || "").trim();
-    const nominalizedVncKind = String(dataset.nominalizedVncKind || "").trim();
-    const patientivoSource = String(dataset.patientivoSource || "").trim();
-    const formulaEcho = String(dataset.adjectivalNncFormulaEcho || "").trim();
+    const targetSurface = requiresStructuredContinuation
+        ? getAdjectivalNncFunctionTypedFrameSurface(targetContinuationFrame, entryRouteContract?.targetSelectedVariant)
+        : (
+            getAdjectivalNncFunctionEntryContractSurface(entryRouteContract)
+            || (hasEntryResultFrame ? "" : normalizeAdjectivalNncFunctionSurfaceValue(entryRouteContract?.surface))
+        );
+    if (!targetSurface) {
+        return null;
+    }
+    if (!requiresStructuredContinuation && (!currentSurface || currentSurface !== targetSurface)) {
+        return null;
+    }
+    const nominalizedVncKind = String(entryRouteContract?.nominalizedVncKind || "").trim();
+    const patientivoSource = String(entryRouteContract?.patientivoSource || "").trim();
     const sourceContract = entryGrammarFrame?.routeContract?.sourceContract || {};
     const stemFrame = entryGrammarFrame?.stemFrame || {};
     const inflectionFrame = entryGrammarFrame?.inflectionFrame || {};
@@ -1247,7 +1305,6 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
         && typeof entryRouteContract.sourceFormulaSlots === "object"
         ? entryRouteContract.sourceFormulaSlots
         : null;
-    const entrySourceFormulaEcho = String(entryRouteContract?.sourceFormulaEcho || "").trim();
     const entrySourceCompoundFrame = entryRouteContract?.sourceCompoundFrame
         && typeof entryRouteContract.sourceCompoundFrame === "object"
         ? entryRouteContract.sourceCompoundFrame
@@ -1256,17 +1313,51 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
         && typeof entryRouteContract.sourceDenominalCompoundFrame === "object"
         ? entryRouteContract.sourceDenominalCompoundFrame
         : null;
+    const sourceSelectedVariant = entryRouteContract?.sourceSelectedVariant
+        && typeof entryRouteContract.sourceSelectedVariant === "object"
+        ? entryRouteContract.sourceSelectedVariant
+        : null;
+    const targetSelectedVariant = entryRouteContract?.targetSelectedVariant
+        && typeof entryRouteContract.targetSelectedVariant === "object"
+        ? entryRouteContract.targetSelectedVariant
+        : null;
     const predicateSlot = formulaSlots?.predicateStem || null;
     const subjectSlot = formulaSlots?.pers1Pers2 || null;
     const connectorSlot = formulaSlots?.num1Num2 || null;
     const adjectivalNnc = {
         enabled: true,
-        stem: targetSurface,
-        surface: targetSurface,
-        surfaceForms: targetSurface ? [targetSurface] : [],
         state: "absolutive",
         role: "predicate-surface",
+        requiresStructuredContinuation,
     };
+    if (!requiresStructuredContinuation) {
+        adjectivalNnc.stem = targetSurface;
+        adjectivalNnc.surface = targetSurface;
+        adjectivalNnc.surfaceForms = targetSurface ? [targetSurface] : [];
+    }
+    if (sourceContinuationFrame) {
+        adjectivalNnc.sourceContinuationFrame = sourceContinuationFrame;
+    }
+    if (targetContinuationFrame) {
+        adjectivalNnc.targetContinuationFrame = targetContinuationFrame;
+    }
+    if (entryOperationFrame) {
+        adjectivalNnc.operationFrame = entryOperationFrame;
+    }
+    if (sourceSelectedVariant) {
+        adjectivalNnc.sourceSelectedVariant = sourceSelectedVariant;
+        adjectivalNnc.sourceSelectedVariantId = String(sourceSelectedVariant.variantId || sourceSelectedVariant.selectedVariantId || "").trim();
+        adjectivalNnc.sourceFormulaRealizationRecordId = String(sourceSelectedVariant.formulaRealizationRecordId || "").trim();
+        adjectivalNnc.sourceFormulaRecordId = String(sourceSelectedVariant.formulaRecordId || "").trim();
+    }
+    if (targetSelectedVariant) {
+        adjectivalNnc.targetSelectedVariant = targetSelectedVariant;
+        adjectivalNnc.selectedVariant = targetSelectedVariant;
+        adjectivalNnc.targetSelectedVariantId = String(targetSelectedVariant.variantId || targetSelectedVariant.selectedVariantId || "").trim();
+        adjectivalNnc.selectedVariantId = adjectivalNnc.targetSelectedVariantId;
+        adjectivalNnc.formulaRealizationRecordId = String(targetSelectedVariant.formulaRealizationRecordId || "").trim();
+        adjectivalNnc.formulaRecordId = String(targetSelectedVariant.formulaRecordId || "").trim();
+    }
     if (entryGrammarFrame) {
         adjectivalNnc.grammarFrame = entryGrammarFrame;
         adjectivalNnc.frames = entryGrammarFrame;
@@ -1279,19 +1370,26 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
         adjectivalNnc.patientivoSource = patientivoSource;
     }
     if (formation === "ordinary-absolutive") {
-        const sourceStem = getAdjectivalNncFunctionEntryFormulaSlotSurface(predicateSlot, ["stem", "surface"])
-            || String(stemFrame.sourceStem || stemFrame.stem || "").trim();
-        if (sourceStem) {
-            adjectivalNnc.stem = sourceStem;
-            adjectivalNnc.sourceStem = sourceStem;
-            adjectivalNnc.predicateStem = sourceStem;
+        const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
+        if (sourceFormulaSlots) {
+            adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
+            adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        adjectivalNnc.pers1 = String(subjectSlot?.prefix || "").trim();
-        adjectivalNnc.pers2 = String(subjectSlot?.suffix || "").trim();
-        adjectivalNnc.subjectKey = String(subjectSlot?.personSubKey || subjectSlot?.label || "").trim();
-        adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot);
-        adjectivalNnc.number = String(connectorSlot?.referenceNumber || "").trim() || "singular";
-        adjectivalNnc.pluralType = String(connectorSlot?.pluralType || "").trim() || "auto";
+        if (!requiresStructuredContinuation) {
+            const sourceStem = getAdjectivalNncFunctionEntryFormulaSlotSurface(predicateSlot, ["stem", "surface"])
+                || String(stemFrame.sourceStem || stemFrame.stem || "").trim();
+            if (sourceStem) {
+                adjectivalNnc.stem = sourceStem;
+                adjectivalNnc.sourceStem = sourceStem;
+                adjectivalNnc.predicateStem = sourceStem;
+            }
+            adjectivalNnc.pers1 = String(subjectSlot?.prefix || "").trim();
+            adjectivalNnc.pers2 = String(subjectSlot?.suffix || "").trim();
+            adjectivalNnc.subjectKey = String(subjectSlot?.personSubKey || subjectSlot?.label || "").trim();
+            adjectivalNnc.nounClass = getAdjectivalNncFunctionEntryNounClass(connectorSlot);
+            adjectivalNnc.number = String(connectorSlot?.referenceNumber || "").trim() || "singular";
+            adjectivalNnc.pluralType = String(connectorSlot?.pluralType || "").trim() || "auto";
+        }
     }
     if (formation === "intensified-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
@@ -1299,19 +1397,9 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
             adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
             adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        const sourceFormulaEcho = entrySourceFormulaEcho
-            || formulaEcho
-            || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
-        if (sourceFormulaEcho) {
-            adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-            adjectivalNnc.formulaEcho = sourceFormulaEcho;
-        }
     }
     if (formation === "compound-source-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
-        const sourceFormulaEcho = entrySourceFormulaEcho
-            || formulaEcho
-            || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
         adjectivalNnc.compoundSourceSurface = targetSurface;
         adjectivalNnc.nominalizedSurface = targetSurface;
         adjectivalNnc.sourceCompoundFrame = entrySourceCompoundFrame;
@@ -1328,16 +1416,9 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
             adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
             adjectivalNnc.formulaSlots = sourceFormulaSlots;
         }
-        if (sourceFormulaEcho) {
-            adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-            adjectivalNnc.formulaEcho = sourceFormulaEcho;
-        }
     }
     if (formation === "denominal-compound-adjectival") {
         const sourceFormulaSlots = entrySourceFormulaSlots || formulaSlots;
-        const sourceFormulaEcho = entrySourceFormulaEcho
-            || formulaEcho
-            || String(entryGrammarFrame?.morphBoundaryFrame?.formulaEcho || "").trim();
         adjectivalNnc.denominalCompoundSurface = targetSurface;
         adjectivalNnc.nominalizedSurface = targetSurface;
         adjectivalNnc.sourceDenominalCompoundFrame = entrySourceDenominalCompoundFrame;
@@ -1353,10 +1434,6 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
         if (sourceFormulaSlots) {
             adjectivalNnc.sourceFormulaSlots = sourceFormulaSlots;
             adjectivalNnc.formulaSlots = sourceFormulaSlots;
-        }
-        if (sourceFormulaEcho) {
-            adjectivalNnc.sourceFormulaEcho = sourceFormulaEcho;
-            adjectivalNnc.formulaEcho = sourceFormulaEcho;
         }
     }
     if (formation === "vnc-adjectival") {
@@ -1389,9 +1466,6 @@ function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
             role: { nominalizationKind: nominalizedVncKind },
             predicateState: { value: "absolutive" },
         };
-    }
-    if (formulaEcho) {
-        adjectivalNnc.formulaEcho = formulaEcho;
     }
     if (entryRouteContract) {
         adjectivalNnc.entryRouteContract = entryRouteContract;
