@@ -1557,13 +1557,22 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       });
       const allowNaCvlvcvTransitiveClassA = hasAuthoritativePretClassANaCvlvcvTransitiveFrame(context);
       const classANaCvlvcvTransitivePolicyFrame = allowNaCvlvcvTransitiveClassA ? context.classANaCvlvcvTransitiveOperationFrame : null;
-      const hasNaVlcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vlcvna);
+      const hasNaVlcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      });
       const allowNaVlcvcvTransitiveClassA = hasAuthoritativePretClassANaVlcvcvTransitiveFrame(context);
       const classANaVlcvcvTransitivePolicyFrame = allowNaVlcvcvTransitiveClassA ? context.classANaVlcvcvTransitiveOperationFrame : null;
-      const hasNaVjcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvna);
+      const hasNaVjcvcvTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"]
+      });
       const allowNaVjcvcvTransitiveClassA = hasAuthoritativePretClassANaVjcvcvTransitiveFrame(context);
       const classANaVjcvcvTransitivePolicyFrame = allowNaVjcvcvTransitiveClassA ? context.classANaVjcvcvTransitiveOperationFrame : null;
-      const hasTzaTransitiveShape = context.isTransitive && !context.isMonosyllable && (patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvtza) || patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvtza));
+      const hasTzaTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
+        endingFamily: "tz+a",
+        rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"]
+      });
       const allowTzaTransitiveClassA = hasAuthoritativePretClassATzaTransitiveFrame(context);
       const classATzaTransitivePolicyFrame = allowTzaTransitiveClassA ? context.classATzaTransitiveOperationFrame : null;
       const isTransitiveCVnaAllowZero = context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.cvna) && (context.isReduplicated || context.isBitransitive);
@@ -1698,9 +1707,14 @@ export function createPreteritEngineModule(targetObject = globalThis) {
         if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
           return null;
         }
-        allowZeroSuffix = false;
+        if (allowTzaTransitiveClassA) {
+          allowZeroSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+          allowKiSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+        } else {
+          allowZeroSuffix = false;
+        }
       }
-      if (hasRightEdge({
+      if (!hasTzaTransitiveShape && hasRightEdge({
         finalOnset: "tz"
       }) && !hasAnyRightEdge([{
         rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"]
@@ -1748,11 +1762,23 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       if (hasNaVlcvcvTransitiveShape && !allowNaVlcvcvTransitiveClassA) {
         return null;
       }
+      if (allowNaVlcvcvTransitiveClassA) {
+        allowZeroSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
       if (hasNaVjcvcvTransitiveShape && !allowNaVjcvcvTransitiveClassA) {
         return null;
       }
+      if (allowNaVjcvcvTransitiveClassA) {
+        allowZeroSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+      }
       if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
         return null;
+      }
+      if (allowTzaTransitiveClassA) {
+        allowZeroSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
       }
       if (isKSeriesNoU) {
         allowKiSuffix = false;
@@ -1811,13 +1837,19 @@ export function createPreteritEngineModule(targetObject = globalThis) {
           allowKiSuffix = !context.isReduplicated;
         }
       }
-      if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vjcvna)) {
-        allowZeroSuffix = true;
-        allowKiSuffix = true;
+      if (hasNaVjcvcvTransitiveShape) {
+        if (!allowNaVjcvcvTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
       }
-      if (context.isTransitive && patterns.hasShape(targetObject.PRET_DESCRIPTOR_QUERIES.shape.vlcvna)) {
-        allowZeroSuffix = false;
-        allowKiSuffix = true;
+      if (hasNaVlcvcvTransitiveShape) {
+        if (!allowNaVlcvcvTransitiveClassA) {
+          return null;
+        }
+        allowZeroSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
       }
       if (isTransitiveShapeCVCVna) {
         if (!allowNaCvcvcvTransitiveClassA) {

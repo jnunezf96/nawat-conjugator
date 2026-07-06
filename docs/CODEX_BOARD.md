@@ -4711,8 +4711,8 @@ Decision:
 
 - The selected preterit Class A transitive final `n+a` with `Vl|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the `ki`-only target suffix policy.
 - `buildPretClassANaVlcvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, `Vl|CV|CV` profile, final onset, final nucleus, transitive state, non-monosyllable state, and `ki`-only target policy. `buildPretClassANaVlcvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-vlcvcv-transitive-policy`.
-- The selected `descriptor_vlcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
-- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+- The selected `descriptor_vlcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
 
 ## Completed Phase: Preterit Class A NA VJCVCV Transitive Policy Typed Operation Gate
 
@@ -4722,8 +4722,8 @@ Decision:
 
 - The selected preterit Class A transitive final `n+a` with `Vj|CV|CV` / expanded `V|C|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the zero-plus-`ki` target suffix policy.
 - `buildPretClassANaVjcvcvTransitiveSourceFrame()` represents the original source verb, right-edge ending family, right-edge profile, final onset, final nucleus, transitive state, non-monosyllable state, and zero-plus-`ki` target policy. `buildPretClassANaVjcvcvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-na-vjcvcv-transitive-policy`.
-- The selected `descriptor_vjcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting zero plus `ki`. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
-- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+- The selected `descriptor_vjcvna_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting zero plus `ki`. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_na_transitive` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
 
 ## Completed Phase: Preterit Class A TZA Transitive Policy Typed Operation Gate
 
@@ -4733,8 +4733,8 @@ Decision:
 
 - The selected preterit Class A transitive final `tz+a` with `CV|CV`, `Vj|CV|CV`, or expanded `V|C|CV|CV` right-edge profile no longer lets descriptor-only shape state authorize Class A candidates or the `ki`-only target suffix policy.
 - `buildPretClassATzaTransitiveSourceFrame()` represents the original source verb, right-edge ending family, right-edge profile, final onset, final nucleus, transitive state, non-monosyllable state, and `ki`-only target policy. `buildPretClassATzaTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-tza-transitive-policy`.
-- The selected `descriptor_cvtza_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected shape route from falling through to default candidates or the broader `descriptor_tz+*` fallback when source or operation frames are missing.
-- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, and poisoned display fields block or fail to alter the selected route.
+- The selected `descriptor_cvtza_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_tz+*` fallback when source or operation frames are missing.
+- Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
 
 ## Merge Rules
 

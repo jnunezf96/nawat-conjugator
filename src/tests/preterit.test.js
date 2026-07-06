@@ -6737,8 +6737,19 @@ function run(ctx) {
         analysisVerb: "poison",
         exactBaseVerb: "poison",
     });
+    const naVlcvcvTransitiveDescriptorPoisonedContext = {
+        ...naVlcvcvTransitiveContext,
+        descriptorState: {
+            ...naVlcvcvTransitiveContext.descriptorState,
+            shapeDescriptors: [],
+            aggregateDescriptors: [],
+        },
+    };
+    const naVlcvcvTransitiveDescriptorPoisonedClassA = ctx.buildPretUniversalClassA(
+        naVlcvcvTransitiveDescriptorPoisonedContext
+    );
     s.eq(
-        "preterit Class A n+a Vl|CV|CV transitive policy consumes typed frame before lying strings",
+        "preterit Class A n+a Vl|CV|CV transitive policy consumes typed frame before lying strings and descriptors",
         {
             frameKind: naVlcvcvTransitiveContext.classANaVlcvcvTransitiveSourceFrame?.kind || "",
             operation: naVlcvcvTransitiveContext.classANaVlcvcvTransitiveOperationFrame?.operationId || "",
@@ -6756,6 +6767,14 @@ function run(ctx) {
                 suffix: ctx.getPretVariantSuffix(variant),
                 policy: variant.routePolicyFrame?.operationId || "",
             })),
+            candidatesWithPoisonedDescriptors: Array.from(
+                ctx.getPretUniversalClassCandidates(naVlcvcvTransitiveDescriptorPoisonedContext)
+            ),
+            variantsWithPoisonedDescriptors: naVlcvcvTransitiveDescriptorPoisonedClassA.map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
         },
         {
             frameKind: "preterit-class-a-na-vlcvcv-transitive-source-frame",
@@ -6764,6 +6783,10 @@ function run(ctx) {
             targetKiOnly: true,
             candidatesWithLyingStrings: ["A"],
             variants: [
+                { base: "altan", suffix: "ki", policy: "andrews-preterit-class-a-na-vlcvcv-transitive-policy" },
+            ],
+            candidatesWithPoisonedDescriptors: ["A"],
+            variantsWithPoisonedDescriptors: [
                 { base: "altan", suffix: "ki", policy: "andrews-preterit-class-a-na-vlcvcv-transitive-policy" },
             ],
         }
@@ -6893,8 +6916,19 @@ function run(ctx) {
         analysisVerb: "poison",
         exactBaseVerb: "poison",
     });
+    const naVjcvcvTransitiveDescriptorPoisonedContext = {
+        ...naVjcvcvTransitiveContext,
+        descriptorState: {
+            ...naVjcvcvTransitiveContext.descriptorState,
+            shapeDescriptors: [],
+            aggregateDescriptors: [],
+        },
+    };
+    const naVjcvcvTransitiveDescriptorPoisonedClassA = ctx.buildPretUniversalClassA(
+        naVjcvcvTransitiveDescriptorPoisonedContext
+    );
     s.eq(
-        "preterit Class A n+a Vj|CV|CV transitive policy consumes typed frame before lying strings",
+        "preterit Class A n+a Vj|CV|CV transitive policy consumes typed frame before lying strings and descriptors",
         {
             frameKind: naVjcvcvTransitiveContext.classANaVjcvcvTransitiveSourceFrame?.kind || "",
             operation: naVjcvcvTransitiveContext.classANaVjcvcvTransitiveOperationFrame?.operationId || "",
@@ -6912,6 +6946,14 @@ function run(ctx) {
                 suffix: ctx.getPretVariantSuffix(variant),
                 policy: variant.routePolicyFrame?.operationId || "",
             })),
+            candidatesWithPoisonedDescriptors: Array.from(
+                ctx.getPretUniversalClassCandidates(naVjcvcvTransitiveDescriptorPoisonedContext)
+            ),
+            variantsWithPoisonedDescriptors: naVjcvcvTransitiveDescriptorPoisonedClassA.map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
         },
         {
             frameKind: "preterit-class-a-na-vjcvcv-transitive-source-frame",
@@ -6920,6 +6962,11 @@ function run(ctx) {
             targetZeroAndKi: true,
             candidatesWithLyingStrings: ["A"],
             variants: [
+                { base: "ajpan", suffix: "ki", policy: "andrews-preterit-class-a-na-vjcvcv-transitive-policy" },
+                { base: "ajpan", suffix: "", policy: "andrews-preterit-class-a-na-vjcvcv-transitive-policy" },
+            ],
+            candidatesWithPoisonedDescriptors: ["A"],
+            variantsWithPoisonedDescriptors: [
                 { base: "ajpan", suffix: "ki", policy: "andrews-preterit-class-a-na-vjcvcv-transitive-policy" },
                 { base: "ajpan", suffix: "", policy: "andrews-preterit-class-a-na-vjcvcv-transitive-policy" },
             ],
@@ -7050,8 +7097,19 @@ function run(ctx) {
         analysisVerb: "poison",
         exactBaseVerb: "poison",
     });
+    const tzaTransitiveDescriptorPoisonedContext = {
+        ...tzaTransitiveContext,
+        descriptorState: {
+            ...tzaTransitiveContext.descriptorState,
+            shapeDescriptors: [],
+            aggregateDescriptors: [],
+        },
+    };
+    const tzaTransitiveDescriptorPoisonedClassA = ctx.buildPretUniversalClassA(
+        tzaTransitiveDescriptorPoisonedContext
+    );
     s.eq(
-        "preterit Class A tz+a transitive policy consumes typed frame before lying strings",
+        "preterit Class A tz+a transitive policy consumes typed frame before lying strings and descriptors",
         {
             frameKind: tzaTransitiveContext.classATzaTransitiveSourceFrame?.kind || "",
             operation: tzaTransitiveContext.classATzaTransitiveOperationFrame?.operationId || "",
@@ -7069,6 +7127,14 @@ function run(ctx) {
                 suffix: ctx.getPretVariantSuffix(variant),
                 policy: variant.routePolicyFrame?.operationId || "",
             })),
+            candidatesWithPoisonedDescriptors: Array.from(
+                ctx.getPretUniversalClassCandidates(tzaTransitiveDescriptorPoisonedContext)
+            ),
+            variantsWithPoisonedDescriptors: tzaTransitiveDescriptorPoisonedClassA.map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
         },
         {
             frameKind: "preterit-class-a-tza-transitive-source-frame",
@@ -7077,6 +7143,10 @@ function run(ctx) {
             targetKiOnly: true,
             candidatesWithLyingStrings: ["A"],
             variants: [
+                { base: "matz", suffix: "ki", policy: "andrews-preterit-class-a-tza-transitive-policy" },
+            ],
+            candidatesWithPoisonedDescriptors: ["A"],
+            variantsWithPoisonedDescriptors: [
                 { base: "matz", suffix: "ki", policy: "andrews-preterit-class-a-tza-transitive-policy" },
             ],
         }

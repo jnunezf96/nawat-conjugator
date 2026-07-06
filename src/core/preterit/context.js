@@ -6244,7 +6244,7 @@ const PRET_UNIVERSAL_CLASS_GATE_RULES = Object.freeze([
         when: (context) => (
             context?.isTransitive === true
             && context?.isMonosyllable !== true
-            && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna)
+            && pretContextHasRightEdge(context, { endingFamily: "n+a", rightEdgeProfiles: ["Vl|CV|CV"] })
             && getPretClassANaVlcvcvTransitiveFrameMismatch({
                 sourceFrame: context?.classANaVlcvcvTransitiveSourceFrame,
                 operationFrame: context?.classANaVlcvcvTransitiveOperationFrame,
@@ -6259,7 +6259,10 @@ const PRET_UNIVERSAL_CLASS_GATE_RULES = Object.freeze([
         when: (context) => (
             context?.isTransitive === true
             && context?.isMonosyllable !== true
-            && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna)
+            && pretContextHasRightEdge(context, {
+                endingFamily: "n+a",
+                rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"],
+            })
             && getPretClassANaVjcvcvTransitiveFrameMismatch({
                 sourceFrame: context?.classANaVjcvcvTransitiveSourceFrame,
                 operationFrame: context?.classANaVjcvcvTransitiveOperationFrame,
@@ -6274,10 +6277,10 @@ const PRET_UNIVERSAL_CLASS_GATE_RULES = Object.freeze([
         when: (context) => (
             context?.isTransitive === true
             && context?.isMonosyllable !== true
-            && pretContextHasAnyShapeDescriptor(
-                context,
-                [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza]
-            )
+            && pretContextHasRightEdge(context, {
+                endingFamily: "tz+a",
+                rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"],
+            })
             && getPretClassATzaTransitiveFrameMismatch({
                 sourceFrame: context?.classATzaTransitiveSourceFrame,
                 operationFrame: context?.classATzaTransitiveOperationFrame,
@@ -8422,10 +8425,10 @@ const PRET_UNIVERSAL_EARLY_TIER_RULES = Object.freeze([
             ])
             && !(
                 context?.isTransitive === true
-                && pretContextHasAnyShapeDescriptor(
-                    context,
-                    [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza]
-                )
+                && pretContextHasRightEdge(context, {
+                    endingFamily: "tz+a",
+                    rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"],
+                })
             )
         ),
         classes: ["A"],
@@ -8730,8 +8733,11 @@ const PRET_UNIVERSAL_SHAPE_MA_KWI_NI_TIER_RULES = Object.freeze([
                 && !pretContextHasRightEdge(context, { endingFamily: "n+a", rightEdgeProfiles: ["CV|CV"] })
                 && !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV)
                 && !pretContextHasRightEdge(context, { endingFamily: "n+a", rightEdgeProfiles: ["CVl|V|CV"] })
-                && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna)
-                && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna)
+                && !pretContextHasRightEdge(context, { endingFamily: "n+a", rightEdgeProfiles: ["Vl|CV|CV"] })
+                && !pretContextHasRightEdge(context, {
+                    endingFamily: "n+a",
+                    rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"],
+                })
                 && pretContextHasShapeEndingFamily(context, "n+a")
             )
         ),

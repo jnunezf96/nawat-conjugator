@@ -1997,24 +1997,27 @@ function buildPretUniversalClassA(context) {
         : null;
     const hasNaVlcvcvTransitiveShape = context.isTransitive
         && !context.isMonosyllable
-        && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlcvna);
+        && hasRightEdge({ endingFamily: "n+a", rightEdgeProfiles: ["Vl|CV|CV"] });
     const allowNaVlcvcvTransitiveClassA = hasAuthoritativePretClassANaVlcvcvTransitiveFrame(context);
     const classANaVlcvcvTransitivePolicyFrame = allowNaVlcvcvTransitiveClassA
         ? context.classANaVlcvcvTransitiveOperationFrame
         : null;
     const hasNaVjcvcvTransitiveShape = context.isTransitive
         && !context.isMonosyllable
-        && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvna);
+        && hasRightEdge({
+            endingFamily: "n+a",
+            rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"],
+        });
     const allowNaVjcvcvTransitiveClassA = hasAuthoritativePretClassANaVjcvcvTransitiveFrame(context);
     const classANaVjcvcvTransitivePolicyFrame = allowNaVjcvcvTransitiveClassA
         ? context.classANaVjcvcvTransitiveOperationFrame
         : null;
     const hasTzaTransitiveShape = context.isTransitive
         && !context.isMonosyllable
-        && (
-            patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.cvtza)
-            || patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvtza)
-        );
+        && hasRightEdge({
+            endingFamily: "tz+a",
+            rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"],
+        });
     const allowTzaTransitiveClassA = hasAuthoritativePretClassATzaTransitiveFrame(context);
     const classATzaTransitivePolicyFrame = allowTzaTransitiveClassA
         ? context.classATzaTransitiveOperationFrame
@@ -2163,10 +2166,16 @@ function buildPretUniversalClassA(context) {
         if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
             return null;
         }
-        allowZeroSuffix = false;
+        if (allowTzaTransitiveClassA) {
+            allowZeroSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+            allowKiSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+        } else {
+            allowZeroSuffix = false;
+        }
     }
     if (
-        hasRightEdge({ finalOnset: "tz" })
+        !hasTzaTransitiveShape
+        && hasRightEdge({ finalOnset: "tz" })
         && !hasAnyRightEdge([{ rightEdgeProfileSuffixes: ["V|C|CV", "CV|C|CV"] }])
     ) {
         allowZeroSuffix = false;
@@ -2212,11 +2221,23 @@ function buildPretUniversalClassA(context) {
     if (hasNaVlcvcvTransitiveShape && !allowNaVlcvcvTransitiveClassA) {
         return null;
     }
+    if (allowNaVlcvcvTransitiveClassA) {
+        allowZeroSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+    }
     if (hasNaVjcvcvTransitiveShape && !allowNaVjcvcvTransitiveClassA) {
         return null;
     }
+    if (allowNaVjcvcvTransitiveClassA) {
+        allowZeroSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
+    }
     if (hasTzaTransitiveShape && !allowTzaTransitiveClassA) {
         return null;
+    }
+    if (allowTzaTransitiveClassA) {
+        allowZeroSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classATzaTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
     }
     if (isKSeriesNoU) {
         allowKiSuffix = false;
@@ -2268,13 +2289,19 @@ function buildPretUniversalClassA(context) {
             allowKiSuffix = !context.isReduplicated;
         }
     }
-    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vjcvna)) {
-        allowZeroSuffix = true;
-        allowKiSuffix = true;
+    if (hasNaVjcvcvTransitiveShape) {
+        if (!allowNaVjcvcvTransitiveClassA) {
+            return null;
+        }
+        allowZeroSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVjcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
     }
-    if (context.isTransitive && patterns.hasShape(PRET_DESCRIPTOR_QUERIES.shape.vlcvna)) {
-        allowZeroSuffix = false;
-        allowKiSuffix = true;
+    if (hasNaVlcvcvTransitiveShape) {
+        if (!allowNaVlcvcvTransitiveClassA) {
+            return null;
+        }
+        allowZeroSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowZeroSuffix === true;
+        allowKiSuffix = classANaVlcvcvTransitivePolicyFrame?.targetFrame?.allowKiSuffix === true;
     }
     if (isTransitiveShapeCVCVna) {
         if (!allowNaCvcvcvTransitiveClassA) {

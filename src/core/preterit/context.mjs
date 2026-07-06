@@ -4507,7 +4507,10 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "blocked_na_vlcvcv_transitive_without_typed_frames",
       label: "n+a Vl|CV|CV transitive missing typed frames",
       tier: "shape",
-      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna) && getPretClassANaVlcvcvTransitiveFrameMismatch({
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      }) && getPretClassANaVlcvcvTransitiveFrameMismatch({
         sourceFrame: context?.classANaVlcvcvTransitiveSourceFrame,
         operationFrame: context?.classANaVlcvcvTransitiveOperationFrame
       }),
@@ -4516,7 +4519,10 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "blocked_na_vjcvcv_transitive_without_typed_frames",
       label: "n+a Vj|CV|CV transitive missing typed frames",
       tier: "shape",
-      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna) && getPretClassANaVjcvcvTransitiveFrameMismatch({
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"]
+      }) && getPretClassANaVjcvcvTransitiveFrameMismatch({
         sourceFrame: context?.classANaVjcvcvTransitiveSourceFrame,
         operationFrame: context?.classANaVjcvcvTransitiveOperationFrame
       }),
@@ -4525,7 +4531,10 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "blocked_tza_transitive_without_typed_frames",
       label: "tz+a transitive missing typed frames",
       tier: "shape",
-      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza]) && getPretClassATzaTransitiveFrameMismatch({
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "tz+a",
+        rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"]
+      }) && getPretClassATzaTransitiveFrameMismatch({
         sourceFrame: context?.classATzaTransitiveSourceFrame,
         operationFrame: context?.classATzaTransitiveOperationFrame
       }),
@@ -6531,7 +6540,10 @@ export function createPreteritContextModule(targetObject = globalThis) {
         finalOnset: "tz"
       }) && !pretContextHasAnyRightEdge(context, [{
         juncture: "C|CV"
-      }]) && !(context?.isTransitive === true && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza])),
+      }]) && !(context?.isTransitive === true && pretContextHasRightEdge(context, {
+        endingFamily: "tz+a",
+        rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"]
+      })),
       classes: ["A"]
     }, {
       id: "forced_b_ending",
@@ -6771,7 +6783,13 @@ export function createPreteritContextModule(targetObject = globalThis) {
       }) && !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV) && !pretContextHasRightEdge(context, {
         endingFamily: "n+a",
         rightEdgeProfiles: ["CVl|V|CV"]
-      }) && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna) && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna) && pretContextHasShapeEndingFamily(context, "n+a"),
+      }) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      }) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"]
+      }) && pretContextHasShapeEndingFamily(context, "n+a"),
       classes: ["A"]
     }]);
     const PRET_UNIVERSAL_SHAPE_WA_ENTRY_TIER_RULES = Object.freeze([{
