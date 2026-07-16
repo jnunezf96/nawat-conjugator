@@ -1,46 +1,34 @@
 import { installRuntimeBridge } from "./runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
-import { BROWSER_SCRIPT_PATHS, HTML_SHELL_PATH } from "./runtime_paths.mjs";
 import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs";
 
 let browserBootstrapPromise = null;
 
-function hasAppShell(documentObject) {
-    return Boolean(
-        documentObject?.getElementById?.("container-inputs")
-        && documentObject?.getElementById?.("verb")
-    );
+const BROWSER_MODULE_ENTRYPOINT = "src/browser/main.mjs";
+const REQUIRED_STATIC_ROOT_IDS = Object.freeze([
+    "classical-app-root",
+    "classical-footer-root",
+    "classical-modal-root",
+]);
+
+function assertStaticAppRoots(documentObject) {
+    if (typeof documentObject?.getElementById !== "function") {
+        throw new Error("bootstrapBrowserApp requires an index.html document with static application roots.");
+    }
+    const missingRootIds = REQUIRED_STATIC_ROOT_IDS.filter((id) => !documentObject.getElementById(id));
+    if (missingRootIds.length) {
+        throw new Error(
+            `bootstrapBrowserApp is missing static index.html roots: ${missingRootIds.map((id) => `#${id}`).join(", ")}.`
+        );
+    }
 }
 
-async function ensureRuntimeAppShell({
-    documentObject,
-    fetchImpl = globalThis.fetch,
-    shellSource = HTML_SHELL_PATH,
-}) {
-    if (!documentObject || hasAppShell(documentObject)) {
-        return;
+function assertInstalledVerbInput(documentObject) {
+    if (!documentObject.getElementById("verb")) {
+        throw new Error(
+            "bootstrapBrowserApp did not receive the installed #verb control from the Classical shell runtime."
+        );
     }
-    if (typeof fetchImpl !== "function") {
-        throw new Error("bootstrapBrowserApp requires fetch() to hydrate the HTML shell.");
-    }
-    const response = await fetchImpl(shellSource, { cache: "no-store" });
-    if (!response || !response.ok) {
-        throw new Error(`Failed to hydrate HTML shell from ${shellSource}.`);
-    }
-    const html = await response.text();
-    const domParser = typeof DOMParser === "function" ? new DOMParser() : null;
-    if (!domParser) {
-        throw new Error("bootstrapBrowserApp requires DOMParser to hydrate the HTML shell.");
-    }
-    const parsed = domParser.parseFromString(html, "text/html");
-    const fragment = documentObject.createDocumentFragment();
-    Array.from(parsed.body.childNodes || []).forEach((node) => {
-        const nextNode = documentObject.importNode
-            ? documentObject.importNode(node, true)
-            : node.cloneNode(true);
-        fragment.appendChild(nextNode);
-    });
-    documentObject.body.replaceChildren(fragment);
 }
 
 export async function bootstrapRuntime({
@@ -75,11 +63,7 @@ export async function bootstrapBrowserApp(options = {}) {
             globalObject.__NAWAT_BOOTSTRAP_MANAGED__ = true;
             globalObject.__NAWAT_RUNTIME_CONFIG__ = runtimeConfig;
             globalObject.__NAWAT_RUNTIME_PATHS__ = runtimeConfig.paths;
-            await ensureRuntimeAppShell({
-                documentObject,
-                fetchImpl: options.fetchImpl || globalObject.fetch,
-                shellSource: options.shellSource || HTML_SHELL_PATH,
-            });
+            assertStaticAppRoots(documentObject);
             const runtimeInstance = await createRuntimeInstance({
                 globalObject,
                 windowObject: globalObject.window || globalObject,
@@ -94,6 +78,7 @@ export async function bootstrapBrowserApp(options = {}) {
             ) {
                 attachRuntimeBindings(globalObject.window, runtimeInstance);
             }
+            assertInstalledVerbInput(documentObject);
             if (typeof globalObject.initializeUiRuntime === "function") {
                 await globalObject.initializeUiRuntime();
             }
@@ -102,7 +87,8 @@ export async function bootstrapBrowserApp(options = {}) {
                 bootstrapBrowserApp,
                 initializeUiRuntime: globalObject.initializeUiRuntime || null,
                 runtimeConfig,
-                scriptPaths: [...(options.scriptPaths || BROWSER_SCRIPT_PATHS)],
+                entrypoint: BROWSER_MODULE_ENTRYPOINT,
+                scriptPaths: [BROWSER_MODULE_ENTRYPOINT],
                 esmPreloads: runtimeInstance.loadedModules,
                 moduleRuntimeMode: "direct-import",
                 scriptExecutionDisabled: true,

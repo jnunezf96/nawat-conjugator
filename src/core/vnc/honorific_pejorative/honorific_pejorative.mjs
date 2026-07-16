@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/vnc/honorific_pejorative/honorific_pejorative.js.
+// Canonical modern ESM module.
 
 export function createHonorificPejorativeApi(targetObject = globalThis) {
     const HONORIFIC_PEJORATIVE_BOUNDARY_VERSION = 1;
@@ -18,7 +18,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const HONORIFIC_PEJORATIVE_ANTI_CONFLATION_RULES = Object.freeze(["honorific/pejorative boundary metadata is not generation", "polite or insulting translation labels are not Nawat/Pipil fixture evidence", "ordinary causative/applicative derivation is not honorific or pejorative VNC generation", "nonactive/passive/impersonal derivation is not honorific or pejorative VNC generation", "person or agreement labels are not honorific or pejorative VNC evidence", "Andrews honorific/pejorative categories are architecture, not Nawat/Pipil form authority"]);
+    const HONORIFIC_PEJORATIVE_ANTI_CONFLATION_RULES = Object.freeze(["honorific/pejorative boundary metadata is not generation", "polite or insulting translation labels are not orthography-bridge fixture evidence", "ordinary causative/applicative derivation is not honorific or pejorative VNC generation", "nonactive/passive/impersonal derivation is not honorific or pejorative VNC generation", "person or agreement labels are not honorific or pejorative VNC evidence", "Andrews honorific/pejorative categories are architecture, not Nawat/Pipil orthography authority"]);
     const HONORIFIC_PEJORATIVE_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "sourceStem",
       asks: "Which VNC stem is the source of the honorific or pejorative candidate?"
@@ -27,10 +27,10 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       asks: "Is the candidate honorific, pejorative, neutral, or unknown?"
     }), Object.freeze({
       field: "morphologicalStrategy",
-      asks: "What Nawat/Pipil evidence shows the honorific or pejorative strategy?"
+      asks: "Which Andrews honorific or pejorative strategy is structurally licensed?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided form evidence supports the status?"
+      asks: "Which Andrews source gate or structured route licenses the status?"
     })]);
     const LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS = Object.freeze(["src/tests/honorific_pejorative.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS = Object.freeze(["Andrews Lesson 33.1", "Andrews Lesson 33.2", "Andrews Lesson 33.3", "Andrews Lesson 33.4", "Andrews Lesson 33.5", "Andrews Lesson 33.6", "Andrews Lesson 33.7", "Andrews Lesson 33.8", "Andrews Lesson 33.9", "Andrews Lesson 33.10"]);
@@ -122,10 +122,10 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       sourceSection: "Andrews 33.9",
       pejorativeMeaning: "contempt or scorn",
       strategy: "preterit-embed integrated compound",
-      matrixStem: "ta-(pul-u-a)",
+      matrixStem: "tla-(pol-o-a)",
       matrixMeaning: "cause something to become disparaged",
       matrixOnlyUsedInThisConstruction: true,
-      sourceOfMatrix: "affective-matrix nounstem pul",
+      sourceOfMatrix: "affective-matrix nounstem pol",
       sourceKinds: Object.freeze(["intransitive VNC", "projective-object VNC", "reflexive-object VNC"]),
       selfPejorativePermitted: true,
       validForVerbstemClasses: Object.freeze(["A", "B", "C", "D"]),
@@ -209,10 +209,10 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       id: "lesson33-pejorative",
       andrewsSection: "33.9",
       category: "pejorative-vnc",
-      directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pul-u-a para desprecio o escarnio.",
+      directiveEs: "El peyorativo usa compuesto con incrustado preterito y matriz pol-o-a para desprecio o escarnio.",
       engineSurface: "diagnostic pejorative frame",
       implementationState: "partial",
-      redirectAction: "block-generation"
+      redirectAction: "refactor-engine"
     }), Object.freeze({
       id: "lesson33-compound-verbstems",
       andrewsSection: "33.10",
@@ -236,7 +236,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS)
       }));
     }
@@ -252,7 +252,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
       const reverentialFrame = cloneHonorificPejorativeLessonRecord(LESSON33_REVERENTIAL_FRAME);
       const pejorativeFrame = cloneHonorificPejorativeLessonRecord(LESSON33_PEJORATIVE_FRAME);
       const compoundVerbstemFrame = cloneHonorificPejorativeLessonRecord(LESSON33_COMPOUND_VERBSTEM_FRAME);
-      const remainingGaps = ["Current honorific/pejorative metadata is not an honorific or pejorative VNC generator.", "Causative/applicative reflexive honorific routing, agent/patient ambiguity, and source-specific strategy choice remain diagnostic.", "Preterit-embed honorific, reverential, and pejorative compound routing with tzin-o-a or pul-u-a matrices is not implemented.", "Compound-verbstem transformation targets and confirmed Nawat/Pipil honorific or pejorative examples remain evidence-needed."];
+      const remainingGaps = ["Current honorific/pejorative metadata is not an honorific or pejorative VNC generator.", "Causative/applicative reflexive honorific routing, agent/patient ambiguity, and source-specific strategy choice remain diagnostic.", "Preterit-embed honorific and pejorative target stems now generate for supplied preterit predicates; reverential doubling and full finite UI expansion remain unimplemented.", "Compound-verbstem transformation targets and Andrews honorific or pejorative source models remain evidence-needed."];
       const frame = {
         kind: "lesson-33-honorific-pejorative-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -262,14 +262,14 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         plannedArrows: [{
           id: "lesson-33-honorific-pejorative-vnc-audit",
           type: "metadata-diagnostic-test",
-          aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transforms.",
+          aim: "Audit Andrews Lesson 33.1-33.10 against current honorific/pejorative boundary metadata, causative/applicative reflexive routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transforms.",
           andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
           expectedFeedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS)
         }],
         firedArrows: [{
           id: "lesson-33-honorific-pejorative-vnc-audit",
           result: "hit",
-          correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pul-u-a compounds, and compound-verbstem transformation boundaries while keeping generation blocked.",
+          correction: "Lesson 33 now records Andrews honorific and pejorative VNC architecture, causative/applicative reflexive honorific routes, projective-object ambiguity, reflexive-source preterit embeds, reverential doubling, pejorative pol-o-a compounds, and compound-verbstem transformation boundaries while generating scoped preterit-embed target stems.",
           andrewsRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_PDF_REFS),
           feedbackRefs: Array.from(LESSON33_HONORIFIC_PEJORATIVE_VALIDATION_REFS)
         }],
@@ -290,8 +290,8 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
           honorificGenerationImplemented: false,
           pejorativeGenerationImplemented: false,
           reverentialGenerationImplemented: false,
-          preteritEmbedTzinoaRoutingImplemented: false,
-          preteritEmbedPuluaRoutingImplemented: false,
+          preteritEmbedTzinoaRoutingImplemented: true,
+          preteritEmbedPuluaRoutingImplemented: true,
           compoundVerbstemTransformGenerationImplemented: false,
           finiteOutputExpansionAllowed: false
         },
@@ -310,9 +310,9 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 33.1-33.10",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-plus-source-gate-required"
         },
         morphBoundaryFrame: {
           overviewFrame,
@@ -345,7 +345,7 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["honorific-pejorative-diagnostic-only", "honorific-pejorative-needs-nawat-evidence"]
+        diagnostics: ["honorific-pejorative-diagnostic-only", "honorific-pejorative-source-gated"]
       });
     }
     function attachHonorificPejorativeGrammarContract(record = null, options = {}) {
@@ -371,6 +371,63 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
     function normalizeHonorificPejorativeFalsePositiveSource(value = "") {
       return normalizeHonorificPejorativeEnum(value, Object.values(HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE), HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE.unknown);
     }
+    function normalizeHonorificPejorativeCandidateSurface(value = "") {
+      const raw = String(value || "").trim();
+      if (!raw || /[A-Z_]/.test(raw)) {
+        return "";
+      }
+      const source = raw.replace(/\[[^\]]+\]/g, "").replace(/[Øø]/g, "").replace(/\b0\b/g, "").replace(/[#+(){}\s.-]/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews honorific/pejorative candidate formula",
+        slot: "honorific-pejorative-stem"
+      }) : {
+        output: source,
+        diagnostics: []
+      };
+      return String(conversion?.output || source || "").trim();
+    }
+    function realizeHonorificPejorativeSegment(segment = "") {
+      const raw = String(segment || "").trim();
+      if (!raw || raw === "0" || raw === "Ø") {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(raw, {
+        source: "Andrews honorific/pejorative segment",
+        slot: "honorific-pejorative-stem"
+      }) : {
+        output: raw,
+        diagnostics: []
+      };
+      return String(conversion?.output || raw || "").trim();
+    }
+    function realizeHonorificPejorativeTargetStemFromSegments(segments = []) {
+      return (Array.isArray(segments) ? segments : []).map(segment => realizeHonorificPejorativeSegment(segment)).filter(Boolean).join("");
+    }
+    function buildHonorificPejorativePreteritEmbedSourceFrame({
+      preteritEmbedStem = "",
+      sourceUnit = "VNC",
+      sourceRole = "preterit-embedded-predicate",
+      formulaSlots = null
+    } = {}) {
+      const normalizedEmbedStem = normalizeHonorificPejorativePreteritEmbedStem(preteritEmbedStem);
+      if (!normalizedEmbedStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-honorific-pejorative-preterit-embed-source-frame",
+        version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
+        sourceUnit,
+        sourceRole,
+        preteritEmbedStem: normalizedEmbedStem,
+        formulaSlots: formulaSlots && typeof formulaSlots === "object" ? Object.freeze({
+          ...formulaSlots
+        }) : null,
+        renderedSurfaceIsNotAuthority: true
+      });
+    }
     function getHonorificPejorativeAntiConflationRules() {
       return Array.from(HONORIFIC_PEJORATIVE_ANTI_CONFLATION_RULES);
     }
@@ -386,14 +443,15 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         lesson: 33,
         status: "partial",
         structuralSource: "Andrews Lesson 33",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided forms",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getHonorificPejorativeStructuralQuestions(),
         boundaries: {
           hasVncGeneration: true,
-          hasHonorificGeneration: false,
-          hasPejorativeGeneration: false,
+          hasHonorificGeneration: true,
+          hasPejorativeGeneration: true,
+          hasPreteritEmbedGeneration: true,
           hasConfirmedFixtureData: false,
           changesCausativeGeneration: false,
           changesApplicativeGeneration: false,
@@ -411,56 +469,329 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
         targetContract: {
           metadataKind: "honorific-pejorative-boundary",
           generationAllowed: false,
-          hasHonorificGeneration: false,
-          hasPejorativeGeneration: false
+          hasHonorificGeneration: true,
+          hasPejorativeGeneration: true,
+          hasPreteritEmbedGeneration: true
+        }
+      });
+    }
+    function getHonorificPejorativePreteritEmbedMatrix(polarity = "") {
+      const normalizedPolarity = normalizeHonorificPejorativePolarity(polarity);
+      if (normalizedPolarity === HONORIFIC_PEJORATIVE_POLARITY.honorific) {
+        return {
+          ok: true,
+          polarity: normalizedPolarity,
+          matrixStem: "tzin-o-a",
+          matrixSource: "tla-(tzin-o-a)",
+          andrewsSection: "33.7",
+          routeStage: "honorific-preterit-embed-tzinoa",
+          meaning: "cause something to become honored"
+        };
+      }
+      if (normalizedPolarity === HONORIFIC_PEJORATIVE_POLARITY.pejorative) {
+        return {
+          ok: true,
+          polarity: normalizedPolarity,
+          matrixStem: "pol-o-a",
+          matrixSource: "tla-(pol-o-a)",
+          andrewsSection: "33.9",
+          routeStage: "pejorative-preterit-embed-poloa",
+          meaning: "cause something to become disparaged"
+        };
+      }
+      return {
+        ok: false,
+        polarity: normalizedPolarity,
+        diagnostics: ["honorific-pejorative-preterit-embed-polarity-required"]
+      };
+    }
+    function normalizeHonorificPejorativePreteritEmbedStem(value = "") {
+      return String(value || "").trim().replace(/[Øø]/g, "0").replace(/\s+/g, "");
+    }
+    function isHonorificPejorativePreteritEmbedSourceFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-honorific-pejorative-preterit-embed-source-frame" && String(frame.preteritEmbedStem || "").trim());
+    }
+    function isHonorificPejorativePreteritEmbedOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-honorific-pejorative-preterit-embed-operation-frame" && isHonorificPejorativePreteritEmbedSourceFrame(frame.sourceFrame) && frame.matrixFrame && typeof frame.matrixFrame === "object" && frame.targetFrame && typeof frame.targetFrame === "object");
+    }
+    function buildHonorificPejorativePreteritEmbedOperationFrame({
+      sourceFrame = null,
+      objectPrefix = "",
+      personPrefix = "0-0",
+      polarity = "",
+      tenseMorph = "0",
+      num1 = "0",
+      num2 = "0"
+    } = {}) {
+      if (!isHonorificPejorativePreteritEmbedSourceFrame(sourceFrame)) {
+        return null;
+      }
+      const matrix = getHonorificPejorativePreteritEmbedMatrix(polarity);
+      if (matrix.ok !== true) {
+        return null;
+      }
+      const matrixSegments = String(matrix.matrixStem || "").split("-").filter(Boolean);
+      const embedSegments = String(sourceFrame.preteritEmbedStem || "").split("-").filter(Boolean);
+      const targetSegments = Object.freeze([...embedSegments, ...matrixSegments]);
+      const targetStemClassical = `${sourceFrame.preteritEmbedStem}-${matrix.matrixStem}`;
+      return Object.freeze({
+        kind: "andrews-honorific-pejorative-preterit-embed-operation-frame",
+        version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
+        operationId: "lesson-33-preterit-embed-honorific-pejorative",
+        operationFamily: "honorific-pejorative-preterit-embed",
+        sourceFrame,
+        matrixFrame: Object.freeze({
+          kind: "andrews-honorific-pejorative-matrix-frame",
+          polarity: matrix.polarity,
+          matrixStem: matrix.matrixStem,
+          matrixSource: matrix.matrixSource,
+          andrewsSection: matrix.andrewsSection,
+          routeStage: matrix.routeStage,
+          meaning: matrix.meaning
+        }),
+        inflectionFrame: Object.freeze({
+          personPrefix: String(personPrefix || "0-0").trim() || "0-0",
+          objectPrefix: String(objectPrefix || "").trim(),
+          tenseMorph: String(tenseMorph || "0").trim() || "0",
+          num1: String(num1 || "0").trim() || "0",
+          num2: String(num2 || "0").trim() || "0"
+        }),
+        targetFrame: Object.freeze({
+          kind: "andrews-honorific-pejorative-preterit-embed-target-frame",
+          targetUnit: "CNV",
+          targetSegments,
+          targetStemClassical
+        }),
+        renderedSurfaceIsNotAuthority: true
+      });
+    }
+    function buildAndrewsHonorificPejorativePreteritEmbedVnc({
+      sourceStem = "",
+      preteritEmbedStem = "",
+      objectPrefix = "",
+      personPrefix = "0-0",
+      polarity = "",
+      tenseMorph = "0",
+      num1 = "0",
+      num2 = "0",
+      operationFrame = null
+    } = {}) {
+      void preteritEmbedStem;
+      void objectPrefix;
+      void personPrefix;
+      void polarity;
+      void tenseMorph;
+      void num1;
+      void num2;
+      if (!isHonorificPejorativePreteritEmbedOperationFrame(operationFrame)) {
+        const blocked = {
+          kind: "honorific-pejorative-preterit-embed-generation",
+          version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
+          sourceStem: String(sourceStem || ""),
+          preteritEmbedStem: "",
+          generationAllowed: false,
+          diagnostics: ["honorific-pejorative-preterit-embed-missing-typed-operation-frame"]
+        };
+        return attachHonorificPejorativeGrammarContract(blocked, {
+          metadataKind: "honorific-pejorative-preterit-embed-generation",
+          routeStage: "block-preterit-embed-generation",
+          sourceInput: blocked.sourceStem,
+          supported: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const sourceFrame = operationFrame.sourceFrame;
+      const matrix = operationFrame.matrixFrame;
+      const inflection = operationFrame.inflectionFrame || {};
+      const targetFrame = operationFrame.targetFrame || {};
+      const expectedTargetStemClassical = [sourceFrame.preteritEmbedStem, ...String(matrix.matrixStem || "").split("-").filter(Boolean)].join("-");
+      const targetStemClassical = String(targetFrame.targetStemClassical || "").trim();
+      if (!targetStemClassical || targetStemClassical !== expectedTargetStemClassical) {
+        const blocked = {
+          kind: "honorific-pejorative-preterit-embed-generation",
+          version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
+          sourceStem: String(sourceFrame.preteritEmbedStem || ""),
+          preteritEmbedStem: String(sourceFrame.preteritEmbedStem || ""),
+          generationAllowed: false,
+          diagnostics: ["honorific-pejorative-preterit-embed-contradictory-typed-operation-frame"]
+        };
+        return attachHonorificPejorativeGrammarContract(blocked, {
+          metadataKind: "honorific-pejorative-preterit-embed-generation",
+          routeStage: "block-contradictory-preterit-embed-frame",
+          sourceInput: blocked.sourceStem,
+          supported: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const objectSlot = String(inflection.objectPrefix || "").trim();
+      const objectFormula = objectSlot ? `+${objectSlot}` : "";
+      const person = String(inflection.personPrefix || "0-0").trim() || "0-0";
+      const resolvedTenseMorph = String(inflection.tenseMorph || "0").trim() || "0";
+      const resolvedNum1 = String(inflection.num1 || "0").trim() || "0";
+      const resolvedNum2 = String(inflection.num2 || "0").trim() || "0";
+      const structuralFormula = `#${person}${objectFormula}(${targetStemClassical})${resolvedTenseMorph}+${resolvedNum1}-${resolvedNum2}#`;
+      const surface = realizeHonorificPejorativeTargetStemFromSegments(targetFrame.targetSegments);
+      const generation = {
+        kind: "honorific-pejorative-preterit-embed-generation",
+        version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
+        sourceStem: String(sourceFrame.preteritEmbedStem || ""),
+        preteritEmbedStem: sourceFrame.preteritEmbedStem,
+        objectPrefix: objectSlot,
+        personPrefix: person,
+        polarity: matrix.polarity,
+        matrixStem: matrix.matrixStem,
+        matrixSource: matrix.matrixSource,
+        targetStemClassical,
+        targetStem: surface,
+        structuralFormula,
+        surface,
+        surfaceForms: surface ? [surface] : [],
+        generationAllowed: Boolean(surface),
+        formulaSlots: {
+          pers: person,
+          objectPrefix: objectSlot,
+          preteritEmbedStem: sourceFrame.preteritEmbedStem,
+          matrixStem: matrix.matrixStem,
+          matrixSource: matrix.matrixSource,
+          tenseMorph: resolvedTenseMorph,
+          num1: resolvedNum1,
+          num2: resolvedNum2
+        },
+        andrewsSection: matrix.andrewsSection,
+        diagnostics: [`${matrix.polarity}-preterit-embed-andrews-generated`, "preterit-predicate-replaces-matrix-specific-object", "orthography-bridge-realized"],
+        operationFrame
+      };
+      return attachHonorificPejorativeGrammarContract(generation, {
+        metadataKind: "honorific-pejorative-preterit-embed-generation",
+        routeStage: "generate-preterit-embed-honorific-pejorative",
+        sourceInput: generation.sourceStem || generation.preteritEmbedStem,
+        supported: generation.generationAllowed,
+        generationAllowed: generation.generationAllowed,
+        surface,
+        surfaceForms: generation.surfaceForms,
+        diagnostics: generation.diagnostics,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "orthography-bridge-realized",
+          sourceSurface: targetStemClassical,
+          surface,
+          surfaceForms: generation.surfaceForms
+        },
+        stemFrame: {
+          stemKind: "honorific-pejorative-preterit-embed",
+          sourceStem: generation.sourceStem,
+          preteritEmbedStem: sourceFrame.preteritEmbedStem,
+          targetStem: targetStemClassical,
+          realizedTargetStem: surface,
+          matrixStem: matrix.matrixStem,
+          matrixSource: matrix.matrixSource
+        },
+        participantFrame: {
+          honorificPejorativePolarity: matrix.polarity,
+          preteritPredicateReplacesSpecificObject: true
+        },
+        targetContract: {
+          metadataKind: "honorific-pejorative-preterit-embed-generation",
+          generationAllowed: generation.generationAllowed,
+          andrewsSection: matrix.andrewsSection,
+          finiteSurfaceExpansionAllowed: false,
+          operationFrame
         }
       });
     }
     function classifyHonorificPejorativeCandidate({
       sourceStem = "",
+      sourceFrame = null,
       candidate = "",
       polarity = "",
       morphologicalStrategy = "",
       evidenceSource = "",
-      falsePositiveSource = ""
+      sourceGate = "",
+      structuredSource = false,
+      falsePositiveSource = "",
+      preteritEmbedStem = "",
+      objectPrefix = "",
+      personPrefix = "0-0"
     } = {}) {
       const normalizedPolarity = normalizeHonorificPejorativePolarity(polarity);
       const normalizedFalsePositive = normalizeHonorificPejorativeFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const andrewsGeneration = !String(candidate || "").trim() ? (() => {
+        const effectiveSourceFrame = sourceFrame || null;
+        const operationFrame = buildHonorificPejorativePreteritEmbedOperationFrame({
+          sourceFrame: effectiveSourceFrame,
+          objectPrefix,
+          personPrefix,
+          polarity: normalizedPolarity
+        });
+        return buildAndrewsHonorificPejorativePreteritEmbedVnc({
+          sourceStem,
+          operationFrame
+        });
+      })() : null;
+      const generatedCandidate = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.targetStemClassical : "";
+      const sourceSurface = andrewsGeneration?.generationAllowed === true ? andrewsGeneration.surface : "";
+      const canGenerate = Boolean(andrewsGeneration?.generationAllowed === true && normalizedPolarity !== HONORIFIC_PEJORATIVE_POLARITY.unknown && normalizedFalsePositive === HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE.unknown);
       const classification = {
         kind: "honorific-pejorative-candidate-classification",
         version: HONORIFIC_PEJORATIVE_BOUNDARY_VERSION,
-        sourceStem: String(sourceStem || ""),
-        candidate: String(candidate || ""),
+        sourceStem: String(sourceFrame?.preteritEmbedStem || sourceStem || ""),
+        candidate: String(candidate || generatedCandidate || ""),
         polarity: normalizedPolarity,
         morphologicalStrategy: String(morphologicalStrategy || ""),
         evidenceSource: String(evidenceSource || ""),
+        sourceGate: String(sourceGate || ""),
+        structuredSource: structuredSource === true,
         falsePositiveSource: normalizedFalsePositive,
-        confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "honorific-pejorative-needs-validation" : "honorific-pejorative-needs-nawat-evidence", normalizedPolarity !== HONORIFIC_PEJORATIVE_POLARITY.unknown ? "honorific-pejorative-category-recognized" : "honorific-pejorative-category-unconfirmed", normalizedFalsePositive !== HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE.unknown ? "honorific-pejorative-false-positive-source" : "honorific-pejorative-unconfirmed"],
+        confirmed: canGenerate,
+        supported: canGenerate,
+        generationAllowed: canGenerate,
+        surface: canGenerate ? sourceSurface : "",
+        surfaceForms: canGenerate ? [sourceSurface] : [],
+        ...(andrewsGeneration?.generationAllowed === true ? {
+          andrewsGeneration,
+          structuralFormula: andrewsGeneration.structuralFormula,
+          formulaSlots: andrewsGeneration.formulaSlots
+        } : {}),
+        diagnostics: [andrewsGeneration?.generationAllowed === true ? `${normalizedPolarity}-preterit-embed-andrews-generated` : String(candidate || "").trim() && normalizedFalsePositive === HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE.unknown ? "honorific-pejorative-candidate-diagnostic-only" : hasEvidence ? "honorific-pejorative-needs-validation" : "honorific-pejorative-source-gate-required", normalizedPolarity !== HONORIFIC_PEJORATIVE_POLARITY.unknown ? "honorific-pejorative-category-recognized" : "honorific-pejorative-category-unconfirmed", normalizedFalsePositive !== HONORIFIC_PEJORATIVE_FALSE_POSITIVE_SOURCE.unknown ? "honorific-pejorative-false-positive-source" : canGenerate ? "honorific-pejorative-structured-source" : "honorific-pejorative-unconfirmed"],
         boundary: buildHonorificPejorativeBoundaryMetadata()
       };
       return attachHonorificPejorativeGrammarContract(classification, {
         metadataKind: "honorific-pejorative-candidate-classification",
-        routeStage: "classify-candidate",
+        routeStage: canGenerate ? "generate-structured-honorific-pejorative" : "classify-candidate",
         sourceInput: classification.sourceStem || classification.candidate,
-        supported: false,
+        generationAllowed: canGenerate,
+        supported: canGenerate,
+        evidenceSource: classification.sourceGate || classification.evidenceSource,
+        surfaceForms: classification.surfaceForms,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: canGenerate ? "orthography-bridge-realized" : "orthography-bridge-required",
+          sourceSurface: andrewsGeneration?.targetStemClassical || classification.candidate,
+          surface: classification.surface,
+          surfaceForms: classification.surfaceForms
+        },
         diagnostics: classification.diagnostics,
         stemFrame: {
           stemKind: "honorific-pejorative-candidate",
           sourceStem: classification.sourceStem,
           targetStem: classification.candidate,
-          morphologicalStrategy: classification.morphologicalStrategy
+          realizedTargetStem: classification.surface,
+          morphologicalStrategy: classification.morphologicalStrategy,
+          sourceGate: classification.sourceGate
         },
         participantFrame: {
           honorificPejorativePolarity: normalizedPolarity,
-          evidenceSource: classification.evidenceSource
+          preteritPredicateReplacesSpecificObject: andrewsGeneration?.generationAllowed === true,
+          evidenceSource: classification.sourceGate || classification.evidenceSource
         },
         targetContract: {
           metadataKind: "honorific-pejorative-candidate-classification",
-          generationAllowed: false,
-          polarity: normalizedPolarity
+          generationAllowed: canGenerate,
+          polarity: normalizedPolarity,
+          preteritEmbedGenerated: andrewsGeneration?.generationAllowed === true
         }
       });
     }
@@ -583,9 +914,19 @@ export function createHonorificPejorativeApi(targetObject = globalThis) {
     api.normalizeHonorificPejorativeEnum = normalizeHonorificPejorativeEnum;
     api.normalizeHonorificPejorativePolarity = normalizeHonorificPejorativePolarity;
     api.normalizeHonorificPejorativeFalsePositiveSource = normalizeHonorificPejorativeFalsePositiveSource;
+    api.normalizeHonorificPejorativeCandidateSurface = normalizeHonorificPejorativeCandidateSurface;
+    api.realizeHonorificPejorativeSegment = realizeHonorificPejorativeSegment;
+    api.realizeHonorificPejorativeTargetStemFromSegments = realizeHonorificPejorativeTargetStemFromSegments;
+    api.buildHonorificPejorativePreteritEmbedSourceFrame = buildHonorificPejorativePreteritEmbedSourceFrame;
     api.getHonorificPejorativeAntiConflationRules = getHonorificPejorativeAntiConflationRules;
     api.getHonorificPejorativeStructuralQuestions = getHonorificPejorativeStructuralQuestions;
     api.buildHonorificPejorativeBoundaryMetadata = buildHonorificPejorativeBoundaryMetadata;
+    api.getHonorificPejorativePreteritEmbedMatrix = getHonorificPejorativePreteritEmbedMatrix;
+    api.normalizeHonorificPejorativePreteritEmbedStem = normalizeHonorificPejorativePreteritEmbedStem;
+    api.isHonorificPejorativePreteritEmbedSourceFrame = isHonorificPejorativePreteritEmbedSourceFrame;
+    api.isHonorificPejorativePreteritEmbedOperationFrame = isHonorificPejorativePreteritEmbedOperationFrame;
+    api.buildHonorificPejorativePreteritEmbedOperationFrame = buildHonorificPejorativePreteritEmbedOperationFrame;
+    api.buildAndrewsHonorificPejorativePreteritEmbedVnc = buildAndrewsHonorificPejorativePreteritEmbedVnc;
     api.classifyHonorificPejorativeCandidate = classifyHonorificPejorativeCandidate;
     api.classifyHonorificPejorativeFalsePositive = classifyHonorificPejorativeFalsePositive;
     return api;

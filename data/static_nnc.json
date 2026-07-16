@@ -67,9 +67,11 @@
           "numberFormsByPossessor": {
             "singular": {
               "nu": {
+                "possessiveStem": "shuchiw",
                 "surfaceForms": ["nushuchiw"]
               },
               "mu": {
+                "possessiveStem": "shuchiw",
                 "surfaceForms": ["mushuchiw"]
               }
             }

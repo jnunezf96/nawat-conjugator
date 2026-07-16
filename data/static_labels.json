@@ -1,9 +1,9 @@
 {
   "uiLabels": {
-    "app-title": { "labelEs": "Conjugador de cláusulas nucleares nawat", "labelNa": "Conjugador de cláusulas nucleares nawat" },
-    "panel-stack-tab-inputs": { "labelEs": "Entrada", "labelNa": "Entrada" },
-    "panel-stack-tab-formula": { "labelEs": "Fórmula", "labelNa": "Fórmula" },
-    "panel-stack-tab-output": { "labelEs": "Salida", "labelNa": "Salida" },
+    "app-title": { "labelEs": "Gramática Andrews", "labelNa": "Gramática Andrews" },
+    "panel-stack-tab-inputs": { "labelEs": "Fuente", "labelNa": "Fuente" },
+    "panel-stack-tab-formula": { "labelEs": "Autoridad", "labelNa": "Autoridad" },
+    "panel-stack-tab-output": { "labelEs": "Resultado", "labelNa": "Resultado" },
     "tense-tabs-mode-verb": { "labelEs": "CNV · cláusula verbal", "labelNa": "CNV · cláusula verbal" },
     "tense-tabs-mode-noun": { "labelEs": "CNN · cláusula nominal", "labelNa": "CNN · cláusula nominal" },
     "tense-tabs-mode-adjective": { "labelEs": "Uso adjetival", "labelNa": "Uso adjetival" },
@@ -30,6 +30,9 @@
     "ui-density-label": { "labelEs": "Vista", "labelNa": "Tachiyalis" },
     "ui-density-simple": { "labelEs": "Básico", "labelNa": "Básico" },
     "ui-density-advanced": { "labelEs": "Avanzado", "labelNa": "Uwij" },
+    "language-profile-label": { "labelEs": "Lengua", "labelNa": "Lengua" },
+    "language-profile-nawat-pipil": { "labelEs": "Nawat/Pipil", "labelNa": "Nawat/Pipil" },
+    "language-profile-classical": { "labelEs": "Classical Nahuatl", "labelNa": "Classical Nahuatl" },
     "input-mode-composer": { "labelEs": "Selecciones", "labelNa": "Taketzalis" },
     "input-mode-regex": { "labelEs": "Patrón", "labelNa": "Nawal" },
     "composer-entry-board-label": { "labelEs": "Tipo de cláusula", "labelNa": "cláusula" },
@@ -185,6 +188,7 @@
     "predicado-nominal": { "labelEs": "predicado nominal", "labelNa": "tachiwal tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "calificativo/instrumentivo", "labelNa": "tachiwkayut" },
     "locativo-temporal": { "labelEs": "locativo/temporal", "labelNa": "tachiwaluyan" },
+    "locativo-agentivo-preterito": { "labelEs": "locativo agentivo pretérito", "labelNa": "tachiwkakan" },
     "presente-habitual": { "labelEs": "presente habitual", "labelNa": "ipan muchiwani" },
     "presente-desiderativo": { "labelEs": "presente desiderativo", "labelNa": "ipan muchiwasneki" },
     "imperfecto": { "labelEs": "pretérito imperfecto", "labelNa": "ipan muchiwaya" },
@@ -229,7 +233,8 @@
     "instrumentivo": { "labelEs": "medio o herramienta de la acción (sustantivo derivado de base no activa + presente habitual -ni, o de base activa + imperfecto -ya)", "labelNa": "tajtaysan ne tay iwan muchiwa tajtaya" },
     "predicado-nominal": { "labelEs": "NNC derivada desde un predicado CNV; conserva la marca de tiempo fuente dentro del tronco nominal", "labelNa": "CNN kisa ipan CNV tajtaya" },
     "calificativo-instrumentivo": { "labelEs": "cualidad derivada del pasado (sustantivo derivado del pasado remoto -ka + -yut/posesivo)", "labelNa": "kejkenhaya ne muchiwa tajtaya" },
-    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción (sustantivo derivado del imperfecto -ya + -n en base activa/no activa)", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" }
+    "locativo-temporal": { "labelEs": "lugar o tiempo donde ocurre la acción (sustantivo derivado del imperfecto -ya + -n en base activa/no activa)", "labelNa": "kajkansan wan kejkeman ne muchiwa tajtaya" },
+    "locativo-agentivo-preterito": { "labelEs": "Andrews 46.3.1.a: locativo/adverbial desde un tronco agentivo pretérito de uso general; la ruta conserva cada IF → THEN del stack", "labelNa": "Andrews 46.3.1.a: kajkan kisa ipan tachiwki ipan muchiwki" }
   },
   "preteritoClassDetailByKey": {
     "A": {

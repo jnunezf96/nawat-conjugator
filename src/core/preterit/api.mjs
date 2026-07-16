@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/preterit/api.js.
+// Canonical modern ESM module.
 
 export function createPreteritApiGlobals(targetObject = globalThis) {
     function buildClassBasedProvenance({
@@ -251,7 +251,7 @@ export function createPreteritApiGlobals(targetObject = globalThis) {
           surface,
           surfaceForms: forms,
           soundSpellingFrames,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {

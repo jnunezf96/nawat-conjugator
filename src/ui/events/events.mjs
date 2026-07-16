@@ -1,4 +1,4 @@
-// Native wrapper generated from src/ui/events.js.
+// Canonical modern ESM module.
 
 export function createUiEventsApi(targetObject = globalThis) {
     // === Event Wiring ===
@@ -147,9 +147,23 @@ export function createUiEventsApi(targetObject = globalThis) {
         }
         targetObject.LastComposerEscapeTs = 0;
         targetObject.LastComposerSpaceTs = 0;
+        if (event.isComposing) {
+          return;
+        }
+        if (activeElement && typeof targetObject.commitClassicalSourcePartsEvaluation === "function" && activeElement.matches?.(".classical-source-parts__input")) {
+          targetObject.commitClassicalSourcePartsEvaluation({
+            force: true,
+            source: "enter"
+          });
+          event.preventDefault();
+          return;
+        }
         targetObject.cancelDeferredToggleAvailabilityPass();
         targetObject.cancelScheduledVerbInputRefresh();
-        targetObject.generateNuclearClauseSurface();
+        targetObject.scheduleVerbInputRefresh(verbEl?.value || "", {
+          immediate: true,
+          source: "enter"
+        });
         event.preventDefault();
       } else {
         targetObject.LastComposerEscapeTs = 0;
@@ -169,6 +183,35 @@ export function createUiEventsApi(targetObject = globalThis) {
         source: "manual-entry"
       });
       targetObject.focusVisibleVerbSurfaceAtEnd();
+    }
+    function commitVerbInputEditingState(verbEl = null, options = {}) {
+      const input = verbEl || targetObject.document.getElementById("verb");
+      if (!input) {
+        return false;
+      }
+      const searchParts = targetObject.getSearchParts(input.value);
+      targetObject.rememberNonSearchValue(searchParts);
+      const parsedVerb = targetObject.parseVerbInput(targetObject.getSearchInputBase(input.value));
+      if (input.dataset.lastClassVerb !== parsedVerb.verb) {
+        targetObject.mutateConjugationSelectionState({
+          classFilter: null
+        });
+        input.dataset.lastClassVerb = parsedVerb.verb;
+      }
+      targetObject.syncComposerStateFromVerbInput(input.value);
+      targetObject.renderVerbComposerFromState();
+      if (typeof targetObject.clearAndrewsRouteBoardPinnedJourney === "function") {
+        targetObject.clearAndrewsRouteBoardPinnedJourney();
+      }
+      if (typeof targetObject.renderAndrewsRouteBoard === "function") {
+        targetObject.renderAndrewsRouteBoard();
+      }
+      if (options.syncUrl !== false && typeof targetObject.syncEntradaUrlSegmentsFromCurrentState === "function") {
+        targetObject.syncEntradaUrlSegmentsFromCurrentState({
+          replace: true
+        });
+      }
+      return true;
     }
     async function loadStaticBootstrapData() {
       const runtimeConfig = typeof globalThis !== "undefined" && globalThis.__NAWAT_RUNTIME_CONFIG__ && typeof globalThis.__NAWAT_RUNTIME_CONFIG__ === "object" ? globalThis.__NAWAT_RUNTIME_CONFIG__ : null;
@@ -198,6 +241,7 @@ export function createUiEventsApi(targetObject = globalThis) {
         targetObject.initZoomFontLock();
         targetObject.initUiScaleControl();
         targetObject.initUiDensityControl();
+        targetObject.initLanguageProfileControl();
         targetObject.initLanguageSwitch();
         if (typeof targetObject.initCurriculumMap === "function") {
           targetObject.initCurriculumMap();
@@ -255,23 +299,6 @@ export function createUiEventsApi(targetObject = globalThis) {
             targetObject.renderVerbMirror();
             const searchParts = targetObject.getSearchParts(verbEl.value);
             targetObject.rememberNonSearchValue(searchParts);
-            const parsedVerb = targetObject.parseVerbInput(targetObject.getSearchInputBase(verbEl.value));
-            if (verbEl.dataset.lastClassVerb !== parsedVerb.verb) {
-              targetObject.mutateConjugationSelectionState({
-                classFilter: null
-              });
-              verbEl.dataset.lastClassVerb = parsedVerb.verb;
-            }
-            if (!targetObject.VerbComposerState.isApplying) {
-              targetObject.syncComposerStateFromVerbInput(verbEl.value);
-              targetObject.renderVerbComposerFromState();
-            }
-            if (!targetObject.VerbComposerState.isApplying && typeof targetObject.clearAndrewsRouteBoardPinnedJourney === "function") {
-              targetObject.clearAndrewsRouteBoardPinnedJourney();
-            }
-            if (typeof targetObject.renderAndrewsRouteBoard === "function") {
-              targetObject.renderAndrewsRouteBoard();
-            }
             targetObject.scheduleVerbInputRefresh(verbEl.value);
           });
           verbEl.addEventListener("focus", () => {
@@ -829,6 +856,7 @@ export function createUiEventsApi(targetObject = globalThis) {
 
     const api = {};
     api.applyVerbEntryInputNow = applyVerbEntryInputNow;
+    api.commitVerbInputEditingState = commitVerbInputEditingState;
     api.loadStaticBootstrapData = loadStaticBootstrapData;
     Object.defineProperty(api, "uiRuntimeInitializationPromise", {
         configurable: true,

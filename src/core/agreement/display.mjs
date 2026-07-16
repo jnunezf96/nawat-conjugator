@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/agreement/display.js.
+// Canonical modern ESM module.
 
 export function createAgreementDisplayApi(targetObject = globalThis) {
     function resolveDefaultToggleId(options, preferredId, fallbackIds = []) {

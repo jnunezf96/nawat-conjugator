@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/modification/modification.js.
+// Canonical modern ESM module.
 
 export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     const ADJECTIVAL_MODIFICATION_BOUNDARY_VERSION = 1;
@@ -39,7 +39,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const ADJECTIVAL_MODIFICATION_ANTI_CONFLATION_RULES = Object.freeze(["adjectival modification boundary metadata is not generation", "modificationAst composes existing clause outputs; it does not create new Nawat word forms", "adjetivo route output is not a clause-level modification AST", "nominalizationProfile is not adjectival modification syntax", "ordinary NNC formulaSlots are not modifier/head relation metadata", "single generated words do not prove modification, supplementation, or topic relations", "Andrews modification categories are architecture, not Nawat/Pipil form authority"]);
+    const ADJECTIVAL_MODIFICATION_ANTI_CONFLATION_RULES = Object.freeze(["adjectival modification boundary metadata is not generation", "modificationAst composes existing clause outputs; it does not create new Nawat word forms", "adjetivo route output is not a clause-level modification AST", "nominalizationProfile is not adjectival modification syntax", "ordinary NNC formulaSlots are not modifier/head relation metadata", "single generated words do not prove modification, supplementation, or topic relations", "Andrews modification categories are architecture, not Nawat/Pipil orthography authority"]);
     const ADJECTIVAL_MODIFICATION_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "head",
       asks: "Which Nawat/Pipil clause, nucleus, or phrase is modified?"
@@ -54,7 +54,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
       asks: "What evidence supports modifier/head order, marking, discontinuity, or recursion?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided clause evidence supports modification status?"
+      asks: "What Andrews source model or user-provided clause context supports modification status?"
     })]);
     const LESSON42_ADJECTIVAL_MODIFICATION_VALIDATION_REFS = Object.freeze(["src/tests/modification.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON42_ADJECTIVAL_MODIFICATION_PDF_REFS = Object.freeze(["Andrews Lesson 42.1", "Andrews Lesson 42.2", "Andrews Lesson 42.3", "Andrews Lesson 42.4", "Andrews Lesson 42.5", "Andrews Lesson 42.6", "Andrews Lesson 42.7", "Andrews Lesson 42.8", "Andrews Lesson 42.8.1", "Andrews Lesson 42.8.2", "Andrews Lesson 42.8.3", "Andrews Lesson 42.8.4", "Andrews Lesson 42.8.5", "Andrews Lesson 42.8.6", "Andrews Lesson 42.8.7", "Andrews Lesson 42.8.8", "Andrews Lesson 42.8.9", "Andrews Lesson 42.9", "Andrews Lesson 42.10"]);
@@ -398,7 +398,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
       const modifierFunctionTypesFrame = cloneAdjectivalModificationLessonRecord(LESSON42_MODIFIER_FUNCTION_TYPES_FRAME);
       const recursionFrame = cloneAdjectivalModificationLessonRecord(LESSON42_RECURSION_FRAME);
       const incorporatedModificationFrame = cloneAdjectivalModificationLessonRecord(LESSON42_INCORPORATED_MODIFICATION_FRAME);
-      const remainingGaps = ["Current Lesson 42 modification support is partial and does not exhaust multiple-nucleus modification syntax, all modifier/head order patterns, all supplementation ambiguities, compound-head matrix targeting, all modifier clause types, recursion, or incorporated modification structures.", "The current modificationAst composes supplied generated surfaces and records selected order/scope diagnostics; it does not parse or generate Nawat clause examples.", "Transitive VNC modifier ambiguity, pronominal/quantitive/numeral head behavior, measure NNC head behavior, and incorporated modifier-head compounds remain diagnostic.", "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand."];
+      const remainingGaps = ["Current Lesson 42 modification support is partial and does not exhaust multiple-nucleus modification syntax, all modifier/head order patterns, all supplementation ambiguities, compound-head matrix targeting, all modifier clause types, recursion, or incorporated modification structures.", "The current modificationAst composes supplied generated surfaces and records selected order/scope diagnostics; it does not parse or generate Nawat clause examples.", "Transitive VNC modifier ambiguity, pronominal/quantitive/numeral head behavior, measure NNC head behavior, and incorporated modifier-head compounds remain diagnostic.", "A complete Andrews modifier/head clause-source model plus orthography context is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand."];
       const frame = {
         kind: "lesson-42-adjectival-modification-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -461,7 +461,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 42.1-42.10",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil clause evidence",
+          spellingAuthority: "Nawat/Pipil clause orthography bridge",
           noClassicalSurfaceImport: true,
           orthographyStatus: "not-surface-bearing"
         },
@@ -496,7 +496,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["adjectival-modification-lesson-42-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"]
+        diagnostics: ["adjectival-modification-lesson-42-diagnostic-partial", "adjectival-modification-source-gated"]
       });
     }
     const LESSON43_ADJECTIVAL_MODIFICATION_VALIDATION_REFS = Object.freeze(["src/tests/modification.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
@@ -803,7 +803,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
       const oneOfNoneOfFrame = cloneAdjectivalModificationLessonRecord(LESSON43_ONE_OF_NONE_OF_FRAME);
       const maleBondingModifierFrame = cloneAdjectivalModificationLessonRecord(LESSON43_MALE_BONDING_MODIFIER_FRAME);
       const namedPartnerModifierFrame = cloneAdjectivalModificationLessonRecord(LESSON43_NAMED_PARTNER_MODIFIER_FRAME);
-      const remainingGaps = ["Current Lesson 43 support records Andrews' nonpreposed, cooperating, discontinuous, interrogative-head, oc ce, one-of, male-bonding, and named-partner structures as diagnostics; it does not parse full sentence distance or transform topology.", "The current modificationAst can mark discontinuous order, but it does not detect topicalized heads, absent adjunctors, interrogative-head ambiguity, oc ce heads, or idiomatic shared-referent violations from raw Nawat clauses.", "The ac/tleh and in-unit warning is recorded as structural metadata only; it does not import traditional Classical solid spellings as Nawat/Pipil fixtures.", "Confirmed Nawat/Pipil modifier/head clause evidence is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand."];
+      const remainingGaps = ["Current Lesson 43 support records Andrews' nonpreposed, cooperating, discontinuous, interrogative-head, oc ce, one-of, male-bonding, and named-partner structures as diagnostics; it does not parse full sentence distance or transform topology.", "The current modificationAst can mark discontinuous order, but it does not detect topicalized heads, absent adjunctors, interrogative-head ambiguity, oc ce heads, or idiomatic shared-referent violations from raw Nawat clauses.", "The ac/tleh and in-unit warning is recorded as structural metadata only; it does not import traditional Classical solid spellings as Nawat/Pipil fixtures.", "A complete Andrews modifier/head clause-source model plus orthography context is still required before fixture data, parser/search detection, acciones de interfaz, or generation routing can expand."];
       const frame = {
         kind: "lesson-43-adjectival-modification-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -868,7 +868,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 43.1-43.9",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil clause evidence",
+          spellingAuthority: "Nawat/Pipil clause orthography bridge",
           noClassicalSurfaceImport: true,
           orthographyStatus: "not-surface-bearing"
         },
@@ -903,7 +903,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["adjectival-modification-lesson-43-diagnostic-partial", "adjectival-modification-needs-nawat-clause-evidence"]
+        diagnostics: ["adjectival-modification-lesson-43-diagnostic-partial", "adjectival-modification-source-gated"]
       });
     }
     function normalizeAdjectivalModificationEnum(value = "", allowedValues = [], fallback = "unknown") {
@@ -940,7 +940,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         lessons: [42, 43],
         status: "partial",
         structuralSource: "Andrews Lessons 42-43",
-        targetAuthority: "Nawat/Pipil repo data and user-provided clauses",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided clauses",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getAdjectivalModificationStructuralQuestions(),
@@ -973,6 +973,45 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     function splitAdjectivalModificationSurfaceText(value = "") {
       return String(value || "").split(/\s*\/\s*/g).map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—");
     }
+    function getAdjectivalModificationCanonicalRealizationSurfaceForms(resultFrame = null) {
+      if (!resultFrame || typeof resultFrame !== "object") {
+        return [];
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return records.filter(record => record && typeof record === "object" && record.kind === "grammar-formula-realization-record").flatMap(record => [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""]).map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+    }
+    function getAdjectivalModificationSelectedRealizationVariant(input = null) {
+      if (!input || typeof input !== "object") {
+        return null;
+      }
+      const grammarFrame = getAdjectivalModificationResultFrame(input);
+      const resultFrame = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
+      if (!resultFrame) {
+        return null;
+      }
+      const records = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      for (const record of records) {
+        if (!record || typeof record !== "object" || record.kind !== "grammar-formula-realization-record") {
+          continue;
+        }
+        const surfaces = [...(Array.isArray(record.surfaceForms) ? record.surfaceForms : []), record.surface || ""].map(entry => String(entry || "").trim()).filter((entry, index, list) => entry && entry !== "—" && list.indexOf(entry) === index);
+        if (!surfaces.length) {
+          continue;
+        }
+        const formulaRealizationRecordId = String(record.id || "");
+        const formulaRecordId = String(record.formulaRecordId || resultFrame.formulaRecord?.id || "");
+        const selectedVariantIndex = 0;
+        return {
+          kind: "grammar-formula-realization-selected-variant",
+          selectedVariantId: `${formulaRealizationRecordId || formulaRecordId || "realization"}::surface-${selectedVariantIndex}`,
+          selectedVariantIndex,
+          formulaRealizationRecordId,
+          formulaRecordId,
+          unit: String(record.unit || resultFrame.formulaRecord?.unit || "")
+        };
+      }
+      return null;
+    }
     function getAdjectivalModificationResultFrame(input = null) {
       return (input?.grammarFrame && typeof input.grammarFrame === "object" ? input.grammarFrame : null) || (input?.frames && typeof input.frames === "object" ? input.frames : null);
     }
@@ -986,6 +1025,10 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
       const grammarFrame = getAdjectivalModificationResultFrame(input);
       const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(frameResult);
+      const canonicalForms = getAdjectivalModificationCanonicalRealizationSurfaceForms(frameResult);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -994,7 +1037,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         forms.push(frameResult.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitAdjectivalModificationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => String(entry || "").trim()).filter(entry => entry && entry !== "—" && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(input.surfaceForms)) {
         forms.push(...input.surfaceForms);
@@ -1028,10 +1071,17 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     function buildAdjectivalModificationClauseNode(input = "", role = "unknown", fallbackSurface = "") {
       const surface = getAdjectivalModificationSurface(input, fallbackSurface);
       const formulaSlots = getAdjectivalModificationFormulaSlots(input);
+      const selectedVariant = getAdjectivalModificationSelectedRealizationVariant(input);
       return {
         kind: "adjectival-modification-clause-node",
         role: String(role || "unknown"),
         surface,
+        ...(selectedVariant ? {
+          selectedVariant,
+          selectedVariantId: selectedVariant.selectedVariantId,
+          formulaRealizationRecordId: selectedVariant.formulaRealizationRecordId,
+          formulaRecordId: selectedVariant.formulaRecordId
+        } : {}),
         clauseKind: typeof input === "object" && input ? String(input.clauseKind || input.nuclearClauseShell?.clauseKind || input.outputKind || "unknown") : "unknown",
         formulaSlots,
         formulaEcho: getAdjectivalModificationFormulaEcho(input),
@@ -1102,7 +1152,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         diagnostics.push("adjectival-modification-preposed-modifier-is-not-topic");
       }
       if (!String(evidenceSource || "").trim()) {
-        diagnostics.push("adjectival-modification-needs-nawat-clause-evidence");
+        diagnostics.push("adjectival-modification-source-gated");
       }
       const supported = Boolean(headNode.surface && modifierNode.surface && normalizedOrder !== ADJECTIVAL_MODIFICATION_ORDER.unknown);
       const surfaceSequence = supported ? buildAdjectivalModificationSurfaceSequence({
@@ -1178,7 +1228,7 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
         falsePositiveSource: normalizedFalsePositive,
         confirmed: false,
         generationAllowed: false,
-        diagnostics: [hasEvidence ? "adjectival-modification-needs-validation" : "adjectival-modification-needs-nawat-clause-evidence", normalizedRelation !== ADJECTIVAL_MODIFICATION_RELATION.unknown ? "adjectival-modification-relation-recognized" : "adjectival-modification-relation-unconfirmed", normalizedFalsePositive !== ADJECTIVAL_MODIFICATION_FALSE_POSITIVE_SOURCE.unknown ? "adjectival-modification-false-positive-source" : "adjectival-modification-unconfirmed"],
+        diagnostics: [hasEvidence ? "adjectival-modification-needs-validation" : "adjectival-modification-source-gated", normalizedRelation !== ADJECTIVAL_MODIFICATION_RELATION.unknown ? "adjectival-modification-relation-recognized" : "adjectival-modification-relation-unconfirmed", normalizedFalsePositive !== ADJECTIVAL_MODIFICATION_FALSE_POSITIVE_SOURCE.unknown ? "adjectival-modification-false-positive-source" : "adjectival-modification-unconfirmed"],
         boundary: buildAdjectivalModificationBoundaryMetadata()
       };
     }
@@ -1380,6 +1430,8 @@ export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     api.buildAdjectivalModificationBoundaryMetadata = buildAdjectivalModificationBoundaryMetadata;
     api.getAdjectivalModificationSurface = getAdjectivalModificationSurface;
     api.splitAdjectivalModificationSurfaceText = splitAdjectivalModificationSurfaceText;
+    api.getAdjectivalModificationCanonicalRealizationSurfaceForms = getAdjectivalModificationCanonicalRealizationSurfaceForms;
+    api.getAdjectivalModificationSelectedRealizationVariant = getAdjectivalModificationSelectedRealizationVariant;
     api.getAdjectivalModificationResultFrame = getAdjectivalModificationResultFrame;
     api.getAdjectivalModificationSurfaceForms = getAdjectivalModificationSurfaceForms;
     api.getAdjectivalModificationFormulaSlots = getAdjectivalModificationFormulaSlots;

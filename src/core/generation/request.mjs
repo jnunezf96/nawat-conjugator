@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/request.js.
+// Canonical modern ESM module.
 
 export function createGenerationRequestModule(targetObject = globalThis) {
     const NUCLEAR_CLAUSE_SURFACE_ANDREWS_SLOT_KEYS = Object.freeze({

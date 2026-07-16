@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/output/provenance.js.
+// Canonical modern ESM module.
 
 export function createOutputProvenanceGlobals(targetObject = globalThis) {
     var OUTPUT_PROVENANCE_STEM_ANDREWS_REFS = Object.freeze(["Andrews Lesson 7 7.1-7.5"]);
@@ -50,10 +50,31 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
       const grammarFrame = getOutputProvenanceGrammarFrame(record, options);
       return grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
     }
+    function getOutputProvenanceCanonicalRealizationSurfaceForms(record = null, options = {}) {
+      const resultFrame = getOutputProvenanceResultFrame(record, options);
+      if (!resultFrame) {
+        return [];
+      }
+      const realizationRecords = Array.isArray(resultFrame.formulaRealizationRecords) && resultFrame.formulaRealizationRecords.length ? resultFrame.formulaRealizationRecords : resultFrame.formulaRealizationRecord ? [resultFrame.formulaRealizationRecord] : [];
+      return realizationRecords.filter(entry => entry && typeof entry === "object" && entry.kind === "grammar-formula-realization-record").flatMap(entry => {
+        const forms = [];
+        if (Array.isArray(entry.surfaceForms)) {
+          forms.push(...entry.surfaceForms);
+        }
+        if (entry.surface) {
+          forms.push(entry.surface);
+        }
+        return forms;
+      }).map(entry => normalizeOutputProvenanceContractSurfaceValue(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+    }
     function getOutputProvenanceSurfaceForms(record = null, fallbackSurface = "", options = {}) {
       const node = record && typeof record === "object" ? record : {};
       const resultFrame = getOutputProvenanceResultFrame(node, options);
       const hasResultFrame = Boolean(resultFrame);
+      const canonicalForms = getOutputProvenanceCanonicalRealizationSurfaceForms(node, options);
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const candidates = [];
       if (Array.isArray(resultFrame?.surfaceForms)) {
         candidates.push(...resultFrame.surfaceForms);
@@ -62,7 +83,7 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
         candidates.push(resultFrame.surface);
       }
       if (hasResultFrame) {
-        return candidates.flatMap(entry => splitOutputProvenanceContractSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return candidates.map(entry => normalizeOutputProvenanceContractSurfaceValue(entry)).filter(entry => entry && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(node.surfaceForms)) {
         candidates.push(...node.surfaceForms);
@@ -91,6 +112,31 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
       const fallbackSurface = targetObject.normalizeDerivationStemValue(options.surface || record.surfaceStem || "");
       const surfaceForms = getOutputProvenanceSurfaceForms(record, fallbackSurface, options);
       const surface = getOutputProvenancePrimarySurface(record, fallbackSurface, options);
+      const optionFrame = options?.grammarFrame && typeof options.grammarFrame === "object" ? options.grammarFrame : options?.frames && typeof options.frames === "object" ? options.frames : null;
+      const recordFrame = record?.grammarFrame && typeof record.grammarFrame === "object" ? record.grammarFrame : record?.frames && typeof record.frames === "object" ? record.frames : null;
+      const inboundFrame = optionFrame || recordFrame || null;
+      const inboundResultFrame = inboundFrame?.resultFrame && typeof inboundFrame.resultFrame === "object" ? inboundFrame.resultFrame : null;
+      const sanitizedFrame = inboundResultFrame ? {
+        ...inboundFrame,
+        resultFrame: {
+          ...inboundResultFrame,
+          surface,
+          surfaceForms
+        }
+      } : null;
+      const sanitizedRecord = sanitizedFrame ? {
+        ...record,
+        grammarFrame: record.grammarFrame ? sanitizedFrame : record.grammarFrame,
+        frames: record.frames ? sanitizedFrame : record.frames,
+        surfaceForms
+      } : {
+        ...record,
+        surfaceForms
+      };
+      const metadataOptions = sanitizedFrame ? {
+        ...options,
+        grammarFrame: sanitizedFrame
+      } : options;
       const supported = options.supported !== undefined ? options.supported === true : Boolean(surface || surfaceForms.length);
       const diagnostics = Array.isArray(options.diagnostics) ? options.diagnostics : [];
       const sourceVerb = String(options.sourceVerb || record.verb || record.base || "").trim();
@@ -103,10 +149,8 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
       const andrewsRefs = getOutputProvenanceAndrewsRefs({
         derivationType
       });
-      return targetObject.attachGrammarMetadataContract({
-        ...record,
-        surfaceForms
-      }, {
+      return targetObject.attachGrammarMetadataContract(sanitizedRecord, {
+        ...metadataOptions,
         enumerable: false,
         metadataKind,
         unitKind: "output-provenance",
@@ -142,7 +186,7 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
         orthographyFrame: {
           surface,
           surfaceForms,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
@@ -288,6 +332,7 @@ export function createOutputProvenanceGlobals(targetObject = globalThis) {
     api.splitOutputProvenanceContractSurfaceText = splitOutputProvenanceContractSurfaceText;
     api.getOutputProvenanceGrammarFrame = getOutputProvenanceGrammarFrame;
     api.getOutputProvenanceResultFrame = getOutputProvenanceResultFrame;
+    api.getOutputProvenanceCanonicalRealizationSurfaceForms = getOutputProvenanceCanonicalRealizationSurfaceForms;
     api.getOutputProvenanceSurfaceForms = getOutputProvenanceSurfaceForms;
     api.getOutputProvenancePrimarySurface = getOutputProvenancePrimarySurface;
     api.attachOutputProvenanceGrammarContract = attachOutputProvenanceGrammarContract;

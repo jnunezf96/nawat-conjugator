@@ -1,10 +1,6 @@
-import {
-    BROWSER_SCRIPT_PATHS,
-    HTML_SHELL_PATH,
-    VM_SCRIPT_PATHS,
-    cloneStaticRuntimePaths,
-} from "./runtime_paths.mjs";
+import { cloneStaticRuntimePaths } from "./runtime_paths.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
+import { RUNTIME_MODULE_PATHS } from "../runtime/create_runtime.mjs";
 
 export function installRuntimeBridge(globalObject = globalThis, runtime = {}) {
     if (!globalObject || typeof globalObject !== "object") {
@@ -13,12 +9,11 @@ export function installRuntimeBridge(globalObject = globalThis, runtime = {}) {
     const runtimeConfig = runtime.runtimeConfig || globalObject.__NAWAT_RUNTIME_CONFIG__ || createRuntimeConfigSnapshot();
     const bridge = {
         mode: runtime.mode || null,
-        shellSource: HTML_SHELL_PATH,
+        entrypoint: runtime.entrypoint || null,
         runtimeConfig,
         runtimePaths: runtimeConfig.paths || cloneStaticRuntimePaths(),
         manifests: {
-            browser: [...BROWSER_SCRIPT_PATHS],
-            vm: [...VM_SCRIPT_PATHS],
+            modules: [...RUNTIME_MODULE_PATHS],
         },
         esmPreloads: runtime.esmPreloads || globalObject.__NAWAT_ESM_PRELOADS__ || [],
         moduleRuntimeMode: runtime.moduleRuntimeMode || null,

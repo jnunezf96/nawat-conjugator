@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/compound/compound.js.
+// Canonical modern ESM module.
 
 export function createNncCompoundApi(targetObject = globalThis) {
     const COMPOUND_NNC_BOUNDARY_VERSION = 1;
@@ -19,7 +19,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const COMPOUND_NNC_ANTI_CONFLATION_RULES = Object.freeze(["VNC compoundAst metadata is not compound NNC generation", "outer lexical embeds are not compound nounstem fixture evidence", "ordinary NNC fixtures are not affective NNC fixtures", "open-stem ordinary NNC previews are not compound NNC evidence", "parser punctuation is not a compound NNC schema", "Andrews compound/affective categories are architecture, not Nawat/Pipil form authority"]);
+    const COMPOUND_NNC_ANTI_CONFLATION_RULES = Object.freeze(["VNC compoundAst metadata is not compound NNC generation", "outer lexical embeds are not compound nounstem fixture evidence", "ordinary NNC fixtures are not affective NNC fixtures", "open-stem ordinary NNC previews are not compound NNC evidence", "parser punctuation is not a compound NNC schema", "Andrews compound/affective categories are architecture, not Classical surface authority"]);
     const COMPOUND_NNC_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "headStem",
       asks: "Which nounstem is the head or matrix of the compound NNC candidate?"
@@ -31,10 +31,10 @@ export function createNncCompoundApi(targetObject = globalThis) {
       asks: "Is the candidate a compound nounstem, affective NNC, lexical embed, ordinary fixture, or unknown?"
     }), Object.freeze({
       field: "affectiveValue",
-      asks: "If affective, what affective value is evidenced by Nawat/Pipil data?"
+      asks: "If affective, what affective value is evidenced by Andrews source data plus orthography-bridge realization?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided evidence supports the compound/affective status?"
+      asks: "Which Andrews source gate or structured source supports the compound/affective status?"
     })]);
     const LESSON31_COMPOUND_NOUNSTEM_VALIDATION_REFS = Object.freeze(["src/tests/nnc_compound.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const LESSON31_COMPOUND_NOUNSTEM_PDF_REFS = Object.freeze(["Andrews Lesson 31.1", "Andrews Lesson 31.2", "Andrews Lesson 31.3", "Andrews Lesson 31.4", "Andrews Lesson 31.5", "Andrews Lesson 31.6", "Andrews Lesson 31.7", "Andrews Lesson 31.8", "Andrews Lesson 31.9", "Andrews Lesson 31.10", "Andrews Lesson 31.11", "Andrews Lesson 31.12", "Andrews Lesson 31.13"]);
@@ -196,7 +196,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Los ejemplos separan incrustados tli/in/cero, ti subclase 1 y ti subclase 2, con irregularidades ortograficas.",
       engineSurface: "diagnostic example-class frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson31-unique-fillers",
       andrewsSection: "31.6",
@@ -204,7 +204,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Algunos troncos solo aparecen como fillers de incrustado o matriz; ca y yo son matrices prolificas especiales.",
       engineSurface: "diagnostic unique-filler frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson31-conjunctive-compounds",
       andrewsSection: "31.7",
@@ -228,7 +228,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Un nombre animado puede incorporar oquich o cihua para distinguir sexo.",
       engineSurface: "diagnostic special-function frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson31-progeny",
       andrewsSection: "31.10",
@@ -236,7 +236,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Cone o pilton como matriz pueden marcar progenie animal; cone humano tiene restriccion propia.",
       engineSurface: "diagnostic special-function frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson31-fellowship",
       andrewsSection: "31.11",
@@ -244,7 +244,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Poh puede servir como matriz en CNN posesivas de compania, igualdad o parentesco.",
       engineSurface: "diagnostic special-function frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson31-affinity",
       andrewsSection: "31.12",
@@ -360,6 +360,200 @@ export function createNncCompoundApi(targetObject = globalThis) {
         childNobleAmbiguityMustBePreserved: true
       })
     });
+    const LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION = 1;
+    const LESSON32_PIL_CHILD_NNC_SIDE_ROWS = Object.freeze([Object.freeze({
+      id: "p294-an-no-pil-huan",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#an-0+n-o(pil)hu-an#",
+      subject: Object.freeze({
+        structural: "an-0",
+        prefix: "an",
+        suffix: "0"
+      }),
+      state: "possessive",
+      possessiveState: Object.freeze({
+        structural: "n-o",
+        possessor: "1sg"
+      }),
+      predicateStem: "pil",
+      num1Num2: Object.freeze({
+        structural: "hu-an",
+        referenceNumber: "plural",
+        connectorKind: "possessive-plural"
+      }),
+      role: "pil-child-possessive-plural"
+    }), Object.freeze({
+      id: "p294-no-pilhuantzitzin-huan",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0+n-o(pil-hu-an-tzi-tzin)hu-an#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "possessive",
+      possessiveState: Object.freeze({
+        structural: "n-o",
+        possessor: "1sg"
+      }),
+      predicateStem: "pil-hu-an-tzi-tzin",
+      num1Num2: Object.freeze({
+        structural: "hu-an",
+        referenceNumber: "plural",
+        connectorKind: "possessive-plural"
+      }),
+      role: "pil-child-possessive-affinity-huan"
+    }), Object.freeze({
+      id: "p294-no-pilhuantzitzin-zero",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0+n-o(pil-hu-an-tzi-tzin)0-[sq0]#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "possessive",
+      possessiveState: Object.freeze({
+        structural: "n-o",
+        possessor: "1sg"
+      }),
+      predicateStem: "pil-hu-an-tzi-tzin",
+      num1Num2: Object.freeze({
+        structural: "0-[sq0]",
+        referenceNumber: "plural",
+        connectorKind: "silent-square-zero"
+      }),
+      role: "pil-child-possessive-affinity-zero"
+    }), Object.freeze({
+      id: "p294-im-pihpilhuantzitzin-zero",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0+i-m(pih-pil-hu-an-tzi-tzin)0-[sq0]#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "possessive",
+      possessiveState: Object.freeze({
+        structural: "i-m",
+        possessor: "3pl"
+      }),
+      predicateStem: "pih-pil-hu-an-tzi-tzin",
+      num1Num2: Object.freeze({
+        structural: "0-[sq0]",
+        referenceNumber: "plural",
+        connectorKind: "silent-square-zero"
+      }),
+      role: "pil-child-possessive-third-plural-affinity-zero"
+    }), Object.freeze({
+      id: "p294-pipil-tin",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0(pi-pil)t-in#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "absolutive",
+      possessiveState: null,
+      predicateStem: "pi-pil",
+      num1Num2: Object.freeze({
+        structural: "t-in",
+        referenceNumber: "plural",
+        connectorKind: "absolutive-plural-tin"
+      }),
+      role: "pil-child-or-noble-absolutive-plural"
+    }), Object.freeze({
+      id: "p294-oquich-pipil-tin",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0(oquich-pi-pil)t-in#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "absolutive",
+      possessiveState: null,
+      predicateStem: "oquich-pi-pil",
+      num1Num2: Object.freeze({
+        structural: "t-in",
+        referenceNumber: "plural",
+        connectorKind: "absolutive-plural-tin"
+      }),
+      role: "male-child-or-noble-absolutive-plural"
+    }), Object.freeze({
+      id: "p294-cihua-pipil-tin",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0(cihua-pi-pil)t-in#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "absolutive",
+      possessiveState: null,
+      predicateStem: "cihua-pi-pil",
+      num1Num2: Object.freeze({
+        structural: "t-in",
+        referenceNumber: "plural",
+        connectorKind: "absolutive-plural-tin"
+      }),
+      role: "female-child-or-noble-absolutive-plural"
+    }), Object.freeze({
+      id: "p294-ti-piltzin-tli",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#ti-0(pil-tzin)tli-0#",
+      subject: Object.freeze({
+        structural: "ti-0",
+        prefix: "ti",
+        suffix: "0"
+      }),
+      state: "absolutive",
+      possessiveState: null,
+      predicateStem: "pil-tzin",
+      num1Num2: Object.freeze({
+        structural: "tli-0",
+        referenceNumber: "singular",
+        connectorKind: "absolutive-singular-tli"
+      }),
+      role: "pil-child-affective-tzin-singular"
+    }), Object.freeze({
+      id: "p294-pilton-tli",
+      printedPage: 294,
+      pdfPage: 309,
+      andrewsSection: "32.6",
+      formula: "#0-0(pil-ton)tli-0#",
+      subject: Object.freeze({
+        structural: "0-0",
+        prefix: "0",
+        suffix: "0"
+      }),
+      state: "absolutive",
+      possessiveState: null,
+      predicateStem: "pil-ton",
+      num1Num2: Object.freeze({
+        structural: "tli-0",
+        referenceNumber: "singular",
+        connectorKind: "absolutive-singular-tli"
+      }),
+      role: "pil-child-affective-ton-singular"
+    })]);
     const LESSON32_NONANIMATE_AFFECTIVE_FRAME = Object.freeze({
       kind: "lesson-32-nonanimate-affective-frame",
       sourceSection: "Andrews 32.7",
@@ -397,7 +591,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Pil y pol forman matrices afectivas de clase cero, salvo lexicalizacion especial.",
       engineSurface: "diagnostic zero-class affective frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson32-tzin-ton",
       andrewsSection: "32.3",
@@ -405,7 +599,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Tzin y ton dejan que la clase del incrustado determine cero o tli, con usos vocativos e irregulares.",
       engineSurface: "diagnostic class-dependent affective frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson32-zol",
       andrewsSection: "32.4",
@@ -413,7 +607,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       directiveEs: "Zol forma tli con incrustados no animados y puede alimentar compuestos o rutas denominales.",
       engineSurface: "diagnostic zol frame",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson32-affinity-shape",
       andrewsSection: "32.5",
@@ -496,7 +690,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       embedRole = "compound-nounstem-embed",
       structureType = "linked-or-integrated-compound",
       finalFormulaShape = "NNC + NNC = compound NNC",
-      generationStatus = "diagnostic-only-nawat-evidence-required"
+      generationStatus = "andrews-logic-generated"
     } = {}) {
       const matrixValence = "compound-nounstem-no-verbal-object-slots";
       const objectSlotOwnership = buildLesson31CompoundNounstemObjectSlotOwnershipFrame({
@@ -552,7 +746,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-required",
         validationRefs: Array.from(LESSON31_COMPOUND_NOUNSTEM_VALIDATION_REFS)
       }));
     }
@@ -561,7 +755,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-required",
         validationRefs: Array.from(LESSON32_AFFECTIVE_NNC_VALIDATION_REFS)
       }));
     }
@@ -586,7 +780,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
       typeFrame.objectSlotOwnership = compoundNounstemRouteFrame.objectSlotOwnership;
       meaningFrame.routeFrame = compoundNounstemRouteFrame;
       matrixFrame.routeFrame = compoundNounstemRouteFrame;
-      const remainingGaps = ["Current compound/affective NNC metadata is not a compound nounstem generator.", "NNC-specific AST parsing for matrix/embed orientation, linked versus integrated structure, conjunctive structure, and recursive segmentation remains partial.", "Possessor orientation, embed class behavior, unique fillers, special ca/yo matrices, sex/progeny/fellowship patterns, affinity stems, and distributive/varietal stems need explicit engine gates.", "Confirmed Nawat/Pipil compound nounstem examples and orthographic exceptions remain evidence-needed."];
+      const remainingGaps = ["Current compound/affective NNC metadata generates only simple structured compound nounstem sources.", "NNC-specific AST parsing for matrix/embed orientation, linked versus integrated structure, conjunctive structure, and recursive segmentation remains partial.", "Possessor orientation, embed class behavior, unique fillers, special ca/yo matrices, sex/progeny/fellowship patterns, affinity stems, and distributive/varietal stems need explicit engine gates.", "Orthographic exceptions remain source-gated through the Nawat/Pipil orthography bridge."];
       const frame = {
         kind: "lesson-31-compound-nounstem-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -603,7 +797,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-31-compound-nounstem-audit",
           result: "hit",
-          correction: "Lesson 31 now records Andrews compound nounstem architecture, matrix/embed governance, possessor orientation, embed class behavior, unique fillers, conjunctive and recursive structures, special semantic formations, affinity stems, and distributive/varietal stems while keeping generation blocked.",
+          correction: "Lesson 31 now records Andrews compound nounstem architecture, matrix/embed governance, possessor orientation, embed class behavior, unique fillers, conjunctive and recursive structures, special semantic formations, affinity stems, and distributive/varietal stems while generating only simple structured compound sources.",
           andrewsRefs: Array.from(LESSON31_COMPOUND_NOUNSTEM_PDF_REFS),
           feedbackRefs: Array.from(LESSON31_COMPOUND_NOUNSTEM_VALIDATION_REFS)
         }],
@@ -623,7 +817,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
           compoundNncBoundaryMetadataImplemented: true,
           vncCompoundAstKeptSeparate: true,
           ordinaryNncFixtureGenerationPreserved: true,
-          compoundNounstemGenerationImplemented: false,
+          compoundNounstemGenerationImplemented: true,
           compoundNounstemAstImplemented: false,
           possessorOrientationGenerationImplemented: false,
           conjunctiveCompoundGenerationImplemented: false,
@@ -646,9 +840,9 @@ export function createNncCompoundApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 31.1-31.13",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-required"
         },
         morphBoundaryFrame: {
           typeFrame,
@@ -686,7 +880,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["compound-nounstem-diagnostic-only", "compound-nounstem-needs-nawat-evidence"]
+        diagnostics: ["compound-nounstem-source-gated", "compound-nounstem-orthography-bridge-required"]
       });
     }
     function buildLesson32AffectiveNncPursuitFrame() {
@@ -699,7 +893,8 @@ export function createNncCompoundApi(targetObject = globalThis) {
       const pilFrame = cloneCompoundNncLessonRecord(LESSON32_PIL_NOUNSTEM_FRAME);
       const nonanimateFrame = cloneCompoundNncLessonRecord(LESSON32_NONANIMATE_AFFECTIVE_FRAME);
       const flawedSubjectFrame = cloneCompoundNncLessonRecord(LESSON32_FLAWED_SUBJECT_FRAME);
-      const remainingGaps = ["Current compound/affective NNC metadata is not an affective NNC generator.", "Affective matrix class routing for pil/pol/tzin/ton/zol and lexicalized class shifts need confirmed Nawat/Pipil evidence.", "Affinity-shaped affective stems, pil child/noble ambiguity, nonanimate number behavior, and flawed-subject num1 silencing need explicit route gates.", "Confirmed Nawat/Pipil affective examples, flawed-subject examples, and orthographic exceptions remain evidence-needed."];
+      const pilChildNncSideGeneration = generateLesson32PilChildNncSideOutputs();
+      const remainingGaps = ["Current compound/affective NNC generation is scoped to the Andrews p. 294 pil child/noble NNC-side rows.", "Broader affective matrix class routing for pil/pol/tzin/ton/zol and lexicalized class shifts need Andrews source gates.", "Additional affinity-shaped affective stems, pil child/noble ambiguity outside the p. 294 rows, nonanimate number behavior, and flawed-subject num1 silencing need explicit route gates.", "Affective examples, flawed-subject examples, and orthographic exceptions remain source-gated through the Nawat/Pipil orthography bridge."];
       const frame = {
         kind: "lesson-32-affective-nnc-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -716,7 +911,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
         firedArrows: [{
           id: "lesson-32-affective-nnc-audit",
           result: "hit",
-          correction: "Lesson 32 now records Andrews affective NNC architecture, affective-matrix class behavior, affinity-shaped affective stems, pil child/noble ambiguity, nonanimate number behavior, and flawed-subject NNCs while keeping generation blocked.",
+          correction: "Lesson 32 now records Andrews affective NNC architecture and generates the p. 294 pil child/noble NNC-side rows while keeping broader affective routing source-gated.",
           andrewsRefs: Array.from(LESSON32_AFFECTIVE_NNC_PDF_REFS),
           feedbackRefs: Array.from(LESSON32_AFFECTIVE_NNC_VALIDATION_REFS)
         }],
@@ -729,10 +924,13 @@ export function createNncCompoundApi(targetObject = globalThis) {
         pilFrame,
         nonanimateFrame,
         flawedSubjectFrame,
+        pilChildNncSideGeneration,
         currentEngineBoundary: {
           compoundNncAffectiveBoundaryMetadataImplemented: true,
           ordinaryNncFixtureGenerationPreserved: true,
-          affectiveNncGenerationImplemented: false,
+          affectiveNncGenerationImplemented: true,
+          generalAffectiveNncGenerationImplemented: false,
+          pilChildNncSideGenerationImplemented: true,
           staticAffectiveDataImplemented: false,
           affectiveMatrixClassRoutingImplemented: false,
           affectiveAffinityGenerationImplemented: false,
@@ -754,9 +952,9 @@ export function createNncCompoundApi(targetObject = globalThis) {
         supported: true,
         sourceInput: "Andrews Lesson 32.1-32.8",
         orthographyFrame: {
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true,
-          orthographyStatus: "nawat-evidence-required"
+          orthographyStatus: "orthography-bridge-required"
         },
         morphBoundaryFrame: {
           overviewFrame,
@@ -765,6 +963,7 @@ export function createNncCompoundApi(targetObject = globalThis) {
           zolFrame,
           affinityFrame,
           pilFrame,
+          pilChildNncSideGeneration,
           nonanimateFrame,
           flawedSubjectFrame
         },
@@ -778,15 +977,17 @@ export function createNncCompoundApi(targetObject = globalThis) {
         nuclearClauseFrame: {
           unitKind: "NNC",
           affectiveSites: overviewFrame.attitudeSites,
+          pilChildNncSideGeneratedFormulaCount: pilChildNncSideGeneration.entries.length,
           flawedSubjectRestrictedToAbsolutiveSingularCommon: flawedSubjectFrame.restrictedToAbsolutiveStateSingularCommonSubject
         },
         targetContract: {
           metadataKind: "lesson-32-affective-nnc-pursuit-frame",
           generationAllowed: false,
+          pilChildNncSideGenerationAllowed: pilChildNncSideGeneration.generationAllowed,
           closestPass: false,
           remainingGaps
         },
-        diagnostics: ["affective-nnc-diagnostic-only", "affective-nnc-needs-nawat-evidence"]
+        diagnostics: ["affective-nnc-source-gated", "affective-nnc-orthography-bridge-required"]
       });
     }
     function normalizeCompoundNncEnum(value = "", allowedValues = [], fallback = "unknown") {
@@ -807,6 +1008,587 @@ export function createNncCompoundApi(targetObject = globalThis) {
         ...question
       }));
     }
+    function normalizeCompoundNncSurfacePart(value = "") {
+      const parenthetical = String(value || "").match(/\(([^)]+)\)/);
+      const source = String(parenthetical?.[1] || value || "").replace(/\b(?:CNV|CNN|VNC|NNC)\b/gi, "").replace(/\[sq0\]/gi, "").replace(/[Ø0]/g, "").replace(/[#()[\]{}+_\s]/g, "").replace(/-/g, "").trim();
+      if (!source || /[A-Z_]/.test(source)) {
+        return "";
+      }
+      const conversion = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(source, {
+        source: "Andrews compound NNC source slot"
+      }) : null;
+      return conversion?.output || source;
+    }
+    function getLesson32PilChildNncSideRows() {
+      return LESSON32_PIL_CHILD_NNC_SIDE_ROWS.map(row => cloneCompoundNncLessonRecord(row));
+    }
+    function findLesson32PilChildNncSideRow(rowOrId = "") {
+      if (rowOrId && typeof rowOrId === "object") {
+        return rowOrId;
+      }
+      const rowId = String(rowOrId || "").trim();
+      return LESSON32_PIL_CHILD_NNC_SIDE_ROWS.find(row => row.id === rowId || row.formula === rowId) || null;
+    }
+    function normalizeLesson32PilChildNncSideSlotSurface(value = "", {
+      slot = "",
+      structural = ""
+    } = {}) {
+      const normalizedStructural = String(structural || value || "").trim();
+      if (!normalizedStructural || normalizedStructural === "0" || normalizedStructural === "0-0" || normalizedStructural === "0-[sq0]") {
+        return "";
+      }
+      if (slot === "possessive-state") {
+        if (normalizedStructural === "n-o") {
+          return "nu";
+        }
+        if (normalizedStructural === "i-m" || normalizedStructural === "i-n") {
+          return "in";
+        }
+      }
+      return normalizeCompoundNncSurfacePart(normalizedStructural);
+    }
+    function buildLesson32PilChildNncSideFormulaSlots(row = null, surfaces = {}) {
+      const subject = row?.subject || {};
+      const possessiveState = row?.possessiveState || null;
+      const connector = row?.num1Num2 || {};
+      return {
+        pers1Pers2: {
+          role: "subject-person",
+          slot: "pers1-pers2",
+          structural: subject.structural || "0-0",
+          prefix: subject.prefix === "0" ? "" : String(subject.prefix || ""),
+          suffix: subject.suffix === "0" ? "" : String(subject.suffix || ""),
+          displayPrefix: subject.prefix || "0",
+          displaySuffix: subject.suffix || "0",
+          surface: surfaces.subject || "",
+          owner: "subject"
+        },
+        possessiveState: possessiveState ? {
+          role: "possessive-state",
+          slot: "predicate.state.st1-st2",
+          structural: possessiveState.structural || "",
+          possessor: possessiveState.possessor || "",
+          surface: surfaces.possessiveState || "",
+          owner: "predicate",
+          belongsTo: "predicate",
+          notSubjectConnector: true,
+          notTense: true
+        } : null,
+        predicateStem: {
+          role: "predicate",
+          slot: "STEM",
+          structural: row?.predicateStem || "",
+          stem: row?.predicateStem || "",
+          surface: surfaces.predicateStem || "",
+          state: row?.state || "",
+          insideParentheses: true
+        },
+        num1Num2: {
+          role: "subject-number-connector",
+          slot: "num1-num2",
+          structural: connector.structural || "0-0",
+          displayDyad: connector.structural || "0-0",
+          surface: surfaces.num1Num2 || "",
+          connector: surfaces.num1Num2 || "",
+          referenceNumber: connector.referenceNumber || "",
+          connectorKind: connector.connectorKind || "",
+          owner: "subject",
+          belongsTo: "subject",
+          outsideParentheses: true,
+          notPredicateState: true,
+          notStemSuffix: true,
+          notTense: true
+        }
+      };
+    }
+    function buildLesson32PilChildNncSideBlockedOutput({
+      row = null,
+      diagnosticId = "lesson-32-pil-child-nnc-side-blocked",
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const diagnostics = [diagnosticId];
+      const blocked = {
+        kind: "lesson-32-pil-child-nnc-side-generation",
+        version: LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION,
+        id: row?.id || sourceFrame?.rowId || "",
+        structuralFormula: row?.formula || sourceFrame?.structuralFormula || "",
+        formula: row?.formula || sourceFrame?.structuralFormula || "",
+        sourceFrame,
+        operationFrame,
+        generationAllowed: false,
+        diagnostics
+      };
+      return attachCompoundNncGrammarContract(blocked, {
+        metadataKind: blocked.kind,
+        unitKind: "pil-child-nnc-side",
+        routeStage: "block-lesson-32-pil-child-nnc-side",
+        sourceInput: blocked.formula,
+        supported: false,
+        generationAllowed: false,
+        diagnostics
+      });
+    }
+    function buildLesson32PilChildNncSideSourceFrame(rowOrId = "") {
+      const row = findLesson32PilChildNncSideRow(rowOrId);
+      if (!row) {
+        return null;
+      }
+      const subjectSurface = normalizeLesson32PilChildNncSideSlotSurface(row.subject?.structural || "", {
+        slot: "subject"
+      });
+      const possessiveStateSurface = row.possessiveState ? normalizeLesson32PilChildNncSideSlotSurface(row.possessiveState.structural, {
+        slot: "possessive-state"
+      }) : "";
+      const predicateStemSurface = normalizeLesson32PilChildNncSideSlotSurface(row.predicateStem, {
+        slot: "predicate-stem"
+      });
+      const num1Num2Surface = normalizeLesson32PilChildNncSideSlotSurface(row.num1Num2?.structural || "", {
+        slot: "num1-num2"
+      });
+      const formulaSlots = buildLesson32PilChildNncSideFormulaSlots(row, {
+        subject: subjectSurface,
+        possessiveState: possessiveStateSurface,
+        predicateStem: predicateStemSurface,
+        num1Num2: num1Num2Surface
+      });
+      const segmentFrames = Object.freeze([Object.freeze({
+        slot: "pers1-pers2",
+        role: "subject-person",
+        formulaValue: formulaSlots.pers1Pers2?.structural || "",
+        surface: formulaSlots.pers1Pers2?.surface || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }), ...(formulaSlots.possessiveState ? [Object.freeze({
+        slot: "possessive-state",
+        role: "predicate-state",
+        formulaValue: formulaSlots.possessiveState.structural || "",
+        surface: formulaSlots.possessiveState.surface || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      })] : []), Object.freeze({
+        slot: "STEM",
+        role: "predicate",
+        formulaValue: formulaSlots.predicateStem?.structural || "",
+        surface: formulaSlots.predicateStem?.surface || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }), Object.freeze({
+        slot: "num1-num2",
+        role: "subject-number-connector",
+        formulaValue: formulaSlots.num1Num2?.structural || "",
+        surface: formulaSlots.num1Num2?.surface || "",
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      })]);
+      return Object.freeze({
+        kind: "lesson-32-pil-child-nnc-side-source-frame",
+        version: LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION,
+        rowId: row.id,
+        printedPage: row.printedPage,
+        pdfPage: row.pdfPage,
+        andrewsSection: row.andrewsSection,
+        structuralFormula: row.formula,
+        formulaSlots,
+        role: row.role,
+        state: row.state,
+        predicateStem: row.predicateStem,
+        targetStem: predicateStemSurface,
+        segmentFrames,
+        targetSurface: segmentFrames.map(segment => String(segment.surface || "")).join(""),
+        authority: "Andrews printed p. 294 / PDF p. 309",
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildLesson32PilChildNncSideOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "lesson-32-pil-child-nnc-side-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-32-6-pil-child-nnc-side-row-realization",
+        routeFamily: "lesson-32-pil-child-nnc-side",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-p294-pil-child-nnc-side-row-from-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceRowId: sourceFrame.rowId,
+        sourceFormula: sourceFrame.structuralFormula,
+        targetFormulaSlots: sourceFrame.formulaSlots,
+        targetSegmentFrames: sourceFrame.segmentFrames,
+        targetSurface: sourceFrame.targetSurface,
+        targetStem: sourceFrame.targetStem,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getLesson32PilChildNncSideOperationFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "lesson-32-pil-child-nnc-side-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-32-6-pil-child-nnc-side-row-realization" || operationFrame.routeFamily !== "lesson-32-pil-child-nnc-side" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (String(operationFrame.sourceRowId || "") !== String(sourceFrame.rowId || "") || String(operationFrame.sourceFormula || "") !== String(sourceFrame.structuralFormula || "")) {
+        return "contradictory-source-frame";
+      }
+      const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+      }
+      const targetSurface = targetSegmentFrames.map(segment => String(segment?.surface || "")).join("");
+      if (targetSurface !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetStem || "") !== String(sourceFrame.targetStem || "")) {
+        return "contradictory-target-frame";
+      }
+      const operationSlots = operationFrame.targetFormulaSlots || null;
+      if (!operationSlots || operationSlots !== sourceFrame.formulaSlots) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function generateLesson32PilChildNncSideOutput(rowOrId = "", {
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const row = findLesson32PilChildNncSideRow(rowOrId);
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : rowOrId?.kind === "lesson-32-pil-child-nnc-side-source-frame" ? rowOrId : null;
+      if (!row && !resolvedSourceFrame) {
+        const blocked = {
+          kind: "lesson-32-pil-child-nnc-side-generation",
+          version: LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION,
+          generationAllowed: false,
+          diagnostics: ["lesson-32-pil-child-nnc-side-row-not-found"]
+        };
+        return attachCompoundNncGrammarContract(blocked, {
+          metadataKind: blocked.kind,
+          unitKind: "pil-child-nnc-side",
+          routeStage: "block-lesson-32-pil-child-nnc-side",
+          supported: false,
+          generationAllowed: false,
+          diagnostics: blocked.diagnostics
+        });
+      }
+      const mismatch = getLesson32PilChildNncSideOperationFrameMismatch({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      });
+      if (mismatch) {
+        return buildLesson32PilChildNncSideBlockedOutput({
+          row,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame,
+          diagnosticId: `lesson-32-pil-child-nnc-side-${mismatch}`
+        });
+      }
+      const rowFrame = resolvedSourceFrame;
+      const surface = String(operationFrame.targetSurface || "");
+      const surfaceForms = surface ? [surface] : [];
+      const formulaSlots = operationFrame.targetFormulaSlots;
+      const generated = {
+        kind: "lesson-32-pil-child-nnc-side-generation",
+        version: LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION,
+        id: rowFrame.rowId,
+        printedPage: rowFrame.printedPage,
+        pdfPage: rowFrame.pdfPage,
+        andrewsSection: rowFrame.andrewsSection,
+        structuralFormula: rowFrame.structuralFormula,
+        formula: rowFrame.structuralFormula,
+        formulaSlots,
+        sourceFrame: rowFrame,
+        operationFrame,
+        role: rowFrame.role,
+        state: rowFrame.state,
+        predicateStem: rowFrame.predicateStem,
+        targetStem: rowFrame.targetStem,
+        surface,
+        surfaceForms,
+        generationAllowed: Boolean(surface),
+        diagnostics: ["lesson-32-pil-child-nnc-side-andrews-generated", "nnc-predicate-stem-inside-parentheses", "nnc-subject-number-connector-outside-parentheses", "nnc-no-vnc-tense-slot", "orthography-bridge-realized"]
+      };
+      return attachCompoundNncGrammarContract(generated, {
+        metadataKind: generated.kind,
+        unitKind: "pil-child-nnc-side",
+        routeStage: "generate-lesson-32-pil-child-nnc-side",
+        sourceInput: rowFrame.structuralFormula,
+        supported: generated.generationAllowed,
+        generationAllowed: generated.generationAllowed,
+        surface,
+        surfaceForms,
+        diagnostics: generated.diagnostics,
+        andrewsRefs: [`Andrews printed p. ${rowFrame.printedPage} / PDF p. ${rowFrame.pdfPage}`],
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "orthography-bridge-realized",
+          sourceSurface: "",
+          sourceFormula: rowFrame.structuralFormula,
+          surface,
+          surfaceForms
+        },
+        morphBoundaryFrame: {
+          kind: "lesson-32-pil-child-nnc-side-boundary",
+          structuralFormula: rowFrame.structuralFormula,
+          formulaSlots,
+          state: rowFrame.state,
+          predicateStemInsideParentheses: true,
+          possessiveStateBeforePredicateStem: Boolean(formulaSlots.possessiveState),
+          subjectNumberConnectorOutsideParentheses: true,
+          noVncTenseSlot: true,
+          sourceFrame: rowFrame,
+          operationFrame
+        },
+        stemFrame: {
+          stemKind: "pil-child-nnc-side-predicate-stem",
+          sourceStem: rowFrame.predicateStem,
+          targetStem: rowFrame.targetStem,
+          role: rowFrame.role
+        },
+        nuclearClauseFrame: {
+          unitKind: "NNC",
+          formulaFamily: rowFrame.state === "possessive" ? "possessive-state NNC" : "absolutive-state NNC",
+          structuralFormula: rowFrame.structuralFormula,
+          formulaSlots,
+          predicateStemInsideParentheses: true,
+          subjectNumberConnectorOutsideParentheses: true,
+          hasTensePosition: false
+        },
+        targetContract: {
+          metadataKind: generated.kind,
+          generationAllowed: generated.generationAllowed,
+          andrewsSection: rowFrame.andrewsSection,
+          noOrdinaryNncGenerationGateChange: true,
+          operationFrame
+        }
+      });
+    }
+    function generateLesson32PilChildNncSideOutputs({
+      ids = null
+    } = {}) {
+      const requestedIds = Array.isArray(ids) ? ids.map(id => String(id || "").trim()).filter(Boolean) : [];
+      const rows = requestedIds.length ? requestedIds.map(findLesson32PilChildNncSideRow).filter(Boolean) : LESSON32_PIL_CHILD_NNC_SIDE_ROWS;
+      const entries = rows.map(row => {
+        const sourceFrame = buildLesson32PilChildNncSideSourceFrame(row);
+        const operationFrame = buildLesson32PilChildNncSideOperationFrame(sourceFrame);
+        return generateLesson32PilChildNncSideOutput(row, {
+          sourceFrame,
+          operationFrame
+        });
+      });
+      const surfaceForms = entries.flatMap(entry => Array.isArray(entry.surfaceForms) ? entry.surfaceForms : []);
+      const generated = {
+        kind: "lesson-32-pil-child-nnc-side-generation-set",
+        version: LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION,
+        printedPage: 294,
+        pdfPage: 309,
+        andrewsSection: "32.6",
+        rowCount: rows.length,
+        entries,
+        structuralFormulas: entries.map(entry => entry.structuralFormula),
+        surfaceForms,
+        generationAllowed: entries.length > 0 && entries.every(entry => entry.generationAllowed === true),
+        diagnostics: ["lesson-32-pil-child-nnc-side-output-set", "nnc-side-generation-scoped-to-andrews-p294", "ordinary-nnc-generation-gate-unchanged"]
+      };
+      return attachCompoundNncGrammarContract(generated, {
+        metadataKind: generated.kind,
+        unitKind: "pil-child-nnc-side-set",
+        routeStage: "generate-lesson-32-pil-child-nnc-side-set",
+        sourceInput: "Andrews printed p. 294 / PDF p. 309",
+        supported: generated.generationAllowed,
+        generationAllowed: generated.generationAllowed,
+        surfaceForms,
+        diagnostics: generated.diagnostics,
+        andrewsRefs: ["Andrews printed p. 294 / PDF p. 309"],
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: "orthography-bridge-realized",
+          surface: surfaceForms[0] || "",
+          surfaceForms
+        },
+        nuclearClauseFrame: {
+          unitKind: "NNC",
+          formulaCount: entries.length,
+          structuralFormulas: generated.structuralFormulas,
+          predicateStemInsideParentheses: true,
+          subjectNumberConnectorOutsideParentheses: true,
+          hasTensePosition: false
+        },
+        targetContract: {
+          metadataKind: generated.kind,
+          generationAllowed: generated.generationAllowed,
+          noOrdinaryNncGenerationGateChange: true
+        }
+      });
+    }
+    function renderCompoundNncAffectiveCandidateSurface({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (getCompoundNncAffectiveOperationFrameMismatch({
+        sourceFrame,
+        operationFrame
+      })) {
+        return "";
+      }
+      return String(operationFrame?.targetSurface || "");
+    }
+    function buildCompoundNncAffectiveFormulaSlots({
+      embeddedStem = "",
+      headStem = "",
+      embeddedSurface = "",
+      headSurface = ""
+    } = {}) {
+      return Object.freeze({
+        embeddedStem: Object.freeze({
+          role: "embedded-nounstem",
+          slot: "embedded-NNC",
+          structural: String(embeddedStem || ""),
+          stem: String(embeddedStem || ""),
+          surface: String(embeddedSurface || ""),
+          owner: "compound-source",
+          insideCompoundNounstem: true
+        }),
+        headStem: Object.freeze({
+          role: "matrix-nounstem",
+          slot: "head-NNC",
+          structural: String(headStem || ""),
+          stem: String(headStem || ""),
+          surface: String(headSurface || ""),
+          owner: "compound-head",
+          governsCompoundNounstemClass: true
+        })
+      });
+    }
+    function buildCompoundNncAffectiveSourceFrame({
+      candidate = "",
+      headStem = "",
+      embeddedStem = "",
+      compoundKind = "",
+      affectiveValue = "",
+      evidenceSource = "",
+      falsePositiveSource = "",
+      hasCompoundAst = false,
+      sourceKind = ""
+    } = {}) {
+      const normalizedKind = normalizeCompoundNncKind(compoundKind);
+      const normalizedFalsePositive = normalizeCompoundNncFalsePositiveSource(falsePositiveSource);
+      if (normalizedKind !== COMPOUND_NNC_KIND.compoundNounstem || normalizedFalsePositive !== COMPOUND_NNC_FALSE_POSITIVE_SOURCE.unknown) {
+        return null;
+      }
+      const sourceEmbed = String(embeddedStem || "").trim();
+      const sourceMatrix = String(headStem || "").trim();
+      const targetEmbed = normalizeCompoundNncSurfacePart(sourceEmbed);
+      const targetMatrix = normalizeCompoundNncSurfacePart(sourceMatrix);
+      if (!sourceEmbed || !sourceMatrix || !targetEmbed || !targetMatrix) {
+        return null;
+      }
+      const formulaSlots = buildCompoundNncAffectiveFormulaSlots({
+        embeddedStem: sourceEmbed,
+        headStem: sourceMatrix,
+        embeddedSurface: targetEmbed,
+        headSurface: targetMatrix
+      });
+      const targetSegmentFrames = Object.freeze([Object.freeze({
+        slot: "embedded-NNC",
+        role: "embedded-nounstem",
+        formulaValue: sourceEmbed,
+        sourceStem: sourceEmbed,
+        surface: targetEmbed,
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      }), Object.freeze({
+        slot: "head-NNC",
+        role: "matrix-nounstem",
+        formulaValue: sourceMatrix,
+        sourceStem: sourceMatrix,
+        surface: targetMatrix,
+        orthographyBridge: "Nawat/Pipil orthography bridge"
+      })]);
+      return Object.freeze({
+        kind: "compound-nnc-affective-source-frame",
+        version: COMPOUND_NNC_BOUNDARY_VERSION,
+        routeFamily: "compound-nnc-affective-candidate",
+        routeKind: normalizedKind,
+        candidate: String(candidate || ""),
+        structuralFormula: "NNC(embedded)+NNC(head)",
+        formulaSlots,
+        sourceSegmentFrames: targetSegmentFrames.map(segment => Object.freeze({
+          slot: segment.slot,
+          role: segment.role,
+          sourceStem: segment.sourceStem
+        })),
+        targetSegmentFrames,
+        embeddedStem: sourceEmbed,
+        headStem: sourceMatrix,
+        targetEmbeddedStem: targetEmbed,
+        targetHeadStem: targetMatrix,
+        targetSurface: targetSegmentFrames.map(segment => segment.surface).join(""),
+        affectiveValue: String(affectiveValue || ""),
+        evidenceSource: String(evidenceSource || ""),
+        falsePositiveSource: normalizedFalsePositive,
+        hasCompoundAst: hasCompoundAst === true,
+        sourceKind: String(sourceKind || ""),
+        authority: "Andrews Lessons 31-32 compound nounstem source route",
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildCompoundNncAffectiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "compound-nnc-affective-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-31-compound-nounstem-source-realization",
+        routeFamily: "compound-nnc-affective-candidate",
+        routeStage: "execute-typed-operation-frame",
+        operationApplied: "realize-compound-nounstem-source-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceRouteKind: sourceFrame.routeKind,
+        sourceCandidate: sourceFrame.candidate,
+        sourceStructuralFormula: sourceFrame.structuralFormula,
+        targetFormulaSlots: sourceFrame.formulaSlots,
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetEmbeddedStem: sourceFrame.targetEmbeddedStem,
+        targetHeadStem: sourceFrame.targetHeadStem,
+        targetSurface: sourceFrame.targetSurface,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getCompoundNncAffectiveOperationFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "compound-nnc-affective-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-31-compound-nounstem-source-realization" || operationFrame.routeFamily !== "compound-nnc-affective-candidate" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (String(operationFrame.sourceFrameKind || "") !== sourceFrame.kind || String(operationFrame.sourceRouteKind || "") !== String(sourceFrame.routeKind || "") || String(operationFrame.sourceCandidate || "") !== String(sourceFrame.candidate || "") || String(operationFrame.sourceStructuralFormula || "") !== String(sourceFrame.structuralFormula || "")) {
+        return "contradictory-source-frame";
+      }
+      const targetSegmentFrames = Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      if (!targetSegmentFrames.length) {
+        return "operation-frame-required";
+      }
+      const targetSurface = targetSegmentFrames.map(segment => String(segment?.surface || "")).join("");
+      if (targetSurface !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetSurface || "") !== String(sourceFrame.targetSurface || "") || String(operationFrame.targetEmbeddedStem || "") !== String(sourceFrame.targetEmbeddedStem || "") || String(operationFrame.targetHeadStem || "") !== String(sourceFrame.targetHeadStem || "")) {
+        return "contradictory-target-frame";
+      }
+      const operationSlots = operationFrame.targetFormulaSlots || null;
+      if (!operationSlots || operationSlots !== sourceFrame.formulaSlots) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getCompoundNncAffectiveBlockedDiagnostic({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      const mismatch = getCompoundNncAffectiveOperationFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      return mismatch ? `compound-nnc-affective-${mismatch}` : "";
+    }
     function attachCompoundNncGrammarContract(record = null, options = {}) {
       if (typeof targetObject.attachGrammarMetadataContract !== "function") {
         return record;
@@ -825,14 +1607,16 @@ export function createNncCompoundApi(targetObject = globalThis) {
         lessons: [31, 32],
         status: "partial",
         structuralSource: "Andrews Lessons 31-32",
-        targetAuthority: "Nawat/Pipil repo data and user-provided forms",
+        targetAuthority: "Andrews slot logic plus Nawat/Pipil orthography bridge",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getCompoundNncStructuralQuestions(),
         boundaries: {
           hasVncCompoundParserMetadata: true,
-          hasCompoundNncGeneration: false,
-          hasAffectiveNncGeneration: false,
+          hasCompoundNncGeneration: true,
+          hasAffectiveNncGeneration: true,
+          hasGeneralAffectiveNncGeneration: false,
+          hasPilChildNncSideGeneration: true,
           hasStaticAffectiveData: false,
           treatsVncCompoundAstAsNncEvidence: false,
           changesOrdinaryNncGeneration: false,
@@ -854,38 +1638,107 @@ export function createNncCompoundApi(targetObject = globalThis) {
       evidenceSource = "",
       falsePositiveSource = "",
       hasCompoundAst = false,
-      sourceKind = ""
+      sourceKind = "",
+      sourceFrame = null,
+      operationFrame = null
     } = {}) {
       const normalizedKind = normalizeCompoundNncKind(compoundKind);
       const normalizedFalsePositive = normalizeCompoundNncFalsePositiveSource(falsePositiveSource);
       const hasEvidence = Boolean(String(evidenceSource || "").trim());
+      const requiresTypedOperation = normalizedKind === COMPOUND_NNC_KIND.compoundNounstem && normalizedFalsePositive === COMPOUND_NNC_FALSE_POSITIVE_SOURCE.unknown;
+      const resolvedSourceFrame = sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null;
+      const blockedDiagnostic = requiresTypedOperation ? getCompoundNncAffectiveBlockedDiagnostic({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      }) : "";
+      const surface = blockedDiagnostic ? "" : renderCompoundNncAffectiveCandidateSurface({
+        sourceFrame: resolvedSourceFrame,
+        operationFrame
+      });
+      const generated = Boolean(surface);
+      const targetFormulaSlots = generated ? operationFrame.targetFormulaSlots : null;
+      const targetSegmentFrames = generated && Array.isArray(operationFrame.targetSegmentFrames) ? operationFrame.targetSegmentFrames : [];
+      const resolvedHeadStem = generated ? String(operationFrame.targetHeadStem || "") : String(headStem || "");
+      const resolvedEmbeddedStem = generated ? String(operationFrame.targetEmbeddedStem || "") : String(embeddedStem || "");
       const classification = {
         kind: "compound-nnc-affective-candidate-classification",
         version: COMPOUND_NNC_BOUNDARY_VERSION,
         candidate: String(candidate || ""),
-        headStem: String(headStem || ""),
-        embeddedStem: String(embeddedStem || ""),
+        headStem: resolvedHeadStem,
+        embeddedStem: resolvedEmbeddedStem,
         compoundKind: normalizedKind,
         affectiveValue: String(affectiveValue || ""),
         evidenceSource: String(evidenceSource || ""),
         falsePositiveSource: normalizedFalsePositive,
         hasCompoundAst: hasCompoundAst === true,
         sourceKind: String(sourceKind || ""),
+        ...(resolvedSourceFrame ? {
+          sourceFrame: resolvedSourceFrame
+        } : {}),
+        ...(operationFrame ? {
+          operationFrame
+        } : {}),
         confirmed: false,
-        generationAllowed: false,
-        diagnostics: [hasEvidence ? "compound-nnc-needs-validation" : "compound-nnc-needs-nawat-evidence", hasCompoundAst ? "vnc-compound-ast-not-nnc-evidence" : "compound-nnc-no-compound-ast", normalizedFalsePositive !== COMPOUND_NNC_FALSE_POSITIVE_SOURCE.unknown ? "compound-nnc-false-positive-source" : "compound-nnc-unconfirmed"],
+        generationAllowed: generated,
+        ...(generated ? {
+          surface,
+          surfaceForms: [surface],
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames
+        } : {}),
+        diagnostics: [generated ? "compound-nnc-andrews-source-generated" : blockedDiagnostic ? blockedDiagnostic : hasEvidence ? "compound-nnc-source-provided" : "compound-nnc-source-gate-required", hasCompoundAst ? "vnc-compound-ast-not-nnc-evidence" : "compound-nnc-no-compound-ast", normalizedFalsePositive !== COMPOUND_NNC_FALSE_POSITIVE_SOURCE.unknown ? "compound-nnc-false-positive-source" : generated ? "compound-nnc-structured-source" : "compound-nnc-unconfirmed"],
         boundary: buildCompoundNncAffectiveBoundaryMetadata()
       };
       return attachCompoundNncGrammarContract(classification, {
-        routeStage: "classify-boundary",
+        routeStage: generated ? "generate-structured-compound" : "classify-boundary",
         sourceInput: classification.candidate || classification.headStem,
-        supported: false,
+        supported: generated,
+        generationAllowed: generated,
+        orthographyFrame: {
+          spellingAuthority: "Nawat/Pipil orthography bridge",
+          noClassicalSurfaceImport: true,
+          orthographyStatus: generated ? "orthography-bridge-realized" : "source-gated",
+          surface,
+          surfaceForms: generated ? [surface] : [],
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
         morphBoundaryFrame: classification.boundary,
         stemFrame: {
           stemKind: "compound-nounstem-candidate",
           matrix: classification.headStem,
-          embed: classification.embeddedStem
-        }
+          embed: classification.embeddedStem,
+          embedBeforeMatrix: true,
+          matrixGovernsCompoundNounstemClass: true,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        },
+        nuclearClauseFrame: generated ? {
+          unitKind: "compound NNC",
+          formulaFamily: "compound nounstem",
+          structuralFormula: resolvedSourceFrame.structuralFormula,
+          formulaSlots: targetFormulaSlots,
+          targetSegmentFrames,
+          embeddedStemBeforeHeadStem: true,
+          headGovernsCompoundClass: true,
+          hasTensePosition: false
+        } : null,
+        targetContract: {
+          metadataKind: "compound-nnc-affective-candidate-classification",
+          generationAllowed: generated,
+          targetAuthority: "Andrews slot logic plus Nawat/Pipil orthography bridge",
+          consumesRenderedInput: false,
+          displayStringsAuthorizeGrammar: false
+        },
+        resultFrame: generated ? {
+          kind: "compound-nnc-affective-result-frame",
+          surface,
+          surfaceForms: [surface],
+          targetFormulaSlots,
+          targetSegmentFrames,
+          sourceFrame: resolvedSourceFrame,
+          operationFrame
+        } : null
       });
     }
     function classifyCompoundNncAffectiveFalsePositive(source = "") {
@@ -1038,6 +1891,16 @@ export function createNncCompoundApi(targetObject = globalThis) {
         enumerable: true,
         get() { return LESSON32_PIL_NOUNSTEM_FRAME; },
     });
+    Object.defineProperty(api, "LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON32_PIL_CHILD_NNC_SIDE_GENERATION_VERSION; },
+    });
+    Object.defineProperty(api, "LESSON32_PIL_CHILD_NNC_SIDE_ROWS", {
+        configurable: true,
+        enumerable: true,
+        get() { return LESSON32_PIL_CHILD_NNC_SIDE_ROWS; },
+    });
     Object.defineProperty(api, "LESSON32_NONANIMATE_AFFECTIVE_FRAME", {
         configurable: true,
         enumerable: true,
@@ -1065,6 +1928,23 @@ export function createNncCompoundApi(targetObject = globalThis) {
     api.normalizeCompoundNncFalsePositiveSource = normalizeCompoundNncFalsePositiveSource;
     api.getCompoundNncAntiConflationRules = getCompoundNncAntiConflationRules;
     api.getCompoundNncStructuralQuestions = getCompoundNncStructuralQuestions;
+    api.normalizeCompoundNncSurfacePart = normalizeCompoundNncSurfacePart;
+    api.getLesson32PilChildNncSideRows = getLesson32PilChildNncSideRows;
+    api.findLesson32PilChildNncSideRow = findLesson32PilChildNncSideRow;
+    api.normalizeLesson32PilChildNncSideSlotSurface = normalizeLesson32PilChildNncSideSlotSurface;
+    api.buildLesson32PilChildNncSideFormulaSlots = buildLesson32PilChildNncSideFormulaSlots;
+    api.buildLesson32PilChildNncSideBlockedOutput = buildLesson32PilChildNncSideBlockedOutput;
+    api.buildLesson32PilChildNncSideSourceFrame = buildLesson32PilChildNncSideSourceFrame;
+    api.buildLesson32PilChildNncSideOperationFrame = buildLesson32PilChildNncSideOperationFrame;
+    api.getLesson32PilChildNncSideOperationFrameMismatch = getLesson32PilChildNncSideOperationFrameMismatch;
+    api.generateLesson32PilChildNncSideOutput = generateLesson32PilChildNncSideOutput;
+    api.generateLesson32PilChildNncSideOutputs = generateLesson32PilChildNncSideOutputs;
+    api.renderCompoundNncAffectiveCandidateSurface = renderCompoundNncAffectiveCandidateSurface;
+    api.buildCompoundNncAffectiveFormulaSlots = buildCompoundNncAffectiveFormulaSlots;
+    api.buildCompoundNncAffectiveSourceFrame = buildCompoundNncAffectiveSourceFrame;
+    api.buildCompoundNncAffectiveOperationFrame = buildCompoundNncAffectiveOperationFrame;
+    api.getCompoundNncAffectiveOperationFrameMismatch = getCompoundNncAffectiveOperationFrameMismatch;
+    api.getCompoundNncAffectiveBlockedDiagnostic = getCompoundNncAffectiveBlockedDiagnostic;
     api.attachCompoundNncGrammarContract = attachCompoundNncGrammarContract;
     api.buildCompoundNncAffectiveBoundaryMetadata = buildCompoundNncAffectiveBoundaryMetadata;
     api.classifyCompoundNncAffectiveCandidate = classifyCompoundNncAffectiveCandidate;

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/valency.js.
+// Canonical modern ESM module.
 
 export function createGenerationValencyModule(targetObject = globalThis) {
     const GENERATION_VALENCY_OBJECT_SLOT_GATE_DIAGNOSTIC_ID = "generation-valency-object-slot-frame-unfixed";
@@ -56,6 +56,1229 @@ export function createGenerationValencyModule(targetObject = globalThis) {
           slot: "obj3",
           prefix: resolvedObj3
         }]
+      };
+    }
+    const VNC_VALENCE_FORMULA_SCHEMA_ID = "vnc-shell";
+    const VNC_VALENCE_TENSE_SPECS = Object.freeze({
+      zero: Object.freeze({
+        id: "zero",
+        label: "tns zero",
+        andrewsStructural: "0",
+        nawatFormula: "Ø",
+        compactDisplay: "Ø",
+        surface: "",
+        evidenceSource: "Andrews 5.1-5.3"
+      })
+    });
+    const VNC_VALENCE_NUMBER_CONNECTOR_SPECS = Object.freeze({
+      zero: Object.freeze({
+        id: "zero",
+        label: "zero subject number",
+        andrewsStructural: "0-0",
+        nawatFormula: "Ø-Ø",
+        compactDisplay: "Ø",
+        surface: "",
+        evidenceSource: "Andrews 5.1-5.3"
+      }),
+      preterit3sg: Object.freeze({
+        id: "preterit3sg",
+        label: "preterit 3sg subject number",
+        andrewsStructural: "qui-0",
+        nawatFormula: "ki-0 ~ k-0",
+        compactDisplay: "ki/k",
+        surface: "ki/k",
+        evidenceSource: "Andrews 5.1-5.3; current Nawat preterit connector alternation evidence"
+      })
+    });
+    const VNC_VALENCE_MONADIC_SPECS = Object.freeze({
+      ne: Object.freeze({
+        id: "reflexive-reciprocal-monadic",
+        key: "ne",
+        andrewsStructural: "ne",
+        nawatFormula: "ne",
+        compactDisplay: "ne",
+        surfacePrefix: "ne",
+        specificity: "specific",
+        trajectory: "reflexive-reciprocative",
+        gloss: "reflexive/reciprocal object",
+        evidenceSource: "Andrews 6.3",
+        generationStatus: "andrews-logic-generated"
+      }),
+      te: Object.freeze({
+        id: "nonspecific-human",
+        key: "te",
+        andrewsStructural: "te",
+        nawatFormula: "te",
+        compactDisplay: "te",
+        surfacePrefix: "te",
+        specificity: "nonspecific",
+        humanness: "human",
+        gloss: "someone/some people",
+        evidenceSource: "Andrews 6.2",
+        generationStatus: "andrews-logic-generated"
+      }),
+      ta: Object.freeze({
+        id: "nonspecific-nonhuman",
+        key: "ta",
+        andrewsStructural: "tla",
+        nawatFormula: "ta",
+        compactDisplay: "ta",
+        surfacePrefix: "ta",
+        specificity: "nonspecific",
+        humanness: "nonhuman",
+        gloss: "something",
+        evidenceSource: "Andrews 6.2; Classical tla maps structurally to Nawat ta",
+        generationStatus: "generated-scoped"
+      })
+    });
+    const VNC_VALENCE_DYADIC_SPECS = Object.freeze({
+      nech: Object.freeze({
+        id: "1sg-specific-object",
+        key: "nech",
+        andrewsStructural: "n-ech",
+        nawatFormula: "n-ech",
+        compactDisplay: "nech",
+        surfacePrefix: "nech",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      tech: Object.freeze({
+        id: "1pl-specific-object",
+        key: "tech",
+        andrewsStructural: "t-ech",
+        nawatFormula: "t-ech",
+        compactDisplay: "tech",
+        surfacePrefix: "tech",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      metz: Object.freeze({
+        id: "2sg-specific-object",
+        key: "metz",
+        andrewsStructural: "m-itz",
+        nawatFormula: "m-etz",
+        compactDisplay: "metz",
+        surfacePrefix: "metz",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      metzin: Object.freeze({
+        id: "2pl-specific-object",
+        key: "metzin",
+        andrewsStructural: "am-ech",
+        nawatFormula: "m-etz-in",
+        compactDisplay: "metzin",
+        surfacePrefix: "metzin",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      ki: Object.freeze({
+        id: "3sg-specific-object",
+        key: "ki",
+        andrewsStructural: "c-0/qu-0/qui-0",
+        nawatFormula: "ki-0",
+        compactDisplay: "ki",
+        surfacePrefix: "ki",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      k: Object.freeze({
+        id: "3sg-specific-object-before-vowel",
+        key: "k",
+        andrewsStructural: "c-0/qu-0/qui-0",
+        nawatFormula: "k-0",
+        compactDisplay: "k",
+        surfacePrefix: "k",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix allomorphy evidence"
+      }),
+      kin: Object.freeze({
+        id: "3pl-specific-object",
+        key: "kin",
+        andrewsStructural: "qu-im",
+        nawatFormula: "k-in",
+        compactDisplay: "kin",
+        surfacePrefix: "kin",
+        trajectory: "projective",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat object-prefix evidence"
+      }),
+      mu: Object.freeze({
+        id: "mainline-reflexive-reciprocal",
+        key: "mu",
+        andrewsStructural: "m-o",
+        nawatFormula: "m-u",
+        compactDisplay: "mu",
+        surfacePrefix: "mu",
+        trajectory: "reflexive-reciprocative",
+        specificity: "specific",
+        evidenceSource: "Andrews 6.4 + current Nawat reflexive evidence"
+      })
+    });
+    const VNC_VALENCE_KNOWN_FORM_INPUTS = Object.freeze({
+      nemi: Object.freeze({
+        stem: "nemi",
+        kind: "intransitive",
+        valence: ""
+      }),
+      nenki: Object.freeze({
+        stem: "nemi",
+        kind: "intransitive",
+        valence: ""
+      }),
+      nemik: Object.freeze({
+        stem: "nemi",
+        kind: "intransitive",
+        valence: ""
+      }),
+      taijpiya: Object.freeze({
+        stem: "ijpiya",
+        kind: "monadic",
+        valence: "ta"
+      }),
+      taijpishki: Object.freeze({
+        stem: "ijpiya",
+        kind: "monadic",
+        valence: "ta"
+      }),
+      taijpiyak: Object.freeze({
+        stem: "ijpiya",
+        kind: "monadic",
+        valence: "ta"
+      }),
+      taijpik: Object.freeze({
+        stem: "ijpiya",
+        kind: "monadic",
+        valence: "ta"
+      }),
+      kipiya: Object.freeze({
+        stem: "piya",
+        kind: "dyadic",
+        valence: "ki"
+      }),
+      kipishki: Object.freeze({
+        stem: "piya",
+        kind: "dyadic",
+        valence: "ki"
+      }),
+      kipiyak: Object.freeze({
+        stem: "piya",
+        kind: "dyadic",
+        valence: "ki"
+      })
+    });
+    function getVncValenceKnownFormInput(value = "") {
+      const key = String(value || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+      return VNC_VALENCE_KNOWN_FORM_INPUTS[key] || null;
+    }
+    function getVncValenceFormulaSchema() {
+      return typeof targetObject.getAndrewsFormulaSlotSchema === "function" ? targetObject.getAndrewsFormulaSlotSchema(VNC_VALENCE_FORMULA_SCHEMA_ID) : null;
+    }
+    function getVncValenceFormulaSlotDefinition(slotId = "") {
+      return typeof targetObject.getAndrewsFormulaSlotDefinition === "function" ? targetObject.getAndrewsFormulaSlotDefinition(VNC_VALENCE_FORMULA_SCHEMA_ID, slotId) : null;
+    }
+    function getVncValenceAndrewsLogicAuthorityPolicy() {
+      return typeof targetObject.getAndrewsLogicAuthorityPolicy === "function" ? targetObject.getAndrewsLogicAuthorityPolicy() : {
+        grammarLogicAuthority: "Andrews PDF",
+        grammarLogicDecidesGeneration: true,
+        orthographyExamplesDecideGrammarLogic: false,
+        grammarLogicGate: "andrews-licensed-route-plus-required-source-context",
+        orthographyExamplesRole: "spelling-realization-only",
+        orthographyAuthority: "Nawat/Pipil orthography bridge",
+        orthographyBridgeRequired: true,
+        noClassicalSurfaceImport: true
+      };
+    }
+    function normalizeVncValenceWorkbenchRawStemForSourceFrame(value = "") {
+      const rawInput = String(value || "").trim();
+      const known = getVncValenceKnownFormInput(rawInput);
+      if (known?.stem) {
+        return known.stem;
+      }
+      const parenthetical = rawInput.match(/\(([^)]+)\)/);
+      const stemSource = parenthetical ? parenthetical[1] : rawInput;
+      return String(stemSource || "").trim().replace(/^[-#\s]+/g, "").replace(/[#()]/g, "").replace(/^(?:ne|te|ta|tla|ki|k|kin|nech|tech|metz|metzin|mu)[-\s]+/i, "").trim();
+    }
+    function buildVncValenceWorkbenchSourceFrame({
+      inputValue = "",
+      valenceKind = "",
+      valence = ""
+    } = {}) {
+      const rawInput = String(inputValue || "").trim();
+      const raw = rawInput.toLowerCase();
+      const requestedKind = String(valenceKind || "").trim();
+      const requestedValence = String(valence || "").trim().toLowerCase();
+      const known = getVncValenceKnownFormInput(rawInput);
+      const normalizedStem = normalizeVncValenceWorkbenchRawStemForSourceFrame(rawInput);
+      let kind = "intransitive";
+      let valenceKey = "";
+      let sourceKind = rawInput ? "open-stem-or-formula" : "";
+      if (known) {
+        kind = known.kind || "intransitive";
+        valenceKey = known.valence || "";
+        sourceKind = "known-vnc-valence-input";
+      } else if (requestedKind === "blocked") {
+        kind = "blocked";
+        valenceKey = requestedValence || "nech";
+        sourceKind = "explicit-blocked-valence-selection";
+      } else if (requestedKind === "monadic" || VNC_VALENCE_MONADIC_SPECS[requestedValence]) {
+        kind = "monadic";
+        valenceKey = requestedValence || "ta";
+        sourceKind = "explicit-monadic-valence-selection";
+      } else if (requestedKind === "dyadic" || VNC_VALENCE_DYADIC_SPECS[requestedValence]) {
+        kind = "dyadic";
+        valenceKey = requestedValence || "ki";
+        sourceKind = "explicit-dyadic-valence-selection";
+      } else if (/^(?:blocked|unsupported|same-person)\b/.test(raw)) {
+        kind = "blocked";
+        valenceKey = "nech";
+        sourceKind = "parsed-blocked-valence-input";
+      } else {
+        const plusMatch = raw.match(/\+(ne|te|ta|tla|ki|k|kin|nech|tech|metz|metzin|mu)(?:[-+()#\s]|$)/);
+        const prefixMatch = raw.match(/^(ne|te|ta|tla|ki|k|kin|nech|tech|metz|metzin|mu)[-\s]+/);
+        const marker = (plusMatch?.[1] || prefixMatch?.[1] || "").replace(/^tla$/, "ta");
+        if (VNC_VALENCE_MONADIC_SPECS[marker]) {
+          kind = "monadic";
+          valenceKey = marker;
+          sourceKind = "parsed-monadic-valence-input";
+        } else if (VNC_VALENCE_DYADIC_SPECS[marker]) {
+          kind = "dyadic";
+          valenceKey = marker;
+          sourceKind = "parsed-dyadic-valence-input";
+        }
+      }
+      const diagnostics = normalizedStem ? [] : ["vnc-valence-workbench-predicate-stem-required"];
+      return Object.freeze({
+        kind: "vnc-valence-workbench-source-frame",
+        version: 1,
+        formulaSchemaId: VNC_VALENCE_FORMULA_SCHEMA_ID,
+        rawInput,
+        predicateStem: normalizedStem,
+        selectionKind: kind,
+        valenceKind: kind,
+        valence: valenceKey,
+        valenceKey,
+        sourceKind,
+        parseAuthority: "user-input-parse-tree",
+        formulaSlotSource: "andrews-formula-slot-schema",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        diagnostics: Object.freeze(diagnostics)
+      });
+    }
+    function isVncValenceWorkbenchSourceFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "vnc-valence-workbench-source-frame" && frame.consumesRenderedInput === false && frame.displayStringsAuthorizeGrammar === false);
+    }
+    function normalizeVncValenceWorkbenchStem(value = "", {
+      sourceFrame = null
+    } = {}) {
+      void value;
+      if (!isVncValenceWorkbenchSourceFrame(sourceFrame)) {
+        return "";
+      }
+      return String(sourceFrame.predicateStem || "");
+    }
+    function inferVncValenceWorkbenchSelection(rawInput = "", {
+      valenceKind = "",
+      valence = "",
+      sourceFrame = null
+    } = {}) {
+      void rawInput;
+      void valenceKind;
+      void valence;
+      if (!isVncValenceWorkbenchSourceFrame(sourceFrame)) {
+        return {
+          kind: "blocked",
+          valence: "",
+          diagnosticId: "vnc-valence-workbench-source-frame-required"
+        };
+      }
+      return {
+        kind: sourceFrame.selectionKind || sourceFrame.valenceKind || "intransitive",
+        valence: sourceFrame.valenceKey || sourceFrame.valence || "",
+        sourceFrame
+      };
+    }
+    function getVncValenceMonadicSpec(key = "ta") {
+      const normalized = String(key || "ta").trim().toLowerCase().replace(/^tla$/, "ta");
+      return VNC_VALENCE_MONADIC_SPECS[normalized] || VNC_VALENCE_MONADIC_SPECS.ta;
+    }
+    function getVncValenceDyadicSpec(key = "ki", {
+      stem = "",
+      subjectPrefix = ""
+    } = {}) {
+      const normalized = String(key || "ki").trim().toLowerCase();
+      const directFrame = typeof targetObject.getLesson6DirectNawatObjectDyadFrame === "function" ? targetObject.getLesson6DirectNawatObjectDyadFrame(normalized, {
+        stem,
+        pers1: subjectPrefix
+      }) : null;
+      const base = VNC_VALENCE_DYADIC_SPECS[normalized] || VNC_VALENCE_DYADIC_SPECS.ki;
+      if (!directFrame) {
+        return base;
+      }
+      return {
+        ...base,
+        nawatFormula: directFrame.visibleFormulaPrefix || base.nawatFormula,
+        compactDisplay: directFrame.sourcePrefix || base.compactDisplay,
+        surfacePrefix: directFrame.surfaceScopedPrefix || directFrame.sourcePrefix || base.surfacePrefix,
+        trajectory: directFrame.trajectory || base.trajectory,
+        specificity: directFrame.specificity || base.specificity,
+        directNawatDyadFrame: directFrame
+      };
+    }
+    function buildVncValenceSubjectSlot(subject = null) {
+      const slotDefinition = getVncValenceFormulaSlotDefinition("pers1-pers2") || {};
+      return {
+        role: slotDefinition.role || "subject-person",
+        slot: slotDefinition.id || "pers1-pers2",
+        owner: slotDefinition.owner || "subject",
+        path: slotDefinition.path || "subject.pers1-pers2",
+        prefix: String(subject?.subjectPrefix || subject?.prefix || ""),
+        suffix: String(subject?.subjectSuffix || subject?.suffix || ""),
+        displayPrefix: String(subject?.subjectPrefix || subject?.prefix || "") || "Ø",
+        displaySuffix: String(subject?.subjectSuffix || subject?.suffix || "") || "Ø",
+        label: String(subject?.personSubKey || subject?.label || "3sg"),
+        notObject: true,
+        notTense: true
+      };
+    }
+    function buildVncValenceTenseSlot(tense = "zero") {
+      const slotDefinition = getVncValenceFormulaSlotDefinition("tns") || {};
+      const spec = VNC_VALENCE_TENSE_SPECS[String(tense || "zero").trim()] || VNC_VALENCE_TENSE_SPECS.zero;
+      return {
+        role: slotDefinition.role || "tense",
+        slot: slotDefinition.id || "tns",
+        owner: slotDefinition.owner || "predicate",
+        path: slotDefinition.path || "predicate.tense",
+        tenseValue: spec.id,
+        structuralDisplay: spec.andrewsStructural,
+        andrewsStructural: spec.andrewsStructural,
+        nawatDisplay: spec.nawatFormula,
+        nawatRealization: spec.nawatFormula,
+        compactDisplay: spec.compactDisplay,
+        display: spec.andrewsStructural,
+        value: spec.andrewsStructural,
+        morph: spec.nawatFormula,
+        displayMorph: spec.andrewsStructural,
+        evidenceSource: spec.evidenceSource,
+        vncOnly: true,
+        notAvailableInOrdinaryNnc: true,
+        notSubjectNumber: true
+      };
+    }
+    function buildVncValenceNumberSlot(connector = "zero") {
+      const slotDefinition = getVncValenceFormulaSlotDefinition("num1-num2") || {};
+      const spec = VNC_VALENCE_NUMBER_CONNECTOR_SPECS[String(connector || "zero").trim()] || VNC_VALENCE_NUMBER_CONNECTOR_SPECS.zero;
+      const [structuralNum1 = "0", structuralNum2 = "0"] = String(spec.andrewsStructural || "0-0").split("-");
+      const primaryNawatFormula = String(spec.nawatFormula || "Ø-Ø").split(/\s*~\s*/)[0] || "Ø-Ø";
+      const [nawatNum1 = "Ø", nawatNum2 = "Ø"] = primaryNawatFormula.split("-");
+      return {
+        role: slotDefinition.role || "subject-number-connector",
+        slot: slotDefinition.id || "num1-num2",
+        owner: slotDefinition.owner || "subject",
+        path: slotDefinition.path || "subject.num1-num2",
+        connector: spec.nawatFormula,
+        surface: spec.surface,
+        structuralDisplay: spec.andrewsStructural,
+        andrewsStructural: spec.andrewsStructural,
+        nawatDisplay: spec.nawatFormula,
+        compactDisplay: spec.compactDisplay,
+        displayDyad: spec.andrewsStructural,
+        nawatDyad: spec.nawatFormula,
+        compactSurface: spec.compactDisplay,
+        num1: structuralNum1,
+        num2: structuralNum2,
+        displayNum1: structuralNum1,
+        displayNum2: structuralNum2,
+        nawatNum1,
+        nawatNum2,
+        label: spec.label,
+        belongsTo: slotDefinition.owner || "subject",
+        evidenceSource: spec.evidenceSource,
+        notTense: true,
+        notObjectValence: true,
+        blockedInterpretations: Array.isArray(slotDefinition.blockedInterpretations) ? Array.from(slotDefinition.blockedInterpretations) : ["tense", "stem-suffix", "object-valence", "predicate-state"]
+      };
+    }
+    function buildVncValenceObjectSlot({
+      kind = "intransitive",
+      valence = "",
+      stem = "",
+      subject = null,
+      blockedReason = ""
+    } = {}) {
+      const schema = getVncValenceFormulaSchema();
+      const slotDefinition = getVncValenceFormulaSlotDefinition("va1-va2") || {};
+      const normalizedKind = String(kind || "intransitive").trim();
+      const subjectPrefix = String(subject?.subjectPrefix || subject?.prefix || "");
+      if (normalizedKind === "intransitive") {
+        return {
+          role: slotDefinition.role || "object-valence",
+          formulaSchemaId: schema?.id || VNC_VALENCE_FORMULA_SCHEMA_ID,
+          formulaSlot: "",
+          slot: slotDefinition.path || "predicate.valence.va1-va2",
+          owner: slotDefinition.owner || "predicate",
+          belongsTo: slotDefinition.owner || "predicate",
+          valenceKind: "intransitive",
+          omitted: true,
+          structuralDisplay: "",
+          nawatDisplay: "",
+          compactDisplay: "",
+          surfacePrefix: "",
+          status: "omitted",
+          notStem: true,
+          notSubjectConnector: true,
+          notTense: true,
+          blockedInterpretations: Array.isArray(slotDefinition.blockedInterpretations) ? Array.from(slotDefinition.blockedInterpretations) : ["stem", "subject-connector", "subject-number-connector", "tense"]
+        };
+      }
+      const isMonadic = normalizedKind === "monadic";
+      const spec = isMonadic ? getVncValenceMonadicSpec(valence) : getVncValenceDyadicSpec(valence, {
+        stem,
+        subjectPrefix
+      });
+      const formulaSlot = isMonadic ? "va" : "va1-va2";
+      return {
+        role: isMonadic ? "monadic-valence" : "dyadic-valence",
+        formulaSchemaId: schema?.id || VNC_VALENCE_FORMULA_SCHEMA_ID,
+        formulaSlot,
+        slot: slotDefinition.path || "predicate.valence.va1-va2",
+        owner: slotDefinition.owner || "predicate",
+        belongsTo: slotDefinition.owner || "predicate",
+        valenceKind: normalizedKind,
+        valenceId: spec.id || "",
+        valenceKey: spec.key || valence,
+        structuralDisplay: spec.andrewsStructural || "",
+        andrewsStructural: spec.andrewsStructural || "",
+        nawatDisplay: spec.nawatFormula || spec.compactDisplay || "",
+        nawatRealization: spec.nawatFormula || spec.compactDisplay || "",
+        compactDisplay: spec.compactDisplay || spec.surfacePrefix || "",
+        surfacePrefix: spec.surfacePrefix || spec.compactDisplay || "",
+        display: spec.andrewsStructural || "",
+        value: spec.andrewsStructural || "",
+        gloss: spec.gloss || "",
+        trajectory: spec.trajectory || "",
+        specificity: spec.specificity || "",
+        humanness: spec.humanness || "",
+        evidenceSource: spec.evidenceSource || "",
+        directNawatDyadFrame: spec.directNawatDyadFrame || null,
+        generationStatus: spec.generationStatus || "generated-scoped",
+        status: blockedReason ? "blocked" : "resolved",
+        blockedReason,
+        classicalStructuralOnly: true,
+        noClassicalSurfaceImport: true,
+        notStem: true,
+        notSubjectConnector: true,
+        notSubjectNumber: true,
+        notTense: true,
+        blockedInterpretations: Array.isArray(slotDefinition.blockedInterpretations) ? Array.from(slotDefinition.blockedInterpretations) : ["stem", "subject-connector", "subject-number-connector", "tense"]
+      };
+    }
+    function buildVncValenceFormulaSlots({
+      stem = "",
+      kind = "intransitive",
+      valence = "",
+      subject = null,
+      tense = "zero",
+      numberConnector = "zero",
+      blockedReason = ""
+    } = {}) {
+      const predicateSlotDefinition = getVncValenceFormulaSlotDefinition("STEM") || {};
+      const subjectSlot = buildVncValenceSubjectSlot(subject);
+      return {
+        pers1Pers2: subjectSlot,
+        valence: buildVncValenceObjectSlot({
+          kind,
+          valence,
+          stem,
+          subject: subjectSlot,
+          blockedReason
+        }),
+        predicateStem: {
+          role: predicateSlotDefinition.role || "predicate-stem",
+          slot: predicateSlotDefinition.id || "STEM",
+          owner: predicateSlotDefinition.owner || "predicate",
+          path: predicateSlotDefinition.path || "predicate.stem",
+          stem,
+          displayStem: stem,
+          notValence: true,
+          notSubjectConnector: true,
+          notTense: true
+        },
+        tensePosition: buildVncValenceTenseSlot(tense),
+        num1Num2: buildVncValenceNumberSlot(numberConnector)
+      };
+    }
+    function getVncValenceFormulaRenderOptions(formulaSlots = null) {
+      return formulaSlots?.valence?.omitted === true ? {
+        omitSlots: ["valence", "va1-va2"]
+      } : {};
+    }
+    function getVncValenceFormulaSlotToken(formulaSlots = null) {
+      return formulaSlots?.valence?.formulaSlot === "va" ? "va" : "va1-va2";
+    }
+    function renderVncValenceFormulaTemplate(formulaSlots = null) {
+      if (typeof targetObject.renderAndrewsFormulaTemplate !== "function") {
+        return "";
+      }
+      return targetObject.renderAndrewsFormulaTemplate(VNC_VALENCE_FORMULA_SCHEMA_ID, {
+        slotTokens: {
+          valence: getVncValenceFormulaSlotToken(formulaSlots)
+        },
+        ...getVncValenceFormulaRenderOptions(formulaSlots)
+      });
+    }
+    function buildVncValenceFormulaEchoFromSlots(formulaSlots = null, {
+      mode = "structural",
+      expanded = true
+    } = {}) {
+      if (!formulaSlots || typeof formulaSlots !== "object") {
+        return "";
+      }
+      const valenceSlot = formulaSlots.valence || {};
+      const tenseSlot = formulaSlots.tensePosition || {};
+      const numberConnector = formulaSlots.num1Num2 || {};
+      const displayValence = mode === "compact" ? valenceSlot.compactDisplay || valenceSlot.surfacePrefix || valenceSlot.nawatDisplay || valenceSlot.structuralDisplay || "" : mode === "nawat" ? valenceSlot.nawatDisplay || valenceSlot.nawatRealization || valenceSlot.compactDisplay || valenceSlot.structuralDisplay || "" : valenceSlot.structuralDisplay || valenceSlot.andrewsStructural || valenceSlot.display || "";
+      const displayTense = mode === "structural" ? tenseSlot.structuralDisplay || tenseSlot.andrewsStructural || tenseSlot.display || "0" : tenseSlot.nawatDisplay || tenseSlot.nawatRealization || tenseSlot.compactDisplay || "Ø";
+      const displayNumber = expanded ? mode === "structural" ? numberConnector.structuralDisplay || numberConnector.displayDyad || "0-0" : numberConnector.nawatDisplay || numberConnector.nawatDyad || numberConnector.displayDyad || "Ø-Ø" : numberConnector.compactDisplay || numberConnector.surface || "Ø";
+      const echoSlots = {
+        ...formulaSlots,
+        renderOptions: getVncValenceFormulaRenderOptions(formulaSlots),
+        valence: {
+          ...valenceSlot,
+          display: displayValence,
+          value: displayValence,
+          surface: displayValence
+        },
+        tensePosition: {
+          ...tenseSlot,
+          display: displayTense,
+          value: displayTense,
+          morph: displayTense,
+          displayMorph: displayTense
+        },
+        num1Num2: expanded ? {
+          ...numberConnector,
+          displayDyad: displayNumber,
+          displayConnector: displayNumber,
+          connector: displayNumber,
+          surface: displayNumber
+        } : {
+          ...numberConnector,
+          displayDyad: "",
+          displayConnector: displayNumber,
+          connector: displayNumber,
+          surface: displayNumber
+        }
+      };
+      if (typeof targetObject.renderAndrewsFormulaEchoFromSchema === "function") {
+        return targetObject.renderAndrewsFormulaEchoFromSchema(VNC_VALENCE_FORMULA_SCHEMA_ID, echoSlots);
+      }
+      const subject = formulaSlots.pers1Pers2 || {};
+      const prefix = String(subject.displayPrefix || subject.prefix || "Ø") || "Ø";
+      const suffix = String(subject.displaySuffix || subject.suffix || "Ø") || "Ø";
+      const stem = String(formulaSlots.predicateStem?.stem || "");
+      const valencePart = valenceSlot.omitted ? "" : `+${displayValence}`;
+      return stem ? `#${prefix}-${suffix}${valencePart}(${stem})${displayTense}+${displayNumber}#` : "";
+    }
+    function buildVncValenceFormulaWorkbenchSlotRecords(schema = null, formulaSlots = {}) {
+      const slots = Array.isArray(schema?.slots) ? schema.slots : [];
+      return slots.map(slot => {
+        const sourceSlot = formulaSlots?.[slot.key] || formulaSlots?.[slot.id] || formulaSlots?.[slot.path] || {};
+        const omitted = slot.key === "valence" && sourceSlot.omitted === true;
+        const structuralValue = (() => {
+          if (slot.key === "valence") {
+            return String(sourceSlot.structuralDisplay || sourceSlot.andrewsStructural || sourceSlot.display || "");
+          }
+          if (slot.key === "tensePosition") {
+            return String(sourceSlot.structuralDisplay || sourceSlot.andrewsStructural || sourceSlot.display || "0");
+          }
+          if (slot.key === "num1Num2") {
+            return String(sourceSlot.structuralDisplay || sourceSlot.displayDyad || "0-0");
+          }
+          return targetObject.getAndrewsFormulaEchoSlotValue(slot, formulaSlots);
+        })();
+        const nawatValue = (() => {
+          if (slot.key === "valence") {
+            return String(sourceSlot.nawatDisplay || sourceSlot.nawatRealization || sourceSlot.compactDisplay || structuralValue);
+          }
+          if (slot.key === "tensePosition") {
+            return String(sourceSlot.nawatDisplay || sourceSlot.nawatRealization || sourceSlot.compactDisplay || "Ø");
+          }
+          if (slot.key === "num1Num2") {
+            return String(sourceSlot.nawatDisplay || sourceSlot.nawatDyad || structuralValue || "Ø-Ø");
+          }
+          return structuralValue;
+        })();
+        const compactValue = (() => {
+          if (slot.key === "valence" || slot.key === "tensePosition" || slot.key === "num1Num2") {
+            return String(sourceSlot.compactDisplay || sourceSlot.surfacePrefix || sourceSlot.surface || nawatValue || structuralValue);
+          }
+          return structuralValue;
+        })();
+        const missing = slot.requiredForEcho === true && !String(structuralValue || "").trim();
+        const renderedValue = omitted || missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${structuralValue})` : structuralValue}${slot.trailing || ""}`;
+        const token = slot.key === "valence" && !omitted ? sourceSlot.formulaSlot || slot.token || slot.id || "" : typeof targetObject.renderAndrewsFormulaSlotTemplate === "function" ? targetObject.renderAndrewsFormulaSlotTemplate(slot, omitted ? {
+          omitSlots: ["valence", "va1-va2"]
+        } : {}) : slot.wrapper === "parentheses" ? `(${slot.token || ""})` : slot.token || "";
+        return {
+          id: slot.id || "",
+          key: slot.key || "",
+          label: slot.label || "",
+          role: slot.key === "valence" && sourceSlot.role ? sourceSlot.role : slot.role || "",
+          owner: slot.owner || "",
+          path: slot.path || "",
+          boundary: slot.boundary || "",
+          layer: slot.layer || "",
+          position: slot.position || "",
+          token,
+          value: structuralValue,
+          structuralValue,
+          nawatValue,
+          compactValue,
+          renderedValue,
+          compactRenderedValue: omitted || missing ? "" : `${slot.leading || ""}${slot.wrapper === "parentheses" ? `(${compactValue})` : compactValue}${slot.trailing || ""}`,
+          status: omitted ? "omitted" : missing ? "missing" : slot.role === "nuclear-boundary" ? "structural" : "resolved",
+          modelFields: [{
+            label: "owner",
+            value: slot.owner || ""
+          }, {
+            label: "path",
+            value: slot.path || ""
+          }, ...(slot.key === "valence" ? [{
+            label: "Andrews",
+            value: structuralValue || "omitted"
+          }, {
+            label: "Nawat",
+            value: nawatValue || "omitted"
+          }, {
+            label: "kind",
+            value: sourceSlot.valenceKind || "intransitive"
+          }, {
+            label: "not",
+            value: "stem/subject/tense"
+          }] : []), ...(slot.key === "tensePosition" ? [{
+            label: "VNC-only",
+            value: "true"
+          }, {
+            label: "not",
+            value: "CNN/CNN posesiva"
+          }] : []), ...(slot.key === "num1Num2" ? [{
+            label: "dyad",
+            value: structuralValue
+          }, {
+            label: "not",
+            value: "tense/object"
+          }] : [])].filter(entry => entry.value),
+          blockedInterpretations: Array.isArray(slot.blockedInterpretations) ? Array.from(slot.blockedInterpretations) : []
+        };
+      });
+    }
+    function buildVncValenceExample({
+      id = "",
+      label = "",
+      stem = "nemi",
+      kind = "intransitive",
+      valence = "",
+      numberConnector = "preterit3sg",
+      surface = "",
+      status = "generated-scoped",
+      blockedReason = ""
+    } = {}) {
+      const sourceFrame = buildVncValenceWorkbenchSourceFrame({
+        inputValue: stem,
+        valenceKind: kind,
+        valence
+      });
+      const normalizedStem = isVncValenceWorkbenchSourceFrame(sourceFrame) ? String(sourceFrame.predicateStem || "") || "nemi" : "nemi";
+      const formulaSlots = buildVncValenceFormulaSlots({
+        stem: normalizedStem,
+        kind,
+        valence,
+        numberConnector,
+        blockedReason
+      });
+      const structuralFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "structural",
+        expanded: true
+      });
+      const nawatFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "nawat",
+        expanded: true
+      });
+      const compactFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "compact",
+        expanded: false
+      });
+      const blocked = Boolean(blockedReason);
+      return {
+        id: String(id || `${kind}-${valence || "none"}-${normalizedStem}`),
+        label: String(label || kind),
+        stem: normalizedStem,
+        valenceKind: formulaSlots.valence.valenceKind,
+        valenceSlot: formulaSlots.valence.formulaSlot || "",
+        structuralFormulaEcho,
+        fullFormulaEcho: structuralFormulaEcho,
+        nawatFormulaEcho,
+        compactFormulaEcho,
+        surface: blocked ? "" : String(surface || ""),
+        surfaceForms: blocked || !surface ? [] : String(surface).split(/\s*\/\s*/g).filter(Boolean),
+        supported: !blocked,
+        status: blocked ? "unsupported" : status,
+        formulaSlots,
+        slotModel: {
+          valence: formulaSlots.valence,
+          tensePosition: formulaSlots.tensePosition,
+          num1Num2: formulaSlots.num1Num2
+        },
+        diagnostics: blocked ? [{
+          id: "vnc-valence-object-combination-blocked",
+          severity: "blocked",
+          status: "blocked",
+          message: blockedReason
+        }] : []
+      };
+    }
+    function buildVncValenceFormulaWorkbenchExamples() {
+      return [buildVncValenceExample({
+        id: "intransitive-nemi",
+        label: "intransitive",
+        stem: "nemi",
+        kind: "intransitive",
+        surface: "nenki / nemik"
+      }), buildVncValenceExample({
+        id: "monadic-ta-ijpiya",
+        label: "monadic ta/tla",
+        stem: "ijpiya",
+        kind: "monadic",
+        valence: "ta",
+        surface: "taijpishki / taijpiyak / taijpik"
+      }), buildVncValenceExample({
+        id: "dyadic-ki-piya",
+        label: "dyadic specific",
+        stem: "piya",
+        kind: "dyadic",
+        valence: "ki",
+        surface: "kipishki / kipiyak"
+      }), buildVncValenceExample({
+        id: "blocked-same-person-nech",
+        label: "blocked object",
+        stem: "chiwa",
+        kind: "dyadic",
+        valence: "nech",
+        surface: "",
+        status: "unsupported",
+        blockedReason: "Specific 1sg object with an implicit 1sg subject is blocked here; use the reflexive/reciprocal dyad route instead of treating n-ech as a stem or tense suffix."
+      })];
+    }
+    function getVncValenceScopedSurfaceForSlots(formulaSlots = null) {
+      const stem = String(formulaSlots?.predicateStem?.stem || "").trim();
+      const valenceSlot = formulaSlots?.valence || {};
+      const kind = String(valenceSlot.valenceKind || "intransitive");
+      const key = String(valenceSlot.valenceKey || "");
+      if (kind === "intransitive" && stem === "nemi") {
+        return "nenki / nemik";
+      }
+      if (kind === "monadic" && key === "ta" && stem === "ijpiya") {
+        return "taijpishki / taijpiyak / taijpik";
+      }
+      if (kind === "dyadic" && key === "ki" && stem === "piya") {
+        return "kipishki / kipiyak";
+      }
+      return "";
+    }
+    function normalizeVncValenceFormulaSurfacePart(value = "") {
+      return String(value || "").replace(/[Ø0]/g, "").replace(/\s+/g, "").replace(/-/g, "").trim();
+    }
+    function buildVncValenceAndrewsLogicTargetSegmentFrames(formulaSlots = null) {
+      const stem = normalizeVncValenceFormulaSurfacePart(formulaSlots?.predicateStem?.stem || "");
+      if (!stem) {
+        return [];
+      }
+      const subjectSlot = formulaSlots?.pers1Pers2 || {};
+      const valenceSlot = formulaSlots?.valence || {};
+      const tenseSlot = formulaSlots?.tensePosition || {};
+      const numberSlot = formulaSlots?.num1Num2 || {};
+      const kind = String(valenceSlot.valenceKind || "intransitive");
+      const subjectPrefix = normalizeVncValenceFormulaSurfacePart(subjectSlot.prefix || "");
+      const valencePrefix = kind === "intransitive" ? "" : normalizeVncValenceFormulaSurfacePart(valenceSlot.surfacePrefix || valenceSlot.nawatRealization || valenceSlot.nawatDisplay);
+      const tenseSurface = normalizeVncValenceFormulaSurfacePart(tenseSlot.surface || tenseSlot.compactSurface || "");
+      const numberSurface = normalizeVncValenceFormulaSurfacePart(numberSlot.surface || numberSlot.compactSurface || "");
+      return Object.freeze([Object.freeze({
+        slot: "pers1-pers2",
+        role: "subject-person",
+        surface: subjectPrefix,
+        formulaValue: subjectSlot.structuralDisplay || subjectSlot.displayPrefix || "",
+        source: "vnc-valence-formula-slot"
+      }), Object.freeze({
+        slot: "va1-va2",
+        role: kind === "intransitive" ? "no-valence-prefix" : "object-valence",
+        surface: valencePrefix,
+        formulaValue: valenceSlot.structuralDisplay || "",
+        valenceKind: kind,
+        valenceKey: valenceSlot.valenceKey || "",
+        source: "vnc-valence-formula-slot"
+      }), Object.freeze({
+        slot: "STEM",
+        role: "predicate-stem",
+        surface: stem,
+        formulaValue: formulaSlots?.predicateStem?.displayStem || formulaSlots?.predicateStem?.stem || "",
+        source: "vnc-valence-formula-slot"
+      }), Object.freeze({
+        slot: "tns",
+        role: "tense",
+        surface: tenseSurface,
+        formulaValue: tenseSlot.structuralDisplay || "",
+        source: "vnc-valence-formula-slot"
+      }), Object.freeze({
+        slot: "num1-num2",
+        role: "subject-number",
+        surface: numberSurface,
+        formulaValue: numberSlot.structuralDisplay || "",
+        source: "vnc-valence-formula-slot"
+      })]);
+    }
+    function getVncValenceTargetSurfaceFromSegmentFrames(targetSegmentFrames = []) {
+      if (!Array.isArray(targetSegmentFrames) || !targetSegmentFrames.length) {
+        return "";
+      }
+      return targetSegmentFrames.map(frame => String(frame?.surface || "")).join("");
+    }
+    function getVncValenceFormulaSlotSignature(formulaSlots = null) {
+      const targetSegmentFrames = buildVncValenceAndrewsLogicTargetSegmentFrames(formulaSlots);
+      return targetSegmentFrames.map(frame => `${frame.slot}:${frame.role}:${frame.surface}:${frame.formulaValue || ""}:${frame.valenceKind || ""}:${frame.valenceKey || ""}`).join("|");
+    }
+    function buildVncValenceAndrewsLogicSurfaceSourceFrame({
+      formulaSlots = null
+    } = {}) {
+      const targetSegmentFrames = buildVncValenceAndrewsLogicTargetSegmentFrames(formulaSlots);
+      const predicateStem = targetSegmentFrames.find(frame => frame.slot === "STEM")?.surface || "";
+      if (!predicateStem || !targetSegmentFrames.length) {
+        return null;
+      }
+      const valenceFrame = targetSegmentFrames.find(frame => frame.slot === "va1-va2") || null;
+      return Object.freeze({
+        kind: "vnc-valence-andrews-logic-surface-source-frame",
+        version: 1,
+        formulaSchemaId: VNC_VALENCE_FORMULA_SCHEMA_ID,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        sourceUnit: "vnc-formula-slots",
+        predicateStem,
+        valenceKind: valenceFrame?.valenceKind || "intransitive",
+        valenceKey: valenceFrame?.valenceKey || "",
+        targetSegmentFrames,
+        targetSurface: getVncValenceTargetSurfaceFromSegmentFrames(targetSegmentFrames),
+        formulaSlotSignature: getVncValenceFormulaSlotSignature(formulaSlots),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        grammarAuthority: "Andrews PDF",
+        orthographyAuthority: "Nawat/Pipil orthography bridge"
+      });
+    }
+    function buildVncValenceAndrewsLogicSurfaceOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "vnc-valence-andrews-logic-surface-source-frame") {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-vnc-valence-slot-surface-realization",
+        family: "vnc-valence",
+        routeFamily: "vnc-valence",
+        routeStage: "formula-workbench-realization",
+        sourceFrameKind: sourceFrame.kind,
+        sourceFrameSignature: sourceFrame.formulaSlotSignature || "",
+        targetSegmentFrames: sourceFrame.targetSegmentFrames,
+        targetSurface: sourceFrame.targetSurface || "",
+        operationApplied: "realize-vnc-valence-formula-slots",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false,
+        outputPolicy: "formula-slots-and-typed-operation-authorize-vnc-valence-surface"
+      });
+    }
+    function getVncValenceAndrewsLogicSurfaceFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "vnc-valence-andrews-logic-surface-source-frame") {
+        return "vnc-valence-source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame") {
+        return "vnc-valence-operation-frame-required";
+      }
+      if (operationFrame.operationId !== "andrews-vnc-valence-slot-surface-realization" || operationFrame.routeFamily !== "vnc-valence" || operationFrame.operationApplied !== "realize-vnc-valence-formula-slots" || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "vnc-valence-operation-frame-required";
+      }
+      if (String(operationFrame.sourceFrameSignature || "") !== String(sourceFrame.formulaSlotSignature || "")) {
+        return "vnc-valence-contradictory-source-frame";
+      }
+      const sourceSurface = String(sourceFrame.targetSurface || "");
+      const operationSurface = String(operationFrame.targetSurface || "");
+      const operationSegmentSurface = getVncValenceTargetSurfaceFromSegmentFrames(operationFrame.targetSegmentFrames);
+      if (!operationSurface || operationSurface !== sourceSurface || operationSegmentSurface !== operationSurface) {
+        return "vnc-valence-contradictory-target-frame";
+      }
+      return "";
+    }
+    function getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots = null, {
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      void formulaSlots;
+      const mismatch = getVncValenceAndrewsLogicSurfaceFrameMismatch({
+        sourceFrame,
+        operationFrame
+      });
+      if (mismatch) {
+        return "";
+      }
+      return String(operationFrame.targetSurface || "");
+    }
+    function getVncValenceScopedNumberConnector({
+      stem = "",
+      kind = "intransitive",
+      valence = ""
+    } = {}) {
+      const normalizedStem = String(stem || "").trim();
+      const normalizedKind = String(kind || "intransitive");
+      const normalizedValence = String(valence || "").trim();
+      if (normalizedKind === "intransitive" && normalizedStem === "nemi" || normalizedKind === "monadic" && normalizedValence === "ta" && normalizedStem === "ijpiya" || normalizedKind === "dyadic" && normalizedValence === "ki" && normalizedStem === "piya") {
+        return "preterit3sg";
+      }
+      return "zero";
+    }
+    function buildVncValenceFormulaWorkbenchSlice({
+      inputValue = "",
+      valenceKind = "",
+      valence = ""
+    } = {}) {
+      const schema = getVncValenceFormulaSchema();
+      const rawInput = String(inputValue || "").trim();
+      const sourceFrame = buildVncValenceWorkbenchSourceFrame({
+        inputValue: rawInput,
+        valenceKind,
+        valence
+      });
+      const parsedSelection = isVncValenceWorkbenchSourceFrame(sourceFrame) ? {
+        kind: sourceFrame.selectionKind || sourceFrame.valenceKind || "intransitive",
+        valence: sourceFrame.valenceKey || sourceFrame.valence || "",
+        sourceFrame
+      } : {
+        kind: "blocked",
+        valence: "",
+        diagnosticId: "vnc-valence-workbench-source-frame-required"
+      };
+      const normalizedStem = isVncValenceWorkbenchSourceFrame(sourceFrame) ? String(sourceFrame.predicateStem || "") : "";
+      const blockedReason = parsedSelection.kind === "blocked" ? "Object combination is diagnostic-only until the valence route is explicitly supported by Andrews slot logic." : "";
+      const formulaKind = parsedSelection.kind === "blocked" ? "dyadic" : parsedSelection.kind;
+      const numberConnector = getVncValenceScopedNumberConnector({
+        stem: normalizedStem,
+        kind: formulaKind,
+        valence: parsedSelection.valence
+      });
+      const formulaSlots = buildVncValenceFormulaSlots({
+        stem: normalizedStem,
+        kind: formulaKind,
+        valence: parsedSelection.valence,
+        numberConnector,
+        blockedReason
+      });
+      const sourceRequirementCheck = typeof targetObject.evaluateAndrewsFormulaSourceRequirements === "function" ? targetObject.evaluateAndrewsFormulaSourceRequirements(VNC_VALENCE_FORMULA_SCHEMA_ID, {
+        inputValue: normalizedStem,
+        slotValues: formulaSlots,
+        sourceValues: {
+          predicateStem: normalizedStem,
+          "predicate.stem": normalizedStem,
+          STEM: normalizedStem
+        }
+      }) : {
+        ok: Boolean(normalizedStem),
+        diagnostics: normalizedStem ? [] : [{
+          id: "vnc-missing-predicate-stem",
+          severity: "blocked",
+          message: "VNC formula workbench requires a verbal predicate stem inside the parentheses."
+        }],
+        generationContract: schema?.generationContract || null,
+        sourceRequirements: schema?.sourceRequirements || [],
+        missingRequirements: normalizedStem ? [] : [{
+          id: "vnc-predicate-stem"
+        }],
+        satisfiedRequirements: normalizedStem ? [{
+          id: "vnc-predicate-stem"
+        }] : []
+      };
+      const structuralFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "structural",
+        expanded: true
+      });
+      const nawatFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "nawat",
+        expanded: true
+      });
+      const compactFormulaEcho = buildVncValenceFormulaEchoFromSlots(formulaSlots, {
+        mode: "compact",
+        expanded: false
+      });
+      const slotBlockDiagnostics = [["vnc-shell", "va1-va2", "stem"], ["vnc-shell", "va1-va2", "tense"], ["vnc-shell", "tns", "subject-number-connector"], ["ordinary-nnc-shell", "num1-num2", "tense"], ["possessive-state-nnc", "st1-st2", "tense"]].map(([schemaId, slotId, interpretation]) => typeof targetObject.diagnoseAndrewsFormulaSlotInterpretation === "function" ? targetObject.diagnoseAndrewsFormulaSlotInterpretation(schemaId, slotId, interpretation).diagnostic : null).filter(Boolean);
+      const logicAuthorityPolicy = getVncValenceAndrewsLogicAuthorityPolicy();
+      const scopedEvidenceSurface = getVncValenceScopedSurfaceForSlots(formulaSlots);
+      const andrewsLogicSurfaceSourceFrame = buildVncValenceAndrewsLogicSurfaceSourceFrame({
+        formulaSlots
+      });
+      const andrewsLogicSurfaceOperationFrame = buildVncValenceAndrewsLogicSurfaceOperationFrame(andrewsLogicSurfaceSourceFrame);
+      const andrewsLogicSurface = getVncValenceAndrewsLogicSurfaceForSlots(formulaSlots, {
+        sourceFrame: andrewsLogicSurfaceSourceFrame,
+        operationFrame: andrewsLogicSurfaceOperationFrame
+      });
+      const generationSurface = scopedEvidenceSurface || andrewsLogicSurface;
+      const generationStatusWhenAllowed = scopedEvidenceSurface ? "generated-scoped" : "andrews-logic-generated";
+      const generationAllowed = Boolean(normalizedStem && sourceRequirementCheck.ok && !blockedReason && generationSurface);
+      const generationStatus = !normalizedStem ? "blocked" : blockedReason ? "unsupported" : generationAllowed ? generationStatusWhenAllowed : "blocked";
+      return {
+        kind: "vnc-valence-formula-workbench-slice",
+        version: 1,
+        formulaSchemaId: schema?.id || VNC_VALENCE_FORMULA_SCHEMA_ID,
+        formulaSchemaVersion: schema?.version || 1,
+        formulaSlotSource: "andrews-formula-slot-schema",
+        formula: renderVncValenceFormulaTemplate(formulaSlots),
+        formulaFamilies: [{
+          id: "intransitive-vnc",
+          label: "intransitive",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate(VNC_VALENCE_FORMULA_SCHEMA_ID, {
+            omitSlots: ["valence", "va1-va2"]
+          }) : "#pers1-pers2(STEM)tns+num1-num2#"
+        }, {
+          id: "monadic-transitive-vnc",
+          label: "monadic",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate(VNC_VALENCE_FORMULA_SCHEMA_ID, {
+            slotTokens: {
+              valence: "va"
+            }
+          }) : "#pers1-pers2+va(STEM)tns+num1-num2#"
+        }, {
+          id: "dyadic-transitive-vnc",
+          label: "dyadic",
+          formula: typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate(VNC_VALENCE_FORMULA_SCHEMA_ID, {
+            slotTokens: {
+              valence: "va1-va2"
+            }
+          }) : "#pers1-pers2+va1-va2(STEM)tns+num1-num2#"
+        }],
+        formulaEcho: structuralFormulaEcho,
+        fullFormulaEcho: structuralFormulaEcho,
+        structuralFormulaEcho,
+        nawatFormulaEcho,
+        compactFormulaEcho,
+        hasTensePosition: true,
+        sourceMaterial: {
+          rawInput,
+          stem: normalizedStem,
+          inputKind: "vnc-valence",
+          placeholder: "nemi / ta-ijpiya / ki-piya",
+          inputLabel: "Verbo o formula CNV",
+          sourceKind: normalizedStem ? "open-stem-or-formula" : ""
+        },
+        sourceFrame,
+        sourceRequirements: sourceRequirementCheck.sourceRequirements || [],
+        missingRequirements: sourceRequirementCheck.missingRequirements || [],
+        satisfiedRequirements: sourceRequirementCheck.satisfiedRequirements || [],
+        parsedSlots: buildVncValenceFormulaWorkbenchSlotRecords(schema, formulaSlots),
+        examples: buildVncValenceFormulaWorkbenchExamples(),
+        evidenceRefs: [...(Array.isArray(schema?.evidenceRefs) ? schema.evidenceRefs : []), "Andrews formula inventory: VNC valence/object slots", ...(scopedEvidenceSurface ? ["data/basic-data.csv scoped preterit examples"] : [])].filter(Boolean),
+        realizationBoundary: {
+          structuralFormulaEcho,
+          nawatFormulaEcho,
+          compactFormulaEcho,
+          classicalStructuralOnly: true,
+          noClassicalSurfaceImport: true,
+          structuralExamples: ["tla", "c-0/qu-0/qui-0", "qu-im"],
+          nawatAuthority: "Nawat/Pipil orthography bridge; examples illustrate spelling only and do not gate grammar logic",
+          logicAuthority: logicAuthorityPolicy.grammarLogicAuthority,
+          generationGate: logicAuthorityPolicy.grammarLogicGate
+        },
+        generation: {
+          allowed: generationAllowed,
+          status: generationStatus,
+          routeFamily: sourceRequirementCheck.generationContract?.routeFamily || "vnc-valence",
+          routeStage: sourceRequirementCheck.generationContract?.routeStage || "formula-workbench",
+          outputPolicy: sourceRequirementCheck.generationContract?.outputPolicy || "",
+          surface: generationAllowed ? generationSurface : "",
+          surfaceForms: generationAllowed ? generationSurface.split(/\s*\/\s*/g).filter(Boolean) : [],
+          sourceKind: normalizedStem ? "formula-workbench" : "",
+          logicAuthority: logicAuthorityPolicy.grammarLogicAuthority,
+          orthographyAuthority: logicAuthorityPolicy.orthographyAuthority,
+          generationGate: logicAuthorityPolicy.grammarLogicGate,
+          orthographyExamplesRole: logicAuthorityPolicy.orthographyExamplesRole,
+          andrewsLogicSurface,
+          scopedEvidenceSurface,
+          andrewsLogicSurfaceSourceFrame,
+          andrewsLogicSurfaceOperationFrame,
+          targetSegmentFrames: andrewsLogicSurfaceOperationFrame?.targetSegmentFrames || []
+        },
+        diagnostics: [...(Array.isArray(sourceRequirementCheck.diagnostics) ? sourceRequirementCheck.diagnostics : []), ...slotBlockDiagnostics, ...(blockedReason ? [{
+          id: "vnc-valence-object-combination-blocked",
+          severity: "blocked",
+          status: "blocked",
+          message: blockedReason
+        }] : []), {
+          id: "vnc-valence-classical-spelling-structural-only",
+          severity: "note",
+          message: "Andrews object spellings such as tla and c/qu/qui are structural rule evidence; Nawat formula and surface realization pass through the orthography bridge."
+        }]
+      };
+    }
+    function buildVncShellFormulaWorkbenchSlice({
+      inputValue = ""
+    } = {}) {
+      const rawInput = String(inputValue || "").trim();
+      const effectiveInput = rawInput || "nemi";
+      const slice = buildVncValenceFormulaWorkbenchSlice({
+        inputValue: effectiveInput,
+        valenceKind: rawInput ? "" : "intransitive"
+      });
+      const tenseSlot = (Array.isArray(slice.parsedSlots) ? slice.parsedSlots : []).find(slot => slot.key === "tensePosition") || null;
+      const numberSlot = (Array.isArray(slice.parsedSlots) ? slice.parsedSlots : []).find(slot => slot.key === "num1Num2") || null;
+      return {
+        ...slice,
+        kind: "vnc-shell-formula-workbench-slice",
+        formulaSchemaId: "vnc-shell",
+        formula: slice.formula || (typeof targetObject.renderAndrewsFormulaTemplate === "function" ? targetObject.renderAndrewsFormulaTemplate("vnc-shell", {
+          omitSlots: ["valence", "va1-va2"]
+        }) : "#pers1-pers2(STEM)tns+num1-num2#"),
+        sourceMaterial: {
+          ...(slice.sourceMaterial || {}),
+          rawInput,
+          stem: slice.sourceMaterial?.stem || effectiveInput,
+          inputKind: "vnc-shell",
+          placeholder: "nemi",
+          inputLabel: "Predicado verbal CNV",
+          sourceKind: rawInput ? slice.sourceMaterial?.sourceKind || "open-stem-or-formula" : "default-intransitive-example"
+        },
+        evidenceRefs: ["Andrews 4.5", "Andrews 5.1-5.3", "Andrews 6.1-6.4", ...(Array.isArray(slice.evidenceRefs) ? slice.evidenceRefs : [])].filter((ref, index, refs) => ref && refs.indexOf(ref) === index),
+        realizationBoundary: {
+          ...(slice.realizationBoundary || {}),
+          structuralExamples: ["tns", "qui-0", "Ø-Ø"],
+          nawatAuthority: "la ortografia Nawat/Pipil realiza la logica CNV autorizada por Andrews; tns no existe en formulas CNN"
+        },
+        generation: {
+          ...(slice.generation || {}),
+          routeFamily: "vnc-shell",
+          outputPolicy: "La ranura tns pertenece solo a CNV; Andrews decide la logica de slots y la ortografia Nawat/Pipil realiza la salida."
+        },
+        diagnostics: [...(Array.isArray(slice.diagnostics) ? slice.diagnostics : []), {
+          id: "vnc-shell-tense-slot-is-vnc-only",
+          severity: "note",
+          message: "La ranura tns pertenece al lado predicativo CNV y no se copia a formulas CNN."
+        }, ...(tenseSlot?.owner === "predicate" && numberSlot?.owner === "subject" ? [] : [{
+          id: "vnc-shell-slot-owner-mismatch",
+          severity: "blocked",
+          message: "La ranura tns debe pertenecer al predicado CNV y num1-num2 al sujeto."
+        }])]
       };
     }
     function cloneGenerationValencyLessonRecord(value) {
@@ -143,7 +1366,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
       subjectRole: "patient, not agent",
       typicalSubjectAnimacy: "nonanimate, with animate subjects possible",
       currentEngineStatus: "ordinary active reflexive generation exists; passive-notion interpretation is not a separate generated voice route",
-      generationPolicy: "diagnostic interpretation only until Nawat/Pipil evidence and sentence context license examples"
+      generationPolicy: "diagnostic interpretation only until Andrews passive-notion sentence context is modeled as an interpretation layer"
     });
     const LESSON21_PASSIVE_SUBSECTION_INVENTORY = Object.freeze([Object.freeze({
       id: "lesson21-passive-transformation",
@@ -183,7 +1406,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-plus-source-gate-required",
         validationRefs: Array.from(LESSON21_PASSIVE_VALIDATION_REFS)
       }));
     }
@@ -357,7 +1580,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
       directiveEs: "La CNV impersonal inherente tiene sujeto ficticio de tercera singular sin referente nombrable; no puede suplementarse.",
       engineSurface: "impersonal subject diagnostics and no lexical weather-verb inventory",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     }), Object.freeze({
       id: "lesson22-nonanimate-vs-impersonal",
       andrewsSection: "22.2",
@@ -397,14 +1620,14 @@ export function createGenerationValencyModule(targetObject = globalThis) {
       directiveEs: "El prefijo impersonalizador Andrews tla, Nawat ta, es derivacional dentro del tronco y no el pronombre objeto inespecifico.",
       engineSurface: "hasImpersonalTaPrefix metadata; no data-complete ta-impersonal derivation inventory",
       implementationState: "partial",
-      redirectAction: "needs-nawat-evidence"
+      redirectAction: "source-gated"
     })]);
     function getLesson22ImpersonalVoiceSubsectionInventory() {
       return LESSON22_IMPERSONAL_SUBSECTION_INVENTORY.map(entry => ({
         ...entry,
         pdfRef: `Andrews Lesson ${entry.andrewsSection}`,
         evidenceStatus: "direct-pdf-partial",
-        orthographyStatus: "nawat-evidence-required",
+        orthographyStatus: "orthography-bridge-required",
         validationRefs: Array.from(LESSON22_IMPERSONAL_VALIDATION_REFS)
       }));
     }
@@ -416,7 +1639,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
       const impersonalGenerationFrame = cloneGenerationValencyLessonRecord(LESSON22_IMPERSONAL_GENERATION_FRAME);
       const moodFrame = cloneGenerationValencyLessonRecord(LESSON22_IMPERSONAL_MOOD_FRAME);
       const taImpersonalFrame = cloneGenerationValencyLessonRecord(LESSON22_TA_IMPERSONAL_FRAME);
-      const remainingGaps = ["Current visible/generated voice route is still combined as passive-impersonal instead of an Andrews-separate impersonal contract.", "Inherent impersonal verb inventory and nonanimate-versus-impersonal subject interpretation require confirmed Nawat/Pipil evidence and sentence metadata.", "Impersonal voice still needs explicit gates: permit intransitive sources and transitive sources without specific projective objects, but block or redirect specific projective-object sources to passive handling.", "Andrews 22.4 preservation of nonspecific te/ta and reflexive-source witness ne needs focused finite-CNV audit.", "Andrews 22.5 sentence moods and 22.6 derivational ta-impersonal inventory remain diagnostic or evidence-needed."];
+      const remainingGaps = ["Current visible/generated voice route is still combined as passive-impersonal instead of an Andrews-separate impersonal contract.", "Inherent impersonal verb inventory and nonanimate-versus-impersonal subject interpretation require modeled Andrews source classes and sentence metadata.", "Impersonal voice still needs explicit gates: permit intransitive sources and transitive sources without specific projective objects, but block or redirect specific projective-object sources to passive handling.", "Andrews 22.4 preservation of nonspecific te/ta and reflexive-source witness ne needs focused finite-CNV audit.", "Andrews 22.5 sentence moods and 22.6 derivational ta-impersonal inventory remain diagnostic or source-gated."];
       const frame = {
         kind: "lesson-22-impersonal-voice-pursuit-frame",
         mainTarget: "fully Andrews-directed Nawat Conjugador",
@@ -718,7 +1941,7 @@ export function createGenerationValencyModule(targetObject = globalThis) {
         directionalPrefix = ""
       } = normalizeGenerationValencySlotInput(input);
       const allomorphyObjectPrefix = !isPassiveImpersonalMode && targetObject.isPers1Obj1Reflexivo(pers1, pers2, obj1) ? "mu" : obj1;
-      const nonspecificAllomorphy = targetObject.applyNonspecificObjectAllomorphy({
+      const nonspecificAllomorphyRequest = {
         verb,
         analysisVerb,
         obj1: allomorphyObjectPrefix,
@@ -732,12 +1955,21 @@ export function createGenerationValencyModule(targetObject = globalThis) {
         hasSlashMarker,
         hasBoundMarker,
         directionalPrefix
+      };
+      const nonspecificAllomorphySourceFrame = targetObject.buildNonspecificObjectAllomorphySourceFrame(nonspecificAllomorphyRequest);
+      const nonspecificAllomorphyOperationFrame = targetObject.buildNonspecificObjectAllomorphyOperationFrame(nonspecificAllomorphySourceFrame);
+      const nonspecificAllomorphy = targetObject.applyNonspecificObjectAllomorphy({
+        ...nonspecificAllomorphyRequest,
+        sourceFrame: nonspecificAllomorphySourceFrame,
+        operationFrame: nonspecificAllomorphyOperationFrame
       });
       return {
         obj1: nonspecificAllomorphy.obj1 || allomorphyObjectPrefix,
         verb: nonspecificAllomorphy.verb,
         analysisVerb: nonspecificAllomorphy.analysisVerb,
         morphologyObj1: nonspecificAllomorphy.obj1 || allomorphyObjectPrefix,
+        nonspecificAllomorphySourceFrame,
+        nonspecificAllomorphyOperationFrame,
         soundSpellingFrames: Array.isArray(nonspecificAllomorphy.soundSpellingFrames) ? nonspecificAllomorphy.soundSpellingFrames : []
       };
     }
@@ -1017,6 +2249,71 @@ export function createGenerationValencyModule(targetObject = globalThis) {
     });
     api.normalizeGenerationValencySlotInput = normalizeGenerationValencySlotInput;
     api.buildGenerationValencySlotFrame = buildGenerationValencySlotFrame;
+    Object.defineProperty(api, "VNC_VALENCE_FORMULA_SCHEMA_ID", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_FORMULA_SCHEMA_ID; },
+    });
+    Object.defineProperty(api, "VNC_VALENCE_TENSE_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_TENSE_SPECS; },
+    });
+    Object.defineProperty(api, "VNC_VALENCE_NUMBER_CONNECTOR_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_NUMBER_CONNECTOR_SPECS; },
+    });
+    Object.defineProperty(api, "VNC_VALENCE_MONADIC_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_MONADIC_SPECS; },
+    });
+    Object.defineProperty(api, "VNC_VALENCE_DYADIC_SPECS", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_DYADIC_SPECS; },
+    });
+    Object.defineProperty(api, "VNC_VALENCE_KNOWN_FORM_INPUTS", {
+        configurable: true,
+        enumerable: true,
+        get() { return VNC_VALENCE_KNOWN_FORM_INPUTS; },
+    });
+    api.getVncValenceKnownFormInput = getVncValenceKnownFormInput;
+    api.getVncValenceFormulaSchema = getVncValenceFormulaSchema;
+    api.getVncValenceFormulaSlotDefinition = getVncValenceFormulaSlotDefinition;
+    api.getVncValenceAndrewsLogicAuthorityPolicy = getVncValenceAndrewsLogicAuthorityPolicy;
+    api.normalizeVncValenceWorkbenchRawStemForSourceFrame = normalizeVncValenceWorkbenchRawStemForSourceFrame;
+    api.buildVncValenceWorkbenchSourceFrame = buildVncValenceWorkbenchSourceFrame;
+    api.isVncValenceWorkbenchSourceFrame = isVncValenceWorkbenchSourceFrame;
+    api.normalizeVncValenceWorkbenchStem = normalizeVncValenceWorkbenchStem;
+    api.inferVncValenceWorkbenchSelection = inferVncValenceWorkbenchSelection;
+    api.getVncValenceMonadicSpec = getVncValenceMonadicSpec;
+    api.getVncValenceDyadicSpec = getVncValenceDyadicSpec;
+    api.buildVncValenceSubjectSlot = buildVncValenceSubjectSlot;
+    api.buildVncValenceTenseSlot = buildVncValenceTenseSlot;
+    api.buildVncValenceNumberSlot = buildVncValenceNumberSlot;
+    api.buildVncValenceObjectSlot = buildVncValenceObjectSlot;
+    api.buildVncValenceFormulaSlots = buildVncValenceFormulaSlots;
+    api.getVncValenceFormulaRenderOptions = getVncValenceFormulaRenderOptions;
+    api.getVncValenceFormulaSlotToken = getVncValenceFormulaSlotToken;
+    api.renderVncValenceFormulaTemplate = renderVncValenceFormulaTemplate;
+    api.buildVncValenceFormulaEchoFromSlots = buildVncValenceFormulaEchoFromSlots;
+    api.buildVncValenceFormulaWorkbenchSlotRecords = buildVncValenceFormulaWorkbenchSlotRecords;
+    api.buildVncValenceExample = buildVncValenceExample;
+    api.buildVncValenceFormulaWorkbenchExamples = buildVncValenceFormulaWorkbenchExamples;
+    api.getVncValenceScopedSurfaceForSlots = getVncValenceScopedSurfaceForSlots;
+    api.normalizeVncValenceFormulaSurfacePart = normalizeVncValenceFormulaSurfacePart;
+    api.buildVncValenceAndrewsLogicTargetSegmentFrames = buildVncValenceAndrewsLogicTargetSegmentFrames;
+    api.getVncValenceTargetSurfaceFromSegmentFrames = getVncValenceTargetSurfaceFromSegmentFrames;
+    api.getVncValenceFormulaSlotSignature = getVncValenceFormulaSlotSignature;
+    api.buildVncValenceAndrewsLogicSurfaceSourceFrame = buildVncValenceAndrewsLogicSurfaceSourceFrame;
+    api.buildVncValenceAndrewsLogicSurfaceOperationFrame = buildVncValenceAndrewsLogicSurfaceOperationFrame;
+    api.getVncValenceAndrewsLogicSurfaceFrameMismatch = getVncValenceAndrewsLogicSurfaceFrameMismatch;
+    api.getVncValenceAndrewsLogicSurfaceForSlots = getVncValenceAndrewsLogicSurfaceForSlots;
+    api.getVncValenceScopedNumberConnector = getVncValenceScopedNumberConnector;
+    api.buildVncValenceFormulaWorkbenchSlice = buildVncValenceFormulaWorkbenchSlice;
+    api.buildVncShellFormulaWorkbenchSlice = buildVncShellFormulaWorkbenchSlice;
     api.cloneGenerationValencyLessonRecord = cloneGenerationValencyLessonRecord;
     Object.defineProperty(api, "LESSON21_PASSIVE_VALIDATION_REFS", {
         configurable: true,

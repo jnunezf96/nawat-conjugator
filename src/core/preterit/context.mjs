@@ -1,6 +1,6 @@
-// Native wrapper generated from src/core/preterit/context.js.
+// Canonical modern ESM module.
 
-export function createPreteritContextApi(targetObject = globalThis) {
+export function createPreteritContext(targetObject = globalThis) {
     // Preterit/perfective universal context + candidate selection.
     // Extracted from pret_universal_engine.js for maintainability.
     function getPretUniversalCoreVowelCount(verb) {
@@ -16,6 +16,4087 @@ export function createPreteritContextApi(targetObject = globalThis) {
     }
     function getPerfectiveReplacementStem(verb, options = {}) {
       return getUniversalReplacementStem(verb, options);
+    }
+    const PRET_ROOT_PLUS_YA_SOURCE_FRAME_KIND = "preterit-root-plus-ya-source-frame";
+    const PRET_ROOT_PLUS_YA_SOURCE_SEGMENT_FRAME_KIND = "preterit-root-plus-ya-source-segment-frame";
+    const PRET_CLASS_A_DELETION_SOURCE_FRAME_KIND = "preterit-class-a-final-vowel-deletion-source-frame";
+    const PRET_CLASS_A_DELETION_SEGMENT_FRAME_KIND = "preterit-class-a-final-vowel-deletion-segment-frame";
+    const PRET_CLASS_A_YYA_SOURCE_FRAME_KIND = "preterit-class-a-yya-source-frame";
+    const PRET_CLASS_A_YYA_SEGMENT_FRAME_KIND = "preterit-class-a-yya-segment-frame";
+    const PRET_CLASS_A_ITA_SOURCE_FRAME_KIND = "preterit-class-a-ita-source-frame";
+    const PRET_CLASS_A_ITA_SEGMENT_FRAME_KIND = "preterit-class-a-ita-segment-frame";
+    const PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND = "preterit-class-a-slash-aki-source-frame";
+    const PRET_CLASS_A_SLASH_AKI_SEGMENT_FRAME_KIND = "preterit-class-a-slash-aki-segment-frame";
+    const PRET_CLASS_A_SLASH_AKI_OPERATION_FRAME_KIND = "preterit-class-a-slash-aki-zero-operation-frame";
+    const PRET_CLASS_A_KWV_SOURCE_FRAME_KIND = "preterit-class-a-kwv-source-frame";
+    const PRET_CLASS_A_KWV_SEGMENT_FRAME_KIND = "preterit-class-a-kwv-segment-frame";
+    const PRET_CLASS_A_KWV_OPERATION_FRAME_KIND = "preterit-class-a-kwv-force-operation-frame";
+    const PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND = "preterit-class-a-kv-allow-source-frame";
+    const PRET_CLASS_A_KV_ALLOW_SEGMENT_FRAME_KIND = "preterit-class-a-kv-allow-segment-frame";
+    const PRET_CLASS_A_KV_ALLOW_OPERATION_FRAME_KIND = "preterit-class-a-kv-allow-operation-frame";
+    const PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND = "preterit-class-a-chi-allow-source-frame";
+    const PRET_CLASS_A_CHI_ALLOW_SEGMENT_FRAME_KIND = "preterit-class-a-chi-allow-segment-frame";
+    const PRET_CLASS_A_CHI_ALLOW_OPERATION_FRAME_KIND = "preterit-class-a-chi-allow-operation-frame";
+    const PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND = "preterit-class-a-ta-redup-source-frame";
+    const PRET_CLASS_A_TA_REDUP_SEGMENT_FRAME_KIND = "preterit-class-a-ta-redup-segment-frame";
+    const PRET_CLASS_A_TA_REDUP_OPERATION_FRAME_KIND = "preterit-class-a-ta-redup-operation-frame";
+    const PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-pa-transitive-source-frame";
+    const PRET_CLASS_A_PA_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-pa-transitive-segment-frame";
+    const PRET_CLASS_A_PA_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-pa-transitive-operation-frame";
+    const PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-pi-cv-transitive-source-frame";
+    const PRET_CLASS_A_PI_CV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-pi-cv-transitive-segment-frame";
+    const PRET_CLASS_A_PI_CV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-pi-cv-transitive-operation-frame";
+    const PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvwi-transitive-source-frame";
+    const PRET_CLASS_A_CVWI_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvwi-transitive-segment-frame";
+    const PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvwi-transitive-operation-frame";
+    const PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvcvwi-transitive-source-frame";
+    const PRET_CLASS_A_CVCVWI_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvcvwi-transitive-segment-frame";
+    const PRET_CLASS_A_CVCVWI_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvcvwi-transitive-operation-frame";
+    const PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvwai-transitive-source-frame";
+    const PRET_CLASS_A_CVWAI_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvwai-transitive-segment-frame";
+    const PRET_CLASS_A_CVWAI_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvwai-transitive-operation-frame";
+    const PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvewa-transitive-source-frame";
+    const PRET_CLASS_A_CVEWA_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvewa-transitive-segment-frame";
+    const PRET_CLASS_A_CVEWA_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvewa-transitive-operation-frame";
+    const PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvawa-transitive-source-frame";
+    const PRET_CLASS_A_CVAWA_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvawa-transitive-segment-frame";
+    const PRET_CLASS_A_CVAWA_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvawa-transitive-operation-frame";
+    const PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-pa-cv-intransitive-source-frame";
+    const PRET_CLASS_A_PA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-pa-cv-intransitive-segment-frame";
+    const PRET_CLASS_A_PA_CV_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-pa-cv-intransitive-operation-frame";
+    const PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-cv-intransitive-source-frame";
+    const PRET_CLASS_A_NA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-cv-intransitive-segment-frame";
+    const PRET_CLASS_A_NA_CV_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-cv-intransitive-operation-frame";
+    const PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-vna-intransitive-source-frame";
+    const PRET_CLASS_B_VNA_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-vna-intransitive-segment-frame";
+    const PRET_CLASS_B_VNA_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-vna-intransitive-operation-frame";
+    const PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-m-transitive-source-frame";
+    const PRET_CLASS_A_M_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-m-transitive-segment-frame";
+    const PRET_CLASS_A_M_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-m-transitive-operation-frame";
+    const PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-pi-intransitive-source-frame";
+    const PRET_CLASS_A_PI_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-pi-intransitive-segment-frame";
+    const PRET_CLASS_A_PI_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-pi-intransitive-operation-frame";
+    const PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-ta-intransitive-source-frame";
+    const PRET_CLASS_B_TA_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-ta-intransitive-segment-frame";
+    const PRET_CLASS_B_TA_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-ta-intransitive-operation-frame";
+    const PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-ta-transitive-source-frame";
+    const PRET_CLASS_B_TA_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-ta-transitive-segment-frame";
+    const PRET_CLASS_B_TA_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-ta-transitive-operation-frame";
+    const PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-kwi-cv-intransitive-source-frame";
+    const PRET_CLASS_B_KWI_CV_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-kwi-cv-intransitive-segment-frame";
+    const PRET_CLASS_B_KWI_CV_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-kwi-cv-intransitive-operation-frame";
+    const PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-vcvcu-intransitive-source-frame";
+    const PRET_CLASS_B_VCVCU_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-vcvcu-intransitive-segment-frame";
+    const PRET_CLASS_B_VCVCU_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-vcvcu-intransitive-operation-frame";
+    const PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-vlcvwi-intransitive-source-frame";
+    const PRET_CLASS_B_VLCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-vlcvwi-intransitive-segment-frame";
+    const PRET_CLASS_B_VLCVWI_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-vlcvwi-intransitive-operation-frame";
+    const PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-cvniu-intransitive-source-frame";
+    const PRET_CLASS_B_CVNIU_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-cvniu-intransitive-segment-frame";
+    const PRET_CLASS_B_CVNIU_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-cvniu-intransitive-operation-frame";
+    const PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvvni-intransitive-source-frame";
+    const PRET_CLASS_A_CVVNI_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvvni-intransitive-segment-frame";
+    const PRET_CLASS_A_CVVNI_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvvni-intransitive-operation-frame";
+    const PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvsv-intransitive-source-frame";
+    const PRET_CLASS_A_CVSV_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvsv-intransitive-segment-frame";
+    const PRET_CLASS_A_CVSV_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvsv-intransitive-operation-frame";
+    const PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvwi-intransitive-source-frame";
+    const PRET_CLASS_A_CVWI_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvwi-intransitive-segment-frame";
+    const PRET_CLASS_A_CVWI_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvwi-intransitive-operation-frame";
+    const PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-cvcvwi-intransitive-source-frame";
+    const PRET_CLASS_A_CVCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-cvcvwi-intransitive-segment-frame";
+    const PRET_CLASS_A_CVCVWI_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-cvcvwi-intransitive-operation-frame";
+    const PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-vjwa-intransitive-source-frame";
+    const PRET_CLASS_B_VJWA_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-vjwa-intransitive-segment-frame";
+    const PRET_CLASS_B_VJWA_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-vjwa-intransitive-operation-frame";
+    const PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-b-cuwa-intransitive-source-frame";
+    const PRET_CLASS_B_CUWA_INTRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-b-cuwa-intransitive-segment-frame";
+    const PRET_CLASS_B_CUWA_INTRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-b-cuwa-intransitive-operation-frame";
+    const PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-ni-cv-transitive-source-frame";
+    const PRET_CLASS_A_NI_CV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-ni-cv-transitive-segment-frame";
+    const PRET_CLASS_A_NI_CV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-ni-cv-transitive-operation-frame";
+    const PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-cv-transitive-source-frame";
+    const PRET_CLASS_A_NA_CV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-cv-transitive-segment-frame";
+    const PRET_CLASS_A_NA_CV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-cv-transitive-operation-frame";
+    const PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-cvcvcv-transitive-source-frame";
+    const PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-cvcvcv-transitive-segment-frame";
+    const PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-cvcvcv-transitive-operation-frame";
+    const PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-cvlvcv-transitive-source-frame";
+    const PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-cvlvcv-transitive-segment-frame";
+    const PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-cvlvcv-transitive-operation-frame";
+    const PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-vlcvcv-transitive-source-frame";
+    const PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-vlcvcv-transitive-segment-frame";
+    const PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-vlcvcv-transitive-operation-frame";
+    const PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-na-vjcvcv-transitive-source-frame";
+    const PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-na-vjcvcv-transitive-segment-frame";
+    const PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-na-vjcvcv-transitive-operation-frame";
+    const PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND = "preterit-class-a-tza-transitive-source-frame";
+    const PRET_CLASS_A_TZA_TRANSITIVE_SEGMENT_FRAME_KIND = "preterit-class-a-tza-transitive-segment-frame";
+    const PRET_CLASS_A_TZA_TRANSITIVE_OPERATION_FRAME_KIND = "preterit-class-a-tza-transitive-operation-frame";
+    const PRET_CLASS_B_SOURCE_FRAME_KIND = "preterit-class-b-source-frame";
+    const PRET_CLASS_B_SEGMENT_FRAME_KIND = "preterit-class-b-segment-frame";
+    const PRET_CLASS_B_OPERATION_FRAME_KIND = "preterit-class-b-literal-base-operation-frame";
+    const PRET_CLASS_C_SOURCE_FRAME_KIND = "preterit-class-c-source-frame";
+    const PRET_CLASS_C_SEGMENT_FRAME_KIND = "preterit-class-c-segment-frame";
+    const PRET_CLASS_D_SOURCE_FRAME_KIND = "preterit-class-d-source-frame";
+    const PRET_CLASS_D_SEGMENT_FRAME_KIND = "preterit-class-d-segment-frame";
+    function normalizePretRootPlusYaFrameText(value = "") {
+      return typeof targetObject.normalizeRuleBase === "function" ? targetObject.normalizeRuleBase(String(value || "").trim().toLowerCase()) : String(value || "").trim().toLowerCase();
+    }
+    function buildPretRootPlusYaSourceSegmentFrame(role = "", value = "") {
+      const text = normalizePretRootPlusYaFrameText(value);
+      if (!text && role !== "root-plus-ya-suffix") {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_ROOT_PLUS_YA_SOURCE_SEGMENT_FRAME_KIND,
+        role,
+        text
+      });
+    }
+    function buildPretRootPlusYaSourceFrame({
+      rootBase = "",
+      sourceVerb = "",
+      sourceKind = "",
+      isWeya = false,
+      matrixStem = ""
+    } = {}) {
+      const normalizedRoot = normalizePretRootPlusYaFrameText(rootBase);
+      if (!normalizedRoot) {
+        return null;
+      }
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const surfaceVerb = normalizedSourceVerb || `${normalizedRoot}ya`;
+      return Object.freeze({
+        kind: PRET_ROOT_PLUS_YA_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-root-plus-ya",
+        sourceKind: String(sourceKind || "root-plus-ya-source"),
+        rootFrame: buildPretRootPlusYaSourceSegmentFrame("root-base", normalizedRoot),
+        suffixFrame: buildPretRootPlusYaSourceSegmentFrame("root-plus-ya-suffix", "ya"),
+        sourceVerbFrame: buildPretRootPlusYaSourceSegmentFrame("source-verb", surfaceVerb),
+        matrixStem: normalizePretRootPlusYaFrameText(matrixStem),
+        isWeya: isWeya === true
+      });
+    }
+    function buildPretClassAFinalVowelDeletionSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_DELETION_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassAFinalVowelDeletionSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const finalSyllable = sourceSyllables[sourceSyllables.length - 1] || null;
+      const finalVowel = normalizePretRootPlusYaFrameText(finalSyllable?.nucleus || "");
+      if (!normalizedSourceVerb || !finalSyllable || !finalVowel) {
+        return null;
+      }
+      const deletedBase = [...sourceSyllables.slice(0, -1).map(syllable => normalizePretRootPlusYaFrameText(syllable?.text || "")), normalizePretRootPlusYaFrameText(finalSyllable?.onset || "")].join("");
+      const finalBaseSegment = normalizePretRootPlusYaFrameText(finalSyllable?.onset || "");
+      return Object.freeze({
+        kind: PRET_CLASS_A_DELETION_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-final-vowel-deletion",
+        sourceVerbFrame: buildPretClassAFinalVowelDeletionSegmentFrame("source-verb", normalizedSourceVerb),
+        deletedBaseFrame: buildPretClassAFinalVowelDeletionSegmentFrame("deleted-base", deletedBase),
+        finalVowelFrame: buildPretClassAFinalVowelDeletionSegmentFrame("deleted-final-vowel", finalVowel),
+        finalBaseSegmentFrame: buildPretClassAFinalVowelDeletionSegmentFrame("deleted-base-final-segment", finalBaseSegment),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...(rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : {})
+        })
+      });
+    }
+    function buildPretClassAYyaSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_YYA_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassAYyaSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const finalSyllable = sourceSyllables[sourceSyllables.length - 1] || null;
+      const hasYyaEdge = edge.finalOnset === "y" && edge.finalNucleus === "a" && edge.previousForm === "C" && edge.previousOnset === "y";
+      if (!normalizedSourceVerb || !finalSyllable || !hasYyaEdge) {
+        return null;
+      }
+      const suffix = normalizePretRootPlusYaFrameText(finalSyllable.text || "");
+      const retainedBase = sourceSyllables.slice(0, -1).map(syllable => normalizePretRootPlusYaFrameText(syllable?.text || "")).join("");
+      if (!retainedBase || !suffix) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_YYA_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-yya",
+        sourceVerbFrame: buildPretClassAYyaSegmentFrame("source-verb", normalizedSourceVerb),
+        retainedBaseFrame: buildPretClassAYyaSegmentFrame("retained-base", retainedBase),
+        suffixFrame: buildPretClassAYyaSegmentFrame("deleted-yya-suffix", suffix),
+        previousYFrame: buildPretClassAYyaSegmentFrame("previous-y", edge.previousOnset || ""),
+        finalOnsetFrame: buildPretClassAYyaSegmentFrame("final-onset", edge.finalOnset || ""),
+        finalNucleusFrame: buildPretClassAYyaSegmentFrame("final-nucleus", edge.finalNucleus || ""),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        })
+      });
+    }
+    function buildPretClassAItaSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_ITA_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassAItaSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const penultimate = sourceSyllables[sourceSyllables.length - 2] || null;
+      const finalSyllable = sourceSyllables[sourceSyllables.length - 1] || null;
+      const hasItaShape = sourceSyllables.length === 2 && penultimate?.form === "V" && penultimate?.nucleus === "i" && finalSyllable?.form === "CV" && finalSyllable?.onset === "t" && finalSyllable?.nucleus === "a";
+      if (!normalizedSourceVerb || !hasItaShape) {
+        return null;
+      }
+      const retainedBase = normalizePretRootPlusYaFrameText(penultimate?.text || "");
+      const suffix = normalizePretRootPlusYaFrameText(finalSyllable?.text || "");
+      if (!retainedBase || suffix !== "ta") {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_ITA_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-ita",
+        sourceVerbFrame: buildPretClassAItaSegmentFrame("source-verb", normalizedSourceVerb),
+        retainedBaseFrame: buildPretClassAItaSegmentFrame("retained-base", retainedBase),
+        sourceSuffixFrame: buildPretClassAItaSegmentFrame("source-suffix", suffix),
+        replacementFrame: buildPretClassAItaSegmentFrame("replacement", "tz"),
+        firstNucleusFrame: buildPretClassAItaSegmentFrame("first-nucleus", penultimate.nucleus),
+        finalOnsetFrame: buildPretClassAItaSegmentFrame("final-onset", edge.finalOnset || ""),
+        finalNucleusFrame: buildPretClassAItaSegmentFrame("final-nucleus", edge.finalNucleus || ""),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        })
+      });
+    }
+    function buildPretClassASlashAkiSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_SLASH_AKI_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassASlashAkiSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.initialVowelFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.slashBoundaryFrame?.text || "", sourceFrame.targetSuffixFrame?.text || ""].join("|");
+    }
+    function buildPretClassASlashAkiSourceFrame({
+      sourceVerb = "",
+      hasSlashMarker = false,
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const first = sourceSyllables[0] || null;
+      const final = sourceSyllables[sourceSyllables.length - 1] || null;
+      const hasAkiShape = sourceSyllables.length === 2 && first?.form === "V" && first?.nucleus === "a" && final?.form === "CV" && final?.onset === "k" && final?.nucleus === "i" && edge.finalOnset === "k" && edge.finalNucleus === "i";
+      if (!normalizedSourceVerb || hasSlashMarker !== true || !hasAkiShape) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-slash-aki-zero",
+        sourceVerbFrame: buildPretClassASlashAkiSegmentFrame("source-verb", normalizedSourceVerb),
+        initialVowelFrame: buildPretClassASlashAkiSegmentFrame("initial-vowel", first.nucleus),
+        finalOnsetFrame: buildPretClassASlashAkiSegmentFrame("final-onset", final.onset),
+        finalNucleusFrame: buildPretClassASlashAkiSegmentFrame("final-nucleus", final.nucleus),
+        slashBoundaryFrame: buildPretClassASlashAkiSegmentFrame("slash-boundary", "present"),
+        targetSuffixFrame: buildPretClassASlashAkiSegmentFrame("target-suffix", "zero"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassASlashAkiSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassASlashAkiOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassASlashAkiSourceSignature(sourceFrame);
+      return Object.freeze({
+        kind: PRET_CLASS_A_SLASH_AKI_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-slash-aki-zero-suffix-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "choose-class-a-suffix-policy",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-slash-aki-zero-target-frame",
+          allowZeroSuffix: true,
+          allowKiSuffix: false,
+          targetSuffix: ""
+        }),
+        targetSignature: `${sourceSignature}|zero-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassASlashAkiFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassASlashAkiSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_SLASH_AKI_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-slash-aki-zero-suffix-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "choose-class-a-suffix-policy" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-slash-aki-zero-target-frame" || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== false || operationFrame.targetSignature !== `${sourceSignature}|zero-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAKwvSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_KWV_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAKwvSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KWV_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.finalFormFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.rootPlusYaFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.overrideFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAKwvSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isRootPlusYa = false,
+      isMonosyllable = false,
+      allowKWVClassB = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const finalForm = normalizePretRootPlusYaFrameText(edge.finalForm || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || finalForm !== "cv" || finalOnset !== "kw" || !finalNucleus || finalNucleus === "u" || isRootPlusYa === true || isMonosyllable === true || allowKWVClassB === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_KWV_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-kwv-force",
+        sourceVerbFrame: buildPretClassAKwvSegmentFrame("source-verb", normalizedSourceVerb),
+        finalFormFrame: buildPretClassAKwvSegmentFrame("right-edge-final-form", finalForm),
+        finalOnsetFrame: buildPretClassAKwvSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAKwvSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        rootPlusYaFrame: buildPretClassAKwvSegmentFrame("root-plus-ya", "absent"),
+        monosyllableFrame: buildPretClassAKwvSegmentFrame("monosyllable", "absent"),
+        overrideFrame: buildPretClassAKwvSegmentFrame("allow-kwv-class-b", "absent"),
+        targetPolicyFrame: buildPretClassAKwvSegmentFrame("target-policy", "force-class-a"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAKwvSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAKwvOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KWV_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAKwvSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_KWV_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-kwv-force-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "choose-class-a-over-class-b-policy",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-kwv-force-target-frame",
+          forceClassA: true,
+          allowIntransitiveKV: true,
+          maskClassBSelection: true,
+          skipClassB: true,
+          fallbackToClassA: true
+        }),
+        targetSignature: `${sourceSignature}|force-class-a`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAKwvFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KWV_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAKwvSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_KWV_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-kwv-force-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "choose-class-a-over-class-b-policy" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-kwv-force-target-frame" || operationFrame.targetFrame.forceClassA !== true || operationFrame.targetFrame.allowIntransitiveKV !== true || operationFrame.targetFrame.maskClassBSelection !== true || operationFrame.targetFrame.skipClassB !== true || operationFrame.targetFrame.fallbackToClassA !== true || operationFrame.targetSignature !== `${sourceSignature}|force-class-a`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAKvAllowSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_KV_ALLOW_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAKvAllowSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.finalFormFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.slashBoundaryFrame?.text || "", sourceFrame.rootPlusYaFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAKvAllowSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      hasSlashMarker = false,
+      isRootPlusYa = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const finalForm = normalizePretRootPlusYaFrameText(edge.finalForm || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || finalForm !== "cv" || finalOnset !== "k" || !finalNucleus || finalNucleus === "u" || hasSlashMarker === true || isRootPlusYa === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-kv-allow",
+        sourceVerbFrame: buildPretClassAKvAllowSegmentFrame("source-verb", normalizedSourceVerb),
+        finalFormFrame: buildPretClassAKvAllowSegmentFrame("right-edge-final-form", finalForm),
+        finalOnsetFrame: buildPretClassAKvAllowSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAKvAllowSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        slashBoundaryFrame: buildPretClassAKvAllowSegmentFrame("slash-boundary", "absent"),
+        rootPlusYaFrame: buildPretClassAKvAllowSegmentFrame("root-plus-ya", "absent"),
+        targetPolicyFrame: buildPretClassAKvAllowSegmentFrame("target-policy", "allow-class-a"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAKvAllowSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAKvAllowOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAKvAllowSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_KV_ALLOW_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-kv-allow-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-kv-non-u",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-kv-allow-target-frame",
+          allowClassA: true,
+          allowIntransitiveKV: true,
+          forceClassA: false
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAKvAllowFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAKvAllowSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_KV_ALLOW_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-kv-allow-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-kv-non-u" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-kv-allow-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowIntransitiveKV !== true || operationFrame.targetFrame.forceClassA !== false || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAChiAllowSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CHI_ALLOW_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAChiAllowSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAChiAllowSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "ch+i" || finalOnset !== "ch" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-chi-allow",
+        sourceVerbFrame: buildPretClassAChiAllowSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAChiAllowSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassAChiAllowSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAChiAllowSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAChiAllowSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassAChiAllowSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAChiAllowSegmentFrame("target-policy", "allow-class-a-and-b"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAChiAllowSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAChiAllowOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAChiAllowSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CHI_ALLOW_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-chi-allow-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-chi-ending",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-chi-allow-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowVtVStartClassA: true,
+          forceClassA: false
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-and-b`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAChiAllowFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAChiAllowSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CHI_ALLOW_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-chi-allow-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-chi-ending" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-chi-allow-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowVtVStartClassA !== true || operationFrame.targetFrame.forceClassA !== false || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-and-b`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassATaRedupSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_TA_REDUP_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassATaRedupSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.analysisBaseFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.reduplicationFrame?.text || "", sourceFrame.itaShapeFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassATaRedupSourceFrame({
+      sourceVerb = "",
+      analysisBase = "",
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isReduplicatedCVCV = false,
+      isItaVerb = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const normalizedAnalysisBase = normalizePretRootPlusYaFrameText(analysisBase || normalizedSourceVerb);
+      const sourceSyllables = normalizedAnalysisBase && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedAnalysisBase, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || !normalizedAnalysisBase || endingFamily !== "t+a" || finalOnset !== "t" || finalNucleus !== "a" || isTransitive !== true || isReduplicatedCVCV !== true || isItaVerb === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-ta-redup",
+        sourceVerbFrame: buildPretClassATaRedupSegmentFrame("source-verb", normalizedSourceVerb),
+        analysisBaseFrame: buildPretClassATaRedupSegmentFrame("analysis-base", normalizedAnalysisBase),
+        endingFamilyFrame: buildPretClassATaRedupSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassATaRedupSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassATaRedupSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassATaRedupSegmentFrame("transitivity", "transitive"),
+        reduplicationFrame: buildPretClassATaRedupSegmentFrame("reduplication", "cvcv"),
+        itaShapeFrame: buildPretClassATaRedupSegmentFrame("ita-shape", "absent"),
+        targetPolicyFrame: buildPretClassATaRedupSegmentFrame("target-policy", "allow-class-a-and-b-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassATaRedupSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassATaRedupOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassATaRedupSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_TA_REDUP_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-ta-redup-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-ta-redup",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-ta-redup-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-and-b-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassATaRedupFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassATaRedupSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_TA_REDUP_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-ta-redup-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-ta-redup" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-ta-redup-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-and-b-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAPaTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_PA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAPaTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAPaTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "p+a" || finalOnset !== "p" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-pa-transitive",
+        sourceVerbFrame: buildPretClassAPaTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAPaTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassAPaTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAPaTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAPaTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassAPaTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAPaTransitiveSegmentFrame("target-policy", "allow-class-a-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAPaTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAPaTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAPaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_PA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-pa-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-pa-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-pa-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAPaTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAPaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_PA_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-pa-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-pa-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-pa-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAPiCvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_PI_CV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAPiCvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAPiCvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "p+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "p" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-pi-cv-transitive",
+        sourceVerbFrame: buildPretClassAPiCvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAPiCvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassAPiCvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassAPiCvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAPiCvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAPiCvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassAPiCvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAPiCvTransitiveSegmentFrame("target-policy", "allow-class-a-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAPiCvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAPiCvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAPiCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_PI_CV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-pi-cv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-pi-cv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-pi-cv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAPiCvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAPiCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_PI_CV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-pi-cv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-pi-cv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-pi-cv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvwiTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWI_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvwiTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.reduplicationFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvwiTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false,
+      isReduplicated = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const reduplicationState = isReduplicated === true ? "present" : "absent";
+      const targetPolicy = isReduplicated === true ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvwi-transitive",
+        sourceVerbFrame: buildPretClassACvwiTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvwiTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvwiTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassACvwiTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvwiTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvwiTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassACvwiTransitiveSegmentFrame("monosyllable", "absent"),
+        reduplicationFrame: buildPretClassACvwiTransitiveSegmentFrame("reduplication", reduplicationState),
+        targetPolicyFrame: buildPretClassACvwiTransitiveSegmentFrame("target-policy", targetPolicy),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvwiTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvwiTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvwiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      const allowZeroSuffix = sourceFrame.reduplicationFrame?.text === "present";
+      const targetPolicy = allowZeroSuffix ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvwi-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvwi-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvwi-transitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix,
+          allowKiSuffix: true,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|${targetPolicy}`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvwiTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvwiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvwi-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvwi-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const allowZeroSuffix = sourceFrame.reduplicationFrame?.text === "present";
+      const targetPolicy = allowZeroSuffix ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvwi-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== allowZeroSuffix || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|${targetPolicy}`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvcvwiTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVCVWI_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvcvwiTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.reduplicationFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvcvwiTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false,
+      isReduplicated = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvcvwi-transitive",
+        sourceVerbFrame: buildPretClassACvcvwiTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvcvwiTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvcvwiTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassACvcvwiTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvcvwiTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvcvwiTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassACvcvwiTransitiveSegmentFrame("monosyllable", "absent"),
+        reduplicationFrame: buildPretClassACvcvwiTransitiveSegmentFrame("reduplication", isReduplicated === true ? "present" : "absent"),
+        targetPolicyFrame: buildPretClassACvcvwiTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvcvwiTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvcvwiTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvcvwiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVCVWI_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvcvwi-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvcvwi-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvcvwi-transitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: false,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvcvwiTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvcvwiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVCVWI_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvcvwi-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvcvwi-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvcvwi-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== false || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvwaiTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWAI_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvwaiTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.previousNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvwaiTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const previousNucleus = normalizePretRootPlusYaFrameText(edge.previousNucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+a" || rightEdgeProfile !== "CV|CV" || previousNucleus !== "i" || finalOnset !== "w" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvwai-transitive",
+        sourceVerbFrame: buildPretClassACvwaiTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvwaiTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvwaiTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        previousNucleusFrame: buildPretClassACvwaiTransitiveSegmentFrame("right-edge-previous-nucleus", previousNucleus),
+        finalOnsetFrame: buildPretClassACvwaiTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvwaiTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvwaiTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassACvwaiTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvwaiTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvwaiTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvwaiTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvwaiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWAI_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvwai-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-cvwai-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvwai-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvwaiTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvwaiTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVWAI_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvwai-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-cvwai-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvwai-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvewaTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVEWA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvewaTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.previousNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvewaTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const previousNucleus = normalizePretRootPlusYaFrameText(edge.previousNucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+a" || rightEdgeProfile !== "CV|CV" || previousNucleus !== "e" || finalOnset !== "w" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvewa-transitive",
+        sourceVerbFrame: buildPretClassACvewaTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvewaTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvewaTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        previousNucleusFrame: buildPretClassACvewaTransitiveSegmentFrame("right-edge-previous-nucleus", previousNucleus),
+        finalOnsetFrame: buildPretClassACvewaTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvewaTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvewaTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassACvewaTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvewaTransitiveSegmentFrame("target-policy", "allow-class-a-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvewaTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvewaTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvewaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVEWA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvewa-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-cvewa-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvewa-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvewaTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvewaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVEWA_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvewa-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-cvewa-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvewa-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvwaTransitiveFamilySegmentFrame(segmentKind = "", role = "", value = "") {
+      return Object.freeze({
+        kind: segmentKind,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvwaTransitiveFamilySourceSignature(sourceFrame = null, {
+      sourceFrameKind = "",
+      includeReduplication = false,
+      includeSlash = false
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== sourceFrameKind) {
+        return "";
+      }
+      const parts = [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.previousNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || ""];
+      if (includeReduplication) {
+        parts.push(sourceFrame.reduplicationFrame?.text || "");
+      }
+      if (includeSlash) {
+        parts.push(sourceFrame.slashFrame?.text || "");
+      }
+      parts.push(sourceFrame.targetPolicyFrame?.text || "");
+      return parts.join("|");
+    }
+    function buildPretClassACvwaTransitiveFamilySourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false,
+      isReduplicated = false,
+      hasSlashMarker = false,
+      expectedPreviousNucleus = "",
+      sourceFrameKind = "",
+      segmentFrameKind = "",
+      route = "",
+      targetPolicy = "",
+      includeReduplication = false,
+      includeSlash = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const previousNucleus = normalizePretRootPlusYaFrameText(edge.previousNucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || !sourceFrameKind || !segmentFrameKind || !route || !targetPolicy || endingFamily !== "w+a" || rightEdgeProfile !== "CV|CV" || previousNucleus !== expectedPreviousNucleus || finalOnset !== "w" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true || includeReduplication && isReduplicated === true || includeSlash && hasSlashMarker === true) {
+        return null;
+      }
+      const segment = (role, value) => buildPretClassACvwaTransitiveFamilySegmentFrame(segmentFrameKind, role, value);
+      const sourceFrame = {
+        kind: sourceFrameKind,
+        route,
+        sourceVerbFrame: segment("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: segment("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: segment("right-edge-profile", rightEdgeProfile),
+        previousNucleusFrame: segment("right-edge-previous-nucleus", previousNucleus),
+        finalOnsetFrame: segment("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: segment("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: segment("transitivity", "transitive"),
+        monosyllableFrame: segment("monosyllable", "absent"),
+        targetPolicyFrame: segment("target-policy", targetPolicy),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      if (includeReduplication) {
+        sourceFrame.reduplicationFrame = segment("reduplication", "absent");
+      }
+      if (includeSlash) {
+        sourceFrame.slashFrame = segment("slash-marker", "absent");
+      }
+      sourceFrame.sourceSignature = getPretClassACvwaTransitiveFamilySourceSignature(sourceFrame, {
+        sourceFrameKind,
+        includeReduplication,
+        includeSlash
+      });
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvwaTransitiveFamilyOperationFrame(sourceFrame = null, {
+      sourceFrameKind = "",
+      operationFrameKind = "",
+      operationId = "",
+      routeStage = "",
+      targetFrameKind = "",
+      allowZeroSuffix = false,
+      allowKiSuffix = true,
+      allowJBaseVariant = true,
+      targetSignatureSuffix = "",
+      includeReduplication = false,
+      includeSlash = false
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== sourceFrameKind) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvwaTransitiveFamilySourceSignature(sourceFrame, {
+        sourceFrameKind,
+        includeReduplication,
+        includeSlash
+      });
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: operationFrameKind,
+        operationId,
+        routeFamily: "preterit-class-a-cvwa-transitive",
+        routeStage,
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: targetFrameKind,
+          allowClassA: true,
+          allowZeroSuffix: allowZeroSuffix === true,
+          allowKiSuffix: allowKiSuffix === true,
+          allowJBaseVariant: allowJBaseVariant === true
+        }),
+        targetSignature: `${sourceSignature}|${targetSignatureSuffix}`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvwaTransitiveFamilyFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      sourceFrameKind = "",
+      operationFrameKind = "",
+      operationId = "",
+      routeStage = "",
+      targetFrameKind = "",
+      allowZeroSuffix = false,
+      allowKiSuffix = true,
+      allowJBaseVariant = true,
+      targetSignatureSuffix = "",
+      includeReduplication = false,
+      includeSlash = false
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== sourceFrameKind) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvwaTransitiveFamilySourceSignature(sourceFrame, {
+        sourceFrameKind,
+        includeReduplication,
+        includeSlash
+      });
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== operationFrameKind || operationFrame.operationId !== operationId || operationFrame.routeFamily !== "preterit-class-a-cvwa-transitive" || operationFrame.routeStage !== routeStage || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== targetFrameKind || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== (allowZeroSuffix === true) || operationFrame.targetFrame.allowKiSuffix !== (allowKiSuffix === true) || operationFrame.targetFrame.allowJBaseVariant !== (allowJBaseVariant === true) || operationFrame.targetSignature !== `${sourceSignature}|${targetSignatureSuffix}`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvawaTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVAWA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvawaTransitiveSourceSignature(sourceFrame = null) {
+      return getPretClassACvwaTransitiveFamilySourceSignature(sourceFrame, {
+        sourceFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND,
+        includeReduplication: true,
+        includeSlash: true
+      });
+    }
+    function buildPretClassACvawaTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false,
+      isReduplicated = false,
+      hasSlashMarker = false
+    } = {}) {
+      return buildPretClassACvwaTransitiveFamilySourceFrame({
+        sourceVerb,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable,
+        isReduplicated,
+        hasSlashMarker,
+        expectedPreviousNucleus: "a",
+        sourceFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND,
+        segmentFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        route: "preterit-class-a-cvawa-transitive",
+        targetPolicy: "allow-class-a-ki",
+        includeReduplication: true,
+        includeSlash: true
+      });
+    }
+    function buildPretClassACvawaTransitiveOperationFrame(sourceFrame = null) {
+      return buildPretClassACvwaTransitiveFamilyOperationFrame(sourceFrame, {
+        sourceFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND,
+        operationFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvawa-transitive-policy",
+        routeStage: "allow-class-a-cvawa-transitive",
+        targetFrameKind: "preterit-class-a-cvawa-transitive-target-frame",
+        allowZeroSuffix: false,
+        allowKiSuffix: true,
+        allowJBaseVariant: false,
+        targetSignatureSuffix: "allow-class-a-ki",
+        includeReduplication: true,
+        includeSlash: true
+      });
+    }
+    function getPretClassACvawaTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      return getPretClassACvwaTransitiveFamilyFrameMismatch({
+        sourceFrame,
+        operationFrame,
+        sourceFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND,
+        operationFrameKind: PRET_CLASS_A_CVAWA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvawa-transitive-policy",
+        routeStage: "allow-class-a-cvawa-transitive",
+        targetFrameKind: "preterit-class-a-cvawa-transitive-target-frame",
+        allowZeroSuffix: false,
+        allowKiSuffix: true,
+        allowJBaseVariant: false,
+        targetSignatureSuffix: "allow-class-a-ki",
+        includeReduplication: true,
+        includeSlash: true
+      });
+    }
+    function buildPretClassAPaCvIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_PA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAPaCvIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAPaCvIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "p+a" || rightEdgeProfile !== "CV|CV" || finalOnset !== "p" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-pa-cv-intransitive",
+        sourceVerbFrame: buildPretClassAPaCvIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAPaCvIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassAPaCvIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassAPaCvIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAPaCvIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAPaCvIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassAPaCvIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAPaCvIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAPaCvIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAPaCvIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAPaCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_PA_CV_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-pa-cv-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-pa-cv-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-pa-cv-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowClassAZeroSuffix: false,
+          allowClassAKiSuffix: true,
+          allowClassBKSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAPaCvIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAPaCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_PA_CV_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-pa-cv-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-pa-cv-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-pa-cv-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowClassAZeroSuffix !== false || operationFrame.targetFrame.allowClassAKiSuffix !== true || operationFrame.targetFrame.allowClassBKSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaCvIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaCvIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaCvIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "CV|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-cv-intransitive",
+        sourceVerbFrame: buildPretClassANaCvIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaCvIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaCvIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaCvIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaCvIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaCvIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassANaCvIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaCvIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaCvIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaCvIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CV_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-cv-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-cv-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-cv-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowClassAZeroSuffix: false,
+          allowClassAKiSuffix: true,
+          allowClassBKSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaCvIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_CV_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-cv-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-cv-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-cv-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowClassAZeroSuffix !== false || operationFrame.targetFrame.allowClassAKiSuffix !== true || operationFrame.targetFrame.allowClassBKSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBVnaIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_VNA_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBVnaIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBVnaIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "V|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-vna-intransitive",
+        sourceVerbFrame: buildPretClassBVnaIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBVnaIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBVnaIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassBVnaIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBVnaIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBVnaIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBVnaIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBVnaIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBVnaIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBVnaIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBVnaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_VNA_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-vna-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-vna-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-vna-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBVnaIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBVnaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_VNA_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-vna-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-vna-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-vna-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAMTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_M_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAMTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAMTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || !["m+a", "m+i"].includes(endingFamily) || finalOnset !== "m" || !["a", "i"].includes(finalNucleus) || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-m-transitive",
+        sourceVerbFrame: buildPretClassAMTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAMTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassAMTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAMTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAMTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassAMTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAMTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAMTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAMTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAMTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_M_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-m-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-m-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-m-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAMTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAMTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_M_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-m-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-m-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-m-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassAPiIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_PI_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassAPiIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassAPiIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "p+i" || finalOnset !== "p" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-pi-intransitive",
+        sourceVerbFrame: buildPretClassAPiIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassAPiIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassAPiIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassAPiIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassAPiIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassAPiIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassAPiIntransitiveSegmentFrame("target-policy", "allow-class-a-and-b-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassAPiIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassAPiIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassAPiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_PI_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-pi-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-pi-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-pi-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-and-b-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassAPiIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassAPiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_PI_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-pi-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-pi-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-pi-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-and-b-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBTaIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_TA_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBTaIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBTaIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "t+a" || finalOnset !== "t" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-ta-intransitive",
+        sourceVerbFrame: buildPretClassBTaIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBTaIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassBTaIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBTaIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBTaIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBTaIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBTaIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBTaIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBTaIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBTaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_TA_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-ta-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-ta-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-ta-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBTaIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBTaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_TA_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-ta-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-ta-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-ta-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBTaTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_TA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBTaTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.itaShapeFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBTaTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false,
+      isItaVerb = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "t+a" || finalOnset !== "t" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true || isItaVerb === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-ta-transitive",
+        sourceVerbFrame: buildPretClassBTaTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBTaTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        finalOnsetFrame: buildPretClassBTaTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBTaTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBTaTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassBTaTransitiveSegmentFrame("monosyllable", "absent"),
+        itaShapeFrame: buildPretClassBTaTransitiveSegmentFrame("ita-shape", "absent"),
+        targetPolicyFrame: buildPretClassBTaTransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBTaTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBTaTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBTaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_TA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-ta-transitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-ta-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-ta-transitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBTaTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBTaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_TA_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-ta-transitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-ta-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-ta-transitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBKwiCvIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_KWI_CV_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBKwiCvIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBKwiCvIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "kw+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "kw" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-kwi-cv-intransitive",
+        sourceVerbFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBKwiCvIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBKwiCvIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBKwiCvIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBKwiCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_KWI_CV_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-kwi-cv-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-kwi-cv-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-kwi-cv-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBKwiCvIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBKwiCvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_KWI_CV_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-kwi-cv-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-kwi-cv-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-kwi-cv-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBVcvcuIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_VCVCU_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBVcvcuIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBVcvcuIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || !endingFamily.endsWith("+u") || rightEdgeProfile !== "V|CV|CV" || !finalOnset || finalNucleus !== "u" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-vcvcu-intransitive",
+        sourceVerbFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBVcvcuIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBVcvcuIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBVcvcuIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBVcvcuIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_VCVCU_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-vcvcu-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-vcvcu-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-vcvcu-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBVcvcuIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBVcvcuIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_VCVCU_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-vcvcu-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-vcvcu-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-vcvcu-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBVlcvwiIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_VLCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBVlcvwiIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBVlcvwiIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "Vl|CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-vlcvwi-intransitive",
+        sourceVerbFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBVlcvwiIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBVlcvwiIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBVlcvwiIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBVlcvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_VLCVWI_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-vlcvwi-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-vlcvwi-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-vlcvwi-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBVlcvwiIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBVlcvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_VLCVWI_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-vlcvwi-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-vlcvwi-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-vlcvwi-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBCvniuIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_CVNIU_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBCvniuIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.previousNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBCvniuIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const previousNucleus = normalizePretRootPlusYaFrameText(edge.previousNucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+i" || rightEdgeProfile !== "CV|CV" || previousNucleus !== "u" || finalOnset !== "n" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-cvniu-intransitive",
+        sourceVerbFrame: buildPretClassBCvniuIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBCvniuIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBCvniuIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        previousNucleusFrame: buildPretClassBCvniuIntransitiveSegmentFrame("right-edge-previous-nucleus", previousNucleus),
+        finalOnsetFrame: buildPretClassBCvniuIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBCvniuIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBCvniuIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBCvniuIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBCvniuIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBCvniuIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBCvniuIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBCvniuIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_CVNIU_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-cvniu-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-cvniu-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-cvniu-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBCvniuIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBCvniuIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_CVNIU_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-cvniu-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-cvniu-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-cvniu-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvvniIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVVNI_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvvniIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.previousNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvvniIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const previousNucleus = normalizePretRootPlusYaFrameText(edge.previousNucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+i" || rightEdgeProfile !== "CV|V|CV" || !previousNucleus || finalOnset !== "n" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvvni-intransitive",
+        sourceVerbFrame: buildPretClassACvvniIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvvniIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvvniIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        previousNucleusFrame: buildPretClassACvvniIntransitiveSegmentFrame("right-edge-previous-nucleus", previousNucleus),
+        finalOnsetFrame: buildPretClassACvvniIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvvniIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvvniIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassACvvniIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvvniIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvvniIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvvniIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvvniIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVVNI_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvvni-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvvni-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvvni-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvvniIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvvniIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVVNI_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvvni-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvvni-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvvni-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvsvIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVSV_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvsvIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvsvIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "s+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "s" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvsv-intransitive",
+        sourceVerbFrame: buildPretClassACvsvIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvsvIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvsvIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassACvsvIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvsvIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvsvIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassACvsvIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvsvIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvsvIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvsvIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvsvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVSV_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvsv-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvsv-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvsv-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvsvIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvsvIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVSV_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvsv-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvsv-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvsv-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvwiIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWI_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvwiIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvwiIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvwi-intransitive",
+        sourceVerbFrame: buildPretClassACvwiIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvwiIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvwiIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassACvwiIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvwiIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvwiIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassACvwiIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvwiIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvwiIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvwiIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVWI_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvwi-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvwi-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvwi-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvwiIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVWI_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvwi-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvwi-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvwi-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassACvcvwiIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassACvcvwiIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassACvcvwiIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-cvcvwi-intransitive",
+        sourceVerbFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassACvcvwiIntransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassACvcvwiIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassACvcvwiIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassACvcvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_CVCVWI_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-cvcvwi-intransitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-b-cvcvwi-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-cvcvwi-intransitive-target-frame",
+          allowClassA: true,
+          allowClassB: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true,
+          classBTargetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassACvcvwiIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassACvcvwiIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVCVWI_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvcvwi-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvcvwi-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvcvwi-intransitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBVjwaIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_VJWA_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBVjwaIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBVjwaIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+a" || rightEdgeProfile !== "Vj|CV" || finalOnset !== "w" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-vjwa-intransitive",
+        sourceVerbFrame: buildPretClassBVjwaIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBVjwaIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBVjwaIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassBVjwaIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBVjwaIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBVjwaIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBVjwaIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBVjwaIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBVjwaIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBVjwaIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBVjwaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_VJWA_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-vjwa-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-vjwa-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-vjwa-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBVjwaIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBVjwaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_VJWA_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-vjwa-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-vjwa-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-vjwa-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBCuwaIntransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_CUWA_INTRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassBCuwaIntransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.leadingNucleusFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassBCuwaIntransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const leadingNucleus = normalizePretRootPlusYaFrameText(sourceSyllables[0]?.nucleus || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "w+a" || rightEdgeProfile !== "CV|CV" || leadingNucleus !== "u" || finalOnset !== "w" || finalNucleus !== "a" || isTransitive === true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-cuwa-intransitive",
+        sourceVerbFrame: buildPretClassBCuwaIntransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassBCuwaIntransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassBCuwaIntransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        leadingNucleusFrame: buildPretClassBCuwaIntransitiveSegmentFrame("leading-nucleus", leadingNucleus),
+        finalOnsetFrame: buildPretClassBCuwaIntransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassBCuwaIntransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassBCuwaIntransitiveSegmentFrame("transitivity", "intransitive"),
+        monosyllableFrame: buildPretClassBCuwaIntransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassBCuwaIntransitiveSegmentFrame("target-policy", "allow-class-b-k-suffix"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassBCuwaIntransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassBCuwaIntransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassBCuwaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_B_CUWA_INTRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-b-cuwa-intransitive-policy",
+        routeFamily: "preterit-class-b",
+        routeStage: "allow-class-b-cuwa-intransitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-b-cuwa-intransitive-target-frame",
+          allowClassB: true,
+          targetSuffix: "k"
+        }),
+        targetSignature: `${sourceSignature}|allow-class-b-k-suffix`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassBCuwaIntransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassBCuwaIntransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_B_CUWA_INTRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-b-cuwa-intransitive-policy" || operationFrame.routeFamily !== "preterit-class-b" || operationFrame.routeStage !== "allow-class-b-cuwa-intransitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-b-cuwa-intransitive-target-frame" || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.targetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-b-k-suffix`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANiCvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NI_CV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANiCvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANiCvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "n" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-ni-cv-transitive",
+        sourceVerbFrame: buildPretClassANiCvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANiCvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANiCvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANiCvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANiCvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANiCvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANiCvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANiCvTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANiCvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANiCvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANiCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NI_CV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-ni-cv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-ni-cv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-ni-cv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANiCvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANiCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NI_CV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-ni-cv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-ni-cv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-ni-cv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaCvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaCvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaCvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "CV|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-cv-transitive",
+        sourceVerbFrame: buildPretClassANaCvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaCvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaCvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaCvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaCvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaCvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANaCvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaCvTransitiveSegmentFrame("target-policy", "allow-class-a-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaCvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaCvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-cv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-cv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-cv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaCvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaCvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_CV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-cv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-cv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-cv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaCvcvcvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaCvcvcvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaCvcvcvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "CV|CV|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-cvcvcv-transitive",
+        sourceVerbFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaCvcvcvTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaCvcvcvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaCvcvcvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaCvcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-cvcvcv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-cvcvcv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-cvcvcv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaCvcvcvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaCvcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-cvcvcv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-cvcvcv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-cvcvcv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaCvlvcvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaCvlvcvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaCvlvcvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "CVl|V|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-cvlvcv-transitive",
+        sourceVerbFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaCvlvcvTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaCvlvcvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaCvlvcvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaCvlvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-cvlvcv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-cvlvcv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-cvlvcv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaCvlvcvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaCvlvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-cvlvcv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-cvlvcv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-cvlvcv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaVlcvcvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaVlcvcvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaVlcvcvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || rightEdgeProfile !== "Vl|CV|CV" || finalOnset !== "n" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-vlcvcv-transitive",
+        sourceVerbFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaVlcvcvTransitiveSegmentFrame("target-policy", "allow-class-a-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaVlcvcvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaVlcvcvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaVlcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-vlcvcv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-vlcvcv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-vlcvcv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaVlcvcvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaVlcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-vlcvcv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-vlcvcv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-vlcvcv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassANaVjcvcvTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassANaVjcvcvTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassANaVjcvcvTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "n+a" || !["Vj|CV|CV", "V|C|CV|CV"].includes(rightEdgeProfile) || finalOnset !== "n" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-na-vjcvcv-transitive",
+        sourceVerbFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassANaVjcvcvTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-ki"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassANaVjcvcvTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassANaVjcvcvTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassANaVjcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-na-vjcvcv-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-na-vjcvcv-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-na-vjcvcv-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: true,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-zero-and-ki`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassANaVjcvcvTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassANaVjcvcvTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-na-vjcvcv-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-na-vjcvcv-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-na-vjcvcv-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== true || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-zero-and-ki`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassATzaTransitiveSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_A_TZA_TRANSITIVE_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function getPretClassATzaTransitiveSourceSignature(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "";
+      }
+      return [sourceFrame.sourceVerbFrame?.text || "", sourceFrame.endingFamilyFrame?.text || "", sourceFrame.rightEdgeProfileFrame?.text || "", sourceFrame.finalOnsetFrame?.text || "", sourceFrame.finalNucleusFrame?.text || "", sourceFrame.transitivityFrame?.text || "", sourceFrame.monosyllableFrame?.text || "", sourceFrame.targetPolicyFrame?.text || ""].join("|");
+    }
+    function buildPretClassATzaTransitiveSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null,
+      isTransitive = false,
+      isMonosyllable = false
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const endingFamily = normalizePretRootPlusYaFrameText(edge.endingFamily || "");
+      const rightEdgeProfile = String(edge.rightEdgeProfile || "");
+      const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
+      const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
+      if (!normalizedSourceVerb || endingFamily !== "tz+a" || !["CV|CV", "Vj|CV|CV", "V|C|CV|CV"].includes(rightEdgeProfile) || finalOnset !== "tz" || finalNucleus !== "a" || isTransitive !== true || isMonosyllable === true) {
+        return null;
+      }
+      const sourceFrame = {
+        kind: PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND,
+        route: "preterit-class-a-tza-transitive",
+        sourceVerbFrame: buildPretClassATzaTransitiveSegmentFrame("source-verb", normalizedSourceVerb),
+        endingFamilyFrame: buildPretClassATzaTransitiveSegmentFrame("right-edge-ending-family", endingFamily),
+        rightEdgeProfileFrame: buildPretClassATzaTransitiveSegmentFrame("right-edge-profile", rightEdgeProfile),
+        finalOnsetFrame: buildPretClassATzaTransitiveSegmentFrame("right-edge-final-onset", finalOnset),
+        finalNucleusFrame: buildPretClassATzaTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
+        transitivityFrame: buildPretClassATzaTransitiveSegmentFrame("transitivity", "transitive"),
+        monosyllableFrame: buildPretClassATzaTransitiveSegmentFrame("monosyllable", "absent"),
+        targetPolicyFrame: buildPretClassATzaTransitiveSegmentFrame("target-policy", "allow-class-a-ki-only"),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      };
+      sourceFrame.sourceSignature = getPretClassATzaTransitiveSourceSignature(sourceFrame);
+      return Object.freeze(sourceFrame);
+    }
+    function buildPretClassATzaTransitiveOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return null;
+      }
+      const sourceSignature = getPretClassATzaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_A_TZA_TRANSITIVE_OPERATION_FRAME_KIND,
+        operationId: "andrews-preterit-class-a-tza-transitive-policy",
+        routeFamily: "preterit-class-a",
+        routeStage: "allow-class-a-tza-transitive",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "preterit-class-a-tza-transitive-target-frame",
+          allowClassA: true,
+          allowZeroSuffix: false,
+          allowKiSuffix: true
+        }),
+        targetSignature: `${sourceSignature}|allow-class-a-ki-only`,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getPretClassATzaTransitiveFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND) {
+        return "source-frame-required";
+      }
+      const sourceSignature = getPretClassATzaTransitiveSourceSignature(sourceFrame);
+      if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_TZA_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-tza-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-tza-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-tza-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-only`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildPretClassBSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_B_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassBSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      if (!normalizedSourceVerb || !sourceSyllables.length) {
+        return null;
+      }
+      const vowelCount = typeof targetObject.getTrailingVowelCountFromSyllables === "function" ? targetObject.getTrailingVowelCountFromSyllables(sourceSyllables) : getPretUniversalCoreVowelCount(normalizedSourceVerb);
+      return Object.freeze({
+        kind: PRET_CLASS_B_SOURCE_FRAME_KIND,
+        route: "preterit-class-b-literal-base",
+        sourceVerbFrame: buildPretClassBSegmentFrame("source-verb", normalizedSourceVerb),
+        vowelCountFrame: buildPretClassBSegmentFrame("vowel-count", String(vowelCount)),
+        syllableCountFrame: buildPretClassBSegmentFrame("syllable-count", String(sourceSyllables.length)),
+        finalFormFrame: buildPretClassBSegmentFrame("final-form", edge.finalForm || ""),
+        finalOnsetFrame: buildPretClassBSegmentFrame("final-onset", edge.finalOnset || ""),
+        finalNucleusFrame: buildPretClassBSegmentFrame("final-nucleus", edge.finalNucleus || ""),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        }),
+        operationFrame: Object.freeze({
+          kind: PRET_CLASS_B_OPERATION_FRAME_KIND,
+          operation: "select-source-verb-as-class-b-base"
+        })
+      });
+    }
+    function buildPretClassCSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_C_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassCSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      const finalSyllable = sourceSyllables[sourceSyllables.length - 1] || null;
+      const finalVowel = normalizePretRootPlusYaFrameText(finalSyllable?.nucleus || "");
+      if (!normalizedSourceVerb || !finalSyllable || !finalVowel) {
+        return null;
+      }
+      const retainedBase = [...sourceSyllables.slice(0, -1).map(syllable => normalizePretRootPlusYaFrameText(syllable?.text || "")), normalizePretRootPlusYaFrameText(finalSyllable?.onset || "")].join("");
+      if (!retainedBase) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_C_SOURCE_FRAME_KIND,
+        route: "preterit-class-c-perfective-replacement",
+        sourceVerbFrame: buildPretClassCSegmentFrame("source-verb", normalizedSourceVerb),
+        retainedBaseFrame: buildPretClassCSegmentFrame("retained-base", retainedBase),
+        finalVowelFrame: buildPretClassCSegmentFrame("final-vowel", finalVowel),
+        previousNucleusFrame: buildPretClassCSegmentFrame("previous-nucleus", edge.previousNucleus || ""),
+        finalFormFrame: buildPretClassCSegmentFrame("final-form", edge.finalForm || ""),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        })
+      });
+    }
+    function buildPretClassDSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: PRET_CLASS_D_SEGMENT_FRAME_KIND,
+        role,
+        text: normalizePretRootPlusYaFrameText(value)
+      });
+    }
+    function buildPretClassDSourceFrame({
+      sourceVerb = "",
+      syllables = null,
+      rightEdgeDescriptor = null
+    } = {}) {
+      const normalizedSourceVerb = normalizePretRootPlusYaFrameText(sourceVerb);
+      const sourceSyllables = Array.isArray(syllables) && syllables.length ? syllables : normalizedSourceVerb && typeof targetObject.getSyllables === "function" ? targetObject.getSyllables(normalizedSourceVerb, {
+        analysis: true,
+        assumeFinalV: true
+      }) : [];
+      const edge = rightEdgeDescriptor && typeof rightEdgeDescriptor === "object" ? rightEdgeDescriptor : typeof buildPretRightEdgeDescriptor === "function" ? buildPretRightEdgeDescriptor(sourceSyllables) : {};
+      if (!normalizedSourceVerb || !sourceSyllables.length) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_CLASS_D_SOURCE_FRAME_KIND,
+        route: "preterit-class-d-append",
+        sourceVerbFrame: buildPretClassDSegmentFrame("source-verb", normalizedSourceVerb),
+        appendFrame: buildPretClassDSegmentFrame("append", "j"),
+        syllableCountFrame: buildPretClassDSegmentFrame("syllable-count", String(sourceSyllables.length)),
+        finalFormFrame: buildPretClassDSegmentFrame("final-form", edge.finalForm || ""),
+        finalNucleusFrame: buildPretClassDSegmentFrame("final-nucleus", edge.finalNucleus || ""),
+        rightEdgeDescriptorFrame: Object.freeze({
+          ...edge
+        })
+      });
     }
     function applyPretUniversalDeletionShift(stem, options = {}) {
       const specs = [];
@@ -51,11 +4132,16 @@ export function createPreteritContextApi(targetObject = globalThis) {
       }
       return applyPretUniversalDeletionShift(base, options);
     }
-    function getMonosyllableStemPath(verb) {
-      if (!verb) {
+    function getMonosyllableStemPath(sourceFrame = null) {
+      if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== PRET_CLASS_D_SOURCE_FRAME_KIND || sourceFrame.sourceVerbFrame?.kind !== PRET_CLASS_D_SEGMENT_FRAME_KIND || sourceFrame.appendFrame?.kind !== PRET_CLASS_D_SEGMENT_FRAME_KIND) {
         return null;
       }
-      const classDBaseSpec = typeof targetObject.buildPretAppendBaseSpec === "function" ? targetObject.buildPretAppendBaseSpec(verb, "j") : null;
+      const verb = normalizePretRootPlusYaFrameText(sourceFrame.sourceVerbFrame.text || "");
+      const appendText = normalizePretRootPlusYaFrameText(sourceFrame.appendFrame.text || "");
+      if (!verb || appendText !== "j") {
+        return null;
+      }
+      const classDBaseSpec = typeof targetObject.buildPretAppendBaseSpec === "function" ? targetObject.buildPretAppendBaseSpec(verb, appendText) : null;
       return {
         path: "monosyllable",
         classDBase: typeof targetObject.realizePretBaseSpec === "function" ? targetObject.realizePretBaseSpec(classDBaseSpec, "") : `${verb}j`,
@@ -92,6 +4178,373 @@ export function createPreteritContextApi(targetObject = globalThis) {
         const override = flags?.override || {};
         return toPretUniversalCandidateSet(override.classes);
       }
+    }, {
+      id: "blocked_m_transitive_without_typed_frames",
+      label: "m+[a|i] transitive missing typed frames",
+      tier: "forced",
+      when: context => context?.isTransitive === true && context.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        finalOnset: "m",
+        finalNuclei: ["a", "i"]
+      }) && getPretClassAMTransitiveFrameMismatch({
+        sourceFrame: context?.classAMTransitiveSourceFrame,
+        operationFrame: context?.classAMTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_pa_transitive_without_typed_frames",
+      label: "p+a transitive missing typed frames",
+      tier: "forced",
+      when: context => context?.isTransitive === true && context.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "p+a"
+      }) && getPretClassAPaTransitiveFrameMismatch({
+        sourceFrame: context?.classAPaTransitiveSourceFrame,
+        operationFrame: context?.classAPaTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_pi_intransitive_without_typed_frames",
+      label: "p+i intransitive missing typed frames",
+      tier: "forced",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "p+i"
+      }) && getPretClassAPiIntransitiveFrameMismatch({
+        sourceFrame: context?.classAPiIntransitiveSourceFrame,
+        operationFrame: context?.classAPiIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_pi_cv_transitive_without_typed_frames",
+      label: "p+i CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "p+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassAPiCvTransitiveFrameMismatch({
+        sourceFrame: context?.classAPiCvTransitiveSourceFrame,
+        operationFrame: context?.classAPiCvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvwi_transitive_without_typed_frames",
+      label: "CV|CV(w+i) transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassACvwiTransitiveFrameMismatch({
+        sourceFrame: context?.classACvwiTransitiveSourceFrame,
+        operationFrame: context?.classACvwiTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvcvwi_transitive_without_typed_frames",
+      label: "CV|CV|CV(w+i) transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV) && getPretClassACvcvwiTransitiveFrameMismatch({
+        sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
+        operationFrame: context?.classACvcvwiTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvwai_transitive_without_typed_frames",
+      label: "CV(i)|CV(w+a) transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "i"
+      }) && getPretClassACvwaiTransitiveFrameMismatch({
+        sourceFrame: context?.classACvwaiTransitiveSourceFrame,
+        operationFrame: context?.classACvwaiTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvewa_transitive_without_typed_frames",
+      label: "CV(e)|CV(w+a) transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "e"
+      }) && getPretClassACvewaTransitiveFrameMismatch({
+        sourceFrame: context?.classACvewaTransitiveSourceFrame,
+        operationFrame: context?.classACvewaTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvawa_transitive_without_typed_frames",
+      label: "CV(a)|CV(w+a) transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && context?.isReduplicated !== true && context?.hasSlashMarker !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "a"
+      }) && getPretClassACvawaTransitiveFrameMismatch({
+        sourceFrame: context?.classACvawaTransitiveSourceFrame,
+        operationFrame: context?.classACvawaTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_pa_cv_intransitive_without_typed_frames",
+      label: "p+a CV|CV intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "p+a",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassAPaCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classAPaCvIntransitiveSourceFrame,
+        operationFrame: context?.classAPaCvIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_cv_intransitive_without_typed_frames",
+      label: "n+a CV|CV intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassANaCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvIntransitiveSourceFrame,
+        operationFrame: context?.classANaCvIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_vna_intransitive_without_typed_frames",
+      label: "V|CV(na) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["V|CV"]
+      }) && getPretClassBVnaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVnaIntransitiveSourceFrame,
+        operationFrame: context?.classBVnaIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_ta_intransitive_without_typed_frames",
+      label: "t+a intransitive missing typed frames",
+      tier: "forced",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "t+a"
+      }) && getPretClassBTaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBTaIntransitiveSourceFrame,
+        operationFrame: context?.classBTaIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_ta_transitive_without_typed_frames",
+      label: "t+a transitive missing typed frames",
+      tier: "forced",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && context?.isItaVerb !== true && pretContextHasRightEdge(context, {
+        endingFamily: "t+a"
+      }) && getPretClassBTaTransitiveFrameMismatch({
+        sourceFrame: context?.classBTaTransitiveSourceFrame,
+        operationFrame: context?.classBTaTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_kwi_cv_intransitive_without_typed_frames",
+      label: "kw+i CV|CV intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "kw+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassBKwiCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classBKwiCvIntransitiveSourceFrame,
+        operationFrame: context?.classBKwiCvIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_vcvcu_intransitive_without_typed_frames",
+      label: "V|CV|CV(u) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        rightEdgeProfiles: ["V|CV|CV"],
+        finalNucleus: "u"
+      }) && getPretClassBVcvcuIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVcvcuIntransitiveSourceFrame,
+        operationFrame: context?.classBVcvcuIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_vlcvwi_intransitive_without_typed_frames",
+      label: "Vl|CV|CV(wi) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      }) && getPretClassBVlcvwiIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVlcvwiIntransitiveSourceFrame,
+        operationFrame: context?.classBVlcvwiIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvniu_intransitive_without_typed_frames",
+      label: "CV(u)|CV(ni) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "u"
+      }) && getPretClassBCvniuIntransitiveFrameMismatch({
+        sourceFrame: context?.classBCvniuIntransitiveSourceFrame,
+        operationFrame: context?.classBCvniuIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvvni_intransitive_without_typed_frames",
+      label: "CV|V|CV(ni) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|V|CV"]
+      }) && getPretClassACvvniIntransitiveFrameMismatch({
+        sourceFrame: context?.classACvvniIntransitiveSourceFrame,
+        operationFrame: context?.classACvvniIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvsv_intransitive_without_typed_frames",
+      label: "CV|CV(s+i) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "s+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassACvsvIntransitiveFrameMismatch({
+        sourceFrame: context?.classACvsvIntransitiveSourceFrame,
+        operationFrame: context?.classACvsvIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvwi_intransitive_without_typed_frames",
+      label: "CV|CV(w+i) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassACvwiIntransitiveFrameMismatch({
+        sourceFrame: context?.classACvwiIntransitiveSourceFrame,
+        operationFrame: context?.classACvwiIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cvcvwi_intransitive_without_typed_frames",
+      label: "CV|CV|CV(w+i) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+i",
+        rightEdgeProfiles: ["CV|CV|CV"]
+      }) && getPretClassACvcvwiIntransitiveFrameMismatch({
+        sourceFrame: context?.classACvcvwiIntransitiveSourceFrame,
+        operationFrame: context?.classACvcvwiIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_vjwa_intransitive_without_typed_frames",
+      label: "Vj|CV(wa) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["Vj|CV"]
+      }) && getPretClassBVjwaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVjwaIntransitiveSourceFrame,
+        operationFrame: context?.classBVjwaIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_cuwa_intransitive_without_typed_frames",
+      label: "CV(u)|CV(wa) intransitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive !== true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "w+a",
+        rightEdgeProfiles: ["CV|CV"],
+        previousNucleus: "u"
+      }) && getPretClassBCuwaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBCuwaIntransitiveSourceFrame,
+        operationFrame: context?.classBCuwaIntransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_ni_cv_transitive_without_typed_frames",
+      label: "n+i CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassANiCvTransitiveFrameMismatch({
+        sourceFrame: context?.classANiCvTransitiveSourceFrame,
+        operationFrame: context?.classANiCvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_cv_transitive_without_typed_frames",
+      label: "n+a CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && getPretClassANaCvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_cvcvcv_transitive_without_typed_frames",
+      label: "n+a CV|CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV) && getPretClassANaCvcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvcvcvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_cvlvcv_transitive_without_typed_frames",
+      label: "n+a CVl|V|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CVl|V|CV"]
+      }) && getPretClassANaCvlvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvlvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvlvcvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_vlcvcv_transitive_without_typed_frames",
+      label: "n+a Vl|CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      }) && getPretClassANaVlcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaVlcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaVlcvcvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_na_vjcvcv_transitive_without_typed_frames",
+      label: "n+a Vj|CV|CV transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"]
+      }) && getPretClassANaVjcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaVjcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaVjcvcvTransitiveOperationFrame
+      }),
+      classes: []
+    }, {
+      id: "blocked_tza_transitive_without_typed_frames",
+      label: "tz+a transitive missing typed frames",
+      tier: "shape",
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
+        endingFamily: "tz+a",
+        rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"]
+      }) && getPretClassATzaTransitiveFrameMismatch({
+        sourceFrame: context?.classATzaTransitiveSourceFrame,
+        operationFrame: context?.classATzaTransitiveOperationFrame
+      }),
+      classes: []
     }]);
     const PRET_DENOMINAL_MATRIX_STEM_SET = Object.freeze(["ti", "wi", "ya", "a", "wa", "tiya", "wiya"]);
     function normalizePretDenominalStem(value) {
@@ -195,7 +4648,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
       return `${raw.length}:${raw}`;
     }
     function buildPretUniversalContextCacheKey(verb, analysisVerb, isTransitive, options = {}) {
-      const parts = [encodePretContextCacheValue(verb), encodePretContextCacheValue(analysisVerb), encodePretContextCacheValue(isTransitive === true), encodePretContextCacheValue(options.isYawi === true), encodePretContextCacheValue(options.isWeya === true), encodePretContextCacheValue(options.isBitransitive === true), encodePretContextCacheValue(options.hasSlashMarker === true), encodePretContextCacheValue(options.hasSuffixSeparator === true), encodePretContextCacheValue(options.hasLeadingDash === true), encodePretContextCacheValue(options.hasBoundMarker === true), encodePretContextCacheValue(options.hasCompoundMarker === true), encodePretContextCacheValue(options.boundPrefix || ""), encodePretContextCacheValue(options.hasImpersonalTaPrefix === true), encodePretContextCacheValue(options.hasOptionalSupportiveI === true), encodePretContextCacheValue(options.hasNonspecificValence === true), encodePretContextCacheValue(options.exactBaseVerb || ""), encodePretContextCacheValue(options.rootPlusYaBase || ""), encodePretContextCacheValue(options.rootPlusYaBasePronounceable || ""), encodePretContextCacheValue(options.derivationType || ""), encodePretContextCacheValue(options.forceClassBOnly === true)];
+      const parts = [encodePretContextCacheValue(verb), encodePretContextCacheValue(analysisVerb), encodePretContextCacheValue(isTransitive === true), encodePretContextCacheValue(options.isYawi === true), encodePretContextCacheValue(options.isWeya === true), encodePretContextCacheValue(options.isBitransitive === true), encodePretContextCacheValue(options.hasSlashMarker === true), encodePretContextCacheValue(options.hasSuffixSeparator === true), encodePretContextCacheValue(options.hasLeadingDash === true), encodePretContextCacheValue(options.hasBoundMarker === true), encodePretContextCacheValue(options.hasCompoundMarker === true), encodePretContextCacheValue(options.boundPrefix || ""), encodePretContextCacheValue(options.hasImpersonalTaPrefix === true), encodePretContextCacheValue(options.hasOptionalSupportiveI === true), encodePretContextCacheValue(options.hasNonspecificValence === true), encodePretContextCacheValue(options.exactBaseVerb || ""), encodePretContextCacheValue(options.rootPlusYaBase || ""), encodePretContextCacheValue(options.rootPlusYaBasePronounceable || ""), encodePretContextCacheValue(options.derivationType || ""), encodePretContextCacheValue(options.forceClassBOnly === true), encodePretContextCacheValue(options.allowUnpronounceableStems === true)];
       return parts.join("|");
     }
     function clonePretUniversalContext(context) {
@@ -1319,6 +5772,13 @@ export function createPreteritContextApi(targetObject = globalThis) {
       const rootPlusYaBase = isTransitive ? null : computedRootPlusYaBase;
       const rootPlusYaBasePronounceable = rootPlusYaBase ? parsedRootPlusYaPronounceable || (targetObject.isSyllableSequencePronounceable(rootPlusYaBase) ? rootPlusYaBase : "") : "";
       const isRootPlusYa = Boolean(rootPlusYaBase);
+      const rootPlusYaSourceFrame = isRootPlusYa ? buildPretRootPlusYaSourceFrame({
+        rootBase: rootPlusYaBase,
+        sourceVerb: isWeya ? `${rootPlusYaBase}ya` : rootPlusYaSource,
+        sourceKind: denominalRootPlusYaBase ? "denominal-root-plus-ya-source" : "root-plus-ya-source",
+        isWeya,
+        matrixStem: denominalSource.denominalMatrixStem || ""
+      }) : null;
       const isReduplicatedCVCV = !isRootPlusYa && baseIsReduplicated && rawSyllables.length >= 2 && rawSyllables[0]?.form === "CV" && rawSyllables[1]?.form === "CV" && targetObject.getSyllableBaseKey(rawSyllables[0]) === targetObject.getSyllableBaseKey(rawSyllables[1]);
       const analysisRoot = isRootPlusYa ? rootPlusYaBase : nonRedupRoot;
       const isCausativeTypeTwo = derivationType === targetObject.DERIVATION_TYPE.causative && /(t|w|l)ia$/.test(analysisRoot);
@@ -1341,7 +5801,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
         return next;
       })();
       let allowUnpronounceable = verbOverride?.allowUnpronounceable === true;
-      let allowUnpronounceableStems = verbOverride?.allowUnpronounceableStems === true;
+      let allowUnpronounceableStems = verbOverride?.allowUnpronounceableStems === true || options.allowUnpronounceableStems === true;
       if (isCausativeTypeTwo) {
         allowUnpronounceable = true;
         allowUnpronounceableStems = true;
@@ -1376,8 +5836,8 @@ export function createPreteritContextApi(targetObject = globalThis) {
         isMonosyllable = false;
         isDerivedMonosyllable = false;
       }
+      const resolvedVerb = isWeya && rootPlusYaBase ? `${rootPlusYaBase}ya` : verb;
       const stemPath = isRootPlusYa ? "root-plus-ya" : isMonosyllable ? "monosyllable" : "default";
-      const monosyllableStemPath = isMonosyllable ? getMonosyllableStemPath(verb) : null;
       const lastSyllable = syllables[syllables.length - 1] || null;
       const penultimateSyllable = syllables[syllables.length - 2] || null;
       const antepenultimateSyllable = syllables[syllables.length - 3] || null;
@@ -1388,6 +5848,39 @@ export function createPreteritContextApi(targetObject = globalThis) {
       const rightEdgeProfile = rightEdgeDescriptor.rightEdgeProfile;
       const juncture = rightEdgeDescriptor.juncture;
       const endingFamily = rightEdgeDescriptor.endingFamily;
+      const classDSyllables = resolvedVerb === analysisRoot ? syllables : targetObject.getSyllables(resolvedVerb, {
+        analysis: true,
+        assumeFinalV: true
+      });
+      const classDRightEdgeDescriptor = resolvedVerb === analysisRoot ? rightEdgeDescriptor : buildPretRightEdgeDescriptor(classDSyllables);
+      const classDSourceFrame = !isRootPlusYa ? buildPretClassDSourceFrame({
+        sourceVerb: resolvedVerb,
+        syllables: classDSyllables,
+        rightEdgeDescriptor: classDRightEdgeDescriptor
+      }) : null;
+      const monosyllableStemPath = isMonosyllable ? getMonosyllableStemPath(classDSourceFrame) : null;
+      const yyaClassASourceFrame = !isRootPlusYa && !isTransitive ? buildPretClassAYyaSourceFrame({
+        sourceVerb,
+        syllables,
+        rightEdgeDescriptor
+      }) : null;
+      const itaClassASourceFrame = !isRootPlusYa && isTransitive ? buildPretClassAItaSourceFrame({
+        sourceVerb,
+        syllables,
+        rightEdgeDescriptor
+      }) : null;
+      const classAFinalVowelDeletionSourceFrame = !isRootPlusYa ? buildPretClassAFinalVowelDeletionSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor
+      }) : null;
+      const classASlashAkiSourceFrame = !isRootPlusYa && !isTransitive ? buildPretClassASlashAkiSourceFrame({
+        sourceVerb: analysisRoot,
+        hasSlashMarker,
+        syllables,
+        rightEdgeDescriptor
+      }) : null;
+      const classASlashAkiOperationFrame = buildPretClassASlashAkiOperationFrame(classASlashAkiSourceFrame);
       const hasRightEdge = (query = {}) => pretRightEdgeDescriptorMatchesQuery(rightEdgeDescriptor, query);
       const forceClassBEnding = pretContextHasAnyRightEdge({
         rightEdgeDescriptor
@@ -1418,6 +5911,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
       const totalVowels = targetObject.getTotalVowelCountFromSyllables(syllables);
       const isVtVStart = targetObject.isPlainVowelSyllable(syllables[0]) && targetObject.isCVWithOnset(syllables[1], "t");
       const isVVtVStart = targetObject.isPlainVowelSyllable(syllables[0]) && targetObject.isPlainVowelSyllable(syllables[1]) && targetObject.isCVWithOnset(syllables[2], "t");
+      const isReduplicatedContext = !isRootPlusYa && (baseIsReduplicated || hasVnVRedupPrefix || hasCVnVRedupPrefix || hasCVmVRedupPrefix);
       const isTransitiveUniI = isTransitive && targetObject.isIVerbSyllableSequence(syllables);
       const rootSyllablesOk = targetObject.areSyllablesPronounceable(syllables);
       const lastSyllableForm = lastSyllable?.form || null;
@@ -1432,8 +5926,321 @@ export function createPreteritContextApi(targetObject = globalThis) {
         finalOnset: "kw",
         finalNucleus: "u"
       }) && !isRootPlusYa && !isMonosyllable;
-      const resolvedForceClassAForKWV = forceClassAForKWV && !allowKWVClassB;
-      const resolvedVerb = isWeya && rootPlusYaBase ? `${rootPlusYaBase}ya` : verb;
+      const classAKwvSourceFrame = forceClassAForKWV ? buildPretClassAKwvSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isRootPlusYa,
+        isMonosyllable,
+        allowKWVClassB
+      }) : null;
+      const classAKwvOperationFrame = buildPretClassAKwvOperationFrame(classAKwvSourceFrame);
+      const resolvedForceClassAForKWV = !getPretClassAKwvFrameMismatch({
+        sourceFrame: classAKwvSourceFrame,
+        operationFrame: classAKwvOperationFrame
+      });
+      const classAKvAllowSourceFrame = !isTransitive ? buildPretClassAKvAllowSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        hasSlashMarker,
+        isRootPlusYa
+      }) : null;
+      const classAKvAllowOperationFrame = buildPretClassAKvAllowOperationFrame(classAKvAllowSourceFrame);
+      const resolvedAllowClassAForKV = resolvedForceClassAForKWV || !getPretClassAKvAllowFrameMismatch({
+        sourceFrame: classAKvAllowSourceFrame,
+        operationFrame: classAKvAllowOperationFrame
+      });
+      const classAChiAllowSourceFrame = buildPretClassAChiAllowSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAChiAllowOperationFrame = buildPretClassAChiAllowOperationFrame(classAChiAllowSourceFrame);
+      const classATaRedupSourceFrame = buildPretClassATaRedupSourceFrame({
+        sourceVerb,
+        analysisBase: analysisRoot,
+        rightEdgeDescriptor,
+        isTransitive,
+        isReduplicatedCVCV,
+        isItaVerb
+      });
+      const classATaRedupOperationFrame = buildPretClassATaRedupOperationFrame(classATaRedupSourceFrame);
+      const classAPaTransitiveSourceFrame = buildPretClassAPaTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAPaTransitiveOperationFrame = buildPretClassAPaTransitiveOperationFrame(classAPaTransitiveSourceFrame);
+      const classAPiCvTransitiveSourceFrame = buildPretClassAPiCvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAPiCvTransitiveOperationFrame = buildPretClassAPiCvTransitiveOperationFrame(classAPiCvTransitiveSourceFrame);
+      const classACvwiTransitiveSourceFrame = buildPretClassACvwiTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable,
+        isReduplicated: isReduplicatedContext
+      });
+      const classACvwiTransitiveOperationFrame = buildPretClassACvwiTransitiveOperationFrame(classACvwiTransitiveSourceFrame);
+      const classACvcvwiTransitiveSourceFrame = buildPretClassACvcvwiTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable,
+        isReduplicated: isReduplicatedContext
+      });
+      const classACvcvwiTransitiveOperationFrame = buildPretClassACvcvwiTransitiveOperationFrame(classACvcvwiTransitiveSourceFrame);
+      const classACvwaiTransitiveSourceFrame = buildPretClassACvwaiTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvwaiTransitiveOperationFrame = buildPretClassACvwaiTransitiveOperationFrame(classACvwaiTransitiveSourceFrame);
+      const classACvewaTransitiveSourceFrame = buildPretClassACvewaTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvewaTransitiveOperationFrame = buildPretClassACvewaTransitiveOperationFrame(classACvewaTransitiveSourceFrame);
+      const classACvawaTransitiveSourceFrame = buildPretClassACvawaTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable,
+        isReduplicated: isReduplicatedContext,
+        hasSlashMarker
+      });
+      const classACvawaTransitiveOperationFrame = buildPretClassACvawaTransitiveOperationFrame(classACvawaTransitiveSourceFrame);
+      const classAPaCvIntransitiveSourceFrame = buildPretClassAPaCvIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAPaCvIntransitiveOperationFrame = buildPretClassAPaCvIntransitiveOperationFrame(classAPaCvIntransitiveSourceFrame);
+      const classANaCvIntransitiveSourceFrame = buildPretClassANaCvIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaCvIntransitiveOperationFrame = buildPretClassANaCvIntransitiveOperationFrame(classANaCvIntransitiveSourceFrame);
+      const classBVnaIntransitiveSourceFrame = buildPretClassBVnaIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBVnaIntransitiveOperationFrame = buildPretClassBVnaIntransitiveOperationFrame(classBVnaIntransitiveSourceFrame);
+      const classAMTransitiveSourceFrame = buildPretClassAMTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAMTransitiveOperationFrame = buildPretClassAMTransitiveOperationFrame(classAMTransitiveSourceFrame);
+      const classAPiIntransitiveSourceFrame = buildPretClassAPiIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classAPiIntransitiveOperationFrame = buildPretClassAPiIntransitiveOperationFrame(classAPiIntransitiveSourceFrame);
+      const classBTaIntransitiveSourceFrame = buildPretClassBTaIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBTaIntransitiveOperationFrame = buildPretClassBTaIntransitiveOperationFrame(classBTaIntransitiveSourceFrame);
+      const classBTaTransitiveSourceFrame = buildPretClassBTaTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable,
+        isItaVerb
+      });
+      const classBTaTransitiveOperationFrame = buildPretClassBTaTransitiveOperationFrame(classBTaTransitiveSourceFrame);
+      const classBKwiCvIntransitiveSourceFrame = buildPretClassBKwiCvIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBKwiCvIntransitiveOperationFrame = buildPretClassBKwiCvIntransitiveOperationFrame(classBKwiCvIntransitiveSourceFrame);
+      const classBVcvcuIntransitiveSourceFrame = buildPretClassBVcvcuIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBVcvcuIntransitiveOperationFrame = buildPretClassBVcvcuIntransitiveOperationFrame(classBVcvcuIntransitiveSourceFrame);
+      const classBVlcvwiIntransitiveSourceFrame = buildPretClassBVlcvwiIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBVlcvwiIntransitiveOperationFrame = buildPretClassBVlcvwiIntransitiveOperationFrame(classBVlcvwiIntransitiveSourceFrame);
+      const classBCvniuIntransitiveSourceFrame = buildPretClassBCvniuIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBCvniuIntransitiveOperationFrame = buildPretClassBCvniuIntransitiveOperationFrame(classBCvniuIntransitiveSourceFrame);
+      const classACvvniIntransitiveSourceFrame = buildPretClassACvvniIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvvniIntransitiveOperationFrame = buildPretClassACvvniIntransitiveOperationFrame(classACvvniIntransitiveSourceFrame);
+      const classACvsvIntransitiveSourceFrame = buildPretClassACvsvIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvsvIntransitiveOperationFrame = buildPretClassACvsvIntransitiveOperationFrame(classACvsvIntransitiveSourceFrame);
+      const classACvwiIntransitiveSourceFrame = buildPretClassACvwiIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvwiIntransitiveOperationFrame = buildPretClassACvwiIntransitiveOperationFrame(classACvwiIntransitiveSourceFrame);
+      const classACvcvwiIntransitiveSourceFrame = buildPretClassACvcvwiIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classACvcvwiIntransitiveOperationFrame = buildPretClassACvcvwiIntransitiveOperationFrame(classACvcvwiIntransitiveSourceFrame);
+      const classBVjwaIntransitiveSourceFrame = buildPretClassBVjwaIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBVjwaIntransitiveOperationFrame = buildPretClassBVjwaIntransitiveOperationFrame(classBVjwaIntransitiveSourceFrame);
+      const classBCuwaIntransitiveSourceFrame = buildPretClassBCuwaIntransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classBCuwaIntransitiveOperationFrame = buildPretClassBCuwaIntransitiveOperationFrame(classBCuwaIntransitiveSourceFrame);
+      const classANiCvTransitiveSourceFrame = buildPretClassANiCvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANiCvTransitiveOperationFrame = buildPretClassANiCvTransitiveOperationFrame(classANiCvTransitiveSourceFrame);
+      const classANaCvTransitiveSourceFrame = buildPretClassANaCvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaCvTransitiveOperationFrame = buildPretClassANaCvTransitiveOperationFrame(classANaCvTransitiveSourceFrame);
+      const classANaCvcvcvTransitiveSourceFrame = buildPretClassANaCvcvcvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaCvcvcvTransitiveOperationFrame = buildPretClassANaCvcvcvTransitiveOperationFrame(classANaCvcvcvTransitiveSourceFrame);
+      const classANaCvlvcvTransitiveSourceFrame = buildPretClassANaCvlvcvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaCvlvcvTransitiveOperationFrame = buildPretClassANaCvlvcvTransitiveOperationFrame(classANaCvlvcvTransitiveSourceFrame);
+      const classANaVlcvcvTransitiveSourceFrame = buildPretClassANaVlcvcvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaVlcvcvTransitiveOperationFrame = buildPretClassANaVlcvcvTransitiveOperationFrame(classANaVlcvcvTransitiveSourceFrame);
+      const classANaVjcvcvTransitiveSourceFrame = buildPretClassANaVjcvcvTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classANaVjcvcvTransitiveOperationFrame = buildPretClassANaVjcvcvTransitiveOperationFrame(classANaVjcvcvTransitiveSourceFrame);
+      const classATzaTransitiveSourceFrame = buildPretClassATzaTransitiveSourceFrame({
+        sourceVerb: analysisRoot,
+        syllables,
+        rightEdgeDescriptor,
+        isTransitive,
+        isMonosyllable
+      });
+      const classATzaTransitiveOperationFrame = buildPretClassATzaTransitiveOperationFrame(classATzaTransitiveSourceFrame);
+      const classCSyllables = resolvedVerb === sourceVerb ? syllables : targetObject.getSyllables(resolvedVerb, {
+        analysis: true,
+        assumeFinalV: true
+      });
+      const classCRightEdgeDescriptor = resolvedVerb === sourceVerb ? rightEdgeDescriptor : buildPretRightEdgeDescriptor(classCSyllables);
+      const classBSyllables = resolvedVerb === sourceVerb ? syllables : targetObject.getSyllables(resolvedVerb, {
+        analysis: true,
+        assumeFinalV: true
+      });
+      const classBRightEdgeDescriptor = resolvedVerb === sourceVerb ? rightEdgeDescriptor : buildPretRightEdgeDescriptor(classBSyllables);
+      const classBSourceFrame = !isRootPlusYa ? buildPretClassBSourceFrame({
+        sourceVerb: resolvedVerb,
+        syllables: classBSyllables,
+        rightEdgeDescriptor: classBRightEdgeDescriptor
+      }) : null;
+      const classCSourceFrame = !isRootPlusYa ? buildPretClassCSourceFrame({
+        sourceVerb: resolvedVerb,
+        syllables: classCSyllables,
+        rightEdgeDescriptor: classCRightEdgeDescriptor
+      }) : null;
       const hasCJunctureIntransitive = !isTransitive && !isRootPlusYa && hasRightEdge({
         juncture: "C|CV"
       });
@@ -1450,9 +6257,88 @@ export function createPreteritContextApi(targetObject = globalThis) {
         isBitransitive,
         rootPlusYaBase,
         rootPlusYaBasePronounceable,
+        rootPlusYaSourceFrame,
+        yyaClassASourceFrame,
+        itaClassASourceFrame,
+        classAFinalVowelDeletionSourceFrame,
+        classASlashAkiSourceFrame,
+        classASlashAkiOperationFrame,
+        classAKwvSourceFrame,
+        classAKwvOperationFrame,
+        classAKvAllowSourceFrame,
+        classAKvAllowOperationFrame,
+        classAChiAllowSourceFrame,
+        classAChiAllowOperationFrame,
+        classATaRedupSourceFrame,
+        classATaRedupOperationFrame,
+        classAPaTransitiveSourceFrame,
+        classAPaTransitiveOperationFrame,
+        classAPiCvTransitiveSourceFrame,
+        classAPiCvTransitiveOperationFrame,
+        classACvwiTransitiveSourceFrame,
+        classACvwiTransitiveOperationFrame,
+        classACvcvwiTransitiveSourceFrame,
+        classACvcvwiTransitiveOperationFrame,
+        classACvwaiTransitiveSourceFrame,
+        classACvwaiTransitiveOperationFrame,
+        classACvewaTransitiveSourceFrame,
+        classACvewaTransitiveOperationFrame,
+        classACvawaTransitiveSourceFrame,
+        classACvawaTransitiveOperationFrame,
+        classAPaCvIntransitiveSourceFrame,
+        classAPaCvIntransitiveOperationFrame,
+        classANaCvIntransitiveSourceFrame,
+        classANaCvIntransitiveOperationFrame,
+        classBVnaIntransitiveSourceFrame,
+        classBVnaIntransitiveOperationFrame,
+        classAMTransitiveSourceFrame,
+        classAMTransitiveOperationFrame,
+        classAPiIntransitiveSourceFrame,
+        classAPiIntransitiveOperationFrame,
+        classBTaIntransitiveSourceFrame,
+        classBTaIntransitiveOperationFrame,
+        classBTaTransitiveSourceFrame,
+        classBTaTransitiveOperationFrame,
+        classBKwiCvIntransitiveSourceFrame,
+        classBKwiCvIntransitiveOperationFrame,
+        classBVcvcuIntransitiveSourceFrame,
+        classBVcvcuIntransitiveOperationFrame,
+        classBVlcvwiIntransitiveSourceFrame,
+        classBVlcvwiIntransitiveOperationFrame,
+        classBCvniuIntransitiveSourceFrame,
+        classBCvniuIntransitiveOperationFrame,
+        classACvvniIntransitiveSourceFrame,
+        classACvvniIntransitiveOperationFrame,
+        classACvsvIntransitiveSourceFrame,
+        classACvsvIntransitiveOperationFrame,
+        classACvwiIntransitiveSourceFrame,
+        classACvwiIntransitiveOperationFrame,
+        classACvcvwiIntransitiveSourceFrame,
+        classACvcvwiIntransitiveOperationFrame,
+        classBVjwaIntransitiveSourceFrame,
+        classBVjwaIntransitiveOperationFrame,
+        classBCuwaIntransitiveSourceFrame,
+        classBCuwaIntransitiveOperationFrame,
+        classANiCvTransitiveSourceFrame,
+        classANiCvTransitiveOperationFrame,
+        classANaCvTransitiveSourceFrame,
+        classANaCvTransitiveOperationFrame,
+        classANaCvcvcvTransitiveSourceFrame,
+        classANaCvcvcvTransitiveOperationFrame,
+        classANaCvlvcvTransitiveSourceFrame,
+        classANaCvlvcvTransitiveOperationFrame,
+        classANaVlcvcvTransitiveSourceFrame,
+        classANaVlcvcvTransitiveOperationFrame,
+        classANaVjcvcvTransitiveSourceFrame,
+        classANaVjcvcvTransitiveOperationFrame,
+        classATzaTransitiveSourceFrame,
+        classATzaTransitiveOperationFrame,
+        classBSourceFrame,
+        classCSourceFrame,
+        classDSourceFrame,
         fromRootPlusYa: isRootPlusYa,
         isReduplicatedRootPlusYa,
-        isReduplicated: !isRootPlusYa && (baseIsReduplicated || hasVnVRedupPrefix || hasCVnVRedupPrefix || hasCVmVRedupPrefix),
+        isReduplicated: isReduplicatedContext,
         isReduplicatedCVCV,
         letterCount,
         vowelCount,
@@ -1486,7 +6372,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
         hasSlashMarker,
         hasSuffixSeparator,
         hasLeadingDash,
-        allowIntransitiveKV: resolvedForceClassAForKWV,
+        allowIntransitiveKV: resolvedAllowClassAForKV,
         forceClassAForKWV: resolvedForceClassAForKWV
       };
       const descriptorState = buildPretDescriptorState(activePretShapeDescriptors, activePretAggregateDescriptors);
@@ -1593,57 +6479,63 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_t+a_intransitive",
       label: "descriptor t+a (intransitive)",
       tier: "forced",
-      when: context => !context.isTransitive && pretContextHasRightEdge(context, {
-        endingFamily: "t+a"
+      when: context => !getPretClassBTaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBTaIntransitiveSourceFrame,
+        operationFrame: context?.classBTaIntransitiveOperationFrame
       }),
       classes: ["B"]
     }, {
       id: "descriptor_ch+i_intransitive",
       label: "descriptor ch+i (intransitive)",
       tier: "forced",
-      when: context => !context.isTransitive && !context.isMonosyllable && pretContextHasRightEdge(context, {
-        endingFamily: "ch+i"
+      when: context => !getPretClassAChiAllowFrameMismatch({
+        sourceFrame: context?.classAChiAllowSourceFrame,
+        operationFrame: context?.classAChiAllowOperationFrame
       }),
       classes: ["A", "B"]
     }, {
       id: "descriptor_p+a_transitive",
       label: "descriptor p+a (transitive)",
       tier: "forced",
-      when: context => context.isTransitive && !context.isMonosyllable && pretContextHasRightEdge(context, {
-        endingFamily: "p+a"
+      when: context => !getPretClassAPaTransitiveFrameMismatch({
+        sourceFrame: context?.classAPaTransitiveSourceFrame,
+        operationFrame: context?.classAPaTransitiveOperationFrame
       }),
       classes: ["A"]
     }, {
       id: "descriptor_m+[a|i]_transitive",
       label: "descriptor m+[a|i] (transitive)",
       tier: "forced",
-      when: context => context.isTransitive && !context.isMonosyllable && pretContextHasRightEdge(context, {
-        finalOnset: "m",
-        finalNuclei: ["a", "i"]
+      when: context => !getPretClassAMTransitiveFrameMismatch({
+        sourceFrame: context?.classAMTransitiveSourceFrame,
+        operationFrame: context?.classAMTransitiveOperationFrame
       }),
       classes: ["A"]
     }, {
       id: "descriptor_p+i_intransitive",
       label: "descriptor p+i (intransitive)",
       tier: "forced",
-      when: context => !context.isTransitive && !context.isMonosyllable && pretContextHasRightEdge(context, {
-        endingFamily: "p+i"
+      when: context => !getPretClassAPiIntransitiveFrameMismatch({
+        sourceFrame: context?.classAPiIntransitiveSourceFrame,
+        operationFrame: context?.classAPiIntransitiveOperationFrame
       }),
       classes: ["A", "B"]
     }, {
       id: "descriptor_t+a_transitive_redup_cvcv",
       label: "descriptor t+a (transitive redup CVCV)",
       tier: "forced",
-      when: context => context.isTransitive && pretContextHasRightEdge(context, {
-        endingFamily: "t+a"
-      }) && context.analysisVerb !== "ita" && context.isReduplicatedCVCV,
+      when: context => !getPretClassATaRedupFrameMismatch({
+        sourceFrame: context?.classATaRedupSourceFrame,
+        operationFrame: context?.classATaRedupOperationFrame
+      }),
       classes: ["A", "B"]
     }, {
       id: "descriptor_t+a_transitive",
       label: "descriptor t+a (transitive)",
       tier: "forced",
-      when: context => context.isTransitive && context.analysisVerb !== "ita" && pretContextHasRightEdge(context, {
-        endingFamily: "t+a"
+      when: context => !getPretClassBTaTransitiveFrameMismatch({
+        sourceFrame: context?.classBTaTransitiveSourceFrame,
+        operationFrame: context?.classBTaTransitiveOperationFrame
       }),
       classes: ["B"]
     }, {
@@ -1654,7 +6546,10 @@ export function createPreteritContextApi(targetObject = globalThis) {
         finalOnset: "tz"
       }) && !pretContextHasAnyRightEdge(context, [{
         juncture: "C|CV"
-      }]),
+      }]) && !(context?.isTransitive === true && pretContextHasRightEdge(context, {
+        endingFamily: "tz+a",
+        rightEdgeProfiles: ["CV|CV", "Vj|CV|CV", "V|C|CV|CV"]
+      })),
       classes: ["A"]
     }, {
       id: "forced_b_ending",
@@ -1711,13 +6606,19 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_vna_intransitive",
       label: "descriptor V-CV(na) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vna),
+      when: context => !getPretClassBVnaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVnaIntransitiveSourceFrame,
+        operationFrame: context?.classBVnaIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_cvna_intransitive",
       label: "descriptor CV-CV(na) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvna),
+      when: context => !getPretClassANaCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvIntransitiveSourceFrame,
+        operationFrame: context?.classANaCvIntransitiveOperationFrame
+      }),
       classes: ["A", "B"]
     }, {
       id: "descriptor_na_three_syllable_intransitive",
@@ -1742,31 +6643,46 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_na_three_syllable_transitive",
       label: "descriptor n+a, three-syllable right edge (transitive)",
       tier: "shape",
-      when: context => pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV),
+      when: context => !getPretClassANaCvcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvcvcvTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_cvlvna_transitive",
       label: "descriptor CVl-V-CV(na) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvlvna),
+      when: context => !getPretClassANaCvlvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvlvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvlvcvTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_vlcvna_transitive",
       label: "descriptor Vl-CV-CV(na) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvna),
+      when: context => !getPretClassANaVlcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaVlcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaVlcvcvTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_vjcvna_transitive",
       label: "descriptor Vj-CV-CV(na) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjcvna),
+      when: context => !getPretClassANaVjcvcvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaVjcvcvTransitiveSourceFrame,
+        operationFrame: context?.classANaVjcvcvTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_cvtza_transitive",
       label: "descriptor CV-CV(tza) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvtza, PRET_DESCRIPTOR_QUERIES.shape.vjcvtza]),
+      when: context => !getPretClassATzaTransitiveFrameMismatch({
+        sourceFrame: context?.classATzaTransitiveSourceFrame,
+        operationFrame: context?.classATzaTransitiveOperationFrame
+      }),
       classes: ["A"]
     }]);
     const PRET_UNIVERSAL_SHAPE_TA_PV_TIER_RULES = Object.freeze([{
@@ -1779,69 +6695,117 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_cvpv_transitive",
       label: "descriptor CV-CV(pV) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvpV),
+      when: context => !getPretClassAPiCvTransitiveFrameMismatch({
+        sourceFrame: context?.classAPiCvTransitiveSourceFrame,
+        operationFrame: context?.classAPiCvTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_cvpv_intransitive",
       label: "descriptor CV-CV(pV) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvpV),
+      when: context => !getPretClassAPaCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classAPaCvIntransitiveSourceFrame,
+        operationFrame: context?.classAPaCvIntransitiveOperationFrame
+      }),
       classes: ["A", "B"]
     }]);
     const PRET_UNIVERSAL_SHAPE_MA_KWI_NI_TIER_RULES = Object.freeze([{
       id: "descriptor_cvma_transitive",
       label: "descriptor CV-CV(ma) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvma, PRET_DESCRIPTOR_QUERIES.shape.vjcvma]),
+      when: context => context?.isTransitive === true && !getPretClassAMTransitiveFrameMismatch({
+        sourceFrame: context?.classAMTransitiveSourceFrame,
+        operationFrame: context?.classAMTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_cvkwi_intransitive",
       label: "descriptor CV-CV(kwi) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvkwi),
+      when: context => !getPretClassBKwiCvIntransitiveFrameMismatch({
+        sourceFrame: context?.classBKwiCvIntransitiveSourceFrame,
+        operationFrame: context?.classBKwiCvIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_vcvcu_intransitive",
       label: "descriptor V-CV-CV(u) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vcvcu),
+      when: context => !getPretClassBVcvcuIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVcvcuIntransitiveSourceFrame,
+        operationFrame: context?.classBVcvcuIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_vlcvwi_intransitive",
       label: "descriptor Vl-CV-CV(wi) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vlcvwi),
+      when: context => !getPretClassBVlcvwiIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVlcvwiIntransitiveSourceFrame,
+        operationFrame: context?.classBVlcvwiIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_cvniu_intransitive",
       label: "descriptor CV(u)-CV(ni) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvniU),
+      when: context => !getPretClassBCvniuIntransitiveFrameMismatch({
+        sourceFrame: context?.classBCvniuIntransitiveSourceFrame,
+        operationFrame: context?.classBCvniuIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_cvvni_intransitive",
       label: "descriptor CV-V-CV(ni) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvvni),
+      when: context => !getPretClassACvvniIntransitiveFrameMismatch({
+        sourceFrame: context?.classACvvniIntransitiveSourceFrame,
+        operationFrame: context?.classACvvniIntransitiveOperationFrame
+      }),
       classes: ["A", "B"]
     }, {
       id: "descriptor_ni_transitive",
       label: "descriptor Ni (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeEndingFamily(context, "n+i"),
+      when: context => !getPretClassANiCvTransitiveFrameMismatch({
+        sourceFrame: context?.classANiCvTransitiveSourceFrame,
+        operationFrame: context?.classANiCvTransitiveOperationFrame
+      }) || context.isTransitive && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvni) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+i",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && pretContextHasShapeEndingFamily(context, "n+i"),
       classes: ["A"]
     }, {
       id: "descriptor_na_transitive",
       label: "descriptor Na (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeEndingFamily(context, "n+a"),
+      when: context => !getPretClassANaCvTransitiveFrameMismatch({
+        sourceFrame: context?.classANaCvTransitiveSourceFrame,
+        operationFrame: context?.classANaCvTransitiveOperationFrame
+      }) || context.isTransitive && !pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvna) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CV|CV"]
+      }) && !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.naCV_CV_CV) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["CVl|V|CV"]
+      }) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vl|CV|CV"]
+      }) && !pretContextHasRightEdge(context, {
+        endingFamily: "n+a",
+        rightEdgeProfiles: ["Vj|CV|CV", "V|C|CV|CV"]
+      }) && pretContextHasShapeEndingFamily(context, "n+a"),
       classes: ["A"]
     }]);
     const PRET_UNIVERSAL_SHAPE_WA_ENTRY_TIER_RULES = Object.freeze([{
       id: "descriptor_vjwa",
       label: "descriptor Vj-CV(wa)",
       tier: "shape",
-      when: context => pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.vjwa),
+      when: context => !getPretClassBVjwaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBVjwaIntransitiveSourceFrame,
+        operationFrame: context?.classBVjwaIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_Ø+u",
@@ -1856,7 +6820,10 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_cvwai_transitive",
       label: "descriptor CV(i)-CV(wa) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwaI),
+      when: context => !getPretClassACvwaiTransitiveFrameMismatch({
+        sourceFrame: context?.classACvwaiTransitiveSourceFrame,
+        operationFrame: context?.classACvwaiTransitiveOperationFrame
+      }),
       classes: ["A"]
     }, {
       id: "descriptor_vwai_transitive",
@@ -1881,13 +6848,41 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_wa_transitive",
       label: "descriptor Wa (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvwaA, PRET_DESCRIPTOR_QUERIES.shape.cvcawa, PRET_DESCRIPTOR_QUERIES.shape.cvlawa]),
+      when: context => {
+        if (!context?.isTransitive) {
+          return false;
+        }
+        if (!getPretClassACvawaTransitiveFrameMismatch({
+          sourceFrame: context?.classACvawaTransitiveSourceFrame,
+          operationFrame: context?.classACvawaTransitiveOperationFrame
+        })) {
+          return true;
+        }
+        if (context.isReduplicated !== true && context.hasSlashMarker !== true && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwaA)) {
+          return false;
+        }
+        return pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.cvwaA, PRET_DESCRIPTOR_QUERIES.shape.cvcawa, PRET_DESCRIPTOR_QUERIES.shape.cvlawa]);
+      },
       classes: ["A"]
     }, {
       id: "descriptor_ewa_transitive",
       label: "descriptor Ewa (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern),
+      when: context => {
+        if (!context?.isTransitive) {
+          return false;
+        }
+        if (!getPretClassACvewaTransitiveFrameMismatch({
+          sourceFrame: context?.classACvewaTransitiveSourceFrame,
+          operationFrame: context?.classACvewaTransitiveOperationFrame
+        })) {
+          return true;
+        }
+        if (pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cewa)) {
+          return false;
+        }
+        return pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.ewaPattern);
+      },
       classes: ["A"]
     }, {
       id: "descriptor_vjcvwa_transitive",
@@ -1911,25 +6906,73 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_cvwi_transitive",
       label: "descriptor CV-CV(wi) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwi),
+      when: context => {
+        if (!context?.isTransitive) {
+          return false;
+        }
+        if (context.isReduplicated === true) {
+          return pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwi);
+        }
+        if (!pretContextHasRightEdge(context, {
+          endingFamily: "w+i",
+          rightEdgeProfiles: ["CV|CV"]
+        })) {
+          return false;
+        }
+        return !getPretClassACvwiTransitiveFrameMismatch({
+          sourceFrame: context?.classACvwiTransitiveSourceFrame,
+          operationFrame: context?.classACvwiTransitiveOperationFrame
+        });
+      },
       classes: ["A", "B"]
     }, {
       id: "descriptor_wi_three_syllable_transitive",
       label: "descriptor w+i, three-syllable right edge (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV),
+      when: context => {
+        if (!context?.isTransitive || !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
+          return false;
+        }
+        return !getPretClassACvcvwiTransitiveFrameMismatch({
+          sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
+          operationFrame: context?.classACvcvwiTransitiveOperationFrame
+        });
+      },
       classes: ["A", "B"]
     }, {
       id: "descriptor_wi_transitive",
       label: "descriptor Wi (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern),
+      when: context => {
+        if (!context?.isTransitive || !pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern)) {
+          return false;
+        }
+        if (pretContextHasRightEdge(context, {
+          endingFamily: "w+i",
+          rightEdgeProfiles: ["CV|CV"]
+        })) {
+          return !getPretClassACvwiTransitiveFrameMismatch({
+            sourceFrame: context?.classACvwiTransitiveSourceFrame,
+            operationFrame: context?.classACvwiTransitiveOperationFrame
+          });
+        }
+        if (pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
+          return !getPretClassACvcvwiTransitiveFrameMismatch({
+            sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
+            operationFrame: context?.classACvcvwiTransitiveOperationFrame
+          });
+        }
+        return true;
+      },
       classes: ["A", "B"]
     }, {
       id: "descriptor_cuwa_intransitive",
       label: "descriptor CV(u)-CV(wa) (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cuwa),
+      when: context => !getPretClassBCuwaIntransitiveFrameMismatch({
+        sourceFrame: context?.classBCuwaIntransitiveSourceFrame,
+        operationFrame: context?.classBCuwaIntransitiveOperationFrame
+      }),
       classes: ["B"]
     }, {
       id: "descriptor_lwa_intransitive",
@@ -1947,7 +6990,36 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_wi_intransitive",
       label: "descriptor Wi (intransitive)",
       tier: "shape",
-      when: context => !context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern),
+      when: context => {
+        if (context?.isTransitive) {
+          return false;
+        }
+        if (!getPretClassACvwiIntransitiveFrameMismatch({
+          sourceFrame: context?.classACvwiIntransitiveSourceFrame,
+          operationFrame: context?.classACvwiIntransitiveOperationFrame
+        })) {
+          return true;
+        }
+        if (!getPretClassACvcvwiIntransitiveFrameMismatch({
+          sourceFrame: context?.classACvcvwiIntransitiveSourceFrame,
+          operationFrame: context?.classACvcvwiIntransitiveOperationFrame
+        })) {
+          return true;
+        }
+        if (pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvwi)) {
+          return !getPretClassACvwiIntransitiveFrameMismatch({
+            sourceFrame: context?.classACvwiIntransitiveSourceFrame,
+            operationFrame: context?.classACvwiIntransitiveOperationFrame
+          });
+        }
+        if (pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvcvwi)) {
+          return !getPretClassACvcvwiIntransitiveFrameMismatch({
+            sourceFrame: context?.classACvcvwiIntransitiveSourceFrame,
+            operationFrame: context?.classACvcvwiIntransitiveOperationFrame
+          });
+        }
+        return pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern);
+      },
       classes: ["A", "B"]
     }, {
       id: "descriptor_wa_intransitive",
@@ -1973,13 +7045,33 @@ export function createPreteritContextApi(targetObject = globalThis) {
       id: "descriptor_vnv_cvnv_cvmv_transitive",
       label: "descriptor V-CV(nV)/CV-CV(nV)/CV-CV(mV) (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.vnV, PRET_DESCRIPTOR_QUERIES.shape.cvnV, PRET_DESCRIPTOR_QUERIES.shape.cvmV]),
+      when: context => {
+        if (context?.isTransitive !== true) {
+          return false;
+        }
+        if (pretContextHasAnyShapeDescriptor(context, [PRET_DESCRIPTOR_QUERIES.shape.vnV, PRET_DESCRIPTOR_QUERIES.shape.cvnV])) {
+          return true;
+        }
+        if (!pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvmV)) {
+          return false;
+        }
+        return !getPretClassAMTransitiveFrameMismatch({
+          sourceFrame: context?.classAMTransitiveSourceFrame,
+          operationFrame: context?.classAMTransitiveOperationFrame
+        });
+      },
       classes: ["A"]
     }, {
       id: "descriptor_cvsv",
       label: "descriptor CV-CV(sV)",
       tier: "shape",
       resolveCandidates: context => {
+        if (!getPretClassACvsvIntransitiveFrameMismatch({
+          sourceFrame: context?.classACvsvIntransitiveSourceFrame,
+          operationFrame: context?.classACvsvIntransitiveOperationFrame
+        })) {
+          return ["A", "B"];
+        }
         if (!pretContextHasShapeDescriptor(context, PRET_DESCRIPTOR_QUERIES.shape.cvsV)) {
           return [];
         }
@@ -1992,7 +7084,10 @@ export function createPreteritContextApi(targetObject = globalThis) {
     }]);
     const PRET_UNIVERSAL_DEFAULT_CLASS_RULES = Object.freeze([{
       label: "force class A for KWV",
-      when: ctx => ctx.forceClassAForKWV,
+      when: ctx => !getPretClassAKwvFrameMismatch({
+        sourceFrame: ctx?.classAKwvSourceFrame,
+        operationFrame: ctx?.classAKwvOperationFrame
+      }),
       classes: ["A"]
     }, {
       label: "default class B",
@@ -2013,7 +7108,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
       classes: ["C"]
     }, {
       label: "intransitive yya adds class A",
-      when: ctx => !ctx.isTransitive && ctx.verb.endsWith("yya"),
+      when: ctx => !ctx.isTransitive && Boolean(ctx.yyaClassASourceFrame),
       classes: ["A"]
     }]);
     const PRET_UNIVERSAL_CLASS_TIER_TABLES = Object.freeze([PRET_UNIVERSAL_EARLY_TIER_RULES, PRET_UNIVERSAL_LV_TIER_RULES, PRET_UNIVERSAL_SHAPE_CORE_TIER_RULES, PRET_UNIVERSAL_SHAPE_NA_INTRANSITIVE_TIER_RULES, PRET_UNIVERSAL_SHAPE_NA_TRANSITIVE_TIER_RULES, PRET_UNIVERSAL_SHAPE_TA_PV_TIER_RULES, PRET_UNIVERSAL_SHAPE_MA_KWI_NI_TIER_RULES, PRET_UNIVERSAL_SHAPE_WA_ENTRY_TIER_RULES, PRET_UNIVERSAL_SHAPE_WA_REST_TIER_RULES]);
@@ -2116,7 +7211,10 @@ export function createPreteritContextApi(targetObject = globalThis) {
       const disallowTransitiveWaB = Boolean(context?.isTransitive && pretContextHasRightEdge(context, {
         endingFamily: "w+a"
       }) && context?.letterCount >= 4);
-      const forceClassAForKWV = context?.forceClassAForKWV === true;
+      const forceClassAForKWV = !getPretClassAKwvFrameMismatch({
+        sourceFrame: context?.classAKwvSourceFrame,
+        operationFrame: context?.classAKwvOperationFrame
+      });
       return {
         override,
         allowUnpronounceable,
@@ -2237,6 +7335,821 @@ export function createPreteritContextApi(targetObject = globalThis) {
     api.getPretUniversalCoreVowelCount = getPretUniversalCoreVowelCount;
     api.getUniversalReplacementStem = getUniversalReplacementStem;
     api.getPerfectiveReplacementStem = getPerfectiveReplacementStem;
+    Object.defineProperty(api, "PRET_ROOT_PLUS_YA_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_ROOT_PLUS_YA_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_ROOT_PLUS_YA_SOURCE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_ROOT_PLUS_YA_SOURCE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_DELETION_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_DELETION_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_DELETION_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_DELETION_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_YYA_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_YYA_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_YYA_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_YYA_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_ITA_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_ITA_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_ITA_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_ITA_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_SLASH_AKI_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_SLASH_AKI_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_SLASH_AKI_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_SLASH_AKI_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_SLASH_AKI_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KWV_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KWV_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KWV_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KWV_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KWV_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KWV_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KV_ALLOW_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KV_ALLOW_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KV_ALLOW_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_KV_ALLOW_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_KV_ALLOW_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CHI_ALLOW_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CHI_ALLOW_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CHI_ALLOW_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CHI_ALLOW_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CHI_ALLOW_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TA_REDUP_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TA_REDUP_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TA_REDUP_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TA_REDUP_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TA_REDUP_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_CV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_CV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_CV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_CV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_CV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWAI_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWAI_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWAI_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWAI_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWAI_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVEWA_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVEWA_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVEWA_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVEWA_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVEWA_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVAWA_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVAWA_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVAWA_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVAWA_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVAWA_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_CV_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PA_CV_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PA_CV_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VNA_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VNA_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VNA_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VNA_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VNA_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_M_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_M_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_M_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_M_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_M_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_PI_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_PI_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_TA_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_TA_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_KWI_CV_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_KWI_CV_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_KWI_CV_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_KWI_CV_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_KWI_CV_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VCVCU_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VCVCU_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VCVCU_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VCVCU_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VCVCU_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VLCVWI_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VLCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VLCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VLCVWI_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VLCVWI_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CVNIU_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CVNIU_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CVNIU_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CVNIU_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CVNIU_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVVNI_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVVNI_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVVNI_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVVNI_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVVNI_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVSV_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVSV_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVSV_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVSV_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVSV_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVWI_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVWI_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_CVCVWI_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_CVCVWI_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VJWA_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VJWA_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VJWA_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_VJWA_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_VJWA_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CUWA_INTRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CUWA_INTRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CUWA_INTRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_CUWA_INTRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_CUWA_INTRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NI_CV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NI_CV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NI_CV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NI_CV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NI_CV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVCVCV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_CVLVCV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VLCVCV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_NA_VJCVCV_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TZA_TRANSITIVE_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TZA_TRANSITIVE_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TZA_TRANSITIVE_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_A_TZA_TRANSITIVE_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_A_TZA_TRANSITIVE_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_B_OPERATION_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_B_OPERATION_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_C_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_C_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_C_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_C_SEGMENT_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_D_SOURCE_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_D_SOURCE_FRAME_KIND; },
+    });
+    Object.defineProperty(api, "PRET_CLASS_D_SEGMENT_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_CLASS_D_SEGMENT_FRAME_KIND; },
+    });
+    api.normalizePretRootPlusYaFrameText = normalizePretRootPlusYaFrameText;
+    api.buildPretRootPlusYaSourceSegmentFrame = buildPretRootPlusYaSourceSegmentFrame;
+    api.buildPretRootPlusYaSourceFrame = buildPretRootPlusYaSourceFrame;
+    api.buildPretClassAFinalVowelDeletionSegmentFrame = buildPretClassAFinalVowelDeletionSegmentFrame;
+    api.buildPretClassAFinalVowelDeletionSourceFrame = buildPretClassAFinalVowelDeletionSourceFrame;
+    api.buildPretClassAYyaSegmentFrame = buildPretClassAYyaSegmentFrame;
+    api.buildPretClassAYyaSourceFrame = buildPretClassAYyaSourceFrame;
+    api.buildPretClassAItaSegmentFrame = buildPretClassAItaSegmentFrame;
+    api.buildPretClassAItaSourceFrame = buildPretClassAItaSourceFrame;
+    api.buildPretClassASlashAkiSegmentFrame = buildPretClassASlashAkiSegmentFrame;
+    api.getPretClassASlashAkiSourceSignature = getPretClassASlashAkiSourceSignature;
+    api.buildPretClassASlashAkiSourceFrame = buildPretClassASlashAkiSourceFrame;
+    api.buildPretClassASlashAkiOperationFrame = buildPretClassASlashAkiOperationFrame;
+    api.getPretClassASlashAkiFrameMismatch = getPretClassASlashAkiFrameMismatch;
+    api.buildPretClassAKwvSegmentFrame = buildPretClassAKwvSegmentFrame;
+    api.getPretClassAKwvSourceSignature = getPretClassAKwvSourceSignature;
+    api.buildPretClassAKwvSourceFrame = buildPretClassAKwvSourceFrame;
+    api.buildPretClassAKwvOperationFrame = buildPretClassAKwvOperationFrame;
+    api.getPretClassAKwvFrameMismatch = getPretClassAKwvFrameMismatch;
+    api.buildPretClassAKvAllowSegmentFrame = buildPretClassAKvAllowSegmentFrame;
+    api.getPretClassAKvAllowSourceSignature = getPretClassAKvAllowSourceSignature;
+    api.buildPretClassAKvAllowSourceFrame = buildPretClassAKvAllowSourceFrame;
+    api.buildPretClassAKvAllowOperationFrame = buildPretClassAKvAllowOperationFrame;
+    api.getPretClassAKvAllowFrameMismatch = getPretClassAKvAllowFrameMismatch;
+    api.buildPretClassAChiAllowSegmentFrame = buildPretClassAChiAllowSegmentFrame;
+    api.getPretClassAChiAllowSourceSignature = getPretClassAChiAllowSourceSignature;
+    api.buildPretClassAChiAllowSourceFrame = buildPretClassAChiAllowSourceFrame;
+    api.buildPretClassAChiAllowOperationFrame = buildPretClassAChiAllowOperationFrame;
+    api.getPretClassAChiAllowFrameMismatch = getPretClassAChiAllowFrameMismatch;
+    api.buildPretClassATaRedupSegmentFrame = buildPretClassATaRedupSegmentFrame;
+    api.getPretClassATaRedupSourceSignature = getPretClassATaRedupSourceSignature;
+    api.buildPretClassATaRedupSourceFrame = buildPretClassATaRedupSourceFrame;
+    api.buildPretClassATaRedupOperationFrame = buildPretClassATaRedupOperationFrame;
+    api.getPretClassATaRedupFrameMismatch = getPretClassATaRedupFrameMismatch;
+    api.buildPretClassAPaTransitiveSegmentFrame = buildPretClassAPaTransitiveSegmentFrame;
+    api.getPretClassAPaTransitiveSourceSignature = getPretClassAPaTransitiveSourceSignature;
+    api.buildPretClassAPaTransitiveSourceFrame = buildPretClassAPaTransitiveSourceFrame;
+    api.buildPretClassAPaTransitiveOperationFrame = buildPretClassAPaTransitiveOperationFrame;
+    api.getPretClassAPaTransitiveFrameMismatch = getPretClassAPaTransitiveFrameMismatch;
+    api.buildPretClassAPiCvTransitiveSegmentFrame = buildPretClassAPiCvTransitiveSegmentFrame;
+    api.getPretClassAPiCvTransitiveSourceSignature = getPretClassAPiCvTransitiveSourceSignature;
+    api.buildPretClassAPiCvTransitiveSourceFrame = buildPretClassAPiCvTransitiveSourceFrame;
+    api.buildPretClassAPiCvTransitiveOperationFrame = buildPretClassAPiCvTransitiveOperationFrame;
+    api.getPretClassAPiCvTransitiveFrameMismatch = getPretClassAPiCvTransitiveFrameMismatch;
+    api.buildPretClassACvwiTransitiveSegmentFrame = buildPretClassACvwiTransitiveSegmentFrame;
+    api.getPretClassACvwiTransitiveSourceSignature = getPretClassACvwiTransitiveSourceSignature;
+    api.buildPretClassACvwiTransitiveSourceFrame = buildPretClassACvwiTransitiveSourceFrame;
+    api.buildPretClassACvwiTransitiveOperationFrame = buildPretClassACvwiTransitiveOperationFrame;
+    api.getPretClassACvwiTransitiveFrameMismatch = getPretClassACvwiTransitiveFrameMismatch;
+    api.buildPretClassACvcvwiTransitiveSegmentFrame = buildPretClassACvcvwiTransitiveSegmentFrame;
+    api.getPretClassACvcvwiTransitiveSourceSignature = getPretClassACvcvwiTransitiveSourceSignature;
+    api.buildPretClassACvcvwiTransitiveSourceFrame = buildPretClassACvcvwiTransitiveSourceFrame;
+    api.buildPretClassACvcvwiTransitiveOperationFrame = buildPretClassACvcvwiTransitiveOperationFrame;
+    api.getPretClassACvcvwiTransitiveFrameMismatch = getPretClassACvcvwiTransitiveFrameMismatch;
+    api.buildPretClassACvwaiTransitiveSegmentFrame = buildPretClassACvwaiTransitiveSegmentFrame;
+    api.getPretClassACvwaiTransitiveSourceSignature = getPretClassACvwaiTransitiveSourceSignature;
+    api.buildPretClassACvwaiTransitiveSourceFrame = buildPretClassACvwaiTransitiveSourceFrame;
+    api.buildPretClassACvwaiTransitiveOperationFrame = buildPretClassACvwaiTransitiveOperationFrame;
+    api.getPretClassACvwaiTransitiveFrameMismatch = getPretClassACvwaiTransitiveFrameMismatch;
+    api.buildPretClassACvewaTransitiveSegmentFrame = buildPretClassACvewaTransitiveSegmentFrame;
+    api.getPretClassACvewaTransitiveSourceSignature = getPretClassACvewaTransitiveSourceSignature;
+    api.buildPretClassACvewaTransitiveSourceFrame = buildPretClassACvewaTransitiveSourceFrame;
+    api.buildPretClassACvewaTransitiveOperationFrame = buildPretClassACvewaTransitiveOperationFrame;
+    api.getPretClassACvewaTransitiveFrameMismatch = getPretClassACvewaTransitiveFrameMismatch;
+    api.buildPretClassACvwaTransitiveFamilySegmentFrame = buildPretClassACvwaTransitiveFamilySegmentFrame;
+    api.getPretClassACvwaTransitiveFamilySourceSignature = getPretClassACvwaTransitiveFamilySourceSignature;
+    api.buildPretClassACvwaTransitiveFamilySourceFrame = buildPretClassACvwaTransitiveFamilySourceFrame;
+    api.buildPretClassACvwaTransitiveFamilyOperationFrame = buildPretClassACvwaTransitiveFamilyOperationFrame;
+    api.getPretClassACvwaTransitiveFamilyFrameMismatch = getPretClassACvwaTransitiveFamilyFrameMismatch;
+    api.buildPretClassACvawaTransitiveSegmentFrame = buildPretClassACvawaTransitiveSegmentFrame;
+    api.getPretClassACvawaTransitiveSourceSignature = getPretClassACvawaTransitiveSourceSignature;
+    api.buildPretClassACvawaTransitiveSourceFrame = buildPretClassACvawaTransitiveSourceFrame;
+    api.buildPretClassACvawaTransitiveOperationFrame = buildPretClassACvawaTransitiveOperationFrame;
+    api.getPretClassACvawaTransitiveFrameMismatch = getPretClassACvawaTransitiveFrameMismatch;
+    api.buildPretClassAPaCvIntransitiveSegmentFrame = buildPretClassAPaCvIntransitiveSegmentFrame;
+    api.getPretClassAPaCvIntransitiveSourceSignature = getPretClassAPaCvIntransitiveSourceSignature;
+    api.buildPretClassAPaCvIntransitiveSourceFrame = buildPretClassAPaCvIntransitiveSourceFrame;
+    api.buildPretClassAPaCvIntransitiveOperationFrame = buildPretClassAPaCvIntransitiveOperationFrame;
+    api.getPretClassAPaCvIntransitiveFrameMismatch = getPretClassAPaCvIntransitiveFrameMismatch;
+    api.buildPretClassANaCvIntransitiveSegmentFrame = buildPretClassANaCvIntransitiveSegmentFrame;
+    api.getPretClassANaCvIntransitiveSourceSignature = getPretClassANaCvIntransitiveSourceSignature;
+    api.buildPretClassANaCvIntransitiveSourceFrame = buildPretClassANaCvIntransitiveSourceFrame;
+    api.buildPretClassANaCvIntransitiveOperationFrame = buildPretClassANaCvIntransitiveOperationFrame;
+    api.getPretClassANaCvIntransitiveFrameMismatch = getPretClassANaCvIntransitiveFrameMismatch;
+    api.buildPretClassBVnaIntransitiveSegmentFrame = buildPretClassBVnaIntransitiveSegmentFrame;
+    api.getPretClassBVnaIntransitiveSourceSignature = getPretClassBVnaIntransitiveSourceSignature;
+    api.buildPretClassBVnaIntransitiveSourceFrame = buildPretClassBVnaIntransitiveSourceFrame;
+    api.buildPretClassBVnaIntransitiveOperationFrame = buildPretClassBVnaIntransitiveOperationFrame;
+    api.getPretClassBVnaIntransitiveFrameMismatch = getPretClassBVnaIntransitiveFrameMismatch;
+    api.buildPretClassAMTransitiveSegmentFrame = buildPretClassAMTransitiveSegmentFrame;
+    api.getPretClassAMTransitiveSourceSignature = getPretClassAMTransitiveSourceSignature;
+    api.buildPretClassAMTransitiveSourceFrame = buildPretClassAMTransitiveSourceFrame;
+    api.buildPretClassAMTransitiveOperationFrame = buildPretClassAMTransitiveOperationFrame;
+    api.getPretClassAMTransitiveFrameMismatch = getPretClassAMTransitiveFrameMismatch;
+    api.buildPretClassAPiIntransitiveSegmentFrame = buildPretClassAPiIntransitiveSegmentFrame;
+    api.getPretClassAPiIntransitiveSourceSignature = getPretClassAPiIntransitiveSourceSignature;
+    api.buildPretClassAPiIntransitiveSourceFrame = buildPretClassAPiIntransitiveSourceFrame;
+    api.buildPretClassAPiIntransitiveOperationFrame = buildPretClassAPiIntransitiveOperationFrame;
+    api.getPretClassAPiIntransitiveFrameMismatch = getPretClassAPiIntransitiveFrameMismatch;
+    api.buildPretClassBTaIntransitiveSegmentFrame = buildPretClassBTaIntransitiveSegmentFrame;
+    api.getPretClassBTaIntransitiveSourceSignature = getPretClassBTaIntransitiveSourceSignature;
+    api.buildPretClassBTaIntransitiveSourceFrame = buildPretClassBTaIntransitiveSourceFrame;
+    api.buildPretClassBTaIntransitiveOperationFrame = buildPretClassBTaIntransitiveOperationFrame;
+    api.getPretClassBTaIntransitiveFrameMismatch = getPretClassBTaIntransitiveFrameMismatch;
+    api.buildPretClassBTaTransitiveSegmentFrame = buildPretClassBTaTransitiveSegmentFrame;
+    api.getPretClassBTaTransitiveSourceSignature = getPretClassBTaTransitiveSourceSignature;
+    api.buildPretClassBTaTransitiveSourceFrame = buildPretClassBTaTransitiveSourceFrame;
+    api.buildPretClassBTaTransitiveOperationFrame = buildPretClassBTaTransitiveOperationFrame;
+    api.getPretClassBTaTransitiveFrameMismatch = getPretClassBTaTransitiveFrameMismatch;
+    api.buildPretClassBKwiCvIntransitiveSegmentFrame = buildPretClassBKwiCvIntransitiveSegmentFrame;
+    api.getPretClassBKwiCvIntransitiveSourceSignature = getPretClassBKwiCvIntransitiveSourceSignature;
+    api.buildPretClassBKwiCvIntransitiveSourceFrame = buildPretClassBKwiCvIntransitiveSourceFrame;
+    api.buildPretClassBKwiCvIntransitiveOperationFrame = buildPretClassBKwiCvIntransitiveOperationFrame;
+    api.getPretClassBKwiCvIntransitiveFrameMismatch = getPretClassBKwiCvIntransitiveFrameMismatch;
+    api.buildPretClassBVcvcuIntransitiveSegmentFrame = buildPretClassBVcvcuIntransitiveSegmentFrame;
+    api.getPretClassBVcvcuIntransitiveSourceSignature = getPretClassBVcvcuIntransitiveSourceSignature;
+    api.buildPretClassBVcvcuIntransitiveSourceFrame = buildPretClassBVcvcuIntransitiveSourceFrame;
+    api.buildPretClassBVcvcuIntransitiveOperationFrame = buildPretClassBVcvcuIntransitiveOperationFrame;
+    api.getPretClassBVcvcuIntransitiveFrameMismatch = getPretClassBVcvcuIntransitiveFrameMismatch;
+    api.buildPretClassBVlcvwiIntransitiveSegmentFrame = buildPretClassBVlcvwiIntransitiveSegmentFrame;
+    api.getPretClassBVlcvwiIntransitiveSourceSignature = getPretClassBVlcvwiIntransitiveSourceSignature;
+    api.buildPretClassBVlcvwiIntransitiveSourceFrame = buildPretClassBVlcvwiIntransitiveSourceFrame;
+    api.buildPretClassBVlcvwiIntransitiveOperationFrame = buildPretClassBVlcvwiIntransitiveOperationFrame;
+    api.getPretClassBVlcvwiIntransitiveFrameMismatch = getPretClassBVlcvwiIntransitiveFrameMismatch;
+    api.buildPretClassBCvniuIntransitiveSegmentFrame = buildPretClassBCvniuIntransitiveSegmentFrame;
+    api.getPretClassBCvniuIntransitiveSourceSignature = getPretClassBCvniuIntransitiveSourceSignature;
+    api.buildPretClassBCvniuIntransitiveSourceFrame = buildPretClassBCvniuIntransitiveSourceFrame;
+    api.buildPretClassBCvniuIntransitiveOperationFrame = buildPretClassBCvniuIntransitiveOperationFrame;
+    api.getPretClassBCvniuIntransitiveFrameMismatch = getPretClassBCvniuIntransitiveFrameMismatch;
+    api.buildPretClassACvvniIntransitiveSegmentFrame = buildPretClassACvvniIntransitiveSegmentFrame;
+    api.getPretClassACvvniIntransitiveSourceSignature = getPretClassACvvniIntransitiveSourceSignature;
+    api.buildPretClassACvvniIntransitiveSourceFrame = buildPretClassACvvniIntransitiveSourceFrame;
+    api.buildPretClassACvvniIntransitiveOperationFrame = buildPretClassACvvniIntransitiveOperationFrame;
+    api.getPretClassACvvniIntransitiveFrameMismatch = getPretClassACvvniIntransitiveFrameMismatch;
+    api.buildPretClassACvsvIntransitiveSegmentFrame = buildPretClassACvsvIntransitiveSegmentFrame;
+    api.getPretClassACvsvIntransitiveSourceSignature = getPretClassACvsvIntransitiveSourceSignature;
+    api.buildPretClassACvsvIntransitiveSourceFrame = buildPretClassACvsvIntransitiveSourceFrame;
+    api.buildPretClassACvsvIntransitiveOperationFrame = buildPretClassACvsvIntransitiveOperationFrame;
+    api.getPretClassACvsvIntransitiveFrameMismatch = getPretClassACvsvIntransitiveFrameMismatch;
+    api.buildPretClassACvwiIntransitiveSegmentFrame = buildPretClassACvwiIntransitiveSegmentFrame;
+    api.getPretClassACvwiIntransitiveSourceSignature = getPretClassACvwiIntransitiveSourceSignature;
+    api.buildPretClassACvwiIntransitiveSourceFrame = buildPretClassACvwiIntransitiveSourceFrame;
+    api.buildPretClassACvwiIntransitiveOperationFrame = buildPretClassACvwiIntransitiveOperationFrame;
+    api.getPretClassACvwiIntransitiveFrameMismatch = getPretClassACvwiIntransitiveFrameMismatch;
+    api.buildPretClassACvcvwiIntransitiveSegmentFrame = buildPretClassACvcvwiIntransitiveSegmentFrame;
+    api.getPretClassACvcvwiIntransitiveSourceSignature = getPretClassACvcvwiIntransitiveSourceSignature;
+    api.buildPretClassACvcvwiIntransitiveSourceFrame = buildPretClassACvcvwiIntransitiveSourceFrame;
+    api.buildPretClassACvcvwiIntransitiveOperationFrame = buildPretClassACvcvwiIntransitiveOperationFrame;
+    api.getPretClassACvcvwiIntransitiveFrameMismatch = getPretClassACvcvwiIntransitiveFrameMismatch;
+    api.buildPretClassBVjwaIntransitiveSegmentFrame = buildPretClassBVjwaIntransitiveSegmentFrame;
+    api.getPretClassBVjwaIntransitiveSourceSignature = getPretClassBVjwaIntransitiveSourceSignature;
+    api.buildPretClassBVjwaIntransitiveSourceFrame = buildPretClassBVjwaIntransitiveSourceFrame;
+    api.buildPretClassBVjwaIntransitiveOperationFrame = buildPretClassBVjwaIntransitiveOperationFrame;
+    api.getPretClassBVjwaIntransitiveFrameMismatch = getPretClassBVjwaIntransitiveFrameMismatch;
+    api.buildPretClassBCuwaIntransitiveSegmentFrame = buildPretClassBCuwaIntransitiveSegmentFrame;
+    api.getPretClassBCuwaIntransitiveSourceSignature = getPretClassBCuwaIntransitiveSourceSignature;
+    api.buildPretClassBCuwaIntransitiveSourceFrame = buildPretClassBCuwaIntransitiveSourceFrame;
+    api.buildPretClassBCuwaIntransitiveOperationFrame = buildPretClassBCuwaIntransitiveOperationFrame;
+    api.getPretClassBCuwaIntransitiveFrameMismatch = getPretClassBCuwaIntransitiveFrameMismatch;
+    api.buildPretClassANiCvTransitiveSegmentFrame = buildPretClassANiCvTransitiveSegmentFrame;
+    api.getPretClassANiCvTransitiveSourceSignature = getPretClassANiCvTransitiveSourceSignature;
+    api.buildPretClassANiCvTransitiveSourceFrame = buildPretClassANiCvTransitiveSourceFrame;
+    api.buildPretClassANiCvTransitiveOperationFrame = buildPretClassANiCvTransitiveOperationFrame;
+    api.getPretClassANiCvTransitiveFrameMismatch = getPretClassANiCvTransitiveFrameMismatch;
+    api.buildPretClassANaCvTransitiveSegmentFrame = buildPretClassANaCvTransitiveSegmentFrame;
+    api.getPretClassANaCvTransitiveSourceSignature = getPretClassANaCvTransitiveSourceSignature;
+    api.buildPretClassANaCvTransitiveSourceFrame = buildPretClassANaCvTransitiveSourceFrame;
+    api.buildPretClassANaCvTransitiveOperationFrame = buildPretClassANaCvTransitiveOperationFrame;
+    api.getPretClassANaCvTransitiveFrameMismatch = getPretClassANaCvTransitiveFrameMismatch;
+    api.buildPretClassANaCvcvcvTransitiveSegmentFrame = buildPretClassANaCvcvcvTransitiveSegmentFrame;
+    api.getPretClassANaCvcvcvTransitiveSourceSignature = getPretClassANaCvcvcvTransitiveSourceSignature;
+    api.buildPretClassANaCvcvcvTransitiveSourceFrame = buildPretClassANaCvcvcvTransitiveSourceFrame;
+    api.buildPretClassANaCvcvcvTransitiveOperationFrame = buildPretClassANaCvcvcvTransitiveOperationFrame;
+    api.getPretClassANaCvcvcvTransitiveFrameMismatch = getPretClassANaCvcvcvTransitiveFrameMismatch;
+    api.buildPretClassANaCvlvcvTransitiveSegmentFrame = buildPretClassANaCvlvcvTransitiveSegmentFrame;
+    api.getPretClassANaCvlvcvTransitiveSourceSignature = getPretClassANaCvlvcvTransitiveSourceSignature;
+    api.buildPretClassANaCvlvcvTransitiveSourceFrame = buildPretClassANaCvlvcvTransitiveSourceFrame;
+    api.buildPretClassANaCvlvcvTransitiveOperationFrame = buildPretClassANaCvlvcvTransitiveOperationFrame;
+    api.getPretClassANaCvlvcvTransitiveFrameMismatch = getPretClassANaCvlvcvTransitiveFrameMismatch;
+    api.buildPretClassANaVlcvcvTransitiveSegmentFrame = buildPretClassANaVlcvcvTransitiveSegmentFrame;
+    api.getPretClassANaVlcvcvTransitiveSourceSignature = getPretClassANaVlcvcvTransitiveSourceSignature;
+    api.buildPretClassANaVlcvcvTransitiveSourceFrame = buildPretClassANaVlcvcvTransitiveSourceFrame;
+    api.buildPretClassANaVlcvcvTransitiveOperationFrame = buildPretClassANaVlcvcvTransitiveOperationFrame;
+    api.getPretClassANaVlcvcvTransitiveFrameMismatch = getPretClassANaVlcvcvTransitiveFrameMismatch;
+    api.buildPretClassANaVjcvcvTransitiveSegmentFrame = buildPretClassANaVjcvcvTransitiveSegmentFrame;
+    api.getPretClassANaVjcvcvTransitiveSourceSignature = getPretClassANaVjcvcvTransitiveSourceSignature;
+    api.buildPretClassANaVjcvcvTransitiveSourceFrame = buildPretClassANaVjcvcvTransitiveSourceFrame;
+    api.buildPretClassANaVjcvcvTransitiveOperationFrame = buildPretClassANaVjcvcvTransitiveOperationFrame;
+    api.getPretClassANaVjcvcvTransitiveFrameMismatch = getPretClassANaVjcvcvTransitiveFrameMismatch;
+    api.buildPretClassATzaTransitiveSegmentFrame = buildPretClassATzaTransitiveSegmentFrame;
+    api.getPretClassATzaTransitiveSourceSignature = getPretClassATzaTransitiveSourceSignature;
+    api.buildPretClassATzaTransitiveSourceFrame = buildPretClassATzaTransitiveSourceFrame;
+    api.buildPretClassATzaTransitiveOperationFrame = buildPretClassATzaTransitiveOperationFrame;
+    api.getPretClassATzaTransitiveFrameMismatch = getPretClassATzaTransitiveFrameMismatch;
+    api.buildPretClassBSegmentFrame = buildPretClassBSegmentFrame;
+    api.buildPretClassBSourceFrame = buildPretClassBSourceFrame;
+    api.buildPretClassCSegmentFrame = buildPretClassCSegmentFrame;
+    api.buildPretClassCSourceFrame = buildPretClassCSourceFrame;
+    api.buildPretClassDSegmentFrame = buildPretClassDSegmentFrame;
+    api.buildPretClassDSourceFrame = buildPretClassDSourceFrame;
     api.applyPretUniversalDeletionShift = applyPretUniversalDeletionShift;
     api.getPerfectiveAlternationStems = getPerfectiveAlternationStems;
     api.getMonosyllableStemPath = getMonosyllableStemPath;
@@ -2435,7 +8348,7 @@ export function createPreteritContextApi(targetObject = globalThis) {
 }
 
 export function installPreteritContextGlobals(targetObject = globalThis) {
-    const api = createPreteritContextApi(targetObject);
+    const api = createPreteritContext(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/derivation/nonactive.js.
+// Canonical modern ESM module.
 
 export function createNonactiveDerivationApi(targetObject = globalThis) {
     function getPrimaryNonactiveSelectionStem(entry) {
@@ -66,22 +66,78 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
         nonactiveObjectSlots
       };
     }
-    function stripBoundSourcePrefixFromNonactiveBase(baseVerb = "", sourcePrefix = "", verbMeta = null) {
+    function hasStructuredNonactiveBoundSourceFrame(verbMeta = null, sourceChain = null) {
+      const meta = verbMeta && typeof verbMeta === "object" ? verbMeta : {};
+      const chain = sourceChain && typeof sourceChain === "object" ? sourceChain : null;
+      const model = chain?.model && typeof chain.model === "object" ? chain.model : null;
+      return Boolean(chain && targetObject.normalizeRuleBase(chain.baseVerb || model?.matrixBase || "") && Array.isArray(chain.outerPieces || model?.outerPieces) && (model?.sourceKind === "current-regex" || model?.parseTree?.kind === "current-regex-derivation-source-parse-tree" || meta.currentRegexSourceParseTree?.kind === "current-regex-derivation-source-parse-tree" || meta.sourceParseTree?.kind === "current-regex-derivation-source-parse-tree" || Array.isArray(meta.structuralOuterPieces) || Array.isArray(meta.canonical?.structuralOuterPieces) || Boolean(meta.exactBaseVerb || meta.sourceBase || meta.canonicalRuleBase || meta.canonical?.ruleBase)));
+    }
+    function buildNonactiveBoundSourceBaseFrame({
+      baseVerb = "",
+      sourcePrefix = "",
+      verbMeta = null,
+      sourceChain = null
+    } = {}) {
       const base = String(baseVerb || "");
       const prefix = String(sourcePrefix || "");
       if (!base || !prefix || !verbMeta?.hasBoundMarker || !base.startsWith(prefix)) {
-        return base;
+        return {
+          ok: true,
+          blocked: false,
+          matrixBase: base,
+          diagnostics: []
+        };
       }
-      const splitSource = targetObject.resolveCanonicalSourceSplit(verbMeta, {
-        verb: verbMeta?.verb || "",
-        analysisVerb: verbMeta?.analysisVerb || base
+      const chain = sourceChain && typeof sourceChain === "object" ? sourceChain : targetObject.buildNonactiveSourceChain(verbMeta, verbMeta?.sourceRawVerb || verbMeta?.verb || base, verbMeta?.analysisVerb || base);
+      const model = chain?.model && typeof chain.model === "object" ? chain.model : null;
+      const matrixBase = targetObject.normalizeRuleBase(chain?.baseVerb || model?.matrixBase || "");
+      const chainPrefix = String(chain?.prefix || targetObject.getDerivationSourceOuterSurface(model) || "");
+      if (!hasStructuredNonactiveBoundSourceFrame(verbMeta, chain) || !matrixBase) {
+        return {
+          ok: false,
+          blocked: true,
+          matrixBase: "",
+          diagnostics: ["nonactive-bound-source-missing-structured-source-frame"],
+          sourceChain: chain || null
+        };
+      }
+      const normalizedBase = targetObject.normalizeRuleBase(base);
+      const normalizedPrefix = targetObject.normalizeRuleBase(prefix);
+      const normalizedChainPrefix = targetObject.normalizeRuleBase(chainPrefix);
+      if (normalizedPrefix && normalizedChainPrefix && normalizedPrefix !== normalizedChainPrefix) {
+        return {
+          ok: false,
+          blocked: true,
+          matrixBase: "",
+          diagnostics: ["nonactive-bound-source-contradictory-prefix-frame"],
+          sourceChain: chain
+        };
+      }
+      if (normalizedBase === matrixBase || normalizedPrefix && normalizedBase === `${normalizedPrefix}${matrixBase}` || normalizedChainPrefix && normalizedBase === `${normalizedChainPrefix}${matrixBase}`) {
+        return {
+          ok: true,
+          blocked: false,
+          matrixBase,
+          sourceChain: chain,
+          diagnostics: []
+        };
+      }
+      return {
+        ok: false,
+        blocked: true,
+        matrixBase: "",
+        diagnostics: ["nonactive-bound-source-contradictory-base-frame"],
+        sourceChain: chain
+      };
+    }
+    function stripBoundSourcePrefixFromNonactiveBase(baseVerb = "", sourcePrefix = "", verbMeta = null, options = {}) {
+      const frame = buildNonactiveBoundSourceBaseFrame({
+        baseVerb,
+        sourcePrefix,
+        verbMeta,
+        sourceChain: options?.sourceChain || null
       });
-      const matrixBase = targetObject.normalizeRuleBase(splitSource?.matrixBase || "");
-      if (matrixBase && targetObject.normalizeRuleBase(base) === matrixBase) {
-        return base;
-      }
-      const stripped = base.slice(prefix.length);
-      return stripped || base;
+      return frame.ok ? frame.matrixBase : "";
     }
     function resolveDerivedNonactiveSelectionEntry({
       stem = "",
@@ -109,7 +165,9 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
           prefixParts: []
         }
       };
-      const matchBaseVerb = parsedMatch ? stripBoundSourcePrefixFromNonactiveBase(matchSource.baseVerb || "", matchSource.prefix || "", sourceMeta) : targetObject.normalizeRuleBase(sourceAnalysisVerb || sourceVerb);
+      const matchBaseVerb = parsedMatch ? stripBoundSourcePrefixFromNonactiveBase(matchSource.baseVerb || "", matchSource.prefix || "", sourceMeta, {
+        sourceChain: matchSource.chain || null
+      }) : targetObject.normalizeRuleBase(sourceAnalysisVerb || sourceVerb);
       const matchRuleBase = targetObject.normalizeRuleBase(matchBaseVerb || "");
       const matchIsTransitive = parsedMatch ? targetObject.isNonactiveTransitiveByObj1(objectPrefix, parsedMatch) : nonactiveIsTransitive;
       const matchSelection = targetObject.resolveNonactiveStemSelection(matchBaseVerb, matchBaseVerb, {
@@ -235,7 +293,9 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
         }
       } : targetObject.getNonactiveDerivationSource(parsedVerb, verb, analysisVerb);
       const nonactiveSourceChain = nonactiveSource.chain || targetObject.buildNonactiveSourceChain(effectiveSourceMeta, verb, analysisVerb);
-      const nonactiveBaseVerb = nonactiveSourceChain?.baseVerb || stripBoundSourcePrefixFromNonactiveBase(nonactiveSource.baseVerb || "", nonactiveSource.prefix || "", effectiveSourceMeta);
+      const nonactiveBaseVerb = nonactiveSourceChain?.baseVerb || stripBoundSourcePrefixFromNonactiveBase(nonactiveSource.baseVerb || "", nonactiveSource.prefix || "", effectiveSourceMeta, {
+        sourceChain: nonactiveSourceChain || null
+      });
       const forwardDerivationConfig = targetObject.getForwardDerivationConfig(derivationType);
       const derivedStemPoolByField = {
         causativeAllStems,
@@ -421,6 +481,8 @@ export function createNonactiveDerivationApi(targetObject = globalThis) {
     api.getPrimaryNonactiveSelectionStem = getPrimaryNonactiveSelectionStem;
     api.getPrimaryNonactiveSelectionStemSpec = getPrimaryNonactiveSelectionStemSpec;
     api.buildPrefixedNonactiveSelectionEntry = buildPrefixedNonactiveSelectionEntry;
+    api.hasStructuredNonactiveBoundSourceFrame = hasStructuredNonactiveBoundSourceFrame;
+    api.buildNonactiveBoundSourceBaseFrame = buildNonactiveBoundSourceBaseFrame;
     api.stripBoundSourcePrefixFromNonactiveBase = stripBoundSourcePrefixFromNonactiveBase;
     api.resolveDerivedNonactiveSelectionEntry = resolveDerivedNonactiveSelectionEntry;
     api.getNonactiveSelectionEntry = getNonactiveSelectionEntry;

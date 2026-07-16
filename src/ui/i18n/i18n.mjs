@@ -1,4 +1,4 @@
-// Native wrapper generated from src/ui/i18n/i18n.js.
+// Canonical modern ESM module.
 
 export function createUiI18nApi(targetObject = globalThis) {
     function getNonactivePersonSub(prefix, isNawat = false) {
@@ -161,7 +161,7 @@ export function createUiI18nApi(targetObject = globalThis) {
     function changeLanguage() {
       var languageSwitch = targetObject.document.getElementById("language");
       var selectedLanguage = languageSwitch.checked ? "nawat" : "original";
-      var baseLabelElementIds = ["tutorial-title", "tutorial-trigger", "copyright-label", "panel-stack-tab-inputs", "panel-stack-tab-formula", "panel-stack-tab-output", "calc-nawat-mode-verb", "calc-nawat-mode-noun", "calc-nawat-mode-particle", "derivation-type-label", "ui-density-label", "ui-density-simple", "ui-density-advanced", "verb-source-scope-active", "verb-source-scope-nonactive", "verb-source-scope-both"];
+      var baseLabelElementIds = ["tutorial-title", "tutorial-trigger", "copyright-label", "panel-stack-tab-inputs", "panel-stack-tab-formula", "panel-stack-tab-output", "calc-nawat-mode-verb", "calc-nawat-mode-noun", "calc-nawat-mode-particle", "derivation-type-label", "ui-density-label", "ui-density-simple", "ui-density-advanced", "language-profile-label", "language-profile-nawat-pipil", "language-profile-classical", "verb-source-scope-active", "verb-source-scope-nonactive", "verb-source-scope-both"];
       var keyedLabelElementIds = Array.from(targetObject.document.querySelectorAll("[data-ui-label-key][id]")).map(element => element.id);
       var labelElementIds = Array.from(new Set([...baseLabelElementIds, ...keyedLabelElementIds]));
       var translations = {
@@ -172,6 +172,9 @@ export function createUiI18nApi(targetObject = globalThis) {
         "ui-density-label": "Vista",
         "ui-density-simple": "Básico",
         "ui-density-advanced": "Avanzado",
+        "language-profile-label": "Lengua",
+        "language-profile-nawat-pipil": "Nawat/Pipil",
+        "language-profile-classical": "Classical Nahuatl",
         "verb-source-scope-active": "Activo",
         "verb-source-scope-nonactive": "No activo",
         "verb-source-scope-both": "Todos"
