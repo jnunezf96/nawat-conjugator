@@ -1,7 +1,9 @@
 {
-  "compoundMarkerRe": { "pattern": "[|~#()\\[\\]\\\\/?-]", "flags": "g" },
-  "compoundMarkerSplitRe": { "pattern": "[|~#()\\/?-]" },
-  "compoundAllowedRe": { "pattern": "[^a-z|~#()\\[\\]\\\\/?-]", "flags": "g" },
+  "compoundTokenClasses": {
+    "letterRanges": [{ "from": "a", "to": "z" }],
+    "markerTokens": ["|", "~", "#", "(", ")", "[", "]", "\\", "/", "?", "-"],
+    "splitTokens": ["|", "~", "#", "(", ")", "/", "?", "-"]
+  },
   "subjectToggleAll": "all",
   "objectToggleAll": "all",
   "verbSuggestionLimit": 10,

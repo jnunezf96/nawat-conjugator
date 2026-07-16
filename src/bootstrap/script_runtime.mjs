@@ -1,4 +1,4 @@
-// Native wrapper generated from script.js.
+// Canonical modern ESM module.
 
 export function createScriptRuntimeApi(targetObject = globalThis) {
     // === Configuration ===
@@ -35,7 +35,35 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     var COMPOUND_ALLOWED_RE = /[|~#()\[\]{}\\/?-]/g;
     var DIRECTIONAL_RULES = [];
     var ORDINARY_NNC_FIXTURES = [];
-    var STATIC_NNC_PATH = typeof targetObject.RUNTIME_PATHS !== "undefined" && targetObject.RUNTIME_PATHS && targetObject.RUNTIME_PATHS.STATIC_NNC_PATH || "data/static_nnc.json";
+    function getScriptStaticRuntimePaths() {
+      const config = typeof globalThis !== "undefined" && globalThis.__NAWAT_RUNTIME_CONFIG__ && globalThis.__NAWAT_RUNTIME_CONFIG__.paths && typeof globalThis.__NAWAT_RUNTIME_CONFIG__.paths === "object" ? globalThis.__NAWAT_RUNTIME_CONFIG__.paths : null;
+      if (config) {
+        return config;
+      }
+      if (typeof globalThis !== "undefined" && globalThis.__NAWAT_RUNTIME_PATHS__ && typeof globalThis.__NAWAT_RUNTIME_PATHS__ === "object") {
+        return globalThis.__NAWAT_RUNTIME_PATHS__;
+      }
+      return {};
+    }
+    var RUNTIME_PATHS = typeof RUNTIME_PATHS !== "undefined" && RUNTIME_PATHS && typeof RUNTIME_PATHS === "object" ? RUNTIME_PATHS : getScriptStaticRuntimePaths();
+    var STATIC_LABELS_PATH = RUNTIME_PATHS.STATIC_LABELS_PATH || "data/static_labels.json";
+    var STATIC_OPTIONS_PATH = RUNTIME_PATHS.STATIC_OPTIONS_PATH || "data/static_options.json";
+    var STATIC_GROUPS_PATH = RUNTIME_PATHS.STATIC_GROUPS_PATH || "data/static_groups.json";
+    var STATIC_ORDERS_PATH = RUNTIME_PATHS.STATIC_ORDERS_PATH || "data/static_orders.json";
+    var STATIC_RULES_PATH = RUNTIME_PATHS.STATIC_RULES_PATH || "data/static_rules.json";
+    var STATIC_PHONOLOGY_PATH = RUNTIME_PATHS.STATIC_PHONOLOGY_PATH || "data/static_phonology.json";
+    var STATIC_MODES_PATH = RUNTIME_PATHS.STATIC_MODES_PATH || "data/static_modes.json";
+    var STATIC_NNC_PATH = RUNTIME_PATHS && RUNTIME_PATHS.STATIC_NNC_PATH || "data/static_nnc.json";
+    var STATIC_MISC_PATH = RUNTIME_PATHS.STATIC_MISC_PATH || "data/static_misc.json";
+    var STATIC_SUPPLETIVES_PATH = RUNTIME_PATHS.STATIC_SUPPLETIVES_PATH || "data/static_suppletives.json";
+    var STATIC_REDUP_PATH = RUNTIME_PATHS.STATIC_REDUP_PATH || "data/static_redup.json";
+    var STATIC_SUPPLETIVE_PATHS_PATH = RUNTIME_PATHS.STATIC_SUPPLETIVE_PATHS_PATH || "data/static_suppletive_paths.json";
+    var STATIC_CONSTANTS_PATH = RUNTIME_PATHS.STATIC_CONSTANTS_PATH || "data/static_constants.json";
+    var STATIC_DIRECTIONAL_RULES_PATH = RUNTIME_PATHS.STATIC_DIRECTIONAL_RULES_PATH || "data/static_directional_rules.json";
+    var STATIC_ALLOMORPHY_RULES_PATH = RUNTIME_PATHS.STATIC_ALLOMORPHY_RULES_PATH || "data/static_allomorphy_rules.json";
+    var STATIC_PARSE_TESTS_PATH = RUNTIME_PATHS.STATIC_PARSE_TESTS_PATH || "data/static_parse_tests.json";
+    var STATIC_DERIVATIONAL_RULES_PATH = RUNTIME_PATHS.STATIC_DERIVATIONAL_RULES_PATH || "data/static_derivational_rules.json";
+    var STATIC_VALENCE_NEUTRAL_PATH = RUNTIME_PATHS.STATIC_VALENCE_NEUTRAL_PATH || "data/static_valence_neutral.json";
     var SUPPORTIVE_I_KEEP_SLASH_PREFIXES = new Set();
     var SUPPORTIVE_I_KEEP_SLASH_PREFIXES_LOADED = false;
     var PATIENTIVO_PERFECTIVO_ALLOWED_FINALS = new Set();
@@ -67,11 +95,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       regex: "regex"
     });
 
-    // Supportive Marker & Output Utilities extracted to src/core/output/surface.js
-    // Regex Core & Directional Prefix Utilities extracted to src/core/parsing/parsing.js
+    // Supportive Marker & Output Utilities extracted to src/core/output/surface.mjs
+    // Regex Core & Directional Prefix Utilities extracted to src/core/parsing/parsing.mjs
 
     // UI constants and composer state (VERB_INPUT_MODE, COMPOSER_*, VerbComposerState, etc.)
-    // extracted to src/ui/composer/composer.js
+    // extracted to src/ui/composer/composer.mjs
 
     function applyStaticLabels(data) {
       if (!data || typeof data !== "object") {
@@ -140,11 +168,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_LABELS_PATH, {
+        const response = await targetObject.fetch(STATIC_LABELS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_LABELS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_LABELS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticLabels(data);
@@ -159,11 +187,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_DERIVATIONAL_RULES_PATH, {
+        const response = await targetObject.fetch(STATIC_DERIVATIONAL_RULES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_DERIVATIONAL_RULES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_DERIVATIONAL_RULES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticDerivationalRules(data);
@@ -178,11 +206,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_VALENCE_NEUTRAL_PATH, {
+        const response = await targetObject.fetch(STATIC_VALENCE_NEUTRAL_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_VALENCE_NEUTRAL_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_VALENCE_NEUTRAL_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticValenceNeutral(data);
@@ -292,11 +320,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_OPTIONS_PATH, {
+        const response = await targetObject.fetch(STATIC_OPTIONS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_OPTIONS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_OPTIONS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticOptions(data);
@@ -333,11 +361,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_GROUPS_PATH, {
+        const response = await targetObject.fetch(STATIC_GROUPS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_GROUPS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_GROUPS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticGroups(data);
@@ -369,11 +397,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_ORDERS_PATH, {
+        const response = await targetObject.fetch(STATIC_ORDERS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_ORDERS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_ORDERS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticOrders(data);
@@ -409,11 +437,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_RULES_PATH, {
+        const response = await targetObject.fetch(STATIC_RULES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_RULES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_RULES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticRules(data);
@@ -487,11 +515,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_DIRECTIONAL_RULES_PATH, {
+        const response = await targetObject.fetch(STATIC_DIRECTIONAL_RULES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_DIRECTIONAL_RULES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_DIRECTIONAL_RULES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticDirectionalRules(data);
@@ -528,11 +556,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_ALLOMORPHY_RULES_PATH, {
+        const response = await targetObject.fetch(STATIC_ALLOMORPHY_RULES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_ALLOMORPHY_RULES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_ALLOMORPHY_RULES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticAllomorphyRules(data);
@@ -579,11 +607,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_PHONOLOGY_PATH, {
+        const response = await targetObject.fetch(STATIC_PHONOLOGY_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_PHONOLOGY_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_PHONOLOGY_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticPhonology(data);
@@ -690,11 +718,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_MODES_PATH, {
+        const response = await targetObject.fetch(STATIC_MODES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_MODES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_MODES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticModes(data);
@@ -750,11 +778,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_MISC_PATH, {
+        const response = await targetObject.fetch(STATIC_MISC_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_MISC_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_MISC_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticMisc(data);
@@ -885,11 +913,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_SUPPLETIVES_PATH, {
+        const response = await targetObject.fetch(STATIC_SUPPLETIVES_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_SUPPLETIVES_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_SUPPLETIVES_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticSuppletives(data);
@@ -912,11 +940,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_REDUP_PATH, {
+        const response = await targetObject.fetch(STATIC_REDUP_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_REDUP_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_REDUP_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticRedup(data);
@@ -1032,11 +1060,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_SUPPLETIVE_PATHS_PATH, {
+        const response = await targetObject.fetch(STATIC_SUPPLETIVE_PATHS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_SUPPLETIVE_PATHS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_SUPPLETIVE_PATHS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticSuppletivePaths(data);
@@ -1050,21 +1078,40 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       if (!data || typeof data !== "object") {
         return;
       }
-      const makeRegex = entry => {
-        if (!entry || typeof entry.pattern !== "string") {
+      const escapeRegexToken = token => String(token || "").replace(/[\\^$.*+?()[\]{}|/-]/g, "\\$&");
+      const normalizeTokenList = value => Array.isArray(value) ? value.map(token => String(token || "")).filter(Boolean) : [];
+      const normalizeLetterRanges = value => Array.isArray(value) ? value.map(range => {
+        const from = String(range?.from || "").trim();
+        const to = String(range?.to || "").trim();
+        return from && to ? `${escapeRegexToken(from)}-${escapeRegexToken(to)}` : "";
+      }).filter(Boolean) : [];
+      const buildRegexFromTokenClass = ({
+        tokens = [],
+        flags = "",
+        negate = false,
+        letterRanges = []
+      } = {}) => {
+        const tokenBody = normalizeTokenList(tokens).map(escapeRegexToken).join("");
+        const rangeBody = normalizeLetterRanges(letterRanges).join("");
+        if (!tokenBody && !rangeBody) {
           return null;
         }
-        const flags = typeof entry.flags === "string" ? entry.flags : "";
-        try {
-          return new RegExp(entry.pattern, flags);
-        } catch (error) {
-          console.warn("Invalid regex pattern in static constants.", error);
-          return null;
-        }
+        return new RegExp(`[${negate ? "^" : ""}${rangeBody}${tokenBody}]`, flags);
       };
-      const markerRe = makeRegex(data.compoundMarkerRe);
-      const markerSplitRe = makeRegex(data.compoundMarkerSplitRe);
-      const allowedRe = makeRegex(data.compoundAllowedRe);
+      const compoundTokenClasses = data.compoundTokenClasses && typeof data.compoundTokenClasses === "object" ? data.compoundTokenClasses : null;
+      const markerRe = compoundTokenClasses ? buildRegexFromTokenClass({
+        tokens: compoundTokenClasses.markerTokens,
+        flags: "g"
+      }) : null;
+      const markerSplitRe = compoundTokenClasses ? buildRegexFromTokenClass({
+        tokens: compoundTokenClasses.splitTokens
+      }) : null;
+      const allowedRe = compoundTokenClasses ? buildRegexFromTokenClass({
+        tokens: compoundTokenClasses.markerTokens,
+        letterRanges: compoundTokenClasses.letterRanges,
+        flags: "g",
+        negate: true
+      }) : null;
       if (markerRe) {
         COMPOUND_MARKER_RE = markerRe;
       }
@@ -1089,11 +1136,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         return false;
       }
       try {
-        const response = await targetObject.fetch(targetObject.STATIC_CONSTANTS_PATH, {
+        const response = await targetObject.fetch(STATIC_CONSTANTS_PATH, {
           cache: "no-store"
         });
         if (!response.ok) {
-          throw new Error(`Failed to load ${targetObject.STATIC_CONSTANTS_PATH}: ${response.status}`);
+          throw new Error(`Failed to load ${STATIC_CONSTANTS_PATH}: ${response.status}`);
         }
         const data = await response.json();
         applyStaticConstants(data);
@@ -1112,6 +1159,11 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       advanced: "advanced"
     });
     var UI_DENSITY_STORAGE_KEY = "nawat_ui_density_mode";
+    var LANGUAGE_PROFILE_MODE = Object.freeze({
+      nawatPipil: "nawat-pipil",
+      classicalNahuatl: "classical-nahuatl"
+    });
+    var LANGUAGE_PROFILE_STORAGE_KEY = "nawat_language_profile_mode";
     var UI_DENSITY_ADVANCED_TENSES = new Set(["presente-habitual", "imperfecto", "pasado-remoto"]);
 
     // === Runtime State ===
@@ -1160,7 +1212,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       activeLocativePromotedObjectPrefix: "",
       activeLocativeSourcePossessorPrefix: ""
     };
-    var VERB_INPUT_REFRESH_DEBOUNCE_MS = 90;
+    var VERB_INPUT_REFRESH_DEBOUNCE_MS = 180;
     var VerbInputRefreshTimer = null;
     var VerbInputRefreshPendingValue = "";
     var VerbInputRefreshPendingSource = "typing";
@@ -1302,7 +1354,7 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       sourceScope: ""
     };
 
-    // Toggle lock pure functions extracted to src/ui/state.js
+    // Toggle lock pure functions extracted to src/ui/state.mjs
 
     function updateToggleLockControlState() {
       const lockButton = targetObject.document.getElementById("calc-toggle-lock-button");
@@ -1400,10 +1452,10 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       updateToggleLockControlState();
     }
 
-    // applyDefaultToggleStateOnce extracted to src/ui/state.js
+    // applyDefaultToggleStateOnce extracted to src/ui/state.mjs
 
     // === Lookup Helpers ===
-    // Extracted to src/core/agreement/agreement.js
+    // Extracted to src/core/agreement/agreement.mjs
     // === Browser & DOM Helpers ===
     function setBrowserClasses() {
       if (typeof targetObject.navigator === "undefined" || typeof targetObject.document === "undefined") {
@@ -1417,43 +1469,43 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     }
 
     // === Syllable & Phonology ===
-    // Extracted to src/core/phonology/phonology.js
+    // Extracted to src/core/phonology/phonology.mjs
 
     // === Person & Agreement ===
-    // Extracted to src/core/agreement/agreement.js
+    // Extracted to src/core/agreement/agreement.mjs
 
     // === Nonactive Derivation ===
-    // Extracted to src/core/agreement/agreement.js
+    // Extracted to src/core/agreement/agreement.mjs
 
     // === Nonspecific Object Allomorphy ===
-    // Extracted to src/core/vnc/allomorphy.js
+    // Extracted to src/core/vnc/allomorphy.mjs
 
     // === Object & Label Helpers ===
-    // Extracted to src/core/agreement/agreement.js
+    // Extracted to src/core/agreement/agreement.mjs
     // === Noun Derivations ===
-    // Extracted to src/core/nnc/nnc.js
+    // Extracted to src/core/nnc/nnc.mjs
 
     // === Nonactive Labels ===
-    // Extracted to src/ui/i18n/i18n.js
+    // Extracted to src/ui/i18n/i18n.mjs
 
     // === Output Formatting ===
-    // Extracted to src/core/output/surface.js
+    // Extracted to src/core/output/surface.mjs
     // === Input Validation ===
-    // Extracted to src/core/parsing/parsing.js
+    // Extracted to src/core/parsing/parsing.mjs
     // === UI Class Helpers ===
-    // Extracted to src/ui/panels/panels.js
+    // Extracted to src/ui/panels/panels.mjs
 
     // === Prefix Selection ===
-    // Extracted to src/core/agreement/agreement.js
+    // Extracted to src/core/agreement/agreement.mjs
     // === Conjugation Utilities ===
-    // Extracted to src/core/vnc/vnc.js
+    // Extracted to src/core/vnc/vnc.mjs
 
     // === Preterito Universal ===
-    // Extracted to src/ui/state.js
+    // Extracted to src/ui/state.mjs
     // === Verb Parsing ===
-    // Extracted to src/core/parsing/parsing.js
+    // Extracted to src/core/parsing/parsing.mjs
     // === Conjugation Search ===
-    // Pure grammar pipeline extracted to src/core/vnc/vnc.js
+    // Pure grammar pipeline extracted to src/core/vnc/vnc.mjs
 
     function scrollToMatchingConjugationRow(searchText, options = {}) {
       const matchMode = options.matchMode || (options.exact === false ? "contains" : "exact");
@@ -1704,37 +1756,37 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     }
 
     // === Verb Composer ===
-    // Extracted to src/ui/composer/composer.js
+    // Extracted to src/ui/composer/composer.mjs
 
     // === Verb Input & Lexicon ===
-    // Extracted to src/ui/composer/composer.js
+    // Extracted to src/ui/composer/composer.mjs
 
     // === Verb Disambiguation ===
-    // Extracted to src/core/parsing/parsing.js
+    // Extracted to src/core/parsing/parsing.mjs
 
     // === CSV Export ===
-    // Extracted to src/ui/export/export.js
+    // Extracted to src/ui/export/export.mjs
 
     // === UI Panels & Tabs ===
-    // Extracted to src/ui/panels/panels.js
+    // Extracted to src/ui/panels/panels.mjs
 
     // === Toggle Options & State ===
-    // Extracted to src/ui/state.js
+    // Extracted to src/ui/state.mjs
 
     // === Mode State Accessors ===
-    // Extracted to src/ui/state.js
+    // Extracted to src/ui/state.mjs
 
     // === Localization ===
-    // Extracted to src/ui/i18n/i18n.js
+    // Extracted to src/ui/i18n/i18n.mjs
 
     // === Morphology & Generation ===
-    // Extracted to src/core/vnc/vnc.js
+    // Extracted to src/core/vnc/vnc.mjs
 
     // === Output Rendering ===
-    // Extracted to src/ui/rendering/rendering.js
+    // Extracted to src/ui/rendering/rendering.mjs
 
     // === Event Wiring ===
-    // Extracted to src/ui/events.js
+    // Extracted to src/ui/events.mjs
 
     const api = {};
     Object.defineProperty(api, "SPECIFIC_VALENCE_PREFIXES", {
@@ -1935,11 +1987,120 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         get() { return ORDINARY_NNC_FIXTURES; },
         set(value) { ORDINARY_NNC_FIXTURES = value; },
     });
+    api.getScriptStaticRuntimePaths = getScriptStaticRuntimePaths;
+    Object.defineProperty(api, "RUNTIME_PATHS", {
+        configurable: true,
+        enumerable: true,
+        get() { return RUNTIME_PATHS; },
+        set(value) { RUNTIME_PATHS = value; },
+    });
+    Object.defineProperty(api, "STATIC_LABELS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_LABELS_PATH; },
+        set(value) { STATIC_LABELS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_OPTIONS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_OPTIONS_PATH; },
+        set(value) { STATIC_OPTIONS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_GROUPS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_GROUPS_PATH; },
+        set(value) { STATIC_GROUPS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_ORDERS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_ORDERS_PATH; },
+        set(value) { STATIC_ORDERS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_RULES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_RULES_PATH; },
+        set(value) { STATIC_RULES_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_PHONOLOGY_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_PHONOLOGY_PATH; },
+        set(value) { STATIC_PHONOLOGY_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_MODES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_MODES_PATH; },
+        set(value) { STATIC_MODES_PATH = value; },
+    });
     Object.defineProperty(api, "STATIC_NNC_PATH", {
         configurable: true,
         enumerable: true,
         get() { return STATIC_NNC_PATH; },
         set(value) { STATIC_NNC_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_MISC_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_MISC_PATH; },
+        set(value) { STATIC_MISC_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_SUPPLETIVES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_SUPPLETIVES_PATH; },
+        set(value) { STATIC_SUPPLETIVES_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_REDUP_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_REDUP_PATH; },
+        set(value) { STATIC_REDUP_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_SUPPLETIVE_PATHS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_SUPPLETIVE_PATHS_PATH; },
+        set(value) { STATIC_SUPPLETIVE_PATHS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_CONSTANTS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_CONSTANTS_PATH; },
+        set(value) { STATIC_CONSTANTS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_DIRECTIONAL_RULES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_DIRECTIONAL_RULES_PATH; },
+        set(value) { STATIC_DIRECTIONAL_RULES_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_ALLOMORPHY_RULES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_ALLOMORPHY_RULES_PATH; },
+        set(value) { STATIC_ALLOMORPHY_RULES_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_PARSE_TESTS_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_PARSE_TESTS_PATH; },
+        set(value) { STATIC_PARSE_TESTS_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_DERIVATIONAL_RULES_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_DERIVATIONAL_RULES_PATH; },
+        set(value) { STATIC_DERIVATIONAL_RULES_PATH = value; },
+    });
+    Object.defineProperty(api, "STATIC_VALENCE_NEUTRAL_PATH", {
+        configurable: true,
+        enumerable: true,
+        get() { return STATIC_VALENCE_NEUTRAL_PATH; },
+        set(value) { STATIC_VALENCE_NEUTRAL_PATH = value; },
     });
     Object.defineProperty(api, "SUPPORTIVE_I_KEEP_SLASH_PREFIXES", {
         configurable: true,
@@ -2137,6 +2298,18 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         enumerable: true,
         get() { return UI_DENSITY_STORAGE_KEY; },
         set(value) { UI_DENSITY_STORAGE_KEY = value; },
+    });
+    Object.defineProperty(api, "LANGUAGE_PROFILE_MODE", {
+        configurable: true,
+        enumerable: true,
+        get() { return LANGUAGE_PROFILE_MODE; },
+        set(value) { LANGUAGE_PROFILE_MODE = value; },
+    });
+    Object.defineProperty(api, "LANGUAGE_PROFILE_STORAGE_KEY", {
+        configurable: true,
+        enumerable: true,
+        get() { return LANGUAGE_PROFILE_STORAGE_KEY; },
+        set(value) { LANGUAGE_PROFILE_STORAGE_KEY = value; },
     });
     Object.defineProperty(api, "UI_DENSITY_ADVANCED_TENSES", {
         configurable: true,

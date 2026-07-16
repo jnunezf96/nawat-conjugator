@@ -7,7 +7,7 @@ if (typeof window !== "undefined") {
 }
 
 bootstrapPromise.catch((error) => {
-    console.error("Failed to bootstrap module shell.", error);
+    console.error("Failed to bootstrap the modern module application.", error);
 });
 
 export { bootstrapPromise };

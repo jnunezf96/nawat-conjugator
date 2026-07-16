@@ -1,5 +1,4 @@
-import { ESM_PRELOAD_PATHS } from "../bootstrap/runtime_paths.mjs";
-
+import { installClassicalNahuatlVncApplicationGlobals } from "../application/classical/vnc_application.mjs";
 import { installScriptRuntimeGlobals } from "../bootstrap/script_runtime.mjs";
 import { installAnalysisGlobals } from "../core/analysis/analysis.mjs";
 import { installAgreementGlobals } from "../core/agreement/agreement.mjs";
@@ -8,6 +7,16 @@ import { installComboValidationGlobals } from "../core/agreement/combo_validatio
 import { installAdverbialAdjunctionGlobals } from "../core/clause/adjunction/adjunction.mjs";
 import { installAdverbialNuclearGlobals } from "../core/clause/adverbial/adverbial.mjs";
 import { installCalendarNameGlobals } from "../core/calendar/calendar.mjs";
+import { installClassicalNahuatlProfileWallGlobals } from "../core/classical/profile_wall.mjs";
+import { installClassicalNahuatlLesson2OrthographyGlobals } from "../core/classical/lesson2_orthography.mjs";
+import { installClassicalNahuatlLesson3ParticlesGlobals } from "../core/classical/lesson3_particles.mjs";
+import { installClassicalNahuatlLesson4NuclearClauseGlobals } from "../core/classical/lesson4_nuclear_clause.mjs";
+import { installClassicalNahuatlNncLayerEvaluatorGlobals } from "../core/classical/nnc_layer_evaluator.mjs";
+import { installClassicalNahuatlVncLayerEvaluatorGlobals } from "../core/classical/vnc_layer_evaluator.mjs";
+import { installClassicalNahuatlLesson5VncSubjectTenseGlobals } from "../core/classical/lesson5_vnc_subject_tense.mjs";
+import { installClassicalNahuatlLesson6TransitiveVncObjectGlobals } from "../core/classical/lesson6_transitive_vnc_object.mjs";
+import { installClassicalNahuatlLesson11IrregularVncGlobals } from "../core/classical/lesson11_irregular_vnc.mjs";
+import { installClassicalNahuatlLesson7VerbstemClassesGlobals } from "../core/classical/lesson7_verbstem_classes.mjs";
 import { installClauseGlobals } from "../core/clause/clause.mjs";
 import { installComplementClauseGlobals } from "../core/clause/complement/complement.mjs";
 import { installConjunctionClauseGlobals } from "../core/clause/conjunction/conjunction.mjs";
@@ -18,6 +27,7 @@ import { installDerivationSourceModelGlobals } from "../core/derivation/source_m
 import { installFrequentativeGlobals } from "../core/derivation/frequentative/frequentative.mjs";
 import { installForwardDerivationRuntimeGlobals } from "../core/derivation/forward_runtime.mjs";
 import { installNonactiveDerivationGlobals } from "../core/derivation/nonactive.mjs";
+import { installGrammarContractRegistryGlobals } from "../core/grammar/contract_registry.mjs";
 import { installGrammarFrameGlobals } from "../core/grammar/frame.mjs";
 import { installMorphologySupportGlobals } from "../core/generation/morphology_support.mjs";
 import { installGenerationEngineGlobals } from "../core/generation/engine.mjs";
@@ -56,16 +66,31 @@ import { installUiEventsGlobals } from "../ui/events/events.mjs";
 import { installUiPanelsGlobals } from "../ui/panels/panels.mjs";
 import { installUiRenderingGlobals } from "../ui/rendering/rendering.mjs";
 import { installUiStateGlobals } from "../ui/state.mjs";
+import { installCurriculumGlobals } from "../ui/curriculum/curriculum.mjs";
+import { installClassicalShellGlobals } from "../ui/shell/classical_shell.mjs";
 import { installLessonRegistryGlobals } from "../lessons/registry.mjs";
 import { installAppendixRegistryGlobals } from "../appendices/registry.mjs";
 
-const INSTALLER_BY_ESM_MODULE_PATH = new Map([
+export const RUNTIME_INSTALLERS = new Map([
+    ["src/ui/shell/classical_shell.mjs", installClassicalShellGlobals],
     ["src/core/concepts/concepts.mjs", installConceptsGlobals],
     ["src/core/particles/particles.mjs", installParticlesGlobals],
     ["src/core/sentence/sentence.mjs", installSentenceGlobals],
     ["src/core/grammar/frame.mjs", installGrammarFrameGlobals],
+    ["src/core/grammar/contract_registry.mjs", installGrammarContractRegistryGlobals],
     ["src/core/agreement/agreement.mjs", installAgreementGlobals],
     ["src/core/orthography/orthography.mjs", installOrthographyGlobals],
+    ["src/core/classical/profile_wall.mjs", installClassicalNahuatlProfileWallGlobals],
+    ["src/core/classical/lesson2_orthography.mjs", installClassicalNahuatlLesson2OrthographyGlobals],
+    ["src/core/classical/lesson3_particles.mjs", installClassicalNahuatlLesson3ParticlesGlobals],
+    ["src/core/classical/lesson4_nuclear_clause.mjs", installClassicalNahuatlLesson4NuclearClauseGlobals],
+    ["src/core/classical/nnc_layer_evaluator.mjs", installClassicalNahuatlNncLayerEvaluatorGlobals],
+    ["src/core/classical/vnc_layer_evaluator.mjs", installClassicalNahuatlVncLayerEvaluatorGlobals],
+    ["src/core/classical/lesson5_vnc_subject_tense.mjs", installClassicalNahuatlLesson5VncSubjectTenseGlobals],
+    ["src/core/classical/lesson6_transitive_vnc_object.mjs", installClassicalNahuatlLesson6TransitiveVncObjectGlobals],
+    ["src/core/classical/lesson11_irregular_vnc.mjs", installClassicalNahuatlLesson11IrregularVncGlobals],
+    ["src/core/classical/lesson7_verbstem_classes.mjs", installClassicalNahuatlLesson7VerbstemClassesGlobals],
+    ["src/application/classical/vnc_application.mjs", installClassicalNahuatlVncApplicationGlobals],
     ["src/core/clause/clause.mjs", installClauseGlobals],
     ["src/core/clause/modification/modification.mjs", installAdjectivalModificationGlobals],
     ["src/core/clause/adverbial/adverbial.mjs", installAdverbialNuclearGlobals],
@@ -115,10 +140,40 @@ const INSTALLER_BY_ESM_MODULE_PATH = new Map([
     ["src/ui/panels/panels.mjs", installUiPanelsGlobals],
     ["src/ui/rendering/rendering.mjs", installUiRenderingGlobals],
     ["src/ui/state.mjs", installUiStateGlobals],
-    ["script_runtime.mjs", installScriptRuntimeGlobals],
+    ["src/bootstrap/script_runtime.mjs", installScriptRuntimeGlobals],
     ["src/lessons/registry.mjs", installLessonRegistryGlobals],
     ["src/appendices/registry.mjs", installAppendixRegistryGlobals],
+    ["src/ui/curriculum/curriculum.mjs", installCurriculumGlobals],
 ]);
+
+export const RUNTIME_MODULE_PATHS = Object.freeze([...RUNTIME_INSTALLERS.keys()]);
+
+export function assertRuntimeInstallerCoverage(runtimeInstallers = RUNTIME_INSTALLERS) {
+    if (!(runtimeInstallers instanceof Map)) {
+        throw new TypeError("The modern runtime installer manifest must be a Map.");
+    }
+    const missingInstallers = [];
+    const invalidPaths = [];
+    for (const [modulePath, installer] of runtimeInstallers.entries()) {
+        if (!String(modulePath || "").endsWith(".mjs")) {
+            invalidPaths.push(String(modulePath || ""));
+        }
+        if (typeof installer !== "function") {
+            missingInstallers.push(String(modulePath || ""));
+        }
+    }
+    if (invalidPaths.length || missingInstallers.length) {
+        const details = [
+            invalidPaths.length ? `invalid module paths: ${invalidPaths.join(", ")}` : "",
+            missingInstallers.length ? `missing installers: ${missingInstallers.join(", ")}` : "",
+        ].filter(Boolean).join("; ");
+        throw new Error(`Modern runtime installer coverage failed (${details}).`);
+    }
+    return Object.freeze({
+        moduleCount: runtimeInstallers.size,
+        modulePaths: Object.freeze([...runtimeInstallers.keys()]),
+    });
+}
 
 function cloneDescriptorMap(object, keys) {
     const descriptors = {};
@@ -138,6 +193,13 @@ function defineDescriptors(targetObject, descriptors) {
     Object.defineProperties(targetObject, descriptors);
 }
 
+function bindRuntimeFunction(primaryObject, secondaryObject, propertyName, fallback = undefined) {
+    const owner = typeof primaryObject?.[propertyName] === "function"
+        ? primaryObject
+        : (typeof secondaryObject?.[propertyName] === "function" ? secondaryObject : null);
+    return owner ? owner[propertyName].bind(owner) : fallback;
+}
+
 function buildRuntimeBase({
     globalObject = globalThis,
     windowObject = globalObject?.window || globalObject,
@@ -151,19 +213,21 @@ function buildRuntimeBase({
         document: documentObject,
         localStorage: globalObject?.localStorage || windowObject?.localStorage,
         navigator: globalObject?.navigator || windowObject?.navigator,
-        fetch: globalObject?.fetch,
+        fetch: bindRuntimeFunction(globalObject, windowObject, "fetch"),
         URL: globalObject?.URL,
+        URLSearchParams: globalObject?.URLSearchParams || windowObject?.URLSearchParams,
         Blob: globalObject?.Blob,
         Event: globalObject?.Event,
         CustomEvent: globalObject?.CustomEvent,
         DOMParser: globalObject?.DOMParser,
-        setTimeout: globalObject?.setTimeout || setTimeout,
-        clearTimeout: globalObject?.clearTimeout || clearTimeout,
-        setInterval: globalObject?.setInterval || setInterval,
-        clearInterval: globalObject?.clearInterval || clearInterval,
-        requestAnimationFrame: globalObject?.requestAnimationFrame,
-        cancelAnimationFrame: globalObject?.cancelAnimationFrame,
+        setTimeout: bindRuntimeFunction(globalObject, windowObject, "setTimeout", setTimeout),
+        clearTimeout: bindRuntimeFunction(globalObject, windowObject, "clearTimeout", clearTimeout),
+        setInterval: bindRuntimeFunction(globalObject, windowObject, "setInterval", setInterval),
+        clearInterval: bindRuntimeFunction(globalObject, windowObject, "clearInterval", clearInterval),
+        requestAnimationFrame: bindRuntimeFunction(globalObject, windowObject, "requestAnimationFrame"),
+        cancelAnimationFrame: bindRuntimeFunction(globalObject, windowObject, "cancelAnimationFrame"),
         performance: globalObject?.performance,
+        getComputedStyle: bindRuntimeFunction(globalObject, windowObject, "getComputedStyle"),
         ...extraGlobals,
     };
     runtimeObject.globalThis = runtimeObject;
@@ -175,16 +239,13 @@ function buildRuntimeBase({
 }
 
 export async function createRuntimeInstance(options = {}) {
+    assertRuntimeInstallerCoverage();
     const runtimeObject = buildRuntimeBase(options);
     const initialKeys = new Set(Reflect.ownKeys(runtimeObject));
     const loadedModules = [];
-    for (const entry of ESM_PRELOAD_PATHS) {
-        const installer = INSTALLER_BY_ESM_MODULE_PATH.get(entry.esmModulePath);
-        if (typeof installer !== "function") {
-            continue;
-        }
+    for (const [modulePath, installer] of RUNTIME_INSTALLERS.entries()) {
         await installer(runtimeObject);
-        loadedModules.push({ ...entry });
+        loadedModules.push(Object.freeze({ esmModulePath: modulePath }));
     }
     const exposedKeys = Reflect.ownKeys(runtimeObject).filter((key) => !initialKeys.has(key));
     const exposedDescriptors = cloneDescriptorMap(runtimeObject, exposedKeys);

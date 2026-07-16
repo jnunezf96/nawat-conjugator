@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/analysis/analysis.js.
+// Canonical modern ESM module.
 
 export function createAnalysisApi(targetObject = globalThis) {
     const ANALYSIS_BOUNDARY_VERSION = 1;
@@ -29,7 +29,7 @@ export function createAnalysisApi(targetObject = globalThis) {
       roadmapText: "roadmap-text",
       unknown: "unknown"
     });
-    const ANALYSIS_ANTI_CONFLATION_RULES = Object.freeze(["analysis boundary metadata is not generation", "ordinary VNC or NNC output is not textual analysis evidence", "sentence-layer and clause-shell metadata are not full textual diagnostics", "topic/focus UI labels are not absolute-topic evidence", "a bare mah-looking string is not a confirmed mah construction", "CSV verb rows and translation labels are not textual problem evidence", "Andrews miscellany categories are architecture, not Nawat/Pipil form authority"]);
+    const ANALYSIS_ANTI_CONFLATION_RULES = Object.freeze(["analysis boundary metadata is not generation", "ordinary VNC or NNC output is not textual analysis evidence", "sentence-layer and clause-shell metadata are not full textual diagnostics", "topic/focus UI labels are not absolute-topic evidence", "a bare mah-looking string is not a confirmed mah construction", "CSV verb rows and translation labels are not textual problem evidence", "Andrews miscellany categories are architecture, not Nawat/Pipil orthography authority"]);
     const ANALYSIS_STRUCTURAL_QUESTIONS = Object.freeze([Object.freeze({
       field: "textSource",
       asks: "Which Nawat/Pipil text, clause, or sentence is being analyzed?"
@@ -53,7 +53,7 @@ export function createAnalysisApi(targetObject = globalThis) {
       asks: "What evidence shows mismatch, exception, textual problem, or analysis status?"
     }), Object.freeze({
       field: "evidenceSource",
-      asks: "What Nawat/Pipil repo or user-provided text supports the analysis?"
+      asks: "What Andrews text-source model or user-provided text context supports the analysis?"
     })]);
     const LESSON57_ANALYSIS_PDF_REFS = Object.freeze(["Andrews Lesson 57.1", "Andrews Lesson 57.2", "Andrews Lesson 57.3", "Andrews Lesson 57.4", "Andrews Lesson 57.5", "Andrews Lesson 57.6", "Andrews Lesson 57.7"]);
     const LESSON57_ANALYSIS_VALIDATION_REFS = Object.freeze(["src/tests/analysis.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
@@ -355,7 +355,7 @@ export function createAnalysisApi(targetObject = globalThis) {
         status: "partial",
         structuralSource: "Andrews Lessons 57-58",
         pdfRefs: ["Andrews Lessons 57-58"],
-        targetAuthority: "Nawat/Pipil repo data and user-provided texts",
+        targetAuthority: "Andrews source model plus orthography-bridge user-provided texts",
         generationAllowed: false,
         confirmedExamples: [],
         structuralQuestions: getAnalysisStructuralQuestions(),
@@ -414,7 +414,7 @@ export function createAnalysisApi(targetObject = globalThis) {
         falsePositiveSource: normalizedFalsePositive,
         confirmed: false,
         generationAllowed: false,
-        diagnostics: [hasEvidence ? "analysis-issue-needs-validation" : "analysis-issue-needs-nawat-text-evidence", normalizedIssue !== ANALYSIS_ISSUE.unknown ? "analysis-issue-kind-recognized" : "analysis-issue-kind-unconfirmed", normalizedFalsePositive !== ANALYSIS_FALSE_POSITIVE_SOURCE.unknown ? "analysis-issue-false-positive-source" : "analysis-issue-unconfirmed"],
+        diagnostics: [hasEvidence ? "analysis-issue-needs-validation" : "analysis-issue-source-gated", normalizedIssue !== ANALYSIS_ISSUE.unknown ? "analysis-issue-kind-recognized" : "analysis-issue-kind-unconfirmed", normalizedFalsePositive !== ANALYSIS_FALSE_POSITIVE_SOURCE.unknown ? "analysis-issue-false-positive-source" : "analysis-issue-unconfirmed"],
         boundary: buildAnalysisBoundaryMetadata()
       };
       return attachAnalysisGrammarContract(classification, {

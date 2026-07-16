@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/orthography/orthography.js.
+// Canonical modern ESM module.
 
 export function createOrthographyApi(targetObject = globalThis) {
     const ORTHOGRAPHY_BRIDGE_VERSION = 1;
@@ -8,8 +8,8 @@ export function createOrthographyApi(targetObject = globalThis) {
       classicalNahuatl: "classical-nahuatl",
       unknown: "unknown"
     });
-    const ORTHOGRAPHY_BRIDGE_ANTI_CONFLATION_RULES = Object.freeze(["letter normalization is not morphology", "orthography match is not lexical evidence", "Classical Nahuatl form is not Nawat/Pipil fixture", "open-stem is not fixture evidence", "sourceKind is not grammar class", "topic is not nounClass", "supplementation is not word generation", "pronominal NNC is not ordinary NNC", "nonactive stem derivation is not identical to passive output", "Andrews grammar authority is not Classical spelling authority for Nawat output", "orthography bridge cannot change Andrews formula slots or slot owners"]);
-    const CLASSICAL_NAHUATL_LETTERS = Object.freeze("acehilmnopqtuxyz".split(""));
+    const ORTHOGRAPHY_BRIDGE_ANTI_CONFLATION_RULES = Object.freeze(["letter normalization is not morphology", "orthography match is not lexical evidence", "Classical Nahuatl form is not Nawat/Pipil fixture", "Classical Nahuatl tab output uses Andrews transcription directly, not the Nawat/Pipil orthography bridge", "open-stem is not fixture evidence", "sourceKind is not grammar class", "topic is not nounClass", "supplementation is not word generation", "pronominal NNC is not ordinary NNC", "nonactive stem derivation is not identical to passive output", "Andrews grammar authority is not Classical spelling authority for Nawat output", "orthography bridge cannot change Andrews formula slots or slot owners"]);
+    const CLASSICAL_NAHUATL_LETTERS = Object.freeze("acehilmnopqtuxyzāēīō".split(""));
     const CLASSICAL_NAHUATL_DIGRAPHS = Object.freeze(["ch", "cu", "hu", "qu", "tz", "tl", "uc", "uh"]);
     const ORTHOGRAPHY_BRIDGE_RULES = Object.freeze([Object.freeze({
       id: "same-ch",

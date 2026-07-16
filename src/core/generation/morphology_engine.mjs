@@ -1,6 +1,6 @@
-// Native wrapper generated from src/core/generation/morphology_engine.js.
+// Canonical modern ESM module.
 
-export function createMorphologyEngineModule(targetObject = globalThis) {
+export function createMorphologyEngineApi(targetObject = globalThis) {
     // core/generation/morphology_engine.js
     // Shared morphology engine.
     // Global-scope module: all functions defined directly on the global object.
@@ -87,6 +87,10 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
       const grammarFrame = getMorphologyApplicationResultFrame(output);
       const frameResult = grammarFrame?.resultFrame && typeof grammarFrame.resultFrame === "object" ? grammarFrame.resultFrame : null;
       const hasResultFrame = Boolean(frameResult);
+      const canonicalForms = typeof targetObject.getGrammarResultFrameCanonicalSurfaceForms === "function" ? targetObject.getGrammarResultFrameCanonicalSurfaceForms(frameResult) : [];
+      if (canonicalForms.length) {
+        return canonicalForms;
+      }
       const forms = [];
       if (Array.isArray(frameResult?.surfaceForms)) {
         forms.push(...frameResult.surfaceForms);
@@ -95,7 +99,7 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
         forms.push(frameResult.surface);
       }
       if (hasResultFrame) {
-        return forms.flatMap(entry => splitMorphologyApplicationSurfaceText(entry)).filter((entry, index, list) => entry && list.indexOf(entry) === index);
+        return forms.map(entry => normalizeMorphologyApplicationSurfaceValue(entry)).filter(entry => entry && !entry.includes("/")).filter((entry, index, list) => entry && list.indexOf(entry) === index);
       }
       if (!hasResultFrame && Array.isArray(output.surfaceForms)) {
         forms.push(...output.surfaceForms);
@@ -244,7 +248,7 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           surface,
           surfaceForms,
           soundSpellingFrames,
-          spellingAuthority: "Nawat/Pipil evidence",
+          spellingAuthority: "Nawat/Pipil orthography bridge",
           noClassicalSurfaceImport: true
         },
         morphBoundaryFrame: {
@@ -758,7 +762,9 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
       sourceRouteFrame = null,
       routeFrame = null,
       valenceFrameFixed = null,
-      sourceValenceFrameFixed = null
+      sourceValenceFrameFixed = null,
+      sourceSubjectFrame = null,
+      sourceSubjectPossessorOperationFrame = null
     }) {
       subjectPrefix = typeof subjectPrefix === "string" ? subjectPrefix : "";
       objectPrefix = typeof objectPrefix === "string" ? objectPrefix : "";
@@ -1050,6 +1056,7 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
               rawAnalysisVerb: derivedStem,
               exactBaseVerb: derivedStem,
               sourceBase: derivedStem,
+              predicateNominalSourceStemResolved: true,
               canonical: {
                 ...(candidateMeta.canonical && typeof candidateMeta.canonical === "object" ? candidateMeta.canonical : {}),
                 sourceBase: derivedStem,
@@ -1088,7 +1095,11 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           nominalizationProfile: nominalResult.nominalizationProfile || null,
           instrumentivoImperfectActiveAbsolutiveException: nominalResult.instrumentivoImperfectActiveAbsolutiveException || null,
           instrumentivoSourceSubjectPossessor: nominalResult.instrumentivoSourceSubjectPossessor || null,
-          actionNounSourceSubjectPossessor: nominalResult.actionNounSourceSubjectPossessor || null
+          actionNounSourceSubjectPossessor: nominalResult.actionNounSourceSubjectPossessor || null,
+          formulaDisplayStem: primaryEntry.formulaDisplayStem || "",
+          absolutiveConnectorFamily: primaryEntry.absolutiveConnectorFamily || "",
+          absolutiveConnectorSelector: primaryEntry.absolutiveConnectorSelector || "",
+          absolutiveConnectorInput: primaryEntry.absolutiveConnectorInput || ""
         };
         alternateForms.length = 0;
         alternateEntries.forEach(entry => {
@@ -1719,6 +1730,13 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
         alternateForms.length = 0;
       }
       const hasDerivedMuPrefix = Boolean(hasSuffixSeparator || hasCompoundMarker || hasSlashMarker || directionalInputPrefix);
+      const derivedMuStemInteractionSourceFrame = targetObject.buildDerivedMuStemInteractionSourceFrame({
+        obj1: objectPrefix,
+        tronco: verb,
+        alternateForms,
+        enable: hasDerivedMuPrefix
+      });
+      const derivedMuStemInteractionOperationFrame = targetObject.buildDerivedMuStemInteractionOperationFrame(derivedMuStemInteractionSourceFrame);
       ({
         obj1: objectPrefix,
         tronco: verb
@@ -1726,7 +1744,9 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
         obj1: objectPrefix,
         tronco: verb,
         alternateForms,
-        enable: hasDerivedMuPrefix
+        enable: hasDerivedMuPrefix,
+        sourceFrame: derivedMuStemInteractionSourceFrame,
+        operationFrame: derivedMuStemInteractionOperationFrame
       }));
       if (isPotencialActiveProfile) {
         const potentialForms = buildPotencialActiveForms({
@@ -1804,6 +1824,19 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
         const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta({
           preferCurrentDerivedStem: combinedMode === "nonactive"
         });
+        const implicitActionNounSourceSubjectPossessor = actionNounStemUse === "general-use" && !possessivePrefix;
+        const resolvedSourceSubjectFrame = implicitActionNounSourceSubjectPossessor ? sourceSubjectFrame && typeof sourceSubjectFrame === "object" ? sourceSubjectFrame : typeof targetObject.buildAndrewsSourceSubjectFrame === "function" ? targetObject.buildAndrewsSourceSubjectFrame({
+          subjectPrefix: baseSubjectPrefix,
+          subjectSuffix: baseSubjectSuffix,
+          sourceUnit: "CNV",
+          sourceTense: combinedMode === "nonactive" ? "distant-past-passive" : "distant-past-active"
+        }) : null : sourceSubjectFrame;
+        const resolvedSourceSubjectPossessorOperationFrame = implicitActionNounSourceSubjectPossessor ? sourceSubjectPossessorOperationFrame && typeof sourceSubjectPossessorOperationFrame === "object" ? sourceSubjectPossessorOperationFrame : typeof targetObject.buildSourceSubjectPossessorOperationFrame === "function" ? targetObject.buildSourceSubjectPossessorOperationFrame({
+          sourceSubjectFrame: resolvedSourceSubjectFrame,
+          nominalKind: "calificativo-instrumentivo",
+          operationId: "andrews-36-11-active-action-source-subject-to-possessor",
+          andrewsRef: combinedMode === "nonactive" ? "Andrews 36.10" : "Andrews 36.11"
+        }) : null : sourceSubjectPossessorOperationFrame;
         const calificativoResult = targetObject.getCalificativoInstrumentivoResult({
           rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
           verbMeta: nominalVerbMeta,
@@ -1820,7 +1853,9 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           sourceRouteFrame,
           routeFrame,
           valenceFrameFixed,
-          sourceValenceFrameFixed
+          sourceValenceFrameFixed,
+          sourceSubjectFrame: resolvedSourceSubjectFrame,
+          sourceSubjectPossessorOperationFrame: resolvedSourceSubjectPossessorOperationFrame
         });
         if (calificativoResult?.valencyObjectSlotGate?.status === "blocked") {
           return returnMorphologyValencyGateBlocked(calificativoResult.valencyObjectSlotGate);
@@ -1832,6 +1867,19 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
       if (tense === "instrumentivo") {
         const nominalVerbMeta = resolveVerbDerivedNominalVerbMeta();
         const resolvedInstrumentivoMode = instrumentivoMode || (possessivePrefix === "" ? targetObject.INSTRUMENTIVO_MODE.absolutivo : targetObject.INSTRUMENTIVO_MODE.posesivo);
+        const implicitInstrumentivoSourceSubjectPossessor = resolvedInstrumentivoMode === targetObject.INSTRUMENTIVO_MODE.posesivo && !possessivePrefix;
+        const resolvedInstrumentivoSourceSubjectFrame = implicitInstrumentivoSourceSubjectPossessor ? sourceSubjectFrame && typeof sourceSubjectFrame === "object" ? sourceSubjectFrame : typeof targetObject.buildAndrewsSourceSubjectFrame === "function" ? targetObject.buildAndrewsSourceSubjectFrame({
+          subjectPrefix: baseSubjectPrefix,
+          subjectSuffix: baseSubjectSuffix,
+          sourceUnit: "CNV",
+          sourceTense: "imperfect-active"
+        }) : null : sourceSubjectFrame;
+        const resolvedInstrumentivoSourceSubjectPossessorOperationFrame = implicitInstrumentivoSourceSubjectPossessor ? sourceSubjectPossessorOperationFrame && typeof sourceSubjectPossessorOperationFrame === "object" ? sourceSubjectPossessorOperationFrame : typeof targetObject.buildSourceSubjectPossessorOperationFrame === "function" ? targetObject.buildSourceSubjectPossessorOperationFrame({
+          sourceSubjectFrame: resolvedInstrumentivoSourceSubjectFrame,
+          nominalKind: "instrumentivo",
+          operationId: "andrews-36-6-instrumentive-source-subject-to-possessor",
+          andrewsRef: "Andrews 36.6"
+        }) : null : sourceSubjectPossessorOperationFrame;
         const instrumentivoResult = targetObject.getInstrumentivoResult({
           rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
           verbMeta: nominalVerbMeta,
@@ -1847,7 +1895,9 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           sourceRouteFrame,
           routeFrame,
           valenceFrameFixed,
-          sourceValenceFrameFixed
+          sourceValenceFrameFixed,
+          sourceSubjectFrame: resolvedInstrumentivoSourceSubjectFrame,
+          sourceSubjectPossessorOperationFrame: resolvedInstrumentivoSourceSubjectPossessorOperationFrame
         });
         if (instrumentivoResult?.valencyObjectSlotGate?.status === "blocked") {
           return returnMorphologyValencyGateBlocked(instrumentivoResult.valencyObjectSlotGate);
@@ -1861,6 +1911,11 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           preferCurrentDerivedStem: combinedMode === "nonactive"
         });
         const resolvedPredicateNominalSourceTense = predicateNominalSourceTense || targetObject.getPredicateNominalSourceTenseForTarget(tense);
+        const predicateNominalConnectorOperationFrame = typeof targetObject.buildPredicateNominalConnectorOperationFrame === "function" ? targetObject.buildPredicateNominalConnectorOperationFrame({
+          sourceTense: resolvedPredicateNominalSourceTense,
+          nominalKind: tense,
+          nominalConnector: subjectSuffix || "t"
+        }) : null;
         const predicateNominalResult = targetObject.getPredicateNominalResult({
           rawVerb: rawVerb || sourceRawVerb || rawAnalysisVerb || exactAnalysisVerb || analysisVerb || verb,
           verbMeta: nominalVerbMeta,
@@ -1878,7 +1933,8 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
           sourceRouteFrame,
           routeFrame,
           valenceFrameFixed,
-          sourceValenceFrameFixed
+          sourceValenceFrameFixed,
+          predicateNominalConnectorOperationFrame
         });
         if (predicateNominalResult?.valencyObjectSlotGate?.status === "blocked") {
           return returnMorphologyValencyGateBlocked(predicateNominalResult.valencyObjectSlotGate);
@@ -2541,7 +2597,7 @@ export function createMorphologyEngineModule(targetObject = globalThis) {
 }
 
 export function installMorphologyEngineGlobals(targetObject = globalThis) {
-    const api = createMorphologyEngineModule(targetObject);
+    const api = createMorphologyEngineApi(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }
