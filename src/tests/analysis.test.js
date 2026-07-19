@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/analysis/analysis.js
+ * Tests for src/core/analysis/analysis.mjs
  */
 
 const { createSuite } = require("./runner");

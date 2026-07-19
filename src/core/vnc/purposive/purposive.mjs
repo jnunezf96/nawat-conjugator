@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/vnc/purposive/purposive.js.
+// Canonical modern ESM module.
 
 export function createPurposiveApi(targetObject = globalThis) {
     const PURPOSIVE_DIRECTIONAL_BOUNDARY_VERSION = 1;

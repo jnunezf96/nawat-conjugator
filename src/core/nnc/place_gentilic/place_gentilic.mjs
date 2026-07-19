@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/place_gentilic/place_gentilic.js.
+// Canonical modern ESM module.
 
 export function createPlaceGentilicNncApi(targetObject = globalThis) {
     const PLACE_GENTILIC_NNC_BOUNDARY_VERSION = 1;

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/adjunction/adjunction.js.
+// Canonical modern ESM module.
 
 export function createAdverbialAdjunctionGlobals(targetObject = globalThis) {
     const ADVERBIAL_ADJUNCTION_BOUNDARY_VERSION = 1;

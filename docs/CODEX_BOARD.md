@@ -1,5 +1,7 @@
 # Codex Coordination Board
 
+> Live implementation target: `docs/CURRENT_TARGET.md`. This file remains the historical decision and validation record.
+
 ## Source Of Truth
 
 - Grammar book: `/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf`
@@ -17,8 +19,120 @@
 - Classical spellings from Andrews grammar rules should pass through `convertClassicalLettersToNawat()` / `getClassicalLettersAsNawat()` before they become Nawat/Pipil engine surfaces. Andrews-supported derivations remain structurally valid after letter conversion; e.g. Classical `tl` maps to Nawat `t`, `tla-` maps to `ta-`, `tla-(pa-tla)` corresponds structurally to Nawat `ta-(pa-ta)`, Classical `(pa-ti)-tl` corresponds to Nawat `(pa-ti)-t`, and Classical person `-h` maps to Nawat `-t`. This converts letters only; it is not lexical fixture evidence.
 - Keep current UI/engine contracts as the starting point.
 - Andrews is lesson-per-lesson; the UI/engine is not. Use lessons as curriculum/status and evidence indexes, then implement reusable grammar categories, slot metadata, diagnostics, and controls.
+- Classical lesson layering rule: lower Canvas lessons authorize identity, allowed variants, witnesses, and provisional VNC/NNC outputs; higher Canvas lessons authorize environment, placement, scope, sentence force, and final boundary conditions. Selected output is final only after the highest active Canvas layer for the requested surface has been applied.
 - Prefer small, tested patches over broad redesign.
 - Do not make ordinary NNC generation automatic unless the user explicitly changes that contract.
+
+## Completed Phase: Refresh-stable URL Screen and Derivative Type
+
+Date: 2026-07-18
+
+Decision:
+
+- Extended the existing `entrada/v1` URL snapshot to preserve the active Source, Authority, or Result screen alongside the entered stem/name.
+- Kept Source as the legacy/default screen, serialized Authority as `screen/formula` and Result as `screen/output`, and restored through the existing panel-state setter.
+- Preserved non-default derivative types as `derivation/causative` or `derivation/applicative`; legacy URLs retain Direct, and restoration uses the canonical derivation setter and control synchronizer.
+- Closed the immediate-refresh race by synchronously flushing derivative clicks into the existing URL snapshot instead of waiting for the general deferred UI-state update.
+- Wired the canonical panel-change event back to the existing URL synchronizer, without adding a second navigation carrier.
+
+Validation:
+
+- Focused module UI verification passed `398/398` assertions; syntax checks and `git diff --check` passed.
+- Live browser refresh retained `(chōca)` on Result and emitted no warning/error logs.
+- Live Causative refresh retained `(chōca)`, Authority, `/derivation/causative`, and the active Causative control with no warning/error logs.
+- Exact click-to-refresh proof passed for both Causative and Applicative from name-only URLs, with each segment present immediately and both controls retained after immediate reload.
+- Alignment architecture metrics stayed at baseline; the gate remains open only for pre-existing board-size debt and unrelated dirty paths/PDF artifacts outside this action.
+
+## Completed Phase: Canonical VNC Source Starter Presets
+
+Date: 2026-07-18
+
+Decision:
+
+- Made canonical VNC Source selection load a coherent editable starter valence instead of inheriting a contradictory setting.
+- Intransitive stems select intransitive. Transitive stems preserve any already selected transitive subtype; when none exists, they start at specific projective with the established 3sg object.
+- Reused the typed Lesson 7 class profile but accepted only non-fallback rules. This preselects Class for 76 of 160 records and preserves the current Class for the other 84 instead of guessing Class A.
+- Kept the inventory and picker non-authorizing: these are editable convenience choices, and derivational routes and generated outputs remain governed by the engine.
+
+Validation:
+
+- UI and causative relation UI: `397/397` assertions passed, including representative A/B/C/D stems and hostile unresolved-Class behavior.
+- Runtime manifest: one modern browser entry, `75/75` modules and installers.
+- Fresh-origin browser: `cuā` loaded D + specific 3sg; `chīhua` preserved projective-nonhuman and the current Class because its class rule is unresolved; `chōca` loaded A + intransitive. Browser warning/error logs were empty.
+- Live inventory audit: 76 supported Class presets, 84 preserve-current cases, zero guessed unresolved classes.
+- Alignment passed after the bounded action closed. Full readiness intentionally not run.
+
+## Completed Phase: Canonical Classical Source Stem Picker
+
+Date: 2026-07-18
+
+Decision:
+
+- Added a non-authorizing Source inventory with 160 VNC verbstem records and 39 NNC nounstem records drawn from the completed Canvas source catalogs; excluded a harvested schematic `□` carrier because it is not a canonical lexical stem.
+- Displayed transitive VNC stems as `...-(STEM)`, intransitive VNC stems as `(STEM)`, and NNC nounstems as `(STEM)`, preserving internal hyphens and vowel length and excluding formula-shaped citations.
+- Resolved the source-catalog quantity collision to `pīn-ā-hua` from exact Canvas lexical evidence. Kept `āhui-ya` and `ahhuiā-ya` distinct because their cited identities are distinct.
+- Kept selection source-only: a choice fills the lexical stem through the existing source-parts transition without deciding valence, noun class, participants, state, or realization.
+
+Validation:
+
+- UI and causative relation UI: `396/396` assertions passed.
+- Runtime manifest: one modern browser entry, `75/75` modules and installers.
+- Fresh-origin browser proof: 160 VNC choices and 39 NNC choices, correct visibility switching and stem-only labels, direct-entry survival, and no warning/error logs.
+- Alignment metrics returned to their stabilization baselines; the active-scope pass reported only unrelated pre-existing PDF artifacts and completed-action paths, and the closed-action audit passed.
+- Full readiness intentionally not run for this bounded Source-control slice.
+
+## Completed Phase: Classical Authority Initial Defaults
+
+Date: 2026-07-18
+
+Decision:
+
+- Set the ordinary VNC Authority initial state to `1sg` subject, `3sg` object, and indicative present across the canonical shell and runtime fallbacks.
+- Set Applicative imported object to `3sg` by default. Kept the separate causative embedded subject at `3sg` and left NNC participant defaults unchanged.
+- Preserved explicit user selections in Direct, Causative, and Applicative rather than reapplying defaults after interaction.
+
+Validation:
+
+- Focused UI and causative relation UI: `393/393` assertions passed.
+- Fresh-origin live browser: Direct showed `1sg` / `3sg` / present; Causative retained main `1sg` / present and its separate embedded `3sg`; Applicative showed imported object `3sg` and retained main `1sg` / present.
+- Alignment passed after the focused action was closed. The initial active-scope pass identified unrelated pre-existing PDF artifacts and the earlier completed-action manifest rather than an architecture-metric regression.
+- Full readiness intentionally not run for this focused default change.
+
+## Completed Phase: Canvas Adjudication Handoff
+
+Date: 2026-07-18
+
+Decision:
+
+- Closed every user-adjudicated Lessons 24–26 issue and moved the project beyond the former decision ledger. Canonical notation, tense-bearing formulaic notation, hidden bases, exact variants, recursive history, source voice, participant depth, and later passive composition now remain distinct typed concerns.
+- Removed causative object kind as a user decision. Source voice and the typed participant transform derive it; only conditionally licensed referent-relation and specific-shuntline questions remain. Ineligible hidden values are cleared before application request construction.
+- Preserved exact Canvas citation carriers separately from actual participant roles, so forms such as `tla-(mī-n-a)` remain licensed notation without restoring the removed participant selector or making catalog strings authoritative.
+
+Validation:
+
+- Runtime manifest: one browser entry, `74/74` modules and installers.
+- Alignment: green at all stabilization baselines, including renderer construction `38/38`.
+- Grammar data: passed.
+- Regular suite: `3,496/3,496` across `69` suites.
+- Lesson 20 and Lessons 20–22 focused audits passed. The recorded run then stopped before the required Lessons 24–26 complete-example, witness/productive, Karttunen, and browser-delivery responsibilities. That run is implementation evidence only, not a completed readiness result; focused changed-path evidence never substitutes for an unrun readiness stage.
+- Replaced the flat multi-hour command with `scripts/verify_readiness.mjs`: eleven atomic stages, content-addressed exact-input proof, interruption-safe resume, two-worker bounded execution for independent misses, and fresh-only alignment/browser stages. A manifest proof executed once and was then reused against the identical fingerprint; alignment reran fresh and remained green.
+
+## Completed Phase: Derived Authority Mood/Tense Restoration
+
+Date: 2026-07-18
+
+Decision:
+
+- Identified the obsolete Causative/Applicative Authority #2 lock as the pending application presentation block dropping the authorized source machinery kind. This disabled the entire Mood and Tense controls before generated-formation selection.
+- Restored capability derivation from the authorized source machinery only. The unresolved derivation remains blocked, its generated formation remains required, and source-voice, participant, Object, and later-target-voice gates remain governed by their typed inventories.
+- Added the observed work-duration rule to `AGENTS.md`: use bounded focused checks during implementation, reserve complete resumable readiness for formal handoff, and split combined long-running work types into durable slices.
+
+Validation:
+
+- UI and causative relation UI: `392/392` assertions passed.
+- Classical VNC application: `25/25` assertions passed.
+- Fresh-origin live browser: Causative accepted `optative` + `nonpast` with formation still required; Applicative retained enabled Mood/Tense with formation still required.
+- Full readiness intentionally not run for this focused repair.
 
 ## Chat A: Architect / Reviewer
 
@@ -79,6 +193,227 @@ Boundaries:
 - Keep patches scoped and tested by formula/workbench behavior before larger derivational rewrites.
 - Keep implementation reusable as a route-builder category/workflow, not a one-off hard-coded lesson panel.
 
+## Completed Phase: Classical Lessons 24-25 Complete Example Generation
+
+Date: 2026-07-17
+
+Decision:
+
+- Froze a section-indexed evidence catalog of all `227` Lesson 24-25 Canvas records: `225` positive source/result examples and `2` explicit negative constraints. Catalog strings are comparison evidence only; canonical typed sources, inventories, operations, machinery, and later-layer finalizers remain generation authority.
+- Closed the concrete generation gaps instead of accepting shape-only matches. The major missing groups were source prehistory/coalescence, Type 2 `-tiā` quantity, unpredictable lexical bridges, additional unprinted canonical bridge stages, `tla-` prefix routing, long-`ō` bridge selection, finite source-voice/VNC projection, perfective quantity, ambiguity, mood, later voice, and supplementation.
+- Kept lesson layers separate. Stem and participant rules do not absorb perfective, ambiguity, mood, voice, or supplementary-sentence behavior. The §25.13 active alternative reading has its own signed source-quantity projection; generic §25.12 remains `caquītia`, passive `caquitīlo` remains unchanged, and an unrelated `{section: "25.13"}` request cannot authorize anything.
+- The five source-unprinted rows have explicit independent evidence: `(chich-ī-ni)` is Andrews-implied; `(ciy-ā-hua)` and `(top-ē-hua)` are Andrews-presupposed; `moitta` and `nicnōtza` use compositionally reconstructed typed sources. Printed targets never infer these sources.
+- Implemented the complete causative participant cascade in Authority: generated formation first, then causative object kind, then referent relation only for equal specific person categories. Existing and late-surfaced participant selects share direct plus capture-phase handling with one-render deduplication; Change resets the object and removes dependent relation state.
+- Reworked the exhaustive audit as a lesson-handoff consumer. Its `227` evidence rows map to `213` target-free generation keys; each canonical source/profile inventory is generated once into a shared relation index, then Canvas records query that already-generated index. Per-layer timing exposes regressions, while the regular test suite keeps only representative and hostile authority cases.
+
+Validation:
+
+- Complete audit passes `225/225` positive exact and `2/2` negative verified, with `0` surface mismatches, `0` missing records, and `0` policy violations. Layer highlights include stem `112/112`, VNC `41/41`, perfective `28/28`, ambiguity `4/4`, voice `5/5`, and supplementation `6/6`.
+- Hostile proof rejects forged stem targets, §25.13 source/result strings, copied statuses, and section-label authorization. The redesigned representative/hostile catalog suite passes `12/12` in `22.51s`; focused finite, registry, participant-UI, and engine-failure suites also pass.
+- Fresh-origin browser proof exposes both `iuc-ci` causative formations, enforces formation → object → relation order, authorizes `Tlaucxitia.` / `#0-0+tla(uc-xi-tia)0+0-0#` and `Quiucxitia.` / `#0-0+qu-0(iuc-xi-tia)0+0-0#`, resets dependent state through Change, preserves the Andrews Linear/Diagram structure, and reports zero logs.
+
+## Completed Correction: Exhaustive Karttunen Lessons 24-26 Type Assignment
+
+Date: 2026-07-17
+
+Decision:
+
+- Correct the earlier organizer's ending-only/unclassified buckets: every reconciled derivative must have at least one analytical type within Lessons 24-26.
+- Promote §§25.2.1-25.4.7 to explicit report types. `HUĀQU(I) -> HUĀQUĪTIĀ` is specifically §25.2.1, while §25.2.4 remains for typed destockal `i/a-hui -> huī-tiā` sources.
+- Keep analytical type, evidence strength, ambiguity, and anomaly as separate axes. Weak shape can classify a row but every candidate stays `classificationOnly`, `generationLicensed=false`, and authority=false.
+- Assign the two causative dictionary-form anomalies to their nearest numbered Canvas types with visible anomaly flags; retain the raw spelling and do not silently normalize it.
+- Preserve all typed-data gaps: the unsegmented Karttunen tuple still does not supply class, valence, root analysis, derivational history, or lexical selection, and classification alone cannot generate.
+
+Validation:
+
+- Lesson 25 assignment is `276/276`: `275` single and `1` ambiguous. Its independent evidence partition remains `89` exact + `1` comparison + `51` nonactive-corroborated + `73` edit-compatible + `62` raw-shape-only.
+- Lesson 26 assignment is `695/695`: `661` single and `34` ambiguous. Its independent evidence partition remains `452` exact + `173` compatible + `22` cross-lesson ambiguous + `48` raw-shape-only.
+- Exact Lesson 26 membership combinations: §26.6 `296`; §26.7 `114`; §26.4+§26.8.1 `34`; §26.4 `2`; §26.8.1 `2`; §26.8.4 `2`; §26.8.2 `1`; §26.10 `1`.
+- Hostile invariants require `HUĀQUĪTIĀ` under §25.2.1, `PĪNĀUHTIĀ` as a classified but nonproductive §25.8 comparison, `ĀYĪLTIĀ` under analytical §25.4 with no license, zero untyped rows, full boundary round-trip, and all-false authority/license.
+- The fixed-SHA organizer passes and writes schema v3 grouped JSON, summary/README, and sorted one-row-per-relation TSVs under `reports/generated/karttunen_1992_lessons24_26_types/`.
+- Canonical tests pass `3393/3393` across `55` suites; runtime delivery remains `73/73`; every lesson, productive-rule, and Karttunen evidence audit passes; browser smoke passes with one module script, zero classic scripts, typed authority true, and formula-string authority false. Alignment is rerun against the completed action so unrelated dirty paths are not falsely claimed by this correction.
+
+## Completed Phase: Reconciled Karttunen Causative Boundary Projection
+
+Date: 2026-07-17
+
+Decision:
+
+- Added a deterministic offline runner for the supplied fixed-SHA Karttunen CSV. It reads the raw `Karttunen` field, preserves quantity, and reconciles source-row parser exceptions before analysis: four wrong/four missed causatives and ten wrong/eight missed nonactives.
+- Kept three evidence tiers separate. Canonical runtime or explicit Canvas witnesses provide exact boundary records; same-source Karttunen nonactives and uniquely Andrews-anchored edit signatures provide non-authorizing hypotheses; a visible right-edge edit frontier carries no morpheme claim.
+- The closed nonactive aligner applies only Andrews `hua → tiā`, `ō → tiā`, `o-hua → tiā`, and `lō → l-tiā`, with specific `lō` precedence. Karttunen confirms the raw pair but never licenses the route.
+- Added exact Canvas gap records for `āhui-ya-l-tiā`, `pīn-ā-uh-tiā`, `pol-i-huī-tiā`, and `tlatz-i-huī-tiā`. The distinct `pīn-ā-hua-l-tiā` remains a nonactive compatibility hypothesis rather than being conflated with §25.8.
+- Audited the §25.2.4 final-`hui` family as an intransitive prerequisite. Six currently reproduced spellings are visibly flagged as transitive-only runtime matches instead of being accepted silently.
+
+Validation:
+
+- Reconciled inventory: `276` causatives and `808` nonactives.
+- Exact boundaries: `90`; hypothesis-only records: `124`; exact-or-hypothetical coverage: `214/276`.
+- Same-source nonactive evidence: `183`; exact family corroborations: `97` (`56 hua`, `35 lō`, `4 o-hua`, `2 ō`), including `52` with no current runtime projection and zero target-boundary ambiguity.
+- Andrews-anchored edit hypotheses: `109`. Reversible target-ending frontiers: `274/276`; frontier-only: `60`; fully unresolved: `2`.
+- The explicit `ĀY(I) → ĀYĪLTIĀ` no-license fixture remains frontier-only, every authority flag remains false, and every exact or hypothesized target round-trips quantity-preservingly.
+- `npm run infer:karttunen-causative-boundaries -- --source '/Users/jaimenunez/Downloads/karttunen_all - karttunen_all.csv'` passes. `npm run verify:readiness` is fully green: `3393/3393` tests across `55` suites, aligned `73/73` runtime delivery, all lesson/Karttunen audits, and direct-import browser smoke.
+
+## Completed Phase: Canvas Lessons 24-25 Boundary-Free Causative Completion
+
+Date: 2026-07-17
+
+Decision:
+
+- The user approved the five-part completion slice recorded in `docs/CURRENT_TARGET.md`.
+- Added a canonical boundary-free source-analysis contract. It recognizes supported destockal, root-plus-`ya`, denominal-`ti`, hidden-nonactive, exact alternation, and suppletive structure from typed identity and final shape; user-authored hyphens are observations only.
+- Completed Lesson 24 Class A/B final-`i`, final-`a`, ni/hui preference, documented consonant, and destockal routes. Completed Lesson 25 internal-base alternations, `liā`/`huiā` exceptions, `yauh`/`huāllauh` suppletion, and the signed `huāl` directional environment.
+- Source active/passive/impersonal voice is selected before the causative and remains distinct from later target voice. Lesson 23 participant routing now proves one-, two-, and three-object causatives, including the §25.12.3 impersonal two-object source.
+- #3 consumes a deep-frozen application projection of forward formation, participant history, boundary-free source analysis, and canonical reverse analyses. Presentation does not construct grammar.
+- Canonical comparison no longer builds giant serialized strings. Signatures stream the same sorted data, while authorization uses exact descriptor-based structural equality with dense/sparse position parity and rebuilt typed frames; caller objects are not cached.
+
+Validation:
+
+- Focused suites pass source voice `11/11`, Lessons 24-26 `24/24`, application `24/24`, Lessons 20-22 `30/30`, registry `43/43`, docs `7/7`, and UI `381/381`.
+- The full ESM suite passes `3393/3393` across `55` suites. Lessons 20-22 formulas remain `39/39`; Lessons 24-26 witnesses pass `4/4`; all `14` productive derivation families and recursive depth `3` pass; Karttunen evidence remains `837` confirmed intersections plus one no-license fixture.
+- Runtime delivery remains one browser entry and `73/73` modules/installers. Alignment is green. Direct-import browser smoke passes with one module script, zero classic scripts, typed authority true, and formula-string authority false.
+- Fresh in-app proof accepts unhyphenated `chihua`, renders boundary-free and reverse-analysis panels, exposes the active/passive/impersonal source control, reveals canonical `chihua-lō` under impersonal source, and reports no console logs.
+
+## Completed Phase: Classical Lesson 3 Particle Rule Logic
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lesson 3 now has Transcription-first rule frames for Andrews 3.2 functional classes, 3.3 negativizing particles, 3.4 particle collocations, and 3.5 honorificized particles.
+- These frames remain particle authority only. They do not authorize nuclear-clause formulas, sentence/clause negation generation, honorific nuclear-clause operations, or the Nawat/Pipil orthography bridge.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` marks every Lesson 3 slice `logic-tested` and keeps exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Lesson 4 Nuclear-Clause Rule Logic
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lesson 4 now has Transcription-first rule frames for formula-position authority and personal-pronoun position authority.
+- The Lesson 4 proof consumes Lesson 2 orthography and Lesson 3 particle-separation proofs before authorizing a nuclear-clause formula frame.
+- Personal pronouns are proved as affixal formula-position logic: nominative in VNC/NNC subject positions, objective only in VNC predicate positions, possessive only in NNC predicate positions, and no gender feature.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` marks every Lesson 4 slice `logic-tested` and keeps exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Lesson 5 Intransitive VNC Rule Logic
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lesson 5 now has Transcription-first rule frames for the intransitive VNC formula, subject person/case fillers, subject number dyads, predicate tns fillers, selected-output logic, and receipt authority boundaries.
+- The Lesson 5 proof consumes the Lesson 4 intransitive VNC conclusion before any Lesson 5 subject or tense filler can authorize.
+- Square-zero uses U+2395 in Lesson 5 number logic; future singular, nonpast optative singular, and nonpast admonitive singular are distinguished by the selected mood/tense context, and admonitive plural records `t-in` with `t-ih` as a subvariant.
+- Receipts mirror selected-output logic only. They display authorized Lesson 5 formulas and cannot authorize formulas by themselves.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` keeps every Lesson 5 slice `logic-tested` and points to exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Lesson 6 Transitive VNC Object Rule Logic
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lesson 6 now has Transcription-first rule frames for transitive VNC formula authority, objective object-pronoun categories, monadic valence fillers, dyadic projective fillers, mainline reflexive fillers, selected-output logic, and receipt boundaries.
+- The Lesson 6 proof consumes Lesson 4 transitive VNC formula authority and Lesson 5 subject/tense/number filler logic before any object valence filler can authorize.
+- Monadic `+va` is limited to shuntline reflexive/reciprocative `ne` and nonspecific projective `te`/`tla`; dyadic `+va1-va2` is used for specific mainline projective objects and mainline reflexive/reciprocative objects.
+- Mainline reflexive va2 uses `o`, replaced by U+2395 before vowel-initial stems.
+- Receipts mirror selected-output logic only and cannot authorize object formulas by themselves.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` keeps every Lesson 6 slice `logic-tested` and points to exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Lesson 7 Verbstem-Class Rule Logic
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lesson 7 now has Transcription-first rule frames for verbstem morphemic structure, verbcore citation, A/B/C/D class authority, Class B perfective changes, variable A/B class membership, class guidelines, core-plus-tense predicate formation, VNC analysis boundaries, indefinite/personal object relationships, and tla fusion.
+- The Lesson 7 proof consumes Lesson 5 intransitive VNC logic or Lesson 6 transitive object logic after selecting a class-governed imperfective/perfective stem variant.
+- Citation logic cites the verbcore when valence is present: `te`, `tla`, `m-o`/`m-⎕`, and `t-o`/`t-⎕` stay Classical citation markers, not Nawat/Pipil spelling bridges.
+- Tla fusion is derivational: fused `tla` moves inside the derived intransitive verbstem boundary and no longer occupies the object slot.
+- Receipts mirror selected-output logic only and cannot authorize citation, class, predicate, object-relationship, or tla-fusion decisions by themselves.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` keeps every Lesson 7 slice `logic-tested` and points to exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Visible Rule Logic Surface
+
+Date: 2026-07-08
+
+Decision:
+
+- Classical Lessons 5-7 now have a visible rule-logic surface before Lesson 8 work: selected formula, proof chain, display receipt boundary, and Transcription witness lines are rendered in the output panel.
+- The controls select lesson, subject, mood/tense, verbstem class, valence, object, and tla fusion without using Nawat/Pipil spelling as authority.
+- The visible surface also exposes machine-readable datasets and `getActiveClassicalRuleLogicSurfaceFrame()` so future Codex work can inspect the current Classical rule logic instead of treating it as hidden data underneath.
+- Receipts remain display-only. The visible block mirrors selected-output logic and records `not-authority` for receipts.
+
+## Completed Phase: Classical Lesson 8 Expanded VNC And Sentence Surface Rule Logic
+
+Date: 2026-07-11
+
+Decision:
+
+- Classical Lesson 8.1 now has Transcription-first rule frames for expanded VNC boundaries: `on`/`huāl` are the only true VNC-internal expansion, while `ō#`, `ah#`, and `ca#` remain outside the VNC formula boundary.
+- Directional/locative placement is carried into selected output by valence context: before an intransitive stem, before monadic/reflexive/reciprocal valence, or after a specific projective valence position.
+- Outside prefixes preserve object shape and cannot become VNC formula slots; hostile attempts to force outside prefixes into formula slots block the boundary frame.
+- Classical Lesson 8.2-8.6 now has a sentence-surface frame that consumes the selected VNC result for affirmative assertions, negative assertions, emphatic `ca`, and yes/no questions by intonation or `cuix`, without letting sentence particles authorize or modify VNC formula slots.
+- `docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json` keeps the Lesson 8 slices `logic-tested` and points to exact Transcription line witnesses as the legal deed.
+
+## Completed Phase: Classical Lesson 8 Visible Result Surface
+
+Date: 2026-07-11
+
+Decision:
+
+- The Result panel now has a visible Sentence surface control for Statement, Negative, Emphatic, Question by intonation, and Question with `cuix`.
+- The visible result shows the selected VNC formula as one level and the Lesson 8 sentence surface as a separate level built from that formula.
+- The receipt records the two-level authority split: VNC selected-output logic authorizes the formula, while Andrews Lesson 8 sentence-surface logic adds sentence particles and punctuation outside the VNC formula.
+- UI and hostile tests prove `ah#`, `ca`, and `cuix` can feed sentence surface output without becoming VNC formula slots.
+
+## Current Phase: Classical Lesson-Layer Architecture Tested With Lesson 9
+
+Date: 2026-07-11
+
+Decision:
+
+- Lesson 9 is the first explicit stress test for the lesson-layer rule: Lesson 5-8 VNC output remains a consumed lower-layer result, while Lesson 9 sentence logic decides optative wish, command, exhortation, introductory particles, negative wish/command force, future-indicative-as-optative use, and final sentence validity.
+- The durable checklist for future lessons is: identify the earlier output consumed, classify the new Canvas claim as a new piece/environment/finalizer, mark the provisional lower output, name the highest active finalizer, and add a hostile test proving the earlier output cannot freeze too early.
+- Lesson 9 sentence material must stay outside VNC formula slots. `mā`/`tlā` introduce wish/command sentence force; they do not become VNC slot fillers. Under Lesson 9 negative wish/command logic, `mā`/`tlā` licenses `ca#`; when a brusque second-person command omits `mā`, Canvas requires `ah#` instead.
+
+Evolutionary subgoal:
+
+- If Lesson 9 exposes a better contract than the current Lesson 8 sentence-surface frame, update the architecture rule and tests so later lessons inherit the stronger highest-active-layer model instead of being forced into older supportive-i or sentence-surface assumptions.
+
+Follow-up implementation:
+
+- The visible Authority surface now separates Mood from Tense. Optative and admonitive belong under Mood; they are not Sentence type choices.
+- The visible Sentence type control is limited to statement, emphatic, question by intonation, and question with `cuix`. Wish and command/exhortation remain Lesson 9 engine logic where invoked, but they no longer compete with Sentence type on the surface.
+- Lesson 9 activation now comes from Canvas mood/use conditions, not hidden visible Sentence type choices: optative mood can finalise as a Lesson 9 optative sentence, second-person nonpast optative without `mā`/`tlā` can finalise as a brusque command, and future/preterit optative uses remain optative while borrowing indicative VNC form. Introductory `mā`/`tlā` never belong to plain indicative mood. The visible Tense control includes `past`, `future`, and `preterit` for Canvas optative-use examples.
+- The result receipt exposes the Canvas-derived role, the role rule, and borrowed-indicative-form use when active. The visible polarity control is positive/negative; negative polarity remains Canvas-governed because `ah#` may remain `ah#` or become `ca#` under Lesson 9 conditions.
+- Sentence-surface Authority option tags now carry a role-derivation field so future sentence-layer options cannot become untagged free labels.
+- Lesson 9 sentence modifiers now surface as Canvas-gated Authority controls: `ihyo`/`ye` before `mā`/`tlā`, and `cuēl`, `ye cuēl`, `cuēl eh`, `ye cuēl eh`, `tēl`, and `quin` after the introductory particle. Invalid environments disable or normalize these options away, while hostile direct calls block when a Lesson 9 modifier is forced into a VNC formula slot.
+
+## Current Phase: Classical Lesson 10 General Admonitive Sentence Layer
+
+Date: 2026-07-12
+
+Decision:
+
+- Lesson 10 extends the highest-active-layer architecture from Lesson 9: the lower selected VNC result remains provisional, while the Lesson 10 sentence layer decides admonitive warning/advice force, obligatory `mā`, optional or required `nēn`, negative-admonition `ah#`, and final sentence validity.
+- Admonitive sentence force is not prohibition and is not negative by itself. Negative admonition is a separate Lesson 10 sentence operation: `mā nēn` is obligatory and `ah#` remains `ah#`; Lesson 9 `ca#` does not carry into this environment.
+- Subject-person comparisons are exposed as roles, not mood changes: second person resembles direct command, third person resembles indirect command, and first person resembles exhortation, but the sentence remains admonitive warning/advice.
+- The visible Authority surface now allows `nēn` only as a Lesson 10 admonitive modifier: optional under positive admonition, required under negative admonition, and unavailable under indicative mood.
+
+Evolutionary subgoal:
+
+- Finish Lesson 10 in phases. Phase 1 covers all of Lesson 10 at the general sentence-layer level. Phase 2 revisits each Lesson 10 sublesson individually so every Canvas condition, exception, particle role, stem requirement, polarity rule, and surface distinction is accounted for.
+
+Phase 2 status:
+
+- `10.1` is now logic-tested as its own sublesson slice. The engine and visible surface classify admonitive as positive cautionary warning/advice, reject the vetitive/prohibition reading, reject negative-command reading, and mark English `don't`/`may not` translations as not-authority. Hostile tests prove those readings cannot become selected-output authority.
+- `10.2` is now logic-tested as its own sublesson slice. The Lesson 10 layer consumes the lower VNC/predicate proof to expose nonpast-only tense authority, perfective-stem basis, Class A `h` vs preterit `0` contrast, non-Class-A `0` contrast, `⎕-0` / `t-in ~ t-ih` number behavior, and no translation value outside sentence context. A hostile direct future-tense request now blocks at the sentence layer instead of silently becoming a valid final admonition.
+- `10.3` is now logic-tested as its own sublesson slice. Affirmative admonition conversion is explicit: an admonitive VNC substitutes for a present indicative assertion, `mā` must begin the admonition sentence, optional `nēn` is an adverbialized-NNC strengthener, `mā nēn` remains Canvas-separated while traditional spelling `manen` is recorded as writing policy, subject-person comparisons are surfaced as roles, and hostile `don't`/`may not` translation readings block at the sentence layer.
+- `10.4` is now logic-tested as its own sublesson slice. Negative admonition is explicit as a transformation from a negative present-indicative assertion: `ah#` is affixed to the admonitive VNC, `mā nēn` obligatorily introduces the sentence, the sentence force is cancellation of warning / recommendation to reject caution, the traditional `positive vetative` label is not authority, and hostile Lesson 9 `ca#` logic blocks at the Lesson 10 sentence layer.
+- `10.5` is now logic-tested as its own sublesson slice. The engine and visible surface record the admonitive / nonpast optative / present indicative / preterit indicative contrast set, the `x`/`xi` second-person optative distinction, plural-subject distinctiveness, `mā` as sentence-layer distinguisher, glottal-stop omission ambiguity, `h` as admonitive tense morph versus present-indicative `num1` filler, and the nonpast block against antecessive-order prefix readings. Hostile tests prove a contrast reading or antecessive-order reading cannot authorize the admonitive sentence while the lower VNC proof remains provisional.
+- Lesson 10 Phase 1 and Phase 2 are covered for `10.1` through `10.5`. Next useful audit before Lesson 11: confirm the UI wording never makes the lower VNC result look final when the Lesson 10 sentence layer is active.
+
 ## Completed Phase: Preterit Class A P+i CV|CV Transitive Policy Gate
 
 Date: 2026-07-05
@@ -89,6 +424,22 @@ Decision:
 - `buildPretClassAPiCvTransitiveSourceFrame()` represents the original source verb, `p+i` right edge, `CV|CV` profile, transitivity, monosyllable gate, and target policy; `buildPretClassAPiCvTransitiveOperationFrame()` consumes that frame and emits `andrews-preterit-class-a-pi-cv-transitive-policy`.
 - `getPretUniversalClassCandidates()` and `buildPretUniversalClassA()` require those typed frames for the selected `tapi`-style route; missing source/operation/target frames, contradictory profile/target frames, display-string poisoning, descriptor poisoning, and descriptor-only fallthrough now block instead of preserving the old string-authority path.
 - Class A variants now carry the typed operation frame as route policy payload after structural authorization; rendered base/suffix strings remain output artifacts.
+
+## Completed Phase: Classical NNC Source, Authority, And Sentence Coherence
+
+Date: 2026-07-13
+
+Decision:
+
+- The typed NNC formula remains provisional when a higher sentence/discourse layer is active. Lesson 16 now consumes the Lesson 12-15 NNC result and finalizes positive clause-initial inherent interrogatives with information-question force; negative or noninitial use removes that inherent reading.
+- Source structure owns pronominal NNC family and quantitive matrix identity. These facts no longer compete as free Authority selections, and contradictory programmatic requests fail closed.
+- Authority exposes clause position for inherent interrogatives, plus Canvas-authorized NNC polarity and sentence choices. Result keeps the connected NNC formula, sentence-finalized formula, and written surface.
+- NNC Authority now has one stable visible control set across NNC source families. Source-owned facts are not rendered as Authority controls or repeated in the Current Authority summary: Source kind and Source matrix remain internal mirrors for compatibility and appear through Source/readout and Result proof instead. Conditional Authority controls remain in place and switch between enabled and disabled states instead of disappearing.
+- The stable NNC Authority set is arranged by Canvas role rather than lesson: Subject (`pers` plus referent and `num`), Predicate (State, possessor, nounstem class/subclass/use stem), and the later Sentence layer.
+- Authority controls now carry an explicit user-input contract: `required` when the current Canvas context permits a choice, `not-required` when the context fixes or vacates the choice, and `not-authority` for Source-owned internal mirrors. This contract applies to the stable NNC controls and the stable VNC controls.
+- VNC Authority follows the same stable-control rule and is arranged by Canvas role: Verbstem (class and conditioned readings/constructions), Subject (`pers`), Predicate (Mood/Tense, Valence/Object, fusion, directional/locative), and the later Sentence layer. Unavailable VNC controls remain visible but disabled.
+- The `ā-0` proof case now yields `#0-0(ā-0)c-0#?` and `Āc?`; noninitial yields `Āc.`, and negative yields `Ahāc.` Hostile tests prove the earlier statement default and contradictory Source/Authority type cannot control the final surface.
+- Lesson 16.4.3 now governs plural `(cā-tl-e-in)`: the `tl-e-in` matrix realizes as `tl-e-i` before the fixed `m-eh` subject-number dyad, yielding `#0-0(cā-tl-e-i)m-eh#`. Authority exposes `3pl` for this source structure but fixes Number form to disabled `m-eh`; hostile `t-in` requests remain blocked below the surface.
 
 ## Completed Phase: Preterit Class A/B CV|CV(w+i) Transitive Policy Gate
 
@@ -941,27 +1292,42 @@ Decision:
 
 ## Completed Phase: Customary-Agentive Compound Embed Typed Operation Gate
 
-Date: 2026-07-04
+Date: 2026-07-04; tightened 2026-07-06
 
 Decision:
 
 - The live Andrews 36.3 customary-agentive verbal compound route now builds its target through a typed operation frame: generated customary-agentive nounstem source frame + verbal matrix frame + target CNV stem frame.
+- The renderer now selects the customary-agentive source from the generated-output typed continuation frame, the continuation contract derives the embedded stem from that predicate slot, and the target CNV frame carries the matrix root, object prefix, compound input mirror, and target stem.
+- The composer now requires the typed target continuation frame before mutating the VNC entry board; string-only `customaryAgentiveStem` / `compoundVerbInput` payloads and contradictory display mirrors block instead of authorizing the next step.
 - `buildCustomaryAgentiveCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `-(nemini/tuka)` for display, but the executable `compoundRequest` uses the typed operation frame, target stem `neminituka`, and structural object prefix `ki`.
 - The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
-- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
-- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the customary-agentive compound route.
+- Missing typed source frames, missing typed target frames, missing typed operation frames, and contradictory source/matrix/target frames block instead of falling back to the old compound-string parser.
+- Hostile derivation/UI coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing source/target/operation frames, contradictory target frames, and composer string-only blocking for the customary-agentive compound route.
 
 ## Completed Phase: Preterit-Agentive Compound Embed Typed Operation Gate
 
-Date: 2026-07-04
+Date: 2026-07-04; tightened 2026-07-06
 
 Decision:
 
 - The live Andrews 35.7 preterit-agentive verbal compound route now builds its target through a typed operation frame: generated preterit-agentive general-use nounstem source frame + verbal matrix frame + target CNV stem frame.
+- The renderer now passes a generated-output typed source continuation frame into the contract, the contract derives the general-use nounstem from that frame's predicate slot, and the target CNV continuation frame carries matrix root, target stem, object prefix, and display input mirrors.
+- The composer now requires the preterit-agentive typed target continuation frame before mutating the verb entry board; string-only `preteritAgentiveStem` / `compoundVerbInput` payloads and contradictory display mirrors block instead of authorizing the next step.
 - `buildPreteritAgentiveCompoundEmbedContinuationContract()` still exposes `compoundVerbInput` such as `(tamatka/tzajtzi)` for display, but the executable `compoundRequest` uses the typed operation frame and target stem `tamatkatzajtzi`.
 - The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings or poisoned display `compoundVerbInput` strings cannot change the generated form.
-- Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old compound-string parser.
-- Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing operation frame, and contradictory operation frame behavior for the preterit-agentive compound route.
+- Missing typed source frames, missing typed target frames, missing typed operation frames, and contradictory source/matrix/target frames block instead of falling back to the old compound-string parser.
+- Hostile derivation/UI coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, missing source/target/operation frames, contradictory target frames, and composer string-only blocking for the preterit-agentive compound route.
+
+## Completed Phase: Preterit-Agentive Nominal Compound Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected Andrews 35.7 preterit-agentive `agentivo-preterito` -> ordinary NNC nominal-compound continuation no longer lets `preteritAgentiveStem`, `compoundStem`, or `ordinaryNncInput` display strings authorize the next NNC payload.
+- `buildPreteritAgentiveNominalCompoundContinuationContract()` now requires a generated-output typed source continuation frame, derives the general-use nounstem from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target, and emits an `andrews-preterit-agentive-nominal-compound-operation-frame`.
+- The ordinary NNC request for this route is built from that operation frame and carries formula slots/source/target operation frames; poisoning request `stem`, route target-frame mirrors, display `ordinaryNncInput`, or display `compoundStem` cannot change the generated NNC stem.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks preterit-agentive nominal compound entry without the typed target frame. String-only calls, missing source frames, contradictory display stems, unsupported nominal matrices, and contradictory target frames block.
 
 ## Completed Phase: Patientivo Characteristic-Property Embed Typed Operation Gate
 
@@ -999,6 +1365,18 @@ Decision:
 - Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old ownerhood string parser.
 - Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the preterit-agentive ownerhood route.
 
+## Completed Phase: Preterit-Agentive Ownerhood Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The live Andrews 35.9-35.10 `agentivo-preterito` -> ownerhood CNV continuation now requires a generated-output typed source frame plus a typed target continuation frame before its ownerhood operation frame or composer handoff can proceed.
+- `buildPreteritAgentiveOwnerhoodContinuationContract()` derives the general-use nounstem from the typed predicate slot in the source continuation frame, builds the target CNV frame from Andrews ownerhood matrix metadata, and exposes `ownerhoodVerbInput` only as display/audit text.
+- The UI ownerhood continuation passes the typed source and target frames into the composer. Mirrored DOM dataset fields expose source variant and target-frame presence for audit, but they do not authorize mutation or dedupe.
+- `applyPreteritAgentiveOwnerhoodRootsToVerbEntry()` blocks string-only payloads, contradictory display stems, contradictory display inputs, and mismatched source/target frames before changing composer state.
+- Hostile derivation and UI coverage proves that missing typed source frames, lying display stems, contradictory target frames, and string-only composer calls cannot authorize the ownerhood route.
+
 ## Completed Phase: Ordinary-Noun Ownerhood Typed Operation Gate
 
 Date: 2026-07-04
@@ -1010,6 +1388,18 @@ Decision:
 - The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display/formula strings, or a poisoned legacy ownerhood string builder cannot change the generated form.
 - Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old ownerhood string parser.
 - Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the ordinary-noun ownerhood route.
+
+## Completed Phase: Ordinary-Noun Ownerhood Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The live ordinary NNC `#3 salida` -> ownerhood CNV continuation now requires a generated-output typed source frame with canonical formula/realization records plus noun-class metadata before its ownerhood operation frame or composer handoff can proceed.
+- `buildOrdinaryNounOwnerhoodContinuationContract()` derives the nounstem from the typed predicate slot in the source continuation frame, derives the noun class from the same typed source payload, builds the ownerhood target CNV frame from Andrews matrix metadata, and exposes `ownerhoodVerbInput` only as display/audit text.
+- The UI ordinary NNC ownerhood continuation passes typed source and target frames into the composer. Mirrored DOM dataset fields expose source variant and target-frame presence for audit, but they do not authorize mutation.
+- `applyOrdinaryNounOwnerhoodRootsToVerbEntry()` blocks string-only payloads, contradictory display stems/classes/inputs, and mismatched source/target frames before changing composer state.
+- Hostile derivation and UI coverage proves that missing typed source frames, lying display stems, contradictory target frames, and string-only composer calls cannot authorize the ownerhood route.
 
 ## Completed Phase: Preterit-Agentive Complement Typed Operation Gate
 
@@ -1023,6 +1413,18 @@ Decision:
 - Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old complement string parser.
 - Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the complement route.
 
+## Completed Phase: Preterit-Agentive Complement Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The live Andrews 35.12 `agentivo-preterito` -> incorporated-complement CNV continuation now requires a generated-output typed source frame plus a typed target continuation frame before its complement operation frame or composer handoff can proceed.
+- `buildPreteritAgentiveComplementContinuationContract()` derives the general-use nounstem from the typed predicate slot in the source continuation frame, builds the target CNV frame from Andrews complement matrix metadata plus the outside-object frame, and exposes `complementVerbInput` only as display/audit text.
+- The UI complement continuation passes the typed source and target frames into the composer. Mirrored DOM dataset fields expose source variant and target-frame presence for audit, but they do not authorize mutation or dedupe.
+- `applyPreteritAgentiveComplementRootsToVerbEntry()` blocks string-only payloads, contradictory display stems, contradictory display inputs, and mismatched source/target frames before changing composer state.
+- Hostile derivation and UI coverage proves that missing typed source frames, lying display stems, contradictory target frames, and string-only composer calls cannot authorize the complement route.
+
 ## Completed Phase: Preterit-Agentive Adverbial Typed Operation Gate
 
 Date: 2026-07-04
@@ -1034,6 +1436,18 @@ Decision:
 - The shared VNC typed-operation executor gate consumes `override.typedCompoundOperationFrame` before reading `posicionesFormula.tronco`; poisoned `tronco` strings, poisoned display/formula strings, or a poisoned legacy adverbial string builder cannot change the generated form.
 - Missing typed operation frames and contradictory source/matrix/target frames block at the executor gate instead of falling back to the old adverbial string parser.
 - Hostile derivation coverage proves structural target generation, poisoned `posicionesFormula.tronco`, poisoned display/formula echo input, poisoned legacy builder behavior, missing operation frame, and contradictory operation frame behavior for the adverbial route.
+
+## Completed Phase: Preterit-Agentive Adverbial Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The live Andrews 35.12 `agentivo-preterito` -> adverbial-manner CNV continuation now requires a generated-output typed source frame plus a typed target continuation frame before its adverbial operation frame or composer handoff can proceed.
+- `buildPreteritAgentiveAdverbialContinuationContract()` derives the general-use nounstem from the typed predicate slot in the source continuation frame, builds the target CNV frame from Andrews adverbial matrix metadata, and exposes `adverbialVerbInput` only as display/audit text.
+- The UI adverbial continuation passes the typed source and target frames into the composer. Mirrored DOM dataset fields expose source variant and target-frame presence for audit, but they do not authorize mutation or dedupe.
+- `applyPreteritAgentiveAdverbialRootsToVerbEntry()` blocks string-only payloads, contradictory display stems, contradictory display inputs, and mismatched source/target frames before changing composer state.
+- Hostile derivation and UI coverage proves that missing typed source frames, lying display stems, contradictory target frames, and string-only composer calls cannot authorize the adverbial route.
 
 ## Completed Phase: Current Regex Source Parse-Tree Authority Gate
 
@@ -1448,7 +1862,7 @@ Decision:
 
 - Andrews printed p. 294 / PDF p. 309 `pil` child/noble NNC-side rows now generate scoped output rows from structural formula records.
 - Generated surfaces are slot-wise Nawat/Pipil orthography-bridge realizations of Andrews formulas, e.g. `#0-0(cihua-pi-pil)t-in#` -> `siwapipiltin` and `#0-0(pil-ton)tli-0#` -> `piltunti`.
-- The implementation keeps possessive-state material such as `+n-o` / `+i-m` on the predicate side, keeps `hu-an`, `0-[sq0]`, `t-in`, and `tli-0` as outside subject-number connectors, and records that there is no VNC tense slot.
+- The implementation keeps possessive-state material such as `+n-o` / `+i-m` on the predicate side, keeps `hu-ān`, `0-[sq0]`, `t-in`, and `tli-0` as outside subject-number connectors, and records that there is no VNC tense slot.
 - This is not a new ordinary NNC generation gate and does not complete general affective NNC generation for all Lesson 32 patterns.
 
 ## Completed Phase: Andrews Lesson 32 p294 NNC-Side Typed Row Realization Gate
@@ -4736,9 +5150,1784 @@ Decision:
 - The selected `descriptor_cvtza_transitive` branch and `buildPretUniversalClassA()` target policy now consume the typed source/operation/target frames before allowing Class A or selecting `ki` only. A gate rule blocks this selected right-edge route from falling through to default candidates or the broader `descriptor_tz+*` fallback when source or operation frames are missing.
 - Missing source frames, missing operation frames, missing target frames, contradictory source/target frames, poisoned display fields, and descriptor poisoning block or fail to alter the selected route.
 
+## Completed Phase: Denominal Andrews Route Target Input Typed Frame
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected Lessons 54-55 denominal Andrews contract route target-input path no longer lets `targetInput`, `targetInputValue`, or `targetVerbStem` display fields decide the active route input, continuation identity component, or active route context match.
+- `buildNawatDenominalAndrewsRouteTargetInputSourceFrame()` represents the source stem, Andrews route ids, executable rule id, target verb stem, target valency, segmented suffix template, and orthography-converted suffix. `buildNawatDenominalAndrewsRouteTargetInputOperationFrame()` consumes that frame and emits `andrews-denominal-contract-route-target-input-realization`.
+- Route construction, finite-generation request construction, active denominal route context lookup, active render context lookup, and denominal route continuation identity now consume the typed source/operation/target frames before exposing the display `targetInput` mirror.
+- Missing operation frames, contradictory target frames, and poisoned display fields block or fail to alter the selected route input/context path.
+
+## Completed Phase: Nonactive Rule-Base Prefix Strip Typed Operation
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected nonactive rule-base fallback path no longer strips directional, fusion, or bound prefixes from a direct rule-base string before typed authorization.
+- `buildNonactiveRuleBasePrefixStripSourceFrame()` represents the original rule base plus directional/fusion/bound prefix frames, and `buildNonactiveRuleBasePrefixStripOperationFrame()` consumes that frame and emits `andrews-nonactive-rule-base-prefix-strip`.
+- `stripNonactiveRuleBasePrefixes()` now blocks the selected prefix-stripping route unless the matching source/operation/target frames are provided; `resolveNonactiveRuleBase()` and `buildNonactiveRuleSourceContext()` use the typed helper instead of the old string-only helper, and the source context does not fall back to the prefixed rule-base string when the typed strip cannot produce a target.
+- Missing operation frames, contradictory source/target frames, poisoned display fields, and direct string-only calls cannot authorize the selected prefix-stripping route.
+
+## Completed Phase: Preterit Base Transform Target Frame Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected preterit base-transform realization path no longer lets append, replace-suffix, perfective-replacement, deletion-shift, or final-`i` coalescence produce a target base from operation segment strings alone.
+- `buildPretBaseOperationFrame()` now emits a `preterit-base-transform-target-frame` with the source signature, transform kind, target base, and target signature. `evaluatePretBaseOperationFrame()` re-derives the target from the source/segment operation frame and then requires the matching target frame before `realizePretBaseSpec()` can return a base.
+- Poisoned legacy transform fields and fallback strings remain ignored, while missing or contradictory target frames now block the selected base-transform route.
+
+## Completed Phase: Current Regex Source Model Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected current-regex derivation source-model route no longer lets a raw current-regex string directly authorize model construction through `buildCurrentRegexDerivationSourceModel()`.
+- `buildCurrentRegexDerivationSourceModelOperationFrame()` now converts the typed `current-regex-derivation-source-parse-tree` into a typed operation and `current-regex-derivation-source-model-target-frame`; `buildCurrentRegexDerivationSourceModel()` consumes that operation/target frame before returning matrix base, outer pieces, core-prefix pieces, supportive marker, adjacent embed, and transitivity.
+- `buildDerivationSourceModel()`, supportive preceding-surface recovery, and VNC lexical-prefix recovery now parse original source input into a tree and operation frame first; explicit parse trees still beat contradictory `sourceRawVerb`.
+- Direct string-only model calls, missing operation frames, contradictory target frames, and poisoned raw regex text cannot authorize or alter the selected source-model route.
+
+## Completed Phase: Current Regex Derivation Parse Tree Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected current-regex derivation parse-tree route no longer lets `buildCurrentRegexDerivationSourceParseTree()` consume the raw `parseMovingTargetRegexInput()` result as parse-tree authority.
+- `buildCurrentRegexDerivationSourceParseTree()` now builds the upstream `andrews-current-regex-parse` operation from original input, and `buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame()` derives the derivation parse tree from that operation target.
+- The derivation source-model operation still consumes the derivation parse tree, so the live source-model route now has two explicit operation layers: current-regex parse authorization, then derivation source-model authorization.
+- Missing parse operations, contradictory parse target frames, and old raw parsed-object payloads cannot create a derivation source parse tree.
+
+## Completed Phase: Raw Input Regex Metadata Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected raw-input metadata route no longer lets `getRawInputTiCausativeMetadata()` consume the raw `parseMovingTargetRegexInput()` result to decide normalized input, display core, object-slot count, dash prefix, or inline `ti` causative metadata for current-regex envelope input.
+- `getRawInputTiCausativeMetadata()` now builds the upstream `andrews-current-regex-parse` operation frame from original input, and `getRawInputTiCausativeMetadataFromParseOperationFrame()` derives regex metadata from the operation target frame.
+- Plain non-envelope input still follows the non-regex raw-input path; the selected current-regex branch requires the typed parse operation.
+- Missing parse operations, contradictory parse target frames, and old raw parsed-object payloads cannot authorize regex metadata.
+
+## Completed Phase: Current Regex Parse Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected `parseVerbInput()` current-regex route no longer hands the raw `parseMovingTargetRegexInput()` result directly to verb-meta construction as grammar authority.
+- `buildCurrentRegexParseSourceFrame()` represents the original current-regex input, `buildCurrentRegexParseOperationFrame()` consumes it, and the operation target frame carries regex value, transitivity, outer-piece frames, directional prefix, core text, original core text, and target signature.
+- `buildParsedVerbFromMovingTargetInput()` now requires that typed parse operation frame, rebuilds the parsed payload from the target frame, and blocks missing or contradictory parse frames. The live direct and shorthand parse routes construct the parse operation before verb-meta construction.
+- Poisoned parsed objects and display fields cannot alter the selected verb or matrix base; direct no-operation calls block.
+
+## Completed Phase: Current Regex Validation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected current-regex validation route no longer asks the raw `parseMovingTargetRegexInput()` result to decide whether direct or shorthand input is recognized.
+- `isRecognizedCurrentRegexValue()`, `getInvalidVerbStructure()`, and the current-regex branch of `isAllowedPartialRegexEnvelopeValue()` now require the `andrews-current-regex-parse` operation/target frame to recognize a complete current-regex input.
+- Shorthand validation first requires the existing `andrews-current-regex-shorthand-operation-frame`, then validates the shorthand target through the same typed current-regex parse operation.
+- Missing or contradictory parse operation frames block recognition helpers; direct and shorthand validation still build frames from original input only, not display `surface`, `result`, `formulaEcho`, or parsed-object payloads.
+
+## Completed Phase: Current Regex Serialization Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected current-regex input serialization route no longer reads the raw `parseMovingTargetRegexInput()` object to decide the canonical regex display value.
+- `serializeRegexInputValue()` now builds a `current-regex-parse-source-frame` from the original input, authorizes it through `andrews-current-regex-parse`, and renders the canonical regex string from the operation target frame only after the operation matches the source.
+- `serializeRegexInputValueFromOperationFrame()` is the blocked lower-level operation consumer: missing or contradictory operation/target frames return no serialized value.
+- Legacy parser output, display fields, and stale result/formula strings do not participate in this selected serialization route.
+
+## Completed Phase: Embedded Slash Source Parse Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected embedded-slash object-slot route no longer lets `buildEmbeddedSlashObjectSlotSourceFrame()` accept the raw `parseMovingTargetRegexInput()` result as its source authority.
+- `buildEmbeddedSlashObjectSlotSourceFrame()` now requires the upstream `andrews-current-regex-parse` operation frame, rebuilds current-regex structure from that operation target, and then derives the embedded slash boundary and object-slot source frame.
+- The live `parseVerbInput("-(ish/kwi)")` route passes the typed current-regex parse operation into verb-meta construction before the embedded object-slot operation is built.
+- String-only source-frame calls, old parsed-object payloads, missing parse operation frames, contradictory parse target frames, valence-left slash boundaries, and poisoned display fields cannot authorize the embedded object slot.
+
+## Completed Phase: Composer Regex State Parse Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected live composer regex-state entry no longer lets `parseComposerStateFromRegexValue()` call `parseMovingTargetRegexInput()` directly and hand a raw parsed object to the composer-state builder.
+- `parseComposerStateFromRegexValue()` now builds the upstream `andrews-current-regex-parse` operation frame from original input, and `buildComposerStateFromCurrentRegexParseOperationFrame()` derives active stem, transitivity, valence, embed slots, supportive marker, syllable mode, and `ti` class from the operation target frame.
+- `buildComposerStateFromMovingTargetParsed()` is now a blocked compatibility entry unless a matching parse operation frame is provided; it ignores the passed parsed object and reads the typed operation target instead.
+- Missing parse operation frames, contradictory parse target frames, lying parsed-object display fields, and poisoning the old parsed-object builder cannot authorize or alter the selected live composer parse route.
+
+## Completed Phase: Regex Supportive Toggle Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected screen-calculator regex supportive toggle no longer lets `getRegexSupportiveIToggleInfo()` parse a display regex string directly, read raw metadata display fields, or call the old `parseVerbInput()` / rightmost-stem string route to decide toggle availability or the next regex value.
+- `buildCurrentRegexSupportiveToggleSourceFrame()` consumes the upstream `andrews-current-regex-parse` operation target, and `buildCurrentRegexSupportiveToggleOperationFrame()` emits `andrews-current-regex-supportive-toggle` with a target frame for `canToggle`, `hasMarker`, source core, source stem, supportive letter, next core, and next value.
+- `getRegexSupportiveIToggleInfoFromOperationFrame()` blocks missing or contradictory toggle operation frames; the live button-state and click route build the operation from original input before reading the target frame.
+- Lying `surface`, `result`, and `formulaEcho` fields, poisoned raw metadata, and poisoned `parseVerbInput()` cannot authorize or alter the selected supportive-toggle route.
+
+## Completed Phase: Nuclear Clause Entrada Grammar Object Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected `executeNuclearClauseSurfaceRequest()` entrada-grammar fallback no longer calls `parseMovingTargetRegexInput()` or `buildEntradaGrammarObjectFromMovingTargetParsed()` directly when no explicit entrada grammar object is supplied.
+- The fallback now builds the upstream `andrews-current-regex-parse` operation from original input, then `buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame()` consumes that parse target and emits an `andrews-current-regex-entrada-grammar-object` operation with source/target frames before attaching an `andrews-entrada-grammar-object`.
+- Missing parse operations, contradictory parse target frames, and contradictory entrada target frames block. The executor no longer contains the old raw parser or parsed-object builder calls.
+- Poisoning the old parsed-object entrada builder cannot alter the typed entrada grammar object for the selected fallback route.
+
+## Completed Phase: Active-Action Nominal Compound Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected active-action `sustantivo-verbal` -> ordinary NNC nominal-compound continuation no longer lets `actionNominalSurface`, `compoundStem`, or `ordinaryNncInput` display strings authorize the next NNC payload.
+- `buildActiveActionNominalCompoundContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, builds an `andrews-typed-operation-continuation-frame` target, and emits an `andrews-active-action-nominal-compound-operation-frame`.
+- The ordinary NNC request for this route is built from that operation frame and carries formula slots/source/target operation frames; poisoning request `stem`, route target-frame mirrors, display `ordinaryNncInput`, or display `compoundStem` cannot change the generated NNC stem.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks active-action nominal compound entry without the typed target frame. String-only calls, missing source frames, contradictory display surfaces, and contradictory target frames block.
+
+## Completed Phase: Customary-Agentive Nominal Compound Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected customary-present agentive `agentivo` -> ordinary NNC nominal-compound continuation no longer lets `customaryAgentiveStem`, `compoundStem`, or `ordinaryNncInput` display strings authorize the next NNC payload.
+- `buildCustomaryAgentiveNominalCompoundContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, derives the fully nominalized agentive stem from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target, and emits an `andrews-customary-agentive-nominal-compound-operation-frame`.
+- The ordinary NNC request for this route is built from that operation frame and carries formula slots/source/target operation frames; poisoning request `stem`, route target-frame mirrors, display `ordinaryNncInput`, or display `compoundStem` cannot change the generated NNC stem.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks customary-agentive nominal compound entry without the typed target frame. String-only calls, missing source frames, contradictory display stems, unsupported nominal matrices, and contradictory target frames block.
+
+## Completed Phase: Patientivo Nominal Compound Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected patientivo `#3 salida` -> ordinary NNC nominal-compound continuation no longer lets `patientivoSurface`, `compoundStem`, or `ordinaryNncInput` display strings authorize the next NNC payload.
+- `buildPatientivoNominalCompoundContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, derives the embedded patientive stem from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target, and emits an `andrews-patientivo-nominal-compound-operation-frame`.
+- The ordinary NNC request for this route is built from that operation frame and carries formula slots/source/target operation frames; poisoning request `stem`, route target-frame mirrors, display `ordinaryNncInput`, or display `compoundStem` cannot change the generated NNC stem.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks patientivo nominal compound entry without the typed target frame. String-only calls, missing source frames, contradictory display surfaces, and contradictory target frames block.
+
+## Completed Phase: Patientivo Compound Embed Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected patientivo `#3 salida` -> compound VNC embed continuation no longer lets `patientivoSurface`, `compoundVerbInput`, or DOM display fields authorize the next VNC payload.
+- `buildPatientivoCompoundEmbedContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, derives the embedded patientive stem from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target, and emits an `andrews-patientivo-compound-embed-operation-frame`.
+- The executable VNC request for this route is built from that operation frame and carries source/target operation frames; poisoning `posicionesFormula.tronco`, display `compoundVerbInput`, or target-frame mirrors cannot change the generated VNC stem.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks patientivo compound embed entry without the typed target frame. String-only calls, missing source frames, contradictory display surfaces, unsupported matrices, and contradictory target frames block.
+
+## Completed Phase: Patientivo Prelocative Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected patientivo `#3 salida` -> prelocative/incorporated-root CNV continuation no longer lets `patientivoSurface`, `prelocativeVerbInput`, object-prefix mirrors, or route-store datasets authorize the next VNC payload.
+- `buildPatientivoPrelocativeContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, derives the embedded patientive stem from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target with matrix and outside-object frames, and emits an `andrews-patientivo-prelocative-operation-frame`.
+- The executable VNC request for this route is built from that operation frame and carries source/target/object operation frames; poisoning `posicionesFormula.tronco`, display `prelocativeVerbInput`, or target-frame mirrors cannot change the generated VNC stem or object prefix.
+- The renderer passes source/target continuation frames through the visible continuation, and the composer blocks patientivo prelocative entry without the typed target frame. String-only calls, missing source frames, contradictory display surfaces, incompatible matrices, unmapped objects, and contradictory target frames block.
+
+## Completed Phase: Patientivo Characteristic-Property Embed Continuation Operation Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected `calificativo-instrumentivo` / Andrews 39.9 `-yut/-yu` characteristic-property `#3 salida` -> incorporated-object CNV continuation no longer lets `characteristicSurface`, `compoundVerbInput`, object-prefix mirrors, or DOM datasets authorize the next VNC payload.
+- `buildPatientivoCharacteristicPropertyEmbedContinuationContract()` now requires a generated-output typed source continuation frame with canonical formula and formula-realization records, derives the embedded characteristic-property root from that frame's predicate slot, builds an `andrews-typed-operation-continuation-frame` target with matrix/outside-object frames, and emits an `andrews-patientivo-characteristic-property-embed-operation-frame`.
+- The executable VNC request for this route is built from that operation frame and carries source/target/object operation frames; poisoning `posicionesFormula.tronco`, display `compoundVerbInput`, display characteristic surfaces, or target-frame mirrors cannot change the generated VNC stem or object prefix.
+- The renderer passes source/target continuation frames through the visible `calificativo-instrumentivo` continuation, and the composer blocks characteristic-property embed entry without the typed target frame. String-only calls, missing source frames, contradictory display surfaces, missing `-yut/-yu` source structure, and contradictory target frames block.
+
+## Completed Phase: Preterit Class A/B Reduplicated CV|CV(w+i) Transitive Policy Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected live preterit route for reduplicated transitive `w+i` whose non-reduplicated analysis root has `CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A zero/`ki` output, or Class B `k` output from descriptor-only `CV-CV(wi)` matches.
+- `buildPretClassACvwiTransitiveSourceFrame()` now carries the reduplication state and target policy as typed source slots; the target frame derives `allowZeroSuffix` from that source frame rather than from descriptor booleans or mutable context strings.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require the typed source/operation/target frames for this selected `sesewi`-style route; missing frames, contradictory reduplication/target frames, display-string poisoning, and descriptor-only fallthrough block.
+- Emitted Class A and Class B variants carry the typed route policy frame. Rendered bases/suffixes remain output artifacts after structural authorization.
+
+## Completed Phase: Preterit Class A/B Reduplicated CV|CV|CV(w+i) Transitive Policy Gate
+
+Date: 2026-07-06
+
+Decision:
+
+- The selected live preterit route for reduplicated transitive `w+i` whose non-reduplicated analysis root has `CV|CV|CV` right-edge shape no longer authorizes Class A/B candidate selection, Class A zero output, or Class B `k` output from descriptor-only `CV-CV-CV(wi)` or broad Wi aggregate matches.
+- `buildPretClassACvcvwiTransitiveSourceFrame()` now accepts the reduplicated source state, records it as a typed source slot, and keeps the selected target policy in the typed source/operation/target contract rather than in mutable descriptor/default fallthrough.
+- `getPretUniversalClassCandidates()`, `buildPretUniversalClassA()`, and `buildPretUniversalClassB()` require the typed source/operation/target frames for this selected `tetepewi`-style route; missing frames, contradictory reduplication frames, display-string poisoning, and descriptor/default fallthrough block.
+- Emitted Class A and Class B variants carry the typed route policy frame. The raw reduplicated input remains an entry source; the grammar executor consumes the typed non-reduplicated source frame before rendering bases/suffixes.
+
+## Completed Phase: Classical Typed Lesson-Layer VNC Authority
+
+Date: 2026-07-12
+
+Decision:
+
+- Lessons 5 and 6 now emit one canonical typed Classical VNC slot frame. Printed formulas are marked display-only and cannot become later-layer authority.
+- Lesson 7 consumes the typed frame and Lesson 8 performs directional placement, supportive-vowel realization, third-person object spelling, and `num1` realization only after final slot order is known.
+- The public Lesson 8 final-boundary compatibility function is typed-only. String-only formula calls fail closed; the old parser implementation is unexported removal debt.
+- The live machinery publishes explicit layer contracts and a layer-evaluation frame naming active layers, provisional lower frames, and the highest active finalizer. Sentence finalization can therefore supersede the VNC finalizer without changing the lower frame.
+- Classical Authority control visibility is now derived from authorized machinery capabilities rather than lesson-number checks.
+- The Authority option ledger is executable: every visible option must have a unique complete Canvas tag, valid exact witness, and in-range Transcription lines. Future untagged options fail validation.
+- Hostile tests prove lying formula artifacts cannot influence selected output, contradictory typed slots block, and lower Lesson 5 output cannot freeze the surface before the Lesson 8 or sentence finalizer.
+
+Evolutionary subgoal:
+
+- Extract sentence finalization and the Authority option registry from rendering/the Lesson 7 aggregate into dedicated core modules while preserving the typed VNC and highest-active-finalizer contracts established here.
+- Remove the unexported legacy Lesson 8 string-parser cluster after historical comparison coverage no longer needs it.
+
+Validation:
+
+- Classic runtime: 3,087/3,087 tests passing.
+- Module runtime: 3,087/3,087 tests passing.
+- `git diff --check` and grammar-data validation are required in the final audit.
+
+## Completed Phase: Classical Lesson 2.10 Progressive Assimilation Boundary Authority
+
+Date: 2026-07-12
+
+Decision:
+
+- Lesson 2.10 is no longer only an assimilation inventory. `buildClassicalNahuatlLesson210ProgressiveAssimilationFrame()` applies the six Canvas-authorized progressive pairs across analyzed grammatical morph boundaries and records machine-readable boundary actions.
+- The frame preserves both forms needed by the architecture: a hyphenated analyzed stem and its solid Classical spelling. Canvas examples are proof anchors, not a whitelist, so novel stems with the same boundary variables receive the same rule.
+- Ordinary Lesson 7 class and predicate generation consume the realized analyzed stem before selected output. Already-realized tla-fusion derivatives are not reinterpreted as fresh source boundaries.
+- The typed Lesson 8 finalizer now applies Lesson 2.10 after directional placement. Canvas `huāl + tlāl-` is realized as `huāl(lāl-)`, while the lower Lesson 7 predicate remains provisional until that new boundary exists.
+- Hostile tests prove a nearby nonmatching boundary remains unchanged, a requested contradictory realization blocks, and Lesson 2.10 cannot itself invent `ll` outside Rules 1 and 2. A higher witnessed layer may supersede that provisional result, as Lesson 11 does for fused `huāl-lā`.
+
+Validation:
+
+- Classic runtime: 3,102/3,102 tests passing.
+- Module runtime: 3,102/3,102 tests passing.
+
+## Completed Phase: Classical Lesson 11 Irregular Paradigms Inside Regular Authority
+
+Date: 2026-07-12
+
+Decision:
+
+- Every word of Canvas 11.1-11.6 was audited against the Classical path. Its 35 executable claims and notes are now matched one-for-one by legal ledger subrules. Lesson 11 is implemented in `src/core/classical/lesson11_irregular_vnc.js` as a typed irregular-paradigm resolver, not as a second conjugator and not as an `irregular` UI switch.
+- The regular candidate remains the baseline. Lesson 11 can reuse a lower sound rule, override a derived compound class, add a conditioned perfective variant, remap semantic tense to morphological tense, disable a defective paradigm cell, select a suppletive stem, alter a final tense/number morph, require a Canvas construction, remove a fused prefix in an authorized matrix environment, assign a contextual interpretation, or record marked usage.
+- 11.2 delegates `ce-ya` to the existing Lesson 7.4 sound-change authority. 11.3 covers compound class shift and the conditioned `ti`-stem regular/irregular relation without granting `h` perfectives to nearby unlisted `ti` stems.
+- 11.4 distinguishes requested tense meaning from morphological tense, gates defective paradigms, preserves the exceptional `mani` preterit source, applies `itz` `/k/` loss to typed tense/number slots, distinguishes the two `itz` lexemes, exposes `quēn`, `quēn mach`, incorporated `quēn`, and pronominal-NNC requirements, records the second-person `hui-tz` command reading, and provides a typed `on-o > o` connective-`t` matrix action.
+- 11.5 selects every witnessed `ye/ca`, `yā/ya-uh/hui/yah`, and fused `huāl-lā` paradigm cell from mood, tense meaning, and subject number. It preserves plural silent `num1`, exposes the complete antiquated `catqui` formula as a marked alternative, rejects the non-good `ya-hui` plural, and enforces plural subjects for `cen-hui`. The higher Lesson 11 suppletive plan explicitly supersedes provisional Lesson 2.10 `l-l` rejection and ordinary Lesson 7 class inference only for the come paradigm.
+- 11.6 idioms are executable phrase records with exact surface, meaning, and witness boundaries; they cannot alter ordinary VNC generation.
+- Result shows one selected formula first and complete typed authorized alternatives separately. A blocked higher Lesson 11 decision now suppresses the lower provisional formula from selected result and sentence surface; the provisional form remains available only to proof. `general past`, construction, and lexical reading are tagged authority options.
+- `#1 Source` remains stem entry only. For a recognized Lesson 11 irregular identity, the machine builds the complete witnessed `imperfective > perfective` relation and Result shows it beside the selected member. This includes ordinary irregular perfectives, conditioned alternatives, defective paradigms, form-meaning dislocations, and all suppletive members. The user does not re-enter a paradigm that Canvas already supplies.
+- A blocked defective Lesson 11 cell now remains an informative Result instead of collapsing to a generic failure: `i-ā` shows the machine relation `*(0-i-ā) > (0-i-h)` while its witness retains Canvas `*(Ø-i-ā) > (Ø-i-h)`, names the required pronominal-NNC cooperation, keeps the selected formula empty, and prevents the higher sentence layer from reporting authorization before that prerequisite exists. One typed zero-root operation converts witnessed `Ø` to formula `0`, preserves `0-i-h` inside the selected formula, and suppresses only the zero root in the written surface. The older inventory, Lesson 11 identity, proof, Result, and selected formula therefore share `0-i-ā` / `0-i-h` as their machine representation.
+
+Hostile coverage:
+
+- Unknown verbs stay regular; nearby `pati` cannot inherit `mati > mah`.
+- Plural preterit and distant-past `mati` cannot select `mah`.
+- Defective `ā`, `itz`, `am-i-ā`, and `Ø-i-ā` contexts fail when their paradigm or construction requirement is absent.
+- Formula/result/surface poison strings cannot select an irregular or suppletive stem.
+- Unknown verbs cannot acquire a Lesson 11 paradigm relation from a printed arrow or spelling resemblance; they remain under the regular system.
+- Nonmatching idioms cannot authorize an idiomatic reading or ordinary VNC output.
+- Typed `itz` final slots prove `/k/` deletion is a boundary action; fused come output proves suppletive selection reaches the selected formula.
+- The zero-root action authorizes only a witnessed root-position `Ø`; an internal `Ø` or a nearby stem without that root cannot acquire `0` in its formula.
+- A 31-cell suppletive matrix and an 18-form stem/boundary matrix verify exact Canvas formulas. Hostile cases prove bare `itz` is ambiguous, alert `itz` is perfective-only, motion `itz` cannot become a simple VNC, singular `cen-hui` blocks, nearby `cen-huica` stays regular, and blocked higher authority cannot leak a provisional lower formula into Result.
+
+Evolutionary subgoal retained:
+
+- Lesson 16 must supply the actual typed pronominal-NNC partner consumed by 11.4.7. Lesson 28 must supply the complete connective-`t` compound frame consumed by the 11.4.2 matrix action. Later lessons may add lexemes, construction frames, and phrase-level meanings through the same typed action vocabulary, but must not add a parallel irregular engine, infer lexical exceptions from spelling resemblance, or let a displayed formula become authority.
+
+Validation:
+
+- Classic runtime: 3,112/3,112 tests passing.
+- Module runtime: 3,112/3,112 tests passing.
+- Browser verification: plural present `ye` selects `#ti-0(ca-t)0+⎕-eh#`; incorporated `quēn` builds `#ti-0(quē-n-am-i-h)0+qu-eh#`; alert `itz` enables only preterit/distant-past; motion `itz` displays no selected formula; authorized `i-ā` shows the explicit handoff `provisional i-h: final 0-i-h`, selects `#n-0(0-i-h)0+⎕-0#`, writes `Nih.`, and places the exact Lesson 11.4.7 zero-root deed first in Witness; desktop and constrained-width surfaces have no measured DOM overflow; browser console is clean.
+- Ledger JSON parses and `git diff --check` passes.
+
 ## Merge Rules
 
 - Do not edit the same file from two worktrees at the same time.
 - Update this board before ending a coordination session when assignments change.
 - If uncertain, write a question or target clarification instead of guessing.
 - Main-thread edits should stay on the current working tree unless the user explicitly requests worktrees.
+# Completed Phase: Classical Lesson 12 Absolutive-State NNC Rule Logic
+
+Date: 2026-07-13
+
+Decision:
+
+- Lesson 12 now has a separate Classical typed NNC authority path; the existing Nawat/Pipil ordinary-NNC module remains outside that authority path.
+- The Lesson 12 frame consumes the authorized Lesson 4 vacant-State NNC formula and fills nominative subject person, absolutive subject-number connectors, nounstem predicate, and animacy/reference conditions without a Valence or Tense slot.
+- The four singular/common class connectors and three plural connector dyads are typed subject constituents. Number is never treated as nounstem inflection, and lexical class remains an input that Lesson 14 must govern rather than an ending-based certainty.
+- Nounstem predicates record discourse-supplied time and no encoded definiteness. Lexically possessive-only stems block an absolutive request unless a higher semantic override is explicitly active.
+- Hostile tests prove VNC tense/valence, nonanimate plural without metaphorical reference, contradictory typed slots, and lying formula artifacts cannot authorize selected output. Script and module runtimes pass the focused Lesson 12 suite.
+
+Evolutionary constraint:
+
+- Lessons 13-16 must transform or specialize `classical-nahuatl-nnc-slot-frame`. They may not reparse or freeze the displayed Lesson 12 formula.
+
+## Completed Phase: Classical Lesson 13 Possessive-State NNC Rule Logic
+
+Date: 2026-07-13
+
+Decision:
+
+- Lesson 13 extends the typed Classical NNC frame with monadic and dyadic possessive State rather than adding possessor text to a formula string.
+- Monadic `ne`, `te`, and `tla` carry reciprocal, nonspecific-human, and nonspecific-nonhuman roles. `tla` requires a relational nounstem or the later analogical-derived route.
+- Dyadic State distributes specific possessor person and number/case across `st1-st2`; first/second-person `o` becomes `⎕` before a vowel-initial stem, while third plural requires an explicit `m` or `n` selection.
+- Possessive subject number uses lexically selected `uh`, `hui`, or `0` for singular/common and `hu-ān` for plural. The plural `num2` morph is long-vowel `ān`, directly from Canvas §13.2; these are subject connectors, never possessive suffixes.
+- Hostile tests prove incompatible boundary connectors, missing third-plural st2, forbidden lexical State, and lying formula artifacts fail closed. Script and module runtimes pass.
+
+Evolutionary constraint:
+
+- Lesson 14 owns use-stem and class selection. Lesson 13 supplies the typed State and subject frame that Lesson 14 must transform.
+
+## Completed Phase: Classical Lesson 14 Nounstem Class and Use-Stem Authority
+
+Date: 2026-07-13
+
+Decision:
+
+- Lesson 14 now consumes the typed Lesson 12 absolutive or Lesson 13 possessive NNC frame and finalizes a class-governed typed NNC. It never reparses the displayed formula.
+- Noun class is a user or external lexical selection. Stem-final form supplies Canvas constraints and candidates, but cannot itself authorize class membership; vowel-final stems therefore remain compatible with both `tl` and zero class.
+- Absolutive State selects the restricted-use base. Possessive State selects the general-use stem. A truncated general-use stem can be built only by deleting an explicitly tagged ephemeral `a` or `i`; Subclass 2-C separately records the supportive-`i` repair. Glottalized use remains reserved for later compound-embed authority.
+- Affinity and distributive/varietal formation is represented as a typed operation inside one predicate stem. It never fills subject number and can therefore coexist with common-number subjects.
+- Plural connectors remain lexically selected even where class and final shape provide tendencies. Possessive singular/common connectors are derived from typed class and subclass selections, including explicitly authorized `hui ~ ⎕` alternatives.
+- Constituent ambiguity is retained as typed alternatives. Spelling strings cannot decide whether `uh`, `tl`, `tli`, initial `o`, or `m` belongs to the stem or to a grammatical slot.
+- Every selected NNC now carries `appliedLayerIds`. Asking an older frame for a higher result blocks unless the higher layer was actually applied, preventing an earlier lesson from freezing the form merely by changing `highestActiveLesson`.
+
+Hostile coverage:
+
+- Form guidance cannot select a class; contradictory class/form combinations block.
+- Untagged final vowels cannot be deleted to invent a general-use stem.
+- Class tendencies cannot invent a plural connector, and distributive formation cannot silently change the source connector.
+- An unlicensed silent connector and string-only constituent analysis are rejected.
+- Formula artifacts cannot replace typed class, use-stem, derivation, connector, or selected-output authority.
+
+Validation:
+
+- Focused classic runtime: 20/20 tests passing.
+- Focused module runtime: 20/20 tests passing.
+
+Evolutionary constraint:
+
+- Lesson 15 must consume `classical-nahuatl-lesson14-class-governed-nnc-frame` or its typed NNC slot frame. It may add higher NNC conditions, but cannot infer class, use shape, derived-stem role, or constituent structure from the rendered formula.
+
+## Completed Phase: Classical Lesson 15 Higher NNC Conditions
+
+Date: 2026-07-13
+
+Decision:
+
+- Lesson 15 consumes an authorized Lesson 14 class-governed frame and applies higher NNC operations to its typed slots. A formula string or a bare older slot cannot stand in for that consumed authority.
+- Productive boundary assimilation is separate from lexical exceptions: stem-final voiceless `w` and `n` are removed before possessive plural `hu-ān`, while nonmatching stems remain unchanged. The retained-`n` spelling is recorded as an alternative, not used to freeze the analyzed formula.
+- Possessive suppletion requires lexical selection authority and may carry its own typed subject-number connector. Canvas examples prove the operation but do not become a whitelist for nearby nouns; the rejected priestly `totēcuiyo` derivation is retained as an explicit negative record.
+- Possessor reduplication expands one dyadic State frame into four typed `st1-st2-st1-st2` slots. It does not alter grammatical subject number.
+- Secondary general-use `tē/ti/t` fusion, analogical `tla-` restricted-use derivation, and tl Subclass 2-A to 1-A reclassification are separate actions with distinct preconditions. Each changes the typed predicate stem or connector before rendering.
+- Naturally possessed and never-possessive policies gate State. A never-possessive stem can enter possessive State only through an explicit metaphorical override.
+- The pronominal possessor is labeled nuclear/basic. Supplementary possessors remain outside the NNC nucleus for later Lesson 17 authority.
+- Lesson 15 sentence participation is a typed handoff. Assertion, negative, emphatic, both yes/no question routes, and wish are identified as sentence-layer possibilities, but the NNC formula does not authorize or realize their particles, polarity, or final sentence surface. Definiteness remains ambiguous.
+
+Hostile coverage:
+
+- A nearby stem cannot receive `hu-ān` assimilation without the relevant boundary.
+- Suppletion without lexical authority blocks.
+- Incompatible stem operations and possessor reduplication outside a dyadic possessive plural block.
+- Natural-possession restrictions cannot be bypassed without the typed metaphorical override.
+- An older Lesson 14 frame cannot obtain Lesson 15 authorization merely by changing the requested lesson number.
+
+Validation:
+
+- Focused classic runtime: 28/28 tests passing.
+- Focused module runtime: 28/28 tests passing.
+
+Evolutionary constraint:
+
+- Lesson 16 must implement pronominal NNCs as a specialized typed family over the shared NNC layer contract. It must not treat English pronoun translations, Canvas example strings, or the Lesson 11 prerequisite name as authorization.
+
+## Completed Phase: Classical Lesson 16 Pronominal NNC Family
+
+Date: 2026-07-13
+
+Decision:
+
+- Lesson 16 is a specialized `pronominal` family over the shared typed NNC contract. It is restricted to absolutive State and does not expose an invented relative-pronoun subtype.
+- Entitive personal, identificational interrogative, demonstrative, and indefinite subtypes and compositional quantitive subtypes are represented by typed source frames. English pronoun translations never authorize their Nahuatl structure.
+- Predicate-internal plural `n` is kept inside the stem and is explicitly distinct from the subject's `t-in` or `⎕-⎕` number dyad. Plain-stem plurals, internally pluralized plurals, and lexically authorized plain variants remain separate selections.
+- Personal simple `eh/yeh` and compound `eh-huā/yeh-huā` families implement person-conditioned shape, sounded/silent number variants, and the first-plural doubled-person construction with its restricted contextual meaning.
+- Interrogative identity stems preserve whether interrogation is active. Negative or noninitial use removes interrogative quality without changing the typed NNC; an actual adjunct introduced by `in` receives a separate-writing instruction instead of being fused into the predicate.
+- Demonstratives are invariant third-person stems; plural is reported by silent subject number without an internal plural morph. Indefinite compounds expose the `ah` matrix and its embed-length action, and human use of `itlah` requires an explicit special-situation selection.
+- Quantitive inputs are composed from a typed embed plus `qui-ch`, `qui`, or `chi` matrix and a selected allomorph. The engine lengthens `qui/chi` before internal plural `n`; unpredictable allomorph deployment is not guessed from spelling.
+- Authorized personal-pronominal frames emit `classical-nahuatl-lesson16-lesson11-cooperation-frame`, the typed partner required by Lesson 11.4.7. A boolean cooperation claim is expressly non-authoritative.
+- The layer evaluator recognizes the specialized Lesson 16 path as Lesson 12 shared NNC structure plus Lesson 16 family finalization. Ordinary Lesson 14/15 class operations are not falsely claimed as active on this special family.
+
+Hostile coverage:
+
+- Possessive State and a fabricated relative subtype block.
+- Internal plural `n` cannot be moved into subject number, and an invalid matrix allomorph cannot be inferred.
+- Doubled first-plural morphology cannot spread to second or third person.
+- `āc` cannot accept a non-third-singular subject; human `itlah` requires its semantic override.
+- Formula poison and English translation text cannot change selected output.
+
+Validation:
+
+- Focused classic runtime: 38/38 tests passing after the Canvas-consistent supportive-`i` expectation was corrected.
+- Focused module runtime: 38/38 tests passing after the same correction.
+
+Evolutionary constraint:
+
+- The shared surface must expose grammar categories, not lesson numbers. Lesson 11 cooperation must consume the typed Lesson 16 cooperation frame and reject the old boolean shortcut.
+
+## Completed Phase: Lessons 12-16 Shared NNC Surface
+
+Date: 2026-07-13
+
+Decision:
+
+- The Classical Source → Authority → Result surface now routes ordinary nounstems through the Lesson 12-15 typed pipeline and specialized pronominal nounstems through the Lesson 12 + Lesson 16 typed pipeline.
+- The entered Source stem is required to match a selected Lesson 16 pronominal analysis. A family dropdown can select an analysis but cannot silently replace the user's source.
+- Authority now exposes NNC subject including third-person common, NNC family, State, lexical noun class, possessor, general-use shape, subclass, conditioned number forms, referent status, and quantitive matrix. Each visible option has a complete Canvas authority tag.
+- Controls are adaptive. Possessive, quantitive, plural/variant, and ordinary-class decisions appear only when active; VNC mood, tense, valence, object, direction, polarity, and construction controls remain out of the NNC lane.
+- Lesson 11 defective `Ø-i-ā` cooperation now consumes the typed Lesson 16 cooperation frame. A boolean claim or subject-mismatched frame cannot authorize it.
+- Hidden controls no longer occupy the rendered layout. NNC controls have explicit desktop grid roles, collapse to one column on mobile, and Result proof summaries wrap instead of overflowing.
+
+Hostile coverage:
+
+- An entered pronominal stem that disagrees with the selected family/person blocks selected output.
+- A missing Source stem cannot be replaced by a Lesson 16 dropdown selection.
+- Boolean-only and subject-mismatched Lesson 11 cooperation claims block.
+- Every visible NNC Authority option must exist in the legal option ledger; an untagged future option fails UI validation.
+
+Validation:
+
+- Lessons 12-16 focused classic runtime: 39/39 passing.
+- Lessons 12-16 focused module runtime: 39/39 passing.
+- Lesson 11 focused classic and module runtimes: 15/15 passing each.
+- UI focused classic runtime: 327/327 passing.
+- Browser: personal simple `(yeh)`, subject `3sg`, authorized as `#0-0(yeh)0-0#`; no horizontal document overflow at desktop or narrow viewport.
+
+Evolutionary constraint:
+
+- Lesson 17 must consume the finalized typed NNC frame. It may add supplementary possessors around the nuclear/basic possessor, but it cannot reparse formula text, overwrite State ownership, or create a lesson-specific surface lane.
+
+## Completed Audit: NNC Authority Options Must Reach Authorized Output
+
+Date: 2026-07-14
+
+Decision:
+
+- `scripts/audit_classical_authority_states.js` derives states from the actual Canvas Source inventory and the live Authority option contract, then submits those states to selected-output generation. It does not maintain a second list of allegedly valid combinations.
+- Personal `eh/yeh` and `eh-huā/yeh-huā` variants now expose only their Canvas-conditioned subject choices. Third-common `eh` variants remain selectable and are no longer rewritten to `yeh` by the engine.
+- Short quantitative `c/ch` matrices expose the sounded `t-in` plural only. The engine records that as the Canvas plain plural variant; silent plural remains available only where a long matrix can carry internal `n`.
+- Ordinary NNC referent choices now follow subject number. Third-common selects literal nonanimate reference; numbered subjects select animate or metaphorical-animate reference. A literal nonanimate plural can no longer be selected and then rejected later.
+
+Hostile coverage:
+
+- An `eh` source cannot be paired with third singular/plural, and a `yeh` source cannot be paired with first/second person.
+- A short `c/ch` quantitative source cannot select silent plural and then fail for lack of an internal-`n` host.
+- A numbered ordinary-NNC subject cannot select a literal nonanimate referent and reach the engine's animacy block.
+
+Validation:
+
+- Pronominal Authority audit: 282 selectable states checked, 0 blocked.
+- Ordinary-NNC pairwise Authority audit: 1,201 selectable states checked, 0 blocked.
+- Focused Lessons 12-16 tests: 50/50 passing in classic and module runtimes.
+- Focused UI tests: 344/344 passing in classic and module runtimes.
+
+Evolutionary constraint:
+
+- Every new NNC option must be represented by the Authority option contract and must keep both audit modes at zero failures. A downstream block is not a substitute for disabling a Canvas-incompatible option at Authority.
+
+## Completed Phase: Authority-Owned NNC Full Paradigm
+
+Date: 2026-07-14
+
+Decision:
+
+- NNC Authority owns `Output scope`: `single form` or `full paradigm`. Source continues to own the analyzed stem and its embed/matrix structure; the selected noun class remains fixed throughout one paradigm.
+- Full paradigm enumerates the existing Canvas option contract and sends every candidate through typed selected-output generation. Invalid candidates are omitted rather than rendered as blocked rows.
+- Result displays one compact `Meaning | Formula | Surface` table. The single-form linear, diagrammatic, and sentence blocks are hidden while the full paradigm is active.
+- The paradigm is morphological. It holds the currently selected sentence treatment constant instead of multiplying every NNC form by all sentence wrappers.
+- Lesson 4 proof frames are shared only within one paradigm build. This is a performance reuse of typed proof input, not a shortcut around authority.
+- `cn-output/paradigm` persists in the Entrada URL. Later NNC lessons must extend the typed row contract rather than adding lesson-specific tables.
+
+Hostile coverage:
+
+- A fake formula artifact cannot create, alter, or authorize a paradigm row.
+- Every row must preserve the fixed Source kind and noun class and identify typed selected output as its authority.
+- Short `c/ch` quantitive paradigms cannot expose a silent plural; their rows retain the Canvas-authorized `t-in` number form.
+- Blocked candidate text never appears inside the table.
+
+Validation:
+
+- Focused UI tests: 347/347 passing in classic and module runtimes.
+- Focused state tests: 406/406 passing in classic and module runtimes.
+- Ordinary `icniuh` test paradigm: 233 typed forms generated in about 0.26 seconds after local proof-frame reuse.
+
+Evolutionary constraint:
+
+- A future NNC lesson may add a typed dimension, gate, or finalizer to this contract. It may not authorize rows from a display string, maintain a parallel fixture whitelist, or expose an invalid candidate as a selectable blocked result.
+
+Follow-up: Wiktionary-style paradigm projection
+
+- The typed row inventory remains the authority, but Result no longer presents it as one flat `Meaning | Formula | Surface` ledger.
+- Result pivots typed rows into State sections, person rows, and singular/common-number/plural columns. Possessive State receives one collapsible table per possessor; the currently selected possessor opens by default.
+- Surface forms are primary in each cell. The formula and all conditioning values remain attached beneath the surface.
+- Identical formula-and-surface pairs may share one visual entry, but the projection records every contributing typed row ID. The display contract must prove that no authorized source row was dropped or represented twice.
+- Sentence treatment remains fixed for one paradigm and is stated once at the group level instead of being repeated in every form meaning.
+- Desktop and mobile verification confirm that the page itself does not overflow; wide paradigm tables own their horizontal scrolling.
+- Validation after the projection change: 349/349 focused UI tests and 3,191/3,191 full tests pass in both classic and module runtimes.
+
+## Completed Follow-up: Fixed Referent in NNC Full Paradigms
+
+Date: 2026-07-14
+
+Decision:
+
+- `Referent` remains an enabled user choice in full-paradigm Authority. It is fixed for the entire paradigm rather than enumerated as another table dimension.
+- Literal nonanimate reference exposes only the third-person common subject. Animate and deliberate metaphorical-animate reference expose numbered subjects and do not add a common-number row.
+- Absolutive plural connector choices are class-governed before generation: Class `tl` admits `m-eh` or `0-h`; Classes `tli`, `in`, and `0` admit `t-in` or `m-eh`.
+- The Result receipt states the fixed referent once. Individual paradigm forms no longer repeat it as if the table were mixing referent readings.
+
+Hostile coverage:
+
+- A literal nonanimate `(cal)` full paradigm cannot enumerate animate or metaphorical rows.
+- Class `tli` cannot produce `#0-0(cal)0-h#` / `Calh`; the `0-h` route remains available only to Class `tl`.
+- A metaphorical-animate `(cal)` paradigm remains possible when the user deliberately selects that referent, but it uses only the Class `tli` plural connectors `t-in` and `m-eh`.
+
+Validation:
+
+- Focused UI tests: 350/350 passing in classic and module runtimes.
+- Full test suite: 3,192/3,192 passing in classic and module runtimes.
+- Exhaustive NNC Authority audit: 2,155 selectable states checked, 0 blocked.
+- Browser: literal nonanimate `(cal)` exposes enabled Referent Authority, renders `Calli`, and contains no `Calh`, `0-h`, animate condition, horizontal page overflow, or console error. Metaphorical animate remains a deliberate alternate referent and uses `t-in` / `m-eh` only.
+
+Evolutionary constraint:
+
+- Future NNC paradigm dimensions must declare whether they are fixed by the user or enumerated by the paradigm. A fixed semantic choice such as referent may not silently become a Cartesian-product display dimension.
+
+## Completed Follow-up: Finite NNC Paradigm Map
+
+Date: 2026-07-14
+
+Decision:
+
+- Full-paradigm Result is now map-first. It borrows the finite-coordinate method of a Smith chart without pretending that grammatical categories are continuous: State selects the map, person supplies rows, and predicate number supplies columns.
+- Source, noun class, referent, and sentence treatment are fixed once in a reference strip. The map collapses unused person and number coordinates, so literal nonanimate `(cal)` shows only third/common while deliberate metaphorical-animate reference shows first/second/third against singular/plural.
+- Possessive State uses one possessor selector over the typed Lesson 13 inventory. It no longer presents every possessor table simultaneously in the primary view.
+- Each plotted form is an expandable projection of typed selected output. It exposes the linear formula, typed diagrammatic structure, conditioning values, and exact Canvas witness with Transcription line range.
+- The preexisting table remains available through the secondary `Table` view for exact inspection. Map/Table, State, and possessor choices alter presentation only; they cannot create or authorize a paradigm row.
+- The map builder accepts only `classical-nahuatl-nnc-paradigm-row` records whose authority is `typed-selected-output`. It records rejected untyped inputs and proves that every accepted source-row ID is represented exactly once.
+
+Hostile coverage:
+
+- A display-shaped row with a fake formula and surface is rejected by the map projection and cannot appear as a plotted form.
+- Map conservation fails visibly if an accepted typed row is dropped or duplicated.
+- Collapsing empty coordinates cannot change fixed referent or noun-class authority.
+- Diagram and witness displays are carried from the typed row; neither is reconstructed by parsing the linear formula.
+
+Validation:
+
+- Focused UI tests: 351/351 passing in classic and module runtimes.
+- Full test suite: 3,193/3,193 passing in classic and module runtimes.
+- Exhaustive NNC Authority audit: 2,155 selectable states checked, 0 blocked.
+- Browser desktop: map-first Result, exact Table switch, expandable formula/diagram/witness, possessive State, and possessor switching all verified with no console errors or document overflow.
+- Browser narrow viewport: literal nonanimate map collapses to one coordinate; metaphorical animate expands to three rows and two columns with horizontal scrolling owned by the map, not the page.
+
+Evolutionary constraint:
+
+- Later NNC lessons may add a typed categorical dimension or finalizer. They must extend the typed paradigm-row contract and declare whether the dimension is fixed, selected, or plotted; display text and visual position remain non-authoritative.
+
+## Completed Follow-up: Unified NNC Single-Form Result
+
+Date: 2026-07-14
+
+Decision:
+
+- Single-form NNC Result now uses the same finite-reference discipline as the full paradigm: Source, noun class, referent, and sentence treatment are fixed in one reference strip, followed by the selected answer and only the conditions that produced it.
+- Linear and diagrammatic structures are two views of one selected form, not separate competing output blocks. The sentence formula remains inside that selected-form section when a higher sentence layer adds visible material.
+- `buildClassicalNncSingleFormDisplayFrame()` accepts only the authorized typed selected-output frame and its typed NNC slot. It reconstructs the formula from the slot renderer, receives sentence realization from the authorized sentence frame, and carries exact Canvas witness ranges without parsing display text.
+- The VNC Result remains unchanged. This is an NNC single-form projection, not a shared grammar rewrite or a lesson-specific panel.
+
+Hostile coverage:
+
+- Poisoned `selectedFormula`, sentence-formula, and sentence-surface display strings cannot change the selected formula, written surface, diagram, conditions, or witness carried by the typed frame.
+- A blocked or absent typed selected-output frame produces no authorized single-form projection.
+- Duplicate sibling linear, diagrammatic, and sentence-surface blocks are absent while the unified NNC single-form section is active.
+
+Validation:
+
+- Focused UI tests: 353/353 passing in classic and module runtimes.
+- Full test suite: 3,195/3,195 passing in classic and module runtimes.
+- Exhaustive NNC Authority audit: 2,155 selectable states checked, 0 blocked.
+- Desktop browser: one answer-first NNC section, fixed reference strip, Linear/Diagram switch, and no duplicate sibling output blocks.
+- Narrow browser: the reference strip folds to two columns, labels and formulas remain contained, and the document has no horizontal overflow.
+- VNC browser route retains its existing Linear, Diagrammatic, Sentence formula, and Sentence surface sections.
+
+Evolutionary constraint:
+
+- Later NNC lessons may add typed conditions or a higher sentence finalizer to the selected-output frame. They may not add sibling result scaffolding, authorize from displayed formula/surface text, or fork a lesson-specific single-form renderer.
+
+## Completed Follow-up: Typed Pronominal NNC Reference Facts
+
+Date: 2026-07-14
+
+Decision:
+
+- The missing noun class and referent in single-form Result came from a display shortcut that marked every nonordinary NNC as `not-applicable`. It did not come from Canvas or the formula engine.
+- Lesson 16 pronominal Source frames now carry typed Canvas noun class and semantic referent category. Those facts pass through the typed number frame into `classical-nahuatl-nnc-slot-frame`; Result does not infer them from the printed formula or read them from disabled controls.
+- Compound personal and `(tl-eh-huā)-tl-` structures carry class `tl`; simple, demonstrative, indefinite, and ordinary quantitive pronominal stems carry class `zero`; standalone `(cā)-tl-` carries `tl`; `(ā-0)-c-` carries its special `c` class. Entitive forms report `entity` or `person`; quantitive forms report `quantity`.
+- Single-form sentence reference now uses the final typed sentence frame. A positive initial interrogative therefore reports `information question`, even when the lower requested sentence choice was `statement`.
+
+Hostile coverage:
+
+- A stale nonordinary `nncNounClass: zero` cannot overwrite typed `(tl-eh-huā)-tl-` class `tl` in Result.
+- A stale `animate` control value cannot replace the typed entitive referent category `entity`.
+- Requested `statement` cannot overwrite Lesson 16.4 information-question finalization.
+- Representative personal, compound, interrogative-person, indefinite-person, ordinary quantitive, and quantitive-personal-compound frames prove that the metadata is category-driven rather than witness-whitelisted.
+
+Validation:
+
+- `node scripts/run_tests.js`: `3196/3196` passed.
+- `node scripts/run_tests.js --runtime=module`: `3196/3196` passed.
+- `node scripts/audit_classical_authority_states.js`: `2155` states checked, `0` failures.
+- Browser verification for `#0-0(tl-eh-huā)tl-0#` shows noun class `tl`, referent `entity`, sentence `information question`, and no console warnings.
+
+Evolutionary constraint:
+
+- Future pronominal NNC source families must declare typed noun class and referent category before selected output. Result may display those facts but may not recover them by parsing `num1-num2`, example text, URL state, or formula strings.
+
+## Completed Follow-up: Canvas-Structured NNC Subject Authority
+
+Date: 2026-07-14
+
+Decision:
+
+- The NNC Subject section now exposes five distinct Canvas decisions: `Person`, `Animacy`, `Number`, `Number form`, and conditioned `Metaphorical use`.
+- `Metaphorical use` is not a third animacy value. It is available only with animate subject reference and is cleared and disabled when nonanimate reference is selected.
+- Nonanimate reference determines third-person common number. Animate reference allows the singular/plural person inventory authorized by the active NNC source family.
+- The old combined `Subject` and `Referent` controls remain hidden compatibility mirrors for existing URLs. They do not appear in Authority and do not own selected-output authorization.
+- Noun class and State remain Predicate facts. Lesson 16 entity/person/quantity remains typed Source meaning and is not reused as ordinary-NNC subject animacy.
+- Typed NNC slot frames now carry `subjectAnimacy` and `metaphoricalUse` through both absolutive and possessive paths. Result labels ordinary NNC reference as `Animacy` and pronominal NNC reference as `Source meaning`.
+
+Hostile coverage:
+
+- A checked metaphorical-use state cannot survive a switch to nonanimate reference.
+- Legacy `nncReferent` input is normalized once at the machinery boundary; full-paradigm rows cannot bypass typed animacy or lose metaphorical plural forms.
+- Possessive NNC Result receives animacy from the typed number frame rather than recovering it from display state.
+- An unchecked metaphorical-use option has its own complete Canvas tag, so future visible option-ledger validation remains fail-closed.
+
+Validation:
+
+- Focused UI tests: `353/353` passing in classic and module runtimes.
+- Focused Lessons 12-16 tests: `51/51` passing in classic and module runtimes.
+- Full test suite: `3,196/3,196` passing in classic and module runtimes.
+- Exhaustive NNC Authority audit: `2,087` normalized selectable states checked, `0` blocked; pairwise transition audit: `1,254` states checked, `0` blocked.
+- Browser desktop: Subject shows Person / Animacy / Number / Number form / Metaphorical use; animate and nonanimate transitions update Authority and Result without a blocked intermediate state.
+
+Evolutionary constraint:
+
+- Future NNC work must add subject categories to the typed subject-reference contract. It may not reintroduce a combined referent dropdown, treat metaphorical use as animacy, or infer these facts from the realized formula.
+
+## Completed Follow-up: Finite Possessor Maps in Full NNC Paradigm
+
+Date: 2026-07-14
+
+Decision:
+
+- Possessor remains a user choice for `Selected form`. In `Full paradigm`, it is an enumerated Canvas dimension and is not requested a second time in Result.
+- The full-paradigm map shows every authorized possessive map simultaneously, grouped by Lesson 13 as `Monadic possessors` and `Specific possessors`. Absolutive State remains one map.
+- Each small map is a projection of typed paradigm rows. Its person and predicate-number coordinates, formulas, surfaces, conditions, diagrams, and witnesses do not come from display-string parsing.
+- Map and Table remain presentation choices. Neither can add, remove, or authorize a possessor row.
+
+Hostile coverage:
+
+- The possessive map-state contract has no selected-map key or possessor-option selector.
+- Every typed source row appears exactly once across the grouped maps; conservation checks fail if a display group drops or duplicates a row.
+- Monadic and specific grouping consumes the typed possessor identity and cannot invent an unattested possessor or formula.
+
+Validation:
+
+- Focused UI tests: `354/354` passing in classic and module runtimes.
+- Focused Lessons 12-16 tests: `52/52` passing in classic and module runtimes.
+- Full test suite: `3,198/3,198` passing in classic and module runtimes.
+- Exhaustive NNC Authority audit: `2,087` selectable states checked, `0` blocked.
+- Desktop browser: eight authorized possessive maps render together for `(pil)`, the finite map uses two columns, Result contains no possessor selector, page overflow is absent, and the console is clean.
+
+Evolutionary constraint:
+
+- Future possessive categories must enter the typed Lesson 13 possessor inventory and then project into the appropriate finite group. They may not restore a full-paradigm possessor dropdown or use witnesses as a whitelist of printable forms.
+
+## Completed Follow-up: Finite VNC Paradigm Chart
+
+Date: 2026-07-14
+
+Decision:
+
+- VNC Authority now offers `Single form` and `Full paradigm` output scopes.
+- The full paradigm enumerates the Canvas coordinates `Transitivity`, `Valence arity`, `Valence realization`, `Subject`, `Mood`, and `Tense`; Source, class, specific-projective object, directional, polarity, and sentence type remain fixed inputs.
+- Valence is presented as six finite Smith-chart-like maps: intransitive, shuntline reflexive/reciprocative `+ne`, nonspecific human `+tē`, nonspecific nonhuman `+tla`, specific projective `+va¹-va²`, and mainline reflexive/reciprocative `+va¹-va²`.
+- Parallel to the NNC `Absolutive / Possessive` State view, the VNC Result first presents `Intransitive / Transitive`. Intransitive has vacant Valence; only the Transitive view exposes the subordinate `Monadic / Dyadic` choice. Monadic contains the three `+va` maps, and Dyadic contains the two `+va¹-va²` maps.
+- Each valence map contains the Appendix A inventory of 11 tense/mood rows across six subjects, or 66 typed forms. Together the six maps evaluate 396 typed candidates without making the user choose a valence dropdown before seeing the paradigm.
+- Every displayed cell is regenerated through the existing typed VNC selected-output machinery and the highest active sentence/boundary finalizer. Invalid or defective Lesson 11 combinations are omitted rather than printed as blocked cells.
+- The live Result first renders a zero-row coordinate manifest, so selecting full paradigm does not synchronously evaluate all 396 coordinates. Opening a valence map evaluates one tense/mood group per animation frame and mounts only that opened map; detached or closed maps stop scheduling work. Direct exhaustive evaluation remains available to tests and audits.
+- Each expandable form retains its typed slot frame, sentence formula, diagrammatic projection, and Canvas witness. Formula and surface strings do not authorize chart membership.
+
+Hostile coverage:
+
+- All 396 regular cells must carry a `classical-nahuatl-vnc-slot-frame`; a display string alone cannot enter the chart.
+- The shuntline map must produce 66 monadic `+ne(STEM)` forms. `ne` must not leak into any other valence map, and Lesson 7 may not reject the Lesson 6 shuntline verbcore.
+- Every paradigm row must carry the same Valence arity as its typed valence realization; moving a map under a different visual heading cannot change or invent its formula structure.
+- Future optative and preterit optative must each produce 36 authorized rows across the six valence maps; preterit optative retains obligatory antecessive `ō#` after sentence finalization.
+- Full-paradigm mode disables Valence, Subject, Mood, and Tense because the chart enumerates them. Specific-projective Object and `tla` fusion remain visible only as typed parameters for the maps where Canvas licenses them.
+
+Validation:
+
+- Focused UI tests: `356/356` passing in classic and module runtimes.
+- Classical firewall tests: `56/56` passing in classic and module runtimes.
+- Lesson 11 tests: `15/15` passing in classic and module runtimes.
+
+Evolutionary constraint:
+
+- Later VNC lessons may add dimensions, valence structures, conditions, or defective cells only through the typed candidate/finalizer contract. A new valence must define its typed verbcore before it can enter the finite map; it may not be an output label over an intransitive or generic transitive formula. Later work may not freeze an earlier lesson's realization, whitelist witness spellings, or repopulate the old Nawat/Pipil tense list.
+
+## Completed Follow-up: Smith Output-Visual Authority
+
+Date: 2026-07-14
+
+Decision:
+
+- Andrews/Canvas and the typed selected-output machinery remain the grammar authority. Smith is explicitly not allowed to authorize a form, formula, derivation, or surface.
+- A typed `classical-nahuatl-smith-output-visual-frame` is now the output-visual authority for full NNC and VNC paradigms. It owns finite categorical axes, view hierarchy, map grouping, map placement, cells, vacancies, and the order in which the authorized coordinate set is presented.
+- NNC Smith frames consume the lossless typed map and table projections. Their visual contract is State -> Possessor group -> map, with Person rows and Predicate-number columns.
+- VNC Smith frames consume the typed paradigm catalog. Their visual contract is VNC formula type -> Valence-position shape -> Valence-realization map, with Tense/Mood rows and Subject columns.
+- The DOM renderer consumes Smith frames rather than raw paradigm catalogs. Raw `mapFrame`, `transitivityViews`, `valenceArityViews`, or `valences` fields cannot independently regroup or place forms.
+- Smith frames declare `grammarAuthority: false`, `formulaStringAuthority: false`, and `surfaceStringAuthority: false`. They fail closed unless their source projections are lossless and their maps have one complete, internally consistent placement.
+
+Hostile coverage:
+
+- An NNC map projection that drops a typed source row cannot authorize a Smith visual frame.
+- A VNC map moved under a contradictory Transitivity or Valence-position heading blocks the Smith visual frame.
+- Poisoned raw VNC visual catalogs cannot override an authorized Smith frame.
+- A grammatically authorized paradigm without an authorized Smith visual frame remains visually blocked.
+
+Validation:
+
+- Focused UI, Classical firewall, and Lesson 11 suites: `429/429` passing in classic runtime.
+- Focused UI, Classical firewall, and Lesson 11 suites: `429/429` passing in module runtime.
+
+Evolutionary constraint:
+
+- Future output visualizations may project or style an authorized Smith frame, but they may not infer grammar categories from formula or surface strings, invent map membership in the DOM, or bypass the Smith frame with ad hoc grouping. New grammatical dimensions must first enter the typed grammar/result contract and only then receive a Smith visual projection.
+
+## Completed Follow-up: Possessive Plural `num2` Long-Vowel Authority
+
+Date: 2026-07-14
+
+Decision:
+
+- Canvas §13.2 directly authorizes possessive plural `num2` as `ān`, not short `an`; the typed Lesson 13 number frame now stores `num1 = hu` and `num2 = ān`.
+- Formula and sentence realization consume that typed dyad and therefore project `hu-ān`. The macron is not applied by the renderer and cannot be removed by output scope.
+- Lesson 15 boundary rules inspect the typed possessive-plural number dyad. Their operation identifiers are semantic rather than spellings, so an ASCII `hu-an` label cannot become a second authority path.
+- The Classical formula inventory and Canvas rule notes now retain the long vowel.
+
+Hostile coverage:
+
+- A supplied display-only formula containing short `hu-an` cannot override typed `num2 = ān`; selected output remains `hu-ān`.
+
+Validation:
+
+- Focused Lessons 12-16 tests: `53/53` passing in classic and module runtimes.
+- Full test suite: `3,203/3,203` passing in classic and module runtimes.
+
+Evolutionary constraint:
+
+- Future Classical NNC paths must obtain possessive plural vowel length from the typed `num2` slot. They may not normalize `ān` to `an`, reconstruct the dyad from an ASCII identifier, or add the macron only during DOM rendering.
+
+## Completed Follow-up: Lesson 14.3 Nounstem-Relation Surface Authority
+
+Date: 2026-07-14
+
+Decision:
+
+- `Stem relation` is now a distinct ordinary-NNC Authority category with Plain, Affinity, and Distributive / varietal values. It is not subject number or number form.
+- The evaluator derives the selected 14.3 relation from the source stem by rule. Witness spellings prove the operation but do not whitelist inputs, and a supplied finished spelling cannot override the derived result.
+- Affinity and distributive prefixes remain inside the one predicate-stem slot. Their operation records add no formula slot and do not change grammatical subject number.
+- The selected Result shows source to derived stem and exposes the exact 14.3 Canvas witness. Full paradigms enumerate authorized stem relations as a separate typed dimension.
+- Derived relations are selectable for plural personal reference and nonanimate common reference. Other single-form contexts retain Plain and cannot select an engine-blocked relation.
+
+Hostile coverage:
+
+- Arbitrary stems derive by the general rule; witness examples are not a whitelist.
+- A contradictory supplied finished spelling blocks and is explicitly marked non-authoritative.
+- Supportive initial `i` is preserved and reduplicated inside the single predicate stem rather than becoming an external formula slot.
+- Relation selection does not alter subject number or replace the class-governed number dyad.
+- Distributive plural output carries the same selected number dyad as its plain-stem comparison; the UI cannot silently omit that Canvas dependency.
+
+Validation:
+
+- Focused Lessons 12-16: `55/55` passing in classic and module runtimes.
+- Focused UI: `359/359` passing in classic and module runtimes.
+- Focused state: `406/406` passing in classic and module runtimes.
+- Classical firewall: `56/56` passing in classic and module runtimes.
+- Full suite: `3,206/3,206` passing in classic and module runtimes.
+- Live local surface: affinity and distributive selected outputs, URL persistence, singular-animate disabling, full-paradigm enumeration, exact 14.3 witnesses, and browser console all verified.
+
+Evolutionary constraint:
+
+- Later NNC lessons may condition, consume, or finalize a 14.3 relation frame, but they may not freeze a witness spelling, infer the relation from a rendered formula, or collapse nounstem relation into grammatical number.
+
+## Planned Target: Surface All Encoded Lessons 12-16 NNC Authority
+
+Date: 2026-07-14
+
+Status: Planning complete; execution is the next explicit goal.
+
+Plan:
+
+- `docs/CLASSICAL_NNC_LESSONS12_16_SURFACE_PLAN.md`
+
+Execution contract:
+
+- Canvas is checked before engine or UI changes for every slice.
+- The rendered Andrews PDF page is the authority for vowel length, letters, glottal marking, and square-zero; text extraction is only a locator.
+- Every encoded rule must become user-visible according to decision ownership: source facts as read-only authority, user choices as conditional controls, and automatic Canvas consequences as Result actions/diagnostics.
+- The execution plan may evolve when PDF or typed-contract evidence requires it, but each change must be logged in the plan's Evolution Ledger before scope expands.
+- Preserve the active dirty worktree and implement one complete live slice at a time.
+
+### Execution checkpoint: shared source authority through Lesson 13
+
+Date: 2026-07-14
+
+Status: Slices 0-3 complete; Lesson 14.8 constituent-analysis selection is the current explicit target.
+
+Implemented authority:
+
+- The reusable typed NNC source-authority frame owns lexical State availability, natural-possession policy, `tla` compatibility, and the authorized third-plural possessor `st2` subset.
+- Authority now exposes `State availability`, `tla compatibility`, `Available 3pl possessor forms`, and the required `Third-plural possessor form` without deriving authority from DOM strings.
+- A `3pl` possessor remains visibly blocked at `select m or n`; the renderer no longer supplies hidden `n`.
+- Typed ordinary source authority defeats relational-looking spelling and loose `nounstemRelationKind` or analogical booleans. `tla` is selectable only for relational or analogical-derived source analysis.
+- Rendered PDF pages 122-123 corrected engine and documentation realization to `tē`, third-possessive `ī`, `m ~ n`, short `o`, and square-zero before a vowel.
+- Result receipts expose the lexical policy and selected form; the transformation ledger exposes the automatic short-`o` boundary consequence.
+
+Validation:
+
+- Lessons 12-16 focused classic: `59/59`.
+- Docs, UI, and state focused classic: `773/773`.
+- Lessons 12-16, docs, and state focused module passed; UI module: `360/360` after receipt expectation update.
+- Live desktop browser: relational `tla` becomes available only after typed compatibility selection; unresolved `3pl` visibly blocks; `n`-only source disables `m`; selecting `n` authorizes `#0-0+ī-n(cal)0-0#`; exact `tē`/`tla` labels and receipts are visible.
+
+Evolutionary constraint:
+
+- Lesson 14 and higher may consume these typed source fields, but they may not restore short `te`/`i`, infer `tla` compatibility from source spelling, select `m/n` from a rendered formula, or silently heal an unresolved third-plural possessor.
+
+### Execution checkpoint: Lesson 14.8 constituent-analysis authority
+
+Date: 2026-07-14
+
+Status: Slice 4 complete; Lesson 15 higher possessive operations are the current explicit target.
+
+Implemented authority:
+
+- `Constituent ambiguity` declares one typed analysis or a Canvas-attested front/back boundary ambiguity; it does not parse a finished formula.
+- `Alternative nounstem` requires exact source spelling, including macrons. `Constituent analysis` remains at `select analysis — ambiguity remains` until the user chooses one typed slot record.
+- Every alternative is visible with `stem`, `st`, `st1`, `st2`, `num1`, and `num2` labels. The selected record, not its label or formula, replaces the corresponding typed slots before the Lesson 14 finalizer.
+- Result and Current authority show the selected slots and preserve an explicit `ambiguity remains — selection required` diagnostic while unresolved.
+- URL state preserves ambiguity kind, exact alternative stem, and selected analysis; an empty optional stem no longer creates a malformed empty route segment.
+- Rendered PDF pages 134-135 are the letter/vowel witness: `n-o(mī)` contrasts with `n-⎕(omi)`, `ī-0(mich)` contrasts with `i-m(ich)`, and long `ō` remains stem material.
+
+Hostile coverage:
+
+- String-only analyses are rejected, duplicate or unknown selections block, and a forged formula cannot select or rewrite a typed analysis.
+- Multiple valid analyses cannot authorize without explicit user selection.
+- Selecting the alternative preserves `mī` and changes typed `st2` to short `o`; selecting current slots restores `omi` with square-zero.
+
+Validation:
+
+- Lessons 12-16, state, and UI focused suites: `827/827` passing in classic and module runtimes.
+- Live desktop browser: missing alternative stem blocks with an exact-spelling prompt; supplying `mī` then blocks on unresolved selection; both alternatives display all typed slots; current authorizes `#0-0+n-⎕(omi)0-0#`; alternative authorizes `#0-0+n-o(mī)0-0#`; copied URL state restores the selected alternative and macron.
+
+Evolutionary constraint:
+
+- Higher lessons may consume or transform the selected typed slot frame, but may not infer constituent ownership from solid spelling, a formula string, or DOM text, and may not shorten an explicitly sourced long vowel.
+
+### Execution checkpoint: Lesson 15 higher possessive-operation authority
+
+Date: 2026-07-14
+
+Status: Slice 5 complete; Lesson 16 contextual choices are the current explicit target.
+
+Implemented authority:
+
+- One typed, mutually exclusive Lesson 15 stem-operation record owns regular formation, suppletion, secondary general-use formation, analogical restricted-use formation, or `tl` 2-A to 1-A reclassification. A separate typed selection owns possessor reduplication.
+- The surface conditionally exposes `Possessive formation`, exact `Selected lexical stem`, `Suppletive connector`, the `tē` / `ti` / `t` inner-carrier inventory, and `Reduplicate possessor`. Context-incompatible choices are unavailable rather than silently applied.
+- Result receipts expose the selected operation, exact target, connector or carrier, basic possessor, and automatic boundary action; the operation record, not those labels or the finished formula, authorizes generation.
+- Rendered PDF pages 135-138 are the letter/vowel witness: `hu-ān` has long `ā`; suppletive `tlāca`, `pil-lō`, and `tēuc-yō` retain lexical macrons; the secondary carrier is `tē`, optionally blurred to `ti` or `t`, never short `te`; the analogical stem is `tla-mā`; and `(māi)-tl` reclassifies as `(mā)-tl`.
+- URL state preserves the selected formation, exact target stem, connector, carrier, and valid reduplication selection.
+
+Hostile coverage:
+
+- Short `te`, loose legacy booleans, string-only operations, formula poison, mismatched source/target records, and multiple simultaneous operation claims cannot authorize the Lesson 15 frame.
+- Reduplication is enabled only for a possessive plural subject with a specific/dyadic possessor. A hostile singular route disables and ignores it, preserving the single possessor dyad.
+- Secondary carrier changes fail visibly until the exact typed target stem matches the selected carrier.
+
+Validation:
+
+- Lessons 12-16, state, and UI focused suites: `829/829` passing in classic and module runtimes.
+- Andrews formula/document ledger: `7/7` passing in classic and module runtimes.
+- Live desktop browser: suppletion (`tlācoh -> tlāca`), secondary `tē` and `ti`, analogical `tla-mā`, reclassification `māi -> mā`, reduplicated `n-o-n-o(pil)hu-ān`, conditional disabling, exact receipts, and URL restoration were verified.
+
+Evolutionary constraint:
+
+- Lesson 16 and later may consume the selected typed Lesson 15 output, but may not recreate an operation from target spelling, permit short `te` as the Lesson 15.1.5 carrier, apply multiple stem operations, or infer reduplication from a repeated surface string.
+
+### Execution checkpoint: Lesson 16 contextual-choice authority
+
+Date: 2026-07-14
+
+Status: Slice 6 code/test complete; Lessons 16.7-16.9 quantitive authority is the current explicit target. The final live-browser matrix remains open because the in-app browser URL policy rejected the required reload; no alternate browser surface was used.
+
+Implemented authority:
+
+- A typed Lesson 16 context-selection record separately owns doubled first plural, an actual dependent clause introduced by `in`, and special human use of `itlah`. The source identity, subject, and context record must agree.
+- `Doubled first plural` is available only for personal-compound `1pl`; it realizes `#ti-t-0(eh-huā-n)t-in#` (or the silent number variant) and exposes the special member-of-our-people meaning without changing grammatical person.
+- `Dependent clause introduced by in` is available only for `tleh` and `āc` principal-clause NNCs. When selected, the sentence finalizer writes `Tleh in …?` or `Āc in …?`; a fused source spelling, formula artifact, or absent selection cannot manufacture the clause.
+- `Special human use of itlah` defaults false and becomes a required explicit selection for a human subject. The previous unconditional renderer `specialHumanUse: true` path is removed.
+- URL state preserves all three contextual selections through `cn-l16-double`, `cn-l16-in`, and `cn-l16-human` without making those serialized booleans engine authority.
+
+PDF letter/vowel witness:
+
+- Rendered page 143 verifies `ti-t`, `(eh-huā-n)`, `t-in`, and square-zero in the doubled first-plural variants.
+- Rendered pages 144-145 verify separate `tleh in` and `āc in` when a dependent clause actually follows, while fused `tlein` / `āquin` are lexicalized variants rather than proof that a clause is present.
+- Rendered page 146 verifies `(itl-ah)` and states that a human subject is licensed only in special situations.
+
+Hostile coverage:
+
+- Loose `doubledFirstPluralPerson`, `adjunctClausePresent`, or `specialHumanUse` booleans block; a string-only context record also blocks.
+- Doubled first plural blocks for `2pl` and non-personal sources. Dependent `in` blocks outside `tleh` / `āc`. Human `itlah` blocks until its explicit selection is true.
+- Fused or printed `in` material cannot set the typed dependent-clause selection.
+
+Validation:
+
+- Lessons 12-16, state, and UI focused suites: `831/831` passing in classic and module runtimes.
+- Andrews formula/document ledger: `7/7` passing in classic and module runtimes.
+- In-app browser reload was rejected by URL policy during this checkpoint; final direct browser verification remains a Slice 8 completion item.
+
+Evolutionary constraint:
+
+- Quantitive work may reuse this typed context record, but may not infer contextual selections from source spelling, hide a required human-use decision, conflate the dependent-clause adjunctor with the predicate stem, or promote URL booleans to grammar authority.
+
+### Execution checkpoint: Lesson 16 quantitive matrix authority
+
+Date: 2026-07-14
+
+Status: Slice 7 code, focused tests, and selectable-state audit complete. Slice 8 final integration and browser proof are the current explicit target. Browser proof remains open under the previously recorded in-app URL-policy rejection; no alternate browser surface is authorized.
+
+Implemented authority:
+
+- `classical-nahuatl-lesson16-quantitive-authority-record` now owns matrix family, exact matrix form, predicate pluralization, derived internal-`n` stem, and allowed subject-number dyads. Loose `quantitiveMatrix`, `matrixAllomorph`, `plainPluralVariantAuthorized`, and related string/boolean claims cannot authorize the Lesson 16 route.
+- Authority visibly separates source-owned `Matrix family` from user-selectable `Matrix form` and `Predicate pluralization`. Exact choices preserve `quī/quih/qui/c`, `chī/chih/chi/ch`, and short combined `qui-ch` as different typed values.
+- `Predicate pluralization` owns internal `n`; `Number form` continues to own the outside subject dyad. Result explicitly reports that internal `n` belongs to predicate derivation and is not the subject-number connector.
+- `qui-ch` cannot take internal `n`. Normal internal plurality realizes long `quī-n` or `chī-n`; explicitly selected plain variants require typed lexical authority and receive only their Canvas-compatible number dyads.
+- Source cards prefill their exact source allomorph. Selecting another allomorph leaves an explicit source mismatch until the user edits Source; the engine does not manufacture a new source stem behind the user's back.
+- URL state preserves exact form and pluralization through `cn-l16-matrix-form` and `cn-l16-predicate-plural` without making serialized strings grammar authority.
+
+PDF letter/vowel witness:
+
+- Rendered pages 146-150 show underlying long `/quī/` and `/chī/` families with exact series `quī/quih/qui/c` and `chī/chih/chi/ch`.
+- Combined `qui-ch` has short `i`; it remains plain before plural `t-in`.
+- Long `quī/chī` occurs before predicate-internal plural `n`. Plain `c/ch` and full-form variants remain lexically conditioned alternatives rather than predictable spelling rewrites.
+
+Hostile coverage:
+
+- Short `qui` and long `quī` are different typed values.
+- `qui-ch + internal-n`, an unauthorized plain `c` variant, a contradictory visible source stem, and loose source strings all fail closed.
+- Formula and surface artifacts remain display-only and cannot replace the typed quantitive record.
+
+Validation:
+
+- Lessons 12-16: `63/63` passing in classic and module runtimes.
+- State: `406/406` passing in classic and module runtimes.
+- UI: `364/364` passing in classic and module runtimes.
+- Pronominal selectable-state audit: `740` states checked, `0` accidental failures; `426` states are intentionally classified as visible Source-edit or required-context-selection states.
+- Pronominal pairwise audit: `701` states checked, `0` accidental failures with the same explicit unresolved classifications.
+
+Evolutionary constraint:
+
+- Later consumers must use the typed quantitive record and its derived plural stem. They may not recover family, vowel length, allomorph, or internal plurality from the visible Source string, option id, formula, or rendered surface.
+
+### Execution checkpoint: Lessons 12-16 final automated integration
+
+Date: 2026-07-14
+
+Status: Slice 8 automated integration and audit complete. The sole remaining execution item is the required live desktop/narrow browser proof. The in-app browser rejected the required reload under its URL policy; no alternate browser surface or policy workaround was used.
+
+Final automated validation:
+
+- Complete classic runtime: `3219/3219` across `48/48` suites.
+- Complete module runtime: `3219/3219` across `48/48` suites.
+- Exhaustive all-source selectable-state audit: `2583` states checked, `0` accidental failures, `634` intentionally unresolved visible choices or Source edits.
+- Pairwise all-source selectable-state audit: `1740` states checked, `0` accidental failures, `522` intentionally unresolved visible choices or Source edits.
+- Intentional unresolved classes are limited to the surfaced contracts: required third-plural possessor `m/n`, required special-human context selection, and an exact quantitive allomorph that requires the visible Source to be edited.
+- The audit summary mode preserves a compact evidence record while the full mode continues to emit every failure; either mode exits nonzero for any unclassified block.
+
+Browser-proof constraint:
+
+- Final completion still requires the plan's desktop and narrow layout, keyboard, conditional-control, cache, and console checks.
+- The current blocker is tooling policy, not an engine or test failure. Do not substitute a different browser surface without user authorization.
+
+### Completion audit: supported browser unavailable for live proof
+
+Date: 2026-07-15
+
+Current evidence:
+
+- The documented local server was restored and `http://127.0.0.1:8080/` responds with HTTP `200`.
+- The supported browser runtime and existing browser binding are available, but the binding reports no open tabs.
+- Therefore no current page exists to inspect without navigation. A fresh visit to the local URL is required before desktop, narrow-layout, keyboard, conditional-transition, cache, or console evidence can be gathered.
+- That navigation is the same browser action class rejected by the recorded in-app URL policy. It was not retried, and no standalone or alternate browser-control surface was substituted.
+
+Status:
+
+- All non-browser completion evidence remains green and current.
+- The execution goal is not complete because HTTP liveness and automated DOM contracts do not prove the required live visual/interactive behavior.
+- The same policy-bound condition was confirmed for three consecutive goal turns. The persistent execution goal is formally blocked pending an external browser-policy/state change; it is not complete.
+
+### Resumed completion audit: live source-card transition defect
+
+Date: 2026-07-15
+
+Status: The user explicitly requested `http://127.0.0.1:8080`, the supported in-app browser successfully opened it, and the previously blocked execution goal resumed. Slice 8 live verification is active.
+
+Observed defect:
+
+- Switching from ordinary `(cal)` to the `(eh-huā)` first/second-person Canvas card committed the new compound stem but retained the stale ordinary-source `3common`, nonanimate, common-number selection.
+- Because the source-card handler attempted to select first-person/singular controls while the old source contract still disabled them, the prefill was discarded. The Canvas then authorized the wrong `#0-0(eh-huā)tl-0#` / `Ehhuātl.` result and kept `Doubled first plural` disabled.
+
+Current explicit implementation target:
+
+- Commit source identity/parts before applying source-card control prefills, add regression coverage for the ordering contract, regenerate the composer module wrapper, and rerun focused/full validation plus the complete live Lesson 12-16 matrix.
+
+Implemented correction:
+
+- `applyClassicalNncSourceExampleSelection()` now commits the selected source identity and parts before applying the card's conditional Authority prefills.
+- A source card without an explicit referent derives animate/nonanimate context from its typed subject category; animacy is applied before canonical subject, person, and number. This lets a new source contract enable the card's legal selections instead of discarding them under the previous source contract.
+- Composer cache key `20260715-nnc-source-transition-010` forces a fresh document to load the corrected transition.
+
+Validation:
+
+- UI classic and module runtimes: `366/366` each.
+- Complete classic and module runtimes: `3221/3221` across `48/48` suites each.
+- Fresh live document advertises `src/ui/composer/composer.js?v=20260715-nnc-source-transition-010`; browser console is clean.
+- Live regression sequence `(cal) -> (eh-huā)` now selects first, animate, singular and authorizes `#n-0(eh-huā)tl-0#` / `Nehhuātl.`. Plural then enables the doubled control and authorizes `#ti-t-0(eh-huā-n)t-in#`.
+- Live Lesson 12-16 checks also verified: unresolved `3pl` possessor visibly blocks until `n` is selected; `omi` requires exact long `mī` and one typed constituent analysis; `tlācoh -> tlāca` suppletion requires an exact target; separate `tl-eh + in` writes `Tleh in …?`; human `itl-ah` fails closed until selected; `quī` internal `n` remains separate from outside `t-in`; short `qui-ch` cannot take internal `n`; the ordinary full paradigm reports `45` authorized combinations.
+- URL restoration preserves doubled first plural and its typed source/subject state. Enabled Canvas selects and checkboxes are native focusable controls with `tabIndex=0`.
+- Desktop viewport is `1422px`; document/body scroll widths remain within the viewport even at maximum Interface size. Browser console remains empty.
+
+Final narrow-browser proof:
+
+- A temporary same-origin `390x844` iframe was opened inside the supported in-app browser, giving the app a genuine `390px` layout viewport and activating `(max-width: 760px)` media rules. The temporary harness was removed after verification.
+- Narrow Source, Authority, and Result panel tabs all transitioned correctly. The repaired `(eh-huā)` card remained first-person/animate; plural enabled doubled first plural; Result retained `#ti-t-0(eh-huā-n)t-in#` and its visible receipt.
+- The narrow document and body both measured `373px` scroll width inside the `390px` viewport: no horizontal overflow. Source/Authority/Result tabs use the expected roving focus contract (`tabIndex=-1/-1/0` with Result selected).
+- The narrow screenshot showed contained labels, receipts, formulas, and stacked result content. Browser console remained empty.
+
+Completion status:
+
+- All Slice 8 desktop, narrow, keyboard-focus, conditional-transition, URL/cache, console, automated, and audit requirements are now proved. Lessons 12-16 Canvas surfacing is complete.
+
+### NNC Canvas ownership cleanup: Source analysis vs Authority
+
+Date: 2026-07-15
+
+Status: Complete. This is a presentation/ownership cleanup over the finished Lessons 12-16 contracts; it does not add a Classical Basic mode or change Andrews authorization logic.
+
+Implemented:
+
+- Typed lexical evidence now renders under Source in a dedicated `Lexical analysis` section marked `data-classical-source-authorizes="none"`: State availability, `tla` compatibility, constituent ambiguity and analysis, alternative nounstem, possessive formation, selected lexical stem, suppletive connector, inner possessor carrier, and available third-plural possessor forms.
+- Authority retains the operative user choices. `Current authority` filters out Source-analysis evidence and disabled/non-required controls, while the Result `Built from` receipt remains the complete typed provenance record.
+- The visible NNC subject label is `Referent`; internal `nncAnimacy` compatibility keys remain unchanged.
+- `Stem relation` now has an explicit Predicate layout order between the Predicate and Sentence headings.
+- A blocked lexical-evidence choice points the user to `Fix in Source analysis`; other blocks continue to point to Authority.
+
+Validation:
+
+- Focused UI classic and module runtimes: `366/366` each.
+- Complete classic and module runtimes: `3221/3221` across `48/48` suites each.
+- Live Canvas verified the ten lexical controls under Source, `data-classical-source-authorizes="none"`, no lexical heading in Authority, `Referent` in Authority, an operative-only Current authority receipt, Predicate/Stem relation/Sentence computed orders `30/34/40`, one-column Source analysis at the narrow breakpoint, no horizontal overflow, and no browser warnings or errors.
+
+### NNC Canvas desurfacing: typed facts stay in engine and proof
+
+Date: 2026-07-15
+
+Status: Complete. The selected internal lexical and determinate morphology fields no longer render as user controls; their typed values continue through generation and the Result `Built from` proof.
+
+Desurfaced:
+
+- Constituent-ambiguity taxonomy.
+- `tla` compatibility.
+- Available third-plural possessor inventory; the actual `m`/`n` selection remains visible and blocking when both forms are licensed.
+- Suppletive connector and inner possessor carrier.
+- Subclass, number form, and use-stem whenever Canvas has already determined them. They still render when multiple licensed values require a real choice.
+- Lesson-number wording inside the regular possessive-formation option; the option now reads `regular possessive stem`, while lesson evidence remains in typed proof records.
+
+Validation:
+
+- Focused UI classic and module runtimes: `367/367` each.
+- Complete classic and module runtimes: `3222/3222` across `48/48` suites each.
+- Fresh live Canvas loaded shell/rendering cache `20260715-nnc-desurface-012` and authorized ordinary `(cal)` with the desurfaced values still present in the Result proof.
+- In an active possessive `3pl` context, the `m/n` inventory stayed hidden as typed Source analysis, the actual third-plural-form chooser remained visible, and Result correctly blocked until that choice was made.
+- Browser console reported no warnings or errors.
+
+### NNC Source boundary: lexical analysis is Result proof only
+
+Date: 2026-07-15
+
+Status: Complete. This supersedes the earlier Source-analysis presentation checkpoint: the user supplies the nounstem; lexical interpretation is not a second Source form and is not user Authority.
+
+Implemented:
+
+- Removed the visible `Lexical analysis` section from Source. The existing typed controls remain in a permanently hidden internal scaffold so generation, state restoration, hostile tests, and proof records retain structured values.
+- Marked State availability, constituent alternative/selection, possessive formation, and selected lexical stem as typed-record decisions with `renderInAuthority: false`, matching the already-desurfaced compatibility, connector, carrier, and inventory fields.
+- Split the Result receipt without changing its full provenance signature: operative Source/Authority facts stay under `Built from`; lexical facts appear in a collapsed `Lexical analysis · read-only proof` disclosure.
+- Lexical conflicts no longer tell the user to edit a hidden analysis form; the repair direction is `Change Source stem`.
+- Bumped shell, rendering, and style cache keys to `20260715-nnc-result-proof-013` and regenerated the native rendering wrapper.
+
+Validation:
+
+- Focused UI classic and module runtimes: `368/368` each.
+- Complete classic and module runtimes: `3223/3223` across `48/48` suites each.
+- Fresh live Canvas verified `(cal)` authorizes while Source shows the nounstem only; no Alternative nounstem or Constituent analysis input is exposed.
+- Result shows the collapsed read-only lexical proof and reveals State availability, Constituent analysis, and Possessive formation when opened.
+- In possessive `3pl`, the actual `m`/`n` choice remains visible and operative; selecting `n` restores an authorized Result while the internal lexical scaffold remains hidden.
+
+### NNC stem-only blocker correction: legacy alternative state cannot authorize or block
+
+Date: 2026-07-15
+
+Status: Complete. The prior presentation change hid Alternative nounstem but still allowed restored hidden values to reach the live Lesson 14 frame. That contradiction is removed.
+
+Implemented:
+
+- Live Canvas state now always normalizes constituent processing to `none` + `current-typed-slots` with no alternative stem. Legacy URL, hidden-control, or loose override values cannot re-enable the old alternative branch.
+- The NNC option/availability contract now exposes one engine-derived constituent analysis only. Constituent ambiguity, alternative stem, and analysis-selection controls are unavailable, non-authoritative, and `renderInAuthority: false`.
+- Hidden compatibility controls are reset to the canonical stem-only values during NNC synchronization, clearing stale restored state as well as ignoring it.
+- Bumped the rendering cache key to `20260715-nnc-stem-only-014` and regenerated the native wrapper.
+
+Validation:
+
+- Focused UI classic and module runtimes: `368/368` each.
+- Complete classic and module runtimes: `3223/3223` across `48/48` suites each.
+- Live stale-state reproduction loaded `(omi)` with URL values `front-o` + `alternative-typed-slots` and no alternative stem. Result authorized as `Omitl.`; the old blocker was absent, and hidden values normalized to `none`, empty, and `current-typed-slots`.
+
+### NNC third-plural possessor: `m ~ n` is Result enumeration, not Authority
+
+Date: 2026-07-15
+
+Status: Complete. This supersedes the earlier checkpoint that kept the actual `m`/`n` choice visible and blocking. The user supplies the nounstem; the Andrews repertory supplies every licensed third-plural possessor realization.
+
+Implemented:
+
+- Removed the third-plural `st2` form selector from user Authority. A stale restored `select` value cannot block generation.
+- When the ordinary NNC repertory licenses `m ~ n`, the engine builds separate typed slot and sentence frames for both variants. Neither variant is reconstructed from a rendered string.
+- Result renders both authorized forms, including their typed formula proof: `Īmcal.` / `#0-0+ī-m(cal)0-0#` and `Īncal.` / `#0-0+ī-n(cal)0-0#`.
+- Copy Result includes both authorized variants.
+- Bumped rendering and style cache keys to `20260715-nnc-3pl-variants-015` and regenerated the native rendering wrapper.
+
+Validation:
+
+- Focused UI classic and module runtimes: `369/369` each.
+- Complete classic and module runtimes: `3224/3224` across `48/48` suites each.
+- Fresh live Canvas loaded the stale URL value `cn-3pl-form/select`; no selector or blocker rendered, `Authorized forms` appeared, and both typed `st2 m` and `st2 n` Result cards were visible.
+
+### NNC third-plural possessor correction: Canvas conditions one `st2`
+
+Date: 2026-07-15
+
+Status: Complete. This supersedes the immediately preceding enumeration checkpoint. `m ~ n ...` is a conditioned nasal repertory, not a pair of simultaneous free Result variants.
+
+Implemented:
+
+- Added a typed Canvas conditioning frame for third-plural possessor `st2`. Following the Lesson 13 cross-reference to the nasal rules, it selects `m` before a vowel, `m`, or `p`, and `n` outside that environment.
+- Removed the two-card `m`/`n` Result enumeration and its copy/UI styling. Result returns one Canvas-derived selected form.
+- Caller, legacy URL, and legacy source-subset `m/n` values have no selection authority and cannot block or override the Canvas-conditioned form.
+- Result proof records the derived `st2`, following sound, rule, and false user/string authority. The visible Authority selector remains absent.
+- Bumped rendering and style cache keys to `20260715-nnc-3pl-canvas-016` and regenerated both Classical NNC and rendering native wrappers.
+
+Validation:
+
+- Focused Classical NNC plus UI tests: `433/433` in both classic and module runtimes.
+- Complete classic and module runtimes: `3225/3225` across `48/48` suites each.
+- Live Canvas with stale forced `m` produced the single selected form `Īncal.`; with stale forced `n`, vowel-initial `(itz)` produced `Īmitz.`. Neither case rendered a selector, blocker, or `Authorized forms` enumeration.
+
+### NNC Predicate State correction: hidden lexical policy cannot disable Authority
+
+Date: 2026-07-15
+
+Status: Complete. The stem-only live Canvas again exposes Predicate State as an operative choice between absolutive and possessive.
+
+Implemented:
+
+- Live surface state now normalizes lexical State availability to `ordinary`. Restored hidden-control, URL, example-preset, or loose override claims of `naturally-possessed` / `never-possessive` cannot constrain the visible State selector.
+- Hidden Source-analysis synchronization resets its State-availability carrier to `ordinary`, clearing stale state as well as ignoring it during frame construction.
+- Typed core source-authority frames still support and enforce genuine externally supplied lexical restrictions; only the stem-only UI path is source-neutral.
+- Bumped rendering and style cache keys to `20260715-nnc-state-choice-017` and regenerated the rendering native wrapper.
+
+Validation:
+
+- Focused UI tests: `370/370` in both classic and module runtimes.
+- Complete classic and module runtimes: `3226/3226` across `48/48` suites each.
+- Live stale-state URL opened on possessive with hidden `naturally-possessed`; the hidden carrier normalized to `ordinary`, Predicate State remained enabled with both values, and switching to absolutive produced `Calli.`.
+
+### NNC read-only proof isolation: hidden carriers cannot affect generation
+
+Date: 2026-07-15
+
+Status: Complete. The entire hidden Source-analysis scaffold is now a non-authoritative proof mirror, not merely visually hidden.
+
+Implemented:
+
+- Removed live reads of hidden `tla` compatibility, possessive formation, exact target stem, suppletive connector, secondary possessor carrier, and third-plural inventory. State policy and constituent analysis were already normalized; all ten hidden carriers now have the same isolation boundary.
+- Added one canonical reset map for every read-only proof control: `ordinary`, `ordinary`, `none`, empty alternative, `current-typed-slots`, `regular`, empty target, `class-governed`, `tē`, and `m-n`.
+- Loose overrides, restored URL segments, hidden DOM values, and example presets cannot change live authorization, formula, or surface. Genuine typed core authority records remain available outside this stem-only UI path.
+- Added a hostile baseline-versus-poisoned test covering every hidden carrier and bumped rendering/style cache keys to `20260715-nnc-proof-isolation-018`.
+
+Validation:
+
+- Focused UI tests: `371/371` in both classic and module runtimes.
+- Complete classic and module runtimes: `3227/3227` across `48/48` suites each.
+- A live URL poisoned every hidden carrier. All ten controls normalized, stayed invisible, reported `sourceAuthorizes: none`, and produced baseline `Nocal.` with an enabled absolutive/possessive State selector.
+
+### NNC Lesson 15 Stem formation: Canvas nomenclature
+
+Date: 2026-07-15
+
+Status: Complete. Sections 15.1.2.b-c, 15.1.5, and 15.1.6 expose one authority choice per Canvas stem-formation operation without restoring any lexical-target text input.
+
+Implemented:
+
+- Renamed the visible authority selector to `Stem formation`. Its general inventory is exactly `source stem`, `(-yō)-tl- matrix`, `secondary general-use stem (tē-)`, and `analogical restricted-use stem (tla-)`.
+- Collapsed `-lo/-lō` and `-yo/-yō` into the single `(-yō)-tl- matrix` operation. The engine now selects the `l` boundary realization after an `l`-final stem and the `y` realization elsewhere, then selects short `o` in singular/common forms or long `ō` before plural `hu-ān`.
+- Removed `ti-` and `t-` as authority choices. They remain Canvas-noted variants of `tē-`, while the current selectable formation uses only `tē-`.
+- The `tē-` and `tla-` formations attach to the Lesson 14 selected use stem, not to a prewritten example target.
+- The special title/name `tēc` remains a separate exact branch for third-singular `Totēc` with a first-plural possessor.
+- Each selection builds a typed Lesson 15 operation record and realizes the selected stem formation during the higher NNC transformation. Caller-supplied target text is ignored; retired surface-option ids, invented option ids, and the spurious `tēcuiyo` route fail closed.
+- The legacy hidden `Possessive formation`, target-stem, connector, and carrier controls remain normalized read-only proof carriers and cannot override the visible Predicate selection.
+- Result provenance now reports `Stem formation`; it no longer presents surface allomorphs as separate user decisions.
+- Bumped shell, core evaluator, rendering, and style cache keys to `20260715-nnc-stem-formation-022` and regenerated both native wrappers.
+
+Validation:
+
+- Focused Classical NNC tests: `66/66`; focused UI tests: `372/372`; module-wrapper parity: `2/2`.
+- Complete classic and module runtimes: `3230/3230` across `48/48` suites in each runtime.
+- Fresh live Canvas exposed the approved four labels exactly. The single `(-yō)-tl- matrix` selection produced `tēuc-yo` at a non-`l` boundary and `pil-lo` at an `l` boundary; plural tests produce `tēuc-yō` and `pil-lō`. `secondary general-use stem (tē-)` produced `tē-cal`, and absolutive `analogical restricted-use stem (tla-)` produced `tla-cal`.
+- The same live result kept the hidden proof carriers invisible and non-authoritative: formation stayed `regular`, target stayed empty, connector stayed `class-governed`, carrier stayed `tē`, and every wrapper reported `sourceAuthorizes: none` while the visible Predicate selection alone changed the authorized form.
+
+### Classical Authority and Result receipt deduplication
+
+Date: 2026-07-15
+
+Status: Complete. Source and authority metadata now has one canonical visible receipt.
+
+Implemented:
+
+- Removed `classical-authority-summary` from the Authority panel. That panel now contains only the operative controls instead of restating their selected values.
+- Kept the Result `Built from` receipt as the single canonical source/authority summary and added the Source, polarity, and sentence-type facts that previously depended on the removed summary or repeated Selected-form metadata.
+- Removed the Selected-form reference strip, condition list, and repeated authorization status. The Selected-form section now owns only the answer, formula/diagram switch, and genuinely distinct sentence formula.
+- Kept `Lexical analysis` as a collapsed read-only proof, but gave its internal list a proof-specific class so there is exactly one `.classical-authority-receipt` in the live Canvas.
+- Removed obsolete summary/status/condition styling, bumped affected cache keys to `20260715-classical-receipt-dedupe-024`, and regenerated the rendering native wrapper.
+
+Validation:
+
+- Focused UI plus wrapper parity: `374/374` in both classic and module runtimes.
+- Complete classic and module runtimes: `3230/3230` across `48/48` suites each.
+- Fresh live NNC Canvas reported `0` authority summaries, exactly `1` authority receipt, `0` Selected-form reference strips, and `0` Selected-form condition lists. `Built from` contained the complete input/authority facts once; `Selected form` contained only `Calli.`, its structural view, and formulas.
+
+## Completed Phase: Classical Lessons 20-22 Nonactive, Passive, and Impersonal VNCs
+
+Date: 2026-07-15
+
+Status: Complete for the current single-object Canvas layer. Lesson 23 remains responsible for multiple-object passive extensions.
+
+Layer contract:
+
+- The new layer consumes an authorized typed active VNC machinery frame. It does not reparse the active formula or surface, and hostile formula/surface artifacts have no derivational authority.
+- Lesson 20 consumes the active stem, selected class, ending, and valence, then produces an Andrews-authorized nonactive option inventory. A single licensed formation is selected automatically; an Andrews-marked alternative inventory requires one formation choice. No expected derived stem string is accepted from the Canvas.
+- Lesson 21 passive deletes the active subject, blocks agent expression, and promotes one specific projective object to the derived subject. Reflexive sources retain typed shuntline `ne`; intransitive and nonspecific-only sources fail closed.
+- Lesson 22 transformed impersonal deletes the personal source subject, imports referentially empty third singular, preserves the compatible source valence, and blocks specific projective sources as the passive complement.
+- Lesson 22.1 inherent impersonality is a separate typed lexical classification that retains the lexical stem and forces referentially empty third singular.
+- Lesson 22.6 `tla-` impersonality requires an intransitive source and derives the predicate-internal `tla-` stem from that source. It never asks for a target string and never treats `tla-` as an object-prefix substitution.
+- The derived Lesson 20-22 frame remains provisional until the existing Lesson 8 final-boundary and sentence layers realize the selected formula and surface. An earlier active formula cannot freeze the final voice form.
+
+Surface:
+
+- Added one reusable `Voice` control with `active`, `passive`, `impersonal`, `inherently impersonal`, and `tla-impersonal` categories.
+- Added a conditional `Nonactive formation` selector that is absent for zero or one licensed formation and appears only when Andrews supplies genuine alternatives. Removed the `Exact derived stem` input. The Result receipt reports the engine-derived formation, stem, subject, and valence.
+- A passive specific-projective source keeps its object-person chooser editable after passive selection, even though the generated passive target vacates the object slot.
+- Runtime cache keys were bumped to `20260715-classical-lessons20-22-029` for the affected shell/evaluators and `20260715-classical-lessons20-22-030` for rendering.
+
+Validation:
+
+- Focused Lessons 20-22 tests: `10/10` in classic and module runtimes, including automatic regular/irregular/alternative inventories, caller-string poison rejection, passive promotion, complementary impersonal gates, reflexive `ne`, inherent impersonality, `tla-` derivation, and live surface-pipeline wiring.
+- Classical firewall plus Lessons 20-22: `64/64` in module; firewall, Lessons 20-22, and wrapper parity: `66/66` in classic.
+- UI: `373/373` in classic and module; wrapper parity: `2/2`.
+- Complete classic and module runtimes: `3242/3242` across `49/49` suites each.
+- Authority-state audit: `2583` states checked, `0` failures.
+- Fresh live Canvas proved: active voice has no formation selector and no target-stem input; intransitive `mayāna` derives `(mayāna-lō)` with no selector; transitive `āna` exposes exactly `ān-ō (ō)` and `āna-lō (lō)` and each selection changes the derived result; `nēci` derives `(tla-nēci)` for `tla-impersonal` with no target-stem input.
+
+### VNC Authority dependency order and derived-voice gating
+
+Date: 2026-07-15
+
+Status: Complete. The Canvas now asks for the active analysis before offering derived voices.
+
+- Reordered the visible VNC Authority sequence to `Output → Verbstem → Subject → Valence/Object → Voice/Nonactive formation → Mood/Tense → remaining predicate controls → Sentence`. `Voice` and `Nonactive formation` no longer float above the inputs they depend on.
+- The voice inventory is computed from the current source stem, valence, and Lesson 20 formation inventory. With no stem, only `active` is available. Specific-projective sources expose `passive`; intransitive and nonspecific sources expose `impersonal`; reflexive sources expose both; inherent and `tla-` impersonal remain limited to intransitive sources.
+- `passive` and transformed `impersonal` remain unavailable when the engine has no implemented Lesson 20 formation for the current stem. Changing an earlier active-analysis control so the selected voice becomes incompatible normalizes Voice to `active` before generation, avoiding a transient blocked result.
+- Kept genuine failures visible: a missing Source still blocks the result, and unsupported grammar still fails closed. The change removes only avoidable control-order blockers.
+- Bumped style and rendering cache keys to `20260715-vnc-authority-order-031` and `20260715-vnc-authority-order-032`; regenerated the rendering module wrapper.
+
+Validation:
+
+- Focused Lessons 20-22, UI, and wrapper-parity tests: `386/386` in classic and module runtimes.
+- Complete classic and module runtimes: `3242/3242` across `49/49` suites each.
+- Fresh live Canvas showed the dependency order, locked Voice to `active` before a stem was entered, exposed `active|impersonal|inherent-impersonal|tla-impersonal` for intransitive `mayāna`, exposed only `active|passive` after selecting specific-projective valence, and returned an active authorized result when that passive source was changed back to intransitive.
+
+### Lessons 20-22 Canvas formula witness audit
+
+Date: 2026-07-15
+
+Status: Single-object rule logic complete; fourteen co-occurring-object formula rules remain open.
+
+- `scripts/audit_classical_lessons20_22_canvas_examples.js` treats all `39` explicit Lesson 21-22 Canvas formulas as executable rule obligations. A formula is not excused because the current engine cannot express its object sequence; absent generation logic is counted as a failed rule case.
+- `25/39` formulas now match. All `14` nonactive examples among those passing cases derive their Lesson 20 stem through the engine and match the Canvas stem evidence; the audit never supplies the expected target as authority. The single-object rule fixes preserve second-plural `an-` before `n-ēch`, generate the silently present third-singular object `⎕-Ø`, and carry the irregular source environment into transformed `ye-lo-hua` (preterit-as-present) and `huī-lo-hua-tz` (distant-past-as-past `a`).
+- The remaining `14` failures are real missing co-occurrence rules: specific plus reflexive, mainline plus shuntline specific, specific plus nonspecific, human plus nonhuman nonspecific, and reflexive plus nonspecific. Their active, passive, and impersonal formulas remain required by the audit even where Lesson 23 later supplies fuller exposition.
+- The audit exits nonzero while any Canvas formula mismatches, so `npm run audit:lessons20-22` is a durable rule-logic regression gate rather than a report that silently accepts missing grammar.
+- The Canvas transcription's formula OCR was corrected where the PDF visibly distinguishes `ō#`, square-zero `⎕`, and `l` from capital `I`.
+- Focused formula/lesson tests pass `18/18` in classic and module runtimes. Complete classic and module suites pass `3242/3242` across `49/49` suites.
+
+### Lesson 20 shape rules, obligatory exceptions, and optional variants
+
+Date: 2026-07-15
+
+Status: Complete for the Lesson 20 nonactive option inventory and Canvas selector contract.
+
+- The fixed-formation table is now explicitly an override/alternative table, never a whitelist. Stems absent from it derive from active-stem shape, class, ending, and valence through productive `lō`, `ō`, `hua`, and `o-hua` rules. An unlisted final-`i` hostile stem derives `xochī-hua`; `miqui` derives `mic-o-hua` from the intransitive `-qui` rule.
+- Every candidate carries typed formation authority: `productive-rule`, `obligatory-exception`, `suppletive-lexical-rule`, or `optional-variant`. The default candidate is automatic. Only a candidate explicitly marked `optional-variant` is a user option.
+- Obligatory Andrews exceptions replace the productive candidate and remain single automatic outputs. For example, `ahci` derives only `ahxī-hua`; the Canvas does not offer an invented regular `ahx-o-hua` choice.
+- Andrews-marked alternatives produce the conditional selector. Labels distinguish the default rule from the optional variant; for example, `zō-hua (hua · rule)` and `zō-lō (lō · optional variant)`. The inventory stores the underlying Class A-2 `-lō` stem; later tense logic owns any licensed surface shortening.
+- No target stem may be typed. The selected option id resolves back to an engine-owned typed record, and the record reports whether the chosen output was the default or an Andrews-licensed user option.
+- Bumped the evaluator and rendering cache keys to `20260715-lesson20-shape-options-033` and `20260715-lesson20-shape-options-034`; regenerated both native module wrappers.
+
+Validation:
+
+- Focused Lessons 20-22 tests pass `12/12` in classic and module runtimes, including unlisted-stem shape derivation, `miqui`, selectable `zō`, and obligatory `ahci` behavior.
+- Complete classic and module suites pass `3243/3243` across `49/49` suites each; focused UI and wrapper parity pass `387/387`.
+- The 39-formula Canvas audit remains at `25/39` exact, and all `14/14` engine-derived nonactive stems match Canvas evidence. Its remaining `14` failures are the already-recorded co-occurring-object Lesson 21-22 rules, not Lesson 20 formation failures.
+- Fresh live Canvas proof showed: `miqui → mic-o-hua` with no formation selector; unlisted `xochi → xochī-hua` by shape alone with no selector; `zō` exposes exactly its rule/default and optional variant and generates both; `ahci → ahxī-hua` automatically with no selector.
+
+### Whole-Canvas nonactive derivation discovery
+
+Date: 2026-07-15
+
+Status: Research inventory complete; implementation remains a separate explicit target.
+
+- Searched all `577` Canvas lines matching `nonactive`, `passive`, or `impersonal`, then reviewed the surrounding derivations and formulas. The durable authority index is `docs/CLASSICAL_NONACTIVE_ALL_CANVAS_INDEX.md`.
+- The scan separates productive formation, licensed alternatives, latent causative-only bases, and higher lesson layers that merely consume or relocate a nonactive output.
+- Highest-priority new simple-stem evidence includes `xō-tla → xō-chī-hua`, valence-conditioned `teci-hua` versus `tex-ō ~ tex-o-hua`, and three formula-backed `itta` passive stems: `itt-a-lō`, `itt-ō`, and `it-hu-a-lō`.
+- Appendix A corrects the target-class model: `hua`-final nonactives use Class A-1, while `lō/ō`-final nonactives use Class A-2.
+- Later productive operations include frequentative destockal `ca → c-ō ~ c-o-hua`, nonactive causative/applicative stems, and compound-scope choices in which the embed, matrix, or both receive nonactive marking.
+- Lesson 25's unexpected or obsolete bases retain `latent-causative-base` evidence. Per the later user-directed "more the merrier" policy, they may supplement ordinary passive/impersonal inventories as clearly labeled optional formations, but never replace the productive/default result.
+
+### Lesson 20 final-w nonactive family authorization
+
+Date: 2026-07-15
+
+Status: Complete.
+
+- Fixed the Lesson 20 `o-hua` family validator so it accepts the compensatorily lengthened `ō-hua` realization required after final `-hua/-hui` sources.
+- `(mahui)` now derives `(maō-hua)` automatically through rule `cn-l20-5-intransitive-final-w`, exposes no formation selector, and authorizes the engine-derived record instead of blocking it as a family mismatch.
+- Added a focused regression for the exact inventory and authorized derivation; no user-supplied target stem is accepted.
+- Bumped the evaluator browser cache key to `20260715-lesson20-final-w-035`.
+- Validation: focused Lessons 20-22 pass `12/12`; complete classic and module runtimes each pass `3243/3243` across `49/49` suites, including native-wrapper parity.
+
+### Cross-lesson "more the merrier" nonactive options
+
+Date: 2026-07-15
+
+Status: Implemented for the explicitly requested Lesson 25.3 `(mahui)` witness through a reusable supplemental inventory.
+
+- The ordinary Lesson 20 result remains first and automatic. Later Canvas witnesses are merged after it as typed optional records; they never replace rule logic and never accept a caller-supplied target stem.
+- `(mahui)` now offers `maō-hua (o-hua · rule)` and `mahu-o-hua (o-hua · Lesson 25 hypothetical option)`. The selector appears because there are now two Canvas-authorized formations.
+- The Lesson 25 choice carries `hypothetical-causative-source`, section `25.3`, and a dedicated rule id. Selecting its engine-owned option id authorizes `mahu-o-hua`; leaving the selector at its default derives `maō-hua`.
+- Bumped the evaluator cache key to `20260715-nonactive-more-the-merrier-036`.
+- Validation: exact classic/module probes expose the two labels and authorize the optional Lesson 25 record; focused Lessons 20-22 pass `12/12`; complete classic and module runtimes each pass `3243/3243` across `49/49` suites.
+
+### Exhaustive Lesson 20 nonactive rule logic
+
+Date: 2026-07-15
+
+Status: Engine and UI implementation complete; fresh in-app live proof still pending because the currently open `file://` Canvas tab could not be claimed by browser control after the cache-busted update.
+
+- Added `scripts/audit_classical_lesson20_nonactive_examples.js` as the executable Lesson 20 authority gate. It checks all `84` consolidated §20.2-20.7 source/result inventories, typed rule/option authority, Appendix A target classes, selector policy, and prohibition of a user-supplied expected stem.
+- Implemented every previously missing Lesson 20 path: Class B root-plus-`ya` deletion; Class C `o-ā` and `iā/i-ā`; Class D long-vowel reduction; transitive `-cui`, `-ta`, postvocalic `-ti`, `-ca/-ka`, `-na`, `-sa`, `-qui`, `-ni`, and `-ci/-zi`; intransitive `-ca`, `-qui`, `-mi`, `-za`, `-ci`, `-tzi`, and final `-hua/-hui`; plus typed lexical, suppletive, and genuine alternative records.
+- Nonactive options now carry imperfective and perfective stems. Appendix A selection routes `hua`-final stems as A-1 and `lō/ō`-final stems as A-2 before the existing tense/boundary finalizer. Hostile caller-supplied target-class metadata is ignored.
+- Expanded the supplemental registry from the single requested `mahui` witness to `33` later Canvas-backed or hypothetical options across `24` sources. The ordinary Lesson 20 result remains first; every later witness is labeled, typed, optional, and selected only by engine-owned option id.
+- Added additional productive all-Canvas coverage for valence-neutral `teci-hua` versus `tex-ō ~ tex-o-hua`, Lesson 25 root-plus-`ya` and Class D witnesses, the two `ix-tlā-hu-a` bases, and Lesson 27 frequentative destockal `...c-o-hua ~ ...c-ō`.
+- Bumped the evaluator cache key to `20260715-lesson20-complete-037` and regenerated the native module wrapper.
+
+Validation:
+
+- Lesson 20 authority audit: `84/84`; later optional inventory: `24/24` sources and `33/33` options; additional productive audit: `7/7`.
+- Focused Lesson 20-22/UI/wrapper checks: `392/392` in classic and `392/392` in module.
+- Complete classic and module suites: `3248/3248` across `49/49` suites each.
+- The separate 39-formula Lessons 21-22 audit remains `25/39`; its `14` failures are the documented multi-object co-occurrence routes, while all `14/14` engine-derived nonactive stems in that audit match Canvas evidence.
+
+### Lessons 36-38 active-to-nonactive evidence integration
+
+Date: 2026-07-15
+
+Status: Complete for every direct, structurally recoverable, higher-order, and family-ambiguous source record identified in the Lessons 36-38 patientive/impersonal study.
+
+- Expanded the typed cross-lesson optional inventory from `33` formations across `24` sources to `50` formations across `40` sources. The ordinary Lesson 20 result remains first; all later witnesses are engine-owned options and no target stem can be typed.
+- Added later source formations including `quetza → quech-ō`, `tlacō-ti → tlacō-ch-ō`, `tzāhua → tzāhua-lō`, `cē-hua → cē-hua-lō`, `yohua → yohua-lō`, `mamali → mamalī-hua`, `cāhui → cāhui-hua`, `i → i-lō`, `piya → piye-lō`, `ihyā-ya → ihye-lō`, full-stem `ō-ya → ō-ya-lō`, the final-`a` to `i-hua` witnesses, and exceptional `huica → huica-lō`.
+- Added a separate executable evidence audit with `44` direct-source cases covering `54` formations, `7` higher-order records, and `3` unresolved `ō ~ o-hua` patientive records. Higher-order examples such as `tla-yohua-lō` and `tla-tītlan-ō` are tested not to leak into the first-pass selector. Ambiguous patientive truncations authorize no invented exact target.
+- Bumped the evaluator browser cache key to `20260715-later-nonactive-evidence-038` and regenerated the native module wrapper.
+
+Validation:
+
+- Lesson 20 authority audit: `84/84`; cross-lesson optional inventory: `40/40` sources and `50/50` options; additional productive audit: `7/7`; later active-to-nonactive evidence: `54/54` cases.
+- Focused Lessons 20-22 tests: `18/18` in classic and module; UI: `373/373` in classic and module; wrapper parity: `2/2`.
+- Complete classic and module runtimes: `3249/3249` across `49/49` suites each.
+- Live in-app proof remains unavailable because the existing `file://` tab could not be claimed after the update and browser safety policy blocks opening a fresh local-file tab. No alternate browser-control workaround was used.
+
+### Lesson 20 derivation-only nonactive authority
+
+Date: 2026-07-15
+
+Status: Implemented and fully test-verified; live in-app verification is blocked by the current local-file tab binding.
+
+- Removed the remaining raw-answer authority path. `buildClassicalNahuatlLesson20NonactiveStemRecord()` now rejects caller-supplied `nonactiveStem`, perfective target, suffix family, or lexical-authority strings. `deriveClassicalNahuatlLesson20NonactiveStemRecord()` authorizes only a typed option generated from the current active stem, class, ending, and valence; a forged generated-option id blocks instead of falling back.
+- Added a 24-case synthetic productive-shape audit whose stems occur in no Lesson 20 fixed or supplemental table. It covers direct `lō`, Class B root-plus-`ya`, Class C, Class D, transitive `ō` endings, intransitive `o-hua` endings, final-`i/o` `hua`, and the shape-licensed intransitive `-ni` `hua ~ n-o-hua` possibility.
+- Extended productive ending recognition to the `k/s/w` spellings parallel to the Classical `c/qu/z/hu` shapes, without importing any Nawat surface as Classical lexical authority.
+- Removed `lexical-exception` as a false seventh suffix family. The §20.3 `hui-tz`, `itqui-tz`, and `huica-tz` formations are now `lo-hua` records with `first-compound-member` attachment, and the family validator accepts `lo-hua-tz`.
+- Replaced focused Lesson 21-22 fixtures that manually built nonactive records with engine derivation, leaving only one hostile raw-answer call that proves it blocks.
+- Bumped evaluator and rendering cache keys to `20260715-nonactive-rule-logic-039` and regenerated both native module wrappers.
+
+Validation:
+
+- Lesson 20 Canvas audit: `84/84`; cross-lesson optional inventory: `40/40` sources and `50/50` options; additional productive Canvas audit: `7/7`; unlisted productive-shape audit: `24/24`; later active-to-nonactive evidence: `54/54`.
+- Focused Lessons 20-22: `19/19` in classic and module. Focused UI: `373/373` in classic and module. Native-wrapper parity: `2/2` in classic and module.
+- Complete classic and module runtimes: `3250/3250` across `49/49` suites each.
+- The in-app browser lists the user's `file://` Canvas tab, but both claim/get operations return a stale internal tab handle and cannot inspect or reload it. A blank test tab was cleaned up and the user's Canvas tab was preserved. No unrelated browser-control workaround was used.
+
+### Intransitive postvocalic-ti nonactive alternatives
+
+Date: 2026-07-15
+
+Status: Complete.
+
+- Corrected the productive branch that had confined `Vti → ch-ō` to transitive sources even though Andrews supplies intransitive `ilō-ti → īlō-ch-ō` and later `tlacō-ti → tlacō-ch-ō` evidence.
+- An unlisted intransitive `Vti` source now keeps the general §20.6 final-`i` `hua` formation as its default and exposes `ti → ch-ō` as a shape-licensed alternative. `(pa-ti)` therefore generates `pa-tī-hua ~ pa-ch-ō` and requires the generated-option selector.
+- Lexically resolved witnesses remain resolved: `tequi-ti` produces only `tequi-ti-hua`; `ilō-ti` produces only `īlō-ch-ō`. `tlacō-ti` exposes `tlacō-tī-hua ~ tlacō-ch-ō`, with its §38.1.1.b witness attached to the `ch-ō` option while preserving the productive-rule provenance.
+- Prefixed `tla-` impersonal inputs remain outside the first-pass rule, so later recursive `tla-cōl-ō-ti → tla-cōl-ō-ch-ō` evidence does not leak into an ordinary Lesson 20 inventory.
+- Bumped the evaluator cache key to `20260715-nonactive-vti-040` and regenerated the native module wrapper.
+
+Validation:
+
+- Lesson 20 Canvas `84/84`; cross-lesson optional inventory `40/40` sources and `50/50` options; additional productive `7/7`; unlisted productive shapes `24/24`; later evidence `54/54`.
+- Focused Lessons 20-22, wrapper parity, and UI: `394/394` in classic and module.
+- Complete classic and module runtimes: `3250/3250` across `49/49` suites each.
+
+### Lesson 20 typed final-shape relation
+
+Date: 2026-07-15
+
+Status: Complete.
+
+- Added a canonical typed final-shape frame for both the active imperfective source stem and every generated nonactive stem. It records the final one, two, and three orthographic units, letter units, sound units, and hyphen-delimited morphemes.
+- Macron vowels are normalized to NFC and preserved as length-bearing letters; hyphens remain explicit boundary evidence. For example, `pol-o-ā` records `ā / -ā / o-ā`, while `pa-ti` records `i / ti / -ti` and the boundary-free letter tail `i / ti / ati`.
+- Productive Lesson 20 decisions now consume the source final-shape frame instead of independently regex-parsing the whole stem. Internal prefix and frequentative checks consume the frame's morpheme inventory.
+- Every generated option carries a computed source-to-nonactive relation with retained stem, removed final shape, added final shape, suffix family, rule id, macron change, and boundary change. The authorized nonactive record recomputes and verifies this relation; caller-supplied shape frames remain non-authoritative.
+- The suffix-family validator now consumes the typed output final shape, including `o-hua`, compensatory `ō-hua`, compound `o-hua-tz` / `lo-hua-tz`, and `hua-lō` boundaries.
+- Bumped the evaluator browser cache key to `20260715-nonactive-final-shape-041` and regenerated the native module wrapper.
+
+Validation:
+
+- Lesson 20 Canvas `84/84`; cross-lesson optional inventory `40/40` sources and `50/50` options; additional productive `7/7`; unlisted productive shapes `24/24`; later evidence `54/54`.
+- Focused Lessons 20-22: `20/20` in classic and module; native-wrapper parity `2/2`; `git diff --check` passes.
+- Complete classic and module runtimes: `3251/3251` across `49/49` suites each.
+- The separate Lessons 20-22 formula audit remains `25/39`; its existing `14` failures are the documented Lesson 21-22 co-occurring-object routes, while all `14/14` engine-derived nonactive stems match Canvas evidence.
+
+### Lesson 20 three-core nonactive formation model
+
+Date: 2026-07-15
+
+Status: Complete.
+
+- Replaced the flat conceptual treatment of the six surface families with Andrews' three formation cores: `o`, `lo`, and `hua`. The existing `suffixFamily` remains as exact surface realization compatibility, not as six unrelated derivational cores.
+- Core `o` realizes terminal `ō` or continues as `o-hua`; core `lo` realizes terminal `lō` or continues as `lo-hua`; core `hua` realizes terminal `hua` or continues as `hua-lō`.
+- Every generated option and authorized nonactive record now carries a typed formation structure with core, continuation, ordered core sequence, terminal core, and surface allomorph. Compensatory `ō-hua` is explicitly an allomorph of the `o + hua` sequence.
+- Suffix-family final-shape validation consumes the three-core structure. Unknown pseudo-families remain blocked, and callers cannot replace the generated core sequence.
+- Bumped the evaluator browser cache key to `20260715-nonactive-three-cores-042` and regenerated the native module wrapper.
+
+Validation:
+
+- Lesson 20 Canvas `84/84`; cross-lesson optional inventory `40/40` sources and `50/50` options; additional productive `7/7`; unlisted productive shapes `24/24`; later evidence `54/54`.
+- Focused Lessons 20-22: `21/21` in classic and module; native-wrapper parity `2/2`; `git diff --check` passes.
+- Complete classic and module runtimes: `3252/3252` across `49/49` suites each.
+
+### Lesson 20 active-identity candidate lattice
+
+Date: 2026-07-15
+
+Status: Complete for the exhaustive Lesson 20 nonactive decision-category lattice; the separate Lesson 21-22 co-occurring-object routes remain out of scope.
+
+- Added a typed active-stem identity/allomorph frame before nonactive formation. It records the entered allomorph, canonical imperfective identity, allowed allomorphs, class/valence compatibility, internal morpheme boundaries, explicit Class B root-plus-`ya`, final shape, and whether an exact nonactive output is licensed or documented unresolved. Caller-supplied identity frames are ignored.
+- Direct `chiye` and `piye` entries now derive `chiye-lō` and `piye-lō` automatically from Canvas-backed identity records. They expose no selector because each has one licensed result. `mēmē` is recognized as the active allomorph of `māmā` but remains explicitly unresolved because Canvas does not license its exact nonactive output; no generic final-`e` rule was invented.
+- Replaced the productive first-match implementation with a candidate set that collects every applicable rule tier, preserves each decision category, and selects the highest-specificity tier. Lower generic rules remain typed as superseded evidence. Genuine same-tier or Canvas-backed alternatives remain selectable with no default.
+- Added a typed candidate lattice combining exact Lesson 20 formations, licensed active allomorph formations, productive final-shape candidates, and later Canvas supplements. Each inventory and authorized record now carries source identity, internal morphology, candidate source, and decision category.
+- Added a `36`-cell executable decision matrix covering Classes `A-D`, transitive/intransitive valence, final `a ā e ē i ī o ō` and consonant, solid/hyphenated boundaries, short/long/nonvowel endings, identity-resolved and shape-only sources, and all three outcomes: determinate, selectable alternatives, and documented unresolved.
+- Added specific UI explanations for unresolved lexical `e` allomorphs, identity context mismatches, and unlicensed consonant-final sources. Bumped the evaluator cache key to `20260715-nonactive-candidate-lattice-043` and regenerated the evaluator and rendering native module wrappers.
+
+Validation:
+
+- Lesson 20 Canvas `84/84`; cross-lesson optional inventory `40/40` sources and `50/50` options; additional productive `7/7`; unlisted productive shapes `24/24`; candidate lattice `36/36` with `0` uncovered axes; later evidence `54/54`.
+- Focused Lessons 20-22: `22/22` in classic and module; UI `373/373` in classic and module; native-wrapper parity `2/2` in classic and module; `git diff --check` passes.
+- Complete classic and module runtimes: `3253/3253` across `49/49` suites each.
+- The separate Lessons 20-22 formula audit remains `25/39`; all `14/14` engine-derived nonactive stems match Canvas, and the unchanged `14` failures are the documented Lesson 21-22 co-occurring-object formula routes.
+
+### Lesson 23 typed co-occurring-object valency
+
+Date: 2026-07-16
+
+Status: Complete for the fourteen Lesson 21-23 active, passive, and impersonal co-occurrence formulas required by the Lessons 20-22 Canvas audit.
+
+- Added a typed Lesson 23 object-cluster frame whose source requirements carry object kind, person, directive/causative/applicative governor, and derivational level. Mainline/shuntline status is derived from level; linear order is derived from Andrews 23.5 priorities; specific-object incompatibility and silent allomorphs are derived rather than supplied as formula text.
+- Extended VNC slot frames to carry two or three ordered valence positions. Passive now promotes the eligible typed specific object and preserves the remaining cluster; impersonal preserves compatible reflexive and nonspecific objects. The Lesson 23 contract is provisional at rank `75`, after Lessons 21-22 voice work and before the Lesson 8 final boundary.
+- Converted all fourteen former audit placeholders to executable inputs covering specific plus reflexive, mainline plus shuntline specific, specific plus human/nonhuman nonspecific, human plus nonhuman nonspecific, and reflexive plus nonspecific routes.
+- Preserved Lesson 20 as the nonactive-stem authority. Added only the later Canvas-backed `il-hui → il-huī-lō` and `tequi-ti-ā → tequi-tī-lō` optional witnesses needed by these higher-layer examples; callers still select only engine-owned option ids and cannot supply target stems.
+- Formula, surface, and requested carrier artifacts are explicitly non-authoritative. Validators rebuild cluster positions from typed requirements, and mutated clusters fail closed without poison surviving into blocked passive results.
+- Bumped the evaluator browser cache key to `20260716-lesson23-object-cluster-044` and regenerated the native module wrapper.
+
+Validation:
+
+- `npm run audit:lessons20-22`: `39/39` exact, `22/22` engine-derived nonactive Canvas matches, `0` missing rules, and `0` mismatches.
+- `npm run audit:lesson20`: all existing Lesson 20 authority audits remain green, including `84/84` Canvas, `15/15` visual, `40/40` supplemental sources, `7/7` additional productive, `24/24` unlisted shapes, `36/36` candidate lattice, and `54/54` later evidence.
+- Focused Lessons 20-22: `25/25` in classic and module. Focused firewall plus Lessons 20-22: `81/81` in classic and module.
+- Complete classic and module runtimes: `3257/3257` across `49/49` suites each.
+- Fresh same-origin in-app browser proof executed five representative active/passive/impersonal typed transformations. All were authorized, matched their exact Canvas formulas, carried `classical-nahuatl-lesson23-object-cluster-frame`, and reported formula authority `false`.
+
+### Classical Result-column width priority
+
+Date: 2026-07-16
+
+Status: Complete.
+
+- Narrowed the shared #1 Source / #2 Authority desktop column from `minmax(420px, 0.78fr)` to `minmax(360px, 0.64fr)` and expanded #3 Result to `minmax(560px, 1.36fr)`. The existing single-column layout at `1024px` and below remains unchanged.
+- Bumped the stylesheet cache key to `20260716-result-column-width-051` and updated the UI contract test.
+- Focused UI tests pass `374/374` in classic and module runtimes. At the live browser's `1405px` viewport, Source/Authority measured `434px`, Result measured `923px` (`67.4%` of the board), and both content columns fit without horizontal overflow.
+
+### Ordered higher voice and `yohua` nonactive authority
+
+Date: 2026-07-16
+
+Status: Complete.
+
+- Authorized `yohua → yohua-lō` as the sole direct nonactive formation. The productive final-`hua` / final-`hui` route now checks whether replacing final `w` would create adjacent `o/ō`; it therefore blocks `yoō-hua` structurally while preserving valid formations such as `ē-hua → ē-ō-hua`.
+- Added eight engine-owned ordered voice routes covering the direct doubly impersonal `yohua-lō` route and all seven later higher-order evidence records. Every layer owns a typed `sourceFrame`, consumes that frame's `targetStem`, records its operation and impersonal depth, and is validated by rebuilding the canonical route.
+- `tla-yohua-lō` is generated only as `yohua → tla-yohua → tla-yohua-lō` within the complete typed chain. Intermediate higher-order stems are barred from ordinary first-pass Lesson 20 candidate generation, so entering `tla-yohua` cannot reach the target through the generic final-`a` spelling rule.
+- Replaced the former exclusion-only higher-order audit with executable derivations and hostile inputs. Caller-supplied targets, layer arrays, formula artifacts, and surface artifacts are discarded; mutated continuity and wrong-source route requests fail closed.
+- Replaced the one-shot completed-route selector with a progressive cascade owned by the existing `Voice` control. Selecting `inherently impersonal` reveals `Next voice layer`; choosing `tla-impersonal` reveals `Following voice layer`. The user can stop at typed `yohua`, `tla-yohua`, or either authorized nonactive output, and no later option appears before its preceding typed layer exists.
+- The result receipt shows the accumulated voice cascade, impersonal depth, derived third-singular subject, derived class, and derived intransitive valence separately from the user's source selections. Partial route prefixes such as `yohua → tla-yohua` are rebuilt and validated as typed chains, while only complete prefixes acquire a final route id.
+- Bumped browser cache keys to `20260716-voice-cascade-031`, `20260716-voice-cascade-046`, and `20260716-voice-cascade-052`; regenerated evaluator and rendering native-module wrappers.
+
+Validation:
+
+- Lesson 20 authority audits: `84/84` Canvas, `15/15` visual, `40/40` supplemental sources, `7/7` additional productive, `24/24` unlisted shapes, `36/36` candidate lattice, and `54/54` later evidence with all `7` higher-order records executable.
+- Lessons 20-22 formula audit remains complete at `39/39`, with `22/22` engine-derived nonactive Canvas matches, `0` mismatches, and `0` missing rules.
+- Focused firewall, Lessons 20-22, and wrapper parity tests pass `84/84` in classic and module; UI tests pass `375/375` in classic and module.
+- Complete classic and module runtimes pass `3259/3259` across `49/49` suites; `git diff --check` passes.
+- Fresh live in-app browser proof confirmed that no cascade control appears under active voice; `Next voice layer` appears only after `inherently impersonal`; and `Following voice layer` appears only after `tla-impersonal`. The partial `tla-yohua`, direct `yohua-lō`, and triple `tla-yohua-lō` results were authorized; the triple formula was `#0-0(tla-yohua-lō)0+c-0#`, no `yoō-hua` appeared, and the browser reported no console errors.
+
+### Modern ESM runtime cutover
+
+Date: 2026-07-16
+
+Status: Complete.
+
+- Preserved the verified post-Lesson 23 behavior in checkpoint commit `f1f8709c`, then promoted the verified `.mjs` graph to the sole runtime authority.
+- Removed the `72` approved classic runtime sources, the `3` approved wrapper-generation files, the generated-wrapper parity test, and `index.module.html`. `index.html` now has one local `type="module"` entry.
+- `src/runtime/create_runtime.mjs` owns one fail-closed manifest with `72` canonical modules and `72` installers. Tests, audits, maintenance callers, and the browser use that same graph.
+- Full verification passes `3327/3327` tests across `53` suites. Lesson 20 remains fully green, and the Lessons 20-22 Canvas audit passes `39/39` with `22/22` engine-derived nonactive matches and zero mismatches.
+- Automated Chrome proof loads one module and zero classic scripts in direct-import mode and preserves typed passive authority. Independent in-app proof visibly authorizes passive `chihua` and reports no browser warning or error.
+- The shared action `modern-esm-runtime-migration` is closed: primary responsibilities remain assigned, both temporary support actors are retired, and remaining old runtime callers are `0`.
+- Future lessons add one canonical `.mjs` module/installer entry only; they do not recreate a `.js` twin, generated wrapper, classic VM lane, or alternate browser entry.
+
+### Classical Lessons 24-26 typed derivation application
+
+Date: 2026-07-16
+
+Status: Complete for the first witnessed, authority-first causative/applicative slice. This is not an exhaustive Lessons 25-26 lexical inventory; every other route remains unsupported pending its own typed Andrews license.
+
+- Added one reusable typed derivation evaluator and extended the shared Classical VNC application boundary. Source VNC, operation, participant transform, target VNC, and result remain typed authority; formula, surface, result, target-stem, and caller-supplied signature strings cannot authorize.
+- Lesson 24 now licenses only the exact type-one witnesses `tomi -> tom-a` and `tēmi -> tēm-a`. Generic final-`i` replacement/addition is blocked, so unlicensed stems such as `miqui` cannot overgenerate.
+- Lesson 25 type-two causative consumes the exact typed `chihua -> chihua-lō` Lesson 20 route before deriving `chihua-l-tia`. An arbitrary nonactive record cannot infer the causative target.
+- Lesson 26 type-two applicative licenses only the Class C, specific-projective, one-object `xeloa -> xel-huia` source profile, imports the applicative object as the newest/mainline Lesson 23 position, and retains its older source object as shuntline. Other Lesson 26 stems and an invented three-object `chihua` target fail closed.
+- Added minimal Direct / source-gated Causative / source-gated Applicative controls plus conditional engine-generated formation, Embedded subject, and Imported object controls. Participant controls appear only after an exact source profile produces an authorized inventory; option rendering requires an exact rule ID/tag pair, and the result receipt exposes typed derivation/object depth without becoming authority.
+- Added the finished #3 Canvas/Andrews explanation as an application-owned, deep-frozen projection of the canonical source, operation, active target, participant transform, final voice, and evidence records. It visualizes formation, whole-VNC change, mainline/shuntline and sounded/silent participant history, Andrews operator scope, higher-layer finalization, broader reference dimensions, and a collapsed evidence boundary. The renderer validates the enclosing application frame before admitting it and constructs no derivational grammar.
+- Live browser testing found that the Lesson 23 cluster replaced the final typed formula but left the lower one-object Lesson 8 sentence frame attached. The core Lesson 23 handoff now re-finalizes its sentence/output projections from the final typed cluster; `c-0` survives only as lower-layer evidence.
+- Registered three canonical contracts for the option inventory, operation frame, and derived machinery frame, installed the evaluator as the 73rd canonical ESM module, and added a four-case executable Canvas audit.
+- Hardened the derivation, application-result, and application-envelope validators so canonical signatures are supplementary only: typed targets, formulas, proofs, finalizers, applied-frame order, source/active/selected continuity, derivation and voice selections, nested controls, and blocked-result emptiness are rebuilt or cross-checked directly.
+- Preserved higher sentence environments during later-voice reconstruction and removed an unused UI object-person default from intransitive `tla-impersonal` participant evidence.
+
+Validation:
+
+- Focused Lessons 24-26, application, registry, and UI verification passes `449/449`, including hostile typed-envelope and explanation-projection admission; focused Lessons 20-22 plus the hardened boundary pass `82/82` after final sentence-environment reconstruction.
+- The four-witness Lessons 24-26 Canvas audit passes `4/4` exact formulas, `4/4` typed operations, `0` missing evidence tokens, and `0` mismatches.
+- The complete canonical ESM runtime passes `3356/3356` tests across `54` suites. The prior Lessons 20-22 Canvas audit remains `39/39`; runtime delivery remains one module entry with `73/73` modules/installers; alignment stays at the recorded renderer/runtime baselines.
+- Automated browser smoke passes direct-import typed passive authority. Fresh-origin in-app proof shows the `chihua → chihua-lō → chihua-l-tia` and `xeloa → xel-huia` explanation paths, their §§24.9/26.23 scope and Lesson 23 participant routing, plus `#ni-0+m-itz+0-0(xel-huia)0+0-0#.` and `Nimitzxelhuia.`, with no stale `c-0` sentence, warning, error, or narrow-layout overflow.
+- `npm run verify:readiness` passes in full.
+
+### Classical Lessons 24-26 productive derivation expansion
+
+Date: 2026-07-16
+
+Status: Complete for productive typed causative and applicative generation. Any entered source may be analyzed; only an Andrews-licensed combination of typed class, valence, final shape, segmentation, nonactive history, and object depth may generate.
+
+- Replaced the four-route lexical permission list with category rules. Lesson 24 type-one causatives generate final-`i` replacement/addition alternatives, final-`a` replacement, root-plus-`ya`, segmented long-vowel `hua`, and licensed `hui` families. Lesson 25 type-two causatives consume canonical Lesson 20 `hua`, `ō`, `o-hua`, or `lō` formation cores, with more specific `-ti`, root-plus-`ya`, and final-`ō` routes taking precedence.
+- Lesson 26 applicatives productively derive `liā` for final `i/iā`, consonant-plus-`a`, Class B/D, and `ya/oya` categories. `huiā` is licensed only by its typed `o-ā`, intransitive `ō`, or signed earlier-causative history. Two-object sources may reach the Andrews three-object ceiling; a fourth object, duplicate identity, or contradictory source profile blocks.
+- Exact `tomi`, `tēmi`, `chihua`, `xeloa`, final-`ō` choices, `pil-i-hui`, and the §26.7 occasional `pa-tla / tla-zo-h-tla -> ...ti-lia` correspondences remain boundary-insensitive overlays. They refine or suppress productive candidates but no longer function as the user-source whitelist. The exact `xeloa` result absorbs a lexical-key-equivalent productive result even under extra internal boundary segmentation, so the UI never presents two indistinguishable choices; unlisted `-tla` sources retain the productive `tla -> chi` route.
+- Canonical validators rebuild base Lesson 7/23 sources, full operations and participant transforms, derived machinery, formulas, finalizers, and recursive signed history. Caller target/formula/surface/result strings, forged signatures, mixed sources, duplicate objects, mutated lower frames, or a canonical voice cluster attached to a mismatched target stem, subject, or tense cannot authorize.
+- The UI now labels Causative and Applicative as rule-generated. It offers an engine-generated formation selector only when Andrews leaves alternatives, shows only the embedded subject or imported object decisions that the user genuinely controls, and renders the application-owned Canvas/Andrews explanation without a renderer-maintained rule-tag allowlist.
+
+Validation:
+
+- Productive rule audit: all `14` families pass, including unlisted sources, a signed causative-to-applicative continuation, and recursive depth `3`.
+- Focused suites: Lessons 24-26 `16/16`, VNC application `17/17`, grammar registry `43/43`, UI `381/381`, and Lessons 20-22 `28/28`.
+- Complete canonical ESM runtime: `3365/3365` tests across `54` suites. Lessons 20-22 Canvas formulas remain `39/39`; Lessons 24-26 witnesses remain `4/4`; the runtime manifest remains one browser entry with `73/73` modules/installers; shared-action alignment is green.
+- Fresh-origin in-app proof entered unlisted `miqui`, exposed `mic-a ~ miqui-a ~ mic-tia`, and authorized selected `mic-tia` as `#ni-0+c-0(mic-tih)0+⎕-0#` / `Nicmictih.`. It then entered transitive `namaca`, automatically derived `namaqui-lia`, and authorized `#ni-0+m-itz+0-0(namaqui-lih)0+⎕-0#` / `Nimitznamaquilih.`. Both productive explanations rendered and the clean tab reported no warning or error.
+- `npm run verify:readiness` passes in full, including the direct-import smoke with one module script, zero classic scripts, and typed formula-string authority disabled.
+
+### Raw Karttunen 1992 derivational evidence overlay
+
+Date: 2026-07-16
+
+Status: Complete as a display-only lexical-attestation overlay on Andrews-generated causative, applicative, and nonactive routes.
+
+- Audited the supplied raw `Karttunen` column conservatively as `1,779` unique explicit source-to-derivative relations: `695` applicatives, `276` causatives, and `808` nonactives. The raw cell supplies the direction as derivative before `applic.`, `caus.`, or `nonact.` and original after the marker; presentation reverses that source notation to `ORIGINAL → DERIVATIVE`.
+- Kept the full mechanical inventory out of the browser runtime. The reviewed overlay contains only `837` exact, quantity-preserving intersections with current Andrews outputs (`452` applicatives, `88` causatives, and `297` nonactives), plus one explicit no-current-license causative fixture for hostile neutrality proof.
+- Evidence matching ignores morpheme-boundary hyphens and whitespace only. It preserves Classical vowel quantity, offers no quantity-free fallback, never infers missing boundaries, and never consults the normalized `Traducción` field whose derivational cross-references were removed by commit `21bd184`.
+- Causative and applicative attestations attach only after the typed derivation evaluator independently generates the same operation, source, and target. Nonactive attestations attach only after the Lesson 20 candidate lattice resolves; the selected type-two causative bridge and any later passive/impersonal nonactive formation remain separate canonical evidence contexts.
+- Evidence is bound into canonical signatures and recomputed by validators, but every authority flag remains false. The application projects it through the validated explanation envelope, and the renderer admits only raw-`Karttunen`, correctly directed, quantity-preserving, non-authoritative records as display rows with no controls.
+- Focused verification passes Lessons 24-26 `17/17`, Lessons 20-22 `29/29`, VNC application `19/19`, grammar registry `43/43`, and UI `381/381`, including segmented/unsegmented equivalence, no-license neutrality, forged/missing evidence rejection, and distinct bridge/later-voice projections.
+- The full canonical ESM runtime passes `3369/3369` tests across `54` suites. `npm run audit:alignment` is aligned, and `npm run verify:readiness` passes the runtime manifest, full suite, lesson audits, all `14` productive derivation families, the raw Karttunen audit, and direct-import browser smoke.
+- Fresh-origin in-app proof renders selected applicative `CĀHU(A) → CĀHUILIĀ` for entered `cā-hua` and generated `cā-hui-liā`. A clean causative run for `mayāna` also renders distinct selected-causative `MAYĀN(A) → MAYĀNALTIĀ` and Lesson 20 bridge `MAYĀN(A) → MAYĀNALŌ` rows. All three live rows declare authority `none`, identify the raw `Karttunen` source, report hyphen-insensitive and quantity-preserving agreement, and contain zero controls. Later-voice evidence is additionally covered by the canonical application/UI suites.
+
+### Karttunen Lessons 24-26 type organization
+
+Date: 2026-07-17
+
+Status: Complete as an offline Andrews taxonomy and evidence report; it does not add a runtime grammar lane.
+
+- Extended the Lesson 25/26 organizer with a seven-family Lesson 24 catalog: final-`i` replacement, final-`i` addition, homophonous final-`a` replacement, root-plus-`ya` replacement, long-vowel `hua` replacement, `i/a-hui -> o-ā`, and note-1 `o-hui -> o-ā`. §24.5 `ni/hui` preferences and fused formations are nested subtypes; §§24.8-24.9 remain participant/scope dimensions.
+- Replayed each of the `276` reconciled causative sources through the canonical typed evaluator under A/B intransitive profiles. The report keeps `sourceTypeCandidates` separate from recorded-relation `typeCandidates`, so a possible Lesson 24 alternative can never reclassify Karttunen's different target.
+- No raw Karttunen `caus.` target is an exact Lesson 24 output. `274` targets are later-causative-shaped and `2` are unclassified; `225` rows (`189` unique sources) nevertheless have at least one distinct Lesson 24 source alternative, and all `225` fail recorded-target equality by construction.
+- Overlapping source memberships are `111` final-`i` replacement, `147` final-`i` addition, `57` homophonous final-`a`, `9` root-plus-`ya`, `12` long-vowel `hua`, and `23` `i/a-hui -> o-ā`. The catalog retains the zero-member note-1 `o-hui` family and the explicit `pil-i-hui` negative gap rather than letting the dataset define the chapter inventory.
+- The cross-lesson partition is `179` source-compatible plus typed/comparison Lesson 25, `46` source-compatible plus ending/unresolved, `35` typed/comparison Lesson 25 without a Lesson 24 option, and `16` outside both typed inventories. Lesson 25 remains `89` exact families plus one §25.8 comparison, `51` nonactive-corroborated, `73` edit-compatible, `60` ending-only, and `2` unresolved; Lesson 26 remains `452/173/22/48` exact/compatible/ambiguous/unclassified.
+- Generated delivery includes a one-row-per-relation Lesson 24 TSV, a seven-row catalog TSV with Canvas examples/subtypes/gaps, the existing Lesson 25/26 TSVs, a complete JSON report, summary JSON, and an explanatory README. Every authority flag is false and generated artifacts remain ignored offline reports.
+
+Validation:
+
+- The fixed-SHA organizer, exact inventory identity, source/target separation, catalog, ambiguity, round-trip, TSV-width, and hostile all-false-authority invariants pass.
+- Canonical tests pass `3393/3393` across `55` suites. Runtime delivery remains one module entry with `73/73` modules/installers; every Lesson 20, Lessons 20-22, Lessons 24-26, productive-rule, and Karttunen evidence audit passes.
+- Browser smoke passes with one module script, zero classic scripts, typed authority true, and formula-string authority false. Shared-action alignment passes after the organizer action closes without claiming unrelated dirty worktree paths.
+
+### Classical Lesson 26 complete example generation
+
+Date: 2026-07-17
+
+Status: Complete. Every one of the `161` Lesson 26 Canvas/Andrews source-result examples now has an executable typed generation path; none remains unsupported.
+
+- The earlier gaps came from four distinct omissions: unpredictable Type 1 applicatives were treated as “no licensed options” instead of user-selectable possibilities; §26.1 identity/inherent and exact alternation relations were absent; final `o-ā` analysis exposed too few structurally possible `huiā/liā` routes; and Type 3 plus §§26.15-26.23 lacked end-to-end executable proof through their nonactive, participant, mood, voice, ambiguity, or scope layers.
+- Type 1, Type 2, and rare Type 3 are now first-class nomenclature subtypes. Productive or structurally possible forms coexist as explicit choices, while exact Canvas/Karttunen witnesses remain separately marked and never preselect or authorize a route.
+- Added exact §26.1 identity/inherent relations, documented Type 1 and Type 2 alternations, rare `namaca -> namaquiltia` and `nequi -> nectia` Type 3 routes, generic segmented/unsegmented final-`o-ā` alternatives, and §26.23 `tla-` defusion. The Type 3 routes consume canonical Lesson 20 nonactive intermediates rather than a target-string shortcut.
+- The complete catalog is frozen audit evidence only. Its `101` stem rows, `33` participant-transform rows, and `27` higher-layer rows are rebuilt through canonical inventories, Lesson 20 bridges, Lesson 23 object machinery, and the relevant mood/voice/ambiguity/scope finalizer; stored expected strings cannot authorize.
+- The result selector is nomenclature-first (`Type 1 applicative`, `Type 2 applicative`, `Type 3 applicative`, etc.), followed by the generated target and Andrews section. Multiple possible outputs require an explicit user choice; options without lexical witnesses are visibly choices, not claims.
+- The Karttunen hostile audit now locates the actual evidence-bearing option before mutation, so a newly preceding unwitnessed option cannot weaken the proof that lexical evidence has no generation authority.
+
+Validation:
+
+- Complete Lesson 26 audit: `161/161` generated, `0` missing rule outputs, `0` pending exact-layer proofs.
+- Productive Lesson 24-26 audit: all `18` rule families pass with recursive object depth `3`; focused Lesson 24-26, application, Lesson 20-22, and UI suites pass `24/24`, `24/24`, `30/30`, and `381/381`.
+- Full canonical ESM suite passes `3398/3398` across `56` suites. Runtime delivery remains one browser entry with `73/73` modules/installers; shared-action alignment is green.
+- Karttunen remains display-only: `837` confirmed intersections (`452` applicative, `88` causative, `297` nonactive) plus one no-license fixture pass with hyphens ignored, quantity preserved, and `Traducción` authority false.
+- `npm run verify:readiness` passes end to end, including direct-import browser smoke with one module script, zero classic scripts, typed authority true, and formula-string authority false.
+
+### Classical Direct restoration and Applicative authority layout
+
+Date: 2026-07-17
+
+Status: Complete. Direct retains its established choice inventory, and Applicative presents its three user decisions in a stable typed sequence.
+
+- Direct again displays Class, `3 common`, `information question`, and `wish`. When Canvas determines or excludes a choice, the typed engine disables it; presentation no longer removes it from Direct.
+- Applicative now has an explicit heading and the ordered controls Generated formation, Imported object, and Later target voice. The generated-formation control appears for every authorized Applicative inventory and only requires a choice when canonical alternatives survive.
+- Mode switching retains the existing mode-specific application state. Causative and Applicative continue to hide Direct-only presentation choices, so restoration does not broaden derived-mode authority.
+- Focused UI, VNC application, and Lessons 24-26 suites pass `382/382`, `24/24`, and `24/24`. Live browser proof confirms the restored Direct inventory and visible-but-locked Canvas class behavior.
+- Full readiness passes `3399/3399` tests across `56` suites, all lesson and Karttunen audits, `161/161` Lesson 26 examples, all `18` productive families, alignment, and direct-import browser smoke.
+
+### Classical #1/#2/#3 progressive presentation flow
+
+Date: 2026-07-17
+
+Status: Complete. Source is compact, Authority is derivation-first with progressive typed disclosure, and Result is answer-first without changing Andrews page 46–47 Linear/Diagram structures.
+
+- #1 keeps the machine-owned source facts and source-structure controls intact, but presents the readout as a compact wrapping line instead of four equally heavy rows.
+- #2 places Direct/Causative/Applicative before Logic. Existing typed controls are moved without replacing their IDs or listeners into a primary mode-relevant stage plus native Clause and Sentence disclosures. Direct opens Clause by default; derived modes keep ordinary settings secondary and require a generated-formation choice when canonical alternatives survive.
+- #3 now presents the selected form and current Linear/Diagram rendering before the authority receipt and the longer application-owned Canvas/Andrews route. Linear remains a continuous formula; Diagram retains Subject and Predicate with Core/Tense under the brace; each format keeps its own Specific/General switch.
+- Focused UI verification passes `383/383`. The single presentation-slice alignment audit is aligned.
+- Fresh in-app proof entered `huāqui`, authorized Direct `Nihuāc.`, selected Type 1 Causative `huā-tz-a` to authorize `Nichuātz.`, and selected Type 1 Applicative `huāqu-iā` to authorize `Nimitzhuāquih.`. In both derived modes, the answer appears before the authority receipt and Canvas/Andrews route while Clause and Sentence settings remain collapsed.
+- Full readiness was intentionally not run because this is a presentation slice, not a lesson handoff.
+
+### Classical #3 common Canvas / Andrews surface style
+
+Date: 2026-07-17
+
+Status: Complete. All Classical result components now share the visual system established by the authorized-derivation panel.
+
+- Added one body-scoped teal/amber Canvas palette with shared panel backgrounds, borders, radii, shadows, muted labels, and code-display treatments. The authorized derivation now consumes those common variables instead of maintaining a visually isolated palette.
+- Turned the full #3 result into the common gradient surface. Selected VNC/NNC answers, Linear/Diagram sections, formula switches, authority receipts, proof actions, and disclosures now use related white/teal or amber cards within it.
+- Removed the blocky selected-VNC treatment: the left-border slab is replaced by a rounded peer panel, the answer sits in a teal inset, and its label hierarchy matches the authorized-derivation header language.
+- Restyled Classical mode, derivation, voice, and subtype operator grids as the same rounded Canvas surface with white pills and teal active states; `calc-operator-grid--derivation` no longer looks like an unrelated glass control.
+- Preserved result order, every DOM/control contract, application-owned authority, Linear and Diagram formulas, independent Specific/General switches, and the Andrews page 46–47 Predicate hierarchy.
+- Focused UI verification passes `384/384`. Fresh browser proof covers `Nihuāc.`, `Nichuātz.`, and `Nimitzhuāquih.`; selected result, receipt, and derivation share identical panel styling. Phone-width proof has zero page/component overflow and the final tab has no warning or error logs.
+- Alignment is green. Full readiness was intentionally not run because this is a presentation refinement rather than a lesson handoff.
+
+### Classical #3 authorized-derivation density reduction
+
+Date: 2026-07-17
+
+Status: Complete. The Canvas / Andrews route is now a compact result summary with progressive proof rather than an expanded report.
+
+- The default exposes exactly five application-projected facts: source to derived stem, derivation nomenclature plus primary Andrews section, valence/object-depth change, Andrews rule-authorization status, and lexical-witness status.
+- Removed the explanatory lede, the duplicate visible source-contract and formation-identity rows, and the generic broader-dimensions block. No grammar data or authority moved into presentation; the validated application projection remains unchanged.
+- Existing nonduplicative proof is organized into three closed disclosures: Formation and source analysis; Participants, scope, and later voice; Rule and lexical evidence. Source/reverse analyses, participant routing, nonactive layers, and Canvas/Karttunen evidence remain display-only.
+- Focused UI verification passes `385/385`. Live applicative proof authorizes `xeloa → xelo-ia` and renders `Nimitzxeloih.` with the five-fact default. All three bodies compute to `display: none` and zero height until opened; the formation disclosure opens with its three typed sections and closes again.
+- Desktop proof measures `873 × 370` with zero horizontal overflow. Phone-width Result proof measures a `380`-pixel root and `360 × 467` explainer with one-column facts, three closed bodies, and zero page/component overflow.
+- Alignment is green. Full readiness was intentionally not run because this is a presentation refinement rather than a lesson handoff.

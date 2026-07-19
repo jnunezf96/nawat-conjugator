@@ -4,13 +4,10 @@
 
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
 const childProcess = require("child_process");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
-const SCRIPT_PATH = path.join(ROOT, "script.js");
-const BROWSER_RUNTIME_CHECKS_PATH = path.join(ROOT, "scripts", "browser_runtime_checks.js");
 const REPORT_JSON_PATH = path.join(ROOT, "reports", "operation_back_sys_report.json");
 const REPORT_MD_PATH = path.join(ROOT, "reports", "operation_back_sys_report.md");
 
@@ -91,23 +88,14 @@ function loadStaticData(context) {
   });
 }
 
-function loadBrowserRuntimeChecks(context) {
-  vm.runInContext(
-    fs.readFileSync(BROWSER_RUNTIME_CHECKS_PATH, "utf8"),
-    context,
-    { filename: BROWSER_RUNTIME_CHECKS_PATH },
-  );
-}
-
-function createLoadedContext() {
-  const { context } = createVmContext({
+async function createLoadedContext() {
+  const { context } = await createModuleRuntime({
     rootDir: ROOT,
     extraGlobals: {
       Event: function Event() {},
     },
   });
   loadStaticData(context);
-  loadBrowserRuntimeChecks(context);
   return context;
 }
 
@@ -161,10 +149,33 @@ function matchSignalsAgainstSourceMap(sourceMap = new Map(), signals = []) {
   });
 }
 
+function getCanonicalModuleFiles(dirPath) {
+  if (!fs.existsSync(dirPath)) {
+    return [];
+  }
+  return fs.readdirSync(dirPath, { withFileTypes: true }).flatMap((entry) => {
+    const fullPath = path.join(dirPath, entry.name);
+    if (entry.isDirectory()) {
+      return getCanonicalModuleFiles(fullPath);
+    }
+    return entry.isFile() && entry.name.endsWith(".mjs") ? [fullPath] : [];
+  });
+}
+
 function buildCurrentSourceMap(files = []) {
   const sourceMap = new Map();
+  const canonicalRuntimeSource = getCanonicalModuleFiles(path.join(ROOT, "src"))
+    .map((filePath) => fs.readFileSync(filePath, "utf8"))
+    .join("\n");
   (Array.isArray(files) ? files : []).forEach((relativePath) => {
-    const absolutePath = path.join(ROOT, relativePath);
+    const canonicalRelativePath = relativePath === "pret_universal_engine.js"
+      ? "src/core/preterit/engine.mjs"
+      : relativePath;
+    if (relativePath === "script.js") {
+      sourceMap.set(relativePath, canonicalRuntimeSource);
+      return;
+    }
+    const absolutePath = path.join(ROOT, canonicalRelativePath);
     if (!fs.existsSync(absolutePath)) {
       sourceMap.set(relativePath, "");
       return;
@@ -172,6 +183,12 @@ function buildCurrentSourceMap(files = []) {
     sourceMap.set(relativePath, fs.readFileSync(absolutePath, "utf8"));
   });
   return sourceMap;
+}
+
+function describeCurrentAuthority(value = "") {
+  return String(value || "")
+    .replace(/^script\.js:/, "canonical ESM runtime:")
+    .replace(/^pret_universal_engine\.js:/, "src/core/preterit/engine.mjs:");
 }
 
 function collectAllSignalFiles(definitions = []) {
@@ -1386,9 +1403,9 @@ function validateRecord(record) {
   }
 }
 
-function main() {
+async function main() {
   verifyAnchorsResolve();
-  const context = createLoadedContext();
+  const context = await createLoadedContext();
   const signalFiles = collectAllSignalFiles(RECORD_DEFS);
   const currentSourceMap = buildCurrentSourceMap(signalFiles);
 
@@ -1410,7 +1427,9 @@ function main() {
       surface_kind: definition.surface_kind,
       anchor_hits: anchorHits,
       historical_authority: definition.historical_authority,
-      current_authority: currentStaticPresence ? definition.current_authority : "",
+      current_authority: currentStaticPresence
+        ? describeCurrentAuthority(definition.current_authority)
+        : "",
       current_status: normalizeStatus(classified.status),
       status_reason: classified.reason,
       reachability: normalizeReachability(liveResult.reachability),
@@ -1440,4 +1459,8 @@ function main() {
   console.log(`Operation Back Sys report written to ${REPORT_MD_PATH}`);
 }
 
-main();
+main().catch((error) => {
+  const message = error && error.stack ? error.stack : String(error);
+  process.stderr.write(`${message}\n`);
+  process.exitCode = 1;
+});

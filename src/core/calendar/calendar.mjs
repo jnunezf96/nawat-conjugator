@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/calendar/calendar.js.
+// Canonical modern ESM module.
 
 export function createCalendarNameApi(targetObject = globalThis) {
     const CALENDAR_NAME_BOUNDARY_VERSION = 1;

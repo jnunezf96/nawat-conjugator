@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-karttunen-lessons24-26-type-organization",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-type-taxonomy-without-karttunen-license",
+    "statement": "Organize every reconciled Karttunen causative and applicative relation against the closed Lesson 24-26 formation taxonomy while preserving typed prerequisites, competing analyses, evidence strength, and complete non-authority.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate Lesson 24-26 taxonomy, raw evidence reconciliation, source-versus-target classification, ambiguity retention, tabular delivery, and hostile invariants.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "A sibling offline organizer assigns every one of the 276 causatives and 695 applicatives to at least one analytical Lesson 24-26 formation type. Lesson 24 source alternatives remain separate, numbered §25 subtypes include HUĀQUĪTIĀ under §25.2.1, and analytical classification never becomes a generation license.",
+  "responsibilities": [
+    {
+      "id": "grammar-taxonomy",
+      "statement": "Define formation types from Canvas sections and distinguish productive families, nested source/procedure subtypes, comparison witnesses, participant transforms, and typed prerequisites.",
+      "paths": ["src/core/classical/", "docs/ANDREWS_TRANSCRIPTION_CANVAS.md"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{"actorId": "classical-derivation-engine", "kind": "primary", "status": "active", "contribution": "Supply the canonical Lesson 24-26 route vocabulary, exact overlap index, and typed prerequisite boundary."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "evidence-organization",
+      "statement": "Reconcile the fixed-SHA raw inventory and attach an exhaustive numbered analytical type plus a separate exact, corroborated, compatible, ambiguous, source-compatible-only, or anomaly evidence status without creating runtime options.",
+      "paths": ["scripts/organize_classical_karttunen_", "scripts/infer_classical_karttunen_", "reports/generated/karttunen_1992_"],
+      "primaryActor": "karttunen-type-organizer",
+      "actors": [{"actorId": "karttunen-type-organizer", "kind": "primary", "status": "active", "contribution": "Emit grouped JSON, a Lesson 24 catalog, and one-row-per-relation TSVs with explicit evidence tiers and false authority flags."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove exact inventory identity, source-versus-target separation, disjoint classification totals, known ambiguity counts, boundary round-trip, and authority neutrality.",
+      "paths": ["scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Enforce fixed totals and hostile fixtures in the organizer, then run alignment and readiness gates."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the current target, board, ignored generated artifacts, and shared-action evidence synchronized.",
+      "paths": [".gitignore", "docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/", "package.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Keep the organizer offline and prevent compatibility labels from becoming a second grammar lane."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [
+    {
+      "id": "source-shape-as-recorded-target-type",
+      "status": "complete",
+      "removalEvidence": "Lesson 24 stores current typed alternatives in sourceTypeCandidates while typeCandidates remains empty unless the generated target exactly equals Karttunen's recorded target; the fixed inventory has zero such matches."
+    },
+    {
+      "id": "suffix-ending-as-generation-license",
+      "status": "complete",
+      "removalEvidence": "All rows receive an analytical Canvas type, but weak right-edge shape is explicitly classificationOnly, generationLicensed=false, and authority=false. Canonical generation still requires typed class, valence, internal analysis, history, and lexical selection."
+    },
+    {
+      "id": "flat-applicative-bucket",
+      "status": "complete",
+      "removalEvidence": "Lesson 26 remains separated into type-one iā, final-i/final-iā/consonant-a liā families, §26.8 overrides, o-ā/final-ō huiā families, and rare tiā."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "lesson24-source-target-separation",
+      "result": "All 276 causative rows are retained. No recorded target is an exact Lesson 24 output; 274 are later-causative-shaped and two remain target-unclassified. The canonical A/B intransitive replay finds a separate Lesson 24 alternative for 225 rows/189 unique sources, while every generated alternative differs from the recorded target."
+    },
+    {
+      "id": "lesson24-closed-taxonomy",
+      "result": "The catalog has seven peer families: final-i replacement, final-i addition, homophonous final-a replacement, root-plus-ya replacement, long-vowel hua replacement, i/a-hui to o-ā, and o-hui to o-ā. §24.5 preferences/fused forms are nested subtypes; the pil-i-hui gap is explicit."
+    },
+    {
+      "id": "lesson25-disjoint-classification",
+      "result": "All 276 causatives receive an analytical type: 275 single and one ambiguous. Evidence remains separate: 89 exact, one exact §25.8 comparison, 51 nonactive-corroborated, 73 edit-compatible, and 62 raw-shape-only. HUĀQUĪTIĀ is explicitly §25.2.1; the two spelling anomalies receive nearest numbered types with visible anomaly flags."
+    },
+    {
+      "id": "lesson26-disjoint-classification",
+      "result": "All 695 applicatives receive at least one analytical type: 661 single and 34 ambiguous. Evidence remains separate: 452 current exact overlaps, 173 compatible non-authorizing hypotheses, 22 cross-lesson ambiguities, and 48 raw-shape-only assignments."
+    },
+    {
+      "id": "boundary-and-authority-proof",
+      "result": "Every primary Lesson 25 and Lesson 26 boundary round-trips; all 276 recorded causatives are assigned across Lessons 24-25; no Lesson 24 source alternative is emitted as the recorded target; every candidate has generationLicensed=false and every authority flag is false."
+    },
+    {
+      "id": "repository-readiness",
+      "result": "The canonical suite passes 3393/3393 across 55 suites; runtime delivery remains 73/73 with one module entry; every Lesson 20, Lessons 20-22, Lessons 24-26, productive-rule, and Karttunen evidence audit passes; browser smoke reports one module script, zero classic scripts, typed authority true, and formula-string authority false."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "scripts/organize_classical_karttunen_1992_lessons25_26_types.js"
+  }
+}

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/preterit/context.js and engine.js
+ * Tests for src/core/preterit/context.mjs and engine.js
  * Covers: getPretUniversalCoreVowelCount, getPretUniversalClassOrder,
  *         getMonosyllableStemPath, getUniversalReplacementStem.
  */
@@ -40,13 +40,17 @@ function run(ctx) {
         {
             operationKind: appendBaseSpec.operationFrame?.kind || "",
             sourceKind: appendBaseSpec.operationFrame?.sourceFrame?.kind || "",
+            targetKind: appendBaseSpec.operationFrame?.targetFrame?.kind || "",
             appendRole: appendBaseSpec.operationFrame?.appendFrame?.role || "",
+            targetBase: appendBaseSpec.operationFrame?.targetFrame?.targetBase || "",
             base: ctx.realizePretBaseSpec(appendBaseSpec, "poison"),
         },
         {
             operationKind: "preterit-base-transform-operation-frame",
             sourceKind: "preterit-base-source-frame",
+            targetKind: "preterit-base-transform-target-frame",
             appendRole: "append",
+            targetBase: "kij",
             base: "kij",
         }
     );
@@ -76,6 +80,48 @@ function run(ctx) {
         "preterit poisoned legacy transform fields do not change typed operation output",
         ctx.realizePretBaseSpec(poisonedAppendSpec, ""),
         "kij"
+    );
+    const replaceSuffixBaseSpec = ctx.buildPretReplaceSuffixBaseSpec("nemia", "a", "j");
+    const missingTargetReplaceSuffixSpec = {
+        ...replaceSuffixBaseSpec,
+        operationFrame: {
+            ...replaceSuffixBaseSpec.operationFrame,
+            targetFrame: null,
+        },
+    };
+    const contradictoryTargetReplaceSuffixSpec = {
+        ...replaceSuffixBaseSpec,
+        operationFrame: {
+            ...replaceSuffixBaseSpec.operationFrame,
+            targetFrame: {
+                ...replaceSuffixBaseSpec.operationFrame.targetFrame,
+                targetBase: "poison",
+            },
+        },
+    };
+    s.eq(
+        "preterit replace-suffix base transform target is authorized by typed target frame",
+        {
+            targetKind: replaceSuffixBaseSpec.operationFrame?.targetFrame?.kind || "",
+            targetBase: replaceSuffixBaseSpec.operationFrame?.targetFrame?.targetBase || "",
+            base: ctx.realizePretBaseSpec(replaceSuffixBaseSpec, "poison"),
+            poisonedLegacyFields: ctx.realizePretBaseSpec({
+                ...replaceSuffixBaseSpec,
+                sourceBase: "poison",
+                sourceSuffix: "x",
+                replacement: "z",
+            }, ""),
+            missingTarget: ctx.evaluatePretBaseSpec(missingTargetReplaceSuffixSpec).diagnostics?.[0]?.id || "",
+            contradictoryTarget: ctx.evaluatePretBaseSpec(contradictoryTargetReplaceSuffixSpec).diagnostics?.[0]?.id || "",
+        },
+        {
+            targetKind: "preterit-base-transform-target-frame",
+            targetBase: "nemij",
+            base: "nemij",
+            poisonedLegacyFields: "nemij",
+            missingTarget: "preterit-base-missing-target-frame",
+            contradictoryTarget: "preterit-base-contradictory-target-frame",
+        }
     );
     const contradictoryAppendSpec = {
         ...appendBaseSpec,
@@ -3613,14 +3659,21 @@ function run(ctx) {
                 isMonosyllable: false,
                 isReduplicated: false,
             }),
-            reduplicatedSourceBlocked: ctx.buildPretClassACvwiTransitiveSourceFrame({
-                sourceVerb: "sewi",
-                syllables: ctx.getSyllables("sewi", { analysis: true, assumeFinalV: true }),
-                rightEdgeDescriptor: cvwiTransitiveContext.rightEdgeDescriptor,
-                isTransitive: true,
-                isMonosyllable: false,
-                isReduplicated: true,
-            }),
+            reduplicatedSourceFrame: (() => {
+                const frame = ctx.buildPretClassACvwiTransitiveSourceFrame({
+                    sourceVerb: "sewi",
+                    syllables: ctx.getSyllables("sewi", { analysis: true, assumeFinalV: true }),
+                    rightEdgeDescriptor: cvwiTransitiveContext.rightEdgeDescriptor,
+                    isTransitive: true,
+                    isMonosyllable: false,
+                    isReduplicated: true,
+                });
+                return frame ? {
+                    kind: frame.kind,
+                    reduplication: frame.reduplicationFrame?.text || "",
+                    targetPolicy: frame.targetPolicyFrame?.text || "",
+                } : null;
+            })(),
         },
         {
             noOperationCandidates: [],
@@ -3631,7 +3684,77 @@ function run(ctx) {
             noSourceClassB: null,
             intransitiveSourceBlocked: null,
             nonISourceBlocked: null,
-            reduplicatedSourceBlocked: null,
+            reduplicatedSourceFrame: {
+                kind: "preterit-class-a-cvwi-transitive-source-frame",
+                reduplication: "present",
+                targetPolicy: "allowclassazeroandkiandclassbk",
+            },
+        }
+    );
+    const reduplicatedCvwiTransitiveContext = ctx.buildPretUniversalContext("sesewi", "sesewi", true, {});
+    const reduplicatedCvwiTransitiveDescriptorPoisonedContext = {
+        ...reduplicatedCvwiTransitiveContext,
+        descriptorState: {
+            ...reduplicatedCvwiTransitiveContext.descriptorState,
+            shapeDescriptors: [],
+            aggregateDescriptors: [],
+        },
+    };
+    s.eq(
+        "preterit Class A/B reduplicated CV|CV(w+i) transitive policy consumes typed frame before descriptor authority",
+        {
+            sourceVerb: reduplicatedCvwiTransitiveContext.classACvwiTransitiveSourceFrame?.sourceVerbFrame?.text || "",
+            reduplication: reduplicatedCvwiTransitiveContext.classACvwiTransitiveSourceFrame?.reduplicationFrame?.text || "",
+            allowZero: reduplicatedCvwiTransitiveContext.classACvwiTransitiveOperationFrame?.targetFrame?.allowZeroSuffix === true,
+            candidatesWithPoisonedDescriptors: Array.from(ctx.getPretUniversalClassCandidates(reduplicatedCvwiTransitiveDescriptorPoisonedContext)),
+            classA: (ctx.buildPretUniversalClassA({
+                ...reduplicatedCvwiTransitiveContext,
+                verb: "poison",
+                analysisVerb: "poison",
+                exactBaseVerb: "poison",
+            }) || []).map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
+            classB: (ctx.buildPretUniversalClassB({
+                ...reduplicatedCvwiTransitiveContext,
+                verb: "poison",
+                analysisVerb: "poison",
+                exactBaseVerb: "poison",
+            }) || []).map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
+            noOperationCandidates: Array.from(ctx.getPretUniversalClassCandidates({
+                ...reduplicatedCvwiTransitiveContext,
+                classACvwiTransitiveOperationFrame: null,
+            })),
+            noSourceClassA: ctx.buildPretUniversalClassA({
+                ...reduplicatedCvwiTransitiveContext,
+                classACvwiTransitiveSourceFrame: null,
+            }),
+            noOperationClassB: ctx.buildPretUniversalClassB({
+                ...reduplicatedCvwiTransitiveContext,
+                classACvwiTransitiveOperationFrame: null,
+            }),
+        },
+        {
+            sourceVerb: "sewi",
+            reduplication: "present",
+            allowZero: true,
+            candidatesWithPoisonedDescriptors: ["B", "A"],
+            classA: [
+                { base: "sew", suffix: "ki", policy: "andrews-preterit-class-a-cvwi-transitive-policy" },
+                { base: "sew", suffix: "", policy: "andrews-preterit-class-a-cvwi-transitive-policy" },
+                { base: "sej", suffix: "ki", policy: "andrews-preterit-class-a-cvwi-transitive-policy" },
+                { base: "sej", suffix: "", policy: "andrews-preterit-class-a-cvwi-transitive-policy" },
+            ],
+            classB: [{ base: "sewi", suffix: "k", policy: "andrews-preterit-class-a-cvwi-transitive-policy" }],
+            noOperationCandidates: [],
+            noSourceClassA: null,
+            noOperationClassB: null,
         }
     );
     const cvcvwiTransitiveContext = ctx.buildPretUniversalContext("tepewi", "tepewi", true, {});
@@ -3841,14 +3964,6 @@ function run(ctx) {
                 isMonosyllable: false,
                 isReduplicated: false,
             }),
-            reduplicatedSourceBlocked: ctx.buildPretClassACvcvwiTransitiveSourceFrame({
-                sourceVerb: "tepewi",
-                syllables: ctx.getSyllables("tepewi", { analysis: true, assumeFinalV: true }),
-                rightEdgeDescriptor: cvcvwiTransitiveContext.rightEdgeDescriptor,
-                isTransitive: true,
-                isMonosyllable: false,
-                isReduplicated: true,
-            }),
         },
         {
             noOperationCandidates: [],
@@ -3859,7 +3974,84 @@ function run(ctx) {
             noSourceClassB: null,
             intransitiveSourceBlocked: null,
             nonISourceBlocked: null,
-            reduplicatedSourceBlocked: null,
+        }
+    );
+    const reduplicatedCvcvwiTransitiveContext = ctx.buildPretUniversalContext("tetepewi", "tetepewi", true, {});
+    const reduplicatedCvcvwiDescriptorPoisonedContext = {
+        ...reduplicatedCvcvwiTransitiveContext,
+        descriptorState: {
+            ...reduplicatedCvcvwiTransitiveContext.descriptorState,
+            shapeDescriptors: [],
+            aggregateDescriptors: [],
+        },
+    };
+    const contradictoryReduplicatedCvcvwiSourceFrame = {
+        ...reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveSourceFrame,
+        reduplicationFrame: {
+            ...reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveSourceFrame.reduplicationFrame,
+            text: "absent",
+        },
+    };
+    s.eq(
+        "preterit Class A/B reduplicated CV|CV|CV(w+i) transitive policy consumes typed frame before descriptor authority",
+        {
+            sourceVerb: reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveSourceFrame?.sourceVerbFrame?.text || "",
+            reduplication: reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveSourceFrame?.reduplicationFrame?.text || "",
+            allowKi: reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveOperationFrame?.targetFrame?.allowKiSuffix === true,
+            candidatesWithPoisonedDescriptors: Array.from(
+                ctx.getPretUniversalClassCandidates(reduplicatedCvcvwiDescriptorPoisonedContext)
+            ),
+            classA: (ctx.buildPretUniversalClassA({
+                ...reduplicatedCvcvwiTransitiveContext,
+                verb: "poison",
+                analysisVerb: "poison",
+                exactBaseVerb: "poison",
+            }) || []).map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
+            classB: (ctx.buildPretUniversalClassB({
+                ...reduplicatedCvcvwiTransitiveContext,
+                verb: "poison",
+                analysisVerb: "poison",
+                exactBaseVerb: "poison",
+            }) || []).map((variant) => ({
+                base: ctx.getPretVariantBase(variant),
+                suffix: ctx.getPretVariantSuffix(variant),
+                policy: variant.routePolicyFrame?.operationId || "",
+            })),
+            noOperationCandidates: Array.from(ctx.getPretUniversalClassCandidates({
+                ...reduplicatedCvcvwiTransitiveContext,
+                classACvcvwiTransitiveOperationFrame: null,
+            })),
+            noSourceClassA: ctx.buildPretUniversalClassA({
+                ...reduplicatedCvcvwiTransitiveContext,
+                classACvcvwiTransitiveSourceFrame: null,
+            }),
+            noOperationClassB: ctx.buildPretUniversalClassB({
+                ...reduplicatedCvcvwiTransitiveContext,
+                classACvcvwiTransitiveOperationFrame: null,
+            }),
+            contradictoryReduplication: ctx.getPretClassACvcvwiTransitiveFrameMismatch({
+                sourceFrame: contradictoryReduplicatedCvcvwiSourceFrame,
+                operationFrame: reduplicatedCvcvwiTransitiveContext.classACvcvwiTransitiveOperationFrame,
+            }),
+        },
+        {
+            sourceVerb: "tepewi",
+            reduplication: "present",
+            allowKi: false,
+            candidatesWithPoisonedDescriptors: ["A", "B"],
+            classA: [
+                { base: "tepew", suffix: "", policy: "andrews-preterit-class-a-cvcvwi-transitive-policy" },
+                { base: "tepej", suffix: "", policy: "andrews-preterit-class-a-cvcvwi-transitive-policy" },
+            ],
+            classB: [{ base: "tepewi", suffix: "k", policy: "andrews-preterit-class-a-cvcvwi-transitive-policy" }],
+            noOperationCandidates: [],
+            noSourceClassA: null,
+            noOperationClassB: null,
+            contradictoryReduplication: "contradictory-source-frame",
         }
     );
     const cvwaiTransitiveContext = ctx.buildPretUniversalContext("chiwa", "chiwa", true, {});

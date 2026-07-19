@@ -3,28 +3,56 @@
 
 /**
  * Master test runner for Nawat Conjugator.
- * Loads the full vm context, applies static data, then runs all src/tests/*.test.js suites.
+ * Loads the canonical native-module runtime, applies static data, then runs all
+ * src/tests/*.test.js suites.
  *
  * Usage:
  *   node scripts/run_tests.js
- *   node scripts/run_tests.js --runtime=module
+ *   node scripts/run_tests.js --filter ui
+ *   node scripts/run_tests.js --filter=classical_firewall
  */
 
 const fs = require("fs");
 const path = require("path");
-const { createModuleRuntime, createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 const { runAll } = require("../src/tests/runner");
 
 const ROOT = path.resolve(__dirname, "..");
 const runtimeArg = process.argv.find((arg) => arg.startsWith("--runtime=")) || "";
-const runtimeMode = runtimeArg.split("=")[1] || "vm";
+const runtimeMode = "module";
+
+if (runtimeArg) {
+    throw new Error("The test runner is ESM-only; remove the obsolete --runtime option.");
+}
+
+function readOption(name) {
+    const prefix = `--${name}=`;
+    const inline = process.argv.find((arg) => arg.startsWith(prefix));
+    if (inline) {
+        return inline.slice(prefix.length).trim();
+    }
+    const optionIndex = process.argv.indexOf(`--${name}`);
+    if (optionIndex >= 0) {
+        return String(process.argv[optionIndex + 1] || "").trim();
+    }
+    return "";
+}
+
+const testFilters = readOption("filter")
+    .split(",")
+    .map((value) => value.trim().toLowerCase())
+    .filter(Boolean);
+
+function testFileMatchesFilter(file) {
+    if (!testFilters.length) {
+        return true;
+    }
+    const testId = file.replace(/\.test\.js$/u, "").toLowerCase();
+    return testFilters.some((filter) => testId === filter || testId.includes(filter));
+}
 
 async function buildRuntimeContext() {
-    if (runtimeMode === "module") {
-        const { context } = await createModuleRuntime({ rootDir: ROOT });
-        return context;
-    }
-    const { context } = createVmContext({ rootDir: ROOT });
+    const { context } = await createModuleRuntime({ rootDir: ROOT });
     return context;
 }
 
@@ -68,14 +96,26 @@ async function main() {
     const testDir = path.join(ROOT, "src", "tests");
     const testFiles = fs.readdirSync(testDir)
         .filter(f => f.endsWith(".test.js"))
+        .filter(testFileMatchesFilter)
         .sort();
+
+    if (!testFiles.length) {
+        throw new Error(`No test suite matched --filter ${testFilters.join(",")}`);
+    }
 
     const suites = [];
     for (const file of testFiles) {
         const mod = require(path.join(testDir, file));
         if (typeof mod.run === "function") {
+            process.stdout.write(`[RUN] ${file} (${runtimeMode})\n`);
             suites.push(mod.run(context));
+        } else {
+            process.stdout.write(`[SKIP] ${file} (no run export)\n`);
         }
+    }
+
+    if (!suites.length) {
+        throw new Error("Matched test files did not export a runnable suite");
     }
 
     runAll(suites);

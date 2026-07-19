@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-canvas-adjudicated-failure-handoff",
+  "status": "complete",
+  "incentive": {
+    "id": "canvas-rule-authority-through-one-typed-runtime",
+    "statement": "Close the adjudicated Lessons 24-26 failure inventory through Canvas-authorized typed grammar, application, and UI paths without surface-string authority or a second runtime lane.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Keep every repair tied to a confirmed Canvas decision and coordinate the grammar, application, UI, and verification responsibilities through one handoff.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "All adjudicated failures use canonical typed stems and layers, Canvas-only participant decisions are eligible only in their licensed environments, and the regular suite plus readiness return green.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Own canonical source identity, hidden nonactive bases, quantity, variants, recursive applicatives, source voice, participant depth, and later passive composition.",
+      "paths": [
+        "src/core/classical/canvas_lessons24_26_derivation_authority.json",
+        "src/core/classical/vnc_derivation_evaluator.mjs",
+        "src/core/classical/lesson7_verbstem_classes.mjs",
+        "src/core/classical/vnc_layer_evaluator.mjs",
+        "src/core/classical/lesson25_later_layers.mjs",
+        "docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json"
+      ],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [
+        {
+          "actorId": "classical-derivation-engine",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Represent every confirmed relation and notation/formula distinction as typed grammar data and operations."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-boundary",
+      "statement": "Project the selected typed route through application controls and results while deriving causative object kind from source voice and rejecting stale or forged choices.",
+      "paths": ["src/application/classical/vnc_application.mjs"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [
+        {
+          "actorId": "classical-application-boundary",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Preserve canonical choice identity and expose only Canvas-licensed pending decisions."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "ui-policy",
+      "statement": "Remove the independent causative object-kind selector, retain conditional referent and shuntline questions, and clear ineligible values before requests cross the application boundary.",
+      "paths": [
+        "src/ui/shell/classical_shell.mjs",
+        "src/ui/rendering/rendering.mjs",
+        "src/ui/composer/composer.mjs"
+      ],
+      "primaryActor": "classical-ui",
+      "actors": [
+        {
+          "actorId": "classical-ui",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Make the visible decision inventory match Canvas English and prevent hidden state from authorizing grammar."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Replace stale surface and event-listener expectations with hostile typed checks, then run focused suites, alignment, the regular suite, and readiness.",
+      "paths": [
+        "src/tests/classical_lesson25_15_voice_routes.test.js",
+        "src/tests/classical_causative_relation_ui.test.js",
+        "src/tests/classical_lesson25_source_class.test.js",
+        "src/tests/classical_lesson26_complete_examples.test.js",
+        "src/tests/classical_lessons20_22.test.js",
+        "src/tests/classical_lessons24_25_complete_examples.test.js",
+        "src/tests/classical_lessons24_25_engine_failure_groups.test.js",
+        "src/tests/classical_lessons24_25_source_voice.test.js",
+        "src/tests/classical_lessons24_26.test.js",
+        "src/tests/classical_vnc_application.test.js",
+        "src/tests/classical_vnc_finite_surface_contract.test.js",
+        "src/tests/grammar_contract_registry.test.js",
+        "src/tests/ui.test.js",
+        "package.json",
+        "scripts/verify_readiness.mjs"
+      ],
+      "primaryActor": "verification",
+      "actors": [
+        {
+          "actorId": "verification",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Prove exact Canvas notation, formula realization, choice eligibility, application continuity, and runtime integrity."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the target, board, shared-action state, and alignment evidence current through closure.",
+      "paths": [
+        "docs/CURRENT_TARGET.md",
+        "docs/CODEX_BOARD.md",
+        "docs/READINESS_POLICY.md",
+        "docs/shared_actions/active/classical-canvas-adjudicated-failure-handoff.json",
+        "docs/shared_actions/active/classical-canvas-authority-next-quantity-routes.json"
+      ],
+      "primaryActor": "stabilization-manager",
+      "actors": [
+        {
+          "actorId": "stabilization-manager",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Record the adjudicated closure and prevent the resolved failure ledger from remaining an active decision gate."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {
+      "contractKind": "classical-nahuatl-canvas-derivation-choice-frame",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    }
+  ],
+  "retirements": [
+    {
+      "id": "canvas-target-surface-overlay-authority",
+      "status": "complete",
+      "removalEvidence": "Exact Canvas choices and typed citation roles replace target-surface overlays; catalog results remain evidence-only."
+    },
+    {
+      "id": "causative-object-kind-user-selector",
+      "status": "complete",
+      "removalEvidence": "The selector is absent and causative participant kind is derived from the canonical source voice and participant transform."
+    },
+    {
+      "id": "ineligible-hidden-participant-intent",
+      "status": "complete",
+      "removalEvidence": "Only a matching prior typed control frame can carry a visible eligible choice; the application request blanks ineligible relation and shuntline values."
+    },
+    {
+      "id": "stale-tenseless-formula-and-formulaic-notation-expectations",
+      "status": "complete",
+      "removalEvidence": "Canonical notation retains long derivational vowels while tense-bearing formulaic notation uses the Lesson 7 allomorph."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "focused-adjudication-proof",
+      "result": "All affected documentation, source-class, source-voice, complete-example, relation-UI, application, finite-surface, Lessons 20-22, Lessons 24-26, and general UI suites pass their focused reruns."
+    },
+    {
+      "id": "regular-suite-closure",
+      "result": "The integrated readiness run passed the exact regular inventory at 3496/3496 assertions across 69 suites."
+    },
+    {
+      "id": "runtime-alignment-and-data-closure",
+      "result": "Runtime manifest passed with one browser entry and 74/74 modules/installers; alignment passed at every stabilization baseline; grammar data validation passed for 21 JSON files and the CSV inventories."
+    },
+    {
+      "id": "focused-audit-closure",
+      "result": "Lesson 20 passed 84/84 Canvas examples plus all focused visual, optional, productive, unlisted, lattice, and later-evidence checks; Lessons 20-22 passed all 39 formula cases with zero mismatches."
+    },
+    {
+      "id": "readiness-tail-not-executed",
+      "result": "The recorded run stopped after the Lessons 20-22 responsibility. The Lessons 24-26 complete-example, witness/productive, Lesson 26, Karttunen, and browser-delivery responsibilities were not executed; focused evidence does not substitute for them, so the run is not a completed readiness result."
+    },
+    {
+      "id": "resumable-readiness-orchestration",
+      "result": "The flat serial chain is replaced by eleven atomic content-addressed stages. Exact-input proofs are reusable across interruption, changed owning inputs invalidate only their stages, independent misses run with bounded concurrency, and alignment plus browser delivery remain fresh-only."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "implementation-complete-readiness-incomplete",
+    "nextLessonEntryPoint": "The adjudicated decision queue is closed; select a new explicit implementation target."
+  }
+}

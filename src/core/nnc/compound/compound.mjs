@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/compound/compound.js.
+// Canonical modern ESM module.
 
 export function createNncCompoundApi(targetObject = globalThis) {
     const COMPOUND_NNC_BOUNDARY_VERSION = 1;

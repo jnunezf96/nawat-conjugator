@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-result-owned-output-scope",
+  "status": "active",
+  "incentive": {
+    "id": "result-owned-output-presentation",
+    "statement": "A choice between one result and a full result paradigm belongs to the Result surface while typed application state remains the sole generation authority.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate shell ownership, canonical state continuity, focused proof, and alignment.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Both NNC and VNC output-scope controls are presented in #3 Result and are absent from #2 Authority; the route is compact and source-faithful, rendering only Canvas witnesses and Andrews structure while keeping non-source engine proof internal and visually linking Andrews participant carriers.",
+  "responsibilities": [
+    {
+      "id": "result-shell",
+      "statement": "Relocate the existing canonical controls into the Result panel and style their result-owned presentation, including a compact default-collapsed Built from receipt.",
+      "paths": ["src/ui/shell/classical_shell.mjs", "style.css", "index.html"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Move presentation ownership without duplicating control IDs or state, and collapse provenance visually without deleting it."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "state-continuity",
+      "statement": "Keep the relocated NNC control in the existing availability synchronization, preserve both typed output-scope consumers, and project a compact Canvas/Andrews-only derivation view with application-owned participant-to-formula display segments, including the discontinuous subject pers1-pers2 and num1-num2 dyads plus every typed mainline and shuntline object carrier, while leaving non-source proof internal.",
+      "paths": ["src/application/classical/vnc_application.mjs", "src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-application",
+      "actors": [{
+        "actorId": "classical-application",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Retain canonical selection and visibility behavior after DOM relocation; remove non-Canvas/Andrews metadata only from the visible derivation projection; project typed participant carrier spans so the renderer does not infer participant grammar."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove Result ownership, Authority absence, both clause-kind options, compact derivation and Built from disclosures, and focused runtime behavior.",
+      "paths": ["src/tests/ui.test.js", "src/tests/classical_vnc_application.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Add hostile shell-ownership assertions and run focused checks."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target and closure evidence.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/shared_actions/active/classical-result-owned-output-scope.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep UI ownership separate from grammar authorization."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [{
+    "id": "authority-owned-output-scope-presentation",
+    "status": "complete",
+    "removalEvidence": "Focused shell assertions and fresh browser proof show the VNC scope control in #3 Result and absent from #2 Authority; the same shell contract covers NNC."
+  }],
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+      "detail": "Filtered module runs passed classical_vnc_application.test.js 25/25 with explicit discontinuous subject-dyad and exhaustive mainline/shuntline object-link assertions, classical_causative_relation_ui.test.js 6/6, and ui.test.js 392/392; syntax checks and git diff --check passed."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+      "detail": "Fresh localhost delivery loaded the Canvas/Andrews-only cache key and participant-link stylesheet, exposed six participant-link rules, preserved Result-owned output scope, and reported zero warning/error logs."
+    },
+    {
+      "kind": "alignment",
+      "status": "pending-external-cleanup",
+      "detail": "Architecture metrics stayed at baseline, but unrelated dirty board, source-picker/runtime, shared-action, and PDF audit paths are outside this assignment's actor coverage."
+    }
+  ],
+  "exceptions": []
+}

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/names/names.js
+ * Tests for src/core/nnc/names/names.mjs
  */
 
 const { createSuite } = require("./runner");

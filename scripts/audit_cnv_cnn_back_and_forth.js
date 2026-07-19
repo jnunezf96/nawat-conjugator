@@ -2,7 +2,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -285,122 +285,122 @@ const ROUTE_FRAME_COMPLETENESS_FIELDS = Object.freeze([
 ]);
 
 const FUNCTION_USE_STRUCTURAL_SCAN_EXPECTATIONS = Object.freeze({
-    "src/core/derivation/source_model.js:buildCustomaryAgentiveCompoundEmbedContinuationContract": Object.freeze({
+    "src/core/derivation/source_model.mjs:buildCustomaryAgentiveCompoundEmbedContinuationContract": Object.freeze({
         category: "route-frame-contract-builder",
         requiredTokens: ["attachDerivationContinuationGrammarContract", "matrixSpec.matrixValency"],
     }),
-    "src/core/derivation/source_model.js:buildPreteritAgentiveComplementContinuationContract": Object.freeze({
+    "src/core/derivation/source_model.mjs:buildPreteritAgentiveComplementContinuationContract": Object.freeze({
         category: "route-frame-contract-builder",
         requiredTokens: ["attachDerivationContinuationGrammarContract", "matrixSpec.objectPrefix"],
     }),
-    "src/core/derivation/source_model.js:buildPreteritAgentiveAdverbialContinuationContract": Object.freeze({
+    "src/core/derivation/source_model.mjs:buildPreteritAgentiveAdverbialContinuationContract": Object.freeze({
         category: "route-frame-contract-builder",
         requiredTokens: ["attachDerivationContinuationGrammarContract", "matrixSpec.matrixValency"],
     }),
-    "src/core/generation/engine.js:normalizeFunctionUseValenceObjectVector": Object.freeze({
+    "src/core/generation/engine.mjs:normalizeFunctionUseValenceObjectVector": Object.freeze({
         category: "gate-vector-normalizer",
         requiredTokens: ["normalizeFunctionUseValenceObjectSlot"],
     }),
-    "src/core/clause/clause.js:inferVerbalPredicatePositionStatus": Object.freeze({
+    "src/core/clause/clause.mjs:inferVerbalPredicatePositionStatus": Object.freeze({
         category: "predicate-position-classifier",
         requiredTokens: ["getLesson6VerbalObjectPositionStatus"],
     }),
-    "src/ui/rendering/rendering.js:buildVerbTenseBlock": Object.freeze({
+    "src/ui/rendering/rendering.mjs:buildVerbTenseBlock": Object.freeze({
         category: "display-only-renderer",
         requiredTokens: ["tenseBlock"],
     }),
-    "src/ui/rendering/rendering.js:renderLocativoTemporalConjugations": Object.freeze({
+    "src/ui/rendering/rendering.mjs:renderLocativoTemporalConjugations": Object.freeze({
         category: "display-only-renderer",
         requiredTokens: ["renderRows"],
     }),
-    "src/ui/rendering/rendering.js:renderNounConjugations": Object.freeze({
+    "src/ui/rendering/rendering.mjs:renderNounConjugations": Object.freeze({
         category: "display-only-renderer",
         requiredTokens: ["buildNounTabRenderContext"],
     }),
-    "src/ui/rendering/rendering.js:renderAdjectivalNncFunctionConjugations": Object.freeze({
+    "src/ui/rendering/rendering.mjs:renderAdjectivalNncFunctionConjugations": Object.freeze({
         category: "gated-adjectival-renderer",
         requiredTokens: ["applyConjugationEvaluationPresentation", "getCachedSilentGenerateWord"],
     }),
 });
 
 const FINAL_FORMULA_SHAPE_ROUTE_FRAME_EXPECTATIONS = Object.freeze({
-    "src/core/derivation/source_model.js:buildDerivationContinuationObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/derivation/source_model.mjs:buildDerivationContinuationObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/derivation/source_model.js:buildDerivationContinuationIncorporationRouteFrame": Object.freeze({
+    "src/core/derivation/source_model.mjs:buildDerivationContinuationIncorporationRouteFrame": Object.freeze({
         category: "incorporation-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed"],
     }),
-    "src/core/generation/engine.js:buildNuclearClauseSurfaceGrammarFrame": Object.freeze({
+    "src/core/generation/engine.mjs:buildNuclearClauseSurfaceGrammarFrame": Object.freeze({
         category: "grammar-frame-carrier",
         requiredTokens: ["sourceRouteFrame", "finalFormulaShapeDoesNotLicenseObjectSlots", "functionUseDoesNotLicenseObjectSlots"],
     }),
-    "src/core/generation/engine.js:buildGeneratedCompoundObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/generation/engine.mjs:buildGeneratedCompoundObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/generation/engine.js:buildGeneratedCompoundRouteFrameMetadata": Object.freeze({
+    "src/core/generation/engine.mjs:buildGeneratedCompoundRouteFrameMetadata": Object.freeze({
         category: "compound-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed"],
     }),
-    "src/core/generation/engine.js:buildAdverbialNuclearFunctionRouteFrame": Object.freeze({
+    "src/core/generation/engine.mjs:buildAdverbialNuclearFunctionRouteFrame": Object.freeze({
         category: "function-route-frame",
         requiredTokens: ["sourcePrincipalVnc", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed"],
     }),
-    "src/core/generation/engine.js:buildGeneratedAdverbialNuclearFrameMetadata": Object.freeze({
+    "src/core/generation/engine.mjs:buildGeneratedAdverbialNuclearFrameMetadata": Object.freeze({
         category: "route-frame-carrier",
         requiredTokens: ["sourceRouteFrame", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true"],
     }),
-    "src/core/nnc/adjectival/adjectival.js:buildLesson41CompoundSourceObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/nnc/adjectival/adjectival.mjs:buildLesson41CompoundSourceObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/nnc/adjectival/adjectival.js:buildLesson41CompoundSourceRouteFrame": Object.freeze({
+    "src/core/nnc/adjectival/adjectival.mjs:buildLesson41CompoundSourceRouteFrame": Object.freeze({
         category: "incorporation-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true"],
     }),
-    "src/core/nnc/adjectival/adjectival.js:buildAdjectivalNncGrammarFrame": Object.freeze({
+    "src/core/nnc/adjectival/adjectival.mjs:buildAdjectivalNncGrammarFrame": Object.freeze({
         category: "grammar-frame-carrier",
         requiredTokens: ["sourceRouteFrame", "finalFormulaShapeDoesNotLicenseObjectSlots", "functionUseDoesNotLicenseObjectSlots"],
     }),
-    "src/core/nnc/adjectival/adjectival.js:buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/nnc/adjectival/adjectival.mjs:buildDenominalCompoundAdjectivalNncObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/nnc/adjectival/adjectival.js:buildDenominalCompoundAdjectivalNncRouteFrame": Object.freeze({
+    "src/core/nnc/adjectival/adjectival.mjs:buildDenominalCompoundAdjectivalNncRouteFrame": Object.freeze({
         category: "compound-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: matrixValenceFrameFixed"],
     }),
-    "src/core/nnc/compound/compound.js:buildLesson31CompoundNounstemObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/nnc/compound/compound.mjs:buildLesson31CompoundNounstemObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/nnc/compound/compound.js:buildLesson31CompoundNounstemRouteFrame": Object.freeze({
+    "src/core/nnc/compound/compound.mjs:buildLesson31CompoundNounstemRouteFrame": Object.freeze({
         category: "compound-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: false"],
     }),
-    "src/core/nnc/compound/compound.js:buildLesson31CompoundNounstemPursuitFrame": Object.freeze({
+    "src/core/nnc/compound/compound.mjs:buildLesson31CompoundNounstemPursuitFrame": Object.freeze({
         category: "curriculum-route-frame-carrier",
         requiredTokens: ["compoundNounstemRouteFrame"],
     }),
-    "src/core/nnc/nominalization/nominalization.js:buildLesson35PreteritAgentiveIncorporationObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/nnc/nominalization/nominalization.mjs:buildLesson35PreteritAgentiveIncorporationObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/nnc/nominalization/nominalization.js:buildLesson35PreteritAgentiveIncorporationRouteFrame": Object.freeze({
+    "src/core/nnc/nominalization/nominalization.mjs:buildLesson35PreteritAgentiveIncorporationRouteFrame": Object.freeze({
         category: "incorporation-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true"],
     }),
-    "src/core/nnc/nominalization/nominalization.js:buildLesson39PatientiveIncorporationObjectSlotOwnershipFrame": Object.freeze({
+    "src/core/nnc/nominalization/nominalization.mjs:buildLesson39PatientiveIncorporationObjectSlotOwnershipFrame": Object.freeze({
         category: "object-slot-ownership-frame",
         requiredTokens: ["functionUseOwnsObjectSlots: false", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
-    "src/core/nnc/nominalization/nominalization.js:buildLesson39PatientiveIncorporationRouteFrame": Object.freeze({
+    "src/core/nnc/nominalization/nominalization.mjs:buildLesson39PatientiveIncorporationRouteFrame": Object.freeze({
         category: "incorporation-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "routeFrameLicensesObjectSlotOwnership: objectSlotOwnership.matrixValenceFrameFixed === true"],
     }),
-    "src/core/parsing/parsing.js:buildCompoundAstRouteFrame": Object.freeze({
+    "src/core/parsing/parsing.mjs:buildCompoundAstRouteFrame": Object.freeze({
         category: "parser-compound-route-frame",
         requiredTokens: ["sourceRouteFrameRequired: true", "finalFormulaShapeDoesNotLicenseObjectSlots: true", "functionUseDoesNotLicenseObjectSlots: true", "finalFormulaShapeOwnsObjectSlots: false"],
     }),
@@ -416,7 +416,7 @@ function getJavascriptFilesInDir(dirPath) {
             if (entry.isDirectory()) {
                 return getJavascriptFilesInDir(fullPath);
             }
-            if (entry.isFile() && entry.name.endsWith(".js")) {
+            if (entry.isFile() && entry.name.endsWith(".mjs")) {
                 return [fullPath];
             }
             return [];
@@ -453,7 +453,9 @@ function getTopLevelFunctionSource(relativePath, functionName) {
     if (start < 0) {
         return "";
     }
-    const nextFunction = source.indexOf("\nfunction ", start + 1);
+    const lineStart = source.lastIndexOf("\n", start) + 1;
+    const indent = source.slice(lineStart, start);
+    const nextFunction = source.indexOf(`\n${indent}function `, start + 1);
     return source.slice(start, nextFunction > start ? nextFunction : undefined);
 }
 
@@ -462,6 +464,13 @@ function firstIndexOfAny(source, tokens = []) {
         .map((token) => source.indexOf(token))
         .filter((index) => index >= 0)
         .sort((a, b) => a - b)[0] ?? -1;
+}
+
+function sourceIncludesToken(source = "", token = "") {
+    const sourceText = String(source || "");
+    const tokenText = String(token || "");
+    return sourceText.includes(tokenText)
+        || sourceText.replace(/\s+/g, " ").includes(tokenText.replace(/\s+/g, " "));
 }
 
 function collectFunctionCallBlocks(relativePath, functionName) {
@@ -576,9 +585,9 @@ function getCallContainingFunctionSource(call = null) {
         return "";
     }
     const before = call.source.slice(0, call.start);
-    const marker = "\nfunction ";
+    const marker = "\n    function ";
     const start = before.lastIndexOf(marker);
-    const functionStart = start >= 0 ? start + 1 : 0;
+    const functionStart = start >= 0 ? start + 5 : 0;
     const next = call.source.indexOf(marker, call.start + 1);
     return call.source.slice(functionStart, next > call.start ? next : undefined);
 }
@@ -596,12 +605,12 @@ function collectTopLevelFunctionSources(relativePath = "") {
     }
     const source = `\n${fs.readFileSync(sourcePath, "utf8")}`;
     const starts = [];
-    const pattern = /\nfunction\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/g;
+    const pattern = /\n {4}function\s+([A-Za-z_$][A-Za-z0-9_$]*)\s*\(/g;
     let match = null;
     while ((match = pattern.exec(source))) {
         starts.push({
             name: match[1],
-            start: match.index + 1,
+            start: match.index + 5,
         });
     }
     return starts.map((entry, index) => {
@@ -1316,7 +1325,7 @@ function buildComposerFunctionUseMutationHardGateOutputMatchings(context) {
 
 function buildComposerFunctionUseMutationStaticOutputMatchings() {
     return COMPOSER_FUNCTION_USE_MUTATION_STATIC_EXPECTATIONS.flatMap((entry) => {
-        const source = getTopLevelFunctionSource("src/ui/composer/composer.js", entry.functionName);
+        const source = getTopLevelFunctionSource("src/ui/composer/composer.mjs", entry.functionName);
         if (!source) {
             return [{
                 layer: "composer-function-use-mutation-static-gate",
@@ -1327,27 +1336,30 @@ function buildComposerFunctionUseMutationStaticOutputMatchings() {
             }];
         }
         if (entry.delegateToken) {
+            const hasDelegate = sourceIncludesToken(source, entry.delegateToken);
+            const hasRouteDataset = sourceIncludesToken(source, entry.delegatedRouteDatasetToken);
+            const hasGateArg = sourceIncludesToken(source, entry.delegatedGateArgToken);
             return [
                 {
                     layer: "composer-function-use-mutation-static-gate",
                     id: `${entry.id}.delegatesToGatedFunction`,
-                    status: source.includes(entry.delegateToken) ? "match" : "no-match",
+                    status: hasDelegate ? "match" : "no-match",
                     expected: entry.delegateToken,
-                    actual: source.includes(entry.delegateToken) ? entry.delegateToken : "missing",
+                    actual: hasDelegate ? entry.delegateToken : "missing",
                 },
                 {
                     layer: "composer-function-use-mutation-static-gate",
                     id: `${entry.id}.delegatesRouteDataset`,
-                    status: source.includes(entry.delegatedRouteDatasetToken) ? "match" : "no-match",
+                    status: hasRouteDataset ? "match" : "no-match",
                     expected: entry.delegatedRouteDatasetToken,
-                    actual: source.includes(entry.delegatedRouteDatasetToken) ? entry.delegatedRouteDatasetToken : "missing",
+                    actual: hasRouteDataset ? entry.delegatedRouteDatasetToken : "missing",
                 },
                 {
                     layer: "composer-function-use-mutation-static-gate",
                     id: `${entry.id}.delegatesGateArg`,
-                    status: source.includes(entry.delegatedGateArgToken) ? "match" : "no-match",
+                    status: hasGateArg ? "match" : "no-match",
                     expected: entry.delegatedGateArgToken,
-                    actual: source.includes(entry.delegatedGateArgToken) ? entry.delegatedGateArgToken : "missing",
+                    actual: hasGateArg ? entry.delegatedGateArgToken : "missing",
                 },
             ];
         }
@@ -1375,7 +1387,7 @@ function buildComposerFunctionUseMutationStaticOutputMatchings() {
 
 function buildRenderingFunctionUseContinuationForwardingOutputMatchings() {
     return RENDERING_FUNCTION_USE_CONTINUATION_FORWARDING_EXPECTATIONS.flatMap((functionName) => {
-        const blocks = collectFunctionCallBlocks("src/ui/rendering/rendering.js", functionName);
+        const blocks = collectFunctionCallBlocks("src/ui/rendering/rendering.mjs", functionName);
         if (!blocks.length) {
             return [{
                 layer: "rendering-function-use-continuation-forwarding",
@@ -1649,8 +1661,8 @@ function buildAuditOutputMatchings(context, audit) {
     };
 }
 
-function main() {
-    const { context } = createVmContext({ rootDir: ROOT });
+async function main() {
+    const { context } = await createModuleRuntime({ rootDir: ROOT });
     applyStaticData(context);
     if (typeof context.buildAndrewsCnvCnnBackAndForthAudit !== "function") {
         throw new Error("buildAndrewsCnvCnnBackAndForthAudit is not available in the runtime.");
@@ -1733,5 +1745,9 @@ function main() {
 }
 
 if (require.main === module) {
-    main();
+    main().catch((error) => {
+        const message = error && error.stack ? error.stack : String(error);
+        process.stderr.write(`${message}\n`);
+        process.exitCode = 1;
+    });
 }

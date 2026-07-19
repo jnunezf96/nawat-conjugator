@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/preterit/api.js.
+// Canonical modern ESM module.
 
 export function createPreteritApiGlobals(targetObject = globalThis) {
     function buildClassBasedProvenance({

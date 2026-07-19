@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-lessons24-25-causative-completion",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-authority-with-boundary-free-typed-causatives",
+    "statement": "Preserve Andrews authority, typed source and target structure, hostile proof, single-runtime integrity, and browser verification while completing Canvas Lessons 24-25 for ordinary unhyphenated input.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate grammar, application, presentation, runtime, and verification until the old explicit-boundary and source-voice gaps are removed.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Any structurally analyzable Lesson 24-25 source receives the Andrews-licensed causative analyses without requiring editorial hyphens; the selected analysis carries its hidden base and complete source-VNC participant transformation, and the Canvas projection shows both forward and licensed reverse paths without becoming authority.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Own boundary-free morphology, lexical route decisions, hidden nonactive bases, source-voice participant transformations, reverse analyses, and canonical validation.",
+      "paths": ["src/core/classical/", "src/core/grammar/", "docs/CLASSICAL_", "docs/GRAMMAR_SPEC.md", "docs/ANDREWS_TRAJECTORY.md"],
+      "primaryActor": "classical-causative-engine",
+      "actors": [{"actorId": "classical-causative-engine", "kind": "primary", "status": "active", "contribution": "Replace explicit-boundary gates and incomplete generic output with typed Canvas Lesson 24-25 analyses."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Normalize source morphology and source voice, then order source analysis, causative formation, participant transform, and any later voice.",
+      "paths": ["src/application/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Keep source voice distinct from later target voice and reject caller authority fields."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Expose only genuine source-analysis and causative choices and render canonical forward/reverse Canvas projections.",
+      "paths": ["src/ui/", "index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Consume the validated application projection without constructing morphology or participant order."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Install every new contract or capability once in the canonical ESM runtime.",
+      "paths": ["src/runtime/", "src/node/", "src/bootstrap/", "scripts/check_runtime_manifest.js", "scripts/lib/runtime_manifest_check.js", "package.json"],
+      "primaryActor": "runtime-delivery",
+      "actors": [{"actorId": "runtime-delivery", "kind": "primary", "status": "active", "contribution": "Preserve one runtime lane and direct-import capability parity."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove segmented/unsegmented parity, Canvas witnesses and exceptions, hostile authority rejection, source voice, object depth, ambiguity, UI state, and browser behavior.",
+      "paths": ["src/tests/", "scripts/audit_classical_", "scripts/browser_runtime_checks.js", "scripts/smoke_modern_browser.mjs", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Expand the old productive audit into explicit Lesson 24-25 coverage without making fixtures authoritative."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep target, board, shared action, rule tags, alignment evidence, and closure state current.",
+      "paths": ["AGENTS.md", "docs/CODEX_BOARD.md", "docs/CURRENT_TARGET.md", "docs/shared_actions/", "docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json", "config/", "scripts/audit_shared_action_alignment.js", "scripts/lib/shared_action_observer.js"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Keep the approved slice explicit and prevent premature completion claims."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-source-analysis", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derivation-operation-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derived-machinery-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "explicit-hyphen-as-grammar-authority", "status": "complete", "removalEvidence": "The canonical source-analysis frame derives supported internal morphology from lexical identity and typed final shape; segmented and unsegmented inputs share the same route, while user-authored boundaries cannot authorize an option."},
+    {"id": "class-b-only-lesson24-final-i-gate", "status": "complete", "removalEvidence": "The Lesson 24 inventory licenses the Andrews final-i replacement/addition category for Class A and Class B and retains exact witnesses and gaps as more-specific overlays."},
+    {"id": "mechanical-hidden-nonactive-only", "status": "complete", "removalEvidence": "Typed Lesson 25 routes now include documented internal alternations, liā/huiā exceptions, hidden Lesson 20 bases, and exact yauh/huāllauh suppletion with its directional target environment."},
+    {"id": "active-source-only-causative-transform", "status": "complete", "removalEvidence": "Source voice is a separate canonical decision before causative formation. Active, passive, and impersonal source machinery transforms through Lesson 23 into one-, two-, and three-object causatives independently of later target voice."},
+    {"id": "forward-only-canvas-projection", "status": "complete", "removalEvidence": "The validated application projection carries the forward derivation and every canonical reverse source analysis, including mach-tia ambiguity; the renderer displays but cannot reconstruct either path."}
+  ],
+  "evidence": [
+    {
+      "id": "boundary-free-source-analysis",
+      "result": "Entered stems receive typed destockal, root-plus-ya, denominal-ti, exact-alternation, hidden-nonactive, and suppletive analyses without requiring editorial hyphens. Ambiguous internal analyses remain explicit engine-owned choices."
+    },
+    {
+      "id": "lesson24-25-causative-coverage",
+      "result": "Class A/B final-i replacement and addition, final-a, documented ni/hui preferences, huaqui/yocoya/mahui/quemi alternations, liā/huiā exceptions, and yauh/huāllauh suppletion are represented as Andrews-governed typed routes rather than caller targets or lexical whitelists."
+    },
+    {
+      "id": "source-voice-and-object-depth",
+      "result": "Active, passive, and impersonal source VNCs are selected before causative formation and remain distinct from later target voice. Tests prove one-, two-, and three-object routing, including the Lesson 25.12.3 impersonal two-object to three-object causative."
+    },
+    {
+      "id": "hostile-authority-proof",
+      "result": "Caller machinery, source analyses, source nonactive options, reverse analyses, target/formula/surface strings, forged signatures, mutable clones, sparse arrays, and source/later-voice confusion fail closed. Signatures are streamed for latency but every public authorization remains paired with rebuilt exact structural comparison."
+    },
+    {
+      "id": "canvas-andrews-forward-reverse-projection",
+      "result": "The deep-frozen application projection renders the complete source-to-causative formation, participant history, boundary-free analysis, and canonical reverse readings. Presentation validates the enclosing application frame and owns no derivational rule logic."
+    },
+    {
+      "id": "focused-and-full-verification",
+      "result": "Focused suites pass source voice 11/11, Lessons 24-26 24/24, application 24/24, Lessons 20-22 30/30, registry 43/43, docs 7/7, and UI 381/381. The canonical ESM suite passes 3393/3393 across 55 suites; Canvas witnesses pass 4/4, all 14 productive families reach depth 3, and Karttunen retains 837 confirmed intersections plus one no-license fixture."
+    },
+    {
+      "id": "runtime-and-browser-proof",
+      "result": "The manifest remains one browser entry with 73/73 modules/installers and alignment is green. Direct-import browser smoke passes with one module script, zero classic scripts, typed authority true, and formula-string authority false. Fresh in-app proof accepts unhyphenated chihua, renders boundary-free and reverse panels, exposes source voice, reveals chihua-lō for impersonal source, and reports no console logs."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "src/application/classical/vnc_application.mjs:evaluateClassicalNahuatlVncApplication"
+  }
+}

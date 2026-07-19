@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/generation/morphology_engine.js
+ * Tests for src/core/generation/morphology_engine.mjs
  * Covers: direct applyMorphologyRules execution without the browser wrapper.
  */
 

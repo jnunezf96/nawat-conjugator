@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/relational/relational.js
+ * Tests for src/core/nnc/relational/relational.mjs
  */
 
 const { createSuite } = require("./runner");

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/parsing/parsing.js.
+// Canonical modern ESM module.
 
 export function createParsingApi(targetObject = globalThis) {
     const LESSON28_COMPOUND_BOUNDARY_VERSION = 1;
@@ -889,6 +889,38 @@ export function createParsingApi(targetObject = globalThis) {
       const placeholderProtected = targetObject.convertRegexInputSupportiveMarkersToEnvelope(String(value || ""));
       return normalizeRegexSpecialSerialShorthandCore(restoreBracketSupportiveMarkers(placeholderProtected.replace(/\//g, "-").toLowerCase()));
     }
+    function getCurrentRegexRuntimeTarget() {
+      return typeof targetObject !== "undefined" && targetObject || (typeof globalThis !== "undefined" ? globalThis : null);
+    }
+    function isClassicalNahuatlCurrentRegexBoundaryContext(value = "", options = {}) {
+      if (options.classicalNahuatl === true || options.classical === true) {
+        return true;
+      }
+      const runtimeTarget = getCurrentRegexRuntimeTarget();
+      const activeMode = typeof runtimeTarget?.getActiveLanguageProfileMode === "function" ? runtimeTarget.getActiveLanguageProfileMode() : typeof targetObject.getActiveLanguageProfileMode === "function" ? targetObject.getActiveLanguageProfileMode() : "";
+      const classicalMode = runtimeTarget?.LANGUAGE_PROFILE_MODE?.classicalNahuatl || (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" ? targetObject.LANGUAGE_PROFILE_MODE.classicalNahuatl : "") || "classical-nahuatl";
+      if (String(activeMode || "").trim().toLowerCase() === String(classicalMode || "").trim().toLowerCase()) {
+        return true;
+      }
+      const documentObject = runtimeTarget?.document || (typeof targetObject.document !== "undefined" ? targetObject.document : null);
+      if (documentObject?.body?.classList?.contains?.("is-language-classical")) {
+        return true;
+      }
+      return /[āēīō]/iu.test(String(value || ""));
+    }
+    function getClassicalNahuatlCurrentRegexBoundaryRoleFrame(coreText = "", options = {}) {
+      if (!isClassicalNahuatlCurrentRegexBoundaryContext(coreText, options)) {
+        return null;
+      }
+      const runtimeTarget = getCurrentRegexRuntimeTarget();
+      const builder = typeof runtimeTarget?.buildClassicalNahuatlLesson7SourceBoundaryRoleFrame === "function" ? runtimeTarget.buildClassicalNahuatlLesson7SourceBoundaryRoleFrame : typeof targetObject.buildClassicalNahuatlLesson7SourceBoundaryRoleFrame === "function" ? targetObject.buildClassicalNahuatlLesson7SourceBoundaryRoleFrame : null;
+      if (!builder) {
+        return null;
+      }
+      return builder(options.originalCoreText || coreText || "", {
+        source: options.rawValue || options.source || ""
+      });
+    }
     function getMovingTargetOuterPieceDescriptors(semantic = {}) {
       const pieces = [];
       const addLexicalEmbedPieces = (embed = "") => {
@@ -1086,9 +1118,10 @@ export function createParsingApi(targetObject = globalThis) {
       if (shorthandDisplayValue) {
         return shorthandDisplayValue;
       }
-      const movingTargetParsed = parseMovingTargetRegexInput(raw);
-      if (movingTargetParsed.isValid) {
-        return serializeRegexSpecialSerialShorthandValue(movingTargetParsed.regexValue) || movingTargetParsed.regexValue;
+      const operationFrame = buildCurrentRegexParseOperationFrameFromRawInput(raw);
+      const typedValue = serializeRegexInputValueFromOperationFrame(raw, operationFrame);
+      if (typedValue) {
+        return serializeRegexSpecialSerialShorthandValue(typedValue) || typedValue;
       }
       return raw;
     }
@@ -1189,16 +1222,19 @@ export function createParsingApi(targetObject = globalThis) {
       }
       return null;
     }
-    function buildEmbeddedSlashObjectSlotSourceFrame(rawValue = "", movingTargetParsed = null, spec = null) {
+    function buildEmbeddedSlashObjectSlotSourceFrame(rawValue = "", currentRegexParseOperationFrame = null, spec = null) {
       const raw = String(rawValue || "").trim();
-      const parsed = movingTargetParsed || parseMovingTargetRegexInput(raw);
+      const parseFrameMismatch = getCurrentRegexParseOperationMismatch(raw, currentRegexParseOperationFrame);
+      const parsed = parseFrameMismatch ? null : buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
       const sourceCoreText = String(parsed?.originalCoreText || parsed?.coreText || "").trim();
       const transitivity = parsed?.transitivity || spec?.transitivity || "";
       let blockReason = "";
       if (!raw) {
         blockReason = "empty-source";
+      } else if (parseFrameMismatch) {
+        blockReason = parseFrameMismatch;
       } else if (!parsed || parsed.isValid !== true) {
-        blockReason = "missing-current-regex-parse-tree";
+        blockReason = "missing-current-regex-parse-target-frame";
       } else if (transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive) {
         blockReason = "intransitive-source";
       } else if (!sourceCoreText || !sourceCoreText.includes("/")) {
@@ -1231,6 +1267,8 @@ export function createParsingApi(targetObject = globalThis) {
         sourceLayer: "original-current-regex-core-boundary",
         routeOperation: "embedded-slash-object-slot-count",
         sourceRawInput: raw,
+        currentRegexParseOperationFrame,
+        currentRegexParseTargetSignature: currentRegexParseOperationFrame?.targetSignature || "",
         sourceCoreText,
         normalizedCoreText: String(parsed?.coreText || ""),
         transitivity,
@@ -1335,7 +1373,7 @@ export function createParsingApi(targetObject = globalThis) {
       };
     }
     function getEmbeddedSlashObjectSlotFrameMismatch(rawValue = "", operationFrame = null) {
-      const sourceFrame = buildEmbeddedSlashObjectSlotSourceFrame(rawValue);
+      const sourceFrame = buildEmbeddedSlashObjectSlotSourceFrame(rawValue, operationFrame?.sourceFrame?.currentRegexParseOperationFrame || null);
       if (!operationFrame || operationFrame.kind !== "andrews-embedded-slash-object-slot-operation-frame") {
         return "missing-operation-frame";
       }
@@ -1366,13 +1404,30 @@ export function createParsingApi(targetObject = globalThis) {
       }
       return operationFrame.objectSlotCount;
     }
-    function getEmbeddedSlashTransitiveObjSlotCountFromSourceFrame(rawValue = "", movingTargetParsed = null, spec = null) {
-      const sourceFrame = buildEmbeddedSlashObjectSlotSourceFrame(rawValue, movingTargetParsed, spec);
+    function getEmbeddedSlashTransitiveObjSlotCountFromSourceFrame(rawValue = "", currentRegexParseOperationFrame = null, spec = null) {
+      const sourceFrame = buildEmbeddedSlashObjectSlotSourceFrame(rawValue, currentRegexParseOperationFrame, spec);
       const operationFrame = buildEmbeddedSlashObjectSlotOperationFrame(sourceFrame);
       return getEmbeddedSlashTransitiveObjSlotCount(rawValue, operationFrame);
     }
-    function getMovingTargetAdjacentEmbedParts(coreText = "") {
+    function getMovingTargetAdjacentEmbedParts(coreText = "", options = {}) {
       const normalizedCore = targetObject.convertEnvelopeSupportiveMarkersToRegexInput(normalizeRegexCoreTokenCase(String(coreText || "").trim())).toLowerCase();
+      const originalCoreText = String(options.originalCoreText || coreText || "").trim();
+      const explicitSlashBoundary = originalCoreText.includes("/");
+      const classicalBoundaryFrame = options.classicalBoundaryFrame || getClassicalNahuatlCurrentRegexBoundaryRoleFrame(coreText, {
+        ...options,
+        originalCoreText
+      });
+      if (isClassicalNahuatlCurrentRegexBoundaryContext(originalCoreText || normalizedCore, options) && !explicitSlashBoundary) {
+        if (classicalBoundaryFrame?.embedMatrixAuthorized === true && classicalBoundaryFrame.embedStem && classicalBoundaryFrame.matrixStem) {
+          return {
+            embed: classicalBoundaryFrame.embedStem,
+            stem: classicalBoundaryFrame.matrixStem,
+            sourceBoundaryRoleFrame: classicalBoundaryFrame,
+            sourceBoundaryAuthority: "canvas-witness"
+          };
+        }
+        return null;
+      }
       if (!normalizedCore || !normalizedCore.includes("-")) {
         return null;
       }
@@ -1487,6 +1542,157 @@ export function createParsingApi(targetObject = globalThis) {
         originalCoreText: String(finalCore.coreText || "").trim()
       };
     }
+    function normalizeCurrentRegexParseOuterPieces(outerPieces = []) {
+      return (Array.isArray(outerPieces) ? outerPieces : []).map(piece => {
+        const type = String(piece?.type || "");
+        const value = type === "valence" ? targetObject.normalizeComposerSecondaryValenceSurfaceToken(piece?.value || "") || targetObject.normalizeComposerValenceToken(piece?.value || "") : targetObject.normalizeComposerStem(piece?.value || "");
+        return type && value ? Object.freeze({
+          kind: "current-regex-parse-outer-piece-frame",
+          type,
+          value
+        }) : null;
+      }).filter(Boolean);
+    }
+    function buildCurrentRegexParseSourceFrame(rawValue = "") {
+      const rawInput = String(rawValue || "").trim();
+      return Object.freeze({
+        kind: "current-regex-parse-source-frame",
+        version: 1,
+        routeFamily: "current-regex-parser",
+        routeStage: "parse-current-regex-input",
+        sourceRawInput: rawInput,
+        sourceSignature: rawInput,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildCurrentRegexParseTargetFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "current-regex-parse-source-frame") {
+        return null;
+      }
+      const parsed = parseMovingTargetRegexInput(sourceFrame.sourceRawInput || "");
+      if (!parsed || parsed.isValid !== true || !parsed.regexValue) {
+        return null;
+      }
+      const outerPieces = normalizeCurrentRegexParseOuterPieces(parsed.outerPieces);
+      const targetFrame = {
+        kind: "current-regex-parse-target-frame",
+        sourceSignature: sourceFrame.sourceSignature,
+        isValid: true,
+        regexValue: String(parsed.regexValue || ""),
+        transitivity: parsed.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: Object.freeze(outerPieces),
+        directionalPrefix: targetObject.normalizeComposerStem(parsed.directionalPrefix || ""),
+        coreText: String(parsed.coreText || ""),
+        originalCoreText: String(parsed.originalCoreText || "")
+      };
+      targetFrame.targetSignature = JSON.stringify({
+        sourceSignature: targetFrame.sourceSignature,
+        regexValue: targetFrame.regexValue,
+        transitivity: targetFrame.transitivity,
+        outerPieces: outerPieces.map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        directionalPrefix: targetFrame.directionalPrefix,
+        coreText: targetFrame.coreText,
+        originalCoreText: targetFrame.originalCoreText
+      });
+      return Object.freeze(targetFrame);
+    }
+    function buildCurrentRegexParseOperationFrame(sourceFrame = null) {
+      const targetFrame = buildCurrentRegexParseTargetFrame(sourceFrame);
+      if (!sourceFrame || sourceFrame.kind !== "current-regex-parse-source-frame" || !targetFrame) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-current-regex-parse",
+        routeFamily: "current-regex-parser",
+        routeStage: "parse-current-regex-input",
+        operationApplied: "parse-current-regex-input-to-typed-target",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame,
+        targetSignature: targetFrame.targetSignature,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getCurrentRegexParseOperationMismatch(rawValue = "", operationFrame = null) {
+      const sourceFrame = buildCurrentRegexParseSourceFrame(rawValue);
+      const expectedTargetFrame = buildCurrentRegexParseTargetFrame(sourceFrame);
+      if (!expectedTargetFrame) {
+        return "current-regex-parse-target-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-current-regex-parse" || operationFrame.routeFamily !== "current-regex-parser" || operationFrame.routeStage !== "parse-current-regex-input" || operationFrame.operationApplied !== "parse-current-regex-input-to-typed-target" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "current-regex-parse-operation-frame-required";
+      }
+      const targetFrame = operationFrame.targetFrame || null;
+      if (!targetFrame || targetFrame.kind !== expectedTargetFrame.kind || targetFrame.sourceSignature !== expectedTargetFrame.sourceSignature || targetFrame.regexValue !== expectedTargetFrame.regexValue || targetFrame.transitivity !== expectedTargetFrame.transitivity || targetFrame.directionalPrefix !== expectedTargetFrame.directionalPrefix || targetFrame.coreText !== expectedTargetFrame.coreText || targetFrame.originalCoreText !== expectedTargetFrame.originalCoreText || targetFrame.targetSignature !== expectedTargetFrame.targetSignature || operationFrame.targetSignature !== expectedTargetFrame.targetSignature) {
+        return "current-regex-parse-contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildMovingTargetParsedFromCurrentRegexParseOperationFrame(operationFrame = null) {
+      const targetFrame = operationFrame?.targetFrame || null;
+      if (!targetFrame || targetFrame.kind !== "current-regex-parse-target-frame") {
+        return null;
+      }
+      return {
+        isValid: true,
+        regexValue: String(targetFrame.regexValue || ""),
+        transitivity: targetFrame.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: normalizeCurrentRegexParseOuterPieces(targetFrame.outerPieces).map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        directionalPrefix: targetObject.normalizeComposerStem(targetFrame.directionalPrefix || ""),
+        coreText: String(targetFrame.coreText || ""),
+        originalCoreText: String(targetFrame.originalCoreText || "")
+      };
+    }
+    function isCurrentRegexParseOperationFrameRecognized(rawValue = "", operationFrame = null) {
+      return !getCurrentRegexParseOperationMismatch(rawValue, operationFrame);
+    }
+    function buildCurrentRegexParseOperationFrameFromRawInput(rawValue = "") {
+      const sourceFrame = buildCurrentRegexParseSourceFrame(rawValue);
+      return buildCurrentRegexParseOperationFrame(sourceFrame);
+    }
+    function isCurrentRegexParseInputRecognized(rawValue = "") {
+      const operationFrame = buildCurrentRegexParseOperationFrameFromRawInput(rawValue);
+      return isCurrentRegexParseOperationFrameRecognized(rawValue, operationFrame);
+    }
+    function buildCurrentRegexShorthandParseOperationFrameFromRawInput(rawValue = "") {
+      const shorthandSourceFrame = buildCurrentRegexShorthandSourceFrame(rawValue);
+      const shorthandOperationFrame = buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame);
+      const shorthandInput = getCurrentRegexShorthandParseInput(rawValue, shorthandOperationFrame);
+      if (!shorthandInput) {
+        return null;
+      }
+      return buildCurrentRegexParseOperationFrameFromRawInput(shorthandInput);
+    }
+    function isCurrentRegexShorthandParseInputRecognized(rawValue = "") {
+      const shorthandSourceFrame = buildCurrentRegexShorthandSourceFrame(rawValue);
+      const shorthandOperationFrame = buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame);
+      const shorthandInput = getCurrentRegexShorthandParseInput(rawValue, shorthandOperationFrame);
+      if (!shorthandInput) {
+        return false;
+      }
+      const parseOperationFrame = buildCurrentRegexParseOperationFrameFromRawInput(shorthandInput);
+      return isCurrentRegexParseOperationFrameRecognized(shorthandInput, parseOperationFrame);
+    }
+    function serializeRegexInputValueFromOperationFrame(rawValue = "", operationFrame = null) {
+      const raw = String(rawValue || "").trim();
+      if (!raw) {
+        return "";
+      }
+      const mismatch = getCurrentRegexParseOperationMismatch(raw, operationFrame);
+      if (mismatch) {
+        return "";
+      }
+      return String(operationFrame?.targetFrame?.regexValue || "");
+    }
 
     // ─── CanonicalVerbSpec ────────────────────────────────────────────────────────
     // Intermediate upstream object using composer vocabulary as canonical field
@@ -1506,7 +1712,7 @@ export function createParsingApi(targetObject = globalThis) {
     // ─────────────────────────────────────────────────────────────────────────────
 
     // Builds a CanonicalVerbSpec from the output of parseMovingTargetRegexInput().
-    function buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, movingTargetParsed, tiInputMetadata) {
+    function buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, movingTargetParsed, tiInputMetadata, parseOperationFrame = null) {
       if (!movingTargetParsed || movingTargetParsed.isValid !== true) {
         return null;
       }
@@ -1944,7 +2150,11 @@ export function createParsingApi(targetObject = globalThis) {
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
       valenceFrameFixed = null,
-      routeRecordId = ""
+      routeRecordId = "",
+      currentRegexParseOperationFrame = null,
+      currentRegexEntradaGrammarObjectSourceFrame = null,
+      currentRegexEntradaGrammarObjectOperationFrame = null,
+      currentRegexEntradaGrammarObjectTargetFrame = null
     } = {}) {
       if (!spec || typeof spec !== "object") {
         return null;
@@ -1976,6 +2186,10 @@ export function createParsingApi(targetObject = globalThis) {
         version: 1,
         sourceBlock: String(sourceBlock || "#1 Entrada"),
         rawInput: String(rawInput || ""),
+        currentRegexParseOperationFrame,
+        currentRegexEntradaGrammarObjectSourceFrame,
+        currentRegexEntradaGrammarObjectOperationFrame,
+        currentRegexEntradaGrammarObjectTargetFrame,
         layerOrder: Array.from(ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER),
         sourceUnit: String(sourceUnit || "CNV"),
         sourceKind: String(sourceKind || "verbal-nuclear-clause"),
@@ -2050,6 +2264,150 @@ export function createParsingApi(targetObject = globalThis) {
         rawInput: rawValue,
         ...options
       });
+    }
+    function buildCurrentRegexEntradaGrammarObjectSourceFrame(rawValue = "", currentRegexParseOperationFrame = null) {
+      const raw = String(rawValue || "").trim();
+      const parseFrameMismatch = getCurrentRegexParseOperationMismatch(raw, currentRegexParseOperationFrame);
+      const targetFrame = parseFrameMismatch ? null : currentRegexParseOperationFrame?.targetFrame;
+      const sourceSignature = JSON.stringify({
+        raw,
+        parseTargetSignature: currentRegexParseOperationFrame?.targetSignature || ""
+      });
+      return Object.freeze({
+        kind: "current-regex-entrada-grammar-object-source-frame",
+        version: 1,
+        routeFamily: "current-regex-parser",
+        routeStage: "build-entrada-grammar-object",
+        sourceRawInput: raw,
+        sourceSignature,
+        currentRegexParseOperationFrame: parseFrameMismatch ? null : currentRegexParseOperationFrame,
+        currentRegexParseTargetSignature: currentRegexParseOperationFrame?.targetSignature || "",
+        currentRegexParseTargetFrameKind: targetFrame?.kind || "",
+        sourceCoreText: String(targetFrame?.coreText || ""),
+        sourceTransitivity: targetFrame?.transitivity || "",
+        blockReason: parseFrameMismatch || "",
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildCurrentRegexEntradaGrammarObjectTargetFrame(sourceFrame = null, entradaGrammarObject = null) {
+      const blockReason = String(sourceFrame?.blockReason || "");
+      if (blockReason || !sourceFrame || sourceFrame.kind !== "current-regex-entrada-grammar-object-source-frame" || !entradaGrammarObject || entradaGrammarObject.kind !== "andrews-entrada-grammar-object") {
+        return Object.freeze({
+          kind: "current-regex-entrada-grammar-object-target-frame",
+          version: 1,
+          sourceSignature: sourceFrame?.sourceSignature || "",
+          currentRegexParseTargetSignature: sourceFrame?.currentRegexParseTargetSignature || "",
+          ok: false,
+          blockReason: blockReason || "entrada-grammar-object-target-required",
+          targetSignature: JSON.stringify({
+            sourceSignature: sourceFrame?.sourceSignature || "",
+            ok: false,
+            blockReason: blockReason || "entrada-grammar-object-target-required"
+          })
+        });
+      }
+      const stemFrame = entradaGrammarObject.stemFrame || {};
+      const valenceFrame = entradaGrammarObject.valenceFrame || {};
+      const objectFrame = entradaGrammarObject.objectFrame || {};
+      const formulaBoundaryFrame = entradaGrammarObject.formulaBoundaryFrame || {};
+      const targetFrame = {
+        kind: "current-regex-entrada-grammar-object-target-frame",
+        version: 1,
+        sourceSignature: sourceFrame.sourceSignature,
+        currentRegexParseTargetSignature: sourceFrame.currentRegexParseTargetSignature,
+        ok: true,
+        entradaGrammarObjectKind: entradaGrammarObject.kind,
+        rawInput: String(entradaGrammarObject.rawInput || ""),
+        matrixStem: String(stemFrame.matrixStem || ""),
+        matrixRuleBase: String(stemFrame.matrixRuleBase || ""),
+        transitivity: String(valenceFrame.transitivity || ""),
+        valenceTokens: Array.isArray(valenceFrame.tokens) ? valenceFrame.tokens.map(token => String(token || "")) : [],
+        objectVector: objectFrame.vector && typeof objectFrame.vector === "object" ? {
+          ...objectFrame.vector
+        } : {},
+        valenceFrameFixed: valenceFrame.frameFixed === true,
+        formulaEvidencePresent: formulaBoundaryFrame.formulaEvidencePresent === true,
+        objectSlotsCovered: formulaBoundaryFrame.objectSlotsCovered === true,
+        blockReason: ""
+      };
+      targetFrame.targetSignature = JSON.stringify({
+        sourceSignature: targetFrame.sourceSignature,
+        currentRegexParseTargetSignature: targetFrame.currentRegexParseTargetSignature,
+        ok: targetFrame.ok,
+        rawInput: targetFrame.rawInput,
+        matrixStem: targetFrame.matrixStem,
+        matrixRuleBase: targetFrame.matrixRuleBase,
+        transitivity: targetFrame.transitivity,
+        valenceTokens: targetFrame.valenceTokens,
+        objectVector: targetFrame.objectVector,
+        valenceFrameFixed: targetFrame.valenceFrameFixed,
+        formulaEvidencePresent: targetFrame.formulaEvidencePresent,
+        objectSlotsCovered: targetFrame.objectSlotsCovered,
+        blockReason: targetFrame.blockReason
+      });
+      return Object.freeze(targetFrame);
+    }
+    function buildCurrentRegexEntradaGrammarObjectOperationFrame(sourceFrame = null, entradaGrammarObject = null) {
+      if (!sourceFrame || sourceFrame.kind !== "current-regex-entrada-grammar-object-source-frame") {
+        return null;
+      }
+      const targetFrame = buildCurrentRegexEntradaGrammarObjectTargetFrame(sourceFrame, entradaGrammarObject);
+      if (targetFrame.ok !== true) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-current-regex-entrada-grammar-object",
+        routeFamily: "current-regex-parser",
+        routeStage: "build-entrada-grammar-object",
+        operationApplied: "build-entrada-grammar-object-from-typed-current-regex-target",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame,
+        targetSignature: targetFrame.targetSignature,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getCurrentRegexEntradaGrammarObjectOperationMismatch(rawValue = "", operationFrame = null) {
+      const parseOperationFrame = buildCurrentRegexParseOperationFrameFromRawInput(rawValue);
+      const expectedEntradaGrammarObject = buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(rawValue, parseOperationFrame);
+      const expectedOperationFrame = expectedEntradaGrammarObject?.currentRegexEntradaGrammarObjectOperationFrame || null;
+      if (!operationFrame || !expectedOperationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== expectedOperationFrame.operationId || operationFrame.routeFamily !== expectedOperationFrame.routeFamily || operationFrame.routeStage !== expectedOperationFrame.routeStage || operationFrame.operationApplied !== expectedOperationFrame.operationApplied || operationFrame.sourceFrameKind !== expectedOperationFrame.sourceFrameKind || operationFrame.sourceSignature !== expectedOperationFrame.sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "current-regex-entrada-grammar-object-operation-frame-required";
+      }
+      const targetFrame = operationFrame.targetFrame || null;
+      const expectedTargetFrame = expectedOperationFrame.targetFrame || null;
+      if (!targetFrame || targetFrame.kind !== expectedTargetFrame.kind || targetFrame.sourceSignature !== expectedTargetFrame.sourceSignature || targetFrame.currentRegexParseTargetSignature !== expectedTargetFrame.currentRegexParseTargetSignature || targetFrame.ok !== expectedTargetFrame.ok || targetFrame.rawInput !== expectedTargetFrame.rawInput || targetFrame.matrixStem !== expectedTargetFrame.matrixStem || targetFrame.matrixRuleBase !== expectedTargetFrame.matrixRuleBase || targetFrame.transitivity !== expectedTargetFrame.transitivity || JSON.stringify(targetFrame.valenceTokens || []) !== JSON.stringify(expectedTargetFrame.valenceTokens || []) || JSON.stringify(targetFrame.objectVector || {}) !== JSON.stringify(expectedTargetFrame.objectVector || {}) || targetFrame.valenceFrameFixed !== expectedTargetFrame.valenceFrameFixed || targetFrame.formulaEvidencePresent !== expectedTargetFrame.formulaEvidencePresent || targetFrame.objectSlotsCovered !== expectedTargetFrame.objectSlotsCovered || targetFrame.blockReason !== expectedTargetFrame.blockReason || targetFrame.targetSignature !== expectedTargetFrame.targetSignature || operationFrame.targetSignature !== expectedTargetFrame.targetSignature) {
+        return "current-regex-entrada-grammar-object-contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(rawValue = "", currentRegexParseOperationFrame = null, tiInputMetadata = null, options = {}) {
+      const raw = String(rawValue || "").trim();
+      const sourceFrame = buildCurrentRegexEntradaGrammarObjectSourceFrame(raw, currentRegexParseOperationFrame);
+      if (sourceFrame.blockReason) {
+        return null;
+      }
+      const operationParsed = buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
+      const spec = buildCanonicalVerbSpecFromMovingTargetParsed(raw, operationParsed, tiInputMetadata, currentRegexParseOperationFrame);
+      const entradaGrammarObject = buildEntradaGrammarObjectFromCanonicalVerbSpec(spec, {
+        rawInput: raw,
+        ...options,
+        currentRegexParseOperationFrame,
+        currentRegexEntradaGrammarObjectSourceFrame: sourceFrame
+      });
+      if (!entradaGrammarObject) {
+        return null;
+      }
+      const operationFrame = buildCurrentRegexEntradaGrammarObjectOperationFrame(sourceFrame, entradaGrammarObject);
+      if (!operationFrame) {
+        return null;
+      }
+      entradaGrammarObject.currentRegexEntradaGrammarObjectOperationFrame = operationFrame;
+      entradaGrammarObject.currentRegexEntradaGrammarObjectTargetFrame = operationFrame.targetFrame;
+      return entradaGrammarObject;
     }
     function getCompoundAstExternalObjectSlotId(index = 0) {
       const numeric = Number(index);
@@ -2378,7 +2736,7 @@ export function createParsingApi(targetObject = globalThis) {
 
     // Universal downstream builder: derives the full verbMeta from a CanonicalVerbSpec.
     // rawValue and rawParsed are optional and used only for display/provenance fields.
-    function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetadata) {
+    function buildVerbMetaFromCanonicalSpec(spec, rawValue, rawParsed, tiInputMetadata, parseOperationFrame = null) {
       if (!spec) return null;
       const {
         matrixStem,
@@ -2410,7 +2768,7 @@ export function createParsingApi(targetObject = globalThis) {
       const dashCount = hasLeadingDash ? 1 : 0;
       const hasDoubleDash = false;
       const baseObjectSlots = transitivity === targetObject.COMPOSER_TRANSITIVITY.bitransitive ? 2 : transitivity === targetObject.COMPOSER_TRANSITIVITY.transitive ? 1 : 0;
-      const embeddedSlashObjectSlotSourceFrameCandidate = buildEmbeddedSlashObjectSlotSourceFrame(rawValue, rawParsed, spec);
+      const embeddedSlashObjectSlotSourceFrameCandidate = buildEmbeddedSlashObjectSlotSourceFrame(rawValue, parseOperationFrame, spec);
       const embeddedSlashObjectSlotOperationFrameCandidate = buildEmbeddedSlashObjectSlotOperationFrame(embeddedSlashObjectSlotSourceFrameCandidate);
       const embeddedValenceCount = embeddedSlashObjectSlotOperationFrameCandidate.supported === true ? embeddedSlashObjectSlotOperationFrameCandidate.embeddedValenceCount : 0;
       const embeddedSlashObjectSlotSourceFrame = embeddedValenceCount > 0 ? embeddedSlashObjectSlotSourceFrameCandidate : null;
@@ -2659,10 +3017,27 @@ export function createParsingApi(targetObject = globalThis) {
         tiCausativeClass
       };
     }
-    function buildParsedVerbFromMovingTargetInput(rawValue = "", movingTargetParsed = null, tiInputMetadata = null) {
-      const spec = buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, movingTargetParsed, tiInputMetadata);
+    function buildParsedVerbFromMovingTargetInput(rawValue = "", movingTargetParsed = null, tiInputMetadata = null, parseOperationFrame = null, options = {}) {
+      const parseInput = String(options.parseInput || rawValue || "");
+      const mismatch = getCurrentRegexParseOperationMismatch(parseInput, parseOperationFrame);
+      if (mismatch) {
+        return null;
+      }
+      const operationParsed = buildMovingTargetParsedFromCurrentRegexParseOperationFrame(parseOperationFrame);
+      if (!operationParsed || operationParsed.isValid !== true) {
+        return null;
+      }
+      const spec = buildCanonicalVerbSpecFromMovingTargetParsed(rawValue, operationParsed, tiInputMetadata, parseOperationFrame);
       if (!spec) return null;
-      return buildVerbMetaFromCanonicalSpec(spec, rawValue, movingTargetParsed, tiInputMetadata);
+      const parsedVerb = buildVerbMetaFromCanonicalSpec(spec, rawValue, operationParsed, tiInputMetadata, parseOperationFrame);
+      if (!parsedVerb) {
+        return null;
+      }
+      parsedVerb.currentRegexParseOperationFrame = parseOperationFrame;
+      if (parsedVerb.canonical && typeof parsedVerb.canonical === "object") {
+        parsedVerb.canonical.currentRegexParseOperationFrame = parseOperationFrame;
+      }
+      return parsedVerb;
     }
     function isVerbValueAllowed(rawValue) {
       return getInvalidVerbCharacters(rawValue).length === 0 && getInvalidVerbLetters(rawValue).length === 0 && !getInvalidVerbStructure(rawValue, {
@@ -3492,9 +3867,11 @@ export function createParsingApi(targetObject = globalThis) {
     function parseVerbInput(value) {
       const sourceRawVerb = String(value || "");
       const tiInputMetadata = targetObject.getRawInputTiCausativeMetadata(sourceRawVerb);
-      const movingTargetParsed = parseMovingTargetRegexInput(sourceRawVerb);
-      if (movingTargetParsed.isValid) {
-        const directParsed = buildParsedVerbFromMovingTargetInput(sourceRawVerb, movingTargetParsed, tiInputMetadata);
+      const currentRegexParseSourceFrame = buildCurrentRegexParseSourceFrame(sourceRawVerb);
+      const currentRegexParseOperationFrame = buildCurrentRegexParseOperationFrame(currentRegexParseSourceFrame);
+      const movingTargetParsed = buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
+      if (movingTargetParsed?.isValid) {
+        const directParsed = buildParsedVerbFromMovingTargetInput(sourceRawVerb, movingTargetParsed, tiInputMetadata, currentRegexParseOperationFrame);
         if (directParsed) {
           return directParsed;
         }
@@ -3503,8 +3880,10 @@ export function createParsingApi(targetObject = globalThis) {
       const shorthandOperationFrame = buildCurrentRegexShorthandOperationFrame(shorthandSourceFrame);
       const shorthandInput = getCurrentRegexShorthandParseInput(sourceRawVerb, shorthandOperationFrame);
       if (shorthandInput) {
-        const shorthandParsed = parseMovingTargetRegexInput(shorthandInput);
-        if (shorthandParsed.isValid) {
+        const shorthandParseSourceFrame = buildCurrentRegexParseSourceFrame(shorthandInput);
+        const shorthandParseOperationFrame = buildCurrentRegexParseOperationFrame(shorthandParseSourceFrame);
+        const shorthandParsed = buildMovingTargetParsedFromCurrentRegexParseOperationFrame(shorthandParseOperationFrame);
+        if (shorthandParsed?.isValid) {
           const shorthandMetadata = {
             ...tiInputMetadata,
             normalizedBase: shorthandParsed.regexValue,
@@ -3517,7 +3896,9 @@ export function createParsingApi(targetObject = globalThis) {
             hasExternalObjectDash: tiInputMetadata.hasExternalObjectDash === true || shorthandParsed.transitivity !== targetObject.COMPOSER_TRANSITIVITY.intransitive,
             semanticObjectSlotCount: Number.isFinite(tiInputMetadata.semanticObjectSlotCount) ? tiInputMetadata.semanticObjectSlotCount : shorthandParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.bitransitive ? 2 : shorthandParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.transitive ? 1 : 0
           };
-          const directParsed = buildParsedVerbFromMovingTargetInput(sourceRawVerb, shorthandParsed, shorthandMetadata);
+          const directParsed = buildParsedVerbFromMovingTargetInput(sourceRawVerb, shorthandParsed, shorthandMetadata, shorthandParseOperationFrame, {
+            parseInput: shorthandInput
+          });
           if (directParsed) {
             return directParsed;
           }
@@ -4069,11 +4450,10 @@ export function createParsingApi(targetObject = globalThis) {
       if (!trimmed) {
         return false;
       }
-      if (parseMovingTargetRegexInput(trimmed).isValid) {
+      if (isCurrentRegexParseInputRecognized(trimmed)) {
         return true;
       }
-      const shorthandInput = getCurrentRegexShorthandParseInputFromSourceFrame(trimmed);
-      if (shorthandInput && parseMovingTargetRegexInput(shorthandInput).isValid) {
+      if (isCurrentRegexShorthandParseInputRecognized(trimmed)) {
         return true;
       }
       if (allowPartial && isAllowedPartialRegexEnvelopeValue(trimmed)) {
@@ -4216,12 +4596,10 @@ export function createParsingApi(targetObject = globalThis) {
       if (!trimmed) {
         return "";
       }
-      const movingTargetParsed = parseMovingTargetRegexInput(trimmed);
-      if (movingTargetParsed.isValid) {
+      if (isCurrentRegexParseInputRecognized(trimmed)) {
         return "";
       }
-      const shorthandInput = getCurrentRegexShorthandParseInputFromSourceFrame(trimmed);
-      if (shorthandInput && parseMovingTargetRegexInput(shorthandInput).isValid) {
+      if (isCurrentRegexShorthandParseInputRecognized(trimmed)) {
         return "";
       }
       if (allowPartial && isAllowedPartialRegexEnvelopeValue(trimmed)) {
@@ -4296,7 +4674,7 @@ export function createParsingApi(targetObject = globalThis) {
       }
       return value;
     }
-    // Core parsing functions extracted to src/core/parsing/parsing.js
+    // Core parsing functions extracted to src/core/parsing/parsing.mjs
 
     function triggerInputShake(target) {
       if (!target || !target.classList) {
@@ -4356,7 +4734,7 @@ export function createParsingApi(targetObject = globalThis) {
     }
 
     // === Verb Parsing ===
-    // Extracted to src/core/parsing/parsing.js
+    // Extracted to src/core/parsing/parsing.mjs
 
     var SUPPLETIVE_KATI_FORMS = new Set();
     var SUPPLETIVE_KATI_IMPERFECTIVE = "";
@@ -4384,7 +4762,7 @@ export function createParsingApi(targetObject = globalThis) {
     var SUPPLETIVE_WITZI_NONACTIVE_TENSES = new Set();
     var SUPPLETIVE_STEM_PATHS = [];
     var INTRANSITIVE_ONLY_SUPPLETIVE_IDS = new Set(["yawi", "weya", "kati", "witzi"]);
-    // Getter/builder functions extracted to src/core/irregulars/irregulars.js
+    // Getter/builder functions extracted to src/core/irregulars/irregulars.mjs
 
     function isPerfectiveTense(tense) {
       return targetObject.PRETERITO_CLASS_TENSES.has(tense) || targetObject.PRETERITO_UNIVERSAL_ORDER.includes(tense) || tense === "preterito" || targetObject.isPotencialActiveTense(tense) || tense === "pasado-remoto-adverbio-activo";
@@ -4667,10 +5045,11 @@ export function createParsingApi(targetObject = globalThis) {
         embedPrefix: "",
         supportiveMarker: "",
         syllableMode: targetObject.COMPOSER_SYLLABLE_MODE.multisyllable,
-        tiCausativeClass: ""
+        tiCausativeClass: "",
+        sourceBoundaryRoleFrame: null
       };
     }
-    function buildComposerStateFromMovingTargetParsed(parsed = null, rawValue = "") {
+    function buildComposerStateFromCurrentRegexParsedTarget(parsed = null, rawValue = "") {
       const state = createEmptyComposerRegexState(rawValue);
       if (!parsed || parsed.isValid !== true) {
         return state;
@@ -4680,8 +5059,16 @@ export function createParsingApi(targetObject = globalThis) {
       const coreText = String(inline.base || normalizedCore || "").trim();
       const outerLexical = (Array.isArray(parsed.outerPieces) ? parsed.outerPieces : []).filter(piece => piece && piece.type === "lexical" && piece.value).map(piece => targetObject.normalizeComposerStem(piece.value)).filter(Boolean).join("-");
       const outerValences = (Array.isArray(parsed.outerPieces) ? parsed.outerPieces : []).filter(piece => piece && piece.type === "valence" && piece.value).map(piece => normalizeEntradaGrammarValenceSurfaceToken(piece.value)).filter(Boolean);
-      const adjacentCoreEmbed = getMovingTargetAdjacentEmbedParts(coreText);
-      const normalizedCoreStem = targetObject.normalizeComposerStem(coreText);
+      const sourceBoundaryRoleFrame = getClassicalNahuatlCurrentRegexBoundaryRoleFrame(coreText, {
+        originalCoreText: parsed.originalCoreText || coreText,
+        rawValue
+      });
+      const adjacentCoreEmbed = getMovingTargetAdjacentEmbedParts(coreText, {
+        originalCoreText: parsed.originalCoreText || coreText,
+        rawValue,
+        classicalBoundaryFrame: sourceBoundaryRoleFrame
+      });
+      const normalizedCoreStem = sourceBoundaryRoleFrame?.hyphenOnlyCannotPopulateEmbedMatrix === true ? sourceBoundaryRoleFrame.stem : targetObject.normalizeComposerStem(coreText);
       const supportiveMarker = targetObject.normalizeSupportiveMarkerValue(targetObject.getRegexOptionalSupportiveMarkerLetter(coreText));
       const activeStem = adjacentCoreEmbed ? targetObject.normalizeComposerStem(adjacentCoreEmbed.stem) : normalizedCoreStem;
       const activeEmbed = adjacentCoreEmbed ? targetObject.normalizeComposerEmbedValue(adjacentCoreEmbed.embed) : "";
@@ -4689,6 +5076,7 @@ export function createParsingApi(targetObject = globalThis) {
       state.directionalPrefix = targetObject.normalizeComposerStem(parsed.directionalPrefix || "");
       state.supportiveMarker = supportiveMarker;
       state.tiCausativeClass = targetObject.normalizeTiCausativeClass(inline.tiCausativeClass || "");
+      state.sourceBoundaryRoleFrame = sourceBoundaryRoleFrame || adjacentCoreEmbed?.sourceBoundaryRoleFrame || null;
       if (state.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive) {
         state.valenceIntransitive = outerValences[0] || "";
         state.valenceIntransitiveEmbed = state.valenceIntransitive ? outerLexical : "";
@@ -4713,6 +5101,25 @@ export function createParsingApi(targetObject = globalThis) {
       const syllables = targetObject.getComposerStemSyllableCount(targetObject.getComposerActiveStemValue(state));
       state.syllableMode = syllables === 1 ? targetObject.COMPOSER_SYLLABLE_MODE.monosyllable : targetObject.COMPOSER_SYLLABLE_MODE.multisyllable;
       return state;
+    }
+    function buildComposerStateFromCurrentRegexParseOperationFrame(rawValue = "", currentRegexParseOperationFrame = null) {
+      const raw = String(rawValue || "").trim();
+      const mismatch = getCurrentRegexParseOperationMismatch(raw, currentRegexParseOperationFrame);
+      if (mismatch) {
+        const state = createEmptyComposerRegexState(rawValue);
+        state.currentRegexParseBlockedReason = mismatch;
+        return state;
+      }
+      const parsed = buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
+      return buildComposerStateFromCurrentRegexParsedTarget(parsed, raw);
+    }
+    function buildComposerStateFromMovingTargetParsed(parsed = null, rawValue = "", currentRegexParseOperationFrame = null) {
+      if (!currentRegexParseOperationFrame) {
+        const state = createEmptyComposerRegexState(rawValue);
+        state.currentRegexParseBlockedReason = "current-regex-parse-operation-frame-required";
+        return state;
+      }
+      return buildComposerStateFromCurrentRegexParseOperationFrame(rawValue, currentRegexParseOperationFrame);
     }
     function normalizeRegexCoreTokenCase(value = "", options = {}) {
       const forceUppercaseMarkers = options.forceUppercaseMarkers === true;
@@ -4909,7 +5316,7 @@ export function createParsingApi(targetObject = globalThis) {
       if (trimmed.includes("?")) {
         return false;
       }
-      if (parseMovingTargetRegexInput(trimmed).isValid) {
+      if (isCurrentRegexParseInputRecognized(trimmed)) {
         return true;
       }
       const strippedSupportive = trimmed.replace(/(?:\/[iy]\/|\[[iy]\])/gi, "");
@@ -5127,6 +5534,9 @@ export function createParsingApi(targetObject = globalThis) {
     api.attachLesson30NominalEmbedGrammarContract = attachLesson30NominalEmbedGrammarContract;
     api.buildLesson30NominalEmbedPursuitFrame = buildLesson30NominalEmbedPursuitFrame;
     api.normalizeMovingTargetCoreText = normalizeMovingTargetCoreText;
+    api.getCurrentRegexRuntimeTarget = getCurrentRegexRuntimeTarget;
+    api.isClassicalNahuatlCurrentRegexBoundaryContext = isClassicalNahuatlCurrentRegexBoundaryContext;
+    api.getClassicalNahuatlCurrentRegexBoundaryRoleFrame = getClassicalNahuatlCurrentRegexBoundaryRoleFrame;
     api.getMovingTargetOuterPieceDescriptors = getMovingTargetOuterPieceDescriptors;
     api.formatMovingTargetOuterPiece = formatMovingTargetOuterPiece;
     api.buildMovingTargetRegexFromCoreAndPieces = buildMovingTargetRegexFromCoreAndPieces;
@@ -5146,6 +5556,18 @@ export function createParsingApi(targetObject = globalThis) {
     api.getEmbeddedSlashTransitiveObjSlotCountFromSourceFrame = getEmbeddedSlashTransitiveObjSlotCountFromSourceFrame;
     api.getMovingTargetAdjacentEmbedParts = getMovingTargetAdjacentEmbedParts;
     api.parseMovingTargetRegexInput = parseMovingTargetRegexInput;
+    api.normalizeCurrentRegexParseOuterPieces = normalizeCurrentRegexParseOuterPieces;
+    api.buildCurrentRegexParseSourceFrame = buildCurrentRegexParseSourceFrame;
+    api.buildCurrentRegexParseTargetFrame = buildCurrentRegexParseTargetFrame;
+    api.buildCurrentRegexParseOperationFrame = buildCurrentRegexParseOperationFrame;
+    api.getCurrentRegexParseOperationMismatch = getCurrentRegexParseOperationMismatch;
+    api.buildMovingTargetParsedFromCurrentRegexParseOperationFrame = buildMovingTargetParsedFromCurrentRegexParseOperationFrame;
+    api.isCurrentRegexParseOperationFrameRecognized = isCurrentRegexParseOperationFrameRecognized;
+    api.buildCurrentRegexParseOperationFrameFromRawInput = buildCurrentRegexParseOperationFrameFromRawInput;
+    api.isCurrentRegexParseInputRecognized = isCurrentRegexParseInputRecognized;
+    api.buildCurrentRegexShorthandParseOperationFrameFromRawInput = buildCurrentRegexShorthandParseOperationFrameFromRawInput;
+    api.isCurrentRegexShorthandParseInputRecognized = isCurrentRegexShorthandParseInputRecognized;
+    api.serializeRegexInputValueFromOperationFrame = serializeRegexInputValueFromOperationFrame;
     api.buildCanonicalVerbSpecFromMovingTargetParsed = buildCanonicalVerbSpecFromMovingTargetParsed;
     api.buildCanonicalVerbSpecFromComposerSemantic = buildCanonicalVerbSpecFromComposerSemantic;
     Object.defineProperty(api, "ENTRADA_GRAMMAR_OBJECT_LAYER_ORDER", {
@@ -5187,6 +5609,11 @@ export function createParsingApi(targetObject = globalThis) {
     api.buildEntradaGrammarObjectFromCanonicalVerbSpec = buildEntradaGrammarObjectFromCanonicalVerbSpec;
     api.buildEntradaGrammarObjectFromComposerSemantic = buildEntradaGrammarObjectFromComposerSemantic;
     api.buildEntradaGrammarObjectFromMovingTargetParsed = buildEntradaGrammarObjectFromMovingTargetParsed;
+    api.buildCurrentRegexEntradaGrammarObjectSourceFrame = buildCurrentRegexEntradaGrammarObjectSourceFrame;
+    api.buildCurrentRegexEntradaGrammarObjectTargetFrame = buildCurrentRegexEntradaGrammarObjectTargetFrame;
+    api.buildCurrentRegexEntradaGrammarObjectOperationFrame = buildCurrentRegexEntradaGrammarObjectOperationFrame;
+    api.getCurrentRegexEntradaGrammarObjectOperationMismatch = getCurrentRegexEntradaGrammarObjectOperationMismatch;
+    api.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame = buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame;
     api.getCompoundAstExternalObjectSlotId = getCompoundAstExternalObjectSlotId;
     api.buildCompoundAstExternalObjectSlots = buildCompoundAstExternalObjectSlots;
     api.buildCompoundAstRouteFrame = buildCompoundAstRouteFrame;
@@ -5457,6 +5884,8 @@ export function createParsingApi(targetObject = globalThis) {
     api.getParsedVerbNonactiveStemMetadata = getParsedVerbNonactiveStemMetadata;
     api.buildParsedVerbForTab = buildParsedVerbForTab;
     api.createEmptyComposerRegexState = createEmptyComposerRegexState;
+    api.buildComposerStateFromCurrentRegexParsedTarget = buildComposerStateFromCurrentRegexParsedTarget;
+    api.buildComposerStateFromCurrentRegexParseOperationFrame = buildComposerStateFromCurrentRegexParseOperationFrame;
     api.buildComposerStateFromMovingTargetParsed = buildComposerStateFromMovingTargetParsed;
     api.normalizeRegexCoreTokenCase = normalizeRegexCoreTokenCase;
     api.parseComposerPlaceholderBase = parseComposerPlaceholderBase;

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/search/runtime.js
+ * Tests for src/core/search/runtime.mjs
  * Covers: search normalization, nominal mode detection, and search-plan helpers.
  */
 
@@ -37,6 +37,63 @@ function run(ctx) {
     const parts = ctx.getSearchParts("  nemi  ");
     s.eq("getSearchParts trims base separately", parts.trimmedBase, "nemi");
     s.eq("getSearchInputBase returns base only", ctx.getSearchInputBase("nemi"), "nemi");
+    const currentRegexMetadataSourceFrame = ctx.buildCurrentRegexParseSourceFrame("(ki)-(nemi)");
+    const currentRegexMetadataOperationFrame = ctx.buildCurrentRegexParseOperationFrame(currentRegexMetadataSourceFrame);
+    const currentRegexMetadataContradictoryOperationFrame = {
+        ...currentRegexMetadataOperationFrame,
+        targetFrame: {
+            ...currentRegexMetadataOperationFrame.targetFrame,
+            regexValue: "-(paka)",
+        },
+    };
+    s.eq("raw input regex metadata consumes typed parse operation target", {
+        direct: (() => {
+            const metadata = ctx.getRawInputTiCausativeMetadata("(ki)-(nemi)");
+            return {
+                normalizedInput: metadata.normalizedInput,
+                displayCore: metadata.displayCore,
+                displayVerb: metadata.displayVerb,
+                operation: metadata.currentRegexParseOperationFrame?.operationId || "",
+                slots: metadata.semanticObjectSlotCount,
+            };
+        })(),
+        fromOperation: (() => {
+            const metadata = ctx.getRawInputTiCausativeMetadataFromParseOperationFrame(
+                "(ki)-(nemi)",
+                currentRegexMetadataOperationFrame
+            );
+            return {
+                normalizedInput: metadata?.normalizedInput || "",
+                displayCore: metadata?.displayCore || "",
+                operation: metadata?.currentRegexParseOperationFrame?.operationId || "",
+            };
+        })(),
+        missingOperation: ctx.getRawInputTiCausativeMetadataFromParseOperationFrame("(ki)-(nemi)", null),
+        oldParsedPayload: ctx.getRawInputTiCausativeMetadataFromParseOperationFrame(
+            "(ki)-(nemi)",
+            ctx.parseMovingTargetRegexInput("(ki)-(nemi)")
+        ),
+        contradictoryOperation: ctx.getRawInputTiCausativeMetadataFromParseOperationFrame(
+            "(ki)-(nemi)",
+            currentRegexMetadataContradictoryOperationFrame
+        ),
+    }, {
+        direct: {
+            normalizedInput: "(ki)-(nemi)",
+            displayCore: "nemi",
+            displayVerb: "(ki)-(nemi)",
+            operation: "andrews-current-regex-parse",
+            slots: 1,
+        },
+        fromOperation: {
+            normalizedInput: "(ki)-(nemi)",
+            displayCore: "nemi",
+            operation: "andrews-current-regex-parse",
+        },
+        missingOperation: null,
+        oldParsedPayload: null,
+        contradictoryOperation: null,
+    });
     s.eq("ordinaryNnc: search candidate helper is exported", typeof ctx.getOrdinaryNncSearchCandidateInfo, "function");
     s.eq("ordinaryNnc: search candidate boolean helper is exported", typeof ctx.isOrdinaryNncSearchCandidate, "function");
     s.eq(
@@ -107,6 +164,23 @@ function run(ctx) {
         ctx.normalizeConjugationSearchText("Ne-mi?!"),
         "nemi"
     );
+    const originalSearchLanguageProfileGetter = ctx.getActiveLanguageProfileMode;
+    try {
+        ctx.getActiveLanguageProfileMode = () => ctx.LANGUAGE_PROFILE_MODE.classicalNahuatl;
+        s.eq(
+            "Classical conjugation search preserves macron root letters",
+            ctx.normalizeConjugationSearchText("zō-mā?!"),
+            "zōmā"
+        );
+        ctx.getActiveLanguageProfileMode = () => ctx.LANGUAGE_PROFILE_MODE.nawatPipil;
+        s.eq(
+            "Nawat/Pipil conjugation search remains ASCII-only",
+            ctx.normalizeConjugationSearchText("zō-mā?!"),
+            "zm"
+        );
+    } finally {
+        ctx.getActiveLanguageProfileMode = originalSearchLanguageProfileGetter;
+    }
     s.ok("matchesSearchVariant supports contains", ctx.matchesSearchVariant("kinemi", "nemi", "contains"));
     s.ok("matchesSearchVariant supports starts", ctx.matchesSearchVariant("kinemi", "ki", "starts"));
     s.ok("matchesSearchVariant supports ends", ctx.matchesSearchVariant("kinemi", "nemi", "ends"));

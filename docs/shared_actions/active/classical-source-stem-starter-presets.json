@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-source-stem-starter-presets",
+  "status": "complete",
+  "incentive": {
+    "id": "coherent-editable-source-starter-clause",
+    "statement": "A canonical Source choice should not leave contradictory clause settings, but convenience preselection must not invent unsupported grammar authority.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate typed Lesson 7 class evidence, Source transition behavior, editable Authority state, and focused proof.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Selecting a canonical VNC stem creates a coherent editable starter clause with evidence-bounded Class preselection.",
+  "responsibilities": [
+    {
+      "id": "source-transition",
+      "statement": "Compute and apply non-authorizing starter presets from the selected source record and typed Lesson 7 class profile.",
+      "paths": ["src/ui/composer/composer.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Prefill coherent editable controls without guessing unresolved Class or overwriting an existing transitive subtype."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "source-guidance",
+      "statement": "Explain that Source choices load editable starter settings rather than grammar authority.",
+      "paths": ["src/ui/shell/classical_shell.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep the Source and Authority distinction visible."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove A/B/C/D supported presets, unresolved-Class preservation, transitive-subtype preservation, direct entry, and browser behavior.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Add hostile focused and live UI evidence."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target and closure evidence without starting full readiness.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-source-stem-starter-presets.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep convenience preselection separate from grammar authorization."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [{
+    "id": "contradictory-source-starter-authority-state",
+    "status": "complete",
+    "removalEvidence": "Focused and browser proof show coherent valence, supported Class preselection, transitive-subtype preservation, and unresolved-Class preservation."
+  }],
+  "evidence": [{
+    "id": "focused-ui-tests",
+    "result": "Main UI and causative relation UI passed 397/397 assertions, including A/B/C/D rules, unresolved Class, and transitive subtype preservation."
+  }, {
+    "id": "fresh-origin-browser-proof",
+    "result": "cuā loaded Class D and specific 3sg; chīhua preserved projective-nonhuman and Class D as unresolved; chōca loaded Class A and intransitive; warning/error logs were empty."
+  }, {
+    "id": "live-preset-coverage",
+    "result": "All 160 VNC records exposed starter metadata: 76 Andrews-rule-supported Class presets and 84 unresolved preserve-current cases, with zero guessed unresolved classes."
+  }, {
+    "id": "runtime-and-alignment",
+    "result": "Runtime manifest remained one browser entry with 75/75 modules/installers; architecture metrics remained at their stabilization boundaries."
+  }],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "focused-tests-runtime-browser-and-alignment-green",
+    "nextLessonEntryPoint": "Select the next explicit implementation target; full readiness remains a formal handoff gate."
+  }
+}

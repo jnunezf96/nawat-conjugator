@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/adjectival/adjectival.js
+ * Tests for src/core/nnc/adjectival/adjectival.mjs
  */
 
 const { createSuite } = require("./runner");

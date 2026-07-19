@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/analysis/analysis.js.
+// Canonical modern ESM module.
 
 export function createAnalysisApi(targetObject = globalThis) {
     const ANALYSIS_BOUNDARY_VERSION = 1;

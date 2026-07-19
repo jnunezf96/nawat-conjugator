@@ -1,0 +1,173 @@
+{
+  "schemaVersion": 1,
+  "catalogId": "classical-nahuatl-canvas-lessons24-26-derivation-authority",
+  "sourceDocument": "ANDREWS_TRANSCRIPTION_CANVAS.md",
+  "rules": [
+    {
+      "recordId": "canvas-rule-l25-253-o-hua-to-tia",
+      "lesson": 25,
+      "section": "25.3",
+      "derivationType": "causative",
+      "subtype": "type-two",
+      "nomenclature": "Type 2 causative · o-hua to tiā",
+      "operationId": "cn-l25-253-o-hua-to-tia",
+      "sourceConditions": {
+        "nonactiveSuffixFamily": "o-hua"
+      },
+      "formation": {
+        "operation": "replace-nonactive-right-edge",
+        "remove": "o-hua",
+        "add": "tiā",
+        "targetClass": "C"
+      },
+      "participantOperation": "source-subject-becomes-causative-object"
+    },
+    {
+      "recordId": "canvas-rule-l25-256-final-o-direct-huia",
+      "lesson": 25,
+      "section": "25.6",
+      "derivationType": "causative",
+      "subtype": "type-two",
+      "nomenclature": "Type 2 causative · final-ō direct huiā",
+      "operationId": "cn-l25-256-final-o-direct-huia",
+      "sourceConditions": {
+        "finalShape": "ō",
+        "licensedRoute": "direct"
+      },
+      "formation": {
+        "operation": "append-huia-to-final-o",
+        "remove": "",
+        "add": "huiā",
+        "quantityChange": "preserve-ō-before-huiā",
+        "targetClass": "C"
+      },
+      "participantOperation": "source-subject-becomes-causative-object"
+    },
+    {
+      "recordId": "canvas-rule-l25-258-parallel-type-two-tia",
+      "lesson": 25,
+      "section": "25.8",
+      "derivationType": "causative",
+      "subtype": "type-two",
+      "nomenclature": "Type 2 causative · parallel tiā formation",
+      "operationId": "cn-l25-258-temi-temitia",
+      "sourceConditions": {
+        "nonactiveSuffixFamily": "hua",
+        "parallelTypeOneChoice": true
+      },
+      "formation": {
+        "operation": "replace-hua-with-tia-and-realize-canvas-quantity",
+        "remove": "hua",
+        "add": "tiā",
+        "targetClass": "C"
+      },
+      "participantOperation": "source-subject-becomes-causative-object"
+    }
+  ],
+  "examples": [
+    {
+      "recordId": "canvas-example-l25-253-miqui-mictia",
+      "choiceId": "causative:type-two:canvas:l25-253-miqui-o-hua-to-tia",
+      "ruleRecordId": "canvas-rule-l25-253-o-hua-to-tia",
+      "lesson": 25,
+      "section": "25.3",
+      "layer": "stem",
+      "name": "o-hua to tiā",
+      "printedSource": "(miqui) > (mic-o-hua)",
+      "printedResult": "tē-(mic-tiā)",
+      "source": {
+        "stem": "miqui",
+        "verbClass": "B",
+        "valence": "intransitive",
+        "objectCount": 0
+      },
+      "bridge": {
+        "stem": "mic-o-hua",
+        "suffixFamily": "o-hua",
+        "visibility": "visible",
+        "hypothetical": false,
+        "authority": "canvas-printed"
+      },
+      "target": {
+        "stem": "mic-tiā",
+        "verbClass": "C",
+        "segments": ["mic", "tiā"],
+        "quantity": "final-long-a",
+        "hyphenation": "mic-tiā"
+      }
+    },
+    {
+      "recordId": "canvas-example-l25-256-temo-temohuia",
+      "choiceId": "causative:type-two:canvas:l25-256-temo-final-o-direct-huia",
+      "ruleRecordId": "canvas-rule-l25-256-final-o-direct-huia",
+      "lesson": 25,
+      "section": "25.6",
+      "layer": "stem",
+      "name": "Direct final-ō huiā",
+      "printedSource": "(temō)",
+      "printedResult": "tla-(temō-huiā)",
+      "authorityWitness": {
+        "pdfPage": 215,
+        "printedPage": 200,
+        "verification": "user-confirmed-canonical-canvas-reading"
+      },
+      "source": {
+        "stem": "temō",
+        "verbClass": "A",
+        "valence": "intransitive",
+        "objectCount": 0
+      },
+      "bridge": {
+        "stem": "temō-hua",
+        "suffixFamily": "hua",
+        "visibility": "not-printed",
+        "hypothetical": true,
+        "authority": "engine-derived-typed-license"
+      },
+      "target": {
+        "stem": "temō-huiā",
+        "verbClass": "C",
+        "segments": ["temō", "huiā"],
+        "quantity": "canvas-exact-source-final-long-o-and-final-long-a",
+        "hyphenation": "temō-huiā"
+      }
+    },
+    {
+      "recordId": "canvas-example-l25-258-temi-temitia",
+      "choiceId": "causative:type-two:canvas:l25-258-temi-parallel-tia",
+      "ruleRecordId": "canvas-rule-l25-258-parallel-type-two-tia",
+      "lesson": 25,
+      "section": "25.8",
+      "layer": "stem",
+      "name": "Parallel type two",
+      "printedSource": "(tēmi)",
+      "printedResult": "tla-(tēmī-tiā)",
+      "authorityWitness": {
+        "pdfPage": 216,
+        "printedPage": 201,
+        "verification": "user-confirmed-canonical-canvas-reading"
+      },
+      "source": {
+        "stem": "tēmi",
+        "verbClass": "B",
+        "valence": "intransitive",
+        "objectCount": 0
+      },
+      "bridge": {
+        "stem": "tēmī-hua",
+        "suffixFamily": "hua",
+        "visibility": "not-printed",
+        "hypothetical": true,
+        "authority": "engine-derived-typed-license"
+      },
+      "target": {
+        "stem": "tēmī-tiā",
+        "verbClass": "C",
+        "segments": ["tēmī", "tiā"],
+        "quantity": "canvas-exact-source-long-e-long-i-and-final-long-a",
+        "hyphenation": "tēmī-tiā"
+      }
+    }
+  ],
+  "negativeConstraints": []
+}

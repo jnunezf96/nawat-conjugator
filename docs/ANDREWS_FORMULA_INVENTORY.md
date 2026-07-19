@@ -184,11 +184,11 @@ These are subject-line fragments from Andrews' diagrammatic format. The full pos
 | Subject role | Formula shapes |
 | --- | --- |
 | first singular | `#n-0+...)uh-0#`; `#n-0+...)hui-0#`; `#n-0+...)0-0#` |
-| first plural | `#t-0+...)hu-an#` |
+| first plural | `#t-0+...)hu-ān#` |
 | second singular | `#t-0+...)uh-0#`; `#t-0+...)hui-0#`; `#t-0+...)0-0#` |
-| second plural | `#am-0+...)hu-an#` |
+| second plural | `#am-0+...)hu-ān#` |
 | third singular/common | `#0-0+...)uh-0#`; `#0-0+...)hui-0#`; `#0-0+...)0-0#` |
-| third plural animate | `#0-0+...)hu-an#` |
+| third plural animate | `#0-0+...)hu-ān#` |
 
 `uh` and `hu` are spelling-conditioned variants in Andrews' analysis; `hui` is consonant-conditioned and rare/morphologically conditioned in some environments. These are Classical structural spellings, not Nawat output spellings.
 
@@ -199,7 +199,7 @@ Monadic `st` fillers:
 | Filler | Role |
 | --- | --- |
 | `ne` | Reciprocal possessor. |
-| `te` | Nonspecific human possessor. |
+| `tē` | Nonspecific human possessor. |
 | `tla` | Nonspecific nonhuman possessor. |
 
 Dyadic specific possessor fillers:
@@ -210,22 +210,45 @@ Dyadic specific possessor fillers:
 | first plural possessor | `t-o ~ t-[sq0]` |
 | second singular possessor | `m-o ~ m-[sq0]` |
 | second plural possessor | `am-o ~ am-[sq0]` |
-| third singular/common possessor | `i-0` |
-| third plural possessor | `i-m ~ i-n ...` |
+| third singular/common possessor | `ī-0` |
+| third plural possessor | `ī-m ~ i-n ...` |
 
 Slot-scoped Nawat/Pipil realization:
 
 | Andrews/Classical slot | Nawat/Pipil realization |
 | --- | --- |
 | `st = ne` | `ne` |
-| `st = te` | `te` |
+| `st = tē` | `te` |
 | `st = tla` | `ta` |
 | `n-o ~ n-[sq0]` | `n-u ~ n-[sq0]` |
 | `t-o ~ t-[sq0]` | `t-u ~ t-[sq0]` |
 | `m-o ~ m-[sq0]` | `m-u ~ m-[sq0]` |
 | `am-o ~ am-[sq0]` | `anm-u ~ anm-[sq0]` |
-| `i-0` | `i-0` |
-| `i-m ~ i-n ...` | `i-n ~ i-nh` |
+| `ī-0` | `i-0` |
+| `ī-m ~ i-n ...` | `i-n ~ i-nh` |
+
+## Lesson 16 Quantitive Pronominal NNC Fillers
+
+Source: §§16.7-16.9, printed pp. 131-135 / PDF pp. 146-150. Vowel and letter values below were checked against the rendered PDF image, not OCR text.
+
+The matrix families and their exact allomorphs are separate typed facts:
+
+| Matrix family | Exact matrix forms | PDF image fact |
+| --- | --- | --- |
+| `qui-ch` | `qui-ch` | Combined `qui-ch` has short `i`; it does not take predicate-internal plural `n`. |
+| `quī` | `quī`, `quih`, `qui`, `c` | The underlying family has long `ī`; short and consonant-only forms remain distinct allomorphs. |
+| `chī` | `chī`, `chih`, `chi`, `ch` | The underlying family has long `ī`; short and consonant-only forms remain distinct allomorphs. |
+
+Plural quantitive predicates keep predicate derivation separate from the subject-number dyad:
+
+| Predicate pluralization | Predicate result | Subject-number forms |
+| --- | --- | --- |
+| `qui-ch` plain | unchanged `...-qui-ch` | `t-in` |
+| normal `quī/chī` internal plural | `...-quī-n` / `...-chī-n` | `t-in` or square-zero dyad |
+| explicitly authorized plain `c/ch` variant | unchanged `...-c` / `...-ch` | `t-in` |
+| explicitly authorized plain full-form variant | unchanged typed matrix | Canvas-witnessed `m-eh` |
+
+Engine rule: the matrix family, exact matrix form, predicate-pluralization selection, and allowed subject-number dyads belong to one typed Lesson 16 record. A visible source spelling or formula cannot select another allomorph. Selecting an exact form that differs from the Source stem leaves a visible Source-edit requirement; the engine must not silently manufacture the new stem.
 
 ## Other NNC Search Evidence
 
@@ -260,14 +283,14 @@ Additional `Other Adverbialized Absolutive-State NNCs` heading hits: printed p. 
 
 `printed 294 / PDF 309`:
 
-NNC side: these rows keep possessive-state material such as `+n-o` and `+i-m` before the parenthesized predicate stem, and keep subject-number connectors such as `hu-an`, `0-[sq0]`, `t-in`, and `tli-0` outside the predicate stem. Stem-internal material includes child/kin stems plus plural, diminutive, reverential, and gendered compounds; no VNC tense slot is present. These p. 294 rows feed the scoped Lesson 32 `pil` child/noble NNC-side output generator through the Nawat/Pipil orthography bridge and are available to the ordinary CNN route only by explicit `ordinaryNnc.outputSet = "lesson32-pil-child-nnc-side"` opt-in, without changing the default ordinary NNC generation gate.
+NNC side: these rows keep possessive-state material such as `+n-o` and `+ī-m` before the parenthesized predicate stem, and keep subject-number connectors such as `hu-ān`, `0-[sq0]`, `t-in`, and `tli-0` outside the predicate stem. Stem-internal material includes child/kin stems plus plural, diminutive, reverential, and gendered compounds; no VNC tense slot is present. These p. 294 rows feed the scoped Lesson 32 `pil` child/noble NNC-side output generator through the Nawat/Pipil orthography bridge and are available to the ordinary CNN route only by explicit `ordinaryNnc.outputSet = "lesson32-pil-child-nnc-side"` opt-in, without changing the default ordinary NNC generation gate.
 
 | Formula |
 | --- |
-| `#an-0+n-o(pil)hu-an#` |
-| `#0-0+n-o(pil-hu-an-tzi-tzin)hu-an#` |
-| `#0-0+n-o(pil-hu-an-tzi-tzin)0-[sq0]#` |
-| `#0-0+i-m(pih-pil-hu-an-tzi-tzin)0-[sq0]#` |
+| `#an-0+n-o(pil)hu-ān#` |
+| `#0-0+n-o(pil-hu-ān-tzi-tzin)hu-ān#` |
+| `#0-0+n-o(pil-hu-ān-tzi-tzin)0-[sq0]#` |
+| `#0-0+ī-m(pih-pil-hu-ān-tzi-tzin)0-[sq0]#` |
 | `#0-0(pi-pil)t-in#` |
 | `#0-0(oquich-pi-pil)t-in#` |
 | `#0-0(cihua-pi-pil)t-in#` |

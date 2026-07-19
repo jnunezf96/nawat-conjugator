@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/clause/adverbial/adverbial.js
+ * Tests for src/core/clause/adverbial/adverbial.mjs
  */
 
 const { createSuite } = require("./runner");

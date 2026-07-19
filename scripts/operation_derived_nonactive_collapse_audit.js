@@ -4,8 +4,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
 const REPORT_JSON_PATH = path.join(ROOT, "reports", "operation_derived_nonactive_collapse_audit.json");
@@ -31,11 +30,6 @@ const STATIC_LOADERS = [
   ["applyStaticSuppletivePaths", "static_suppletive_paths.json"],
 ];
 
-const EXTRA_RUNTIME_FILES = [
-  path.join(ROOT, "pret_universal_context.js"),
-  path.join(ROOT, "pret_universal_engine.js"),
-];
-
 const CANONICAL_LEXICON_PATH = path.join(ROOT, "data", "basic-data.csv");
 const SCAN_LEXICON_FILES = [
   path.join(ROOT, "data", "basic-data.csv"),
@@ -57,30 +51,25 @@ function loadStaticData(context) {
   });
 }
 
-function loadExtraRuntimeFiles(context) {
-  EXTRA_RUNTIME_FILES.forEach((filePath) => {
-    vm.runInContext(
-      fs.readFileSync(filePath, "utf8"),
-      context,
-      { filename: filePath },
-    );
-  });
-}
-
 function loadCanonicalLexicon(context) {
   const canonicalCsv = fs.readFileSync(CANONICAL_LEXICON_PATH, "utf8");
-  context.__CANONICAL_LEXICON_TEXT__ = canonicalCsv;
-  vm.runInContext(
-    `
-      VERB_DISAMBIGUATION_BASE_INFO = buildVerbBaseInfo(parseVerbLexiconCSV(__CANONICAL_LEXICON_TEXT__));
-      BASIC_DATA_CANONICAL_MAP = buildCanonicalVerbMapFromCSV(__CANONICAL_LEXICON_TEXT__);
-      if (typeof resetDerivationalLookupCaches === "function") {
-        resetDerivationalLookupCaches();
-      }
-    `,
-    context,
+  if (
+    typeof context.parseVerbLexiconCSV !== "function"
+    || typeof context.buildVerbBaseInfo !== "function"
+    || typeof context.buildCanonicalVerbMapFromCSV !== "function"
+  ) {
+    throw new Error("Canonical lexicon builders are unavailable");
+  }
+  // Preserve this audit's historical setup: it populated the uppercase
+  // diagnostic binding, while parsing authority continued to use the runtime's
+  // ordinary VerbDisambiguationBaseInfo state.
+  context.VERB_DISAMBIGUATION_BASE_INFO = context.buildVerbBaseInfo(
+    context.parseVerbLexiconCSV(canonicalCsv),
   );
-  delete context.__CANONICAL_LEXICON_TEXT__;
+  context.BASIC_DATA_CANONICAL_MAP = context.buildCanonicalVerbMapFromCSV(canonicalCsv);
+  if (typeof context.resetDerivationalLookupCaches === "function") {
+    context.resetDerivationalLookupCaches();
+  }
 }
 
 function loadLexiconRows(context) {
@@ -442,8 +431,8 @@ function buildMarkdownReport(report) {
   ].join("\n");
 }
 
-function main() {
-  const { context } = createVmContext({
+async function main() {
+  const { context } = await createModuleRuntime({
     rootDir: ROOT,
     extraGlobals: {
       Event: function Event() {},
@@ -451,7 +440,6 @@ function main() {
   });
 
   loadStaticData(context);
-  loadExtraRuntimeFiles(context);
   loadCanonicalLexicon(context);
 
   const rows = loadLexiconRows(context);
@@ -515,4 +503,8 @@ function main() {
   console.log(`  No forward derivation: ${summary.no_forward}`);
 }
 
-main();
+main().catch((error) => {
+  const message = error && error.stack ? error.stack : String(error);
+  process.stderr.write(`${message}\n`);
+  process.exitCode = 1;
+});

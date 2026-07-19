@@ -57,7 +57,7 @@ function run() {
                 "function formatVisibleLcmDiagnosticLabel() {}",
             ].join("\n"),
             exportSource: "const headers = [\"ruta LCM\", \"diagnóstico LCM\"];",
-        }).join("\n").includes("src/ui/export/export.js export visible LCM header")
+        }).join("\n").includes("src/ui/export/export.mjs export visible LCM header")
     );
     s.ok(
         "visible Spanish UI validator checks all static Spanish label sources",
@@ -151,7 +151,7 @@ function run() {
                 "function formatVisibleLcmDiagnosticLabel() {}",
             ].join("\n"),
             stateSource: 'statusEl.textContent = "Partícula · diagnóstico Andrews; no genera VNC/CNN.";',
-        }).join("\n").includes("src/ui/state.js dynamic particle route shorthand")
+        }).join("\n").includes("src/ui/state.mjs dynamic particle route shorthand")
     );
     s.ok(
         "visible Spanish UI validator checks inline composer generated labels",
@@ -202,7 +202,7 @@ function run() {
                 "return `Regex: disponible si el tronco inicia con i/y.`;",
                 "const title = 'Regex activo';",
             ].join("\n"),
-        }).join("\n").includes("src/ui/composer/composer.js dynamic pattern guidance")
+        }).join("\n").includes("src/ui/composer/composer.mjs dynamic pattern guidance")
     );
     s.ok(
         "visible Spanish UI validator requires dynamic LCM Spanish translators",

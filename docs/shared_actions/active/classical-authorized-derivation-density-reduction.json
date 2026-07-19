@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-authorized-derivation-density-reduction",
+  "status": "complete",
+  "incentive": {
+    "id": "compact-readable-result-with-typed-authority-intact",
+    "statement": "Make the Classical #3 authorized derivation readable at a glance while preserving canonical Andrews authority and optional access to nonduplicative proof.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate summary hierarchy, progressive proof disclosure, focused tests, and live proof without moving grammar construction into the renderer.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "The Canvas / Andrews route exposes five essential result facts by default and keeps detailed proof in three closed disclosures.",
+  "responsibilities": [
+    {
+      "id": "presentation",
+      "statement": "Own summary hierarchy and disclosure composition without deriving grammar facts.",
+      "paths": ["src/ui/", "style.css", "index.html"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Render the five application-projected facts and organize existing proof into three closed disclosures."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-authority",
+      "statement": "Keep the canonical derivation explanation projection and all grammar decisions application-owned.",
+      "paths": ["src/application/", "src/core/", "src/runtime/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve the current validated projection and fail-closed admission contract."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove compact defaults, disclosure availability, authority separation, and responsive behavior.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Add focused UI assertions and perform desktop and narrow live proof."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the target, board, shared action, and alignment evidence synchronized.",
+      "paths": [".gitignore", "AGENTS.md", "docs/", "config/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Record the density target and closure evidence without treating it as a lesson handoff."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-application-control-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "all-derivation-proof-expanded-by-default", "status": "complete", "removalEvidence": "The default renders five summary fields and three closed details elements; live computed styles report every disclosure body as display none with zero height."},
+    {"id": "duplicated-visible-derivation-summaries", "status": "complete", "removalEvidence": "The explanatory lede, duplicate source contract and formation identity reading rows, and generic broader-dimensions block no longer render; result-specific proof remains in the three disclosures."}
+  ],
+  "evidence": [
+    {"kind": "focused-ui", "command": "node scripts/run_tests.js --filter=ui", "result": "385/385 passed, including five default fields, three closed disclosures, and common-style preservation"},
+    {"kind": "live-default", "result": "Applicative xeloa to xelo-ia authorized Nimitzxeloih.; the default showed only route, Type 1 applicative with Andrews 26.2, valence/object-depth change, Andrews rule authorization, witness status, and three disclosure titles."},
+    {"kind": "live-disclosure", "result": "All three bodies computed to display none and zero height while closed. Formation and source analysis opened as a grid with three typed sections and closed again."},
+    {"kind": "live-desktop", "result": "The authorized explainer measured 873 by 370 pixels with five summary fields and zero horizontal overflow."},
+    {"kind": "live-responsive", "result": "Phone-width Result measured a 380-pixel root and 360 by 467 explainer, one-column facts, all three bodies closed, and zero page, root, or explainer overflow."},
+    {"kind": "alignment", "command": "npm run audit:alignment", "result": "ALIGNED with no renderer construction, optional dependency, contract, browser-script, or tracked-report regression"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "src/ui/rendering/rendering.mjs:createClassicalVncDerivationExplanationSection"
+  }
+}

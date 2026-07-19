@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/particles/particles.js.
+// Canonical modern ESM module.
 
 export function createParticlesApi(targetObject = globalThis) {
     const PARTICLE_METADATA_VERSION = 1;

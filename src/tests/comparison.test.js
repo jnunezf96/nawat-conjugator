@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/comparison/comparison.js
+ * Tests for src/core/comparison/comparison.mjs
  */
 
 const { createSuite } = require("./runner");

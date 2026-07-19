@@ -1,4 +1,4 @@
-// Native wrapper generated from src/ui/export/export.js.
+// Canonical modern ESM module.
 
 export function createUiExportApi(targetObject = globalThis) {
     function escapeCSVValue(value) {

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/nominalization/nominalization.js.
+// Canonical modern ESM module.
 
 export function createNominalizationBoundaryModule(targetObject = globalThis) {
     const NOMINALIZATION_BOUNDARY_VERSION = 1;

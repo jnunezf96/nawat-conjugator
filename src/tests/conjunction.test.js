@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/clause/conjunction/conjunction.js
+ * Tests for src/core/clause/conjunction/conjunction.mjs
  */
 
 const { createSuite } = require("./runner");

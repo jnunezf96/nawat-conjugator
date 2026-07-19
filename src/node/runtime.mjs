@@ -4,7 +4,6 @@ import { fileURLToPath } from "url";
 
 import { installRuntimeBridge } from "../bootstrap/runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "../bootstrap/runtime_config.mjs";
-import { VM_SCRIPT_PATHS } from "../bootstrap/runtime_paths.mjs";
 import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs";
 
 const noop = () => {};
@@ -119,9 +118,6 @@ const DEFAULT_ROOT = path.resolve(__dirname, "../..");
 
 export async function createModuleRuntime({
     rootDir = DEFAULT_ROOT,
-    scriptPath = path.join(rootDir, "script.js"),
-    loadScript = true,
-    loadPreteritModules = true,
     extraGlobals = {},
 } = {}) {
     const fakeElement = createFakeElement();
@@ -138,6 +134,7 @@ export async function createModuleRuntime({
             createObjectURL: () => "",
             revokeObjectURL: noop,
         },
+        URLSearchParams,
         Blob: function Blob() {},
         Event: function Event(type) {
             this.type = type;
@@ -174,15 +171,11 @@ export async function createModuleRuntime({
         mode: "node-module-runtime",
         createModuleRuntime,
         runtimeConfig,
-        scriptPath,
-        scriptPaths: [...VM_SCRIPT_PATHS],
         esmPreloads: runtimeInstance.loadedModules,
         moduleRuntimeMode: "direct-import",
         scriptExecutionDisabled: true,
-        loadScriptRequested: loadScript,
-        loadPreteritModulesRequested: loadPreteritModules,
     };
     installRuntimeBridge(context, runtimeDescriptor);
     installRuntimeBridge(windowObject, runtimeDescriptor);
-    return { context, document: documentObject, windowObject, scriptPath };
+    return { context, document: documentObject, windowObject };
 }

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-lessons24-25-complete-example-generation",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-authority-with-complete-lessons24-25-execution",
+    "statement": "Preserve Andrews authority, typed source and target structure, hostile proof, single-runtime integrity, and browser verification while making every source-bearing Lesson 24-25 example executable through its actual grammar layer.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate stem formation, source voice, participant routing, later Canvas finalizers, presentation, and verification without turning Canvas targets into an expected-string authority table.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Every Lesson 24-25 source/result example is reproduced by a typed operation appropriate to its layer; formerly result-only records use explicit evidence-labeled typed source reconstructions and never target-string authority.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Own productive and exact Lesson 24-25 causative formation, source analysis, participant transformations, ambiguity, and canonical validation.",
+      "paths": ["src/core/classical/", "src/core/grammar/", "docs/CLASSICAL_"],
+      "primaryActor": "classical-causative-engine",
+      "actors": [{"actorId": "classical-causative-engine", "kind": "primary", "status": "active", "contribution": "Close reusable rule gaps and add only bounded Andrews lexical overlays for unpredictable printed formations."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Execute selected formation, source voice, object routing, and later finalization in canonical order.",
+      "paths": ["src/application/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve typed selection and distinguish source voice from later target voice."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Expose genuine generated choices and layer ownership without constructing morphology.",
+      "paths": ["src/ui/", "index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Render canonical options and precise blocked reasons for source-less evidence."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Keep all capabilities in the canonical modern ESM graph.",
+      "paths": ["src/runtime/", "src/node/", "src/bootstrap/", "scripts/check_runtime_manifest.js"],
+      "primaryActor": "runtime-delivery",
+      "actors": [{"actorId": "runtime-delivery", "kind": "primary", "status": "active", "contribution": "Preserve one runtime lane and installer-manifest parity."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Maintain a section-indexed exhaustive coverage ledger and prove generated structure rather than expected-string lookup.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Classify every Canvas example by layer, add hostile coverage, and report exact gaps."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep target, board, shared action, evidence tags, alignment evidence, and closure state current.",
+      "paths": ["docs/CODEX_BOARD.md", "docs/CURRENT_TARGET.md", "docs/shared_actions/", "docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json", "config/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Prevent the earlier four-witness audit from serving as exhaustive completion proof."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-source-analysis", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derivation-option-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derivation-operation-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derived-machinery-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-finite-surface-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-lesson25-13-alternative-source-projection-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-lessons24-25-canvas-citation-projection-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-lessons24-25-canvas-citation-projection-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-lessons24-25-canvas-schematic-citation-possibility-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-lesson25-mood-transformation-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "four-witness-canvas-audit-as-lessons24-25-completion-proof", "status": "complete", "removalEvidence": "The exhaustive catalog proves 225/225 positive records exact and 2/2 negative constraints absent across all owning layers, with zero mismatches, missing records, or policy violations."},
+    {"id": "canvas-target-string-as-generation-proof", "status": "complete", "removalEvidence": "The audit first enumerates canonical signed possibilities into a generated-relation index. Printed targets only query that finished index; forged targets, source strings, and section labels cannot alter or authorize output."}
+  ],
+  "evidence": [
+    {
+      "id": "complete-canvas-catalog",
+      "result": "All 227 catalog rows are classified: 225 positive rows reproduce their complete printed source and result exactly, and both negative rows independently prove their forbidden routes absent. Counts are 0 surface mismatches, 0 missing, and 0 policy violations."
+    },
+    {
+      "id": "typed-layer-ownership",
+      "result": "Coverage is rebuilt by stem, perfective, valence, nonactive, VNC reading, VNC, ambiguity, mood, voice, stock, coalescence, synonym, and supplementation owners. The §25.13 quantity reading is a signed alternative-source projection and cannot mutate ordinary §25.12 generation."
+    },
+    {
+      "id": "source-reconstruction-boundary",
+      "result": "The five source-unprinted records are explicitly Andrews-implied, Andrews-presupposed, or compositionally reconstructed. No result string supplies a source, option id, participant profile, or finalizer."
+    },
+    {
+      "id": "shared-index-handoff-audit",
+      "result": "The exhaustive audit maps 227 evidence rows to 213 target-free generation keys, builds each canonical source/profile inventory into a shared generated-relation index, matches all Canvas rows only after generation, reports per-layer timing, and is reserved for lesson handoff. Ordinary tests keep representative and hostile checks."
+    },
+    {
+      "id": "fresh-browser-participant-proof",
+      "result": "A fresh-origin run of iuc-ci exposes Type 1 and Type 2, requires object type before relation, authorizes Tlaucxitia. and Quiucxitia. with exact formulas, resets relation when Change resets the object, preserves Linear/Diagram structure, and reports zero browser logs."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "scripts/classical_lessons24_25_canvas_catalog.js plus src/core/classical/vnc_derivation_evaluator.mjs"
+  }
+}

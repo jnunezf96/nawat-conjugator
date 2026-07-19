@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/output/provenance.js.
+// Canonical modern ESM module.
 
 export function createOutputProvenanceGlobals(targetObject = globalThis) {
     var OUTPUT_PROVENANCE_STEM_ANDREWS_REFS = Object.freeze(["Andrews Lesson 7 7.1-7.5"]);

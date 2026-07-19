@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/particles/particles.js
+ * Tests for src/core/particles/particles.mjs
  */
 
 const { createSuite } = require("./runner");

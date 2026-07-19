@@ -1,6 +1,6 @@
-// Native wrapper generated from src/core/derivation/source_model.js.
+// Canonical modern ESM module.
 
-export function createDerivationSourceModelModule(targetObject = globalThis) {
+export function createDerivationSourceModelContext(targetObject = globalThis) {
     function buildNonactiveSourceChain(verbMeta, verb, analysisVerb) {
       const model = buildDerivationSourceModel(verbMeta, verb, analysisVerb);
       const outerPieces = Array.isArray(model?.outerPieces) ? model.outerPieces : [];
@@ -88,6 +88,28 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         return "";
       }
       return [frame.selectedVariant?.surface, frame.formulaRealizationRecord?.surface, ...(Array.isArray(frame.formulaRealizationRecord?.surfaceForms) ? frame.formulaRealizationRecord.surfaceForms : [])].map(normalizeTypedDerivationContinuationSurface).find(Boolean) || "";
+    }
+    function getTypedDerivationContinuationFramePredicateStem(frame = null) {
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
+        return "";
+      }
+      const slots = frame.formulaSlots && typeof frame.formulaSlots === "object" ? frame.formulaSlots : frame.formulaRecord?.formulaSlots && typeof frame.formulaRecord.formulaSlots === "object" ? frame.formulaRecord.formulaSlots : {};
+      const predicateSlot = slots.predicateStem || slots.predicate || {};
+      const predicateStem = normalizeTypedDerivationContinuationSurface(predicateSlot.stem || predicateSlot.value || predicateSlot.surface || "");
+      return predicateStem || getTypedDerivationContinuationFrameSurface(frame);
+    }
+    function getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(frame = null) {
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
+        return "";
+      }
+      const slots = frame.formulaSlots && typeof frame.formulaSlots === "object" ? frame.formulaSlots : frame.formulaRecord?.formulaSlots && typeof frame.formulaRecord.formulaSlots === "object" ? frame.formulaRecord.formulaSlots : {};
+      const predicateSlot = slots.predicateStem || slots.predicate || {};
+      const predicateStem = getTypedDerivationContinuationFramePredicateStem(frame);
+      const predicateState = String(predicateSlot.state || predicateSlot.stateSlot?.state || frame.nominalizationProfile?.predicateState?.value || "").trim();
+      if (!predicateStem) {
+        return "";
+      }
+      return predicateState === "possessive" || predicateStem.endsWith("ka") ? predicateStem : `${predicateStem}ka`;
     }
     function buildActiveActionCompoundEmbedTargetContinuationFrame({
       sourceContinuationFrame = null,
@@ -726,12 +748,16 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     function isCurrentRegexDerivationSourceParseTree(value = null) {
       return Boolean(value && typeof value === "object" && value.kind === "current-regex-derivation-source-parse-tree" && value.coreFrame && typeof value.coreFrame === "object");
     }
-    function buildCurrentRegexDerivationSourceParseTree(rawValue = "") {
-      const raw = targetObject.serializeRegexInputValue(String(rawValue || "").trim());
+    function buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame(rawValue = "", currentRegexParseOperationFrame = null) {
+      const raw = String(rawValue || "").trim();
       if (!raw) {
         return null;
       }
-      const movingTargetParsed = targetObject.parseMovingTargetRegexInput(raw);
+      const parseFrameMismatch = targetObject.getCurrentRegexParseOperationMismatch(raw, currentRegexParseOperationFrame);
+      if (parseFrameMismatch) {
+        return null;
+      }
+      const movingTargetParsed = targetObject.buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
       if (!movingTargetParsed || movingTargetParsed.isValid !== true) {
         return null;
       }
@@ -764,7 +790,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         kind: "current-regex-derivation-source-parse-tree",
         version: 1,
         parseLanguage: "current-regex",
-        rawRegex: raw,
+        rawRegex: String(currentRegexParseOperationFrame?.targetFrame?.regexValue || raw),
+        currentRegexParseOperationFrame,
+        currentRegexParseTargetSignature: currentRegexParseOperationFrame?.targetSignature || "",
         transitivity: movingTargetParsed.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
         outerPieces: Object.freeze(outerPieces.map(piece => Object.freeze({
           kind: "derivation-source-outer-piece",
@@ -790,6 +818,14 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           inlineTiCausativeClass: String(inline.tiCausativeClass || "")
         })
       });
+    }
+    function buildCurrentRegexDerivationSourceParseTree(rawValue = "") {
+      const raw = String(rawValue || "").trim();
+      if (!raw) {
+        return null;
+      }
+      const currentRegexParseOperationFrame = targetObject.buildCurrentRegexParseOperationFrameFromRawInput(raw);
+      return buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame(raw, currentRegexParseOperationFrame);
     }
     function normalizeCurrentRegexDerivationSourceParseTree(value = null) {
       if (!isCurrentRegexDerivationSourceParseTree(value)) {
@@ -825,25 +861,148 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         }
       };
     }
-    function buildCurrentRegexDerivationSourceModel(rawValue = "") {
-      const parseTree = isCurrentRegexDerivationSourceParseTree(rawValue) ? normalizeCurrentRegexDerivationSourceParseTree(rawValue) : buildCurrentRegexDerivationSourceParseTree(rawValue);
-      if (!parseTree) {
+    function getCurrentRegexDerivationSourceModelSignature(parseTree = null) {
+      const normalizedTree = normalizeCurrentRegexDerivationSourceParseTree(parseTree);
+      if (!normalizedTree) {
+        return "";
+      }
+      const coreFrame = normalizedTree.coreFrame || {};
+      return JSON.stringify({
+        parseLanguage: "current-regex",
+        transitivity: normalizedTree.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: (Array.isArray(normalizedTree.outerPieces) ? normalizedTree.outerPieces : []).map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        corePrefixParts: (Array.isArray(coreFrame.corePrefixParts) ? coreFrame.corePrefixParts : []).map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        supportiveMarker: String(coreFrame.supportiveMarker || ""),
+        adjacentCoreEmbed: targetObject.normalizeRuleBase(coreFrame.adjacentCoreEmbed || ""),
+        matrixBase: targetObject.normalizeRuleBase(coreFrame.matrixBase || "")
+      });
+    }
+    function buildCurrentRegexDerivationSourceModelTargetFrame(parseTree = null) {
+      const normalizedTree = normalizeCurrentRegexDerivationSourceParseTree(parseTree);
+      if (!normalizedTree) {
         return null;
       }
-      const coreFrame = parseTree.coreFrame || {};
+      const coreFrame = normalizedTree.coreFrame || {};
+      const matrixBase = targetObject.normalizeRuleBase(coreFrame.matrixBase || "");
+      if (!matrixBase) {
+        return null;
+      }
+      const outerPieces = (Array.isArray(normalizedTree.outerPieces) ? normalizedTree.outerPieces : []).map(piece => Object.freeze({
+        kind: "current-regex-source-model-outer-piece-target-frame",
+        type: String(piece.type || ""),
+        value: targetObject.normalizeRuleBase(piece.value || "")
+      })).filter(piece => piece.type && piece.value);
+      const corePrefixParts = (Array.isArray(coreFrame.corePrefixParts) ? coreFrame.corePrefixParts : []).map(piece => Object.freeze({
+        kind: "current-regex-source-model-core-prefix-target-frame",
+        type: String(piece.type || ""),
+        value: targetObject.normalizeRuleBase(piece.value || "")
+      })).filter(piece => piece.type && piece.value);
+      const targetFrame = {
+        kind: "current-regex-derivation-source-model-target-frame",
+        sourceSignature: getCurrentRegexDerivationSourceModelSignature(normalizedTree),
+        parseLanguage: "current-regex",
+        transitivity: normalizedTree.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: Object.freeze(outerPieces),
+        corePrefixParts: Object.freeze(corePrefixParts),
+        supportiveMarker: String(coreFrame.supportiveMarker || ""),
+        adjacentCoreEmbed: targetObject.normalizeRuleBase(coreFrame.adjacentCoreEmbed || ""),
+        matrixBase
+      };
+      targetFrame.targetSignature = JSON.stringify({
+        sourceSignature: targetFrame.sourceSignature,
+        parseLanguage: targetFrame.parseLanguage,
+        transitivity: targetFrame.transitivity,
+        outerPieces: outerPieces.map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        corePrefixParts: corePrefixParts.map(piece => ({
+          type: piece.type,
+          value: piece.value
+        })),
+        supportiveMarker: targetFrame.supportiveMarker,
+        adjacentCoreEmbed: targetFrame.adjacentCoreEmbed,
+        matrixBase: targetFrame.matrixBase
+      });
+      return Object.freeze(targetFrame);
+    }
+    function buildCurrentRegexDerivationSourceModelOperationFrame(parseTree = null) {
+      const normalizedTree = normalizeCurrentRegexDerivationSourceParseTree(parseTree);
+      const targetFrame = buildCurrentRegexDerivationSourceModelTargetFrame(normalizedTree);
+      if (!normalizedTree || !targetFrame) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-current-regex-derivation-source-model",
+        routeFamily: "derivation-source-model",
+        routeStage: "current-regex-source-model",
+        operationApplied: "current-regex-parse-tree-to-source-model",
+        sourceFrameKind: normalizedTree.kind,
+        sourceSignature: getCurrentRegexDerivationSourceModelSignature(normalizedTree),
+        targetFrame,
+        targetSignature: targetFrame.targetSignature,
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getCurrentRegexDerivationSourceModelOperationMismatch({
+      parseTree = null,
+      operationFrame = null
+    } = {}) {
+      const normalizedTree = normalizeCurrentRegexDerivationSourceParseTree(parseTree);
+      if (!normalizedTree) {
+        return "current-regex-source-parse-tree-required";
+      }
+      const expectedSourceSignature = getCurrentRegexDerivationSourceModelSignature(normalizedTree);
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-current-regex-derivation-source-model" || operationFrame.routeFamily !== "derivation-source-model" || operationFrame.routeStage !== "current-regex-source-model" || operationFrame.operationApplied !== "current-regex-parse-tree-to-source-model" || operationFrame.sourceFrameKind !== normalizedTree.kind || operationFrame.sourceSignature !== expectedSourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "current-regex-source-model-operation-frame-required";
+      }
+      const expectedTargetFrame = buildCurrentRegexDerivationSourceModelTargetFrame(normalizedTree);
+      const targetFrame = operationFrame.targetFrame || null;
+      if (!expectedTargetFrame || !targetFrame || targetFrame.kind !== expectedTargetFrame.kind || targetFrame.sourceSignature !== expectedTargetFrame.sourceSignature || targetFrame.parseLanguage !== expectedTargetFrame.parseLanguage || targetFrame.transitivity !== expectedTargetFrame.transitivity || targetFrame.supportiveMarker !== expectedTargetFrame.supportiveMarker || targetFrame.adjacentCoreEmbed !== expectedTargetFrame.adjacentCoreEmbed || targetFrame.matrixBase !== expectedTargetFrame.matrixBase || targetFrame.targetSignature !== expectedTargetFrame.targetSignature || operationFrame.targetSignature !== expectedTargetFrame.targetSignature) {
+        return "current-regex-source-model-contradictory-target-frame";
+      }
+      return "";
+    }
+    function buildCurrentRegexDerivationSourceModel(rawValue = "", options = {}) {
+      const parseTree = isCurrentRegexDerivationSourceParseTree(rawValue) ? normalizeCurrentRegexDerivationSourceParseTree(rawValue) : null;
+      const operationFrame = options?.operationFrame || null;
+      if (!parseTree || getCurrentRegexDerivationSourceModelOperationMismatch({
+        parseTree,
+        operationFrame
+      })) {
+        return null;
+      }
+      const targetFrame = operationFrame.targetFrame || {};
       return {
         sourceKind: "current-regex",
         parseLanguage: "current-regex",
         rawRegex: String(parseTree.rawRegex || "").trim(),
-        transitivity: parseTree.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
-        outerPieces: Array.isArray(parseTree.outerPieces) ? parseTree.outerPieces : [],
-        corePrefixParts: Array.isArray(coreFrame.corePrefixParts) ? coreFrame.corePrefixParts : [],
-        supportiveMarker: String(coreFrame.supportiveMarker || ""),
-        adjacentCoreEmbed: targetObject.normalizeRuleBase(coreFrame.adjacentCoreEmbed || ""),
-        matrixBase: targetObject.normalizeRuleBase(coreFrame.matrixBase || ""),
+        transitivity: targetFrame.transitivity || targetObject.COMPOSER_TRANSITIVITY.intransitive,
+        outerPieces: Array.isArray(targetFrame.outerPieces) ? targetFrame.outerPieces : [],
+        corePrefixParts: Array.isArray(targetFrame.corePrefixParts) ? targetFrame.corePrefixParts : [],
+        supportiveMarker: String(targetFrame.supportiveMarker || ""),
+        adjacentCoreEmbed: targetObject.normalizeRuleBase(targetFrame.adjacentCoreEmbed || ""),
+        matrixBase: targetObject.normalizeRuleBase(targetFrame.matrixBase || ""),
         sourceParseTree: parseTree,
-        parseTree
+        parseTree,
+        sourceModelOperationFrame: operationFrame,
+        operationFrame
       };
+    }
+    function buildCurrentRegexDerivationSourceModelFromParseTree(parseTree = null) {
+      const normalizedTree = normalizeCurrentRegexDerivationSourceParseTree(parseTree);
+      const operationFrame = buildCurrentRegexDerivationSourceModelOperationFrame(normalizedTree);
+      return buildCurrentRegexDerivationSourceModel(normalizedTree, {
+        operationFrame
+      });
     }
     function buildFallbackDerivationSourceModel(verbMeta = {}, verb = "", analysisVerb = "") {
       const meta = verbMeta || {};
@@ -925,10 +1084,11 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       const meta = verbMeta || {};
       const explicitCurrentRegexParseTree = normalizeCurrentRegexDerivationSourceParseTree(meta?.currentRegexSourceParseTree || meta?.sourceParseTree || meta?.canonical?.currentRegexSourceParseTree || null);
       if (explicitCurrentRegexParseTree) {
-        return buildCurrentRegexDerivationSourceModel(explicitCurrentRegexParseTree);
+        return buildCurrentRegexDerivationSourceModelFromParseTree(explicitCurrentRegexParseTree);
       }
       const rawRegexCandidate = String(meta?.sourceRawVerb || verb || "").trim();
-      const currentRegexModel = buildCurrentRegexDerivationSourceModel(rawRegexCandidate);
+      const currentRegexParseTree = buildCurrentRegexDerivationSourceParseTree(rawRegexCandidate);
+      const currentRegexModel = buildCurrentRegexDerivationSourceModelFromParseTree(currentRegexParseTree);
       if (currentRegexModel) {
         return currentRegexModel;
       }
@@ -951,7 +1111,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       boundPrefixes = [],
       boundExplicitFlags = []
     } = {}) {
-      const currentRegexModel = buildCurrentRegexDerivationSourceModel(sourceRawVerb || "");
+      const currentRegexParseTree = buildCurrentRegexDerivationSourceParseTree(sourceRawVerb || "");
+      const currentRegexModel = buildCurrentRegexDerivationSourceModelFromParseTree(currentRegexParseTree);
       if (currentRegexModel) {
         return getDerivationSourceOuterSurface(currentRegexModel);
       }
@@ -1772,19 +1933,143 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
     }
-    function buildPatientivoCompoundEmbedOperationFrame({
-      incorporatedRoot = "",
-      matrixSpec = null,
-      patientivoSurface = "",
-      sourceSurface = ""
-    } = {}) {
-      const normalizedIncorporatedRoot = String(incorporatedRoot || "").trim();
-      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
-      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
-      if (!normalizedIncorporatedRoot || !matrixRoot) {
+    function getTypedPatientivoContinuationSourceFramePayload(frame = null) {
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
         return null;
       }
-      const targetStem = `${normalizedIncorporatedRoot}${matrixRoot}`;
+      const formulaRecord = frame.formulaRecord && typeof frame.formulaRecord === "object" ? frame.formulaRecord : null;
+      const formulaRealizationRecord = frame.formulaRealizationRecord && typeof frame.formulaRealizationRecord === "object" ? frame.formulaRealizationRecord : null;
+      const predicateSlot = formulaRecord?.formulaSlots?.predicateStem || frame.formulaSlots?.predicateStem || null;
+      const patientivoStem = String(predicateSlot?.stem || predicateSlot?.value || predicateSlot?.formulaValue || "").trim();
+      if (!formulaRecord?.id || !formulaRealizationRecord?.id || !patientivoStem) {
+        return null;
+      }
+      return {
+        patientivoStem,
+        formulaRecord,
+        formulaRealizationRecord,
+        selectedVariant: frame.selectedVariant && typeof frame.selectedVariant === "object" ? frame.selectedVariant : null
+      };
+    }
+    function buildPatientivoCompoundEmbedTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundVerbInput = ""
+    } = {}) {
+      const sourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetInput = String(compoundVerbInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !targetInput) {
+        return null;
+      }
+      const targetStem = `${sourceRoot}${matrixRoot}`;
+      const objectPrefix = matrix.matrixValency === "transitive" ? "ki" : "";
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "patientivo-nounstem-as-compound-vnc-embed",
+        operationFamily: "patientivo-compound-embed",
+        andrewsSection: "Andrews 39.6",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN patientive nounstem -> CNV compound verbstem embed",
+        embedRole: "compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "patientivo-compound-embed-target-frame",
+          generationAllowed: true,
+          grammarSource: "Andrews 39.6",
+          outputKind: "patientivo-compound-embed-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "compound-embed",
+            role: "embedded-patientive-nounstem",
+            token: sourceRoot,
+            root: sourceRoot,
+            sourceFrameId: String(sourcePayload.selectedVariant?.variantId || sourcePayload.formulaRealizationRecord.id || "").trim(),
+            sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "compound-matrix",
+            role: "verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim(),
+            objectPrefix
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "compound-verbstem",
+            stem: targetStem,
+            objectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valency: String(matrix.matrixValency || "").trim(),
+          objectPrefix,
+          grammarSource: "Andrews 39.6"
+        }),
+        targetFrame: Object.freeze({
+          kind: "patientivo-compound-embed-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          compoundVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPatientivoCompoundEmbedOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || "").trim();
+      const targetInput = String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      if (targetStem !== `${sourceRoot}${matrixRoot}`) {
+        return null;
+      }
       return Object.freeze({
         kind: "andrews-patientivo-compound-embed-operation-frame",
         version: 1,
@@ -1802,9 +2087,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFrame: Object.freeze({
           kind: "patientivo-compound-embed-source-frame",
           role: "compound-embed",
-          root: normalizedIncorporatedRoot,
-          sourceSurface: String(sourceSurface || "").trim(),
-          patientivoSurface: String(patientivoSurface || "").trim(),
+          root: sourceRoot,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourcePayload?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourcePayload?.formulaRealizationRecord?.id || ""),
           source: "generated-patientive-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -1822,10 +2108,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix: matrix.matrixValency === "transitive" ? "ki" : "",
-          displayInput: buildPatientivoCompoundEmbedVerbInput({
-            incorporatedRoot: normalizedIncorporatedRoot,
-            matrixRoot
-          })
+          displayInput: targetInput,
+          compoundVerbInput: targetInput,
+          targetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "patientivo-compound-embed",
@@ -1837,7 +2122,7 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           compoundEmbed: Object.freeze({
             slot: "compound-embed",
             role: "embedded-patientive-nounstem",
-            root: normalizedIncorporatedRoot
+            root: sourceRoot
           }),
           compoundMatrix: Object.freeze({
             slot: "compound-matrix",
@@ -1969,7 +2254,11 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     function buildNominalCompoundOrdinaryNncRequest({
       compoundStem = "",
       nounClass = "zero",
-      animacy = "inanimate"
+      animacy = "inanimate",
+      operationFrame = null,
+      sourceFrame = null,
+      targetFrame = null,
+      routeStage = "nominal-compound-continuation"
     } = {}) {
       const normalizedStem = String(compoundStem || "").trim();
       if (!normalizedStem) {
@@ -2001,7 +2290,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         },
         routeContract: {
           routeFamily: "ordinary-nnc",
-          routeStage: "nominal-compound-continuation",
+          routeStage: String(routeStage || "nominal-compound-continuation").trim() || "nominal-compound-continuation",
+          operationFrame: operationFrame && typeof operationFrame === "object" ? operationFrame : null,
+          sourceFrame: sourceFrame && typeof sourceFrame === "object" ? sourceFrame : null,
+          targetFrame: targetFrame && typeof targetFrame === "object" ? targetFrame : null,
           formulaSlots: {
             predicateStem: {
               role: "predicate",
@@ -2126,19 +2418,185 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
     }
-    function buildPatientivoCharacteristicPropertyEmbedOperationFrame({
-      embedSource = null,
-      matrixSpec = null,
-      characteristicSurface = "",
-      sourceSurface = ""
+    function getTypedCharacteristicPropertyEmbedSourcePayload(frame = null, {
+      possessorPrefix = ""
     } = {}) {
-      const sourceRoot = String(embedSource?.incorporatedRoot || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
+        return null;
+      }
+      const formulaRecord = frame.formulaRecord && typeof frame.formulaRecord === "object" ? frame.formulaRecord : null;
+      const formulaRealizationRecord = frame.formulaRealizationRecord && typeof frame.formulaRealizationRecord === "object" ? frame.formulaRealizationRecord : null;
+      const predicateSlot = formulaRecord?.formulaSlots?.predicateStem || frame.formulaSlots?.predicateStem || null;
+      const characteristicStem = String(predicateSlot?.stem || predicateSlot?.value || predicateSlot?.formulaValue || "").trim();
+      if (!formulaRecord?.id || !formulaRealizationRecord?.id || !characteristicStem) {
+        return null;
+      }
+      const embedSource = resolvePatientivoCharacteristicPropertyEmbedSource({
+        characteristicSurface: characteristicStem,
+        possessorPrefix
+      });
+      if (!embedSource?.incorporatedRoot) {
+        return {
+          characteristicStem,
+          formulaRecord,
+          formulaRealizationRecord,
+          selectedVariant: frame.selectedVariant && typeof frame.selectedVariant === "object" ? frame.selectedVariant : null,
+          embedSource
+        };
+      }
+      return {
+        characteristicStem,
+        formulaRecord,
+        formulaRealizationRecord,
+        selectedVariant: frame.selectedVariant && typeof frame.selectedVariant === "object" ? frame.selectedVariant : null,
+        embedSource
+      };
+    }
+    function buildPatientivoCharacteristicPropertyTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      embedSource = null,
+      compoundVerbInput = ""
+    } = {}) {
+      const sourcePayload = getTypedCharacteristicPropertyEmbedSourcePayload(sourceContinuationFrame, {
+        possessorPrefix: embedSource?.possessorPrefix || ""
+      });
+      if (!sourcePayload || !sourceContinuationFrame) {
+        return null;
+      }
+      const sourceRoot = String(sourcePayload?.embedSource?.incorporatedRoot || embedSource?.incorporatedRoot || "").trim();
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
-      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
-      if (!sourceRoot || !matrixRoot) {
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const objectPrefix = String(embedSource?.objectPrefix || "").trim();
+      const omittedSuffix = String(embedSource?.omittedSuffix || "").trim();
+      const targetInput = String(compoundVerbInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !objectPrefix || !targetInput || !omittedSuffix) {
         return null;
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "patientivo-characteristic-property-nounstem-as-incorporated-object",
+        operationFamily: "patientivo-characteristic-property-embed",
+        andrewsSection: "Andrews 39.9",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN characteristic-property nounstem -> CNV incorporated object",
+        embedRole: "incorporated-object",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        objectTransferRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "patientivo-characteristic-property-target-frame",
+          generationAllowed: true,
+          grammarSource: "Andrews 39.9",
+          outputKind: "patientivo-characteristic-property-embed-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "compound-embed",
+            role: "incorporated-object",
+            token: sourceRoot,
+            root: sourceRoot,
+            omittedSuffix,
+            sourceStem: String(sourcePayload.characteristicStem || ""),
+            sourceState: String(embedSource?.sourceState || ""),
+            sourceFrameId: String(sourcePayload.selectedVariant?.variantId || sourcePayload.formulaRealizationRecord.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "compound-matrix",
+            role: "verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim()
+          }),
+          outsideObject: Object.freeze({
+            slot: "obj1",
+            role: "outside-object",
+            originRole: String(embedSource?.sourceRole || ""),
+            prefix: objectPrefix,
+            line: String(embedSource?.objectTransfer?.objectLine || "mainline").trim(),
+            case: String(embedSource?.objectTransfer?.objectCase || "objective").trim()
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "compound-verbstem",
+            stem: targetStem,
+            objectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valency: String(matrix.matrixValency || "").trim(),
+          grammarSource: "Andrews 39.9"
+        }),
+        objectTransferFrame: embedSource?.objectTransfer && typeof embedSource.objectTransfer === "object" ? Object.freeze({
+          ...embedSource.objectTransfer
+        }) : null,
+        targetFrame: Object.freeze({
+          kind: "patientivo-characteristic-property-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          compoundVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix,
+          sourceState: String(embedSource?.sourceState || ""),
+          omittedSuffix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPatientivoCharacteristicPropertyEmbedOperationFrame({
+      embedSource = null,
+      matrixSpec = null,
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourcePayload = getTypedCharacteristicPropertyEmbedSourcePayload(sourceContinuationFrame, {
+        possessorPrefix: embedSource?.possessorPrefix || ""
+      });
+      if (!sourcePayload) {
+        return null;
+      }
+      const sourceRoot = String(sourcePayload?.embedSource?.incorporatedRoot || embedSource?.incorporatedRoot || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || "").trim();
+      const targetInput = String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      if (targetStem !== `${sourceRoot}${matrixRoot}`) {
+        return null;
+      }
       const objectPrefix = String(embedSource?.objectPrefix || "").trim();
       return Object.freeze({
         kind: "andrews-patientivo-characteristic-property-embed-operation-frame",
@@ -2160,8 +2618,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           root: sourceRoot,
           sourceState: String(embedSource?.sourceState || ""),
           sourceRole: String(embedSource?.sourceRole || ""),
-          characteristicSurface: String(characteristicSurface || "").trim(),
-          sourceSurface: String(sourceSurface || "").trim(),
+          characteristicStem: String(sourcePayload?.characteristicStem || ""),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourcePayload?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourcePayload?.formulaRealizationRecord?.id || ""),
           omittedSuffix: String(embedSource?.omittedSuffix || ""),
           possessorPrefix: String(embedSource?.possessorPrefix || ""),
           source: "generated-characteristic-property-nounstem"
@@ -2181,10 +2641,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix,
-          displayInput: buildPatientivoCharacteristicPropertyEmbedVerbInput({
-            incorporatedRoot: sourceRoot,
-            matrixRoot
-          })
+          displayInput: targetInput,
+          compoundVerbInput: targetInput,
+          targetInput
         }),
         objectTransferFrame: embedSource?.objectTransfer && typeof embedSource.objectTransfer === "object" ? Object.freeze({
           ...embedSource.objectTransfer
@@ -2462,6 +2921,454 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       return `${normalizedActionNominalSurface}${normalizedMatrixRoot}`;
     }
+    function buildActiveActionNominalCompoundTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundStem = "",
+      ordinaryNncInput = ""
+    } = {}) {
+      const sourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetStem = String(compoundStem || "").trim();
+      const targetInput = String(ordinaryNncInput || "").trim();
+      const nounClass = String(matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceSurface || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "active-action-nounstem-as-nominal-compound",
+        operationFamily: "active-action-nominal-compound",
+        andrewsSection: matrix.grammarSource || "Andrews 37.5.4",
+        sourceUnit: "CNN",
+        targetUnit: "NNC",
+        route: "CNN active-action nounstem -> NNC nominal compound stem",
+        embedRole: "nominal-compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "NNC",
+        targetUnit: "NNC",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "active-action-nominal-compound-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 37.5.4",
+          outputKind: "active-action-nominal-compound-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-active-action-nounstem",
+            token: sourceSurface,
+            root: sourceSurface,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            nounClass,
+            animacy
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem,
+            nounClass,
+            animacy
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          nounClass,
+          animacy,
+          grammarSource: String(matrix.grammarSource || "Andrews 37.5.4").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "active-action-nominal-compound-target-frame",
+          unit: "NNC",
+          targetUnit: "NNC",
+          stem: targetStem,
+          compoundStem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          targetInput,
+          displayInput: targetInput
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildActiveActionNominalCompoundOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || targetFrame.compoundStem || "").trim();
+      const targetInput = String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim();
+      const nounClass = String(targetFrame.nounClass || matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(targetFrame.animacy || matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceSurface || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const expectedStem = `${sourceSurface}${matrixRoot}`;
+      if (targetStem !== expectedStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-active-action-nominal-compound-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 37.5.4",
+        operationFrame: Object.freeze({
+          kind: "andrews-typed-operation-frame",
+          operationId: "active-action-nounstem-as-nominal-compound",
+          operationFamily: "active-action-nominal-compound",
+          sourceUnit: "CNN",
+          targetUnit: "NNC",
+          sourceFrameRequired: true,
+          matrixFrameRequired: true,
+          displayInputIsNotAuthority: true
+        }),
+        sourceFrame: Object.freeze({
+          kind: "active-action-nominal-compound-source-frame",
+          role: "nominal-compound-embed",
+          root: sourceSurface,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
+          source: "generated-active-action-nounstem"
+        }),
+        matrixFrame: Object.freeze({
+          kind: "active-action-nominal-compound-matrix-frame",
+          role: "nominal-compound-matrix",
+          type: "nominal",
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || ""),
+          nounClass: String(matrix.nounClass || ""),
+          animacy: String(matrix.animacy || ""),
+          supported: matrix.supported === true
+        }),
+        targetFrame: Object.freeze({
+          kind: "active-action-nominal-compound-target-frame",
+          unit: "NNC",
+          stem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          displayInput: targetInput
+        }),
+        routeContract: Object.freeze({
+          routeFamily: "active-action-nominal-compound",
+          routeStage: "typed-operation-frame",
+          grammarSource: "Andrews 37.5.4",
+          generationAllowed: true
+        }),
+        formulaSlots: Object.freeze({
+          compoundEmbed: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-active-action-nounstem",
+            root: sourceSurface
+          }),
+          compoundMatrix: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            nounClass: String(matrix.nounClass || ""),
+            animacy: String(matrix.animacy || "")
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem
+          })
+        })
+      });
+    }
+    function isActiveActionNominalCompoundOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-active-action-nominal-compound-operation-frame" && frame.operationFrame?.kind === "andrews-typed-operation-frame" && frame.sourceFrame?.root && frame.matrixFrame?.root && frame.targetFrame?.stem);
+    }
+    function buildActiveActionNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame = null) {
+      if (!isActiveActionNominalCompoundOperationFrame(operationFrame)) {
+        return {
+          supported: false,
+          diagnostics: ["active-action-nominal-compound-missing-typed-operation-frame"],
+          request: null
+        };
+      }
+      const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+      const nounClass = String(operationFrame.targetFrame.nounClass || "zero").trim() || "zero";
+      const animacy = String(operationFrame.targetFrame.animacy || "inanimate").trim() || "inanimate";
+      const request = buildNominalCompoundOrdinaryNncRequest({
+        compoundStem: targetStem,
+        nounClass,
+        animacy,
+        operationFrame,
+        sourceFrame: operationFrame.sourceFrame,
+        targetFrame: operationFrame.targetFrame,
+        routeStage: "active-action-nominal-compound-continuation"
+      });
+      return {
+        supported: Boolean(request),
+        diagnostics: request ? [] : ["active-action-nominal-compound-missing-nnc-request"],
+        request
+      };
+    }
+    function buildCustomaryAgentiveNominalCompoundTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundStem = "",
+      ordinaryNncInput = ""
+    } = {}) {
+      const sourceStem = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetStem = String(compoundStem || "").trim();
+      const targetInput = String(ordinaryNncInput || "").trim();
+      const nounClass = String(matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "customary-agentive-nounstem-as-nominal-compound",
+        operationFamily: "customary-agentive-nominal-compound",
+        andrewsSection: matrix.grammarSource || "Andrews 36.3",
+        sourceUnit: "CNN",
+        targetUnit: "NNC",
+        route: "CNN fully nominalized customary-agentive nounstem -> NNC nominal compound stem",
+        embedRole: "nominal-compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "NNC",
+        targetUnit: "NNC",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "customary-agentive-nominal-compound-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 36.3",
+          outputKind: "customary-agentive-nominal-compound-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-customary-agentive-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            nounClass,
+            animacy
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem,
+            nounClass,
+            animacy
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          nounClass,
+          animacy,
+          grammarSource: String(matrix.grammarSource || "Andrews 36.3").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "customary-agentive-nominal-compound-target-frame",
+          unit: "NNC",
+          targetUnit: "NNC",
+          stem: targetStem,
+          compoundStem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          targetInput,
+          displayInput: targetInput
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildCustomaryAgentiveNominalCompoundOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourceStem = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || targetFrame.compoundStem || "").trim();
+      const targetInput = String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim();
+      const nounClass = String(targetFrame.nounClass || matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(targetFrame.animacy || matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const expectedStem = `${sourceStem}${matrixRoot}`;
+      if (targetStem !== expectedStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-customary-agentive-nominal-compound-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 36.3",
+        operationFrame: Object.freeze({
+          kind: "andrews-typed-operation-frame",
+          operationId: "customary-agentive-nounstem-as-nominal-compound",
+          operationFamily: "customary-agentive-nominal-compound",
+          sourceUnit: "CNN",
+          targetUnit: "NNC",
+          sourceFrameRequired: true,
+          matrixFrameRequired: true,
+          displayInputIsNotAuthority: true
+        }),
+        sourceFrame: Object.freeze({
+          kind: "customary-agentive-nominal-compound-source-frame",
+          role: "nominal-compound-embed",
+          root: sourceStem,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
+          source: "generated-customary-agentive-nounstem"
+        }),
+        matrixFrame: Object.freeze({
+          kind: "customary-agentive-nominal-compound-matrix-frame",
+          role: "nominal-compound-matrix",
+          type: "nominal",
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || ""),
+          nounClass: String(matrix.nounClass || ""),
+          animacy: String(matrix.animacy || ""),
+          supported: matrix.supported === true
+        }),
+        targetFrame: Object.freeze({
+          kind: "customary-agentive-nominal-compound-target-frame",
+          unit: "NNC",
+          stem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          displayInput: targetInput
+        }),
+        routeContract: Object.freeze({
+          routeFamily: "customary-agentive-nominal-compound",
+          routeStage: "typed-operation-frame",
+          grammarSource: "Andrews 36.3",
+          generationAllowed: true
+        }),
+        formulaSlots: Object.freeze({
+          compoundEmbed: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-customary-agentive-nounstem",
+            root: sourceStem
+          }),
+          compoundMatrix: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            nounClass: String(matrix.nounClass || ""),
+            animacy: String(matrix.animacy || "")
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem
+          })
+        })
+      });
+    }
+    function isCustomaryAgentiveNominalCompoundOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-customary-agentive-nominal-compound-operation-frame" && frame.operationFrame?.kind === "andrews-typed-operation-frame" && frame.sourceFrame?.root && frame.matrixFrame?.root && frame.targetFrame?.stem);
+    }
+    function buildCustomaryAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame = null) {
+      if (!isCustomaryAgentiveNominalCompoundOperationFrame(operationFrame)) {
+        return {
+          supported: false,
+          diagnostics: ["customary-agentive-nominal-compound-missing-typed-operation-frame"],
+          request: null
+        };
+      }
+      const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+      const nounClass = String(operationFrame.targetFrame.nounClass || "zero").trim() || "zero";
+      const animacy = String(operationFrame.targetFrame.animacy || "inanimate").trim() || "inanimate";
+      const request = buildNominalCompoundOrdinaryNncRequest({
+        compoundStem: targetStem,
+        nounClass,
+        animacy,
+        operationFrame,
+        sourceFrame: operationFrame.sourceFrame,
+        targetFrame: operationFrame.targetFrame,
+        routeStage: "customary-agentive-nominal-compound-continuation"
+      });
+      return {
+        supported: Boolean(request),
+        diagnostics: request ? [] : ["customary-agentive-nominal-compound-missing-nnc-request"],
+        request
+      };
+    }
     function buildPreteritAgentiveCompoundEmbedVerbInput({
       preteritAgentiveStem = "",
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT
@@ -2475,11 +3382,111 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
     }
-    function buildPreteritAgentiveCompoundEmbedOperationFrame({
-      preteritAgentiveStem = "",
-      matrixSpec = null
+    function buildPreteritAgentiveCompoundEmbedTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundVerbInput = ""
     } = {}) {
-      const sourceRoot = String(preteritAgentiveStem || "").trim();
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const objectPrefix = matrix.matrixValency === "transitive" ? String(matrix.objectPrefix || "ki").trim() || "ki" : "";
+      const targetStem = sourceStem && matrixRoot ? `${sourceStem}${matrixRoot}` : "";
+      const targetInput = String(compoundVerbInput || "").trim();
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "preterit-agentive-nounstem-as-compound-embed",
+        operationFamily: "preterit-agentive-compound-embed",
+        andrewsSection: matrix.grammarSource || "Andrews 35.7",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN preterit-agentive general-use nounstem -> CNV compound verbstem",
+        embedRole: "compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "preterit-agentive-compound-embed-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.7",
+          outputKind: "preterit-agentive-compound-embed-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "compound-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "matrix-root",
+            role: "compound-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim()
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "compound-verbstem",
+            stem: targetStem,
+            objectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 35.7").trim(),
+          objectPrefix
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-compound-embed-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          compoundVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPreteritAgentiveCompoundEmbedOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourceRoot = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !matrixRoot) {
@@ -2487,6 +3494,17 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
       const objectPrefix = matrix.matrixValency === "transitive" ? String(matrix.objectPrefix || "ki").trim() || "ki" : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim();
+      const frameObjectPrefix = String(targetFrame.objectPrefix || "").trim();
+      const expectedDisplayInput = buildPreteritAgentiveCompoundEmbedVerbInput({
+        preteritAgentiveStem: sourceRoot,
+        matrixRoot
+      });
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || frameObjectPrefix !== objectPrefix) {
+        return null;
+      }
       return Object.freeze({
         kind: "andrews-preterit-agentive-compound-embed-operation-frame",
         version: 1,
@@ -2505,6 +3523,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           kind: "preterit-agentive-compound-embed-source-frame",
           role: "compound-embed",
           root: sourceRoot,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
           source: "generated-preterit-agentive-general-use-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -2522,10 +3543,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix,
-          displayInput: buildPreteritAgentiveCompoundEmbedVerbInput({
-            preteritAgentiveStem: sourceRoot,
-            matrixRoot
-          })
+          compoundVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "preterit-agentive-compound-embed",
@@ -2609,6 +3628,230 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       return `${normalizedPreteritAgentiveStem}${normalizedMatrixRoot}`;
     }
+    function buildPreteritAgentiveNominalCompoundTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundStem = "",
+      ordinaryNncInput = ""
+    } = {}) {
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetStem = String(compoundStem || "").trim();
+      const targetInput = String(ordinaryNncInput || "").trim();
+      const nounClass = String(matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "preterit-agentive-nounstem-as-nominal-compound",
+        operationFamily: "preterit-agentive-nominal-compound",
+        andrewsSection: matrix.grammarSource || "Andrews 35.7",
+        sourceUnit: "CNN",
+        targetUnit: "NNC",
+        route: "CNN preterit-agentive general-use nounstem -> NNC nominal compound stem",
+        embedRole: "nominal-compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "NNC",
+        targetUnit: "NNC",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "preterit-agentive-nominal-compound-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.7",
+          outputKind: "preterit-agentive-nominal-compound-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            nounClass,
+            animacy
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem,
+            nounClass,
+            animacy
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          nounClass,
+          animacy,
+          grammarSource: String(matrix.grammarSource || "Andrews 35.7").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-nominal-compound-target-frame",
+          unit: "NNC",
+          targetUnit: "NNC",
+          stem: targetStem,
+          compoundStem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          targetInput,
+          displayInput: targetInput
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPreteritAgentiveNominalCompoundOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || targetFrame.compoundStem || "").trim();
+      const targetInput = String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim();
+      const nounClass = String(targetFrame.nounClass || matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(targetFrame.animacy || matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const expectedStem = `${sourceStem}${matrixRoot}`;
+      if (targetStem !== expectedStem) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-preterit-agentive-nominal-compound-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 35.7",
+        operationFrame: Object.freeze({
+          kind: "andrews-typed-operation-frame",
+          operationId: "preterit-agentive-nounstem-as-nominal-compound",
+          operationFamily: "preterit-agentive-nominal-compound",
+          sourceUnit: "CNN",
+          targetUnit: "NNC",
+          sourceFrameRequired: true,
+          matrixFrameRequired: true,
+          displayInputIsNotAuthority: true
+        }),
+        sourceFrame: Object.freeze({
+          kind: "preterit-agentive-nominal-compound-source-frame",
+          role: "nominal-compound-embed",
+          root: sourceStem,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
+          source: "generated-preterit-agentive-general-use-nounstem"
+        }),
+        matrixFrame: Object.freeze({
+          kind: "preterit-agentive-nominal-compound-matrix-frame",
+          role: "nominal-compound-matrix",
+          type: "nominal",
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || ""),
+          nounClass: String(matrix.nounClass || ""),
+          animacy: String(matrix.animacy || ""),
+          supported: matrix.supported === true
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-nominal-compound-target-frame",
+          unit: "NNC",
+          stem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          displayInput: targetInput
+        }),
+        routeContract: Object.freeze({
+          routeFamily: "preterit-agentive-nominal-compound",
+          routeStage: "typed-operation-frame",
+          grammarSource: "Andrews 35.7",
+          generationAllowed: true
+        }),
+        formulaSlots: Object.freeze({
+          compoundEmbed: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            root: sourceStem
+          }),
+          compoundMatrix: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            nounClass: String(matrix.nounClass || ""),
+            animacy: String(matrix.animacy || "")
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem
+          })
+        })
+      });
+    }
+    function isPreteritAgentiveNominalCompoundOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-preterit-agentive-nominal-compound-operation-frame" && frame.operationFrame?.kind === "andrews-typed-operation-frame" && frame.sourceFrame?.root && frame.matrixFrame?.root && frame.targetFrame?.stem);
+    }
+    function buildPreteritAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame = null) {
+      if (!isPreteritAgentiveNominalCompoundOperationFrame(operationFrame)) {
+        return {
+          supported: false,
+          diagnostics: ["preterit-agentive-nominal-compound-missing-typed-operation-frame"],
+          request: null
+        };
+      }
+      const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+      const nounClass = String(operationFrame.targetFrame.nounClass || "zero").trim() || "zero";
+      const animacy = String(operationFrame.targetFrame.animacy || "inanimate").trim() || "inanimate";
+      const request = buildNominalCompoundOrdinaryNncRequest({
+        compoundStem: targetStem,
+        nounClass,
+        animacy,
+        operationFrame,
+        sourceFrame: operationFrame.sourceFrame,
+        targetFrame: operationFrame.targetFrame,
+        routeStage: "preterit-agentive-nominal-compound-continuation"
+      });
+      return {
+        supported: Boolean(request),
+        diagnostics: request ? [] : ["preterit-agentive-nominal-compound-missing-nnc-request"],
+        request
+      };
+    }
     function buildCustomaryAgentiveNominalCompoundStem({
       customaryAgentiveStem = "",
       matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
@@ -2634,12 +3877,113 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       const transitiveMarker = matrixSpec.matrixValency === "transitive" ? "-" : "";
       return `${transitiveMarker}(${normalizedCustomaryAgentiveStem}/${normalizedMatrixRoot})`;
     }
-    function buildCustomaryAgentiveCompoundEmbedOperationFrame({
-      customaryAgentiveStem = "",
+    function buildCustomaryAgentiveCompoundEmbedTargetContinuationFrame({
+      sourceContinuationFrame = null,
       matrixSpec = null,
+      objectPrefix = "",
+      compoundVerbInput = ""
+    } = {}) {
+      const sourceStem = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const resolvedObjectPrefix = matrix.matrixValency === "transitive" ? String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki" : "";
+      const targetStem = sourceStem && matrixRoot ? `${sourceStem}${matrixRoot}` : "";
+      const targetInput = String(compoundVerbInput || "").trim();
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "customary-agentive-nounstem-as-compound-embed",
+        operationFamily: "customary-agentive-compound-embed",
+        andrewsSection: matrix.grammarSource || "Andrews 36.3",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN fully nominalized customary-agentive nounstem -> CNV compound verbstem",
+        embedRole: "compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "customary-agentive-compound-embed-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 36.3",
+          outputKind: "customary-agentive-compound-embed-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "compound-embed",
+            role: "embedded-customary-agentive-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "matrix-root",
+            role: "compound-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim()
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "compound-verbstem",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 36.3").trim(),
+          objectPrefix: resolvedObjectPrefix
+        }),
+        targetFrame: Object.freeze({
+          kind: "customary-agentive-compound-embed-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          compoundVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix: resolvedObjectPrefix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildCustomaryAgentiveCompoundEmbedOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null,
       objectPrefix = ""
     } = {}) {
-      const sourceRoot = String(customaryAgentiveStem || "").trim();
+      const sourceRoot = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !matrixRoot) {
@@ -2647,6 +3991,17 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
       const resolvedObjectPrefix = matrix.matrixValency === "transitive" ? String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki" : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim();
+      const frameObjectPrefix = String(targetFrame.objectPrefix || "").trim();
+      const expectedDisplayInput = buildCustomaryAgentiveCompoundEmbedVerbInput({
+        customaryAgentiveStem: sourceRoot,
+        matrixRoot
+      });
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || frameObjectPrefix !== resolvedObjectPrefix) {
+        return null;
+      }
       return Object.freeze({
         kind: "andrews-customary-agentive-compound-embed-operation-frame",
         version: 1,
@@ -2665,6 +4020,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           kind: "customary-agentive-compound-embed-source-frame",
           role: "compound-embed",
           root: sourceRoot,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
           source: "generated-customary-agentive-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -2682,10 +4040,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix: resolvedObjectPrefix,
-          displayInput: buildCustomaryAgentiveCompoundEmbedVerbInput({
-            customaryAgentiveStem: sourceRoot,
-            matrixRoot
-          })
+          compoundVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "customary-agentive-compound-embed",
@@ -2786,6 +4142,112 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         return "";
       }
       return `(${normalizedPreteritAgentiveStem})-(${normalizedMatrixRoot})`;
+    }
+    function buildPreteritAgentiveOwnerhoodTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      ownerhoodVerbInput = ""
+    } = {}) {
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetStem = sourceStem && matrixRoot ? `${sourceStem}${matrixRoot}` : "";
+      const targetInput = String(ownerhoodVerbInput || "").trim();
+      const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
+        sourceRoot: sourceStem,
+        matrixRoot,
+        targetStem,
+        operationFamily: "preterit-agentive-ownerhood"
+      });
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput || !parsedVerb) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "preterit-agentive-general-use-stem-as-ownerhood-embed",
+        operationFamily: "preterit-agentive-ownerhood",
+        andrewsSection: matrix.grammarSource || "Andrews 35.9-35.10",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN preterit-agentive general-use nounstem -> CNV ownerhood verbstem",
+        embedRole: "ownerhood-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        parsedTargetFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "preterit-agentive-ownerhood-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.9-35.10",
+          outputKind: "preterit-agentive-ownerhood-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "ownerhood-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "ownerhood-matrix",
+            role: "ownerhood-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            surfaceMatrix: String(matrix.surfaceMatrix || "").trim(),
+            ownerhoodKind: String(matrix.ownerhoodKind || "").trim()
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ownerhood-verbstem",
+            stem: targetStem
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          surfaceMatrix: String(matrix.surfaceMatrix || "").trim(),
+          ownerhoodKind: String(matrix.ownerhoodKind || "").trim(),
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 35.9-35.10").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-ownerhood-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          ownerhoodVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          parsedVerb
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
     }
     function buildTypedOwnerhoodParsedVerbFrame({
       sourceRoot = "",
@@ -2921,24 +4383,26 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       });
     }
     function buildPreteritAgentiveOwnerhoodOperationFrame({
-      preteritAgentiveStem = "",
+      sourceContinuationFrame = null,
       matrixSpec = null,
-      sourceSurface = ""
+      targetContinuationFrame = null
     } = {}) {
-      const sourceRoot = String(preteritAgentiveStem || "").trim();
+      const sourceRoot = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !matrixRoot) {
         return null;
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
-      const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
-        sourceRoot,
-        matrixRoot,
-        targetStem,
-        operationFamily: "preterit-agentive-ownerhood"
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.ownerhoodVerbInput || targetFrame.targetInput || "").trim();
+      const parsedVerb = targetFrame.parsedVerb && typeof targetFrame.parsedVerb === "object" ? targetFrame.parsedVerb : null;
+      const expectedDisplayInput = buildPreteritAgentiveOwnerhoodVerbInput({
+        preteritAgentiveStem: sourceRoot,
+        matrixRoot
       });
-      if (!parsedVerb) {
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || parsedVerb?.sourceRawVerb !== targetStem) {
         return null;
       }
       const grammarSource = String(matrix.grammarSource || "Andrews 35.9-35.10");
@@ -2961,7 +4425,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           kind: "preterit-agentive-ownerhood-source-frame",
           role: "incorporated-ownerhood-embed",
           root: sourceRoot,
-          sourceSurface: String(sourceSurface || "").trim(),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
           source: "generated-preterit-agentive-general-use-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -2981,10 +4447,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           parsedVerb,
-          displayInput: buildPreteritAgentiveOwnerhoodVerbInput({
-            preteritAgentiveStem: sourceRoot,
-            matrixRoot
-          })
+          ownerhoodVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "preterit-agentive-ownerhood",
@@ -3057,28 +4521,32 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       };
     }
     function buildOrdinaryNounOwnerhoodOperationFrame({
-      nounStem = "",
-      nounClass = "",
-      sourceSurface = "",
-      sourceKind = "",
+      sourceContinuationFrame = null,
       matrixSpec = null,
+      targetContinuationFrame = null,
       ownerhoodKind = "ownerhood"
     } = {}) {
-      const sourceRoot = String(nounStem || "").trim();
-      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const sourcePayload = getTypedOrdinaryNounOwnerhoodSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = sourcePayload.nounStem;
+      const normalizedClass = sourcePayload.nounClass;
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !normalizedClass || !matrixRoot) {
         return null;
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
-      const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
-        sourceRoot,
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.ownerhoodVerbInput || targetFrame.targetInput || "").trim();
+      const frameNounClass = normalizeOrdinaryNounOwnerhoodNounClass(targetFrame.nounClass);
+      const parsedVerb = targetFrame.parsedVerb && typeof targetFrame.parsedVerb === "object" ? targetFrame.parsedVerb : null;
+      const expectedDisplayInput = buildOrdinaryNounOwnerhoodVerbInput({
+        nounStem: sourceRoot,
+        nounClass: normalizedClass,
         matrixRoot,
-        targetStem,
-        operationFamily: "ordinary-noun-ownerhood"
+        ownerhoodKind: String(matrix.ownerhoodKind || ownerhoodKind || "ownerhood").trim()
       });
-      if (!parsedVerb) {
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || frameNounClass !== normalizedClass || parsedVerb?.sourceRawVerb !== targetStem) {
         return null;
       }
       const grammarSource = String(matrix.grammarSource || "Andrews 35.9-35.10");
@@ -3104,8 +4572,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           role: "incorporated-ownerhood-embed",
           root: sourceRoot,
           nounClass: normalizedClass,
-          sourceSurface: String(sourceSurface || "").trim(),
-          sourceKind: String(sourceKind || "").trim(),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
+          sourceKind: sourcePayload.sourceKind,
           source: "generated-or-fixture-ordinary-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -3126,12 +4596,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           parsedVerb,
-          displayInput: buildOrdinaryNounOwnerhoodVerbInput({
-            nounStem: sourceRoot,
-            nounClass: normalizedClass,
-            matrixRoot,
-            ownerhoodKind: resolvedKind
-          })
+          nounClass: normalizedClass,
+          ownerhoodVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "ordinary-noun-ownerhood",
@@ -3158,6 +4625,143 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
             stem: targetStem
           })
         })
+      });
+    }
+    function getTypedOrdinaryNounOwnerhoodSourceFramePayload(frame = null) {
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(frame)) {
+        return {
+          nounStem: "",
+          nounClass: "",
+          sourceKind: ""
+        };
+      }
+      const slots = frame.formulaSlots && typeof frame.formulaSlots === "object" ? frame.formulaSlots : frame.formulaRecord?.formulaSlots && typeof frame.formulaRecord.formulaSlots === "object" ? frame.formulaRecord.formulaSlots : {};
+      const predicateSlot = slots.predicateStem || slots.predicate || {};
+      const nounStem = normalizeTypedDerivationContinuationSurface(predicateSlot.stem || predicateSlot.value || "");
+      const nounClass = normalizeOrdinaryNounOwnerhoodNounClass(frame.nounClass || frame.formulaRecord?.nounClass || frame.sourceFrame?.nounClass || "");
+      const sourceKind = String(frame.sourceKind || frame.sourceFrame?.sourceKind || "").trim();
+      return {
+        nounStem,
+        nounClass,
+        sourceKind
+      };
+    }
+    function buildOrdinaryNounOwnerhoodTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      ownerhoodKind = "ownerhood",
+      ownerhoodVerbInput = ""
+    } = {}) {
+      const sourcePayload = getTypedOrdinaryNounOwnerhoodSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = sourcePayload.nounStem;
+      const nounClass = sourcePayload.nounClass;
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const resolvedKind = String(matrix.ownerhoodKind || ownerhoodKind || "ownerhood").trim();
+      const targetStem = sourceRoot && matrixRoot ? `${sourceRoot}${matrixRoot}` : "";
+      const targetInput = String(ownerhoodVerbInput || "").trim();
+      const parsedVerb = buildTypedOwnerhoodParsedVerbFrame({
+        sourceRoot,
+        matrixRoot,
+        targetStem,
+        operationFamily: "ordinary-noun-ownerhood"
+      });
+      if (!sourceRoot || !nounClass || !matrixRoot || !targetStem || !targetInput || !parsedVerb) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "ordinary-nounstem-as-ownerhood-embed",
+        operationFamily: "ordinary-noun-ownerhood",
+        andrewsSection: matrix.grammarSource || "Andrews 35.9-35.10",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN ordinary nounstem -> CNV ownerhood verbstem",
+        embedRole: "ownerhood-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        nounClassFrameRequired: true,
+        parsedTargetFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "ordinary-noun-ownerhood-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.9-35.10",
+          outputKind: "ordinary-noun-ownerhood-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "ownerhood-embed",
+            role: "embedded-ordinary-nounstem",
+            token: sourceRoot,
+            root: sourceRoot,
+            nounClass,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          nounClass: Object.freeze({
+            slot: "noun-class",
+            role: "ordinary-nounstem-class",
+            value: nounClass
+          }),
+          matrixRoot: Object.freeze({
+            slot: "ownerhood-matrix",
+            role: "ownerhood-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            surfaceMatrix: String(matrix.surfaceMatrix || "").trim(),
+            ownerhoodKind: resolvedKind
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ownerhood-verbstem",
+            stem: targetStem
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          surfaceMatrix: String(matrix.surfaceMatrix || "").trim(),
+          ownerhoodKind: resolvedKind,
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 35.9-35.10").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "ordinary-noun-ownerhood-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          nounClass,
+          ownerhoodVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          parsedVerb
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
       });
     }
     function isOrdinaryNounOwnerhoodOperationFrame(frame = null) {
@@ -3216,13 +4820,119 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       return `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
     }
-    function buildPreteritAgentiveComplementOperationFrame({
-      preteritAgentiveStem = "",
+    function buildPreteritAgentiveComplementTargetContinuationFrame({
+      sourceContinuationFrame = null,
       matrixSpec = null,
-      sourceSurface = "",
+      objectPrefix = "",
+      complementVerbInput = ""
+    } = {}) {
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const resolvedObjectPrefix = String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki";
+      const targetStem = sourceStem && matrixRoot ? `${sourceStem}${matrixRoot}` : "";
+      const targetInput = String(complementVerbInput || "").trim();
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput || !resolvedObjectPrefix) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "preterit-agentive-general-use-stem-as-incorporated-complement",
+        operationFamily: "preterit-agentive-complement",
+        andrewsSection: matrix.grammarSource || "Andrews 35.12",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN preterit-agentive general-use nounstem -> CNV incorporated-complement verbstem",
+        embedRole: "incorporated-complement",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        objectTransferRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "preterit-agentive-complement-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.12",
+          outputKind: "preterit-agentive-complement-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "complement-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "complement-matrix",
+            role: "complement-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim()
+          }),
+          outsideObject: Object.freeze({
+            slot: "obj1",
+            role: "outside-object",
+            prefix: resolvedObjectPrefix
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "complement-verbstem",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 35.12").trim(),
+          objectPrefix: resolvedObjectPrefix
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-complement-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          complementVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix: resolvedObjectPrefix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPreteritAgentiveComplementOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null,
       objectPrefix = ""
     } = {}) {
-      const sourceRoot = String(preteritAgentiveStem || "").trim();
+      const sourceRoot = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !matrixRoot) {
@@ -3230,6 +4940,17 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
       const resolvedObjectPrefix = String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.complementVerbInput || targetFrame.targetInput || "").trim();
+      const frameObjectPrefix = String(targetFrame.objectPrefix || "").trim();
+      const expectedDisplayInput = buildPreteritAgentiveComplementVerbInput({
+        preteritAgentiveStem: sourceRoot,
+        matrixRoot
+      });
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || frameObjectPrefix !== resolvedObjectPrefix) {
+        return null;
+      }
       const grammarSource = String(matrix.grammarSource || "Andrews 35.12");
       return Object.freeze({
         kind: "andrews-preterit-agentive-complement-operation-frame",
@@ -3250,7 +4971,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           kind: "preterit-agentive-complement-source-frame",
           role: "incorporated-complement",
           root: sourceRoot,
-          sourceSurface: String(sourceSurface || "").trim(),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
           source: "generated-preterit-agentive-general-use-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -3268,10 +4991,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix: resolvedObjectPrefix,
-          displayInput: buildPreteritAgentiveComplementVerbInput({
-            preteritAgentiveStem: sourceRoot,
-            matrixRoot
-          })
+          complementVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "preterit-agentive-complement",
@@ -3360,13 +5081,120 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       return matrixSpec.matrixValency === "transitive" ? `-(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})` : `(${normalizedPreteritAgentiveStem}/${normalizedMatrixRoot})`;
     }
-    function buildPreteritAgentiveAdverbialOperationFrame({
-      preteritAgentiveStem = "",
+    function buildPreteritAgentiveAdverbialTargetContinuationFrame({
+      sourceContinuationFrame = null,
       matrixSpec = null,
-      sourceSurface = "",
+      objectPrefix = "",
+      adverbialVerbInput = ""
+    } = {}) {
+      const sourceStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const resolvedObjectPrefix = matrix.matrixValency === "transitive" ? String(objectPrefix || matrix.objectPrefix || "ki").trim() || "ki" : "";
+      const targetStem = sourceStem && matrixRoot ? `${sourceStem}${matrixRoot}` : "";
+      const targetInput = String(adverbialVerbInput || "").trim();
+      if (!sourceStem || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "preterit-agentive-general-use-stem-as-adverbial-manner",
+        operationFamily: "preterit-agentive-adverbial",
+        andrewsSection: matrix.grammarSource || "Andrews 35.12",
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN preterit-agentive general-use nounstem -> CNV adverbial-manner verbstem",
+        embedRole: "adverbial-manner",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "preterit-agentive-adverbial-target-frame",
+          generationAllowed: true,
+          grammarSource: matrix.grammarSource || "Andrews 35.12",
+          outputKind: "preterit-agentive-adverbial-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "adverbial-embed",
+            role: "embedded-preterit-agentive-general-use-nounstem",
+            token: sourceStem,
+            root: sourceStem,
+            sourceFrameId: String(sourceContinuationFrame.selectedVariant?.variantId || sourceContinuationFrame.formulaRealizationRecord?.id || "").trim(),
+            sourceFormulaRecordId: String(sourceContinuationFrame.formulaRecord?.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourceContinuationFrame.formulaRealizationRecord?.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "adverbial-matrix",
+            role: "adverbial-verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim(),
+            adverbialFocus: String(matrix.adverbialFocus || "").trim()
+          }),
+          outsideObject: Object.freeze({
+            slot: "obj1",
+            role: "outside-object",
+            prefix: resolvedObjectPrefix
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "adverbial-verbstem",
+            stem: targetStem,
+            objectPrefix: resolvedObjectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valence: String(matrix.matrixValency || matrix.valency || "").trim(),
+          grammarSource: String(matrix.grammarSource || "Andrews 35.12").trim(),
+          adverbialFocus: String(matrix.adverbialFocus || "").trim(),
+          objectPrefix: resolvedObjectPrefix
+        }),
+        targetFrame: Object.freeze({
+          kind: "preterit-agentive-adverbial-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          adverbialVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix: resolvedObjectPrefix
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPreteritAgentiveAdverbialOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null,
       objectPrefix = ""
     } = {}) {
-      const sourceRoot = String(preteritAgentiveStem || "").trim();
+      const sourceRoot = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
       if (!sourceRoot || !matrixRoot) {
@@ -3374,6 +5202,17 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       const targetStem = `${sourceRoot}${matrixRoot}`;
       const resolvedObjectPrefix = matrix.matrixValency === "transitive" ? String(objectPrefix || "ki").trim() || "ki" : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const frameTargetStem = String(targetFrame.stem || "").trim();
+      const frameTargetInput = String(targetFrame.adverbialVerbInput || targetFrame.targetInput || "").trim();
+      const frameObjectPrefix = String(targetFrame.objectPrefix || "").trim();
+      const expectedDisplayInput = buildPreteritAgentiveAdverbialVerbInput({
+        preteritAgentiveStem: sourceRoot,
+        matrixRoot
+      });
+      if (!frameTargetStem || frameTargetStem !== targetStem || frameTargetInput !== expectedDisplayInput || frameObjectPrefix !== resolvedObjectPrefix) {
+        return null;
+      }
       const grammarSource = String(matrix.grammarSource || "Andrews 35.12");
       return Object.freeze({
         kind: "andrews-preterit-agentive-adverbial-operation-frame",
@@ -3393,7 +5232,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           kind: "preterit-agentive-adverbial-source-frame",
           role: "incorporated-adverbial-manner",
           root: sourceRoot,
-          sourceSurface: String(sourceSurface || "").trim(),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourceContinuationFrame?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourceContinuationFrame?.formulaRealizationRecord?.id || ""),
           source: "generated-preterit-agentive-general-use-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -3412,10 +5253,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix: resolvedObjectPrefix,
-          displayInput: buildPreteritAgentiveAdverbialVerbInput({
-            preteritAgentiveStem: sourceRoot,
-            matrixRoot
-          })
+          adverbialVerbInput: frameTargetInput,
+          displayInput: frameTargetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "preterit-agentive-adverbial",
@@ -3567,6 +5406,234 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         }
       };
     }
+    function getTypedPatientivoNominalCompoundSourceFramePayload(frame = null) {
+      return getTypedPatientivoContinuationSourceFramePayload(frame);
+    }
+    function buildPatientivoNominalCompoundTargetContinuationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      compoundStem = "",
+      ordinaryNncInput = ""
+    } = {}) {
+      const sourcePayload = getTypedPatientivoNominalCompoundSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const targetStem = String(compoundStem || "").trim();
+      const targetInput = String(ordinaryNncInput || "").trim();
+      const nounClass = String(matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceRoot || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "patientivo-nounstem-as-nominal-compound",
+        operationFamily: "patientivo-nominal-compound",
+        andrewsSection: "Andrews 39.6",
+        sourceUnit: "CNN",
+        targetUnit: "NNC",
+        route: "CNN patientive nounstem -> NNC nominal compound stem",
+        embedRole: "nominal-compound-embed",
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "NNC",
+        targetUnit: "NNC",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "patientivo-nominal-compound-target-frame",
+          generationAllowed: true,
+          grammarSource: "Andrews 39.6",
+          outputKind: "patientivo-nominal-compound-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-patientive-nounstem",
+            token: sourceRoot,
+            root: sourceRoot,
+            sourceFrameId: String(sourcePayload.selectedVariant?.variantId || sourcePayload.formulaRealizationRecord.id || "").trim(),
+            sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            nounClass,
+            animacy
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem,
+            nounClass,
+            animacy
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          nounClass,
+          animacy,
+          grammarSource: "Andrews 39.6"
+        }),
+        targetFrame: Object.freeze({
+          kind: "patientivo-nominal-compound-target-frame",
+          unit: "NNC",
+          targetUnit: "NNC",
+          stem: targetStem,
+          compoundStem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          targetInput,
+          displayInput: targetInput
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPatientivoNominalCompoundOperationFrame({
+      sourceContinuationFrame = null,
+      matrixSpec = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourcePayload = getTypedPatientivoNominalCompoundSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || targetFrame.compoundStem || "").trim();
+      const targetInput = String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim();
+      const nounClass = String(targetFrame.nounClass || matrix.nounClass || "zero").trim() || "zero";
+      const animacy = String(targetFrame.animacy || matrix.animacy || "inanimate").trim() || "inanimate";
+      if (!sourceRoot || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      if (targetStem !== `${sourceRoot}${matrixRoot}`) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-patientivo-nominal-compound-operation-frame",
+        version: 1,
+        grammarSource: "Andrews 39.6",
+        operationFrame: Object.freeze({
+          kind: "andrews-typed-operation-frame",
+          operationId: "patientivo-nounstem-as-nominal-compound",
+          operationFamily: "patientivo-nominal-compound",
+          sourceUnit: "CNN",
+          targetUnit: "NNC",
+          sourceFrameRequired: true,
+          matrixFrameRequired: true,
+          displayInputIsNotAuthority: true
+        }),
+        sourceFrame: Object.freeze({
+          kind: "patientivo-nominal-compound-source-frame",
+          role: "nominal-compound-embed",
+          root: sourceRoot,
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourcePayload?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourcePayload?.formulaRealizationRecord?.id || ""),
+          source: "generated-patientive-nounstem"
+        }),
+        matrixFrame: Object.freeze({
+          kind: "patientivo-nominal-compound-matrix-frame",
+          role: "nominal-compound-matrix",
+          type: "nominal",
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || ""),
+          nounClass: String(matrix.nounClass || ""),
+          animacy: String(matrix.animacy || ""),
+          supported: matrix.supported === true
+        }),
+        targetFrame: Object.freeze({
+          kind: "patientivo-nominal-compound-target-frame",
+          unit: "NNC",
+          stem: targetStem,
+          nounClass,
+          animacy,
+          ordinaryNncInput: targetInput,
+          displayInput: targetInput
+        }),
+        routeContract: Object.freeze({
+          routeFamily: "patientivo-nominal-compound",
+          routeStage: "typed-operation-frame",
+          grammarSource: "Andrews 39.6",
+          generationAllowed: true
+        }),
+        formulaSlots: Object.freeze({
+          compoundEmbed: Object.freeze({
+            slot: "nominal-compound-embed",
+            role: "embedded-patientive-nounstem",
+            root: sourceRoot
+          }),
+          compoundMatrix: Object.freeze({
+            slot: "nominal-matrix-root",
+            role: "nominal-compound-matrix",
+            root: matrixRoot,
+            nounClass: String(matrix.nounClass || ""),
+            animacy: String(matrix.animacy || "")
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "ordinary-nnc-predicate-stem",
+            stem: targetStem
+          })
+        })
+      });
+    }
+    function isPatientivoNominalCompoundOperationFrame(frame = null) {
+      return Boolean(frame && typeof frame === "object" && frame.kind === "andrews-patientivo-nominal-compound-operation-frame" && frame.operationFrame?.kind === "andrews-typed-operation-frame" && frame.sourceFrame?.root && frame.matrixFrame?.root && frame.targetFrame?.stem);
+    }
+    function buildPatientivoNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame = null) {
+      if (!isPatientivoNominalCompoundOperationFrame(operationFrame)) {
+        return {
+          supported: false,
+          diagnostics: ["patientivo-nominal-compound-missing-typed-operation-frame"],
+          request: null
+        };
+      }
+      const targetStem = String(operationFrame.targetFrame.stem || "").trim();
+      const nounClass = String(operationFrame.targetFrame.nounClass || "zero").trim() || "zero";
+      const animacy = String(operationFrame.targetFrame.animacy || "inanimate").trim() || "inanimate";
+      const request = buildNominalCompoundOrdinaryNncRequest({
+        compoundStem: targetStem,
+        nounClass,
+        animacy,
+        operationFrame,
+        sourceFrame: operationFrame.sourceFrame,
+        targetFrame: operationFrame.targetFrame,
+        routeStage: "patientivo-nominal-compound-continuation"
+      });
+      return {
+        supported: Boolean(request),
+        diagnostics: request ? [] : ["patientivo-nominal-compound-missing-nnc-request"],
+        request
+      };
+    }
     function stripPatientivoPrelocativeConnector(surface = "", {
       patientivoNominalSuffix = ""
     } = {}) {
@@ -3592,29 +5659,176 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       }
       return `-(${normalizedIncorporatedRoot}/${normalizedMatrixRoot})`;
     }
-    function buildPatientivoPrelocativeOperationFrame({
-      incorporatedRoot = "",
+    function resolvePatientivoPrelocativeIncorporatedRole({
+      matrixSpec = null,
+      objectTransfer = null
+    } = {}) {
+      const sourceState = String(objectTransfer?.sourceState || "").trim();
+      const matrixId = String(matrixSpec?.id || "").trim();
+      const isPossessive = sourceState === "possessive";
+      return isPossessive && (matrixId === "tla-ih-tlani" || matrixId === "tla-tem-o-a" || matrixId === "tla-tlani") ? "incorporated-object" : "object-complement";
+    }
+    function buildPatientivoPrelocativeTargetContinuationFrame({
+      sourceContinuationFrame = null,
       matrixSpec = null,
       objectTransfer = null,
-      patientivoSurface = "",
-      sourceSurface = ""
+      prelocativeVerbInput = ""
     } = {}) {
-      const sourceRoot = String(incorporatedRoot || "").trim();
+      const sourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
+      const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
+      const matrixRoot = String(matrix.nawatRoot || matrix.root || "").trim();
+      const objectPrefix = String(objectTransfer?.objectPrefix || "").trim();
+      const targetInput = String(prelocativeVerbInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !objectPrefix || !targetInput) {
+        return null;
+      }
+      const incorporatedRole = resolvePatientivoPrelocativeIncorporatedRole({
+        matrixSpec: matrix,
+        objectTransfer
+      });
+      const sourceState = String(objectTransfer?.sourceState || "").trim();
+      const grammarSource = sourceState === "possessive" && incorporatedRole === "incorporated-object" ? "Andrews 39.8" : "Andrews 39.7";
+      const targetStem = `${sourceRoot}${matrixRoot}`;
+      const operationFrame = Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "patientivo-prelocative-nounstem-as-verbal-incorporate",
+        operationFamily: "patientivo-prelocative",
+        andrewsSection: grammarSource,
+        sourceUnit: "CNN",
+        targetUnit: "CNV",
+        route: "CNN patientive nounstem -> CNV prelocative verbstem",
+        embedRole: incorporatedRole,
+        sourceFrameRequired: true,
+        matrixFrameRequired: true,
+        objectTransferRequired: true,
+        renderedSurfaceIsNotAuthority: true
+      });
+      return Object.freeze({
+        kind: "andrews-typed-operation-continuation-frame",
+        version: 1,
+        role: "target",
+        unit: "CNV",
+        targetUnit: "CNV",
+        sourceFrame: sourceContinuationFrame,
+        sourceFrameKind: sourceContinuationFrame.kind,
+        sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+        sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim(),
+        operationFrame,
+        routeContract: Object.freeze({
+          routeFamily: "derivation-continuation",
+          routeStage: "patientivo-prelocative-target-frame",
+          generationAllowed: true,
+          grammarSource,
+          outputKind: "patientivo-prelocative-continuation-contract"
+        }),
+        formulaSlots: Object.freeze({
+          embeddedRoot: Object.freeze({
+            slot: "prelocative-embed",
+            role: incorporatedRole,
+            token: sourceRoot,
+            root: sourceRoot,
+            sourceFrameId: String(sourcePayload.selectedVariant?.variantId || sourcePayload.formulaRealizationRecord.id || "").trim(),
+            sourceFormulaRecordId: String(sourcePayload.formulaRecord.id || "").trim(),
+            sourceFormulaRealizationRecordId: String(sourcePayload.formulaRealizationRecord.id || "").trim()
+          }),
+          matrixRoot: Object.freeze({
+            slot: "prelocative-matrix",
+            role: "verbal-matrix",
+            root: matrixRoot,
+            matrixSpecId: String(matrix.id || "").trim(),
+            classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+            valency: String(matrix.matrixValency || "").trim(),
+            sourceStates: Object.freeze(Array.isArray(matrix.sourceStates) ? matrix.sourceStates.slice() : [])
+          }),
+          outsideObject: Object.freeze({
+            slot: "obj1",
+            role: "outside-object",
+            originRole: String(objectTransfer?.sourceRole || ""),
+            prefix: objectPrefix,
+            line: String(objectTransfer?.objectLine || "mainline").trim(),
+            case: String(objectTransfer?.objectCase || "objective").trim()
+          }),
+          targetStem: Object.freeze({
+            slot: "STEM",
+            role: "prelocative-verbstem",
+            stem: targetStem,
+            objectPrefix
+          })
+        }),
+        matrixFrame: Object.freeze({
+          id: String(matrix.id || "").trim(),
+          root: matrixRoot,
+          classicalMatrix: String(matrix.classicalMatrix || "").trim(),
+          valency: String(matrix.matrixValency || "").trim(),
+          sourceStates: Object.freeze(Array.isArray(matrix.sourceStates) ? matrix.sourceStates.slice() : []),
+          grammarSource
+        }),
+        objectFrame: Object.freeze({
+          kind: "patientivo-prelocative-object-transfer-frame",
+          role: "outside-object",
+          originRole: String(objectTransfer?.sourceRole || ""),
+          originPrefix: String(objectTransfer?.sourcePrefix || "").trim(),
+          originSuffix: String(objectTransfer?.sourceSuffix || "").trim(),
+          prefix: objectPrefix,
+          line: String(objectTransfer?.objectLine || "mainline").trim(),
+          case: String(objectTransfer?.objectCase || "objective").trim()
+        }),
+        targetFrame: Object.freeze({
+          kind: "patientivo-prelocative-target-frame",
+          unit: "CNV",
+          targetUnit: "CNV",
+          stem: targetStem,
+          prelocativeVerbInput: targetInput,
+          targetInput,
+          displayInput: targetInput,
+          objectPrefix,
+          sourceState,
+          incorporatedRole
+        }),
+        resultFrame: Object.freeze({
+          kind: "andrews-typed-target-result-frame",
+          targetInput,
+          displayOnly: true,
+          displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+        }),
+        targetInput,
+        displayInput: targetInput,
+        displayOnlyFieldsExcluded: Object.freeze(["result", "surface", "formulaEcho"])
+      });
+    }
+    function buildPatientivoPrelocativeOperationFrame({
+      matrixSpec = null,
+      objectTransfer = null,
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null
+    } = {}) {
+      const sourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const sourceRoot = String(sourcePayload?.patientivoStem || "").trim();
       const matrix = matrixSpec && typeof matrixSpec === "object" ? matrixSpec : {};
       const matrixRoot = matrix.supported ? String(matrix.nawatRoot || "").trim() : "";
-      if (!sourceRoot || !matrixRoot) {
+      const targetFrame = targetContinuationFrame?.targetFrame && typeof targetContinuationFrame.targetFrame === "object" ? targetContinuationFrame.targetFrame : {};
+      const targetStem = String(targetFrame.stem || "").trim();
+      const targetInput = String(targetFrame.prelocativeVerbInput || targetFrame.targetInput || "").trim();
+      if (!sourceRoot || !matrixRoot || !targetStem || !targetInput) {
+        return null;
+      }
+      if (targetStem !== `${sourceRoot}${matrixRoot}`) {
         return null;
       }
       const sourceState = String(objectTransfer?.sourceState || "").trim();
       const matrixId = String(matrix.id || "").trim();
+      const incorporatedRole = resolvePatientivoPrelocativeIncorporatedRole({
+        matrixSpec: matrix,
+        objectTransfer
+      });
       const isPossessive = sourceState === "possessive";
-      const incorporatedRole = isPossessive && (matrixId === "tla-ih-tlani" || matrixId === "tla-tem-o-a" || matrixId === "tla-tlani") ? "incorporated-object" : "object-complement";
-      const targetStem = `${sourceRoot}${matrixRoot}`;
+      const grammarSource = isPossessive && incorporatedRole === "incorporated-object" ? "Andrews 39.8" : "Andrews 39.7";
       const objectPrefix = String(objectTransfer?.objectPrefix || "").trim();
       return Object.freeze({
         kind: "andrews-patientivo-prelocative-operation-frame",
         version: 1,
-        grammarSource: isPossessive && incorporatedRole === "incorporated-object" ? "Andrews 39.8" : "Andrews 39.7",
+        grammarSource,
         operationFrame: Object.freeze({
           kind: "andrews-typed-operation-frame",
           operationId: "patientivo-prelocative-nounstem-as-verbal-incorporate",
@@ -3632,8 +5846,9 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           root: sourceRoot,
           sourceState,
           sourceRole: String(objectTransfer?.sourceRole || ""),
-          patientivoSurface: String(patientivoSurface || "").trim(),
-          sourceSurface: String(sourceSurface || "").trim(),
+          sourceContinuationFrameKind: String(sourceContinuationFrame?.kind || ""),
+          sourceFormulaRecordId: String(sourcePayload?.formulaRecord?.id || ""),
+          sourceFormulaRealizationRecordId: String(sourcePayload?.formulaRealizationRecord?.id || ""),
           source: "generated-patientive-nounstem"
         }),
         matrixFrame: Object.freeze({
@@ -3662,15 +5877,14 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           unit: "CNV",
           stem: targetStem,
           objectPrefix,
-          displayInput: buildPatientivoPrelocativeVerbInput({
-            incorporatedRoot: sourceRoot,
-            matrixRoot
-          })
+          displayInput: targetInput,
+          prelocativeVerbInput: targetInput,
+          targetInput
         }),
         routeContract: Object.freeze({
           routeFamily: "patientivo-prelocative",
           routeStage: "typed-operation-frame",
-          grammarSource: isPossessive && incorporatedRole === "incorporated-object" ? "Andrews 39.8" : "Andrews 39.7",
+          grammarSource,
           generationAllowed: true
         }),
         formulaSlots: Object.freeze({
@@ -3918,21 +6132,33 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       possessorPrefix = "",
       matrixRoot = DEFAULT_PATIENTIVO_CHARACTERISTIC_PROPERTY_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
+      const sourcePayload = getTypedCharacteristicPropertyEmbedSourcePayload(sourceContinuationFrame, {
+        possessorPrefix
+      });
       const normalizedCharacteristicSurface = String(characteristicSurface || "").trim();
-      const embedSource = resolvePatientivoCharacteristicPropertyEmbedSource({
+      const displayEmbedSource = resolvePatientivoCharacteristicPropertyEmbedSource({
         characteristicSurface: normalizedCharacteristicSurface,
         possessorPrefix
       });
+      const embedSource = sourcePayload?.embedSource || displayEmbedSource;
       const incorporatedRoot = embedSource.incorporatedRoot;
-      if (!normalizedCharacteristicSurface) {
-        diagnostics.push("patientivo-characteristic-property-missing-surface");
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("patientivo-characteristic-property-missing-typed-source-frame");
       }
-      if (normalizedCharacteristicSurface && !incorporatedRoot) {
+      if (!sourcePayload?.characteristicStem) {
+        diagnostics.push("patientivo-characteristic-property-missing-typed-characteristic-stem");
+      }
+      if (!incorporatedRoot) {
         diagnostics.push(...embedSource.diagnostics);
+      }
+      if (normalizedCharacteristicSurface && displayEmbedSource?.incorporatedRoot && incorporatedRoot && displayEmbedSource.incorporatedRoot !== incorporatedRoot) {
+        diagnostics.push("patientivo-characteristic-property-display-surface-contradicts-source-frame");
       }
       const matrixSpec = resolvePatientivoCharacteristicPropertyMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -3945,12 +6171,39 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       if (!compoundVerbInput && !matrixSpec.supported) {
         diagnostics.push("patientivo-characteristic-property-missing-verb-input");
       }
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPatientivoCharacteristicPropertyTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        embedSource,
+        compoundVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("patientivo-characteristic-property-missing-typed-target-frame");
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("patientivo-characteristic-property-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || "").trim() !== `${incorporatedRoot}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`) {
+          diagnostics.push("patientivo-characteristic-property-target-stem-mismatch");
+        }
+        if (String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim() !== compoundVerbInput) {
+          diagnostics.push("patientivo-characteristic-property-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== String(embedSource.objectPrefix || "").trim()) {
+          diagnostics.push("patientivo-characteristic-property-target-object-mismatch");
+        }
+        if (String(targetFrame.omittedSuffix || "").trim() !== String(embedSource.omittedSuffix || "").trim()) {
+          diagnostics.push("patientivo-characteristic-property-target-suffix-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPatientivoCharacteristicPropertyEmbedOperationFrame({
         embedSource,
         matrixSpec,
-        characteristicSurface: normalizedCharacteristicSurface,
-        sourceSurface
+        sourceContinuationFrame,
+        targetContinuationFrame: resolvedTargetContinuationFrame
       }) : null;
       const compoundRequest = buildPatientivoCharacteristicPropertyEmbedGenerationRequestFromOperationFrame(operationFrame);
       const formationFrame = resolvePatientivoCharacteristicPropertyFormationFrame({
@@ -3969,6 +6222,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         characteristicSurface: normalizedCharacteristicSurface,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         sourceState: embedSource.sourceState,
         sourceRole: embedSource.sourceRole,
         possessorPrefix: embedSource.possessorPrefix,
@@ -3996,23 +6251,31 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceCombinedMode = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       patientivoNominalSuffix = "",
       matrixRoot = DEFAULT_PATIENTIVO_PRELOCATIVE_MATRIX_ROOT,
       possessiveToObjectPrefix = null,
       subjectToObjectPrefix = null
     } = {}) {
       const diagnostics = [];
+      const typedSourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const normalizedPatientivoSurface = String(patientivoSurface || "").trim();
+      const displayIncorporatedRoot = stripPatientivoPrelocativeConnector(normalizedPatientivoSurface, {
+        patientivoNominalSuffix
+      });
+      const incorporatedRoot = String(typedSourcePayload?.patientivoStem || "").trim();
       const normalizedPatientivoSource = String(patientivoSource || "").trim();
       const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
       const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
-      const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
-        patientivoNominalSuffix
-      });
-      if (!String(patientivoSurface || "").trim()) {
-        diagnostics.push("patientivo-prelocative-missing-patientivo-surface");
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("patientivo-prelocative-missing-typed-source-frame");
       }
       if (!incorporatedRoot) {
-        diagnostics.push("patientivo-prelocative-missing-incorporated-root");
+        diagnostics.push("patientivo-prelocative-missing-typed-patientive-stem");
+      }
+      if (normalizedPatientivoSurface && displayIncorporatedRoot && incorporatedRoot && displayIncorporatedRoot !== incorporatedRoot) {
+        diagnostics.push("patientivo-prelocative-display-surface-contradicts-source-frame");
       }
       const objectTransfer = resolvePatientivoPrelocativeObjectTransfer({
         selection,
@@ -4040,20 +6303,46 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
           diagnostics.push("patientivo-prelocative-missing-verb-input");
         }
       }
-      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
-      const operationFrame = uniqueDiagnostics.length === 0 ? buildPatientivoPrelocativeOperationFrame({
-        incorporatedRoot,
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPatientivoPrelocativeTargetContinuationFrame({
+        sourceContinuationFrame,
         matrixSpec,
         objectTransfer,
-        patientivoSurface,
-        sourceSurface
+        prelocativeVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("patientivo-prelocative-missing-typed-target-frame");
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("patientivo-prelocative-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || "").trim() !== `${incorporatedRoot}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`) {
+          diagnostics.push("patientivo-prelocative-target-stem-mismatch");
+        }
+        if (String(targetFrame.prelocativeVerbInput || targetFrame.targetInput || "").trim() !== prelocativeVerbInput) {
+          diagnostics.push("patientivo-prelocative-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== String(objectTransfer.objectPrefix || "").trim()) {
+          diagnostics.push("patientivo-prelocative-target-object-mismatch");
+        }
+        if (String(targetFrame.sourceState || "").trim() !== String(objectTransfer.sourceState || "").trim()) {
+          diagnostics.push("patientivo-prelocative-target-source-state-mismatch");
+        }
+      }
+      const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const operationFrame = uniqueDiagnostics.length === 0 ? buildPatientivoPrelocativeOperationFrame({
+        matrixSpec,
+        objectTransfer,
+        sourceContinuationFrame,
+        targetContinuationFrame: resolvedTargetContinuationFrame
       }) : null;
       const prelocativeRequest = buildPatientivoPrelocativeGenerationRequestFromOperationFrame(operationFrame);
       const formationFrame = resolvePatientivoPrelocativeFormationFrame({
         matrixSpec,
         objectTransfer,
         incorporatedRoot,
-        patientivoSurface,
+        patientivoSurface: normalizedPatientivoSurface,
         sourceSurface,
         prelocativeVerbInput,
         operationFrame
@@ -4069,8 +6358,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
-        patientivoSurface: String(patientivoSurface || "").trim(),
+        patientivoSurface: normalizedPatientivoSurface,
         incorporatedRoot,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         matrixSourceCompatible,
@@ -4091,24 +6382,29 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceCombinedMode = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       patientivoNominalSuffix = "",
       matrixRoot = DEFAULT_PATIENTIVO_COMPOUND_EMBED_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
+      const typedSourcePayload = getTypedPatientivoContinuationSourceFramePayload(sourceContinuationFrame);
+      const normalizedPatientivoSurface = String(patientivoSurface || "").trim();
+      const displayIncorporatedRoot = stripPatientivoPrelocativeConnector(normalizedPatientivoSurface, {
+        patientivoNominalSuffix
+      });
+      const incorporatedRoot = String(typedSourcePayload?.patientivoStem || "").trim();
       const normalizedPatientivoSource = String(patientivoSource || "").trim();
       const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
       const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
-      const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
-        patientivoNominalSuffix
-      });
-      if (!normalizedPatientivoSource) {
-        diagnostics.push("patientivo-compound-embed-missing-patientivo-source");
-      }
-      if (!String(patientivoSurface || "").trim()) {
-        diagnostics.push("patientivo-compound-embed-missing-patientivo-surface");
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("patientivo-compound-embed-missing-typed-source-frame");
       }
       if (!incorporatedRoot) {
-        diagnostics.push("patientivo-compound-embed-missing-incorporated-root");
+        diagnostics.push("patientivo-compound-embed-missing-typed-patientive-stem");
+      }
+      if (normalizedPatientivoSurface && displayIncorporatedRoot && incorporatedRoot && displayIncorporatedRoot !== incorporatedRoot) {
+        diagnostics.push("patientivo-compound-embed-display-surface-contradicts-source-frame");
       }
       const matrixSpec = resolvePatientivoCompoundEmbedMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4121,12 +6417,34 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       if (!compoundVerbInput && !matrixSpec.supported) {
         diagnostics.push("patientivo-compound-embed-missing-verb-input");
       }
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPatientivoCompoundEmbedTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("patientivo-compound-embed-missing-typed-target-frame");
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("patientivo-compound-embed-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || "").trim() !== `${incorporatedRoot}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`) {
+          diagnostics.push("patientivo-compound-embed-target-stem-mismatch");
+        }
+        if (String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim() !== compoundVerbInput) {
+          diagnostics.push("patientivo-compound-embed-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== (matrixSpec.matrixValency === "transitive" ? "ki" : "")) {
+          diagnostics.push("patientivo-compound-embed-target-object-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPatientivoCompoundEmbedOperationFrame({
-        incorporatedRoot,
         matrixSpec,
-        patientivoSurface,
-        sourceSurface
+        sourceContinuationFrame,
+        targetContinuationFrame: resolvedTargetContinuationFrame
       }) : null;
       const compoundRequest = buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
       const formationFrame = resolvePatientivoCompoundEmbedFormationFrame({
@@ -4147,8 +6465,10 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
-        patientivoSurface: String(patientivoSurface || "").trim(),
+        patientivoSurface: normalizedPatientivoSurface,
         incorporatedRoot,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
@@ -4167,24 +6487,29 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceCombinedMode = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       patientivoNominalSuffix = "",
       matrixRoot = DEFAULT_PATIENTIVO_NOMINAL_COMPOUND_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
+      const typedSourcePayload = getTypedPatientivoNominalCompoundSourceFramePayload(sourceContinuationFrame);
+      const normalizedPatientivoSurface = String(patientivoSurface || "").trim();
+      const displayIncorporatedRoot = stripPatientivoPrelocativeConnector(normalizedPatientivoSurface, {
+        patientivoNominalSuffix
+      });
+      const incorporatedRoot = String(typedSourcePayload?.patientivoStem || "").trim();
       const normalizedPatientivoSource = String(patientivoSource || "").trim();
       const normalizedSourceCombinedMode = String(sourceCombinedMode || "").trim();
       const normalizedSourceTenseValue = String(sourceTenseValue || "").trim();
-      const incorporatedRoot = stripPatientivoPrelocativeConnector(patientivoSurface, {
-        patientivoNominalSuffix
-      });
-      if (!normalizedPatientivoSource) {
-        diagnostics.push("patientivo-nominal-compound-missing-patientivo-source");
-      }
-      if (!String(patientivoSurface || "").trim()) {
-        diagnostics.push("patientivo-nominal-compound-missing-patientivo-surface");
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("patientivo-nominal-compound-missing-typed-source-frame");
       }
       if (!incorporatedRoot) {
-        diagnostics.push("patientivo-nominal-compound-missing-incorporated-root");
+        diagnostics.push("patientivo-nominal-compound-missing-typed-patientive-stem");
+      }
+      if (normalizedPatientivoSurface && displayIncorporatedRoot && incorporatedRoot && displayIncorporatedRoot !== incorporatedRoot) {
+        diagnostics.push("patientivo-nominal-compound-display-surface-contradicts-source-frame");
       }
       const matrixSpec = resolvePatientivoNominalCompoundMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4201,11 +6526,41 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         compoundStem,
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPatientivoNominalCompoundTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundStem,
+        ordinaryNncInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("patientivo-nominal-compound-missing-typed-target-frame");
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("patientivo-nominal-compound-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || targetFrame.compoundStem || "").trim() !== compoundStem) {
+          diagnostics.push("patientivo-nominal-compound-target-stem-mismatch");
+        }
+        if (String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim() !== ordinaryNncInput) {
+          diagnostics.push("patientivo-nominal-compound-target-input-mismatch");
+        }
+        if (String(targetFrame.nounClass || "").trim() !== String(matrixSpec.nounClass || "zero").trim()) {
+          diagnostics.push("patientivo-nominal-compound-target-class-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const operationFrame = uniqueDiagnostics.length === 0 ? buildPatientivoNominalCompoundOperationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame
+      }) : null;
+      const ordinaryNncRequest = buildPatientivoNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame);
       const formationFrame = resolvePatientivoNominalCompoundFormationFrame({
         matrixSpec,
         incorporatedRoot,
-        patientivoSurface,
+        patientivoSurface: normalizedPatientivoSurface,
         sourceSurface,
         compoundStem,
         ordinaryNncInput
@@ -4220,17 +6575,17 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceSurface: String(sourceSurface || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
-        patientivoSurface: String(patientivoSurface || "").trim(),
+        patientivoSurface: normalizedPatientivoSurface,
         incorporatedRoot,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
-          compoundStem,
-          nounClass: matrixSpec.nounClass || "zero",
-          animacy: matrixSpec.animacy || "inanimate"
-        }),
+        nominalCompoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ordinaryNncRequest: ordinaryNncRequest.request,
         formationFrame,
         diagnostics: uniqueDiagnostics
       });
@@ -4308,12 +6663,22 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_ACTIVE_ACTION_NOMINAL_COMPOUND_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
-      const normalizedActionNominalSurface = String(actionNominalSurface || "").trim();
+      const typedSourceSurface = getTypedDerivationContinuationFrameSurface(sourceContinuationFrame);
+      const normalizedActionNominalSurface = typedSourceSurface;
+      const displayActionNominalSurface = String(actionNominalSurface || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("active-action-nominal-compound-missing-typed-source-frame");
+      }
+      if (displayActionNominalSurface && typedSourceSurface && displayActionNominalSurface !== typedSourceSurface) {
+        diagnostics.push("active-action-nominal-compound-display-surface-contradicts-source-frame");
+      }
       if (!normalizedActionNominalSurface) {
-        diagnostics.push("active-action-nominal-compound-missing-action-nominal-surface");
+        diagnostics.push("active-action-nominal-compound-missing-typed-action-nominal-realization");
       }
       const matrixSpec = resolveActiveActionNominalCompoundMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4330,7 +6695,37 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         compoundStem,
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildActiveActionNominalCompoundTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundStem,
+        ordinaryNncInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        diagnostics.push("active-action-nominal-compound-missing-typed-target-frame");
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("active-action-nominal-compound-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || targetFrame.compoundStem || "").trim() !== compoundStem) {
+          diagnostics.push("active-action-nominal-compound-target-stem-mismatch");
+        }
+        if (String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim() !== ordinaryNncInput) {
+          diagnostics.push("active-action-nominal-compound-target-input-mismatch");
+        }
+        if (String(targetFrame.nounClass || "").trim() !== String(matrixSpec.nounClass || "zero").trim()) {
+          diagnostics.push("active-action-nominal-compound-target-class-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const operationFrame = uniqueDiagnostics.length === 0 ? buildActiveActionNominalCompoundOperationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame
+      }) : null;
+      const ordinaryNncRequest = buildActiveActionNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame);
       return attachDerivationContinuationGrammarContract({
         outputKind: "active-action-nominal-compound-continuation-contract",
         grammarSource: "Andrews 37.5.4",
@@ -4340,15 +6735,15 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         actionNominalSurface: normalizedActionNominalSurface,
         incorporatedRoot: normalizedActionNominalSurface,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
-          compoundStem,
-          nounClass: matrixSpec.nounClass || "zero",
-          animacy: matrixSpec.animacy || "inanimate"
-        }),
+        nominalCompoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ordinaryNncRequest: ordinaryNncRequest.request,
         diagnostics: uniqueDiagnostics
       });
     }
@@ -4357,12 +6752,22 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
-      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const typedPreteritAgentiveStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const normalizedPreteritAgentiveStem = typedPreteritAgentiveStem;
+      const displayPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("preterit-agentive-compound-embed-missing-typed-source-frame");
+      }
+      if (displayPreteritAgentiveStem && typedPreteritAgentiveStem && displayPreteritAgentiveStem !== typedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-compound-embed-display-stem-contradicts-source-frame");
+      }
       if (!normalizedPreteritAgentiveStem) {
-        diagnostics.push("preterit-agentive-compound-embed-missing-general-use-stem");
+        diagnostics.push("preterit-agentive-compound-embed-missing-typed-general-use-stem");
       }
       const matrixSpec = resolvePreteritAgentiveCompoundEmbedMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4375,10 +6780,37 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       if (!compoundVerbInput && !matrixSpec.supported) {
         diagnostics.push("preterit-agentive-compound-embed-missing-verb-input");
       }
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPreteritAgentiveCompoundEmbedTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("preterit-agentive-compound-embed-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("preterit-agentive-compound-embed-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || "").trim() !== `${normalizedPreteritAgentiveStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`) {
+          diagnostics.push("preterit-agentive-compound-embed-target-stem-mismatch");
+        }
+        if (String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim() !== compoundVerbInput) {
+          diagnostics.push("preterit-agentive-compound-embed-target-input-mismatch");
+        }
+        const expectedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(matrixSpec.objectPrefix || "ki").trim() || "ki" : "";
+        if (String(targetFrame.objectPrefix || "").trim() !== expectedObjectPrefix) {
+          diagnostics.push("preterit-agentive-compound-embed-target-object-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPreteritAgentiveCompoundEmbedOperationFrame({
-        preteritAgentiveStem: normalizedPreteritAgentiveStem,
-        matrixSpec
+        sourceContinuationFrame,
+        matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame
       }) : null;
       const compoundRequest = buildPreteritAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
       return attachDerivationContinuationGrammarContract({
@@ -4390,6 +6822,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundVerbInput,
@@ -4404,12 +6838,22 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
-      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const typedPreteritAgentiveStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const normalizedPreteritAgentiveStem = typedPreteritAgentiveStem;
+      const displayPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("preterit-agentive-nominal-compound-missing-typed-source-frame");
+      }
+      if (displayPreteritAgentiveStem && typedPreteritAgentiveStem && displayPreteritAgentiveStem !== typedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-nominal-compound-display-stem-contradicts-source-frame");
+      }
       if (!normalizedPreteritAgentiveStem) {
-        diagnostics.push("preterit-agentive-nominal-compound-missing-general-use-stem");
+        diagnostics.push("preterit-agentive-nominal-compound-missing-typed-general-use-stem");
       }
       const matrixSpec = resolvePreteritAgentiveNominalCompoundMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4426,7 +6870,39 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         compoundStem,
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPreteritAgentiveNominalCompoundTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundStem,
+        ordinaryNncInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("preterit-agentive-nominal-compound-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("preterit-agentive-nominal-compound-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || targetFrame.compoundStem || "").trim() !== compoundStem) {
+          diagnostics.push("preterit-agentive-nominal-compound-target-stem-mismatch");
+        }
+        if (String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim() !== ordinaryNncInput) {
+          diagnostics.push("preterit-agentive-nominal-compound-target-input-mismatch");
+        }
+        if (String(targetFrame.nounClass || "").trim() !== String(matrixSpec.nounClass || "zero").trim()) {
+          diagnostics.push("preterit-agentive-nominal-compound-target-class-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const operationFrame = uniqueDiagnostics.length === 0 ? buildPreteritAgentiveNominalCompoundOperationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame
+      }) : null;
+      const ordinaryNncRequest = buildPreteritAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame);
       return attachDerivationContinuationGrammarContract({
         outputKind: "preterit-agentive-nominal-compound-continuation-contract",
         grammarSource: "Andrews 35.7",
@@ -4436,15 +6912,15 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
-          compoundStem,
-          nounClass: matrixSpec.nounClass || "zero",
-          animacy: matrixSpec.animacy || "inanimate"
-        }),
+        nominalCompoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ordinaryNncRequest: ordinaryNncRequest.request,
         diagnostics: uniqueDiagnostics
       });
     }
@@ -4453,12 +6929,22 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_NOMINAL_COMPOUND_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
-      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      const typedCustomaryAgentiveStem = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
+      const normalizedCustomaryAgentiveStem = typedCustomaryAgentiveStem;
+      const displayCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("customary-agentive-nominal-compound-missing-typed-source-frame");
+      }
+      if (displayCustomaryAgentiveStem && typedCustomaryAgentiveStem && displayCustomaryAgentiveStem !== typedCustomaryAgentiveStem) {
+        diagnostics.push("customary-agentive-nominal-compound-display-stem-contradicts-source-frame");
+      }
       if (!normalizedCustomaryAgentiveStem) {
-        diagnostics.push("customary-agentive-nominal-compound-missing-fully-nominalized-stem");
+        diagnostics.push("customary-agentive-nominal-compound-missing-typed-customary-agentive-stem");
       }
       const matrixSpec = resolveCustomaryAgentiveNominalCompoundMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4475,7 +6961,39 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         compoundStem,
         nounClass: matrixSpec.nounClass || "zero"
       }) : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildCustomaryAgentiveNominalCompoundTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        compoundStem,
+        ordinaryNncInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("customary-agentive-nominal-compound-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("customary-agentive-nominal-compound-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || targetFrame.compoundStem || "").trim() !== compoundStem) {
+          diagnostics.push("customary-agentive-nominal-compound-target-stem-mismatch");
+        }
+        if (String(targetFrame.ordinaryNncInput || targetFrame.targetInput || "").trim() !== ordinaryNncInput) {
+          diagnostics.push("customary-agentive-nominal-compound-target-input-mismatch");
+        }
+        if (String(targetFrame.nounClass || "").trim() !== String(matrixSpec.nounClass || "zero").trim()) {
+          diagnostics.push("customary-agentive-nominal-compound-target-class-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
+      const operationFrame = uniqueDiagnostics.length === 0 ? buildCustomaryAgentiveNominalCompoundOperationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame
+      }) : null;
+      const ordinaryNncRequest = buildCustomaryAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame(operationFrame);
       return attachDerivationContinuationGrammarContract({
         outputKind: "customary-agentive-nominal-compound-continuation-contract",
         grammarSource: "Andrews 36.3",
@@ -4485,15 +7003,15 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         customaryAgentiveStem: normalizedCustomaryAgentiveStem,
         incorporatedRoot: normalizedCustomaryAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         compoundStem,
         ordinaryNncInput,
-        ordinaryNncRequest: buildNominalCompoundOrdinaryNncRequest({
-          compoundStem,
-          nounClass: matrixSpec.nounClass || "zero",
-          animacy: matrixSpec.animacy || "inanimate"
-        }),
+        nominalCompoundOperationFrame: operationFrame,
+        typedOperationFrame: operationFrame,
+        ordinaryNncRequest: ordinaryNncRequest.request,
         diagnostics: uniqueDiagnostics
       });
     }
@@ -4502,13 +7020,23 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_CUSTOMARY_AGENTIVE_COMPOUND_EMBED_MATRIX_ROOT,
       objectPrefix = ""
     } = {}) {
       const diagnostics = [];
-      const normalizedCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      const typedCustomaryAgentiveStem = getTypedDerivationContinuationFramePredicateStem(sourceContinuationFrame);
+      const normalizedCustomaryAgentiveStem = typedCustomaryAgentiveStem;
+      const displayCustomaryAgentiveStem = String(customaryAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("customary-agentive-compound-embed-missing-typed-source-frame");
+      }
+      if (displayCustomaryAgentiveStem && typedCustomaryAgentiveStem && displayCustomaryAgentiveStem !== typedCustomaryAgentiveStem) {
+        diagnostics.push("customary-agentive-compound-embed-display-stem-contradicts-source-frame");
+      }
       if (!normalizedCustomaryAgentiveStem) {
-        diagnostics.push("customary-agentive-compound-embed-missing-fully-nominalized-stem");
+        diagnostics.push("customary-agentive-compound-embed-missing-typed-customary-agentive-stem");
       }
       const matrixSpec = resolveCustomaryAgentiveCompoundEmbedMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4522,10 +7050,37 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         diagnostics.push("customary-agentive-compound-embed-missing-verb-input");
       }
       const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki" : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildCustomaryAgentiveCompoundEmbedTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        objectPrefix: resolvedObjectPrefix,
+        compoundVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("customary-agentive-compound-embed-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("customary-agentive-compound-embed-target-source-frame-mismatch");
+        }
+        if (String(targetFrame.stem || "").trim() !== `${normalizedCustomaryAgentiveStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`) {
+          diagnostics.push("customary-agentive-compound-embed-target-stem-mismatch");
+        }
+        if (String(targetFrame.compoundVerbInput || targetFrame.targetInput || "").trim() !== compoundVerbInput) {
+          diagnostics.push("customary-agentive-compound-embed-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== resolvedObjectPrefix) {
+          diagnostics.push("customary-agentive-compound-embed-target-object-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildCustomaryAgentiveCompoundEmbedOperationFrame({
-        customaryAgentiveStem: normalizedCustomaryAgentiveStem,
+        sourceContinuationFrame,
         matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         objectPrefix: resolvedObjectPrefix
       }) : null;
       const compoundRequest = buildCustomaryAgentiveCompoundEmbedGenerationRequestFromOperationFrame(operationFrame);
@@ -4538,6 +7093,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         customaryAgentiveStem: normalizedCustomaryAgentiveStem,
         incorporatedRoot: normalizedCustomaryAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         objectPrefix: resolvedObjectPrefix,
@@ -4553,12 +7110,22 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_OWNERHOOD_MATRIX_ROOT
     } = {}) {
       const diagnostics = [];
-      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const typedPreteritAgentiveStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const normalizedPreteritAgentiveStem = typedPreteritAgentiveStem;
+      const displayPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("preterit-agentive-ownerhood-missing-typed-source-frame");
+      }
+      if (displayPreteritAgentiveStem && typedPreteritAgentiveStem && displayPreteritAgentiveStem !== typedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-ownerhood-display-stem-contradicts-source-frame");
+      }
       if (!normalizedPreteritAgentiveStem) {
-        diagnostics.push("preterit-agentive-ownerhood-missing-general-use-stem");
+        diagnostics.push("preterit-agentive-ownerhood-missing-typed-general-use-stem");
       }
       const matrixSpec = resolvePreteritAgentiveOwnerhoodMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4571,11 +7138,38 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       if (!ownerhoodVerbInput && !matrixSpec.supported) {
         diagnostics.push("preterit-agentive-ownerhood-missing-verb-input");
       }
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPreteritAgentiveOwnerhoodTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        ownerhoodVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("preterit-agentive-ownerhood-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        const targetFrameStem = String(targetFrame.stem || "").trim();
+        const expectedTargetStem = `${normalizedPreteritAgentiveStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("preterit-agentive-ownerhood-target-source-frame-mismatch");
+        }
+        if (targetFrameStem !== expectedTargetStem) {
+          diagnostics.push("preterit-agentive-ownerhood-target-stem-mismatch");
+        }
+        if (String(targetFrame.ownerhoodVerbInput || targetFrame.targetInput || "").trim() !== ownerhoodVerbInput) {
+          diagnostics.push("preterit-agentive-ownerhood-target-input-mismatch");
+        }
+        if (targetFrameStem === expectedTargetStem && targetFrame.parsedVerb?.sourceRawVerb !== targetFrameStem) {
+          diagnostics.push("preterit-agentive-ownerhood-target-parse-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPreteritAgentiveOwnerhoodOperationFrame({
-        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame,
         matrixSpec,
-        sourceSurface
+        targetContinuationFrame: resolvedTargetContinuationFrame
       }) : null;
       const ownerhoodRequest = buildPreteritAgentiveOwnerhoodGenerationRequestFromOperationFrame(operationFrame);
       return attachDerivationContinuationGrammarContract({
@@ -4594,6 +7188,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         ownerhoodVerbInput,
         ownerhoodOperationFrame: operationFrame,
         typedOperationFrame: operationFrame,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame || null,
         ownerhoodRequest,
         diagnostics: uniqueDiagnostics
       });
@@ -4603,13 +7199,23 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_COMPLEMENT_MATRIX_ROOT,
       objectPrefix = ""
     } = {}) {
       const diagnostics = [];
-      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const typedPreteritAgentiveStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const normalizedPreteritAgentiveStem = typedPreteritAgentiveStem;
+      const displayPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("preterit-agentive-complement-missing-typed-source-frame");
+      }
+      if (displayPreteritAgentiveStem && typedPreteritAgentiveStem && displayPreteritAgentiveStem !== typedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-complement-display-stem-contradicts-source-frame");
+      }
       if (!normalizedPreteritAgentiveStem) {
-        diagnostics.push("preterit-agentive-complement-missing-general-use-stem");
+        diagnostics.push("preterit-agentive-complement-missing-typed-general-use-stem");
       }
       const matrixSpec = resolvePreteritAgentiveComplementMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4623,11 +7229,39 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         diagnostics.push("preterit-agentive-complement-missing-verb-input");
       }
       const resolvedObjectPrefix = String(objectPrefix || matrixSpec.objectPrefix || "ki").trim() || "ki";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPreteritAgentiveComplementTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        objectPrefix: resolvedObjectPrefix,
+        complementVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("preterit-agentive-complement-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        const targetFrameStem = String(targetFrame.stem || "").trim();
+        const expectedTargetStem = `${normalizedPreteritAgentiveStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("preterit-agentive-complement-target-source-frame-mismatch");
+        }
+        if (targetFrameStem !== expectedTargetStem) {
+          diagnostics.push("preterit-agentive-complement-target-stem-mismatch");
+        }
+        if (String(targetFrame.complementVerbInput || targetFrame.targetInput || "").trim() !== complementVerbInput) {
+          diagnostics.push("preterit-agentive-complement-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== resolvedObjectPrefix) {
+          diagnostics.push("preterit-agentive-complement-target-object-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPreteritAgentiveComplementOperationFrame({
-        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame,
         matrixSpec,
-        sourceSurface,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         objectPrefix: resolvedObjectPrefix
       }) : null;
       const complementRequest = buildPreteritAgentiveComplementGenerationRequestFromOperationFrame(operationFrame);
@@ -4640,6 +7274,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame || null,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         objectPrefix: resolvedObjectPrefix,
@@ -4655,13 +7291,23 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceSurface = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = DEFAULT_PRETERIT_AGENTIVE_ADVERBIAL_MATRIX_ROOT,
       objectPrefix = ""
     } = {}) {
       const diagnostics = [];
-      const normalizedPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      const typedPreteritAgentiveStem = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame(sourceContinuationFrame);
+      const normalizedPreteritAgentiveStem = typedPreteritAgentiveStem;
+      const displayPreteritAgentiveStem = String(preteritAgentiveStem || "").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("preterit-agentive-adverbial-missing-typed-source-frame");
+      }
+      if (displayPreteritAgentiveStem && typedPreteritAgentiveStem && displayPreteritAgentiveStem !== typedPreteritAgentiveStem) {
+        diagnostics.push("preterit-agentive-adverbial-display-stem-contradicts-source-frame");
+      }
       if (!normalizedPreteritAgentiveStem) {
-        diagnostics.push("preterit-agentive-adverbial-missing-general-use-stem");
+        diagnostics.push("preterit-agentive-adverbial-missing-typed-general-use-stem");
       }
       const matrixSpec = resolvePreteritAgentiveAdverbialMatrixSpec(matrixRoot);
       if (!matrixSpec.supported) {
@@ -4675,11 +7321,39 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         diagnostics.push("preterit-agentive-adverbial-missing-verb-input");
       }
       const resolvedObjectPrefix = matrixSpec.matrixValency === "transitive" ? String(objectPrefix || "ki").trim() || "ki" : "";
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildPreteritAgentiveAdverbialTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        objectPrefix: resolvedObjectPrefix,
+        adverbialVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported) {
+          diagnostics.push("preterit-agentive-adverbial-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        const targetFrameStem = String(targetFrame.stem || "").trim();
+        const expectedTargetStem = `${normalizedPreteritAgentiveStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("preterit-agentive-adverbial-target-source-frame-mismatch");
+        }
+        if (targetFrameStem !== expectedTargetStem) {
+          diagnostics.push("preterit-agentive-adverbial-target-stem-mismatch");
+        }
+        if (String(targetFrame.adverbialVerbInput || targetFrame.targetInput || "").trim() !== adverbialVerbInput) {
+          diagnostics.push("preterit-agentive-adverbial-target-input-mismatch");
+        }
+        if (String(targetFrame.objectPrefix || "").trim() !== resolvedObjectPrefix) {
+          diagnostics.push("preterit-agentive-adverbial-target-object-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildPreteritAgentiveAdverbialOperationFrame({
-        preteritAgentiveStem: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame,
         matrixSpec,
-        sourceSurface,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         objectPrefix: resolvedObjectPrefix
       }) : null;
       const adverbialRequest = buildPreteritAgentiveAdverbialGenerationRequestFromOperationFrame(operationFrame);
@@ -4692,6 +7366,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
         preteritAgentiveStem: normalizedPreteritAgentiveStem,
         incorporatedRoot: normalizedPreteritAgentiveStem,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame || null,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : String(matrixRoot || "").trim(),
         matrix: matrixSpec,
         adverbialFocus: matrixSpec.adverbialFocus || "",
@@ -4710,18 +7386,32 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       sourceKind = "",
       sourceFormulaSlots = null,
       sourceFormulaEcho = "",
+      sourceContinuationFrame = null,
+      targetContinuationFrame = null,
       matrixRoot = "",
       ownerhoodKind = "ownerhood"
     } = {}) {
       const diagnostics = [];
-      const normalizedNounStem = String(nounStem || "").trim();
-      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const typedSourcePayload = getTypedOrdinaryNounOwnerhoodSourceFramePayload(sourceContinuationFrame);
+      const normalizedNounStem = typedSourcePayload.nounStem;
+      const normalizedClass = typedSourcePayload.nounClass;
+      const displayNounStem = String(nounStem || "").trim();
+      const displayNounClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
       const normalizedKind = String(ownerhoodKind || "ownerhood").trim();
+      if (!isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame)) {
+        diagnostics.push("ordinary-noun-ownerhood-missing-typed-source-frame");
+      }
+      if (displayNounStem && normalizedNounStem && displayNounStem !== normalizedNounStem) {
+        diagnostics.push("ordinary-noun-ownerhood-display-stem-contradicts-source-frame");
+      }
+      if (displayNounClass && normalizedClass && displayNounClass !== normalizedClass) {
+        diagnostics.push("ordinary-noun-ownerhood-display-class-contradicts-source-frame");
+      }
       if (!normalizedNounStem) {
-        diagnostics.push("ordinary-noun-ownerhood-missing-noun-stem");
+        diagnostics.push("ordinary-noun-ownerhood-missing-typed-noun-stem");
       }
       if (!normalizedClass) {
-        diagnostics.push("ordinary-noun-ownerhood-unsupported-noun-class");
+        diagnostics.push("ordinary-noun-ownerhood-missing-typed-noun-class");
       }
       const resolvedMatrixRoot = String(matrixRoot || "").trim() || resolveOrdinaryNounOwnerhoodDefaultMatrixRoot({
         nounClass: normalizedClass,
@@ -4747,13 +7437,42 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
       if (!ownerhoodVerbInput && (!matrixSpec.supported || !classIsAllowed)) {
         diagnostics.push("ordinary-noun-ownerhood-missing-verb-input");
       }
+      const resolvedTargetContinuationFrame = targetContinuationFrame && typeof targetContinuationFrame === "object" && targetContinuationFrame.kind === "andrews-typed-operation-continuation-frame" ? targetContinuationFrame : buildOrdinaryNounOwnerhoodTargetContinuationFrame({
+        sourceContinuationFrame,
+        matrixSpec,
+        ownerhoodKind: normalizedKind,
+        ownerhoodVerbInput
+      });
+      if (!resolvedTargetContinuationFrame) {
+        if (matrixSpec.supported && classIsAllowed) {
+          diagnostics.push("ordinary-noun-ownerhood-missing-typed-target-frame");
+        }
+      } else {
+        const targetFrame = resolvedTargetContinuationFrame.targetFrame || {};
+        const targetSourceFrame = resolvedTargetContinuationFrame.sourceFrame || null;
+        const targetFrameStem = String(targetFrame.stem || "").trim();
+        const expectedTargetStem = `${normalizedNounStem}${matrixSpec.supported ? matrixSpec.nawatRoot : ""}`;
+        if (targetSourceFrame && targetSourceFrame !== sourceContinuationFrame) {
+          diagnostics.push("ordinary-noun-ownerhood-target-source-frame-mismatch");
+        }
+        if (targetFrameStem !== expectedTargetStem) {
+          diagnostics.push("ordinary-noun-ownerhood-target-stem-mismatch");
+        }
+        if (String(targetFrame.ownerhoodVerbInput || targetFrame.targetInput || "").trim() !== ownerhoodVerbInput) {
+          diagnostics.push("ordinary-noun-ownerhood-target-input-mismatch");
+        }
+        if (normalizeOrdinaryNounOwnerhoodNounClass(targetFrame.nounClass) !== normalizedClass) {
+          diagnostics.push("ordinary-noun-ownerhood-target-class-mismatch");
+        }
+        if (targetFrameStem === expectedTargetStem && targetFrame.parsedVerb?.sourceRawVerb !== targetFrameStem) {
+          diagnostics.push("ordinary-noun-ownerhood-target-parse-mismatch");
+        }
+      }
       const uniqueDiagnostics = diagnostics.filter((item, index, list) => item && list.indexOf(item) === index);
       const operationFrame = uniqueDiagnostics.length === 0 ? buildOrdinaryNounOwnerhoodOperationFrame({
-        nounStem: normalizedNounStem,
-        nounClass: normalizedClass,
-        sourceSurface,
-        sourceKind,
+        sourceContinuationFrame,
         matrixSpec,
+        targetContinuationFrame: resolvedTargetContinuationFrame,
         ownerhoodKind: normalizedKind
       }) : null;
       const ownerhoodRequest = buildOrdinaryNounOwnerhoodGenerationRequestFromOperationFrame(operationFrame);
@@ -4765,10 +7484,12 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
         sourceKind: String(sourceKind || "").trim(),
         sourceFormulaSlots: sourceFormulaSlots && typeof sourceFormulaSlots === "object" ? sourceFormulaSlots : null,
         sourceFormulaEcho: String(sourceFormulaEcho || "").trim(),
-        evidenceStatus: String(sourceKind || "").trim() === "fixture" ? "source-fixture-backed" : "structural-open-stem",
+        evidenceStatus: String(typedSourcePayload.sourceKind || sourceKind || "").trim() === "fixture" ? "source-fixture-backed" : "structural-open-stem",
         nounStem: normalizedNounStem,
         incorporatedRoot: normalizedNounStem,
         nounClass: normalizedClass,
+        sourceContinuationFrame: isGeneratedOutputTypedDerivationContinuationFrame(sourceContinuationFrame) ? sourceContinuationFrame : null,
+        targetContinuationFrame: resolvedTargetContinuationFrame || null,
         matrixRoot: matrixSpec.supported ? matrixSpec.nawatRoot : resolvedMatrixRoot,
         surfaceMatrix: matrixSpec.surfaceMatrix || "",
         ownerhoodKind: matrixSpec.ownerhoodKind || normalizedKind,
@@ -4814,6 +7535,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     api.isGeneratedOutputTypedDerivationContinuationFrame = isGeneratedOutputTypedDerivationContinuationFrame;
     api.normalizeTypedDerivationContinuationSurface = normalizeTypedDerivationContinuationSurface;
     api.getTypedDerivationContinuationFrameSurface = getTypedDerivationContinuationFrameSurface;
+    api.getTypedDerivationContinuationFramePredicateStem = getTypedDerivationContinuationFramePredicateStem;
+    api.getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame = getTypedPreteritAgentiveGeneralUseStemFromContinuationFrame;
     api.buildActiveActionCompoundEmbedTargetContinuationFrame = buildActiveActionCompoundEmbedTargetContinuationFrame;
     api.normalizeDerivationContinuationContractSurface = normalizeDerivationContinuationContractSurface;
     api.splitDerivationContinuationContractSurface = splitDerivationContinuationContractSurface;
@@ -4838,9 +7561,15 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     api.attachDerivationContinuationGrammarContract = attachDerivationContinuationGrammarContract;
     api.normalizeDerivationSourceOuterPiece = normalizeDerivationSourceOuterPiece;
     api.isCurrentRegexDerivationSourceParseTree = isCurrentRegexDerivationSourceParseTree;
+    api.buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame = buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame;
     api.buildCurrentRegexDerivationSourceParseTree = buildCurrentRegexDerivationSourceParseTree;
     api.normalizeCurrentRegexDerivationSourceParseTree = normalizeCurrentRegexDerivationSourceParseTree;
+    api.getCurrentRegexDerivationSourceModelSignature = getCurrentRegexDerivationSourceModelSignature;
+    api.buildCurrentRegexDerivationSourceModelTargetFrame = buildCurrentRegexDerivationSourceModelTargetFrame;
+    api.buildCurrentRegexDerivationSourceModelOperationFrame = buildCurrentRegexDerivationSourceModelOperationFrame;
+    api.getCurrentRegexDerivationSourceModelOperationMismatch = getCurrentRegexDerivationSourceModelOperationMismatch;
     api.buildCurrentRegexDerivationSourceModel = buildCurrentRegexDerivationSourceModel;
+    api.buildCurrentRegexDerivationSourceModelFromParseTree = buildCurrentRegexDerivationSourceModelFromParseTree;
     api.buildFallbackDerivationSourceModel = buildFallbackDerivationSourceModel;
     api.buildDerivationSourceModel = buildDerivationSourceModel;
     api.getDerivationSourceOuterSurface = getDerivationSourceOuterSurface;
@@ -5022,6 +7751,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     api.resolveOrdinaryNounOwnerhoodDefaultMatrixRoot = resolveOrdinaryNounOwnerhoodDefaultMatrixRoot;
     api.isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass = isOrdinaryNounOwnerhoodMatrixCompatibleWithNounClass;
     api.buildPatientivoCompoundEmbedVerbInput = buildPatientivoCompoundEmbedVerbInput;
+    api.getTypedPatientivoContinuationSourceFramePayload = getTypedPatientivoContinuationSourceFramePayload;
+    api.buildPatientivoCompoundEmbedTargetContinuationFrame = buildPatientivoCompoundEmbedTargetContinuationFrame;
     api.buildPatientivoCompoundEmbedOperationFrame = buildPatientivoCompoundEmbedOperationFrame;
     api.isPatientivoCompoundEmbedOperationFrame = isPatientivoCompoundEmbedOperationFrame;
     api.buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame = buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame;
@@ -5032,6 +7763,8 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     api.stripPatientivoCharacteristicPropertySuffix = stripPatientivoCharacteristicPropertySuffix;
     api.resolvePatientivoCharacteristicPropertyEmbedSource = resolvePatientivoCharacteristicPropertyEmbedSource;
     api.buildPatientivoCharacteristicPropertyEmbedVerbInput = buildPatientivoCharacteristicPropertyEmbedVerbInput;
+    api.getTypedCharacteristicPropertyEmbedSourcePayload = getTypedCharacteristicPropertyEmbedSourcePayload;
+    api.buildPatientivoCharacteristicPropertyTargetContinuationFrame = buildPatientivoCharacteristicPropertyTargetContinuationFrame;
     api.buildPatientivoCharacteristicPropertyEmbedOperationFrame = buildPatientivoCharacteristicPropertyEmbedOperationFrame;
     api.isPatientivoCharacteristicPropertyEmbedOperationFrame = isPatientivoCharacteristicPropertyEmbedOperationFrame;
     api.buildPatientivoCharacteristicPropertyEmbedGenerationRequestFromOperationFrame = buildPatientivoCharacteristicPropertyEmbedGenerationRequestFromOperationFrame;
@@ -5041,39 +7774,65 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
     api.isActiveActionCompoundEmbedOperationFrame = isActiveActionCompoundEmbedOperationFrame;
     api.buildActiveActionCompoundEmbedGenerationRequestFromOperationFrame = buildActiveActionCompoundEmbedGenerationRequestFromOperationFrame;
     api.buildActiveActionNominalCompoundStem = buildActiveActionNominalCompoundStem;
+    api.buildActiveActionNominalCompoundTargetContinuationFrame = buildActiveActionNominalCompoundTargetContinuationFrame;
+    api.buildActiveActionNominalCompoundOperationFrame = buildActiveActionNominalCompoundOperationFrame;
+    api.isActiveActionNominalCompoundOperationFrame = isActiveActionNominalCompoundOperationFrame;
+    api.buildActiveActionNominalCompoundOrdinaryNncRequestFromOperationFrame = buildActiveActionNominalCompoundOrdinaryNncRequestFromOperationFrame;
+    api.buildCustomaryAgentiveNominalCompoundTargetContinuationFrame = buildCustomaryAgentiveNominalCompoundTargetContinuationFrame;
+    api.buildCustomaryAgentiveNominalCompoundOperationFrame = buildCustomaryAgentiveNominalCompoundOperationFrame;
+    api.isCustomaryAgentiveNominalCompoundOperationFrame = isCustomaryAgentiveNominalCompoundOperationFrame;
+    api.buildCustomaryAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame = buildCustomaryAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame;
     api.buildPreteritAgentiveCompoundEmbedVerbInput = buildPreteritAgentiveCompoundEmbedVerbInput;
+    api.buildPreteritAgentiveCompoundEmbedTargetContinuationFrame = buildPreteritAgentiveCompoundEmbedTargetContinuationFrame;
     api.buildPreteritAgentiveCompoundEmbedOperationFrame = buildPreteritAgentiveCompoundEmbedOperationFrame;
     api.isPreteritAgentiveCompoundEmbedOperationFrame = isPreteritAgentiveCompoundEmbedOperationFrame;
     api.buildPreteritAgentiveCompoundEmbedGenerationRequestFromOperationFrame = buildPreteritAgentiveCompoundEmbedGenerationRequestFromOperationFrame;
     api.buildPreteritAgentiveNominalCompoundStem = buildPreteritAgentiveNominalCompoundStem;
+    api.buildPreteritAgentiveNominalCompoundTargetContinuationFrame = buildPreteritAgentiveNominalCompoundTargetContinuationFrame;
+    api.buildPreteritAgentiveNominalCompoundOperationFrame = buildPreteritAgentiveNominalCompoundOperationFrame;
+    api.isPreteritAgentiveNominalCompoundOperationFrame = isPreteritAgentiveNominalCompoundOperationFrame;
+    api.buildPreteritAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame = buildPreteritAgentiveNominalCompoundOrdinaryNncRequestFromOperationFrame;
     api.buildCustomaryAgentiveNominalCompoundStem = buildCustomaryAgentiveNominalCompoundStem;
     api.buildCustomaryAgentiveCompoundEmbedVerbInput = buildCustomaryAgentiveCompoundEmbedVerbInput;
+    api.buildCustomaryAgentiveCompoundEmbedTargetContinuationFrame = buildCustomaryAgentiveCompoundEmbedTargetContinuationFrame;
     api.buildCustomaryAgentiveCompoundEmbedOperationFrame = buildCustomaryAgentiveCompoundEmbedOperationFrame;
     api.isCustomaryAgentiveCompoundEmbedOperationFrame = isCustomaryAgentiveCompoundEmbedOperationFrame;
     api.buildCustomaryAgentiveCompoundEmbedGenerationRequestFromOperationFrame = buildCustomaryAgentiveCompoundEmbedGenerationRequestFromOperationFrame;
     api.formatPreteritAgentiveNominalCompoundOrdinaryNncInput = formatPreteritAgentiveNominalCompoundOrdinaryNncInput;
     api.formatCustomaryAgentiveNominalCompoundOrdinaryNncInput = formatCustomaryAgentiveNominalCompoundOrdinaryNncInput;
     api.buildPreteritAgentiveOwnerhoodVerbInput = buildPreteritAgentiveOwnerhoodVerbInput;
+    api.buildPreteritAgentiveOwnerhoodTargetContinuationFrame = buildPreteritAgentiveOwnerhoodTargetContinuationFrame;
     api.buildTypedOwnerhoodParsedVerbFrame = buildTypedOwnerhoodParsedVerbFrame;
     api.buildPreteritAgentiveOwnerhoodOperationFrame = buildPreteritAgentiveOwnerhoodOperationFrame;
     api.isPreteritAgentiveOwnerhoodOperationFrame = isPreteritAgentiveOwnerhoodOperationFrame;
     api.buildPreteritAgentiveOwnerhoodGenerationRequestFromOperationFrame = buildPreteritAgentiveOwnerhoodGenerationRequestFromOperationFrame;
     api.buildOrdinaryNounOwnerhoodOperationFrame = buildOrdinaryNounOwnerhoodOperationFrame;
+    api.getTypedOrdinaryNounOwnerhoodSourceFramePayload = getTypedOrdinaryNounOwnerhoodSourceFramePayload;
+    api.buildOrdinaryNounOwnerhoodTargetContinuationFrame = buildOrdinaryNounOwnerhoodTargetContinuationFrame;
     api.isOrdinaryNounOwnerhoodOperationFrame = isOrdinaryNounOwnerhoodOperationFrame;
     api.buildOrdinaryNounOwnerhoodGenerationRequestFromOperationFrame = buildOrdinaryNounOwnerhoodGenerationRequestFromOperationFrame;
     api.buildPreteritAgentiveComplementVerbInput = buildPreteritAgentiveComplementVerbInput;
+    api.buildPreteritAgentiveComplementTargetContinuationFrame = buildPreteritAgentiveComplementTargetContinuationFrame;
     api.buildPreteritAgentiveComplementOperationFrame = buildPreteritAgentiveComplementOperationFrame;
     api.isPreteritAgentiveComplementOperationFrame = isPreteritAgentiveComplementOperationFrame;
     api.buildPreteritAgentiveComplementGenerationRequestFromOperationFrame = buildPreteritAgentiveComplementGenerationRequestFromOperationFrame;
     api.buildPreteritAgentiveAdverbialVerbInput = buildPreteritAgentiveAdverbialVerbInput;
+    api.buildPreteritAgentiveAdverbialTargetContinuationFrame = buildPreteritAgentiveAdverbialTargetContinuationFrame;
     api.buildPreteritAgentiveAdverbialOperationFrame = buildPreteritAgentiveAdverbialOperationFrame;
     api.isPreteritAgentiveAdverbialOperationFrame = isPreteritAgentiveAdverbialOperationFrame;
     api.buildPreteritAgentiveAdverbialGenerationRequestFromOperationFrame = buildPreteritAgentiveAdverbialGenerationRequestFromOperationFrame;
     api.buildOrdinaryNounOwnerhoodVerbInput = buildOrdinaryNounOwnerhoodVerbInput;
     api.formatActiveActionNominalCompoundOrdinaryNncInput = formatActiveActionNominalCompoundOrdinaryNncInput;
     api.resolvePatientivoNominalCompoundFormationFrame = resolvePatientivoNominalCompoundFormationFrame;
+    api.getTypedPatientivoNominalCompoundSourceFramePayload = getTypedPatientivoNominalCompoundSourceFramePayload;
+    api.buildPatientivoNominalCompoundTargetContinuationFrame = buildPatientivoNominalCompoundTargetContinuationFrame;
+    api.buildPatientivoNominalCompoundOperationFrame = buildPatientivoNominalCompoundOperationFrame;
+    api.isPatientivoNominalCompoundOperationFrame = isPatientivoNominalCompoundOperationFrame;
+    api.buildPatientivoNominalCompoundOrdinaryNncRequestFromOperationFrame = buildPatientivoNominalCompoundOrdinaryNncRequestFromOperationFrame;
     api.stripPatientivoPrelocativeConnector = stripPatientivoPrelocativeConnector;
     api.buildPatientivoPrelocativeVerbInput = buildPatientivoPrelocativeVerbInput;
+    api.resolvePatientivoPrelocativeIncorporatedRole = resolvePatientivoPrelocativeIncorporatedRole;
+    api.buildPatientivoPrelocativeTargetContinuationFrame = buildPatientivoPrelocativeTargetContinuationFrame;
     api.buildPatientivoPrelocativeOperationFrame = buildPatientivoPrelocativeOperationFrame;
     api.isPatientivoPrelocativeOperationFrame = isPatientivoPrelocativeOperationFrame;
     api.buildPatientivoPrelocativeGenerationRequestFromOperationFrame = buildPatientivoPrelocativeGenerationRequestFromOperationFrame;
@@ -5101,7 +7860,7 @@ export function createDerivationSourceModelModule(targetObject = globalThis) {
 }
 
 export function installDerivationSourceModelGlobals(targetObject = globalThis) {
-    const api = createDerivationSourceModelModule(targetObject);
+    const api = createDerivationSourceModelContext(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

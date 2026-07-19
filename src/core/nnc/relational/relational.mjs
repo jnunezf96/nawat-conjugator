@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/relational/relational.js.
+// Canonical modern ESM module.
 
 export function createRelationalNncApi(targetObject = globalThis) {
     const RELATIONAL_NNC_BOUNDARY_VERSION = 1;

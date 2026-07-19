@@ -1,0 +1,80 @@
+{
+  "version": 1,
+  "mode": "enforce",
+  "baselinePath": "config/shared_action_alignment.baseline.json",
+  "liveTargetPath": "docs/CURRENT_TARGET.md",
+  "activeActionDirectory": "docs/shared_actions/active",
+  "redZonePaths": [
+    "src/ui/rendering/rendering.mjs",
+    "src/ui/state.mjs",
+    "src/ui/composer/composer.mjs",
+    "src/core/classical/vnc_layer_evaluator.mjs",
+    "src/core/classical/nnc_layer_evaluator.mjs"
+  ],
+  "rules": [
+    {
+      "id": "responsibility-actor-alignment",
+      "metric": "responsibilityAlignmentFailures",
+      "direction": "zero",
+      "severity": "blocking",
+      "validIncentive": "each actor performs its assigned responsibility",
+      "misalignedAction": "a known wrong action persists without a Coordinator-added supporting actor",
+      "missingSupport": "an explicit shared actor assignment with alignment and exit evidence"
+    },
+    {
+      "id": "renderer-classical-construction",
+      "metric": "renderingDirectClassicalConstructionCalls",
+      "direction": "nonincreasing",
+      "severity": "waiver-required",
+      "validIncentive": "render the current authorized grammar result",
+      "misalignedAction": "construct or derive Classical grammar inside rendering",
+      "missingSupport": "a normalized application request and validated result boundary"
+    },
+    {
+      "id": "renderer-optional-domain-dependency",
+      "metric": "renderingOptionalClassicalDependencies",
+      "direction": "nonincreasing",
+      "severity": "advisory",
+      "validIncentive": "remain compatible with the current runtime",
+      "misalignedAction": "discover required Classical capabilities through optional global checks",
+      "missingSupport": "an explicit required-capability declaration"
+    },
+    {
+      "id": "unregistered-classical-contracts",
+      "metric": "unregisteredClassicalContractKinds",
+      "direction": "nonincreasing",
+      "severity": "advisory",
+      "validIncentive": "carry typed authority instead of surface strings",
+      "misalignedAction": "invent an undeclared local contract kind",
+      "missingSupport": "the shared grammar-contract catalog"
+    },
+    {
+      "id": "browser-script-count",
+      "metric": "browserScriptCount",
+      "direction": "nonincreasing",
+      "severity": "blocking",
+      "validIncentive": "deliver the application through one explicit modern module entry",
+      "misalignedAction": "reintroduce another browser script lane or implicit ordered global",
+      "missingSupport": "a capability registered in the canonical ESM installer manifest"
+    },
+    {
+      "id": "live-board-size",
+      "metric": "liveTargetLines",
+      "direction": "bounded",
+      "maximum": 220,
+      "severity": "advisory",
+      "validIncentive": "leave durable coordination context",
+      "misalignedAction": "turn the live target into an append-only historical archive",
+      "missingSupport": "a separate historical board"
+    },
+    {
+      "id": "tracked-report-files",
+      "metric": "trackedReportFiles",
+      "direction": "nonincreasing",
+      "severity": "advisory",
+      "validIncentive": "preserve reproducible evidence",
+      "misalignedAction": "store every reproducible bulk artifact in source control",
+      "missingSupport": "compact manifests plus external or ignored bulk output"
+    }
+  ]
+}

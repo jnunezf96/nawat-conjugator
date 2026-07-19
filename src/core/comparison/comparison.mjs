@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/comparison/comparison.js.
+// Canonical modern ESM module.
 
 export function createComparisonApi(targetObject = globalThis) {
     const COMPARISON_BOUNDARY_VERSION = 1;

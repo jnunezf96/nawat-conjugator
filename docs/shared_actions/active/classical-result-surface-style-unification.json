@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-result-surface-style-unification",
+  "status": "complete",
+  "incentive": {
+    "id": "one-classical-result-visual-language-with-typed-authority-intact",
+    "statement": "Make every Classical #3 result component feel like one coherent Canvas/Andrews surface without changing grammar ownership, formulas, or interaction contracts.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate shared visual tokens, component styling, focused tests, and live proof while preventing presentation from constructing grammar.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Selected answers, format views, operator controls, authority receipts, proof sections, and the authorized derivation read as one Classical result surface.",
+  "responsibilities": [
+    {
+      "id": "presentation",
+      "statement": "Own the common Classical result visual language without changing DOM or grammar structure.",
+      "paths": ["style.css", "index.html", "src/ui/"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Create and apply shared result tokens and component treatments."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-authority",
+      "statement": "Keep selected results, formulas, derivation explanations, and authority receipts application-owned and unchanged.",
+      "paths": ["src/application/", "src/core/", "src/runtime/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve existing typed frames and fail-closed result contracts while presentation changes."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove common styling, preserved formula structures, responsive behavior, and mode parity.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Add focused style contracts and perform live desktop and narrow-width proof."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the current target, board, shared action, and alignment evidence synchronized.",
+      "paths": [".gitignore", "docs/", "config/", "AGENTS.md"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Record scope and closure without treating this as a lesson handoff."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-application-control-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "blocky-selected-vnc-card", "status": "complete", "removalEvidence": "Selected VNC and NNC results now use the same full border, rounded white panel, teal answer inset, uppercase label hierarchy, and shared spacing as the authorized-derivation surface; the old left-border slab is overridden."},
+    {"id": "generic-calc-operator-grid-derivation-style", "status": "complete", "removalEvidence": "Every Classical mode, derivation, voice, and subtype operator grid now uses the common gradient, teal border, rounded container, and teal active pill treatment."},
+    {"id": "mixed-result-card-palettes-and-radii", "status": "complete", "removalEvidence": "One body-scoped token set now controls the root result, selected answer, Linear/Diagram views, authority receipt, proof actions/disclosures, and the authorized-derivation variables."}
+  ],
+  "evidence": [
+    {"kind": "focused-ui", "command": "node scripts/run_tests.js --filter=ui", "result": "384/384 passed, including the common Classical Canvas/Andrews visual-system contract"},
+    {"kind": "live-direct", "result": "Direct huāqui authorized Nihuāc.; the result root used the shared gradient, 12px radius, and shadow, while selected form, format card, receipt, and operator controls used the common teal component vocabulary with zero overflow."},
+    {"kind": "live-applicative", "result": "Type 1 applicative authorized Nimitzhuāquih.; selected result, receipt, and authorized derivation each measured the same width and resolved to rgba(255,255,255,.82), rgba(40,95,87,.14), 10px radius, 12px padding, and no competing shadow."},
+    {"kind": "live-causative", "result": "Type 1 causative authorized Nichuātz.; selected result and authorized derivation retained identical background, border, and radius styling with no horizontal overflow."},
+    {"kind": "live-responsive", "result": "Phone-width Result proof measured a 379px root and 360px selected, receipt, and derivation panels with 9px responsive padding, one-column participant history, and zero page or component overflow."},
+    {"kind": "live-console", "result": "The final in-app tab reported zero warning or error logs."},
+    {"kind": "alignment", "command": "npm run audit:alignment", "result": "ALIGNED with zero renderer construction, optional dependency, contract, browser-script, or tracked-report regression"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "style.css:.classical-vnc-derivation-explainer"
+  }
+}

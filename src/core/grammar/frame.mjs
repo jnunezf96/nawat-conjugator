@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/grammar/frame.js.
+// Canonical modern ESM module.
 
 export function createGrammarFrameModule(targetObject = globalThis) {
     var GRAMMAR_FRAME_VERSION = 1;

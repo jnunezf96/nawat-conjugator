@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/numerals/numerals.js
+ * Tests for src/core/nnc/numerals/numerals.mjs
  */
 
 const { createSuite } = require("./runner");

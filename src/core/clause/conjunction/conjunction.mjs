@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/conjunction/conjunction.js.
+// Canonical modern ESM module.
 
 export function createConjunctionClauseGlobals(targetObject = globalThis) {
     const CONJUNCTION_CLAUSE_BOUNDARY_VERSION = 1;

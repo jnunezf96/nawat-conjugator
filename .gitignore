@@ -1,3 +1,7 @@
 .idea/
 node_modules/
 .DS_Store
+.readiness-cache/
+reports/generated/karttunen_1992_causative_boundaries/
+reports/generated/karttunen_1992_lessons24_26_types/
+reports/generated/karttunen_1992_lessons25_26_types/

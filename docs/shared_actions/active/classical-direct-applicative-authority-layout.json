@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-direct-applicative-authority-layout",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-authority-with-complete-user-decision-inventory",
+    "statement": "Preserve typed Andrews authority while restoring Direct choices that presentation filtering hid and organizing Applicative around its three genuine authority controls.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate mode-specific presentation, canonical control state, tests, and browser proof without moving grammar construction into the renderer.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Direct visibly retains its established VNC choices, while Applicative presents Generated formation, Imported object, and Later target voice in a stable typed sequence.",
+  "responsibilities": [
+    {
+      "id": "presentation",
+      "statement": "Own mode-specific control visibility, labels, and order without constructing grammar.",
+      "paths": ["src/ui/", "style.css", "index.html"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Restore Direct visibility and arrange the Applicative three-dropdown group."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-authority",
+      "statement": "Keep generated inventories and selected options application-owned and mode-specific.",
+      "paths": ["src/application/", "src/core/", "src/runtime/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve canonical inventory and selection contracts while presentation changes."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove Direct restoration, Applicative order, mode switching, canonical selection, and browser behavior.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Add focused hostile presentation assertions and run readiness."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the target, board, shared action, and alignment evidence current.",
+      "paths": [".gitignore", "AGENTS.md", "docs/", "config/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Record scope, verification, and closure."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-option-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-application-control-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "direct-mode-presentation-hidden-authority-choices", "status": "complete", "removalEvidence": "Direct restores Class, 3 common, information question, and wish to the visible inventory; Canvas incompatibility still disables choices through typed authority instead of removing them in presentation."},
+    {"id": "applicative-controls-with-accidental-grid-order", "status": "complete", "removalEvidence": "Applicative now renders one explicit authority heading followed by Generated formation, Imported object, and Later target voice at stable grid orders 15, 16, and 17."}
+  ],
+  "evidence": [
+    {"kind": "focused-ui", "command": "node scripts/run_tests.js --filter=ui", "result": "382/382 passed, including Direct restoration and Applicative three-dropdown ordering"},
+    {"kind": "focused-application", "command": "node scripts/run_tests.js --filter=classical_vnc_application", "result": "24/24 passed"},
+    {"kind": "focused-lessons", "command": "node scripts/run_tests.js --filter=classical_lessons24_26", "result": "24/24 passed"},
+    {"kind": "live-browser", "result": "Direct shows Class, 3 common, information question, and wish; Canvas-determined Class remains visible and locked; Applicative heading and mode-specific presentation verified"},
+    {"kind": "readiness", "command": "npm run verify:readiness", "result": "3399/3399 tests across 56 suites; 161/161 Lesson 26 examples; 18 productive rule families; Karttunen audit and browser smoke passed"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "src/ui/rendering/rendering.mjs:syncClassicalRuleLogicControlsForSurfaceFrame"
+  }
+}

@@ -1334,11 +1334,11 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
     const labelsPath = path.join(DATA_DIR, "static_labels.json");
     const modesPath = path.join(DATA_DIR, "static_modes.json");
     const optionsPath = path.join(DATA_DIR, "static_options.json");
-    const renderingPath = path.join(ROOT, "src", "ui", "rendering", "rendering.js");
-    const composerPath = path.join(ROOT, "src", "ui", "composer", "composer.js");
-    const exportPath = path.join(ROOT, "src", "ui", "export", "export.js");
-    const eventsPath = path.join(ROOT, "src", "ui", "events.js");
-    const statePath = path.join(ROOT, "src", "ui", "state.js");
+    const renderingPath = path.join(ROOT, "src", "ui", "rendering", "rendering.mjs");
+    const composerPath = path.join(ROOT, "src", "ui", "composer", "composer.mjs");
+    const exportPath = path.join(ROOT, "src", "ui", "export", "export.mjs");
+    const eventsPath = path.join(ROOT, "src", "ui", "events", "events.mjs");
+    const statePath = path.join(ROOT, "src", "ui", "state.mjs");
     const hasOption = (key) => Object.prototype.hasOwnProperty.call(options, key);
     let html = "";
     let staticLabels = null;
@@ -1494,10 +1494,10 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
     });
     visibleStateMessages.forEach((message, index) => {
         if (/\b(?:NNC|VNC|verbstem|nounstem|nounroot|possessive-state|absolutive-state)\b/.test(message)) {
-            errorsFound.push(`src/ui/state.js visible message ${index + 1} must use Spanish grammar labels instead of non-formula shorthand.`);
+            errorsFound.push(`src/ui/state.mjs visible message ${index + 1} must use Spanish grammar labels instead of non-formula shorthand.`);
         }
         if (/\b(?:requires|generated|attaches|uses|must use|cannot generate|could not be generated)\b/i.test(message)) {
-            errorsFound.push(`src/ui/state.js visible message ${index + 1} must use Spanish diagnostic text.`);
+            errorsFound.push(`src/ui/state.mjs visible message ${index + 1} must use Spanish diagnostic text.`);
         }
     });
     [
@@ -1517,7 +1517,7 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         "function formatVisibleLcmDiagnosticLabel",
     ].forEach((marker) => {
         if (!renderingSource.includes(marker)) {
-            errorsFound.push(`src/ui/rendering/rendering.js must keep ${marker}() for dynamic Spanish contract labels.`);
+            errorsFound.push(`src/ui/rendering/rendering.mjs must keep ${marker}() for dynamic Spanish contract labels.`);
         }
     });
     [
@@ -1535,17 +1535,17 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         ["dynamic sentence mood raw value", /Modo oracional: \$\{mood\}/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(renderingSource)) {
-            errorsFound.push(`src/ui/rendering/rendering.js ${label} must use Spanish visible text and translated LCM metadata.`);
+            errorsFound.push(`src/ui/rendering/rendering.mjs ${label} must use Spanish visible text and translated LCM metadata.`);
         }
     });
     if (!renderingSource.includes("function formatVisibleSentenceLayerSlotValue")) {
-        errorsFound.push("src/ui/rendering/rendering.js must translate sentence-layer metadata values before visible UI rendering.");
+        errorsFound.push("src/ui/rendering/rendering.mjs must translate sentence-layer metadata values before visible UI rendering.");
     }
     [
         ["export visible LCM header", /["'`][^"'`]*\bLCM\b[^"'`]*["'`]/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(exportSource)) {
-            errorsFound.push(`src/ui/export/export.js ${label} must use Spanish contract labels.`);
+            errorsFound.push(`src/ui/export/export.mjs ${label} must use Spanish contract labels.`);
         }
     });
     [
@@ -1559,7 +1559,7 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         ["dynamic non-formula route shorthand", /["'`]N>V|N>V\s+\$\{|->\s*dir\b|\bdir en posición|\bobj1\/obj2\b|Valencia CNV|CNN\/N|CNV:\s+tablero|fuente N\b|Tipo de CN|habilitar ANS|COP ·|DEL ·|CE ·|AC ·|["'`]N["'`]/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(composerSource)) {
-            errorsFound.push(`src/ui/composer/composer.js ${label} must use Spanish visible labels.`);
+            errorsFound.push(`src/ui/composer/composer.mjs ${label} must use Spanish visible labels.`);
         }
     });
     [
@@ -1569,14 +1569,14 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         ["dynamic non-formula clause shorthand", /["'`](?:Adj VNC|Adj NNC|NNC abs|NNC raiz|tronco NNC|Cláusula nuclear CNN|Relacional NNC|Objetivos Andrews NNC\/VNC|Solicitudes VNC Andrews|Clases VNC Andrews|Avisos Andrews VNC|Notas Andrews VNC|Entradas VNC Andrews|Fuente Andrews: NNC|Evidencia: salida NNC|valencia VNC|objeto 1 CNV|derivacion VNC|compuesto VNC|#3 salida VNC|#3 salida NNC|VNC en funcion adjetival|NNC .*funcion adjetival|no crea tronco NNC)/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(renderingSource)) {
-            errorsFound.push(`src/ui/rendering/rendering.js ${label} must use Spanish visible labels.`);
+            errorsFound.push(`src/ui/rendering/rendering.mjs ${label} must use Spanish visible labels.`);
         }
     });
     [
         ["dynamic particle route shorthand", /["'`]Partícula · diagnóstico Andrews; no genera VNC\/CNN\./],
     ].forEach(([label, pattern]) => {
         if (pattern.test(stateSource)) {
-            errorsFound.push(`src/ui/state.js ${label} must use Spanish visible labels.`);
+            errorsFound.push(`src/ui/state.mjs ${label} must use Spanish visible labels.`);
         }
     });
     [
@@ -1584,7 +1584,7 @@ function collectVisibleUiSpanishSurfaceErrors(options = {}) {
         ["inline composer non-formula valence shorthand", /Elemento incorporado\s+(?:VI|VT|VB)|["'`]Incorp\.["'`]|["'`]Obj\.["'`]/],
     ].forEach(([label, pattern]) => {
         if (pattern.test(eventsSource)) {
-            errorsFound.push(`src/ui/events.js ${label} must use Spanish visible labels.`);
+            errorsFound.push(`src/ui/events/events.mjs ${label} must use Spanish visible labels.`);
         }
     });
     return errorsFound;
@@ -1595,42 +1595,21 @@ function checkVisibleUiSpanishSurface() {
 }
 
 function checkAndrewsTrajectoryRegistry() {
-    const lessonRegistry = loadScriptConst("src/lessons/registry.js", "LESSON_REGISTRY");
-    const lessonRegistryMjs = loadScriptConst("src/lessons/registry.mjs", "LESSON_REGISTRY");
-    const redirectActions = loadScriptConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
-    const redirectActionsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
-    const trajectoryGroups = loadScriptConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_GROUPS");
-    const trajectoryGroupsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_GROUPS");
-    const aimStatuses = loadScriptConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
-    const aimStatusesMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
-    const arrowResults = loadScriptConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
-    const arrowResultsMjs = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
+    const lessonRegistry = loadScriptConst("src/lessons/registry.mjs", "LESSON_REGISTRY");
+    const redirectActions = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
+    const trajectoryGroups = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_GROUPS");
+    const aimStatuses = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
+    const arrowResults = loadScriptConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
     if (
         !Array.isArray(lessonRegistry)
-        || !Array.isArray(lessonRegistryMjs)
         || !Array.isArray(redirectActions)
-        || !Array.isArray(redirectActionsMjs)
         || !Array.isArray(trajectoryGroups)
-        || !Array.isArray(trajectoryGroupsMjs)
         || !Array.isArray(aimStatuses)
-        || !Array.isArray(aimStatusesMjs)
         || !Array.isArray(arrowResults)
-        || !Array.isArray(arrowResultsMjs)
     ) {
         addError("Lesson registry trajectory metadata could not be loaded.");
         return;
     }
-    [
-        ["LESSON_REGISTRY", lessonRegistryMjs, lessonRegistry],
-        ["ANDREWS_TRAJECTORY_REDIRECT_ACTIONS", redirectActionsMjs, redirectActions],
-        ["ANDREWS_TRAJECTORY_GROUPS", trajectoryGroupsMjs, trajectoryGroups],
-        ["ANDREWS_PLAN_PURSUIT_AIM_STATUSES", aimStatusesMjs, aimStatuses],
-        ["ANDREWS_PLAN_PURSUIT_ARROW_RESULTS", arrowResultsMjs, arrowResults],
-    ].forEach(([label, mjsValue, jsValue]) => {
-        if (JSON.stringify(mjsValue) !== JSON.stringify(jsValue)) {
-            addError(`src/lessons/registry.mjs ${label} must match src/lessons/registry.js.`);
-        }
-    });
 
     const expectedActions = [
         "keep",
@@ -1642,10 +1621,10 @@ function checkAndrewsTrajectoryRegistry() {
         "source-gated",
     ];
     if (redirectActions.join("\u0000") !== expectedActions.join("\u0000")) {
-        addError(`src/lessons/registry.js redirect actions must be exactly: ${expectedActions.join(", ")}.`);
+        addError(`src/lessons/registry.mjs redirect actions must be exactly: ${expectedActions.join(", ")}.`);
     }
     if (trajectoryGroups.length !== 8) {
-        addError("src/lessons/registry.js must define the eight Andrews trajectory lesson groups.");
+        addError("src/lessons/registry.mjs must define the eight Andrews trajectory lesson groups.");
     }
     [
         ["Lecciones 1-4", [1, 4]],
@@ -1659,16 +1638,16 @@ function checkAndrewsTrajectoryRegistry() {
     ].forEach(([label, range], index) => {
         const group = trajectoryGroups[index] || {};
         if (group.label !== label || JSON.stringify(group.range) !== JSON.stringify(range)) {
-            addError(`src/lessons/registry.js trajectory group ${index + 1} must be ${label} ${range.join("-")}.`);
+            addError(`src/lessons/registry.mjs trajectory group ${index + 1} must be ${label} ${range.join("-")}.`);
         }
     });
     const expectedAimStatuses = ["queued", "shooting", "blocked", "closest-pass"];
     if (aimStatuses.join("\u0000") !== expectedAimStatuses.join("\u0000")) {
-        addError(`src/lessons/registry.js aim statuses must be exactly: ${expectedAimStatuses.join(", ")}.`);
+        addError(`src/lessons/registry.mjs aim statuses must be exactly: ${expectedAimStatuses.join(", ")}.`);
     }
     const expectedArrowResults = ["hit", "miss"];
     if (arrowResults.join("\u0000") !== expectedArrowResults.join("\u0000")) {
-        addError(`src/lessons/registry.js arrow results must be exactly: ${expectedArrowResults.join(", ")}.`);
+        addError(`src/lessons/registry.mjs arrow results must be exactly: ${expectedArrowResults.join(", ")}.`);
     }
 
     const allowedActions = new Set(expectedActions);
@@ -1841,7 +1820,7 @@ function checkAndrewsTrajectoryRegistry() {
     }
 
     lessonRegistry.forEach((lesson, index) => {
-        const where = `src/lessons/registry.js lesson ${lesson.id}.trajectory`;
+        const where = `src/lessons/registry.mjs lesson ${lesson.id}.trajectory`;
         const trajectory = asObject(lesson.trajectory, where);
         checkNoUnknownKeys(trajectory, expectedKeys, where);
         const pdfRefs = checkStringArray(trajectory.pdfRefs, `${where}.pdfRefs`);

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/morphology_engine.js.
+// Canonical modern ESM module.
 
 export function createMorphologyEngineApi(targetObject = globalThis) {
     // core/generation/morphology_engine.js

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/place_gentilic/place_gentilic.js
+ * Tests for src/core/nnc/place_gentilic/place_gentilic.mjs
  */
 
 const { createSuite } = require("./runner");

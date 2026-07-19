@@ -393,3 +393,4 @@ Copyright boundary: this is a paraphrased engineering digest. It is not a replac
 - The digest intentionally omits full paradigms and most examples. Use the PDF for exact paradigms before tests or data fixtures.
 - Existing repo notes are strongest for Lessons 12-14, 35-41, 44-55, and the diagnostic boundaries for 51-58.
 - Lessons 1-11, 15-34, and Appendices A-F should be re-checked section-by-section before any new engine contracts are implemented from this digest.
+- Table-heavy pages need visual/table overlays before they become rule evidence. See `docs/ANDREWS_TABLE_CANVAS_OVERLAYS.md` for hand-verified table geometry for printed pp. 66-67, printed pp. 180-181, and the appendix table map.

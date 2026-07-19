@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-karttunen-causative-boundary-projection",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-authority-with-auditable-karttunen-boundary-projection",
+    "statement": "Use Karttunen causative pairs to test and display independently generated Andrews segmentation without letting lexical evidence create, select, or authorize grammar.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate evidence extraction, typed evaluator replay, ambiguity reporting, and hostile neutrality proof.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "A deterministic offline audit reconciles the exact 276-causative/808-nonactive Karttunen inventory, projects 90 exact Andrews/Canvas boundaries, labels 124 additional boundary hypotheses by their independent support, and leaves the remaining records as non-morphological edit frontiers or unresolved outliers without expanding runtime grammar.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Provide canonical causative options and their typed segmentation; do not consume inferred dictionary boundaries as authority.",
+      "paths": ["src/core/classical/", "src/core/grammar/"],
+      "primaryActor": "classical-causative-engine",
+      "actors": [{"actorId": "classical-causative-engine", "kind": "primary", "status": "active", "contribution": "Regenerate each candidate through the existing canonical evaluator."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "evidence-analysis",
+      "statement": "Align exact Karttunen source-target identity with regenerated candidates and classify unique, ambiguous, and unresolved projections.",
+      "paths": ["scripts/audit_classical_karttunen_", "scripts/infer_classical_karttunen_", "src/core/classical/karttunen_1992_"],
+      "primaryActor": "karttunen-boundary-auditor",
+      "actors": [{"actorId": "karttunen-boundary-auditor", "kind": "primary", "status": "active", "contribution": "Produce deterministic offline projection rows with explicit non-authority provenance."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove exact quantity preservation, profile replay, ambiguity retention, unresolved-edge neutrality, deterministic output, and no runtime authority expansion.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Run focused projection checks and the repository alignment/readiness gates."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the current target, board, shared-action status, and closure evidence synchronized.",
+      "paths": [".gitignore", "docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/", "config/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Prevent an offline projection from becoming a second grammar or runtime lane."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [
+    {
+      "id": "unreconciled-marker-count-as-inventory-proof",
+      "status": "complete",
+      "removalEvidence": "The runner excludes and row-scopingly repairs four causative substitutions plus ten false/eight missed nonactive edges before any projection; the equal raw causative total and net-plus-two nonactive total can no longer masquerade as the conservative inventory."
+    },
+    {
+      "id": "apparent-suffix-as-automatic-hyphen",
+      "status": "complete",
+      "removalEvidence": "TIA/LIA/HUIA spelling alone now creates only a reversible edit frontier. Exact boundaries and hypotheses require a canonical Andrews/Canvas projection, a closed same-source nonactive transformation, or a uniquely Andrews-anchored edit signature."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "reconciled-karttunen-inventory",
+      "result": "The fixed-SHA source yields 276 conservative causative and 808 conservative nonactive relations after exact source-row repairs; all repair identities and counts are hostile invariants."
+    },
+    {
+      "id": "exact-and-hypothetical-boundary-coverage",
+      "result": "The report contains 90 exact Andrews/Canvas boundaries and 124 disjoint, non-authorizing hypothesis records, for 214/276 exact-or-hypothetical projections. Another 60 receive edit frontiers only and two irregular spellings remain unresolved."
+    },
+    {
+      "id": "nonactive-family-corroboration",
+      "result": "Same-source nonactive evidence exists for 183 pairs and exactly corroborates 97 quantity-preserving family transforms: 56 hua, 35 lō, four o-hua, and two ō. Fifty-two have no current runtime projection; no family match creates target-boundary ambiguity."
+    },
+    {
+      "id": "canvas-gap-and-valence-diagnostics",
+      "result": "Exact Canvas gaps expose āhui-ya-l-tiā, pīn-ā-uh-tiā, pol-i-huī-tiā, and tlatz-i-huī-tiā separately from hypotheses such as pīn-ā-hua-l-tiā. All 21 final-hui pairs are audited, including six transitive-only runtime spelling matches that fail the intransitive §25.2.4 prerequisite."
+    },
+    {
+      "id": "authority-and-regression-proof",
+      "result": "Every report authority flag is false; exact and hypothetical boundaries round-trip to the raw quantity-preserving target; the ĀYĪLTIĀ no-license row remains frontier-only; the inference audit and full readiness chain pass with 3393/3393 tests across 55 suites, aligned 73/73 runtime delivery, lesson/Karttunen audits, and direct-import browser smoke."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "scripts/infer_classical_karttunen_1992_causative_boundaries.js"
+  }
+}

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/engine.js.
+// Canonical modern ESM module.
 
 export function createGenerationEngineGlobals(targetObject = globalThis) {
     const NUCLEAR_CLAUSE_SURFACE_NOOP = () => {};
@@ -6394,12 +6394,10 @@ export function createGenerationEngineGlobals(targetObject = globalThis) {
       const valorTronco = String(entradaTronco.valorTronco || "");
       let entradaGrammarObject = (request?.entradaGrammarObject && typeof request.entradaGrammarObject === "object" ? request.entradaGrammarObject : null) || (entradaTronco.entradaGrammarObject && typeof entradaTronco.entradaGrammarObject === "object" ? entradaTronco.entradaGrammarObject : null) || (override?.entradaGrammarObject && typeof override.entradaGrammarObject === "object" ? override.entradaGrammarObject : null);
       const explicitEntradaGrammarObject = entradaGrammarObject;
-      if (!entradaGrammarObject && typeof targetObject.parseMovingTargetRegexInput === "function" && typeof targetObject.buildEntradaGrammarObjectFromMovingTargetParsed === "function") {
+      if (!entradaGrammarObject && typeof targetObject.buildCurrentRegexParseOperationFrameFromRawInput === "function" && typeof targetObject.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame === "function") {
         const entradaRawValue = String(valorTronco || troncoSlot || tronco || "");
-        const parsedEntrada = targetObject.parseMovingTargetRegexInput(entradaRawValue);
-        if (parsedEntrada?.isValid === true) {
-          entradaGrammarObject = targetObject.buildEntradaGrammarObjectFromMovingTargetParsed(entradaRawValue, parsedEntrada);
-        }
+        const entradaParseOperationFrame = targetObject.buildCurrentRegexParseOperationFrameFromRawInput(entradaRawValue);
+        entradaGrammarObject = targetObject.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(entradaRawValue, entradaParseOperationFrame);
       }
       const clearError = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "clearError");
       const setError = resolveNuclearClauseSurfaceUiHook(request?.uiHooks, "setError");

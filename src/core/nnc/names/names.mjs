@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/names/names.js.
+// Canonical modern ESM module.
 
 export function createPersonalNameNncApi(targetObject = globalThis) {
     const PERSONAL_NAME_NNC_BOUNDARY_VERSION = 1;

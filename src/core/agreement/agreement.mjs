@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/agreement/agreement.js.
+// Canonical modern ESM module.
 
 export function createAgreementModule(targetObject = globalThis) {
     function cloneAgreementLessonRecord(value) {

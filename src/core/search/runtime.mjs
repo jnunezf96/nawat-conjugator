@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/search/runtime.js.
+// Canonical modern ESM module.
 
 export function createSearchRuntimeApi(targetObject = globalThis) {
     function splitSearchInput(rawValue) {
@@ -11,27 +11,10 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     }
     function getRawInputTiCausativeMetadata(rawValue = "") {
       const raw = String(rawValue || "");
-      const movingTargetParsed = targetObject.parseMovingTargetRegexInput(raw);
-      if (movingTargetParsed.isValid) {
-        const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInputFromSourceFrame(movingTargetParsed.coreText || ""));
-        const adjacentIntransitiveEmbed = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? targetObject.getMovingTargetAdjacentEmbedParts(inline.base || movingTargetParsed.coreText || "") : null;
-        const movingTargetDashPrefix = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? "" : "-";
-        return {
-          raw,
-          hasQuery: false,
-          query: "",
-          normalizedBase: movingTargetParsed.regexValue,
-          normalizedQuery: "",
-          normalizedInput: movingTargetParsed.regexValue,
-          tiCausativeClass: inline.tiCausativeClass || "",
-          dashPrefix: movingTargetDashPrefix,
-          displayCore: movingTargetParsed.coreText || "",
-          displayVerb: movingTargetParsed.regexValue,
-          hasExternalObjectDash: movingTargetParsed.transitivity !== targetObject.COMPOSER_TRANSITIVITY.intransitive,
-          semanticObjectSlotCount: movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.bitransitive ? 2 : movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.transitive ? 1 : 0,
-          lexicalCompoundEmbedCount: adjacentIntransitiveEmbed ? 1 : 0,
-          isRegexEnvelope: true
-        };
+      const currentRegexParseOperationFrame = targetObject.buildCurrentRegexParseOperationFrameFromRawInput(raw);
+      const typedMetadata = getRawInputTiCausativeMetadataFromParseOperationFrame(raw, currentRegexParseOperationFrame);
+      if (typedMetadata) {
+        return typedMetadata;
       }
       const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInputFromSourceFrame(raw));
       return {
@@ -50,6 +33,36 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
         lexicalCompoundEmbedCount: 0,
         isRegexEnvelope: false
       };
+    }
+    function getRawInputTiCausativeMetadataFromParseOperationFrame(rawValue = "", currentRegexParseOperationFrame = null) {
+      const raw = String(rawValue || "");
+      if (!raw || targetObject.getCurrentRegexParseOperationMismatch(raw, currentRegexParseOperationFrame)) {
+        return null;
+      }
+      const movingTargetParsed = targetObject.buildMovingTargetParsedFromCurrentRegexParseOperationFrame(currentRegexParseOperationFrame);
+      if (movingTargetParsed?.isValid === true) {
+        const inline = targetObject.parseInlineTiCausativeClassFromBase(targetObject.collapseSerialStemDashInputFromSourceFrame(movingTargetParsed.coreText || ""));
+        const adjacentIntransitiveEmbed = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? targetObject.getMovingTargetAdjacentEmbedParts(inline.base || movingTargetParsed.coreText || "") : null;
+        const movingTargetDashPrefix = movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.intransitive ? "" : "-";
+        return {
+          raw,
+          hasQuery: false,
+          query: "",
+          normalizedBase: movingTargetParsed.regexValue,
+          normalizedQuery: "",
+          normalizedInput: movingTargetParsed.regexValue,
+          tiCausativeClass: inline.tiCausativeClass || "",
+          dashPrefix: movingTargetDashPrefix,
+          displayCore: movingTargetParsed.coreText || "",
+          displayVerb: movingTargetParsed.regexValue,
+          hasExternalObjectDash: movingTargetParsed.transitivity !== targetObject.COMPOSER_TRANSITIVITY.intransitive,
+          semanticObjectSlotCount: movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.bitransitive ? 2 : movingTargetParsed.transitivity === targetObject.COMPOSER_TRANSITIVITY.transitive ? 1 : 0,
+          lexicalCompoundEmbedCount: adjacentIntransitiveEmbed ? 1 : 0,
+          isRegexEnvelope: true,
+          currentRegexParseOperationFrame
+        };
+      }
+      return null;
     }
     function getSearchParts(rawValue) {
       const parts = splitSearchInput(rawValue);
@@ -138,8 +151,35 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
       const info = getSearchQueryInfo(rawValue);
       return !!info;
     }
-    function normalizeConjugationSearchText(value) {
+    function getConjugationSearchClassicalProfileId(runtimeTarget = null) {
+      const profileMode = runtimeTarget?.LANGUAGE_PROFILE_MODE || (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" ? targetObject.LANGUAGE_PROFILE_MODE : null);
+      return profileMode?.classicalNahuatl ? profileMode.classicalNahuatl : "classical-nahuatl";
+    }
+    function getActiveConjugationSearchLanguageProfileMode(runtimeTarget = null) {
+      if (runtimeTarget && typeof runtimeTarget.getActiveLanguageProfileMode === "function") {
+        return runtimeTarget.getActiveLanguageProfileMode();
+      }
+      return typeof targetObject.getActiveLanguageProfileMode === "function" ? targetObject.getActiveLanguageProfileMode() : "";
+    }
+    function hasClassicalNahuatlConjugationSearchLetters(value = "") {
+      return /[āēīō]/iu.test(String(value || ""));
+    }
+    function isClassicalNahuatlConjugationSearchContext(value = "", runtimeTarget = null) {
+      const activeMode = getActiveConjugationSearchLanguageProfileMode(runtimeTarget);
+      if (activeMode) {
+        return activeMode === getConjugationSearchClassicalProfileId(runtimeTarget);
+      }
+      return hasClassicalNahuatlConjugationSearchLetters(value);
+    }
+    function normalizeClassicalNahuatlConjugationSearchText(value) {
+      return String(value || "").toLowerCase().replace(/[^a-zāēīō]/gu, "");
+    }
+    function normalizeNawatPipilConjugationSearchText(value) {
       return String(value || "").toLowerCase().replace(/[^a-z]/g, "");
+    }
+    function normalizeConjugationSearchText(value) {
+      const runtimeTarget = this && typeof this === "object" ? this : null;
+      return isClassicalNahuatlConjugationSearchContext(value, runtimeTarget) ? normalizeClassicalNahuatlConjugationSearchText(value) : normalizeNawatPipilConjugationSearchText(value);
     }
     function matchesSearchVariant(variant, normalizedSearch, matchMode) {
       switch (matchMode) {
@@ -629,6 +669,7 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     const api = {};
     api.splitSearchInput = splitSearchInput;
     api.getRawInputTiCausativeMetadata = getRawInputTiCausativeMetadata;
+    api.getRawInputTiCausativeMetadataFromParseOperationFrame = getRawInputTiCausativeMetadataFromParseOperationFrame;
     api.getSearchParts = getSearchParts;
     api.parseSearchQueryDirectives = parseSearchQueryDirectives;
     api.getSearchQueryDirectives = getSearchQueryDirectives;
@@ -639,6 +680,12 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     api.getOrdinaryNncSearchCandidateInfo = getOrdinaryNncSearchCandidateInfo;
     api.isOrdinaryNncSearchCandidate = isOrdinaryNncSearchCandidate;
     api.isSearchModeInput = isSearchModeInput;
+    api.getConjugationSearchClassicalProfileId = getConjugationSearchClassicalProfileId;
+    api.getActiveConjugationSearchLanguageProfileMode = getActiveConjugationSearchLanguageProfileMode;
+    api.hasClassicalNahuatlConjugationSearchLetters = hasClassicalNahuatlConjugationSearchLetters;
+    api.isClassicalNahuatlConjugationSearchContext = isClassicalNahuatlConjugationSearchContext;
+    api.normalizeClassicalNahuatlConjugationSearchText = normalizeClassicalNahuatlConjugationSearchText;
+    api.normalizeNawatPipilConjugationSearchText = normalizeNawatPipilConjugationSearchText;
     api.normalizeConjugationSearchText = normalizeConjugationSearchText;
     api.matchesSearchVariant = matchesSearchVariant;
     api.isNominalTenseMode = isNominalTenseMode;

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/calendar/calendar.js
+ * Tests for src/core/calendar/calendar.mjs
  */
 
 const { createSuite } = require("./runner");

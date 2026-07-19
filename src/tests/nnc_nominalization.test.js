@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/nominalization/nominalization.js
+ * Tests for src/core/nnc/nominalization/nominalization.mjs
  */
 
 const { createSuite } = require("./runner");

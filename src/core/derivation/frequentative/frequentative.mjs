@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/derivation/frequentative/frequentative.js.
+// Canonical modern ESM module.
 
 export function createFrequentativeApi(targetObject = globalThis) {
     const FREQUENTATIVE_BOUNDARY_VERSION = 1;

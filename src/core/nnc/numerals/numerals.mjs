@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/numerals/numerals.js.
+// Canonical modern ESM module.
 
 export function createNumeralNncApi(targetObject = globalThis) {
     const NUMERAL_NNC_BOUNDARY_VERSION = 1;

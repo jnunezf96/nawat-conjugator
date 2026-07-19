@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/adverbial/adverbial.js.
+// Canonical modern ESM module.
 
 export function createAdverbialNuclearApi(targetObject = globalThis) {
     const ADVERBIAL_NUCLEAR_BOUNDARY_VERSION = 1;

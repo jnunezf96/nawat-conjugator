@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-derived-authority-choice-restoration",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-authority-options-remain-usable-across-derivations",
+    "statement": "A pending causative or applicative formation must not erase source-authorized Mood and Tense choices from Authority #2.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate the capability, UI, and verification repair without weakening canonical derivation selection.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Direct, pending Causative, and pending Applicative expose the same source-authorized Mood and Tense decisions while derivation formation and downstream choices remain typed and gated.",
+  "responsibilities": [
+    {
+      "id": "capability-authority",
+      "statement": "Derive pending-result UI capabilities from the canonical source machinery without authorizing the unresolved derivation.",
+      "paths": ["src/core/classical/vnc_layer_evaluator.mjs"],
+      "primaryActor": "classical-vnc-engine",
+      "actors": [{
+        "actorId": "classical-vnc-engine",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Preserve the source machinery kind as the capability basis during a typed derivation-selection block."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "ui-policy",
+      "statement": "Render source-authorized Mood and Tense as enabled while leaving genuine formation, voice, and participant gates intact.",
+      "paths": ["src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Consume the capability frame without adding renderer-owned grammar logic."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove pending derivation blocks coexist with selectable Mood and Tense in all three derivation modes.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Add focused hostile and live-browser checks for capability parity and retained derivation blocking."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target, work-sizing rule, and focused evidence without starting the full readiness gate.",
+      "paths": [
+        "AGENTS.md",
+        "docs/CURRENT_TARGET.md",
+        "docs/CODEX_BOARD.md",
+        "docs/shared_actions/active/classical-derived-authority-choice-restoration.json"
+      ],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep the implementation and verification boundary explicit."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [{
+    "id": "pending-derived-result-erases-source-mood-tense-capability",
+    "status": "complete",
+    "removalEvidence": "Pending Causative and Applicative capability frames retain canonical source Mood and Tense availability."
+  }],
+  "evidence": [
+    {
+      "id": "focused-runtime-tests",
+      "result": "UI and causative relation UI passed 392/392 assertions; classical VNC application passed 25/25."
+    },
+    {
+      "id": "fresh-origin-browser-proof",
+      "result": "Before generated-formation selection, Causative accepted optative plus nonpast and Applicative kept Mood and Tense enabled; both formation controls remained required and blank."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "focused-tests-and-browser-green",
+    "nextLessonEntryPoint": "Select the next explicit implementation target; full readiness belongs to the formal handoff."
+  }
+}

@@ -2,10 +2,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
-const SCRIPT_PATH = path.join(ROOT, "script.js");
 const PHONOLOGY_PATH = path.join(ROOT, "data", "static_phonology.json");
 const DERIV_RULES_PATH = path.join(ROOT, "data", "static_derivational_rules.json");
 const REDUP_PATH = path.join(ROOT, "data", "static_redup.json");
@@ -47,8 +46,8 @@ const STRUCTURAL_FEATURES = [
   "finalOnset",
 ];
 
-function createContext() {
-  return createVmContext({ rootDir: ROOT, scriptPath: SCRIPT_PATH }).context;
+async function createContext() {
+  return (await createModuleRuntime({ rootDir: ROOT })).context;
 }
 
 function deepClone(value) {
@@ -1079,8 +1078,8 @@ function runWiPolicySuperpositionAudit(rows) {
   };
 }
 
-function run() {
-  const context = createContext();
+async function run() {
+  const context = await createContext();
   const derivRules = JSON.parse(fs.readFileSync(DERIV_RULES_PATH, "utf8"));
   bootstrap(context, derivRules);
 
@@ -1205,10 +1204,8 @@ function run() {
   process.stdout.write(`${JSON.stringify(compact, null, 2)}\n`);
 }
 
-try {
-  run();
-} catch (error) {
+run().catch((error) => {
   const message = error && error.stack ? error.stack : String(error);
   process.stderr.write(`${message}\n`);
   process.exit(1);
-}
+});

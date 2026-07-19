@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/adjectival/adjectival.js.
+// Canonical modern ESM module.
 
 export function createAdjectivalNncModule(targetObject = globalThis) {
     const ADJECTIVAL_NNC_BOUNDARY_VERSION = 1;

@@ -1,0 +1,274 @@
+{
+  "sourcePdf": "/Users/jaimenunez/Downloads/Andrews_Introduction_to_Classical_Nahuatl_693p_reOCR_squareZeroFixed.pdf",
+  "created": "2026-07-12",
+  "tables": [
+    {
+      "id": "andrews-7-7-vnc-predicate-formation",
+      "section": "7.7",
+      "printedPages": [66, 67],
+      "pdfPages": [81, 82],
+      "notes": [
+        "Blank cells are meaningful and indicate that the stem shape is not used in that tense/mood environment.",
+        "The OCR layer flattens the row geometry; use these rows for table geometry."
+      ],
+      "classes": [
+        {
+          "classId": "A-1",
+          "example": "(chōca)",
+          "meaning": "to cry",
+          "imperfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePresent": "(chōca)Ø+",
+              "indicativeCustomaryPresent": "(chōca)ca+",
+              "indicativeImperfect": "(chōca)ya+",
+              "indicativeFuture": "(chōca)z+",
+              "optativeNonpast": "(chōca)Ø+",
+              "optativePast": "(chōca)ni+"
+            }
+          ],
+          "perfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePreterit": "(chōca)Ø+",
+              "indicativeDistantPast": "(chōca)ca+",
+              "admonitiveNonpast": "(chōca)h+"
+            }
+          ]
+        },
+        {
+          "classId": "A-2",
+          "example": "(temō)",
+          "meaning": "to descend",
+          "imperfective": [
+            {
+              "stemShapeRow": "long-ō",
+              "indicativePresent": "",
+              "indicativeCustomaryPresent": "(temō)ni+",
+              "indicativeImperfect": "(temō)ya+",
+              "indicativeFuture": "(temō)z+",
+              "optativeNonpast": "(temō)Ø+",
+              "optativePast": "(temō)ni+"
+            },
+            {
+              "stemShapeRow": "short-o",
+              "indicativePresent": "(temo)Ø+",
+              "indicativeCustomaryPresent": "",
+              "indicativeImperfect": "",
+              "indicativeFuture": "",
+              "optativeNonpast": "(temo)Ø+",
+              "optativePast": ""
+            }
+          ],
+          "perfective": [
+            {
+              "stemShapeRow": "long-ō",
+              "indicativePreterit": "(temō)Ø+",
+              "indicativeDistantPast": "(temō)ca+",
+              "admonitiveNonpast": ""
+            },
+            {
+              "stemShapeRow": "short-o",
+              "indicativePreterit": "",
+              "indicativeDistantPast": "",
+              "admonitiveNonpast": "(temo)h"
+            }
+          ]
+        },
+        {
+          "classId": "B",
+          "example": "(yōli)",
+          "meaning": "to live",
+          "imperfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePresent": "(yōli)Ø+",
+              "indicativeCustomaryPresent": "(yōli)ni+",
+              "indicativeImperfect": "(yōli)ya+",
+              "indicativeFuture": "(yōli)z+",
+              "optativeNonpast": "(yōli)Ø+",
+              "optativePast": "(yōli)ni+"
+            }
+          ],
+          "perfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePreterit": "(yōl)Ø+",
+              "indicativeDistantPast": "(yōl)ca+",
+              "admonitiveNonpast": "(yōl)Ø+"
+            }
+          ]
+        },
+        {
+          "classId": "C",
+          "example": "(chol-o-ā)",
+          "meaning": "to flee",
+          "imperfective": [
+            {
+              "stemShapeRow": "full-long-ā",
+              "indicativePresent": "",
+              "indicativeCustomaryPresent": "(chol-o-ā)ni+",
+              "indicativeImperfect": "(chol-o-ā)ya+",
+              "indicativeFuture": "",
+              "optativeNonpast": "",
+              "optativePast": "(chol-o-ā)ni+"
+            },
+            {
+              "stemShapeRow": "full-short-a",
+              "indicativePresent": "(chol-o-a)Ø+",
+              "indicativeCustomaryPresent": "",
+              "indicativeImperfect": "",
+              "indicativeFuture": "",
+              "optativeNonpast": "",
+              "optativePast": ""
+            },
+            {
+              "stemShapeRow": "truncated-long-ō",
+              "indicativePresent": "",
+              "indicativeCustomaryPresent": "",
+              "indicativeImperfect": "",
+              "indicativeFuture": "(chol-ō)z+",
+              "optativeNonpast": "(chol-ō)Ø+",
+              "optativePast": ""
+            },
+            {
+              "stemShapeRow": "truncated-short-o",
+              "indicativePresent": "",
+              "indicativeCustomaryPresent": "",
+              "indicativeImperfect": "",
+              "indicativeFuture": "",
+              "optativeNonpast": "(chol-o)Ø+",
+              "optativePast": ""
+            }
+          ],
+          "perfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePreterit": "(chol-o-h)Ø+",
+              "indicativeDistantPast": "(chol-o-h)ca+",
+              "admonitiveNonpast": "(chol-o-h)Ø+"
+            }
+          ]
+        },
+        {
+          "classId": "D",
+          "example": "tla-(cuā)",
+          "meaning": "to eat s.th.",
+          "imperfective": [
+            {
+              "stemShapeRow": "long-ā",
+              "indicativePresent": "",
+              "indicativeCustomaryPresent": "+tla(cuā)ni+",
+              "indicativeImperfect": "+tla(cuā)ya+",
+              "indicativeFuture": "+tla(cuā)z+",
+              "optativeNonpast": "+tla(cuā)Ø+",
+              "optativePast": "+tla(cuā)ni+"
+            },
+            {
+              "stemShapeRow": "short-a",
+              "indicativePresent": "+tla(cua)Ø+",
+              "indicativeCustomaryPresent": "",
+              "indicativeImperfect": "",
+              "indicativeFuture": "",
+              "optativeNonpast": "+tla(cua)Ø+",
+              "optativePast": ""
+            }
+          ],
+          "perfective": [
+            {
+              "stemShapeRow": "only",
+              "indicativePreterit": "+tla(cuah)Ø+",
+              "indicativeDistantPast": "+tla(cuah)ca+",
+              "admonitiveNonpast": "+tla(cuah)Ø+"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "andrews-23-5-object-pronoun-sequence-chart",
+      "section": "23.5",
+      "printedPages": [180, 181],
+      "pdfPages": [195, 196],
+      "rules": [
+        "Specific projective before reflexive.",
+        "Specific projective before nonspecific projective.",
+        "Reflexive before nonspecific projective.",
+        "Human before nonhuman, i.e. tē before tla."
+      ],
+      "columns": [
+        "line",
+        "specificProjective1",
+        "specificProjective2",
+        "specificProjective3",
+        "directionHualOn",
+        "mainlineReflexive",
+        "nonspecificHuman1",
+        "nonspecificHuman2",
+        "nonspecificHuman3",
+        "nonspecificNonhuman1",
+        "nonspecificNonhuman2",
+        "nonspecificNonhuman3"
+      ],
+      "rows": [
+        [1, "", "", "", "", "", "", "", "", "tla", "tla", "tla"],
+        [2, "", "", "", "", "", "tē", "", "", "tla", "tla", ""],
+        [3, "", "", "", "", "m-o", "", "", "", "tla", "tla", ""],
+        [4, "", "", "", "", "", "tē", "tē", "", "tla", "", ""],
+        [5, "", "", "", "", "m-o", "tē", "", "", "tla", "", ""],
+        [6, "c-Ø", "", "", "", "m-o", "", "", "", "tla", "", ""],
+        [7, "", "", "", "", "", "tē", "tē", "tē", "", "", ""],
+        [8, "", "", "", "", "m-o", "tē", "tē", "", "", "", ""],
+        [9, "c-Ø", "", "", "", "m-o", "tē", "", "", "", "", ""],
+        [10, "c-Ø", "⎕-Ø", "", "", "", "", "", "", "tla", "", ""],
+        [11, "c-Ø", "⎕-Ø", "", "", "", "tē", "", "", "", "", ""],
+        [12, "c-Ø", "⎕-Ø", "", "", "m-o", "", "", "", "", "", ""],
+        [13, "c-Ø", "⎕-Ø", "⎕-Ø", "", "", "", "", "", "", "", ""]
+      ]
+    }
+  ],
+  "appendixTableMap": [
+    {
+      "appendix": "A",
+      "title": "VNC Paradigms",
+      "printedPages": [627, 628, 629, 630, 631],
+      "pdfPages": [642, 643, 644, 645, 646],
+      "tableShape": "multi-column paradigms by active/nonactive stem, class, mood, tense, person/number row"
+    },
+    {
+      "appendix": "B",
+      "title": "NNC Paradigms",
+      "printedPages": [632, 633, 634, 635, 636, 637, 638],
+      "pdfPages": [647, 648, 649, 650, 651, 652, 653],
+      "tableShape": "multi-column paradigms by nounstem class/subclass, animacy, state, possessor, subject number"
+    },
+    {
+      "appendix": "C",
+      "title": "Object Pronoun Combinations",
+      "printedPages": [639, 640, 641, 642, 643],
+      "pdfPages": [654, 655, 656, 657, 658],
+      "tableShape": "source object x added object x transform matrices"
+    },
+    {
+      "appendix": "D",
+      "title": "Numeral NNCs and Numbers",
+      "printedPages": [644, 645, 646, 647],
+      "pdfPages": [659, 660, 661, 662],
+      "tableShape": "vigesimal order tables and combination examples"
+    },
+    {
+      "appendix": "E",
+      "title": "Day, Month, and Year Names",
+      "printedPages": [648, 649, 650, 651, 652, 653, 654],
+      "pdfPages": [663, 664, 665, 666, 667, 668, 669],
+      "tableShape": "calendar name lists and naming pattern tables"
+    },
+    {
+      "appendix": "F",
+      "title": "Spelling Conventions in Older Texts",
+      "printedPages": [655, 656, 657, 658],
+      "pdfPages": [670, 671, 672, 673],
+      "tableShape": "spelling/phonology convention lists"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
-// Native wrapper generated from src/core/preterit/context.js.
+// Canonical modern ESM module.
 
-export function createPreteritContextModule(targetObject = globalThis) {
+export function createPreteritContext(targetObject = globalThis) {
     // Preterit/perfective universal context + candidate selection.
     // Extracted from pret_universal_engine.js for maintainability.
     function getPretUniversalCoreVowelCount(verb) {
@@ -1010,9 +1010,11 @@ export function createPreteritContextModule(targetObject = globalThis) {
       const rightEdgeProfile = String(edge.rightEdgeProfile || "");
       const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
       const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
-      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true || isReduplicated === true) {
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
         return null;
       }
+      const reduplicationState = isReduplicated === true ? "present" : "absent";
+      const targetPolicy = isReduplicated === true ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
       const sourceFrame = {
         kind: PRET_CLASS_A_CVWI_TRANSITIVE_SOURCE_FRAME_KIND,
         route: "preterit-class-a-cvwi-transitive",
@@ -1023,8 +1025,8 @@ export function createPreteritContextModule(targetObject = globalThis) {
         finalNucleusFrame: buildPretClassACvwiTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
         transitivityFrame: buildPretClassACvwiTransitiveSegmentFrame("transitivity", "transitive"),
         monosyllableFrame: buildPretClassACvwiTransitiveSegmentFrame("monosyllable", "absent"),
-        reduplicationFrame: buildPretClassACvwiTransitiveSegmentFrame("reduplication", "absent"),
-        targetPolicyFrame: buildPretClassACvwiTransitiveSegmentFrame("target-policy", "allow-class-a-ki-and-class-b-k"),
+        reduplicationFrame: buildPretClassACvwiTransitiveSegmentFrame("reduplication", reduplicationState),
+        targetPolicyFrame: buildPretClassACvwiTransitiveSegmentFrame("target-policy", targetPolicy),
         rightEdgeDescriptorFrame: Object.freeze({
           ...edge
         }),
@@ -1042,6 +1044,8 @@ export function createPreteritContextModule(targetObject = globalThis) {
       if (!sourceSignature || sourceSignature !== sourceFrame.sourceSignature) {
         return null;
       }
+      const allowZeroSuffix = sourceFrame.reduplicationFrame?.text === "present";
+      const targetPolicy = allowZeroSuffix ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
       return Object.freeze({
         kind: PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND,
         operationId: "andrews-preterit-class-a-cvwi-transitive-policy",
@@ -1053,11 +1057,11 @@ export function createPreteritContextModule(targetObject = globalThis) {
           kind: "preterit-class-a-cvwi-transitive-target-frame",
           allowClassA: true,
           allowClassB: true,
-          allowZeroSuffix: false,
+          allowZeroSuffix,
           allowKiSuffix: true,
           classBTargetSuffix: "k"
         }),
-        targetSignature: `${sourceSignature}|allow-class-a-ki-and-class-b-k`,
+        targetSignature: `${sourceSignature}|${targetPolicy}`,
         consumesRenderedInput: false,
         displayStringsAuthorizeGrammar: false
       });
@@ -1076,7 +1080,9 @@ export function createPreteritContextModule(targetObject = globalThis) {
       if (!operationFrame || operationFrame.kind !== PRET_CLASS_A_CVWI_TRANSITIVE_OPERATION_FRAME_KIND || operationFrame.operationId !== "andrews-preterit-class-a-cvwi-transitive-policy" || operationFrame.routeFamily !== "preterit-class-a" || operationFrame.routeStage !== "allow-class-a-b-cvwi-transitive" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
         return "operation-frame-required";
       }
-      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvwi-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== false || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|allow-class-a-ki-and-class-b-k`) {
+      const allowZeroSuffix = sourceFrame.reduplicationFrame?.text === "present";
+      const targetPolicy = allowZeroSuffix ? "allow-class-a-zero-and-ki-and-class-b-k" : "allow-class-a-ki-and-class-b-k";
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "preterit-class-a-cvwi-transitive-target-frame" || operationFrame.targetFrame.allowClassA !== true || operationFrame.targetFrame.allowClassB !== true || operationFrame.targetFrame.allowZeroSuffix !== allowZeroSuffix || operationFrame.targetFrame.allowKiSuffix !== true || operationFrame.targetFrame.classBTargetSuffix !== "k" || operationFrame.targetSignature !== `${sourceSignature}|${targetPolicy}`) {
         return "contradictory-target-frame";
       }
       return "";
@@ -1112,7 +1118,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
       const rightEdgeProfile = String(edge.rightEdgeProfile || "");
       const finalOnset = normalizePretRootPlusYaFrameText(edge.finalOnset || "");
       const finalNucleus = normalizePretRootPlusYaFrameText(edge.finalNucleus || "");
-      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true || isReduplicated === true) {
+      if (!normalizedSourceVerb || endingFamily !== "w+i" || rightEdgeProfile !== "CV|CV|CV" || finalOnset !== "w" || finalNucleus !== "i" || isTransitive !== true || isMonosyllable === true) {
         return null;
       }
       const sourceFrame = {
@@ -1125,7 +1131,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
         finalNucleusFrame: buildPretClassACvcvwiTransitiveSegmentFrame("right-edge-final-nucleus", finalNucleus),
         transitivityFrame: buildPretClassACvcvwiTransitiveSegmentFrame("transitivity", "transitive"),
         monosyllableFrame: buildPretClassACvcvwiTransitiveSegmentFrame("monosyllable", "absent"),
-        reduplicationFrame: buildPretClassACvcvwiTransitiveSegmentFrame("reduplication", "absent"),
+        reduplicationFrame: buildPretClassACvcvwiTransitiveSegmentFrame("reduplication", isReduplicated === true ? "present" : "absent"),
         targetPolicyFrame: buildPretClassACvcvwiTransitiveSegmentFrame("target-policy", "allow-class-a-zero-and-class-b-k"),
         rightEdgeDescriptorFrame: Object.freeze({
           ...edge
@@ -4222,7 +4228,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "blocked_cvwi_transitive_without_typed_frames",
       label: "CV|CV(w+i) transitive missing typed frames",
       tier: "shape",
-      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && context?.isReduplicated !== true && pretContextHasRightEdge(context, {
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, {
         endingFamily: "w+i",
         rightEdgeProfiles: ["CV|CV"]
       }) && getPretClassACvwiTransitiveFrameMismatch({
@@ -4234,7 +4240,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "blocked_cvcvwi_transitive_without_typed_frames",
       label: "CV|CV|CV(w+i) transitive missing typed frames",
       tier: "shape",
-      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && context?.isReduplicated !== true && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV) && getPretClassACvcvwiTransitiveFrameMismatch({
+      when: context => context?.isTransitive === true && context?.isMonosyllable !== true && pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV) && getPretClassACvcvwiTransitiveFrameMismatch({
         sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
         operationFrame: context?.classACvcvwiTransitiveOperationFrame
       }),
@@ -5864,7 +5870,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
         rightEdgeDescriptor
       }) : null;
       const classAFinalVowelDeletionSourceFrame = !isRootPlusYa ? buildPretClassAFinalVowelDeletionSourceFrame({
-        sourceVerb,
+        sourceVerb: analysisRoot,
         syllables,
         rightEdgeDescriptor
       }) : null;
@@ -6927,9 +6933,6 @@ export function createPreteritContextModule(targetObject = globalThis) {
         if (!context?.isTransitive || !pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
           return false;
         }
-        if (context.isReduplicated === true) {
-          return true;
-        }
         return !getPretClassACvcvwiTransitiveFrameMismatch({
           sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
           operationFrame: context?.classACvcvwiTransitiveOperationFrame
@@ -6940,7 +6943,27 @@ export function createPreteritContextModule(targetObject = globalThis) {
       id: "descriptor_wi_transitive",
       label: "descriptor Wi (transitive)",
       tier: "shape",
-      when: context => context.isTransitive && pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern),
+      when: context => {
+        if (!context?.isTransitive || !pretContextHasAggregateDescriptor(context, PRET_DESCRIPTOR_QUERIES.aggregate.wiPattern)) {
+          return false;
+        }
+        if (pretContextHasRightEdge(context, {
+          endingFamily: "w+i",
+          rightEdgeProfiles: ["CV|CV"]
+        })) {
+          return !getPretClassACvwiTransitiveFrameMismatch({
+            sourceFrame: context?.classACvwiTransitiveSourceFrame,
+            operationFrame: context?.classACvwiTransitiveOperationFrame
+          });
+        }
+        if (pretContextHasRightEdge(context, PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
+          return !getPretClassACvcvwiTransitiveFrameMismatch({
+            sourceFrame: context?.classACvcvwiTransitiveSourceFrame,
+            operationFrame: context?.classACvcvwiTransitiveOperationFrame
+          });
+        }
+        return true;
+      },
       classes: ["A", "B"]
     }, {
       id: "descriptor_cuwa_intransitive",
@@ -8325,7 +8348,7 @@ export function createPreteritContextModule(targetObject = globalThis) {
 }
 
 export function installPreteritContextGlobals(targetObject = globalThis) {
-    const api = createPreteritContextModule(targetObject);
+    const api = createPreteritContext(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

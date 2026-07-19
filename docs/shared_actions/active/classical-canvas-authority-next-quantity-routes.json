@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-canvas-authority-next-quantity-routes",
+  "status": "complete",
+  "incentive": {
+    "id": "single-canvas-derived-typed-identity",
+    "statement": "Extend the proven Canvas choice-frame cutover to the two adjacent exact-quantity routes without broadening into unrelated failures.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Keep the slice to Canvas sections 25.6 and 25.8 and preserve the post-miqui assertion baseline.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Canvas owns the user-confirmed canonical temō-huiā and tēmī-tiā realizations through two canonical choice frames with no surface-overlay identities; OCR and scan interpretation do not normalize their quantity.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Compile both printed Canvas relations while marking their licensing bridges as engine-derived rather than printed.",
+      "paths": ["src/core/classical/canvas_lessons24_26_derivation_authority.json", "scripts/classical_lessons24_25_canvas_catalog.js", "src/core/classical/vnc_derivation_evaluator.mjs"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{"actorId": "classical-derivation-engine", "kind": "primary", "status": "active", "contribution": "Own rule identity, exact realization, bridge provenance, and validation."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-presentation",
+      "statement": "Reuse the existing choice-frame application and UI consumers without route-specific reconstruction.",
+      "paths": ["src/application/classical/vnc_application.mjs", "src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Carry the compiled choice object unchanged through controls, result, explanation, and dropdown."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Replace stale quantity and overlay-ID expectations with choice continuity and hostile spelling proof.",
+      "paths": ["src/tests/classical_lessons24_26.test.js", "src/tests/classical_vnc_application.test.js", "src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Prove the three bounded assertion repairs and no new focused failures."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-canvas-derivation-choice-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "temo-canvas-surface-overlay-option-id", "status": "complete"},
+    {"id": "temi-canvas-surface-overlay-quantity-owner", "status": "complete"},
+    {"id": "downstream-temo-and-temi-noncanvas-expectations", "status": "complete"}
+  ],
+  "evidence": [
+    {
+      "kind": "direct-modern-runtime-continuity-probe",
+      "result": "Both canonical choices pass engine and application validation, retain one identity through controls/result/explanation, and reject short-vowel target clones."
+    },
+    {
+      "kind": "absorbing-handoff-regular-suite",
+      "result": "The adjudication handoff's integrated regular suite passed 3496/3496 assertions across 69 suites."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete-through-absorbing-adjudication-handoff",
+    "nextLessonEntryPoint": "No remaining quantity-route decision; select a new explicit target."
+  }
+}

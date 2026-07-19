@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/vnc/honorific_pejorative/honorific_pejorative.js.
+// Canonical modern ESM module.
 
 export function createHonorificPejorativeApi(targetObject = globalThis) {
     const HONORIFIC_PEJORATIVE_BOUNDARY_VERSION = 1;

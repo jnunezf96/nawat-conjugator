@@ -1,6 +1,6 @@
-// Native wrapper generated from src/core/preterit/engine.js.
+// Canonical modern ESM module.
 
-export function createPreteritEngineModule(targetObject = globalThis) {
+export function createPreteritEngineContext(targetObject = globalThis) {
     // Preterit/perfective universal runtime (class builders + policy + assembly).
     // Depends on pret_universal_context.js.
     const PRET_STEM_SPEC_KIND = Object.freeze({
@@ -17,6 +17,7 @@ export function createPreteritEngineModule(targetObject = globalThis) {
     const PRET_BASE_SOURCE_FRAME_KIND = "preterit-base-source-frame";
     const PRET_BASE_SEGMENT_FRAME_KIND = "preterit-base-segment-frame";
     const PRET_BASE_OPERATION_FRAME_KIND = "preterit-base-transform-operation-frame";
+    const PRET_BASE_TARGET_FRAME_KIND = "preterit-base-transform-target-frame";
     const PRET_PREFIX_BASE_CONTACT_FRAME_KIND = "preterit-prefix-base-contact-frame";
     const PRET_PREFIX_BASE_CONTACT_SEGMENT_FRAME_KIND = "preterit-prefix-base-contact-segment-frame";
     const PRET_VARIANT_ASSEMBLY_FRAME_KIND = "preterit-variant-assembly-frame";
@@ -33,7 +34,8 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       return Object.freeze({
         kind: PRET_BASE_SOURCE_FRAME_KIND,
         role: "preterit-source-base",
-        surfaceBase
+        surfaceBase,
+        sourceSignature: surfaceBase
       });
     }
     function buildPretBaseSegmentFrame(role = "", value = "") {
@@ -55,7 +57,7 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       if (!sourceFrame || typeof sourceFrame !== "object" || sourceFrame.kind !== PRET_BASE_SOURCE_FRAME_KIND || !sourceFrame.surfaceBase || !transformKind) {
         return null;
       }
-      return Object.freeze({
+      const operationFrame = {
         kind: PRET_BASE_OPERATION_FRAME_KIND,
         transformKind,
         sourceFrame: Object.freeze({
@@ -66,6 +68,32 @@ export function createPreteritEngineModule(targetObject = globalThis) {
         replacementFrame: buildPretBaseSegmentFrame("replacement", replacement),
         deletionVariant: String(deletionVariant || ""),
         isTransitive: isTransitive === true
+      };
+      const targetResult = derivePretBaseOperationTargetResult(operationFrame);
+      if (targetResult.ok && targetResult.base) {
+        operationFrame.targetFrame = buildPretBaseTargetFrame(operationFrame, targetResult.base);
+      }
+      return Object.freeze(operationFrame);
+    }
+    function getPretBaseOperationSourceSignature(operationFrame = null) {
+      const sourceFrame = operationFrame?.sourceFrame || null;
+      const sourceBase = getPretOperationFrameSourceBase(operationFrame);
+      return String(sourceFrame?.sourceSignature || sourceBase || "");
+    }
+    function buildPretBaseOperationTargetSignature(operationFrame = null, targetBase = "") {
+      return [getPretBaseOperationSourceSignature(operationFrame), String(operationFrame?.transformKind || ""), normalizePretBaseFrameText(operationFrame?.sourceSuffixFrame?.text || ""), normalizePretBaseFrameText(operationFrame?.appendFrame?.text || ""), normalizePretBaseFrameText(operationFrame?.replacementFrame?.text || ""), String(operationFrame?.deletionVariant || ""), operationFrame?.isTransitive === true ? "transitive" : "intransitive", normalizePretBaseFrameText(targetBase)].join("|");
+    }
+    function buildPretBaseTargetFrame(operationFrame = null, targetBase = "") {
+      const normalizedTargetBase = normalizePretBaseFrameText(targetBase);
+      if (!normalizedTargetBase) {
+        return null;
+      }
+      return Object.freeze({
+        kind: PRET_BASE_TARGET_FRAME_KIND,
+        transformKind: String(operationFrame?.transformKind || ""),
+        sourceSignature: getPretBaseOperationSourceSignature(operationFrame),
+        targetBase: normalizedTargetBase,
+        targetSignature: buildPretBaseOperationTargetSignature(operationFrame, normalizedTargetBase)
       });
     }
     function getPretContactLetters(value = "") {
@@ -299,17 +327,11 @@ export function createPreteritEngineModule(targetObject = globalThis) {
     function getPretOperationFrameSourceBase(operationFrame = null) {
       return typeof operationFrame?.sourceFrame?.surfaceBase === "string" ? normalizePretBaseFrameText(operationFrame.sourceFrame.surfaceBase) : "";
     }
-    function evaluatePretBaseOperationFrame(operationFrame = null, expected = {}) {
-      if (!operationFrame || typeof operationFrame !== "object") {
-        return blockPretBaseSpec("preterit-base-missing-operation-frame", {
-          expectedTransformKind: expected.transformKind || ""
-        });
-      }
+    function derivePretBaseOperationTargetResult(operationFrame = null) {
       const sourceBase = getPretOperationFrameSourceBase(operationFrame);
-      const transformKind = String(operationFrame.transformKind || "");
-      if (operationFrame.kind !== PRET_BASE_OPERATION_FRAME_KIND || !sourceBase || expected.transformKind && transformKind !== expected.transformKind) {
+      const transformKind = String(operationFrame?.transformKind || "");
+      if (!sourceBase || !transformKind) {
         return blockPretBaseSpec("preterit-base-contradictory-operation-frame", {
-          expectedTransformKind: expected.transformKind || "",
           actualTransformKind: transformKind,
           actualSourceBase: sourceBase
         });
@@ -456,6 +478,49 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       return blockPretBaseSpec("preterit-base-unsupported-operation-frame", {
         actualTransformKind: transformKind
       });
+    }
+    function validatePretBaseOperationTargetFrame(operationFrame = null, targetResult = null) {
+      if (!targetResult?.ok) {
+        return targetResult || blockPretBaseSpec("preterit-base-contradictory-operation-frame");
+      }
+      const targetFrame = operationFrame?.targetFrame || null;
+      if (!targetFrame || typeof targetFrame !== "object") {
+        return blockPretBaseSpec("preterit-base-missing-target-frame", {
+          expectedTransformKind: operationFrame?.transformKind || "",
+          expectedTargetBase: targetResult.base || ""
+        });
+      }
+      const expectedSignature = buildPretBaseOperationTargetSignature(operationFrame, targetResult.base || "");
+      if (targetFrame.kind !== PRET_BASE_TARGET_FRAME_KIND || targetFrame.transformKind !== operationFrame.transformKind || targetFrame.sourceSignature !== getPretBaseOperationSourceSignature(operationFrame) || targetFrame.targetBase !== targetResult.base || targetFrame.targetSignature !== expectedSignature) {
+        return blockPretBaseSpec("preterit-base-contradictory-target-frame", {
+          expectedTransformKind: operationFrame?.transformKind || "",
+          expectedTargetBase: targetResult.base || "",
+          actualTargetBase: targetFrame.targetBase || ""
+        });
+      }
+      return {
+        ok: true,
+        base: targetFrame.targetBase,
+        diagnostics: [],
+        operationFrame
+      };
+    }
+    function evaluatePretBaseOperationFrame(operationFrame = null, expected = {}) {
+      if (!operationFrame || typeof operationFrame !== "object") {
+        return blockPretBaseSpec("preterit-base-missing-operation-frame", {
+          expectedTransformKind: expected.transformKind || ""
+        });
+      }
+      const sourceBase = getPretOperationFrameSourceBase(operationFrame);
+      const transformKind = String(operationFrame.transformKind || "");
+      if (operationFrame.kind !== PRET_BASE_OPERATION_FRAME_KIND || !sourceBase || expected.transformKind && transformKind !== expected.transformKind) {
+        return blockPretBaseSpec("preterit-base-contradictory-operation-frame", {
+          expectedTransformKind: expected.transformKind || "",
+          actualTransformKind: transformKind,
+          actualSourceBase: sourceBase
+        });
+      }
+      return validatePretBaseOperationTargetFrame(operationFrame, derivePretBaseOperationTargetResult(operationFrame));
     }
     function evaluatePretBaseSpec(spec = null) {
       if (!spec || typeof spec !== "object") {
@@ -1465,13 +1530,13 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       });
       const allowPiCvTransitiveClassA = hasAuthoritativePretClassAPiCvTransitiveFrame(context);
       const classAPiCvTransitivePolicyFrame = allowPiCvTransitiveClassA ? context.classAPiCvTransitiveOperationFrame : null;
-      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && hasRightEdge({
+      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
         endingFamily: "w+i",
         rightEdgeProfiles: ["CV|CV"]
       });
       const allowCvwiTransitiveClassA = hasAuthoritativePretClassACvwiTransitiveFrame(context);
       const classACvwiTransitivePolicyFrame = allowCvwiTransitiveClassA ? context.classACvwiTransitiveOperationFrame : null;
-      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
+      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
       const allowCvcvwiTransitiveClassA = hasAuthoritativePretClassACvcvwiTransitiveFrame(context);
       const classACvcvwiTransitivePolicyFrame = allowCvcvwiTransitiveClassA ? context.classACvcvwiTransitiveOperationFrame : null;
       const hasCvwaiTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
@@ -1945,8 +2010,13 @@ export function createPreteritEngineModule(targetObject = globalThis) {
         allowKiSuffix = true;
       }
       if (isTransitiveCVwi) {
-        allowZeroSuffix = context.isReduplicated;
-        allowKiSuffix = true;
+        if (classACvwiTransitivePolicyFrame) {
+          allowZeroSuffix = classACvwiTransitivePolicyFrame.targetFrame?.allowZeroSuffix === true;
+          allowKiSuffix = classACvwiTransitivePolicyFrame.targetFrame?.allowKiSuffix === true;
+        } else {
+          allowZeroSuffix = context.isReduplicated;
+          allowKiSuffix = true;
+        }
       }
       if (context.isTransitive && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV)) {
         if (classACvcvwiTransitivePolicyFrame) {
@@ -2113,13 +2183,13 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       });
       const allowCvsvIntransitiveClassB = hasAuthoritativePretClassACvsvIntransitiveFrame(context);
       const classACvsvIntransitivePolicyFrame = allowCvsvIntransitiveClassB ? context.classACvsvIntransitiveOperationFrame : null;
-      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && hasRightEdge({
+      const hasCvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && hasRightEdge({
         endingFamily: "w+i",
         rightEdgeProfiles: ["CV|CV"]
       });
       const allowCvwiTransitiveClassB = hasAuthoritativePretClassACvwiTransitiveFrame(context);
       const classACvwiTransitivePolicyFrame = allowCvwiTransitiveClassB ? context.classACvwiTransitiveOperationFrame : null;
-      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && context.isReduplicated !== true && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
+      const hasCvcvwiTransitiveShape = context.isTransitive && !context.isMonosyllable && targetObject.pretContextHasRightEdge(context, targetObject.PRET_RIGHT_EDGE_RULE_QUERIES.wiCV_CV_CV);
       const allowCvcvwiTransitiveClassB = hasAuthoritativePretClassACvcvwiTransitiveFrame(context);
       const classACvcvwiTransitivePolicyFrame = allowCvcvwiTransitiveClassB ? context.classACvcvwiTransitiveOperationFrame : null;
       const hasCvwiIntransitiveShape = !context.isTransitive && !context.isMonosyllable && hasRightEdge({
@@ -2303,6 +2373,28 @@ export function createPreteritEngineModule(targetObject = globalThis) {
       }
       if (hasCuwaIntransitiveShape && !allowCuwaIntransitiveClassB) {
         return null;
+      }
+      if (hasCvwiTransitiveShape) {
+        const targetSuffix = classACvwiTransitivePolicyFrame?.targetFrame?.classBTargetSuffix || "";
+        const sourceBase = classACvwiTransitivePolicyFrame?.sourceFrame?.sourceVerbFrame?.text || context.classACvwiTransitiveSourceFrame?.sourceVerbFrame?.text || "";
+        if (!targetSuffix || !sourceBase || !isAllowedStem(sourceBase)) {
+          return null;
+        }
+        return [buildPretVariant("", targetSuffix, {
+          baseSpec: buildPretLiteralBaseSpec(sourceBase),
+          routePolicyFrame: classACvwiTransitivePolicyFrame
+        })].filter(Boolean);
+      }
+      if (hasCvcvwiTransitiveShape) {
+        const targetSuffix = classACvcvwiTransitivePolicyFrame?.targetFrame?.classBTargetSuffix || "";
+        const sourceBase = classACvcvwiTransitivePolicyFrame?.sourceFrame?.sourceVerbFrame?.text || context.classACvcvwiTransitiveSourceFrame?.sourceVerbFrame?.text || "";
+        if (!targetSuffix || !sourceBase || !isAllowedStem(sourceBase)) {
+          return null;
+        }
+        return [buildPretVariant("", targetSuffix, {
+          baseSpec: buildPretLiteralBaseSpec(sourceBase),
+          routePolicyFrame: classACvcvwiTransitivePolicyFrame
+        })].filter(Boolean);
       }
       const classBFrameResult = buildPretClassBBaseSpecsFromSourceFrame(context.classBSourceFrame, context);
       if (!classBFrameResult.ok) {
@@ -4137,6 +4229,11 @@ export function createPreteritEngineModule(targetObject = globalThis) {
         enumerable: true,
         get() { return PRET_BASE_OPERATION_FRAME_KIND; },
     });
+    Object.defineProperty(api, "PRET_BASE_TARGET_FRAME_KIND", {
+        configurable: true,
+        enumerable: true,
+        get() { return PRET_BASE_TARGET_FRAME_KIND; },
+    });
     Object.defineProperty(api, "PRET_PREFIX_BASE_CONTACT_FRAME_KIND", {
         configurable: true,
         enumerable: true,
@@ -4166,6 +4263,9 @@ export function createPreteritEngineModule(targetObject = globalThis) {
     api.buildPretBaseSourceFrame = buildPretBaseSourceFrame;
     api.buildPretBaseSegmentFrame = buildPretBaseSegmentFrame;
     api.buildPretBaseOperationFrame = buildPretBaseOperationFrame;
+    api.getPretBaseOperationSourceSignature = getPretBaseOperationSourceSignature;
+    api.buildPretBaseOperationTargetSignature = buildPretBaseOperationTargetSignature;
+    api.buildPretBaseTargetFrame = buildPretBaseTargetFrame;
     api.getPretContactLetters = getPretContactLetters;
     api.joinPretContactLetters = joinPretContactLetters;
     api.buildPretPrefixBaseContactSegmentFrame = buildPretPrefixBaseContactSegmentFrame;
@@ -4184,6 +4284,8 @@ export function createPreteritEngineModule(targetObject = globalThis) {
     api.buildPretBaseSpecDiagnostic = buildPretBaseSpecDiagnostic;
     api.blockPretBaseSpec = blockPretBaseSpec;
     api.getPretOperationFrameSourceBase = getPretOperationFrameSourceBase;
+    api.derivePretBaseOperationTargetResult = derivePretBaseOperationTargetResult;
+    api.validatePretBaseOperationTargetFrame = validatePretBaseOperationTargetFrame;
     api.evaluatePretBaseOperationFrame = evaluatePretBaseOperationFrame;
     api.evaluatePretBaseSpec = evaluatePretBaseSpec;
     api.realizePretBaseSpec = realizePretBaseSpec;
@@ -4320,7 +4422,7 @@ export function createPreteritEngineModule(targetObject = globalThis) {
 }
 
 export function installPreteritEngineGlobals(targetObject = globalThis) {
-    const api = createPreteritEngineModule(targetObject);
+    const api = createPreteritEngineContext(targetObject);
     Object.defineProperties(targetObject, Object.getOwnPropertyDescriptors(api));
     return api;
 }

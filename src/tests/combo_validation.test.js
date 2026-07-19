@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/agreement/combo_validation.js
+ * Tests for src/core/agreement/combo_validation.mjs
  * Covers: valence-combo signature/display/validation helpers.
  */
 

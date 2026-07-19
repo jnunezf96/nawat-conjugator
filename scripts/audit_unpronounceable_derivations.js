@@ -4,10 +4,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
-const SCRIPT_PATH = path.join(ROOT, "script.js");
 const REPORT_PATH = path.join(ROOT, "reports", "unpronounceable_derivation_audit.json");
 
 const STATIC_LOADERS = [
@@ -358,8 +357,8 @@ function summarizeFindings(findings) {
   return { byCategory, byFamily };
 }
 
-function main() {
-  const { context } = createVmContext({ rootDir: ROOT, scriptPath: SCRIPT_PATH });
+async function main() {
+  const { context } = await createModuleRuntime({ rootDir: ROOT });
   loadStaticData(context);
   if (typeof context.setSelectedNonactiveSuffix === "function") {
     context.setSelectedNonactiveSuffix(null);
@@ -427,4 +426,8 @@ function main() {
   }, null, 2)}\n`);
 }
 
-main();
+main().catch((error) => {
+  const message = error && error.stack ? error.stack : String(error);
+  process.stderr.write(`${message}\n`);
+  process.exitCode = 1;
+});

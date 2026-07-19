@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-canonical-source-stem-picker",
+  "status": "complete",
+  "incentive": {
+    "id": "canonical-source-stems-without-formula-authority",
+    "statement": "Source selection must expose canonical lexical stems with exact boundaries and quantity without allowing formula strings or picker metadata to decide grammar.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate source evidence, UI transition, runtime delivery, and focused verification without broadening picker records into grammar authority.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "VNC and NNC Source offer stem-only canonical citations while direct entry and typed Authority decisions remain intact.",
+  "responsibilities": [
+    {
+      "id": "source-inventory",
+      "statement": "Represent canonical source stems, lexical notation, valence display class, evidence section, and quantity adjudication outside the renderer.",
+      "paths": ["src/core/classical/source_stem_inventory.mjs", "src/core/grammar/contract_registry.mjs"],
+      "primaryActor": "classical-source-engine",
+      "actors": [{
+        "actorId": "classical-source-engine",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Provide a frozen non-authorizing inventory and reject formula-shaped or quantity-conflicted records."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "source-ui",
+      "statement": "Expose the inventory in Source and commit a chosen lexical stem through the existing source-parts transition.",
+      "paths": ["src/ui/shell/classical_shell.mjs", "src/ui/composer/composer.mjs", "style.css"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Render stem-only choices and keep all grammar controls in Authority."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Install the source inventory through the single canonical ESM runtime.",
+      "paths": ["src/runtime/create_runtime.mjs", "index.html"],
+      "primaryActor": "runtime-integrity",
+      "actors": [{
+        "actorId": "runtime-integrity",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Add the inventory installer without creating a second runtime lane."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove lexical-only notation, exact quantity, source selection, direct-entry survival, runtime coverage, and live behavior.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Add focused inventory and UI transition checks plus browser evidence."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target and closure evidence without starting full readiness.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-canonical-source-stem-picker.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep the picker separate from formula and generation authority."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [{
+    "responsibilityId": "source-inventory",
+    "triggeringFinding": "The alignment gate identified both source inventory record kinds as undeclared contracts.",
+    "addedActor": "grammar-contract-registry",
+    "contribution": "Register and validate the non-authorizing record and audit boundaries.",
+    "alignmentEvidence": "audit:alignment returns the unregistered-classical-contracts metric to its stabilization baseline.",
+    "returnCondition": "Both contracts are registered and focused verification passes."
+  }],
+  "contracts": [],
+  "retirements": [{
+    "id": "formula-or-gloss-shaped-source-choice",
+    "status": "complete",
+    "removalEvidence": "The core audit rejects formula-shaped citations, both Source pickers display stem-only labels, and fresh-origin browser proof found no formula-shaped option."
+  }],
+  "evidence": [{
+    "id": "focused-ui-tests",
+    "result": "Main UI and causative relation UI passed 396/396 assertions, including inventory counts, schematic-slot exclusion, notation, quantity adjudication, contracts, UI wiring, and direct entry."
+  }, {
+    "id": "runtime-manifest",
+    "result": "One modern browser entry exposes 75 modules and 75 installers."
+  }, {
+    "id": "fresh-origin-browser-proof",
+    "result": "VNC exposed 160 stem choices and NNC exposed 39; selecting each updated only Source, direct NNC entry remained available, and the browser emitted no warning/error logs."
+  }, {
+    "id": "alignment-metrics",
+    "result": "Renderer construction remained 38 and unregistered Classical contracts returned to the baseline of 200."
+  }],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "focused-tests-runtime-browser-and-alignment-green",
+    "nextLessonEntryPoint": "Select the next explicit implementation target; full readiness remains a formal handoff gate."
+  }
+}

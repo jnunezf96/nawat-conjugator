@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/vnc/honorific_pejorative/honorific_pejorative.js
+ * Tests for src/core/vnc/honorific_pejorative/honorific_pejorative.mjs
  */
 
 const { createSuite } = require("./runner");

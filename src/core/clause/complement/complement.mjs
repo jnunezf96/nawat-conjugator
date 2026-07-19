@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/complement/complement.js.
+// Canonical modern ESM module.
 
 export function createComplementClauseGlobals(targetObject = globalThis) {
     const COMPLEMENT_CLAUSE_BOUNDARY_VERSION = 1;

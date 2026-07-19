@@ -2,7 +2,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
 const { createSuite } = require("./runner");
 
 function createProjectionControl() {
@@ -44,6 +43,7 @@ function createProjectionControl() {
 function installProjectionDomFixture(ctx) {
     const restoreState = {
         getElementById: ctx.document.getElementById,
+        querySelector: ctx.document.querySelector,
         querySelectorAll: ctx.document.querySelectorAll,
         getVerbComposerElements: ctx.getVerbComposerElements,
         getComposerActiveSlotFromState: ctx.getComposerActiveSlotFromState,
@@ -72,10 +72,14 @@ function installProjectionDomFixture(ctx) {
         "composer-valence-a": controls.valenceA,
         "composer-valence": controls.valenceB,
         "composer-valence-2": controls.valenceC,
+        "composer-valence-embed-2": controls.embedC,
+        "composer-stem-c": controls.stemC,
+        "composer-valence-left-2": controls.objectC,
         "composer-directional": controls.directional,
         "composer-supportive-i": controls.supportive,
     };
     ctx.document.getElementById = (id) => byId[id] || createProjectionControl();
+    ctx.document.querySelector = () => null;
     ctx.document.querySelectorAll = () => [];
     ctx.getVerbComposerElements = () => ({
         panel: controls.panel,
@@ -98,6 +102,7 @@ function installProjectionDomFixture(ctx) {
     ctx.formatComposerStemForInputDisplay = (value) => value;
     controls.restore = () => {
         ctx.document.getElementById = restoreState.getElementById;
+        ctx.document.querySelector = restoreState.querySelector;
         ctx.document.querySelectorAll = restoreState.querySelectorAll;
         ctx.getVerbComposerElements = restoreState.getVerbComposerElements;
         ctx.getComposerActiveSlotFromState = restoreState.getComposerActiveSlotFromState;
@@ -109,8 +114,8 @@ function installProjectionDomFixture(ctx) {
 
 function run(ctx = {}) {
     const s = createSuite("inline composer projection");
-    const eventsPath = path.resolve(__dirname, "..", "ui", "events.js");
-    const events = fs.readFileSync(eventsPath, "utf8");
+    const eventsPath = path.resolve(__dirname, "..", "ui", "events", "events.mjs");
+    const events = fs.readFileSync(eventsPath, "utf8").replace(/\btargetObject\./gu, "");
 
     s.ok(
         "inline formula layout patch is disabled before composer event binding",
@@ -161,8 +166,7 @@ function run(ctx = {}) {
             && events.includes('typeof transitivitySelect.appendChild === "function"')
     );
 
-    if (vm.isContext(ctx)) {
-        vm.runInContext(events, ctx, { filename: eventsPath });
+    if (typeof ctx.refreshInlineComposerControlsFromState === "function") {
         const controls = installProjectionDomFixture(ctx);
         try {
             ctx.VerbComposerState.transitivity = ctx.COMPOSER_TRANSITIVITY.bitransitive;

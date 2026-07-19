@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/vnc/purposive/purposive.js
+ * Tests for src/core/vnc/purposive/purposive.mjs
  */
 
 const { createSuite } = require("./runner");

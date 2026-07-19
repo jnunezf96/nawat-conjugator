@@ -34,11 +34,71 @@ function run(ctx) {
         currentRegexParseTree?.coreFrame?.matrixBase,
         "nemi"
     );
-    const currentRegexModelFromTree = ctx.buildCurrentRegexDerivationSourceModel(currentRegexParseTree);
+    const currentRegexParseOperation = ctx.buildCurrentRegexParseOperationFrame(
+        ctx.buildCurrentRegexParseSourceFrame("(ki)-(nemi)")
+    );
+    const currentRegexParseTreeFromParseOperation = ctx.buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame(
+        "(ki)-(nemi)",
+        currentRegexParseOperation
+    );
+    const contradictoryCurrentRegexParseOperation = {
+        ...currentRegexParseOperation,
+        targetFrame: {
+            ...currentRegexParseOperation.targetFrame,
+            coreText: "paka",
+        },
+    };
+    s.eq(
+        "current-regex source parse tree requires typed current-regex parse operation",
+        {
+            sourceKind: currentRegexParseTreeFromParseOperation?.kind || "",
+            parseOperation: currentRegexParseTreeFromParseOperation
+                ?.currentRegexParseOperationFrame?.operationId || "",
+            matrixBase: currentRegexParseTreeFromParseOperation?.coreFrame?.matrixBase || "",
+            directParseTreeOperation: currentRegexParseTree?.currentRegexParseOperationFrame?.operationId || "",
+            missingOperation: ctx.buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame("(ki)-(nemi)", null),
+            oldParsedPayload: ctx.buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame(
+                "(ki)-(nemi)",
+                ctx.parseMovingTargetRegexInput("(ki)-(nemi)")
+            ),
+            contradictoryOperation: ctx.buildCurrentRegexDerivationSourceParseTreeFromParseOperationFrame(
+                "(ki)-(nemi)",
+                contradictoryCurrentRegexParseOperation
+            ),
+            contradictoryMismatch: ctx.getCurrentRegexParseOperationMismatch(
+                "(ki)-(nemi)",
+                contradictoryCurrentRegexParseOperation
+            ),
+        },
+        {
+            sourceKind: "current-regex-derivation-source-parse-tree",
+            parseOperation: "andrews-current-regex-parse",
+            matrixBase: "nemi",
+            directParseTreeOperation: "andrews-current-regex-parse",
+            missingOperation: null,
+            oldParsedPayload: null,
+            contradictoryOperation: null,
+            contradictoryMismatch: "current-regex-parse-contradictory-target-frame",
+        }
+    );
+    const currentRegexOperationFrame = ctx.buildCurrentRegexDerivationSourceModelOperationFrame(currentRegexParseTree);
+    const currentRegexModelFromTree = ctx.buildCurrentRegexDerivationSourceModel(currentRegexParseTree, {
+        operationFrame: currentRegexOperationFrame,
+    });
     s.eq(
         "current-regex source model consumes typed parse tree matrix",
-        currentRegexModelFromTree.matrixBase,
-        "nemi"
+        {
+            operation: currentRegexOperationFrame?.operationId || "",
+            targetKind: currentRegexOperationFrame?.targetFrame?.kind || "",
+            matrixBase: currentRegexModelFromTree.matrixBase,
+            directStringModel: ctx.buildCurrentRegexDerivationSourceModel("(ki)-(nemi)"),
+        },
+        {
+            operation: "andrews-current-regex-derivation-source-model",
+            targetKind: "current-regex-derivation-source-model-target-frame",
+            matrixBase: "nemi",
+            directStringModel: null,
+        }
     );
     s.eq(
         "current-regex source model consumes typed parse tree outer frame",
@@ -49,16 +109,42 @@ function run(ctx) {
         ...currentRegexParseTree,
         rawRegex: "(ta)-(miki)",
     };
-    const currentRegexModelFromLyingRawText = ctx.buildCurrentRegexDerivationSourceModel(lyingCurrentRegexParseTree);
+    const currentRegexModelFromLyingRawText = ctx.buildCurrentRegexDerivationSourceModel(lyingCurrentRegexParseTree, {
+        operationFrame: currentRegexOperationFrame,
+    });
+    const missingCurrentRegexOperationModel = ctx.buildCurrentRegexDerivationSourceModel(currentRegexParseTree);
+    const contradictoryCurrentRegexOperationFrame = {
+        ...currentRegexOperationFrame,
+        targetFrame: {
+            ...currentRegexOperationFrame.targetFrame,
+            matrixBase: "poison",
+        },
+    };
     s.eq(
         "current-regex source model ignores poisoned raw regex text when typed core frame is present",
         {
             matrixBase: currentRegexModelFromLyingRawText.matrixBase,
             outerSurface: ctx.getDerivationSourceOuterSurface(currentRegexModelFromLyingRawText),
+            missingOperation: missingCurrentRegexOperationModel,
+            contradictoryTarget: ctx.buildCurrentRegexDerivationSourceModel(currentRegexParseTree, {
+                operationFrame: contradictoryCurrentRegexOperationFrame,
+            }),
+            missingOperationMismatch: ctx.getCurrentRegexDerivationSourceModelOperationMismatch({
+                parseTree: currentRegexParseTree,
+                operationFrame: null,
+            }),
+            contradictoryTargetMismatch: ctx.getCurrentRegexDerivationSourceModelOperationMismatch({
+                parseTree: currentRegexParseTree,
+                operationFrame: contradictoryCurrentRegexOperationFrame,
+            }),
         },
         {
             matrixBase: "nemi",
             outerSurface: "ki",
+            missingOperation: null,
+            contradictoryTarget: null,
+            missingOperationMismatch: "current-regex-source-model-operation-frame-required",
+            contradictoryTargetMismatch: "current-regex-source-model-contradictory-target-frame",
         }
     );
     const currentRegexModelFromExplicitTree = ctx.buildDerivationSourceModel({
@@ -86,7 +172,7 @@ function run(ctx) {
         targetInput: "poisoned",
     };
     const serialDashParseTree = ctx.buildCurrentRegexDerivationSourceParseTree("(nemi-a-wi)");
-    const serialDashSourceModel = ctx.buildCurrentRegexDerivationSourceModel(serialDashParseTree);
+    const serialDashSourceModel = ctx.buildCurrentRegexDerivationSourceModelFromParseTree(serialDashParseTree);
     s.eq(
         "serial dash stem collapse requires typed source and operation frames",
         {
@@ -997,6 +1083,59 @@ function run(ctx) {
         }
     );
 
+    const buildTypedPatientivoSourceFrame = (stem = "tamati", surface = "tamatit") => {
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: `patientivo-source-${stem}`,
+            unit: "NNC",
+            formula: `#Ø-Ø(${stem})t#`,
+            formulaSlots: {
+                predicateStem: { slot: "STEM", stem, role: "patientive-nounstem" },
+                num1Num2: { slot: "num1-num2", connector: "t", role: "absolutive-connector" },
+            },
+            operationFrames: [{ operationId: "patientive-nominalization" }],
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: `patientivo-realization-${stem}`,
+            formulaRecord,
+            surface,
+            surfaceForms: [surface],
+            segmentFrames: [
+                {
+                    slot: "predicateStem",
+                    role: "patientive-nounstem",
+                    formulaValue: stem,
+                    surface: stem,
+                    operationId: "nawat-pipil-orthography-realization",
+                },
+                {
+                    slot: "num1Num2",
+                    role: "absolutive-connector",
+                    formulaValue: "t",
+                    surface: "t",
+                    operationId: "absolutive-connector-realization",
+                },
+            ],
+            deriveSurfaceFromSegments: true,
+        });
+        return {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            selectedVariant: {
+                kind: "grammar-formula-realization-selected-variant",
+                surface,
+                variantIndex: 0,
+                variantId: `${formulaRealizationRecord.id}#variant:0`,
+                formulaRecordId: formulaRecord.id,
+                formulaRealizationRecordId: formulaRealizationRecord.id,
+            },
+            formulaSlots: formulaRecord.formulaSlots,
+        };
+    };
+    const patientivoSourceFrame = buildTypedPatientivoSourceFrame("tamati", "tamatit");
+
     const absolutivePrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
         patientivoSurface: "tamatit",
         sourceSurface: "tamati",
@@ -1007,6 +1146,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "imperfecto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
     });
     s.eq(
@@ -1322,6 +1462,7 @@ function run(ctx) {
         patientivoSurface: "tamatit",
         sourceSurface: "tamati",
         patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "miki",
     });
@@ -1341,6 +1482,36 @@ function run(ctx) {
     const generatedPoisonedDisplayInputSurface = ctx.executeGenerateWordRequest(
         poisonedDisplayInputContract.compoundRequest.request
     );
+    const stringOnlyCompoundEmbedContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
+        patientivoNominalSuffix: "t",
+        matrixRoot: "miki",
+    });
+    const contradictoryCompoundEmbedDisplayContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
+        patientivoSurface: "poisonedt",
+        sourceSurface: "poisoned",
+        patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
+        patientivoNominalSuffix: "t",
+        matrixRoot: "miki",
+    });
+    const contradictoryCompoundEmbedTargetContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
+        targetContinuationFrame: {
+            ...compoundEmbedContract.targetContinuationFrame,
+            targetFrame: {
+                ...compoundEmbedContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        patientivoNominalSuffix: "t",
+        matrixRoot: "miki",
+    });
     const missingOperationRequest = ctx.buildPatientivoCompoundEmbedGenerationRequestFromOperationFrame(null);
     const invalidOperationFrameSurface = ctx.executeGenerateWordRequest({
         ...compoundEmbedContract.compoundRequest.request,
@@ -1377,6 +1548,8 @@ function run(ctx) {
             supported: compoundEmbedContract.supported,
             incorporatedRoot: compoundEmbedContract.incorporatedRoot,
             compoundVerbInput: compoundEmbedContract.compoundVerbInput,
+            sourceFrameKind: compoundEmbedContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: compoundEmbedContract.targetContinuationFrame?.kind || "",
             displayInputIsAuthority: compoundEmbedContract.compoundOperationFrame.operationFrame.displayInputIsNotAuthority === false,
             operationFrameKind: compoundEmbedContract.compoundOperationFrame.kind,
             targetStem: compoundEmbedContract.compoundOperationFrame.targetFrame.stem,
@@ -1388,11 +1561,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidOperationFrameSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryOperationFrameSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyCompoundEmbedContract.supported,
+            stringOnlyDiagnostics: stringOnlyCompoundEmbedContract.diagnostics,
+            contradictoryDiagnostics: contradictoryCompoundEmbedDisplayContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryCompoundEmbedTargetContract.diagnostics,
         },
         {
             supported: true,
             incorporatedRoot: "tamati",
             compoundVerbInput: "(tamati/miki)",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             displayInputIsAuthority: false,
             operationFrameKind: "andrews-patientivo-compound-embed-operation-frame",
             targetStem: "tamatimiki",
@@ -1404,12 +1583,25 @@ function run(ctx) {
             missingOperationDiagnostic: "patientivo-compound-embed-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "patientivo-compound-embed-missing-typed-source-frame",
+                "patientivo-compound-embed-missing-typed-patientive-stem",
+                "patientivo-compound-embed-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "patientivo-compound-embed-display-surface-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "patientivo-compound-embed-target-stem-mismatch",
+            ],
         }
     );
     const unsupportedCompoundEmbedContract = ctx.buildPatientivoCompoundEmbedContinuationContract({
         patientivoSurface: "tamatit",
         sourceSurface: "tamati",
         patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "ni",
     });
@@ -1426,6 +1618,7 @@ function run(ctx) {
             diagnostics: [
                 "patientivo-compound-embed-unsupported-matrix",
                 "patientivo-compound-embed-missing-verb-input",
+                "patientivo-compound-embed-missing-typed-target-frame",
             ],
         }
     );
@@ -1446,8 +1639,16 @@ function run(ctx) {
             }).diagnostics,
         },
         {
-            verbal: ["patientivo-compound-embed-missing-patientivo-source"],
-            nominal: ["patientivo-nominal-compound-missing-patientivo-source"],
+            verbal: [
+                "patientivo-compound-embed-missing-typed-source-frame",
+                "patientivo-compound-embed-missing-typed-patientive-stem",
+                "patientivo-compound-embed-missing-typed-target-frame",
+            ],
+            nominal: [
+                "patientivo-nominal-compound-missing-typed-source-frame",
+                "patientivo-nominal-compound-missing-typed-patientive-stem",
+                "patientivo-nominal-compound-missing-typed-target-frame",
+            ],
         }
     );
     s.eq(
@@ -1509,6 +1710,7 @@ function run(ctx) {
         patientivoSurface: "tamatit",
         sourceSurface: "tamati",
         patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "kal",
     });
@@ -1516,12 +1718,52 @@ function run(ctx) {
     const generatedNominalCompoundSurfaceWithLyingStem = ctx.generateOrdinaryNncParadigm({
         ...nominalCompoundContract.ordinaryNncRequest,
         stem: "poisoned-string",
+        routeContract: {
+            ...nominalCompoundContract.ordinaryNncRequest.routeContract,
+            targetFrame: {
+                ...nominalCompoundContract.ordinaryNncRequest.routeContract.targetFrame,
+                stem: "poisoned-string",
+            },
+        },
+    });
+    const stringOnlyNominalCompoundContract = ctx.buildPatientivoNominalCompoundContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
+        patientivoNominalSuffix: "t",
+        matrixRoot: "kal",
+    });
+    const contradictoryNominalCompoundDisplayContract = ctx.buildPatientivoNominalCompoundContinuationContract({
+        patientivoSurface: "poisonedt",
+        sourceSurface: "poisoned",
+        patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
+        patientivoNominalSuffix: "t",
+        matrixRoot: "kal",
+    });
+    const contradictoryNominalCompoundTargetContract = ctx.buildPatientivoNominalCompoundContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "tamati",
+        patientivoSource: "imperfectivo",
+        sourceContinuationFrame: patientivoSourceFrame,
+        targetContinuationFrame: {
+            ...nominalCompoundContract.targetContinuationFrame,
+            targetFrame: {
+                ...nominalCompoundContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        patientivoNominalSuffix: "t",
+        matrixRoot: "kal",
     });
     s.eq(
-        "Andrews 39.6 patientive nounstem can become an ordinary NNC compound stem",
+        "Andrews 39.6 patientive nounstem can become an ordinary NNC compound stem from typed #3 frames",
         {
             supported: nominalCompoundContract.supported,
             incorporatedRoot: nominalCompoundContract.incorporatedRoot,
+            sourceFrameKind: nominalCompoundContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: nominalCompoundContract.targetContinuationFrame?.kind || "",
+            operationFrameKind: nominalCompoundContract.nominalCompoundOperationFrame?.kind || "",
             compoundStem: nominalCompoundContract.compoundStem,
             ordinaryNncInput: nominalCompoundContract.ordinaryNncInput,
             requestStem: nominalCompoundContract.ordinaryNncRequest.stem,
@@ -1531,10 +1773,17 @@ function run(ctx) {
             poisonedResult: generatedNominalCompoundSurfaceWithLyingStem.result,
             sourceKind: generatedNominalCompoundSurface.source.sourceKind,
             nounClass: generatedNominalCompoundSurface.nounClass,
+            stringOnlySupported: stringOnlyNominalCompoundContract.supported,
+            stringOnlyDiagnostics: stringOnlyNominalCompoundContract.diagnostics,
+            contradictoryDiagnostics: contradictoryNominalCompoundDisplayContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryNominalCompoundTargetContract.diagnostics,
         },
         {
             supported: true,
             incorporatedRoot: "tamati",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            operationFrameKind: "andrews-patientivo-nominal-compound-operation-frame",
             compoundStem: "tamatikal",
             ordinaryNncInput: "(tamatikal)",
             requestStem: "tamatikal",
@@ -1544,6 +1793,18 @@ function run(ctx) {
             poisonedResult: "tamatikal",
             sourceKind: "open-stem",
             nounClass: "zero",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "patientivo-nominal-compound-missing-typed-source-frame",
+                "patientivo-nominal-compound-missing-typed-patientive-stem",
+                "patientivo-nominal-compound-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "patientivo-nominal-compound-display-surface-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "patientivo-nominal-compound-target-stem-mismatch",
+            ],
         }
     );
     s.eq(
@@ -1822,28 +2083,100 @@ function run(ctx) {
     const activeActionNominalContract = ctx.buildActiveActionNominalCompoundContinuationContract({
         actionNominalSurface: "chukilis",
         sourceSurface: "chuka",
+        sourceContinuationFrame: activeActionSourceFrame,
         matrixRoot: "kal",
     });
     const generatedActiveActionNominalSurface = ctx.generateOrdinaryNncParadigm(activeActionNominalContract.ordinaryNncRequest);
+    const poisonedActiveActionNominalRequest = {
+        ...activeActionNominalContract.ordinaryNncRequest,
+        stem: "poisonedstring",
+        formulaSlots: {
+            ...activeActionNominalContract.ordinaryNncRequest.formulaSlots,
+            predicateStem: {
+                ...activeActionNominalContract.ordinaryNncRequest.formulaSlots.predicateStem,
+                stem: activeActionNominalContract.nominalCompoundOperationFrame.targetFrame.stem,
+            },
+        },
+        routeContract: {
+            ...activeActionNominalContract.ordinaryNncRequest.routeContract,
+            targetFrame: {
+                ...activeActionNominalContract.ordinaryNncRequest.routeContract.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+    };
+    const generatedPoisonedActiveActionNominalSurface = ctx.generateOrdinaryNncParadigm(poisonedActiveActionNominalRequest);
+    const stringOnlyActiveActionNominalContract = ctx.buildActiveActionNominalCompoundContinuationContract({
+        actionNominalSurface: "chukilis",
+        sourceSurface: "chuka",
+        matrixRoot: "kal",
+    });
+    const contradictoryActiveActionNominalContract = ctx.buildActiveActionNominalCompoundContinuationContract({
+        actionNominalSurface: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: activeActionSourceFrame,
+        matrixRoot: "kal",
+    });
+    const contradictoryActiveActionNominalTargetContract = ctx.buildActiveActionNominalCompoundContinuationContract({
+        actionNominalSurface: "chukilis",
+        sourceSurface: "chuka",
+        sourceContinuationFrame: activeActionSourceFrame,
+        targetContinuationFrame: {
+            ...activeActionNominalContract.targetContinuationFrame,
+            targetFrame: {
+                ...activeActionNominalContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "kal",
+    });
     s.eq(
-        "Andrews 37.5.4 active-action nounstem can become an ordinary NNC compound stem from #3 output",
+        "Andrews 37.5.4 active-action nounstem can become an ordinary NNC compound stem from typed #3 frames",
         {
             supported: activeActionNominalContract.supported,
             incorporatedRoot: activeActionNominalContract.incorporatedRoot,
+            sourceFrameKind: activeActionNominalContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: activeActionNominalContract.targetContinuationFrame?.kind || "",
+            operationFrameKind: activeActionNominalContract.nominalCompoundOperationFrame?.kind || "",
             compoundStem: activeActionNominalContract.compoundStem,
             ordinaryNncInput: activeActionNominalContract.ordinaryNncInput,
+            requestStem: activeActionNominalContract.ordinaryNncRequest.stem,
+            requestFormulaStem: activeActionNominalContract.ordinaryNncRequest.formulaSlots.predicateStem.stem,
             result: generatedActiveActionNominalSurface.result,
+            poisonedResult: generatedPoisonedActiveActionNominalSurface.result,
             sourceKind: generatedActiveActionNominalSurface.source.sourceKind,
             nounClass: generatedActiveActionNominalSurface.nounClass,
+            stringOnlySupported: stringOnlyActiveActionNominalContract.supported,
+            stringOnlyDiagnostics: stringOnlyActiveActionNominalContract.diagnostics,
+            contradictoryDiagnostics: contradictoryActiveActionNominalContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryActiveActionNominalTargetContract.diagnostics,
         },
         {
             supported: true,
             incorporatedRoot: "chukilis",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            operationFrameKind: "andrews-active-action-nominal-compound-operation-frame",
             compoundStem: "chukiliskal",
             ordinaryNncInput: "(chukiliskal)",
+            requestStem: "chukiliskal",
+            requestFormulaStem: "chukiliskal",
             result: "chukiliskal",
+            poisonedResult: "chukiliskal",
             sourceKind: "open-stem",
             nounClass: "zero",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "active-action-nominal-compound-missing-typed-source-frame",
+                "active-action-nominal-compound-missing-typed-action-nominal-realization",
+                "active-action-nominal-compound-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "active-action-nominal-compound-display-surface-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "active-action-nominal-compound-target-stem-mismatch",
+            ],
         }
     );
     const customaryAgentiveNominalInventory = ctx.getCustomaryAgentiveNominalCompoundMatrixInventory();
@@ -1870,35 +2203,110 @@ function run(ctx) {
             },
         ]
     );
+    const customaryAgentiveSourceFrame = buildTypedActiveActionSourceFrame("nemini");
     const customaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
         customaryAgentiveStem: "nemini",
         sourceSurface: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
         matrixRoot: "kal",
     });
     const generatedCustomaryAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(
         customaryAgentiveNominalContract.ordinaryNncRequest
     );
+    const poisonedCustomaryAgentiveNominalRequest = {
+        ...customaryAgentiveNominalContract.ordinaryNncRequest,
+        stem: "poisonedstring",
+        formulaSlots: {
+            ...customaryAgentiveNominalContract.ordinaryNncRequest.formulaSlots,
+            predicateStem: {
+                ...customaryAgentiveNominalContract.ordinaryNncRequest.formulaSlots.predicateStem,
+                stem: customaryAgentiveNominalContract.nominalCompoundOperationFrame.targetFrame.stem,
+            },
+        },
+        routeContract: {
+            ...customaryAgentiveNominalContract.ordinaryNncRequest.routeContract,
+            targetFrame: {
+                ...customaryAgentiveNominalContract.ordinaryNncRequest.routeContract.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+    };
+    const generatedPoisonedCustomaryAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(
+        poisonedCustomaryAgentiveNominalRequest
+    );
+    const stringOnlyCustomaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        matrixRoot: "kal",
+    });
+    const contradictoryCustomaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
+        customaryAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
+        matrixRoot: "kal",
+    });
+    const contradictoryCustomaryAgentiveNominalTargetContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
+        targetContinuationFrame: {
+            ...customaryAgentiveNominalContract.targetContinuationFrame,
+            targetFrame: {
+                ...customaryAgentiveNominalContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "kal",
+    });
     s.eq(
-        "Andrews 36.3 fully nominalized customary-present agentive stem can become an ordinary NNC compound stem from #3 output",
+        "Andrews 36.3 fully nominalized customary-present agentive stem can become an ordinary NNC compound stem from typed #3 frames",
         {
             supported: customaryAgentiveNominalContract.supported,
             customaryAgentiveStem: customaryAgentiveNominalContract.customaryAgentiveStem,
             incorporatedRoot: customaryAgentiveNominalContract.incorporatedRoot,
+            sourceFrameKind: customaryAgentiveNominalContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: customaryAgentiveNominalContract.targetContinuationFrame?.kind || "",
+            operationFrameKind: customaryAgentiveNominalContract.nominalCompoundOperationFrame?.kind || "",
             compoundStem: customaryAgentiveNominalContract.compoundStem,
             ordinaryNncInput: customaryAgentiveNominalContract.ordinaryNncInput,
+            requestStem: customaryAgentiveNominalContract.ordinaryNncRequest.stem,
+            requestFormulaStem: customaryAgentiveNominalContract.ordinaryNncRequest.formulaSlots.predicateStem.stem,
             result: generatedCustomaryAgentiveNominalSurface.result,
+            poisonedResult: generatedPoisonedCustomaryAgentiveNominalSurface.result,
             sourceKind: generatedCustomaryAgentiveNominalSurface.source.sourceKind,
             nounClass: generatedCustomaryAgentiveNominalSurface.nounClass,
+            stringOnlySupported: stringOnlyCustomaryAgentiveNominalContract.supported,
+            stringOnlyDiagnostics: stringOnlyCustomaryAgentiveNominalContract.diagnostics,
+            contradictoryDiagnostics: contradictoryCustomaryAgentiveNominalContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryCustomaryAgentiveNominalTargetContract.diagnostics,
         },
         {
             supported: true,
             customaryAgentiveStem: "nemini",
             incorporatedRoot: "nemini",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            operationFrameKind: "andrews-customary-agentive-nominal-compound-operation-frame",
             compoundStem: "neminikal",
             ordinaryNncInput: "(neminikal)",
+            requestStem: "neminikal",
+            requestFormulaStem: "neminikal",
             result: "neminikal",
+            poisonedResult: "neminikal",
             sourceKind: "open-stem",
             nounClass: "zero",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "customary-agentive-nominal-compound-missing-typed-source-frame",
+                "customary-agentive-nominal-compound-missing-typed-customary-agentive-stem",
+                "customary-agentive-nominal-compound-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "customary-agentive-nominal-compound-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "customary-agentive-nominal-compound-target-stem-mismatch",
+            ],
         }
     );
     const customaryAgentiveCompoundInventory = ctx.getCustomaryAgentiveCompoundEmbedMatrixInventory();
@@ -1928,6 +2336,7 @@ function run(ctx) {
     const customaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
         customaryAgentiveStem: "nemini",
         sourceSurface: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
         matrixRoot: "tuka",
     });
     const generatedCustomaryAgentiveCompoundSurface = ctx.executeGenerateWordRequest(
@@ -1978,12 +2387,38 @@ function run(ctx) {
             },
         },
     });
+    const stringOnlyCustomaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        matrixRoot: "tuka",
+    });
+    const contradictoryCustomaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
+        customaryAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
+        matrixRoot: "tuka",
+    });
+    const contradictoryCustomaryAgentiveCompoundTargetContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
+        customaryAgentiveStem: "nemini",
+        sourceSurface: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
+        targetContinuationFrame: {
+            ...customaryAgentiveCompoundContract.targetContinuationFrame,
+            targetFrame: {
+                ...customaryAgentiveCompoundContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "tuka",
+    });
     s.eq(
         "Andrews 36.3 fully nominalized customary-present agentive stem can become a transitive VNC compound embed from #3 output",
         {
             supported: customaryAgentiveCompoundContract.supported,
             customaryAgentiveStem: customaryAgentiveCompoundContract.customaryAgentiveStem,
             incorporatedRoot: customaryAgentiveCompoundContract.incorporatedRoot,
+            sourceFrameKind: customaryAgentiveCompoundContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: customaryAgentiveCompoundContract.targetContinuationFrame?.kind || "",
             compoundVerbInput: customaryAgentiveCompoundContract.compoundVerbInput,
             objectPrefix: customaryAgentiveCompoundContract.objectPrefix,
             operationFrameKind: customaryAgentiveCompoundContract.compoundOperationFrame.kind,
@@ -1997,11 +2432,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingCustomaryAgentiveOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidCustomaryAgentiveOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryCustomaryAgentiveOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyCustomaryAgentiveCompoundContract.supported,
+            stringOnlyDiagnostics: stringOnlyCustomaryAgentiveCompoundContract.diagnostics,
+            contradictoryDiagnostics: contradictoryCustomaryAgentiveCompoundContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryCustomaryAgentiveCompoundTargetContract.diagnostics,
         },
         {
             supported: true,
             customaryAgentiveStem: "nemini",
             incorporatedRoot: "nemini",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             compoundVerbInput: "-(nemini/tuka)",
             objectPrefix: "ki",
             operationFrameKind: "andrews-customary-agentive-compound-embed-operation-frame",
@@ -2015,10 +2456,23 @@ function run(ctx) {
             missingOperationDiagnostic: "customary-agentive-compound-embed-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "customary-agentive-compound-embed-missing-typed-source-frame",
+                "customary-agentive-compound-embed-missing-typed-customary-agentive-stem",
+                "customary-agentive-compound-embed-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "customary-agentive-compound-embed-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "customary-agentive-compound-embed-target-stem-mismatch",
+            ],
         }
     );
     const unsupportedCustomaryAgentiveCompoundContract = ctx.buildCustomaryAgentiveCompoundEmbedContinuationContract({
         customaryAgentiveStem: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
         matrixRoot: "kal",
     });
     s.eq(
@@ -2039,6 +2493,7 @@ function run(ctx) {
     );
     const unsupportedCustomaryAgentiveNominalContract = ctx.buildCustomaryAgentiveNominalCompoundContinuationContract({
         customaryAgentiveStem: "nemini",
+        sourceContinuationFrame: customaryAgentiveSourceFrame,
         matrixRoot: "tzajtzi",
     });
     s.eq(
@@ -2084,6 +2539,47 @@ function run(ctx) {
     const preteritAgentiveCompoundContract = ctx.buildPreteritAgentiveCompoundEmbedContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: (() => {
+            const formulaRecord = ctx.buildGrammarFormulaRecord({
+                id: "preterit-agentive-source-tamatka",
+                unit: "NNC",
+                formula: "#Ø-Ø(tamatka)Ø#",
+                formulaSlots: {
+                    predicateStem: { slot: "STEM", stem: "tamatka", role: "preterit-agentive-general-use-nounstem" },
+                },
+                operationFrames: [{ operationId: "preterit-agentive-general-use" }],
+            });
+            const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+                id: "preterit-agentive-realization-tamatki",
+                formulaRecord,
+                surface: "tamatki",
+                surfaceForms: ["tamatki"],
+                segmentFrames: [{
+                    slot: "predicateStem",
+                    role: "preterit-agentive-general-use-nounstem",
+                    formulaValue: "tamatka",
+                    surface: "tamatki",
+                    operationId: "nawat-pipil-orthography-realization",
+                }],
+                deriveSurfaceFromSegments: true,
+            });
+            return {
+                kind: "generated-output-typed-continuation-frame",
+                role: "source",
+                unit: "NNC",
+                formulaRecord,
+                formulaRealizationRecord,
+                selectedVariant: {
+                    kind: "grammar-formula-realization-selected-variant",
+                    surface: "tamatki",
+                    variantIndex: 0,
+                    variantId: `${formulaRealizationRecord.id}#variant:0`,
+                    formulaRecordId: formulaRecord.id,
+                    formulaRealizationRecordId: formulaRealizationRecord.id,
+                },
+                formulaSlots: formulaRecord.formulaSlots,
+            };
+        })(),
         matrixRoot: "tzajtzi",
     });
     const generatedPreteritAgentiveCompoundSurface = ctx.executeGenerateWordRequest(
@@ -2134,12 +2630,38 @@ function run(ctx) {
             },
         },
     });
+    const stringOnlyPreteritAgentiveCompoundContract = ctx.buildPreteritAgentiveCompoundEmbedContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "tzajtzi",
+    });
+    const contradictoryPreteritAgentiveCompoundContract = ctx.buildPreteritAgentiveCompoundEmbedContinuationContract({
+        preteritAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        matrixRoot: "tzajtzi",
+    });
+    const contradictoryPreteritAgentiveCompoundTargetContract = ctx.buildPreteritAgentiveCompoundEmbedContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        targetContinuationFrame: {
+            ...preteritAgentiveCompoundContract.targetContinuationFrame,
+            targetFrame: {
+                ...preteritAgentiveCompoundContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "tzajtzi",
+    });
     s.eq(
         "Andrews 35.7 preterit-agentive general-use stem can become a verbal compound embed from #3 output",
         {
             supported: preteritAgentiveCompoundContract.supported,
             preteritAgentiveStem: preteritAgentiveCompoundContract.preteritAgentiveStem,
             incorporatedRoot: preteritAgentiveCompoundContract.incorporatedRoot,
+            sourceFrameKind: preteritAgentiveCompoundContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: preteritAgentiveCompoundContract.targetContinuationFrame?.kind || "",
             compoundVerbInput: preteritAgentiveCompoundContract.compoundVerbInput,
             operationFrameKind: preteritAgentiveCompoundContract.compoundOperationFrame.kind,
             displayInputIsAuthority: preteritAgentiveCompoundContract.compoundOperationFrame.operationFrame.displayInputIsNotAuthority === false,
@@ -2152,11 +2674,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingPreteritAgentiveOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidPreteritAgentiveOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryPreteritAgentiveOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyPreteritAgentiveCompoundContract.supported,
+            stringOnlyDiagnostics: stringOnlyPreteritAgentiveCompoundContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPreteritAgentiveCompoundContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPreteritAgentiveCompoundTargetContract.diagnostics,
         },
         {
             supported: true,
             preteritAgentiveStem: "tamatka",
             incorporatedRoot: "tamatka",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             compoundVerbInput: "(tamatka/tzajtzi)",
             operationFrameKind: "andrews-preterit-agentive-compound-embed-operation-frame",
             displayInputIsAuthority: false,
@@ -2169,6 +2697,18 @@ function run(ctx) {
             missingOperationDiagnostic: "preterit-agentive-compound-embed-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "preterit-agentive-compound-embed-missing-typed-source-frame",
+                "preterit-agentive-compound-embed-missing-typed-general-use-stem",
+                "preterit-agentive-compound-embed-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "preterit-agentive-compound-embed-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "preterit-agentive-compound-embed-target-stem-mismatch",
+            ],
         }
     );
     const preteritAgentiveNominalInventory = ctx.getPreteritAgentiveNominalCompoundMatrixInventory();
@@ -2198,30 +2738,104 @@ function run(ctx) {
     const preteritAgentiveNominalContract = ctx.buildPreteritAgentiveNominalCompoundContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "kal",
     });
     const generatedPreteritAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(preteritAgentiveNominalContract.ordinaryNncRequest);
+    const poisonedPreteritAgentiveNominalRequest = {
+        ...preteritAgentiveNominalContract.ordinaryNncRequest,
+        stem: "poisonedstring",
+        formulaSlots: {
+            ...preteritAgentiveNominalContract.ordinaryNncRequest.formulaSlots,
+            predicateStem: {
+                ...preteritAgentiveNominalContract.ordinaryNncRequest.formulaSlots.predicateStem,
+                stem: preteritAgentiveNominalContract.nominalCompoundOperationFrame.targetFrame.stem,
+            },
+        },
+        routeContract: {
+            ...preteritAgentiveNominalContract.ordinaryNncRequest.routeContract,
+            targetFrame: {
+                ...preteritAgentiveNominalContract.ordinaryNncRequest.routeContract.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+    };
+    const generatedPoisonedPreteritAgentiveNominalSurface = ctx.generateOrdinaryNncParadigm(
+        poisonedPreteritAgentiveNominalRequest
+    );
+    const stringOnlyPreteritAgentiveNominalContract = ctx.buildPreteritAgentiveNominalCompoundContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "kal",
+    });
+    const contradictoryPreteritAgentiveNominalContract = ctx.buildPreteritAgentiveNominalCompoundContinuationContract({
+        preteritAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        matrixRoot: "kal",
+    });
+    const contradictoryPreteritAgentiveNominalTargetContract = ctx.buildPreteritAgentiveNominalCompoundContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        targetContinuationFrame: {
+            ...preteritAgentiveNominalContract.targetContinuationFrame,
+            targetFrame: {
+                ...preteritAgentiveNominalContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "kal",
+    });
     s.eq(
-        "Andrews 35.7 preterit-agentive general-use stem can become an ordinary NNC compound stem from #3 output",
+        "Andrews 35.7 preterit-agentive general-use stem can become an ordinary NNC compound stem from typed #3 frames",
         {
             supported: preteritAgentiveNominalContract.supported,
             preteritAgentiveStem: preteritAgentiveNominalContract.preteritAgentiveStem,
             incorporatedRoot: preteritAgentiveNominalContract.incorporatedRoot,
+            sourceFrameKind: preteritAgentiveNominalContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: preteritAgentiveNominalContract.targetContinuationFrame?.kind || "",
+            operationFrameKind: preteritAgentiveNominalContract.nominalCompoundOperationFrame?.kind || "",
             compoundStem: preteritAgentiveNominalContract.compoundStem,
             ordinaryNncInput: preteritAgentiveNominalContract.ordinaryNncInput,
+            requestStem: preteritAgentiveNominalContract.ordinaryNncRequest.stem,
+            requestFormulaStem: preteritAgentiveNominalContract.ordinaryNncRequest.formulaSlots.predicateStem.stem,
             result: generatedPreteritAgentiveNominalSurface.result,
+            poisonedResult: generatedPoisonedPreteritAgentiveNominalSurface.result,
             sourceKind: generatedPreteritAgentiveNominalSurface.source.sourceKind,
             nounClass: generatedPreteritAgentiveNominalSurface.nounClass,
+            stringOnlySupported: stringOnlyPreteritAgentiveNominalContract.supported,
+            stringOnlyDiagnostics: stringOnlyPreteritAgentiveNominalContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPreteritAgentiveNominalContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPreteritAgentiveNominalTargetContract.diagnostics,
         },
         {
             supported: true,
             preteritAgentiveStem: "tamatka",
             incorporatedRoot: "tamatka",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            operationFrameKind: "andrews-preterit-agentive-nominal-compound-operation-frame",
             compoundStem: "tamatkakal",
             ordinaryNncInput: "(tamatkakal)",
+            requestStem: "tamatkakal",
+            requestFormulaStem: "tamatkakal",
             result: "tamatkakal",
+            poisonedResult: "tamatkakal",
             sourceKind: "open-stem",
             nounClass: "zero",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "preterit-agentive-nominal-compound-missing-typed-source-frame",
+                "preterit-agentive-nominal-compound-missing-typed-general-use-stem",
+                "preterit-agentive-nominal-compound-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "preterit-agentive-nominal-compound-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "preterit-agentive-nominal-compound-target-stem-mismatch",
+            ],
         }
     );
     const preteritAgentiveOwnerhoodInventory = ctx.getPreteritAgentiveOwnerhoodMatrixInventory();
@@ -2260,6 +2874,7 @@ function run(ctx) {
     const preteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "wa",
     });
     const generatedPreteritAgentiveOwnerhoodSurface = ctx.executeGenerateWordRequest(
@@ -2322,12 +2937,38 @@ function run(ctx) {
     } finally {
         ctx.buildPreteritAgentiveOwnerhoodVerbInput = originalPreteritAgentiveOwnerhoodBuilder;
     }
+    const stringOnlyPreteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "wa",
+    });
+    const contradictoryPreteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        matrixRoot: "wa",
+    });
+    const contradictoryPreteritAgentiveOwnerhoodTargetContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        targetContinuationFrame: {
+            ...preteritAgentiveOwnerhoodContract.targetContinuationFrame,
+            targetFrame: {
+                ...preteritAgentiveOwnerhoodContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "wa",
+    });
     s.eq(
         "Andrews 35.9 preterit-agentive general-use stem can feed the ownerhood VNC matrix through typed frames",
         {
             supported: preteritAgentiveOwnerhoodContract.supported,
             preteritAgentiveStem: preteritAgentiveOwnerhoodContract.preteritAgentiveStem,
             incorporatedRoot: preteritAgentiveOwnerhoodContract.incorporatedRoot,
+            sourceFrameKind: preteritAgentiveOwnerhoodContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: preteritAgentiveOwnerhoodContract.targetContinuationFrame?.kind || "",
             matrixRoot: preteritAgentiveOwnerhoodContract.matrixRoot,
             surfaceMatrix: preteritAgentiveOwnerhoodContract.surfaceMatrix,
             ownerhoodKind: preteritAgentiveOwnerhoodContract.ownerhoodKind,
@@ -2347,11 +2988,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingPreteritAgentiveOwnerhoodOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidPreteritAgentiveOwnerhoodOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryPreteritAgentiveOwnerhoodOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyPreteritAgentiveOwnerhoodContract.supported,
+            stringOnlyDiagnostics: stringOnlyPreteritAgentiveOwnerhoodContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPreteritAgentiveOwnerhoodContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPreteritAgentiveOwnerhoodTargetContract.diagnostics,
         },
         {
             supported: true,
             preteritAgentiveStem: "tamatka",
             incorporatedRoot: "tamatka",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             matrixRoot: "wa",
             surfaceMatrix: "waj",
             ownerhoodKind: "ownerhood",
@@ -2371,11 +3018,24 @@ function run(ctx) {
             missingOperationDiagnostic: "preterit-agentive-ownerhood-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "preterit-agentive-ownerhood-missing-typed-source-frame",
+                "preterit-agentive-ownerhood-missing-typed-general-use-stem",
+                "preterit-agentive-ownerhood-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "preterit-agentive-ownerhood-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "preterit-agentive-ownerhood-target-stem-mismatch",
+            ],
         }
     );
     const preteritAgentiveAbundantOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "yua",
     });
     const generatedPreteritAgentiveAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest(
@@ -2407,6 +3067,7 @@ function run(ctx) {
     const unsupportedPreteritAgentiveOwnerhoodContract = ctx.buildPreteritAgentiveOwnerhoodContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "e",
     });
     s.eq(
@@ -2483,6 +3144,7 @@ function run(ctx) {
     const preteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "mati",
     });
     const generatedPreteritAgentiveComplementSurface = ctx.executeGenerateWordRequest(
@@ -2546,12 +3208,38 @@ function run(ctx) {
     } finally {
         ctx.buildPreteritAgentiveComplementVerbInput = originalPreteritAgentiveComplementBuilder;
     }
+    const stringOnlyPreteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "mati",
+    });
+    const contradictoryPreteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        matrixRoot: "mati",
+    });
+    const contradictoryPreteritAgentiveComplementTargetContract = ctx.buildPreteritAgentiveComplementContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        targetContinuationFrame: {
+            ...preteritAgentiveComplementContract.targetContinuationFrame,
+            targetFrame: {
+                ...preteritAgentiveComplementContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "mati",
+    });
     s.eq(
         "Andrews 35.12 preterit-agentive general-use stem can feed incorporated-complement VNC matrices through typed frames",
         {
             supported: preteritAgentiveComplementContract.supported,
             preteritAgentiveStem: preteritAgentiveComplementContract.preteritAgentiveStem,
             incorporatedRoot: preteritAgentiveComplementContract.incorporatedRoot,
+            sourceFrameKind: preteritAgentiveComplementContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: preteritAgentiveComplementContract.targetContinuationFrame?.kind || "",
             matrixRoot: preteritAgentiveComplementContract.matrixRoot,
             objectPrefix: preteritAgentiveComplementContract.objectPrefix,
             complementVerbInput: preteritAgentiveComplementContract.complementVerbInput,
@@ -2568,11 +3256,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingPreteritAgentiveComplementOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidPreteritAgentiveComplementOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryPreteritAgentiveComplementOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyPreteritAgentiveComplementContract.supported,
+            stringOnlyDiagnostics: stringOnlyPreteritAgentiveComplementContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPreteritAgentiveComplementContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPreteritAgentiveComplementTargetContract.diagnostics,
         },
         {
             supported: true,
             preteritAgentiveStem: "tamatka",
             incorporatedRoot: "tamatka",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             matrixRoot: "mati",
             objectPrefix: "ki",
             complementVerbInput: "-(tamatka/mati)",
@@ -2589,11 +3283,24 @@ function run(ctx) {
             missingOperationDiagnostic: "preterit-agentive-complement-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "preterit-agentive-complement-missing-typed-source-frame",
+                "preterit-agentive-complement-missing-typed-general-use-stem",
+                "preterit-agentive-complement-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "preterit-agentive-complement-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "preterit-agentive-complement-target-stem-mismatch",
+            ],
         }
     );
     const preteritAgentiveComplementTaliaContract = ctx.buildPreteritAgentiveComplementContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "talia",
     });
     const generatedPreteritAgentiveComplementTaliaSurface = ctx.executeGenerateWordRequest(
@@ -2619,6 +3326,7 @@ function run(ctx) {
     const unsupportedPreteritAgentiveComplementContract = ctx.buildPreteritAgentiveComplementContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "tzajtzi",
     });
     s.eq(
@@ -2662,6 +3370,7 @@ function run(ctx) {
     const preteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "nemi",
     });
     const generatedPreteritAgentiveAdverbialSurface = ctx.executeGenerateWordRequest(
@@ -2725,12 +3434,38 @@ function run(ctx) {
     } finally {
         ctx.buildPreteritAgentiveAdverbialVerbInput = originalPreteritAgentiveAdverbialBuilder;
     }
+    const stringOnlyPreteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        matrixRoot: "nemi",
+    });
+    const contradictoryPreteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
+        preteritAgentiveStem: "surface-lie",
+        sourceSurface: "surface-lie",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        matrixRoot: "nemi",
+    });
+    const contradictoryPreteritAgentiveAdverbialTargetContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
+        preteritAgentiveStem: "tamatka",
+        sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
+        targetContinuationFrame: {
+            ...preteritAgentiveAdverbialContract.targetContinuationFrame,
+            targetFrame: {
+                ...preteritAgentiveAdverbialContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        matrixRoot: "nemi",
+    });
     s.eq(
         "Andrews 35.12 preterit-agentive general-use stem can feed an adverbial-manner VNC matrix through typed frames",
         {
             supported: preteritAgentiveAdverbialContract.supported,
             preteritAgentiveStem: preteritAgentiveAdverbialContract.preteritAgentiveStem,
             incorporatedRoot: preteritAgentiveAdverbialContract.incorporatedRoot,
+            sourceFrameKind: preteritAgentiveAdverbialContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: preteritAgentiveAdverbialContract.targetContinuationFrame?.kind || "",
             matrixRoot: preteritAgentiveAdverbialContract.matrixRoot,
             adverbialFocus: preteritAgentiveAdverbialContract.adverbialFocus,
             objectPrefix: preteritAgentiveAdverbialContract.objectPrefix,
@@ -2748,11 +3483,17 @@ function run(ctx) {
             missingOperationDiagnostic: missingPreteritAgentiveAdverbialOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidPreteritAgentiveAdverbialOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryPreteritAgentiveAdverbialOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyPreteritAgentiveAdverbialContract.supported,
+            stringOnlyDiagnostics: stringOnlyPreteritAgentiveAdverbialContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPreteritAgentiveAdverbialContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPreteritAgentiveAdverbialTargetContract.diagnostics,
         },
         {
             supported: true,
             preteritAgentiveStem: "tamatka",
             incorporatedRoot: "tamatka",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             matrixRoot: "nemi",
             adverbialFocus: "subject",
             objectPrefix: "",
@@ -2770,11 +3511,24 @@ function run(ctx) {
             missingOperationDiagnostic: "preterit-agentive-adverbial-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "preterit-agentive-adverbial-missing-typed-source-frame",
+                "preterit-agentive-adverbial-missing-typed-general-use-stem",
+                "preterit-agentive-adverbial-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "preterit-agentive-adverbial-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "preterit-agentive-adverbial-target-stem-mismatch",
+            ],
         }
     );
     const unsupportedPreteritAgentiveAdverbialContract = ctx.buildPreteritAgentiveAdverbialContinuationContract({
         preteritAgentiveStem: "tamatka",
         sourceSurface: "tamatki",
+        sourceContinuationFrame: preteritAgentiveCompoundContract.sourceContinuationFrame,
         matrixRoot: "tzajtzi",
     });
     s.eq(
@@ -2827,11 +3581,70 @@ function run(ctx) {
             },
         ]
     );
+    const makeOrdinaryOwnerhoodSourceFrame = ({
+        id = "ordinary-ownerhood-source",
+        nounStem = "",
+        nounClass = "",
+        surface = "",
+        sourceKind = "fixture",
+    } = {}) => {
+        const formulaSlots = {
+            pers1Pers2: { slot: "pers1-pers2", prefix: "", suffix: "" },
+            predicateStem: { slot: "STEM", stem: nounStem, displayStem: nounStem, role: "ordinary-nounstem" },
+            num1Num2: { slot: "num1-num2", connector: nounClass === "t" ? "t" : "", displayConnector: nounClass === "t" ? "t" : "Ø" },
+        };
+        const formulaRecord = ctx.buildGrammarFormulaRecord({
+            id: `${id}-formula`,
+            unit: "NNC",
+            formula: nounClass === "t" ? `#Ø-Ø(${nounStem})t#` : `#Ø-Ø(${nounStem})Ø#`,
+            formulaSlots,
+        });
+        const formulaRealizationRecord = ctx.buildGrammarFormulaRealizationRecord({
+            id: `${id}-realization`,
+            formulaRecord,
+            surface,
+            surfaceForms: [surface],
+            segmentFrames: [{
+                slot: "predicateStem",
+                role: "ordinary-nounstem",
+                formulaValue: nounStem,
+                surface,
+                operationId: "nawat-pipil-orthography-realization",
+            }],
+            deriveSurfaceFromSegments: true,
+        });
+        return {
+            kind: "generated-output-typed-continuation-frame",
+            role: "source",
+            unit: "NNC",
+            formulaRecord,
+            formulaRealizationRecord,
+            selectedVariant: {
+                kind: "grammar-formula-realization-selected-variant",
+                surface,
+                variantIndex: 0,
+                variantId: `${formulaRealizationRecord.id}#variant:0`,
+                formulaRecordId: formulaRecord.id,
+                formulaRealizationRecordId: formulaRealizationRecord.id,
+            },
+            formulaSlots: formulaRecord.formulaSlots,
+            nounClass,
+            sourceKind,
+        };
+    };
+    const ordinaryTClassSourceFrame = makeOrdinaryOwnerhoodSourceFrame({
+        id: "ordinary-ownerhood-shuchi-t",
+        nounStem: "shuchi",
+        nounClass: "t",
+        surface: "shuchit",
+        sourceKind: "fixture",
+    });
     const ordinaryTClassOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
         nounStem: "shuchi",
         nounClass: "t",
         sourceSurface: "shuchit",
         sourceKind: "fixture",
+        sourceContinuationFrame: ordinaryTClassSourceFrame,
     });
     const generatedOrdinaryTClassOwnerhoodSurface = ctx.executeGenerateWordRequest(
         ordinaryTClassOwnerhoodContract.ownerhoodRequest.request
@@ -2894,6 +3707,33 @@ function run(ctx) {
     } finally {
         ctx.buildOrdinaryNounOwnerhoodVerbInput = originalOrdinaryOwnerhoodBuilder;
     }
+    const stringOnlyOrdinaryOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "shuchi",
+        nounClass: "t",
+        sourceSurface: "shuchit",
+        sourceKind: "fixture",
+    });
+    const contradictoryOrdinaryOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "surface-lie",
+        nounClass: "t",
+        sourceSurface: "surface-lie",
+        sourceKind: "fixture",
+        sourceContinuationFrame: ordinaryTClassSourceFrame,
+    });
+    const contradictoryOrdinaryOwnerhoodTargetContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
+        nounStem: "shuchi",
+        nounClass: "t",
+        sourceSurface: "shuchit",
+        sourceKind: "fixture",
+        sourceContinuationFrame: ordinaryTClassSourceFrame,
+        targetContinuationFrame: {
+            ...ordinaryTClassOwnerhoodContract.targetContinuationFrame,
+            targetFrame: {
+                ...ordinaryTClassOwnerhoodContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+    });
     s.eq(
         "Andrews 35.9 ordinary t-class nouns feed the e/ej ownerhood matrix through typed frames",
         {
@@ -2901,6 +3741,8 @@ function run(ctx) {
             evidenceStatus: ordinaryTClassOwnerhoodContract.evidenceStatus,
             nounStem: ordinaryTClassOwnerhoodContract.nounStem,
             nounClass: ordinaryTClassOwnerhoodContract.nounClass,
+            sourceFrameKind: ordinaryTClassOwnerhoodContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: ordinaryTClassOwnerhoodContract.targetContinuationFrame?.kind || "",
             matrixRoot: ordinaryTClassOwnerhoodContract.matrixRoot,
             surfaceMatrix: ordinaryTClassOwnerhoodContract.surfaceMatrix,
             ownerhoodVerbInput: ordinaryTClassOwnerhoodContract.ownerhoodVerbInput,
@@ -2919,12 +3761,18 @@ function run(ctx) {
             missingOperationDiagnostic: missingOrdinaryOwnerhoodOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidOrdinaryOwnerhoodOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryOrdinaryOwnerhoodOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyOrdinaryOwnerhoodContract.supported,
+            stringOnlyDiagnostics: stringOnlyOrdinaryOwnerhoodContract.diagnostics,
+            contradictoryDiagnostics: contradictoryOrdinaryOwnerhoodContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryOrdinaryOwnerhoodTargetContract.diagnostics,
         },
         {
             supported: true,
             evidenceStatus: "source-fixture-backed",
             nounStem: "shuchi",
             nounClass: "t",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
             matrixRoot: "e",
             surfaceMatrix: "ej",
             ownerhoodVerbInput: "(shuchi)-(e)",
@@ -2943,6 +3791,20 @@ function run(ctx) {
             missingOperationDiagnostic: "ordinary-noun-ownerhood-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "ordinary-noun-ownerhood-missing-typed-source-frame",
+                "ordinary-noun-ownerhood-missing-typed-noun-stem",
+                "ordinary-noun-ownerhood-missing-typed-noun-class",
+                "ordinary-noun-ownerhood-unsupported-matrix",
+                "ordinary-noun-ownerhood-missing-verb-input",
+            ],
+            contradictoryDiagnostics: [
+                "ordinary-noun-ownerhood-display-stem-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "ordinary-noun-ownerhood-target-stem-mismatch",
+            ],
         }
     );
     const ordinaryZeroClassFormulaSlots = {
@@ -2951,6 +3813,13 @@ function run(ctx) {
         num1Num2: { slot: "num1-num2", connector: "", displayConnector: "Ø" },
     };
     const ordinaryZeroClassFormulaEcho = "#Ø-Ø(kal)Ø#";
+    const ordinaryZeroClassSourceFrame = makeOrdinaryOwnerhoodSourceFrame({
+        id: "ordinary-ownerhood-kal-zero",
+        nounStem: "kal",
+        nounClass: "zero",
+        surface: "kal",
+        sourceKind: "fixture",
+    });
     const ordinaryZeroClassOwnerhoodContract = ctx.buildOrdinaryNounOwnerhoodContinuationContract({
         nounStem: "kal",
         nounClass: "zero",
@@ -2958,6 +3827,7 @@ function run(ctx) {
         sourceKind: "fixture",
         sourceFormulaSlots: ordinaryZeroClassFormulaSlots,
         sourceFormulaEcho: ordinaryZeroClassFormulaEcho,
+        sourceContinuationFrame: ordinaryZeroClassSourceFrame,
     });
     const generatedOrdinaryZeroClassOwnerhoodSurface = ctx.executeGenerateWordRequest(
         ordinaryZeroClassOwnerhoodContract.ownerhoodRequest.request
@@ -2998,6 +3868,7 @@ function run(ctx) {
         nounClass: "t",
         sourceSurface: "shuchit",
         sourceKind: "fixture",
+        sourceContinuationFrame: ordinaryTClassSourceFrame,
         ownerhoodKind: "abundant-ownerhood",
     });
     const generatedOrdinaryAbundantOwnerhoodSurface = ctx.executeGenerateWordRequest(
@@ -3031,6 +3902,13 @@ function run(ctx) {
         nounClass: "ti",
         sourceSurface: "xilunti",
         sourceKind: "open-stem",
+        sourceContinuationFrame: makeOrdinaryOwnerhoodSourceFrame({
+            id: "ordinary-ownerhood-xilun-ti",
+            nounStem: "xilun",
+            nounClass: "ti",
+            surface: "xilunti",
+            sourceKind: "open-stem",
+        }),
     });
     const mismatchedZeroOwnerhoodInput = ctx.buildOrdinaryNounOwnerhoodVerbInput({
         nounStem: "kal",
@@ -3104,7 +3982,32 @@ function run(ctx) {
     const characteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         characteristicSurface: "mikkayut",
         sourceSurface: "mikkayut",
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("mikkayut", "mikkayut"),
         matrixRoot: "chikawa",
+    });
+    const stringOnlyCharacteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
+        characteristicSurface: "mikkayut",
+        sourceSurface: "mikkayut",
+        matrixRoot: "chikawa",
+    });
+    const contradictoryCharacteristicDisplayContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
+        characteristicSurface: "poisonedyut",
+        sourceSurface: "poisonedyut",
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("mikkayut", "mikkayut"),
+        matrixRoot: "chikawa",
+    });
+    const contradictoryCharacteristicTargetContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
+        characteristicSurface: "mikkayut",
+        sourceSurface: "mikkayut",
+        sourceContinuationFrame: characteristicContract.sourceContinuationFrame,
+        matrixRoot: "chikawa",
+        targetContinuationFrame: {
+            ...characteristicContract.targetContinuationFrame,
+            targetFrame: {
+                ...characteristicContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
     });
     const generatedCharacteristicSurface = ctx.executeGenerateWordRequest(characteristicContract.compoundRequest.request);
     const poisonedCharacteristicRequest = {
@@ -3163,6 +4066,9 @@ function run(ctx) {
             compoundVerbInput: characteristicContract.compoundVerbInput,
             objectPrefix: characteristicContract.objectPrefix,
             operationFrameKind: characteristicContract.compoundOperationFrame.kind,
+            sourceFrameKind: characteristicContract.compoundOperationFrame.sourceFrame.sourceContinuationFrameKind,
+            targetFrameKind: characteristicContract.targetContinuationFrame.kind,
+            targetFrameOperationId: characteristicContract.targetContinuationFrame.operationFrame.operationId,
             displayInputIsAuthority: characteristicContract.compoundOperationFrame.operationFrame.displayInputIsNotAuthority === false,
             targetStem: characteristicContract.compoundOperationFrame.targetFrame.stem,
             requestStem: characteristicContract.compoundRequest.request.posicionesFormula.tronco,
@@ -3173,6 +4079,12 @@ function run(ctx) {
             missingOperationDiagnostic: missingCharacteristicOperationRequest.diagnostics[0],
             invalidOperationDiagnostic: invalidCharacteristicOperationSurface.diagnostics[0].id,
             contradictoryOperationDiagnostic: contradictoryCharacteristicOperationSurface.diagnostics[0].id,
+            stringOnlySupported: stringOnlyCharacteristicContract.supported,
+            stringOnlyDiagnostics: stringOnlyCharacteristicContract.diagnostics,
+            contradictoryDisplaySupported: contradictoryCharacteristicDisplayContract.supported,
+            contradictoryDisplayDiagnostics: contradictoryCharacteristicDisplayContract.diagnostics,
+            contradictoryTargetSupported: contradictoryCharacteristicTargetContract.supported,
+            contradictoryTargetDiagnostics: contradictoryCharacteristicTargetContract.diagnostics,
         },
         {
             supported: true,
@@ -3183,6 +4095,9 @@ function run(ctx) {
             compoundVerbInput: "-(mikka/chikawa)",
             objectPrefix: "ki",
             operationFrameKind: "andrews-patientivo-characteristic-property-embed-operation-frame",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            targetFrameOperationId: "patientivo-characteristic-property-nounstem-as-incorporated-object",
             displayInputIsAuthority: false,
             targetStem: "mikkachikawa",
             requestStem: "mikkachikawa",
@@ -3193,11 +4108,26 @@ function run(ctx) {
             missingOperationDiagnostic: "patientivo-characteristic-property-missing-typed-operation-frame",
             invalidOperationDiagnostic: "compound-continuation-missing-typed-operation-frame",
             contradictoryOperationDiagnostic: "compound-continuation-contradictory-typed-operation-frame",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "patientivo-characteristic-property-missing-typed-source-frame",
+                "patientivo-characteristic-property-missing-typed-characteristic-stem",
+                "patientivo-characteristic-property-missing-typed-target-frame",
+            ],
+            contradictoryDisplaySupported: false,
+            contradictoryDisplayDiagnostics: [
+                "patientivo-characteristic-property-display-surface-contradicts-source-frame",
+            ],
+            contradictoryTargetSupported: false,
+            contradictoryTargetDiagnostics: [
+                "patientivo-characteristic-property-target-stem-mismatch",
+            ],
         }
     );
     const possessedCharacteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         characteristicSurface: "numikkayu",
         sourceSurface: "numikkayu",
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("numikkayu", "numikkayu"),
         possessorPrefix: "nu",
         matrixRoot: "chikawa",
     });
@@ -3513,31 +4443,12 @@ function run(ctx) {
     const yulCharacteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         characteristicSurface: "yulyut",
         sourceSurface: "yulyut",
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("yulyut", "yulyut"),
         matrixRoot: "chikawa",
     });
-    const generatedYulCharacteristicSurface = ctx.executeGenerateWordRequest({
-        posicionesFormula: {
-            pers1: "",
-            obj1: yulCharacteristicContract.objectPrefix,
-            tronco: yulCharacteristicContract.compoundVerbInput,
-            pers2: "",
-            num2: "",
-            poseedor: "",
-
-            tiempo: "presente",
-
-            },
-        options: {
-            silent: true,
-            skipValidation: true,
-            override: {
-                tenseMode: ctx.TENSE_MODE.verbo,
-                combinedMode: ctx.COMBINED_MODE.active,
-                derivationMode: ctx.DERIVATION_MODE.active,
-                voiceMode: ctx.VOICE_MODE.active,
-            },
-        },
-    });
+    const generatedYulCharacteristicSurface = ctx.executeGenerateWordRequest(
+        yulCharacteristicContract.compoundRequest.request
+    );
     s.eq(
         "Andrews 39.9 contraction reaches the repo-backed yulchikawa pattern",
         {
@@ -3554,6 +4465,7 @@ function run(ctx) {
     const unsupportedCharacteristicContract = ctx.buildPatientivoCharacteristicPropertyEmbedContinuationContract({
         characteristicSurface: "mikka",
         sourceSurface: "mikka",
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("mikka", "mikka"),
         matrixRoot: "chikawa",
     });
     s.eq(
@@ -3568,7 +4480,10 @@ function run(ctx) {
             supported: false,
             incorporatedRoot: "",
             compoundVerbInput: "",
-            diagnostics: ["patientivo-characteristic-property-missing-yut-suffix"],
+            diagnostics: [
+                "patientivo-characteristic-property-missing-yut-suffix",
+                "patientivo-characteristic-property-missing-typed-target-frame",
+            ],
         }
     );
 
@@ -3579,6 +4494,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
     });
     s.eq(
@@ -3674,6 +4590,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "imperfecto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "ni",
     });
@@ -3692,6 +4609,7 @@ function run(ctx) {
             diagnostics: [
                 "patientivo-prelocative-unsupported-matrix",
                 "patientivo-prelocative-missing-verb-input",
+                "patientivo-prelocative-missing-typed-target-frame",
             ],
         }
     );
@@ -3708,6 +4626,7 @@ function run(ctx) {
                 patientivoSource: "imperfectivo",
                 sourceTenseValue: "imperfecto",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceContinuationFrame: patientivoSourceFrame,
                 patientivoNominalSuffix: "t",
                 matrixRoot,
             });
@@ -3756,6 +4675,7 @@ function run(ctx) {
         patientivoSource: "perfectivo",
         sourceTenseValue: "preterito",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("taketz", "taketzti"),
         patientivoNominalSuffix: "ti",
         matrixRoot: "tajtani",
     });
@@ -3789,6 +4709,7 @@ function run(ctx) {
         patientivoSource: "nonactive",
         sourceTenseValue: "presente",
         sourceCombinedMode: ctx.COMBINED_MODE.nonactive,
+        sourceContinuationFrame: buildTypedPatientivoSourceFrame("mach", "machti"),
         patientivoNominalSuffix: "ti",
         matrixRoot: "tajtani",
     });
@@ -3821,6 +4742,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "mati",
     });
@@ -3834,7 +4756,10 @@ function run(ctx) {
         {
             supported: false,
             prelocativeVerbInput: "",
-            diagnostics: ["patientivo-prelocative-matrix-source-state-unsupported"],
+            diagnostics: [
+                "patientivo-prelocative-matrix-source-state-unsupported",
+                "patientivo-prelocative-missing-typed-target-frame",
+            ],
         }
     );
     s.eq(
@@ -3847,6 +4772,7 @@ function run(ctx) {
                 patientivoSource: "imperfectivo",
                 sourceTenseValue: "pasado-remoto",
                 sourceCombinedMode: ctx.COMBINED_MODE.active,
+                sourceContinuationFrame: patientivoSourceFrame,
                 patientivoNominalSuffix: "t",
                 matrixRoot,
             });
@@ -3895,6 +4821,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "imperfecto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "tajtani",
     });
@@ -3908,6 +4835,7 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "imperfecto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "temua",
     });
@@ -3927,7 +4855,10 @@ function run(ctx) {
             seekSupported: false,
             seekCompatible: false,
             seekInput: "",
-            seekDiagnostics: ["patientivo-prelocative-matrix-source-state-unsupported"],
+            seekDiagnostics: [
+                "patientivo-prelocative-matrix-source-state-unsupported",
+                "patientivo-prelocative-missing-typed-target-frame",
+            ],
         }
     );
     const seekMatrixContract = ctx.buildPatientivoPrelocativeContinuationContract({
@@ -3937,25 +4868,97 @@ function run(ctx) {
         patientivoSource: "imperfectivo",
         sourceTenseValue: "pasado-remoto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "temua",
     });
     const generatedSeekMatrixSurface = ctx.executeGenerateWordRequest(
         seekMatrixContract.prelocativeRequest.request
     );
+    const poisonedSeekMatrixRequest = {
+        ...seekMatrixContract.prelocativeRequest.request,
+        posicionesFormula: {
+            ...seekMatrixContract.prelocativeRequest.request.posicionesFormula,
+            tronco: "poisonedstring",
+        },
+    };
+    const generatedPoisonedSeekMatrixSurface = ctx.executeGenerateWordRequest(poisonedSeekMatrixRequest);
+    const stringOnlyPrelocativeContract = ctx.buildPatientivoPrelocativeContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "mutamatit",
+        possessorPrefix: "mu",
+        patientivoSource: "imperfectivo",
+        sourceTenseValue: "pasado-remoto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+        patientivoNominalSuffix: "t",
+        matrixRoot: "temua",
+    });
+    const contradictoryPrelocativeDisplayContract = ctx.buildPatientivoPrelocativeContinuationContract({
+        patientivoSurface: "poisonedt",
+        sourceSurface: "mupoisonedt",
+        possessorPrefix: "mu",
+        patientivoSource: "imperfectivo",
+        sourceTenseValue: "pasado-remoto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
+        patientivoNominalSuffix: "t",
+        matrixRoot: "temua",
+    });
+    const contradictoryPrelocativeTargetContract = ctx.buildPatientivoPrelocativeContinuationContract({
+        patientivoSurface: "tamatit",
+        sourceSurface: "mutamatit",
+        possessorPrefix: "mu",
+        patientivoSource: "imperfectivo",
+        sourceTenseValue: "pasado-remoto",
+        sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
+        targetContinuationFrame: {
+            ...seekMatrixContract.targetContinuationFrame,
+            targetFrame: {
+                ...seekMatrixContract.targetContinuationFrame.targetFrame,
+                stem: "poisonedstring",
+            },
+        },
+        patientivoNominalSuffix: "t",
+        matrixRoot: "temua",
+    });
     s.eq(
         "Andrews 39.8 seek matrix builds actual prelocative V output",
         {
             supported: seekMatrixContract.supported,
             matrixId: seekMatrixContract.matrix.id,
+            sourceFrameKind: seekMatrixContract.sourceContinuationFrame?.kind || "",
+            targetFrameKind: seekMatrixContract.targetContinuationFrame?.kind || "",
+            operationFrameKind: seekMatrixContract.prelocativeOperationFrame?.kind || "",
             prelocativeVerbInput: seekMatrixContract.prelocativeVerbInput,
             result: generatedSeekMatrixSurface.result,
+            poisonedResult: generatedPoisonedSeekMatrixSurface.result,
+            stringOnlySupported: stringOnlyPrelocativeContract.supported,
+            stringOnlyDiagnostics: stringOnlyPrelocativeContract.diagnostics,
+            contradictoryDiagnostics: contradictoryPrelocativeDisplayContract.diagnostics,
+            contradictoryTargetDiagnostics: contradictoryPrelocativeTargetContract.diagnostics,
         },
         {
             supported: true,
             matrixId: "tla-tem-o-a",
+            sourceFrameKind: "generated-output-typed-continuation-frame",
+            targetFrameKind: "andrews-typed-operation-continuation-frame",
+            operationFrameKind: "andrews-patientivo-prelocative-operation-frame",
             prelocativeVerbInput: "-(tamati/temua)",
             result: "metztamatitemua",
+            poisonedResult: "metztamatitemua",
+            stringOnlySupported: false,
+            stringOnlyDiagnostics: [
+                "patientivo-prelocative-missing-typed-source-frame",
+                "patientivo-prelocative-missing-typed-patientive-stem",
+                "patientivo-prelocative-missing-typed-target-frame",
+            ],
+            contradictoryDiagnostics: [
+                "patientivo-prelocative-display-surface-contradicts-source-frame",
+            ],
+            contradictoryTargetDiagnostics: [
+                "patientivo-prelocative-target-stem-mismatch",
+            ],
         }
     );
     s.eq(
@@ -4007,6 +5010,7 @@ function run(ctx) {
         patientivoSource: "perfectivo",
         sourceTenseValue: "perfecto",
         sourceCombinedMode: ctx.COMBINED_MODE.active,
+        sourceContinuationFrame: patientivoSourceFrame,
         patientivoNominalSuffix: "t",
         matrixRoot: "tajtan",
     });
@@ -4024,9 +5028,10 @@ function run(ctx) {
                 "patientivo-prelocative-unmapped-possessor",
                 "patientivo-prelocative-unsupported-matrix",
                 "patientivo-prelocative-missing-verb-input",
+                "patientivo-prelocative-missing-typed-target-frame",
             ],
-            frameFailedLayers: ["agreement", "route", "output"],
-            frameContractLayers: ["participantFrame", "routeContract", "resultFrame"],
+            frameFailedLayers: ["agreement", "route", "output", "route"],
+            frameContractLayers: ["participantFrame", "routeContract", "resultFrame", "routeContract"],
         }
     );
 
@@ -4073,6 +5078,96 @@ function run(ctx) {
             ""
         ),
         "nemu"
+    );
+    const nonactivePrefixStripMeta = {
+        directionalPrefix: "wal",
+        fusionPrefixes: ["ki"],
+        boundPrefixes: ["ki", "ta"],
+    };
+    const nonactivePrefixStripSourceFrame = ctx.buildNonactiveRuleBasePrefixStripSourceFrameFromMeta(
+        "walkinemu",
+        nonactivePrefixStripMeta
+    );
+    const nonactivePrefixStripOperationFrame = ctx.buildNonactiveRuleBasePrefixStripOperationFrame(
+        nonactivePrefixStripSourceFrame
+    );
+    const contradictoryNonactivePrefixStripOperationFrame = {
+        ...nonactivePrefixStripOperationFrame,
+        targetFrame: {
+            ...nonactivePrefixStripOperationFrame.targetFrame,
+            targetRuleBase: "poison",
+        },
+    };
+    s.eq(
+        "nonactive rule-base prefix stripping consumes typed frames before display fields",
+        {
+            frameKind: nonactivePrefixStripSourceFrame?.kind || "",
+            operation: nonactivePrefixStripOperationFrame?.operationId || "",
+            framed: ctx.stripNonactiveRuleBasePrefixes("walkinemu", nonactivePrefixStripMeta, {
+                sourceFrame: nonactivePrefixStripSourceFrame,
+                operationFrame: nonactivePrefixStripOperationFrame,
+            }),
+            helper: ctx.stripNonactiveRuleBasePrefixesFromSourceFrame("walkinemu", {
+                ...nonactivePrefixStripMeta,
+                stem: "poison",
+                result: "poison",
+                surface: "poison",
+                formulaEcho: "#poison#",
+            }),
+            sourceContextRuleBase: ctx.buildNonactiveRuleSourceContext("walkinemu", "walkinemu", {
+                parsedVerb: {
+                    ...nonactivePrefixStripMeta,
+                    stem: "poison",
+                    result: "poison",
+                    surface: "poison",
+                    formulaEcho: "#poison#",
+                },
+            })?.ruleBase || "",
+            resolvedRuleBase: ctx.resolveNonactiveRuleBase("walkinemu", {
+                ...nonactivePrefixStripMeta,
+                stem: "poison",
+                result: "poison",
+                surface: "poison",
+                formulaEcho: "#poison#",
+            }),
+            blockedResolvedRuleBase: ctx.resolveNonactiveRuleBase("wal", {
+                directionalPrefix: "wal",
+            }),
+            blockedContextRuleBase: ctx.buildNonactiveRuleSourceContext("wal", "wal", {
+                parsedVerb: {
+                    directionalPrefix: "wal",
+                },
+            })?.ruleBase || "",
+            legacyStringOnly: ctx.stripNonactiveRuleBasePrefixes("walkinemu", nonactivePrefixStripMeta),
+            changedCallerString: ctx.stripNonactiveRuleBasePrefixes("poison", nonactivePrefixStripMeta, {
+                sourceFrame: nonactivePrefixStripSourceFrame,
+                operationFrame: nonactivePrefixStripOperationFrame,
+            }),
+            missingOperation: ctx.getNonactiveRuleBasePrefixStripFrameMismatch({
+                sourceFrame: nonactivePrefixStripSourceFrame,
+                operationFrame: null,
+                requestRuleBase: "walkinemu",
+            }),
+            contradictoryTarget: ctx.getNonactiveRuleBasePrefixStripFrameMismatch({
+                sourceFrame: nonactivePrefixStripSourceFrame,
+                operationFrame: contradictoryNonactivePrefixStripOperationFrame,
+                requestRuleBase: "walkinemu",
+            }),
+        },
+        {
+            frameKind: "nonactive-rule-base-prefix-strip-source-frame",
+            operation: "andrews-nonactive-rule-base-prefix-strip",
+            framed: "nemu",
+            helper: "nemu",
+            sourceContextRuleBase: "nemu",
+            resolvedRuleBase: "nemu",
+            blockedResolvedRuleBase: "",
+            blockedContextRuleBase: "",
+            legacyStringOnly: "",
+            changedCallerString: "",
+            missingOperation: "operation-frame-required",
+            contradictoryTarget: "contradictory-target-frame",
+        }
     );
 
     const prefixedSelection = ctx.buildPrefixedNonactiveSelectionEntry({

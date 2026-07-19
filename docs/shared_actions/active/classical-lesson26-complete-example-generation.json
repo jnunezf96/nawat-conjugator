@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-lesson26-complete-example-generation",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-authority-with-complete-lesson26-execution",
+    "statement": "Preserve Andrews authority, typed source and target structure, hostile proof, single-runtime integrity, and browser verification while making every Lesson 26 example executable through its actual grammar layer.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate stem formation, VNC participant routing, higher-layer finalization, presentation, and verification without turning Canvas examples into a lexical whitelist.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Every Lesson 26 source-result example is reproduced by a typed operation appropriate to its layer: productive optional formation where Andrews supplies a category rule, exact lexical overlays where Andrews documents an unpredictable alternation, Lesson 23 object routing for VNC examples, and the relevant later Canvas finalizer for mood, voice, ambiguity, and scope examples.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Own productive and exact Lesson 26 applicative formation, typed source relations, participant transformations, ambiguity, and canonical validation.",
+      "paths": ["src/core/classical/", "src/core/grammar/", "docs/CLASSICAL_", "docs/GRAMMAR_SPEC.md", "docs/ANDREWS_TRAJECTORY.md"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{"actorId": "classical-derivation-engine", "kind": "primary", "status": "active", "contribution": "Add reusable Lesson 26 option families and bounded exact lexical overlays, then compose them through existing typed VNC and higher-layer machinery."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Expose every genuine generated option, require selection only for real alternatives, and execute the selected option through one canonical application result.",
+      "paths": ["src/application/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve typed selection and ordering across formation, source objects, and later finalizers."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Show nomenclature-first options with Andrews sections and the completed Canvas derivation without constructing grammar.",
+      "paths": ["src/ui/", "index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Render all canonical alternatives and their typed source-operation-target projections."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Keep the capability in the canonical modern ESM graph only.",
+      "paths": ["src/runtime/", "src/node/", "src/bootstrap/", "scripts/check_runtime_manifest.js", "scripts/lib/runtime_manifest_check.js"],
+      "primaryActor": "runtime-delivery",
+      "actors": [{"actorId": "runtime-delivery", "kind": "primary", "status": "active", "contribution": "Preserve one runtime lane and installer-manifest parity."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Maintain an executable, section-indexed Lesson 26 coverage ledger and prove generated structure rather than expected-string lookup.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Classify every Canvas example by layer, report precise gaps, add hostile option tests, and verify UI and browser behavior."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the active target, board, shared action, evidence tags, alignment policy, and closure state current.",
+      "paths": [".gitignore", "AGENTS.md", "docs/CODEX_BOARD.md", "docs/CURRENT_TARGET.md", "docs/shared_actions/", "docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json", "config/", "scripts/audit_shared_action_alignment.js", "scripts/lib/shared_action_observer.js"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Record the missing families, participating layers, proof, and retirement of the no-option block."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-option-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derivation-operation-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derived-machinery-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "classical-applicative-no-licensed-options-for-andrews-categories", "status": "complete", "removalEvidence": "Structurally admissible sources now receive selectable Andrews category options without claiming a lexical witness; canonical evaluation blocks until the user selects when alternatives coexist."},
+    {"id": "type-two-only-applicative-inventory", "status": "complete", "removalEvidence": "Type 1, Type 2, and rare Type 3 options are generated as distinct typed subtypes, including a canonical Lesson 20 nonactive bridge for Type 3."},
+    {"id": "four-example-canvas-audit-as-completion-proof", "status": "complete", "removalEvidence": "The readiness gate executes the section-indexed 161-row Lesson 26 catalog and reports 161/161 generated with zero missing rule outputs or pending exact-layer proofs."}
+  ],
+  "evidence": [
+    {"kind": "complete-example-audit", "command": "npm run audit:lesson26:complete-examples", "result": "161/161 generated; 0 missing rule outputs; 0 pending exact layer proofs"},
+    {"kind": "productive-rule-audit", "command": "npm run audit:lessons24-26:productive", "result": "18 rule families passed; recursive object depth 3"},
+    {"kind": "canonical-suite", "command": "npm test", "result": "3398/3398 tests passed across 56 suites"},
+    {"kind": "lexical-evidence-neutrality", "command": "npm run audit:karttunen-derivations", "result": "837 confirmed intersections plus one no-license fixture; generation authority false"},
+    {"kind": "readiness", "command": "npm run verify:readiness", "result": "passed including 73/73 runtime manifest, alignment, lesson audits, and direct-import browser smoke"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "scripts/classical_lesson26_canvas_catalog.js plus src/core/classical/vnc_derivation_evaluator.mjs"
+  }
+}

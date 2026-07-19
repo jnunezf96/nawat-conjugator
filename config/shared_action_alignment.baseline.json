@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "capturedAt": "2026-07-16",
+  "scope": "post-lesson22-modern-esm-cutover",
+  "responsibilityAlignmentFailures": 0,
+  "renderingDirectClassicalConstructionCalls": 38,
+  "renderingOptionalClassicalDependencies": 0,
+  "unregisteredClassicalContractKinds": 200,
+  "browserScriptCount": 1,
+  "liveTargetLines": 55,
+  "trackedReportFiles": 61110
+}

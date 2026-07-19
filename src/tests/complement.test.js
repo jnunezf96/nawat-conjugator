@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/clause/complement/complement.js
+ * Tests for src/core/clause/complement/complement.mjs
  */
 
 const { createSuite } = require("./runner");

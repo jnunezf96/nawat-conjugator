@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/parsing/parsing.js
+ * Tests for src/core/parsing/parsing.mjs
  * Covers: normalizeMovingTargetCoreText, splitTopLevelByPlus, stripPrefixOnce,
  *         serializeRegexInputValue, findFinalTopLevelWrappedCore,
  *         isRecognizedCurrentRegexValue, applyObj2ToObj1Chain.
@@ -62,6 +62,262 @@ function run(ctx) {
     s.eq("serialize: trims whitespace", ctx.serializeRegexInputValue("  NEMI  "), "NEMI");
     s.eq("serialize: ni+nemi preserved", ctx.serializeRegexInputValue("ni+nemi"), "ni+nemi");
     s.eq("serialize: empty", ctx.serializeRegexInputValue(""), "");
+    const serializeSourceFrame = ctx.buildCurrentRegexParseSourceFrame("(ki)-(nemi)");
+    const serializeOperationFrame = ctx.buildCurrentRegexParseOperationFrame(serializeSourceFrame);
+    const contradictorySerializeOperationFrame = {
+        ...serializeOperationFrame,
+        targetFrame: {
+            ...serializeOperationFrame.targetFrame,
+            regexValue: "-(paka)",
+        },
+    };
+    s.eq("serialize: current regex display requires typed parse operation target", {
+        direct: ctx.serializeRegexInputValue("(ki)-(nemi)"),
+        fromOperation: ctx.serializeRegexInputValueFromOperationFrame("(ki)-(nemi)", serializeOperationFrame),
+        missingOperation: ctx.serializeRegexInputValueFromOperationFrame("(ki)-(nemi)", null),
+        contradictoryOperation: ctx.serializeRegexInputValueFromOperationFrame(
+            "(ki)-(nemi)",
+            contradictorySerializeOperationFrame
+        ),
+    }, {
+        direct: "(ki)-(nemi)",
+        fromOperation: "(ki)-(nemi)",
+        missingOperation: "",
+        contradictoryOperation: "",
+    });
+    const composerParseOperationFrame = ctx.buildCurrentRegexParseOperationFrameFromRawInput("(ki)-(nemi)");
+    const composerLegacyParsed = ctx.parseMovingTargetRegexInput("(ki)-(nemi)");
+    const composerContradictoryOperationFrame = {
+        ...composerParseOperationFrame,
+        targetFrame: {
+            ...composerParseOperationFrame.targetFrame,
+            coreText: "poison",
+        },
+    };
+    const originalComposerStateBuilder = ctx.buildComposerStateFromMovingTargetParsed;
+    let composerStateWithPoisonedOldBuilder = null;
+    try {
+        ctx.buildComposerStateFromMovingTargetParsed = () => ({
+            mode: "composer",
+            transitivity: "bitransitive",
+            slotCStem: "poison",
+        });
+        composerStateWithPoisonedOldBuilder = ctx.parseComposerStateFromRegexValue("(ki)-(nemi)");
+    } finally {
+        ctx.buildComposerStateFromMovingTargetParsed = originalComposerStateBuilder;
+    }
+    const composerStateFromOperation = ctx.buildComposerStateFromCurrentRegexParseOperationFrame(
+        "(ki)-(nemi)",
+        composerParseOperationFrame
+    );
+    const composerStateFromLegacyParsed = ctx.buildComposerStateFromMovingTargetParsed(
+        composerLegacyParsed,
+        "(ki)-(nemi)"
+    );
+    const composerStateFromLyingLegacyParsed = ctx.buildComposerStateFromMovingTargetParsed(
+        {
+            ...composerLegacyParsed,
+            coreText: "poison",
+            result: "poison-result",
+            surface: "poison-surface",
+            formulaEcho: "#poison#",
+        },
+        "(ki)-(nemi)",
+        composerParseOperationFrame
+    );
+    const composerStateFromContradictoryOperation = ctx.buildComposerStateFromCurrentRegexParseOperationFrame(
+        "(ki)-(nemi)",
+        composerContradictoryOperationFrame
+    );
+    s.eq("composer regex state consumes typed parse operation frame instead of parsed strings", {
+        liveStem: ctx.getComposerActiveStemValue(composerStateWithPoisonedOldBuilder),
+        liveTransitivity: composerStateWithPoisonedOldBuilder.transitivity,
+        operationStem: ctx.getComposerActiveStemValue(composerStateFromOperation),
+        legacyStem: ctx.getComposerActiveStemValue(composerStateFromLegacyParsed),
+        legacyBlocked: composerStateFromLegacyParsed.currentRegexParseBlockedReason,
+        lyingStem: ctx.getComposerActiveStemValue(composerStateFromLyingLegacyParsed),
+        lyingFormulaEcho: composerStateFromLyingLegacyParsed.formulaEcho || "",
+        contradictoryStem: ctx.getComposerActiveStemValue(composerStateFromContradictoryOperation),
+        contradictoryBlocked: composerStateFromContradictoryOperation.currentRegexParseBlockedReason,
+    }, {
+        liveStem: "nemi",
+        liveTransitivity: "transitive",
+        operationStem: "nemi",
+        legacyStem: "",
+        legacyBlocked: "current-regex-parse-operation-frame-required",
+        lyingStem: "nemi",
+        lyingFormulaEcho: "",
+        contradictoryStem: "",
+        contradictoryBlocked: "current-regex-parse-contradictory-target-frame",
+    });
+    const supportiveToggleParseOperation = ctx.buildCurrentRegexParseOperationFrameFromRawInput("(iwika)");
+    const supportiveToggleSourceFrame = ctx.buildCurrentRegexSupportiveToggleSourceFrame(
+        "(iwika)",
+        supportiveToggleParseOperation
+    );
+    const supportiveToggleOperation = ctx.buildCurrentRegexSupportiveToggleOperationFrame(
+        supportiveToggleSourceFrame
+    );
+    const supportiveToggleOperationWithLyingDisplays = {
+        ...supportiveToggleOperation,
+        surface: "poison-surface",
+        result: "poison-result",
+        formulaEcho: "#poison#",
+    };
+    const contradictorySupportiveToggleOperation = {
+        ...supportiveToggleOperation,
+        targetFrame: {
+            ...supportiveToggleOperation.targetFrame,
+            nextValue: "(poison)",
+        },
+    };
+    const originalParseVerbInput = ctx.parseVerbInput;
+    const originalRawMetadata = ctx.getRawInputTiCausativeMetadata;
+    let supportiveToggleWithPoisonedOldHelpers = null;
+    try {
+        ctx.parseVerbInput = () => ({ exactBaseVerb: "poison" });
+        ctx.getRawInputTiCausativeMetadata = () => ({ displayVerb: "(poison)" });
+        supportiveToggleWithPoisonedOldHelpers = ctx.getRegexSupportiveIToggleInfo("(iwika)");
+    } finally {
+        ctx.parseVerbInput = originalParseVerbInput;
+        ctx.getRawInputTiCausativeMetadata = originalRawMetadata;
+    }
+    s.eq("regex supportive toggle consumes typed current-regex operation target", {
+        direct: ctx.getRegexSupportiveIToggleInfo("(iwika)"),
+        removeMarker: ctx.getRegexSupportiveIToggleInfo("([i]wika)"),
+        fromOperation: ctx.getRegexSupportiveIToggleInfoFromOperationFrame(
+            "(iwika)",
+            supportiveToggleOperation
+        ),
+        missingOperation: ctx.getRegexSupportiveIToggleInfoFromOperationFrame("(iwika)", null),
+        contradictoryOperation: ctx.getRegexSupportiveIToggleInfoFromOperationFrame(
+            "(iwika)",
+            contradictorySupportiveToggleOperation
+        ),
+        lyingDisplays: ctx.getRegexSupportiveIToggleInfoFromOperationFrame(
+            "(iwika)",
+            supportiveToggleOperationWithLyingDisplays
+        ),
+        poisonedOldHelpers: supportiveToggleWithPoisonedOldHelpers,
+    }, {
+        direct: {
+            canToggle: true,
+            hasMarker: false,
+            nextValue: "([i]wika)",
+            blockReason: "",
+        },
+        removeMarker: {
+            canToggle: true,
+            hasMarker: true,
+            nextValue: "(iwika)",
+            blockReason: "",
+        },
+        fromOperation: {
+            canToggle: true,
+            hasMarker: false,
+            nextValue: "([i]wika)",
+            blockReason: "",
+        },
+        missingOperation: {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: "(iwika)",
+            blockReason: "current-regex-supportive-toggle-operation-frame-required",
+        },
+        contradictoryOperation: {
+            canToggle: false,
+            hasMarker: false,
+            nextValue: "(iwika)",
+            blockReason: "current-regex-supportive-toggle-contradictory-target-frame",
+        },
+        lyingDisplays: {
+            canToggle: true,
+            hasMarker: false,
+            nextValue: "([i]wika)",
+            blockReason: "",
+        },
+        poisonedOldHelpers: {
+            canToggle: true,
+            hasMarker: false,
+            nextValue: "([i]wika)",
+            blockReason: "",
+        },
+    });
+    const entradaParseOperation = ctx.buildCurrentRegexParseOperationFrameFromRawInput("(a)+ta-(ish-kwi)");
+    const typedEntradaGrammarObject = ctx.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(
+        "(a)+ta-(ish-kwi)",
+        entradaParseOperation
+    );
+    const contradictoryEntradaParseOperation = {
+        ...entradaParseOperation,
+        targetFrame: {
+            ...entradaParseOperation.targetFrame,
+            coreText: "poison",
+        },
+    };
+    const contradictoryEntradaOperation = {
+        ...typedEntradaGrammarObject.currentRegexEntradaGrammarObjectOperationFrame,
+        targetFrame: {
+            ...typedEntradaGrammarObject.currentRegexEntradaGrammarObjectOperationFrame.targetFrame,
+            matrixStem: "poison",
+        },
+    };
+    const originalEntradaBuilder = ctx.buildEntradaGrammarObjectFromMovingTargetParsed;
+    let entradaWithPoisonedOldHelpers = null;
+    try {
+        ctx.buildEntradaGrammarObjectFromMovingTargetParsed = () => ({
+            kind: "andrews-entrada-grammar-object",
+            stemFrame: { matrixStem: "poison" },
+            valenceFrame: { transitivity: "poison" },
+            objectFrame: { vector: { obj1: "poison" } },
+        });
+        entradaWithPoisonedOldHelpers = ctx.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(
+            "(a)+ta-(ish-kwi)",
+            entradaParseOperation
+        );
+    } finally {
+        ctx.buildEntradaGrammarObjectFromMovingTargetParsed = originalEntradaBuilder;
+    }
+    const nuclearClauseExecutorSource = String(ctx.executeNuclearClauseSurfaceRequest);
+    s.eq("nuclear clause entrada fallback consumes typed current-regex operation target", {
+        kind: typedEntradaGrammarObject?.kind || "",
+        stem: typedEntradaGrammarObject?.stemFrame?.matrixStem || "",
+        transitivity: typedEntradaGrammarObject?.valenceFrame?.transitivity || "",
+        objectVector: typedEntradaGrammarObject?.objectFrame?.vector || {},
+        operation: typedEntradaGrammarObject?.currentRegexEntradaGrammarObjectOperationFrame?.operationId || "",
+        operationMismatch: ctx.getCurrentRegexEntradaGrammarObjectOperationMismatch(
+            "(a)+ta-(ish-kwi)",
+            typedEntradaGrammarObject?.currentRegexEntradaGrammarObjectOperationFrame
+        ),
+        missingOperation: ctx.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(
+            "(a)+ta-(ish-kwi)",
+            null
+        ),
+        contradictoryParseOperation: ctx.buildEntradaGrammarObjectFromCurrentRegexParseOperationFrame(
+            "(a)+ta-(ish-kwi)",
+            contradictoryEntradaParseOperation
+        ),
+        contradictoryEntradaOperation: ctx.getCurrentRegexEntradaGrammarObjectOperationMismatch(
+            "(a)+ta-(ish-kwi)",
+            contradictoryEntradaOperation
+        ),
+        poisonedOldStem: entradaWithPoisonedOldHelpers?.stemFrame?.matrixStem || "",
+        executorCallsOldParser: nuclearClauseExecutorSource.includes("parseMovingTargetRegexInput"),
+        executorCallsOldEntradaBuilder: nuclearClauseExecutorSource.includes("buildEntradaGrammarObjectFromMovingTargetParsed"),
+    }, {
+        kind: "andrews-entrada-grammar-object",
+        stem: "kwi",
+        transitivity: "transitive",
+        objectVector: { obj1: "ta", obj2: "", obj3: "", reflexivo: "" },
+        operation: "andrews-current-regex-entrada-grammar-object",
+        operationMismatch: "",
+        missingOperation: null,
+        contradictoryParseOperation: null,
+        contradictoryEntradaOperation: "current-regex-entrada-grammar-object-contradictory-target-frame",
+        poisonedOldStem: "kwi",
+        executorCallsOldParser: false,
+        executorCallsOldEntradaBuilder: false,
+    });
 
     // findFinalTopLevelWrappedCore — finds the last top-level (...) wrapper
     const wrapped = ctx.findFinalTopLevelWrappedCore("(nemi)");
@@ -190,6 +446,119 @@ function run(ctx) {
         contradictoryTarget: "contradictory-target-frame",
         missingTarget: "missing-target-frame",
         displayPoisoned: "(nemi)",
+    });
+
+    const currentRegexParseSourceFrame = ctx.buildCurrentRegexParseSourceFrame("(ki)-(nemi)");
+    const currentRegexParseOperationFrame = ctx.buildCurrentRegexParseOperationFrame(currentRegexParseSourceFrame);
+    const currentRegexPoisonedParsed = {
+        isValid: true,
+        regexValue: "-(paka)",
+        transitivity: "transitive",
+        outerPieces: [{ type: "valence", value: "ta" }],
+        directionalPrefix: "",
+        coreText: "paka",
+        originalCoreText: "paka",
+    };
+    const currentRegexContradictoryTargetOperationFrame = {
+        ...currentRegexParseOperationFrame,
+        targetFrame: {
+            ...currentRegexParseOperationFrame.targetFrame,
+            coreText: "paka",
+        },
+    };
+    const currentRegexParsedFromOperation = ctx.buildParsedVerbFromMovingTargetInput(
+        "(ki)-(nemi)",
+        currentRegexPoisonedParsed,
+        {
+            displayVerb: "poison",
+            displayCore: "poison",
+            surface: "poison",
+            result: "poison",
+            formulaEcho: "#poison#",
+        },
+        currentRegexParseOperationFrame
+    );
+    const currentRegexParsedFromDirect = ctx.parseVerbInput("(ki)-(nemi)");
+    s.eq("current regex parser route requires typed parse operation frames", {
+        sourceKind: currentRegexParseSourceFrame.kind,
+        operation: currentRegexParseOperationFrame.operationId,
+        targetKind: currentRegexParseOperationFrame.targetFrame?.kind || "",
+        targetCore: currentRegexParseOperationFrame.targetFrame?.coreText || "",
+        missingOperation: ctx.buildParsedVerbFromMovingTargetInput(
+            "(ki)-(nemi)",
+            ctx.parseMovingTargetRegexInput("(ki)-(nemi)")
+        ),
+        oldStringParseModel: ctx.buildMovingTargetParsedFromCurrentRegexParseOperationFrame(null),
+        poisonedParsedVerb: currentRegexParsedFromOperation?.verb || "",
+        poisonedParsedMatrix: currentRegexParsedFromOperation?.exactBaseVerb || "",
+        directParsedVerb: currentRegexParsedFromDirect.verb,
+        directParsedOperation: currentRegexParsedFromDirect.currentRegexParseOperationFrame?.operationId || "",
+        contradictoryTarget: ctx.buildParsedVerbFromMovingTargetInput(
+            "(ki)-(nemi)",
+            ctx.parseMovingTargetRegexInput("(ki)-(nemi)"),
+            null,
+            currentRegexContradictoryTargetOperationFrame
+        ),
+        contradictoryMismatch: ctx.getCurrentRegexParseOperationMismatch(
+            "(ki)-(nemi)",
+            currentRegexContradictoryTargetOperationFrame
+        ),
+    }, {
+        sourceKind: "current-regex-parse-source-frame",
+        operation: "andrews-current-regex-parse",
+        targetKind: "current-regex-parse-target-frame",
+        targetCore: "nemi",
+        missingOperation: null,
+        oldStringParseModel: null,
+        poisonedParsedVerb: "kinemi",
+        poisonedParsedMatrix: "nemi",
+        directParsedVerb: "kinemi",
+        directParsedOperation: "andrews-current-regex-parse",
+        contradictoryTarget: null,
+        contradictoryMismatch: "current-regex-parse-contradictory-target-frame",
+    });
+
+    const currentRegexValidationSourceFrame = ctx.buildCurrentRegexParseSourceFrame("-(paka)");
+    const currentRegexValidationOperationFrame = ctx.buildCurrentRegexParseOperationFrame(currentRegexValidationSourceFrame);
+    const currentRegexValidationContradictoryOperationFrame = {
+        ...currentRegexValidationOperationFrame,
+        targetFrame: {
+            ...currentRegexValidationOperationFrame.targetFrame,
+            regexValue: "-(nemi)",
+        },
+    };
+    const currentRegexShorthandValidationOperationFrame = ctx.buildCurrentRegexShorthandParseOperationFrameFromRawInput("paka");
+    s.eq("current regex validation route consumes typed parse operation frames", {
+        recognizedFromOperation: ctx.isCurrentRegexParseOperationFrameRecognized(
+            "-(paka)",
+            currentRegexValidationOperationFrame
+        ),
+        missingOperationRecognized: ctx.isCurrentRegexParseOperationFrameRecognized("-(paka)", null),
+        contradictoryOperationRecognized: ctx.isCurrentRegexParseOperationFrameRecognized(
+            "-(paka)",
+            currentRegexValidationContradictoryOperationFrame
+        ),
+        contradictoryMismatch: ctx.getCurrentRegexParseOperationMismatch(
+            "-(paka)",
+            currentRegexValidationContradictoryOperationFrame
+        ),
+        directRecognized: ctx.isRecognizedCurrentRegexValue("-(paka)"),
+        directInvalidStructure: ctx.getInvalidVerbStructure("-(paka)"),
+        shorthandOperation: currentRegexShorthandValidationOperationFrame?.operationId || "",
+        shorthandTargetCore: currentRegexShorthandValidationOperationFrame?.targetFrame?.coreText || "",
+        shorthandRecognized: ctx.isRecognizedCurrentRegexValue("paka"),
+        shorthandInvalidStructure: ctx.getInvalidVerbStructure("paka"),
+    }, {
+        recognizedFromOperation: true,
+        missingOperationRecognized: false,
+        contradictoryOperationRecognized: false,
+        contradictoryMismatch: "current-regex-parse-contradictory-target-frame",
+        directRecognized: true,
+        directInvalidStructure: "",
+        shorthandOperation: "andrews-current-regex-parse",
+        shorthandTargetCore: "paka",
+        shorthandRecognized: true,
+        shorthandInvalidStructure: "",
     });
 
     const disambiguationSourceFrame = ctx.buildVerbDisambiguationSourceFrame(
@@ -385,6 +754,8 @@ function run(ctx) {
         })),
         operationKind: embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame?.kind || "",
         operationStatus: embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame?.status || "",
+        currentRegexParseOperation: embeddedSlashCompound.embeddedSlashObjectSlotSourceFrame
+            ?.currentRegexParseOperationFrame?.operationId || "",
     }, {
         verb: "ishkwi",
         matrix: "kwi",
@@ -401,7 +772,11 @@ function run(ctx) {
         ],
         operationKind: "andrews-embedded-slash-object-slot-operation-frame",
         operationStatus: "authorized",
+        currentRegexParseOperation: "andrews-current-regex-parse",
     });
+    const embeddedSlashValenceBoundaryParseFrame = ctx.buildCurrentRegexParseOperationFrame(
+        ctx.buildCurrentRegexParseSourceFrame("-(ta/kwi)")
+    );
     s.eq("embedded slash object slot hostile frames block", {
         missingOperation: ctx.getEmbeddedSlashTransitiveObjSlotCount("-(ish/kwi)"),
         changedSource: ctx.getEmbeddedSlashTransitiveObjSlotCount(
@@ -418,7 +793,11 @@ function run(ctx) {
         ).blockReason,
         valenceLeftBoundary: ctx.buildEmbeddedSlashObjectSlotSourceFrame(
             "-(ta/kwi)",
-            ctx.parseMovingTargetRegexInput("-(ta/kwi)")
+            embeddedSlashValenceBoundaryParseFrame
+        ).blockReason,
+        oldParsedPayload: ctx.buildEmbeddedSlashObjectSlotSourceFrame(
+            "-(ish/kwi)",
+            ctx.parseMovingTargetRegexInput("-(ish/kwi)")
         ).blockReason,
         displayPoisoned: ctx.getEmbeddedSlashTransitiveObjSlotCount("-(ish/kwi)", {
             ...embeddedSlashCompound.embeddedSlashObjectSlotOperationFrame,
@@ -439,6 +818,7 @@ function run(ctx) {
         changedSource: null,
         contradictoryTarget: "contradictory-target-frame",
         valenceLeftBoundary: "valence-left-boundary",
+        oldParsedPayload: "current-regex-parse-operation-frame-required",
         displayPoisoned: 1,
     });
 

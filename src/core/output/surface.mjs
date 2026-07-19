@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/output/surface.js.
+// Canonical modern ESM module.
 
 export function createOutputSurfaceApi(targetObject = globalThis) {
     // Phonological category: C = any consonant onset.

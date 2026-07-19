@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-three-surface-progressive-layout",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-authority-with-progressive-user-decision-disclosure",
+    "statement": "Make the Source, Authority, and Result surfaces answerable at a glance while preserving typed Andrews authority and the existing page 46-47 formula structures.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate presentation hierarchy, stable typed control ownership, tests, and browser proof without moving grammar construction into the renderer.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Source is compact, Authority is derivation-first with progressive clause and sentence settings, and Result is answer-first while Linear and Diagram retain Andrews page 46-47 structure.",
+  "responsibilities": [
+    {
+      "id": "presentation",
+      "statement": "Own surface order, disclosure, and visual hierarchy without constructing grammar.",
+      "paths": ["src/ui/", "style.css", "index.html"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Implement compact Source, derivation-first Authority, progressive settings, and answer-first Result."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-authority",
+      "statement": "Keep every derivation inventory, selection, and output application-owned and mode-specific.",
+      "paths": ["src/application/", "src/core/", "src/runtime/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Preserve existing typed control and result contracts while presentation changes."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove surface order, disclosure, unchanged Linear/Diagram contracts, and live behavior across all derivation modes.",
+      "paths": ["src/tests/", "scripts/", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Add focused presentation assertions and run live browser proof."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the target, board, shared action, and alignment evidence current.",
+      "paths": [".gitignore", "AGENTS.md", "docs/", "config/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId": "stabilization-manager", "kind": "primary", "status": "active", "contribution": "Record scope, verification, and closure without treating this as a lesson handoff."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-option-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-application-control-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "derivation-selector-at-authority-footer", "status": "complete", "removalEvidence": "The Authority grid now assigns Derivation to its first named area and Logic to the second; live geometry places the Direct/Causative/Applicative tabs above every VNC decision."},
+    {"id": "all-vnc-authority-groups-expanded-in-one-grid", "status": "complete", "removalEvidence": "Existing typed VNC nodes are retained with their IDs and listeners, then organized into a primary decision stage plus native Clause and Sentence disclosures. Direct opens Clause by default; derived modes collapse ordinary settings after source authorization."},
+    {"id": "result-authority-receipt-before-selected-answer", "status": "complete", "removalEvidence": "The selected form and unchanged Linear/Diagram rendering now precede the authority receipt, followed by the application-owned Canvas/Andrews route and proof actions."},
+    {"id": "source-summary-as-four-equal-heavy-rows", "status": "complete", "removalEvidence": "The typed source readout remains machine-owned but uses a wrapping inline compact-reading presentation; live proof measures it as one compact 56-pixel block for the current four facts."}
+  ],
+  "evidence": [
+    {"kind": "focused-ui", "command": "node scripts/run_tests.js --filter=ui", "result": "383/383 passed, including the complete #1/#2/#3 presentation contract and unchanged Linear/Diagram format assertions"},
+    {"kind": "live-direct", "result": "Entered huāqui; Source readout rendered as a compact flex surface; Derivation preceded Logic; Clause was open and Sentence closed; selected Nihuāc. and its Linear/Diagram rendering preceded the authority receipt."},
+    {"kind": "live-causative", "result": "Causative exposed its primary generated-formation, source-voice, embedded-subject, and later-target-voice decisions with ordinary settings collapsed; selecting Type 1 authorized Nichuātz. before the authority receipt and Canvas/Andrews route."},
+    {"kind": "live-applicative", "result": "Applicative exposed Generated formation, Imported object, and Later target voice in the primary stage with ordinary settings collapsed; selecting Type 1 authorized Nimitzhuāquih. before the authority receipt and Canvas/Andrews route."},
+    {"kind": "live-formats", "result": "Linear retained its continuous specific formula and own Specific/General switch. Diagram retained its independent switch and Subject plus Core/Tense grouped by the Predicate brace and label."},
+    {"kind": "alignment", "command": "npm run audit:alignment", "result": "ALIGNED with zero delta for renderer construction, optional dependencies, unregistered contracts, browser scripts, and tracked reports"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "src/ui/rendering/rendering.mjs:syncClassicalRuleLogicControlsForSurfaceFrame"
+  }
+}

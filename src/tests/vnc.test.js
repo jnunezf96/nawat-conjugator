@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/vnc/vnc.js
+ * Tests for src/core/vnc/vnc.mjs
  * Covers: getPers1Obj1Pers2Key, startsWithAny, getTotalVowelCount,
  *         isWalThirdPersonMarker, splitSearchInput.
  */
@@ -747,7 +747,7 @@ function run(ctx) {
             )),
             editedShotRefs: lesson6Pursuit.shotReport
                 .filter((entry) => entry.shotStatus === "hit-edit")
-                .map((entry) => [entry.andrewsRef, entry.changedFiles.includes("src/core/vnc/vnc.js")]),
+                .map((entry) => [entry.andrewsRef, entry.changedFiles.includes("src/core/vnc/vnc.mjs")]),
             categories: lesson6Pursuit.subsectionInventory.map((entry) => entry.category),
             closestPass: lesson6Pursuit.closestPass,
             remainingGaps: lesson6Pursuit.remainingGaps,

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/modification/modification.js.
+// Canonical modern ESM module.
 
 export function createAdjectivalModificationGlobals(targetObject = globalThis) {
     const ADJECTIVAL_MODIFICATION_BOUNDARY_VERSION = 1;

@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/sentence/sentence.js.
+// Canonical modern ESM module.
 
 export function createSentenceApi(targetObject = globalThis) {
     const SENTENCE_LAYER_VERSION = 1;
@@ -1054,6 +1054,364 @@ export function createSentenceApi(targetObject = globalThis) {
       implementationState: "partial"
     })]);
     const SENTENCE_LESSON19_REMAINING_GAPS = Object.freeze(["Lesson 19 VNC supplementation and included-referent supplementation are not executable sentence ASTs over generated Nawat/Pipil surfaces.", "Pronominal plural formations, fused spelling warnings, and noncontiguous ac structures require Andrews source models plus orthography-bridge support and a safe pronominal route contract.", "Direct/indirect speech, reported questions, reported commands, wishing/needing/perception/knowing/affect complements, rumored report, and deleted saying principals require speech/complement AST support before generation.", "English infinitive translations and rhetorical weighting must remain diagnostics, not generation rules."]);
+    const CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION = 3;
+    const CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_PROFILES = freezeSentenceLesson2516Value([{
+      profileId: "lesson25.3-active-mati-silent-direct-object",
+      sourceSection: "Andrews §25.3",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalSourceFrameKind: "classical-nahuatl-lesson7-verbstem-class-machinery-frame",
+      principalSourceStem: "mati",
+      principalSourceVoice: "",
+      sourcePrincipalProfileId: "lesson25.3-active-mati-silent-direct-object",
+      principalTargetStem: "mach-tiā",
+      principalTargetSubject: "3sg",
+      principalMood: "indicative",
+      principalTense: "present",
+      principalTypedSemanticIdentity: "0|0|t-ech|0-0|mach-tia|0|0|0",
+      principalSpecificShuntlineRealization: "",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      principalObjectSounded: false,
+      principalObjectCarrier: "0-0",
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "specific-projective",
+        objectPerson: "1pl",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "nehmatcanemiliztli-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|nehmatcānēmiliz|tli|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "nehmatcānēmiliztli",
+        principalVnc: "tēchmachtia"
+      }
+    }, {
+      profileId: "lesson25.3-passive-macho-silent-shuntline",
+      sourceSection: "Andrews §25.3",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalSourceFrameKind: "classical-nahuatl-lessons20-22-derived-vnc-machinery-frame",
+      principalSourceStem: "mach-ō",
+      principalSourceVoice: "passive",
+      sourcePrincipalProfileId: "lesson25.3-passive-macho-silent-shuntline",
+      principalTargetStem: "mach-tiā",
+      principalTargetSubject: "3sg",
+      principalMood: "indicative",
+      principalTense: "present",
+      principalTypedSemanticIdentity: "0|0|0-0|te|mach-tia|0|0|0",
+      principalSpecificShuntlineRealization: "silent",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      principalObjectSounded: false,
+      principalObjectCarrier: "0-0",
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "nonspecific-human",
+        objectPerson: "",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "nehmatcanemiliztli-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|nehmatcānēmiliz|tli|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "nehmatcānēmiliztli",
+        principalVnc: "tēmachtia"
+      }
+    }, {
+      profileId: "lesson25.3-passive-macho-sounded-shuntline-imperfect",
+      sourceSection: "Andrews §25.3",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalSourceFrameKind: "classical-nahuatl-lessons20-22-derived-vnc-machinery-frame",
+      principalSourceStem: "mach-ō",
+      principalSourceVoice: "passive",
+      sourcePrincipalProfileId: "lesson25.3-passive-macho-silent-shuntline",
+      principalTargetStem: "mach-tiā",
+      principalTargetSubject: "3sg",
+      principalMood: "indicative",
+      principalTense: "imperfect",
+      principalTypedSemanticIdentity: "0|0|qui-0|te|mach-tiā|ya|0|0",
+      principalSpecificShuntlineRealization: "sounded",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      principalObjectSounded: true,
+      principalObjectCarrier: "qui-0",
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "nonspecific-human",
+        objectPerson: "",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "teocuicatl-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|teōcuīca|tl|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "teōcuīcatl",
+        principalVnc: "quitēmachtiāya"
+      }
+    }, {
+      profileId: "lesson25.3-reflexive-transitive-mati-1pl-present-cuicatl",
+      sourceSection: "Andrews §25.3",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalSourceFrameKind: "classical-nahuatl-lesson7-verbstem-class-machinery-frame",
+      principalSourceStem: "mati",
+      principalSourceVoice: "",
+      sourcePrincipalProfileId: "lesson25.3-reflexive-transitive-mati-1pl-present-cuicatl",
+      principalTargetStem: "mach-tiā",
+      principalTargetSubject: "1pl",
+      principalMood: "indicative",
+      principalTense: "present",
+      principalTypedSemanticIdentity: "ti|0|c-0|t-o|mach-tia|0|0|h",
+      principalSpecificShuntlineRealization: "",
+      principalCausativeReferentRelation: "coreferential",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      principalObjectSounded: true,
+      principalObjectCarrier: "c-0",
+      principalCausativeObjectId: "causative-object",
+      principalCausativeObjectKind: "reflexive",
+      principalCausativeObjectPerson: "1pl",
+      principalCausativeObjectGovernor: "causative",
+      principalCausativeObjectDerivationalLevel: 2,
+      principalCausativeObjectCarrier: "t-o",
+      principalCausativeObjectReadingOptions: ["reflexive", "reciprocative"],
+      principalStemReadingProfileId: "lesson25.3-m-o-tla-mach-tia-reflexive-reciprocative",
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "reflexive",
+        objectPerson: "1pl",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "cuicatl-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|cuīca|tl|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "cuīcatl",
+        principalVnc: "tictomachtiah"
+      }
+    }, {
+      profileId: "lesson25.3-reflexive-transitive-mati-3pl-future-cuicatl",
+      sourceSection: "Andrews §25.3",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalSourceFrameKind: "classical-nahuatl-lesson7-verbstem-class-machinery-frame",
+      principalSourceStem: "mati",
+      principalSourceVoice: "",
+      sourcePrincipalProfileId: "lesson25.3-reflexive-transitive-mati-3pl-future-cuicatl",
+      principalTargetStem: "mach-tiā",
+      principalTargetSubject: "3pl",
+      principalMood: "indicative",
+      principalTense: "future",
+      principalTypedSemanticIdentity: "0|0|qui-0|m-o|mach-tī|z|qu|eh",
+      principalSpecificShuntlineRealization: "",
+      principalCausativeReferentRelation: "coreferential",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      principalObjectSounded: true,
+      principalObjectCarrier: "qui-0",
+      principalCausativeObjectId: "causative-object",
+      principalCausativeObjectKind: "reflexive",
+      principalCausativeObjectPerson: "3pl",
+      principalCausativeObjectGovernor: "causative",
+      principalCausativeObjectDerivationalLevel: 2,
+      principalCausativeObjectCarrier: "m-o",
+      principalCausativeObjectReadingOptions: ["reflexive", "reciprocative"],
+      principalStemReadingProfileId: "lesson25.3-m-o-tla-mach-tia-reflexive-reciprocative",
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "reflexive",
+        objectPerson: "3pl",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "cuicatl-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|cuīca|tl|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "cuīcatl",
+        principalVnc: "quimomachtīzqueh"
+      }
+    }]);
+    const CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION = 1;
+    const CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_PROFILES = freezeSentenceLesson2516Value([{
+      profileId: "lesson25.16-cintli-silent-direct-object",
+      sourceSection: "Andrews §25.16",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalTargetStem: "māma-l-tiā",
+      principalTargetSubject: "3pl",
+      principalMood: "indicative",
+      principalTense: "present",
+      principalTypedSemanticIdentity: "0|0|qu-im|0-0|māma-l-tia|0|0|h",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "specific-projective",
+        objectPerson: "3pl",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "cintli-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|cin|tli|0",
+      constituentOrder: ["adjunctor", "adjunct-nnc", "principal-vnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "cintli",
+        principalVnc: "quimmāmāltiah"
+      }
+    }, {
+      profileId: "lesson25.16-atolli-silent-direct-object",
+      sourceSection: "Andrews §25.16",
+      relationKind: "shared-referent-supplementary-direct-object",
+      principalTargetStem: "ī-tiā",
+      principalTargetSubject: "3pl",
+      principalMood: "indicative",
+      principalTense: "future",
+      principalTypedSemanticIdentity: "0|0|t-ech|0-0|ī-tī|z|qu|eh",
+      principalObjectId: "source-object-1",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "3sg",
+      principalObjectGovernor: "directive",
+      principalObjectDerivationalLevel: 1,
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "specific-projective",
+        objectPerson: "1pl",
+        governor: "causative",
+        derivationalLevel: 2
+      }],
+      adjunctProfileId: "atolli-absolutive-nnc",
+      adjunctSubject: "3sg",
+      adjunctTypedSemanticIdentity: "0|0|vacant|ātōl|li|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "ātōlli",
+        principalVnc: "tēchītizqueh"
+      }
+    }, {
+      profileId: "lesson25.16-tinocniuh-silent-causative-object",
+      sourceSection: "Andrews §25.16",
+      relationKind: "shared-referent-supplementary-causative-object",
+      principalTargetStem: "caqui-ti-l-tiā",
+      principalTargetSubject: "3pl",
+      principalMood: "indicative",
+      principalTense: "preterit",
+      principalTypedSemanticIdentity: "0|0|n-ech|0-0|0-0|caqui-ti-l-tih|0|qu|eh",
+      principalObjectId: "causative-object",
+      principalObjectKind: "specific-projective",
+      principalObjectPerson: "2sg",
+      principalObjectGovernor: "causative",
+      principalObjectDerivationalLevel: 2,
+      targetObjectRequests: [{
+        objectId: "source-object-1",
+        objectKind: "specific-projective",
+        objectPerson: "3sg",
+        governor: "directive",
+        derivationalLevel: 1
+      }, {
+        objectId: "causative-object",
+        objectKind: "specific-projective",
+        objectPerson: "2sg",
+        governor: "causative",
+        derivationalLevel: 2
+      }, {
+        objectId: "causative-object-3",
+        objectKind: "specific-projective",
+        objectPerson: "1sg",
+        governor: "causative",
+        derivationalLevel: 3
+      }],
+      adjunctProfileId: "tinocniuh-possessive-nnc",
+      adjunctSubject: "2sg",
+      adjunctTypedSemanticIdentity: "ti|0|dyadic|n|o|cn-īuh|0|0",
+      constituentOrder: ["principal-vnc", "adjunctor", "adjunct-nnc"],
+      surfaceForms: {
+        adjunctor: "in",
+        adjunctNnc: "tinocnīuh",
+        principalVnc: "nēchcaquitīltihqueh"
+      }
+    }]);
+    function freezeSentenceLesson2516Value(value) {
+      if (!value || typeof value !== "object" || Object.isFrozen(value)) {
+        return value;
+      }
+      Object.values(value).forEach(freezeSentenceLesson2516Value);
+      return Object.freeze(value);
+    }
     function attachSentenceGrammarContract(record = null, options = {}) {
       if (typeof targetObject.attachGrammarMetadataContract !== "function") {
         return record;
@@ -1701,6 +2059,1208 @@ export function createSentenceApi(targetObject = globalThis) {
         }
       });
     }
+    function stableStringifySentenceLesson2516Value(value) {
+      if (Array.isArray(value)) {
+        return `[${value.map(stableStringifySentenceLesson2516Value).join(",")}]`;
+      }
+      if (value && typeof value === "object") {
+        return `{${Object.keys(value).filter(key => value[key] !== undefined).sort().map(key => `${JSON.stringify(key)}:${stableStringifySentenceLesson2516Value(value[key])}`).join(",")}}`;
+      }
+      return JSON.stringify(value);
+    }
+    function signSentenceLesson2516Value(value) {
+      const serialized = stableStringifySentenceLesson2516Value(value);
+      let hash = 2166136261;
+      for (let index = 0; index < serialized.length; index += 1) {
+        hash ^= serialized.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return `lesson25.16:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+    }
+    function areSentenceLesson2516ValuesEqual(left, right) {
+      return stableStringifySentenceLesson2516Value(left) === stableStringifySentenceLesson2516Value(right);
+    }
+    function getClassicalNahuatlLesson2516SupplementationProfile(profileId = "") {
+      const normalizedProfileId = String(profileId || "").trim();
+      return CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_PROFILES.find(profile => profile.profileId === normalizedProfileId) || null;
+    }
+    function getClassicalNahuatlLesson2516SupplementationProfileInventory() {
+      return cloneSentenceLessonRecord(CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_PROFILES);
+    }
+    function normalizeSentenceLesson2516ReferenceId(value = "") {
+      const normalized = String(value || "").trim();
+      return /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/u.test(normalized) ? normalized : "";
+    }
+    function getSentenceLesson2516PersonNumberFeatures(person = "") {
+      const match = /^([123])(sg|pl|common)$/u.exec(String(person || "").trim());
+      if (!match) {
+        return null;
+      }
+      return Object.freeze({
+        person: match[1],
+        number: {
+          sg: "singular",
+          pl: "plural",
+          common: "common"
+        }[match[2]],
+        category: match[0]
+      });
+    }
+    function getSentenceLesson2516FinalTypedVncSlotFrame(frame = null) {
+      return frame?.finalTypedVncSlotFrame || frame?.targetTypedVncSlotFrame || frame?.proofFrame?.conclusion?.finalTypedVncSlotFrame || null;
+    }
+    function getSentenceLesson2516PrincipalObjectPositions(frame = null) {
+      const positions = frame?.targetObjectClusterFrame?.positions || frame?.multipleObjectClusterFrame?.positions || [];
+      return Array.isArray(positions) ? positions : [];
+    }
+    function getSentenceLesson2516PrincipalEnvironment(frame = null) {
+      const predicateTableFrame = frame?.predicateTableFrame || frame?.proofFrame?.conclusion?.predicateTableFrame || {};
+      return {
+        mood: String(predicateTableFrame.mood || ""),
+        tense: String(predicateTableFrame.tense || "")
+      };
+    }
+    function validateSentenceLesson2516Principal(profile = null, principalVncFrame = null, principalObjectId = "") {
+      if (typeof targetObject.isClassicalNahuatlDerivedVncMachineryFrame !== "function") {
+        return { authorized: false, blockReason: "classical-lesson25.16-derived-vnc-capability-unavailable" };
+      }
+      if (!targetObject.isClassicalNahuatlDerivedVncMachineryFrame(principalVncFrame)) {
+        return { authorized: false, blockReason: "classical-lesson25.16-canonical-derived-vnc-principal-required" };
+      }
+      const normalizedObjectId = String(principalObjectId || "").trim();
+      if (!normalizedObjectId) {
+        return { authorized: false, blockReason: "classical-lesson25.16-typed-principal-object-id-required" };
+      }
+      if (normalizedObjectId !== profile.principalObjectId) {
+        return { authorized: false, blockReason: "classical-lesson25.16-principal-object-id-profile-mismatch" };
+      }
+      const finalTypedVncSlotFrame = getSentenceLesson2516FinalTypedVncSlotFrame(principalVncFrame);
+      const environment = getSentenceLesson2516PrincipalEnvironment(principalVncFrame);
+      const principalProfileMatches = principalVncFrame.targetStem === profile.principalTargetStem
+        && principalVncFrame.targetSubject === profile.principalTargetSubject
+        && environment.mood === profile.principalMood
+        && environment.tense === profile.principalTense
+        && finalTypedVncSlotFrame?.semanticIdentity === profile.principalTypedSemanticIdentity
+        && areSentenceLesson2516ValuesEqual(principalVncFrame.targetObjectRequests, profile.targetObjectRequests);
+      if (!principalProfileMatches) {
+        return { authorized: false, blockReason: "classical-lesson25.16-principal-vnc-profile-mismatch" };
+      }
+      const objectRequest = principalVncFrame.targetObjectRequests.find(request => request.objectId === normalizedObjectId) || null;
+      const objectPosition = getSentenceLesson2516PrincipalObjectPositions(principalVncFrame).find(position => position.objectId === normalizedObjectId) || null;
+      const slotObjectPosition = finalTypedVncSlotFrame?.slots?.prePredicate?.map(slot => slot?.objectPositionFrame).find(position => position?.objectId === normalizedObjectId) || null;
+      const objectIdentityMatches = objectRequest
+        && objectRequest.objectKind === profile.principalObjectKind
+        && objectRequest.objectPerson === profile.principalObjectPerson
+        && objectRequest.governor === profile.principalObjectGovernor
+        && objectRequest.derivationalLevel === profile.principalObjectDerivationalLevel;
+      if (!objectIdentityMatches || !objectPosition || !slotObjectPosition || !areSentenceLesson2516ValuesEqual(objectPosition, slotObjectPosition)) {
+        return { authorized: false, blockReason: "classical-lesson25.16-principal-object-identity-binding-failed" };
+      }
+      if (objectPosition.sounded !== false || objectPosition.carrier !== "0-0" || objectPosition.prominence !== "shuntline") {
+        return { authorized: false, blockReason: "classical-lesson25.16-silent-principal-object-required" };
+      }
+      return {
+        authorized: true,
+        blockReason: "",
+        finalTypedVncSlotFrame,
+        objectRequest,
+        objectPosition,
+        environment
+      };
+    }
+    function getSentenceLesson2516TypedNncEnvelope(adjunctNncFrame = null) {
+      const nncSlotFrame = adjunctNncFrame?.nncSlotFrame || adjunctNncFrame?.selectedOutputLogicFrame?.selectedNncSlotFrame || null;
+      const selectedNncSlotFrame = adjunctNncFrame?.selectedOutputLogicFrame?.selectedNncSlotFrame || null;
+      const authorized = Boolean(adjunctNncFrame
+        && adjunctNncFrame.authorizationStatus === "authorized"
+        && typeof targetObject.isClassicalNahuatlNncSlotFrame === "function"
+        && targetObject.isClassicalNahuatlNncSlotFrame(nncSlotFrame)
+        && adjunctNncFrame.selectedOutputLogicFrame?.authorizationStatus === "authorized"
+        && adjunctNncFrame.selectedOutputLogicFrame?.formulaStringAuthority === false
+        && areSentenceLesson2516ValuesEqual(nncSlotFrame, selectedNncSlotFrame)
+        && adjunctNncFrame.proofFrame?.authorizationStatus === "authorized"
+        && adjunctNncFrame.proofFrame?.conclusion?.authorized === true
+        && adjunctNncFrame.proofFrame?.conclusion?.typedSlotAuthority === true
+        && adjunctNncFrame.proofFrame?.conclusion?.formulaStringAuthority === false);
+      return {
+        authorized,
+        blockReason: authorized ? "" : "classical-lesson25.16-authorized-typed-nnc-adjunct-required",
+        nncSlotFrame
+      };
+    }
+    function buildSentenceLesson2516ExpectedAdjunct(profile = null) {
+      if (profile?.adjunctProfileId === "cintli-absolutive-nnc" && typeof targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame("cin", {
+          subject: "3sg",
+          nounClass: "tli",
+          animacy: "nonanimate"
+        });
+      }
+      if (profile?.adjunctProfileId === "atolli-absolutive-nnc" && typeof targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame("ātōl", {
+          subject: "3sg",
+          nounClass: "tli",
+          animacy: "nonanimate"
+        });
+      }
+      if (profile?.adjunctProfileId === "tinocniuh-possessive-nnc" && typeof targetObject.buildClassicalNahuatlLesson13PossessiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson13PossessiveNncFrame("cn-īuh", {
+          subject: "2sg",
+          possessor: "1sg",
+          singularConnector: "0",
+          nounstemRelationKind: "nonrelational",
+          animacy: "animate"
+        });
+      }
+      return null;
+    }
+    function buildSentenceLesson2516LowerLayerFrame() {
+      return {
+        kind: "classical-nahuatl-lesson25.16-lower-supplementation-layer-frame",
+        consumedAs: "typed-structural-prerequisites-not-generation-authority",
+        lesson17SupplementationFrame: getSentenceLesson17SupplementationFrame(),
+        lesson17SharedReferentFrame: getSentenceLesson17SharedReferentFrame(),
+        lesson18MarkedSupplementationFrame: getSentenceLesson18MarkedSupplementationFrame(),
+        lesson18SilentSpecificObjectFrame: getSentenceLesson18SilentSpecificObjectFrame(),
+        lesson18SentenceOrderFrame: getSentenceLesson18SentenceOrderFrame(),
+        lesson19IncludedReferentContrastFrame: getSentenceLesson19IncludedReferentFrame(),
+        selectedReferenceMode: "shared-referent-not-included-referent",
+        lowerMetadataGenerationAllowed: false
+      };
+    }
+    function buildSentenceLesson2516LinearizationFrame(profile = null, principalValidation = {}, adjunctNncSlotFrame = null) {
+      const tokenByRole = {
+        adjunctor: {
+          kind: "classical-nahuatl-sentence-adjunctor-token",
+          role: "adjunctor",
+          form: profile.surfaceForms.adjunctor,
+          sourceSection: "Andrews §18.3",
+          formulaSlot: false
+        },
+        "adjunct-nnc": {
+          kind: "classical-nahuatl-sentence-nuclear-clause-token",
+          role: "supplementary-object",
+          unitKind: "NNC",
+          form: profile.surfaceForms.adjunctNnc,
+          typedSemanticIdentity: adjunctNncSlotFrame.semanticIdentity
+        },
+        "principal-vnc": {
+          kind: "classical-nahuatl-sentence-nuclear-clause-token",
+          role: "principal",
+          unitKind: "VNC",
+          form: profile.surfaceForms.principalVnc,
+          typedSemanticIdentity: principalValidation.finalTypedVncSlotFrame.semanticIdentity
+        }
+      };
+      const tokens = profile.constituentOrder.map(role => freezeSentenceLesson2516Value({ ...tokenByRole[role] }));
+      const unpunctuatedSurface = tokens.map(token => token.form).join(" ");
+      const surfaceRealization = `${unpunctuatedSurface.charAt(0).toUpperCase()}${unpunctuatedSurface.slice(1)}.`;
+      return freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.16-supplementation-linearization-frame",
+        sourceSection: profile.sourceSection,
+        constituentOrder: Array.from(profile.constituentOrder),
+        adjunctor: "in",
+        adjunctorTypedAsSentenceToken: true,
+        tokens,
+        surfaceRealization,
+        surfaceStringAuthority: false,
+        realizationAuthority: "andrews-lesson25.16-exact-profile-after-typed-composition"
+      });
+    }
+    function buildBlockedClassicalNahuatlLesson2516SupplementationFrame({
+      profileId = "",
+      principalVncFrame = null,
+      adjunctNncFrame = null,
+      blockReason = "classical-lesson25.16-supplementation-not-authorized"
+    } = {}) {
+      return Object.freeze({
+        kind: "classical-nahuatl-lesson25.16-supplementation-frame",
+        version: CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION,
+        lesson: "Andrews Lesson 25",
+        section: "25.16",
+        sourceAuthority: "Andrews Canvas",
+        authorizationStatus: "blocked",
+        blockReason,
+        profileId: String(profileId || ""),
+        principalVncFrame,
+        principalObjectBindingFrame: null,
+        adjunctNncFrame,
+        adjunctNncSlotFrame: null,
+        referenceUnificationFrame: null,
+        linearizationFrame: null,
+        proofFrame: null,
+        selectedOutputLogicFrame: null,
+        surfaceRealization: "",
+        typedFrameAuthority: true,
+        grammarGenerationAllowed: false,
+        formulaOutputAllowed: false,
+        surfaceGenerationAllowed: false,
+        formulaArtifactAuthority: false,
+        surfaceArtifactAuthority: false,
+        surfaceStringAuthority: false,
+        callerSuppliedSurfaceAccepted: false,
+        nawatPipilSystem: "not-used",
+        nawatPipilOrthographyBridge: "not-applied",
+        canonicalSignature: ""
+      });
+    }
+    function getSentenceLesson2516SupplementationAuthoritativeProjection(frame = {}) {
+      return {
+        kind: frame.kind,
+        version: frame.version,
+        lesson: frame.lesson,
+        section: frame.section,
+        sourceAuthority: frame.sourceAuthority,
+        authorizationStatus: frame.authorizationStatus,
+        blockReason: frame.blockReason,
+        profileId: frame.profileId,
+        principalCanonicalSignature: frame.principalVncFrame?.canonicalSignature || "",
+        principalTypedSemanticIdentity: getSentenceLesson2516FinalTypedVncSlotFrame(frame.principalVncFrame)?.semanticIdentity || "",
+        principalObjectBindingFrame: frame.principalObjectBindingFrame,
+        adjunctFrameKind: frame.adjunctNncFrame?.kind || "",
+        adjunctNncSlotFrame: frame.adjunctNncSlotFrame,
+        referenceUnificationFrame: frame.referenceUnificationFrame,
+        lowerLayerFrame: frame.lowerLayerFrame,
+        linearizationFrame: frame.linearizationFrame,
+        proofFrame: frame.proofFrame,
+        selectedOutputLogicFrame: frame.selectedOutputLogicFrame,
+        surfaceRealization: frame.surfaceRealization,
+        typedFrameAuthority: frame.typedFrameAuthority,
+        grammarGenerationAllowed: frame.grammarGenerationAllowed,
+        formulaOutputAllowed: frame.formulaOutputAllowed,
+        surfaceGenerationAllowed: frame.surfaceGenerationAllowed,
+        formulaArtifactAuthority: frame.formulaArtifactAuthority,
+        surfaceArtifactAuthority: frame.surfaceArtifactAuthority,
+        surfaceStringAuthority: frame.surfaceStringAuthority,
+        callerSuppliedSurfaceAccepted: frame.callerSuppliedSurfaceAccepted,
+        nawatPipilSystem: frame.nawatPipilSystem,
+        nawatPipilOrthographyBridge: frame.nawatPipilOrthographyBridge
+      };
+    }
+    function buildClassicalNahuatlLesson2516SupplementationFrame(principalVncFrame = null, adjunctNncFrame = null, {
+      profileId = "",
+      principalObjectId = "",
+      principalReferenceId = "",
+      adjunctReferenceId = ""
+    } = {}) {
+      const profile = getClassicalNahuatlLesson2516SupplementationProfile(profileId);
+      const block = blockReason => buildBlockedClassicalNahuatlLesson2516SupplementationFrame({
+        profileId,
+        principalVncFrame,
+        adjunctNncFrame,
+        blockReason
+      });
+      if (!profile) {
+        return block("classical-lesson25.16-known-supplementation-profile-required");
+      }
+      const principalValidation = validateSentenceLesson2516Principal(profile, principalVncFrame, principalObjectId);
+      if (!principalValidation.authorized) {
+        return block(principalValidation.blockReason);
+      }
+      const adjunctEnvelope = getSentenceLesson2516TypedNncEnvelope(adjunctNncFrame);
+      if (!adjunctEnvelope.authorized) {
+        return block(adjunctEnvelope.blockReason);
+      }
+      const principalFeatures = getSentenceLesson2516PersonNumberFeatures(principalValidation.objectRequest.objectPerson);
+      const adjunctSubject = adjunctEnvelope.nncSlotFrame.slots?.subject?.subject || "";
+      const adjunctFeatures = getSentenceLesson2516PersonNumberFeatures(adjunctSubject);
+      if (!principalFeatures || !adjunctFeatures || principalFeatures.person !== adjunctFeatures.person) {
+        return block("classical-lesson25.16-person-unification-failed");
+      }
+      if (principalFeatures.number !== adjunctFeatures.number || adjunctEnvelope.nncSlotFrame.subjectNumber !== adjunctFeatures.number) {
+        return block("classical-lesson25.16-number-unification-failed");
+      }
+      const normalizedPrincipalReferenceId = normalizeSentenceLesson2516ReferenceId(principalReferenceId);
+      const normalizedAdjunctReferenceId = normalizeSentenceLesson2516ReferenceId(adjunctReferenceId);
+      if (!normalizedPrincipalReferenceId || !normalizedAdjunctReferenceId) {
+        return block("classical-lesson25.16-typed-reference-identities-required");
+      }
+      if (normalizedPrincipalReferenceId !== normalizedAdjunctReferenceId) {
+        return block("classical-lesson25.16-reference-identity-mismatch");
+      }
+      const expectedAdjunct = buildSentenceLesson2516ExpectedAdjunct(profile);
+      const expectedAdjunctEnvelope = getSentenceLesson2516TypedNncEnvelope(expectedAdjunct);
+      const exactAdjunctProfile = expectedAdjunctEnvelope.authorized
+        && adjunctSubject === profile.adjunctSubject
+        && adjunctEnvelope.nncSlotFrame.semanticIdentity === profile.adjunctTypedSemanticIdentity
+        && areSentenceLesson2516ValuesEqual(adjunctNncFrame, expectedAdjunct);
+      if (!exactAdjunctProfile) {
+        return block("classical-lesson25.16-canonical-profile-nnc-adjunct-required");
+      }
+      const principalObjectBindingFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.16-principal-object-binding-frame",
+        objectId: principalValidation.objectRequest.objectId,
+        objectKind: principalValidation.objectRequest.objectKind,
+        objectPerson: principalValidation.objectRequest.objectPerson,
+        governor: principalValidation.objectRequest.governor,
+        derivationalLevel: principalValidation.objectRequest.derivationalLevel,
+        sounded: principalValidation.objectPosition.sounded,
+        carrier: principalValidation.objectPosition.carrier,
+        prominence: principalValidation.objectPosition.prominence,
+        principalTypedSemanticIdentity: principalValidation.finalTypedVncSlotFrame.semanticIdentity,
+        bindingAuthority: "canonical-derived-vnc-object-request-plus-position"
+      });
+      const referenceUnificationFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.16-reference-unification-frame",
+        relationKind: profile.relationKind,
+        principalReferenceId: normalizedPrincipalReferenceId,
+        adjunctReferenceId: normalizedAdjunctReferenceId,
+        person: principalFeatures.person,
+        number: principalFeatures.number,
+        principalPersonCategory: principalFeatures.category,
+        adjunctSubjectCategory: adjunctFeatures.category,
+        personUnified: true,
+        numberUnified: true,
+        referenceUnified: true,
+        includedReferentReading: false
+      });
+      const lowerLayerFrame = freezeSentenceLesson2516Value(buildSentenceLesson2516LowerLayerFrame());
+      const linearizationFrame = buildSentenceLesson2516LinearizationFrame(profile, principalValidation, adjunctEnvelope.nncSlotFrame);
+      const proofFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.16-supplementation-proof-frame",
+        sourceSection: profile.sourceSection,
+        authorizationStatus: "authorized",
+        premises: [{
+          layer: "canonical-derived-vnc-principal",
+          passed: true,
+          canonicalSignature: principalVncFrame.canonicalSignature
+        }, {
+          layer: "canonical-typed-nnc-adjunct",
+          passed: true,
+          semanticIdentity: adjunctEnvelope.nncSlotFrame.semanticIdentity
+        }, {
+          layer: "silent-principal-object-binding",
+          passed: true,
+          objectId: principalObjectBindingFrame.objectId
+        }, {
+          layer: "person-number-reference-unification",
+          passed: true,
+          referenceId: normalizedPrincipalReferenceId
+        }, {
+          layer: "typed-in-linearization",
+          passed: true,
+          constituentOrder: Array.from(profile.constituentOrder)
+        }],
+        conclusion: {
+          authorized: true,
+          profileId: profile.profileId,
+          surfaceRealization: linearizationFrame.surfaceRealization,
+          typedCompositionAuthority: true,
+          surfaceStringAuthority: false
+        }
+      });
+      const selectedOutputLogicFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.16-selected-output-logic-frame",
+        authorizationStatus: "authorized",
+        selectedProfileId: profile.profileId,
+        selectedSurfaceTokens: linearizationFrame.tokens,
+        selectedSurfaceRealization: linearizationFrame.surfaceRealization,
+        selectedOutputAuthority: "typed-lesson25.16-composition",
+        surfaceStringAuthority: false
+      });
+      const frame = {
+        kind: "classical-nahuatl-lesson25.16-supplementation-frame",
+        version: CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION,
+        lesson: "Andrews Lesson 25",
+        section: "25.16",
+        sourceAuthority: "Andrews Canvas",
+        authorizationStatus: "authorized",
+        blockReason: "",
+        profileId: profile.profileId,
+        principalVncFrame,
+        principalObjectBindingFrame,
+        adjunctNncFrame,
+        adjunctNncSlotFrame: adjunctEnvelope.nncSlotFrame,
+        referenceUnificationFrame,
+        lowerLayerFrame,
+        linearizationFrame,
+        proofFrame,
+        selectedOutputLogicFrame,
+        surfaceRealization: linearizationFrame.surfaceRealization,
+        typedFrameAuthority: true,
+        grammarGenerationAllowed: true,
+        formulaOutputAllowed: false,
+        surfaceGenerationAllowed: true,
+        formulaArtifactAuthority: false,
+        surfaceArtifactAuthority: true,
+        surfaceStringAuthority: false,
+        callerSuppliedSurfaceAccepted: false,
+        nawatPipilSystem: "not-used",
+        nawatPipilOrthographyBridge: "not-applied",
+        canonicalSignature: ""
+      };
+      frame.canonicalSignature = signSentenceLesson2516Value(getSentenceLesson2516SupplementationAuthoritativeProjection(frame));
+      return Object.freeze(frame);
+    }
+    function isClassicalNahuatlLesson2516SupplementationFrame(frame = null) {
+      if (!frame
+        || frame.kind !== "classical-nahuatl-lesson25.16-supplementation-frame"
+        || frame.version !== CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION
+        || frame.authorizationStatus !== "authorized"
+        || frame.typedFrameAuthority !== true
+        || frame.grammarGenerationAllowed !== true
+        || frame.formulaOutputAllowed !== false
+        || frame.surfaceGenerationAllowed !== true
+        || frame.formulaArtifactAuthority !== false
+        || frame.surfaceArtifactAuthority !== true
+        || frame.surfaceStringAuthority !== false
+        || frame.callerSuppliedSurfaceAccepted !== false) {
+        return false;
+      }
+      const rebuilt = buildClassicalNahuatlLesson2516SupplementationFrame(frame.principalVncFrame, frame.adjunctNncFrame, {
+        profileId: frame.profileId,
+        principalObjectId: frame.principalObjectBindingFrame?.objectId || "",
+        principalReferenceId: frame.referenceUnificationFrame?.principalReferenceId || "",
+        adjunctReferenceId: frame.referenceUnificationFrame?.adjunctReferenceId || ""
+      });
+      const projection = getSentenceLesson2516SupplementationAuthoritativeProjection(frame);
+      const rebuiltProjection = getSentenceLesson2516SupplementationAuthoritativeProjection(rebuilt);
+      return rebuilt.authorizationStatus === "authorized"
+        && frame.canonicalSignature === rebuilt.canonicalSignature
+        && frame.canonicalSignature === signSentenceLesson2516Value(projection)
+        && areSentenceLesson2516ValuesEqual(projection, rebuiltProjection);
+    }
+    function signSentenceLesson253Value(value) {
+      const serialized = stableStringifySentenceLesson2516Value(value);
+      let hash = 2166136261;
+      for (let index = 0; index < serialized.length; index += 1) {
+        hash ^= serialized.charCodeAt(index);
+        hash = Math.imul(hash, 16777619);
+      }
+      return `lesson25.3:${(hash >>> 0).toString(16).padStart(8, "0")}`;
+    }
+    function getClassicalNahuatlLesson253SupplementationProfile(profileId = "") {
+      const normalizedProfileId = String(profileId || "").trim();
+      return CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_PROFILES.find(profile => profile.profileId === normalizedProfileId) || null;
+    }
+    function getClassicalNahuatlLesson253SupplementationProfileInventory() {
+      return cloneSentenceLessonRecord(CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_PROFILES);
+    }
+    function normalizeSentenceLesson253CausativeObjectReading(value = "") {
+      const normalized = String(value || "").trim().toLowerCase().replace(/[\s_]+/gu, "-");
+      return ["reflexive", "reciprocative"].includes(normalized) ? normalized : "";
+    }
+    function validateSentenceLesson253Principal(profile = null, principalVncFrame = null, principalObjectId = "") {
+      if (typeof targetObject.isClassicalNahuatlDerivedVncMachineryFrame !== "function") {
+        return { authorized: false, blockReason: "classical-lesson25.3-derived-vnc-capability-unavailable" };
+      }
+      if (!targetObject.isClassicalNahuatlDerivedVncMachineryFrame(principalVncFrame)) {
+        return { authorized: false, blockReason: "classical-lesson25.3-canonical-derived-vnc-principal-required" };
+      }
+      const normalizedObjectId = String(principalObjectId || "").trim();
+      if (!normalizedObjectId) {
+        return { authorized: false, blockReason: "classical-lesson25.3-typed-principal-object-id-required" };
+      }
+      if (normalizedObjectId !== profile.principalObjectId) {
+        return { authorized: false, blockReason: "classical-lesson25.3-principal-object-id-profile-mismatch" };
+      }
+      const finalTypedVncSlotFrame = getSentenceLesson2516FinalTypedVncSlotFrame(principalVncFrame);
+      const environment = getSentenceLesson2516PrincipalEnvironment(principalVncFrame);
+      const sourceFrame = principalVncFrame.sourceMachineryFrame || null;
+      const operationFrame = principalVncFrame.derivationOperationFrame || null;
+      const sourceProfileMatches = sourceFrame?.kind === profile.principalSourceFrameKind
+        && String(sourceFrame?.stem || sourceFrame?.targetStem || "") === profile.principalSourceStem
+        && String(sourceFrame?.voice || "") === profile.principalSourceVoice;
+      const participantTransformFrame = operationFrame?.participantTransformFrame || null;
+      const principalProfileMatches = sourceProfileMatches
+        && principalVncFrame.targetStem === profile.principalTargetStem
+        && principalVncFrame.targetSubject === profile.principalTargetSubject
+        && environment.mood === profile.principalMood
+        && environment.tense === profile.principalTense
+        && finalTypedVncSlotFrame?.semanticIdentity === profile.principalTypedSemanticIdentity
+        && operationFrame?.causativeSpecificShuntlineRealization === profile.principalSpecificShuntlineRealization
+        && String(participantTransformFrame?.causativeReferentRelation || "") === String(profile.principalCausativeReferentRelation || "")
+        && areSentenceLesson2516ValuesEqual(principalVncFrame.targetObjectRequests, profile.targetObjectRequests);
+      if (!principalProfileMatches) {
+        return { authorized: false, blockReason: "classical-lesson25.3-principal-vnc-profile-mismatch" };
+      }
+      const objectRequest = principalVncFrame.targetObjectRequests.find(request => request.objectId === normalizedObjectId) || null;
+      const objectPosition = getSentenceLesson2516PrincipalObjectPositions(principalVncFrame).find(position => position.objectId === normalizedObjectId) || null;
+      const slotObjectPosition = finalTypedVncSlotFrame?.slots?.prePredicate?.map(slot => slot?.objectPositionFrame).find(position => position?.objectId === normalizedObjectId) || null;
+      const objectIdentityMatches = objectRequest
+        && objectRequest.objectKind === profile.principalObjectKind
+        && objectRequest.objectPerson === profile.principalObjectPerson
+        && objectRequest.governor === profile.principalObjectGovernor
+        && objectRequest.derivationalLevel === profile.principalObjectDerivationalLevel;
+      const objectRealizationMatches = objectPosition
+        && objectPosition.prominence === "shuntline"
+        && objectPosition.sounded === profile.principalObjectSounded
+        && objectPosition.carrier === profile.principalObjectCarrier;
+      if (!objectIdentityMatches || !objectRealizationMatches || !slotObjectPosition || !areSentenceLesson2516ValuesEqual(objectPosition, slotObjectPosition)) {
+        return { authorized: false, blockReason: "classical-lesson25.3-principal-object-identity-or-realization-binding-failed" };
+      }
+      const causativeObjectRequest = profile.principalCausativeObjectId
+        ? principalVncFrame.targetObjectRequests.find(request => request.objectId === profile.principalCausativeObjectId) || null
+        : null;
+      const causativeObjectPosition = profile.principalCausativeObjectId
+        ? getSentenceLesson2516PrincipalObjectPositions(principalVncFrame).find(position => position.objectId === profile.principalCausativeObjectId) || null
+        : null;
+      const slotCausativeObjectPosition = profile.principalCausativeObjectId
+        ? finalTypedVncSlotFrame?.slots?.prePredicate?.map(slot => slot?.objectPositionFrame).find(position => position?.objectId === profile.principalCausativeObjectId) || null
+        : null;
+      const causativeObjectMatches = !profile.principalCausativeObjectId || Boolean(causativeObjectRequest
+        && causativeObjectRequest.objectKind === profile.principalCausativeObjectKind
+        && causativeObjectRequest.objectPerson === profile.principalCausativeObjectPerson
+        && causativeObjectRequest.governor === profile.principalCausativeObjectGovernor
+        && causativeObjectRequest.derivationalLevel === profile.principalCausativeObjectDerivationalLevel
+        && causativeObjectPosition
+        && causativeObjectPosition.prominence === "mainline"
+        && causativeObjectPosition.sounded === true
+        && causativeObjectPosition.carrier === profile.principalCausativeObjectCarrier
+        && slotCausativeObjectPosition
+        && areSentenceLesson2516ValuesEqual(causativeObjectPosition, slotCausativeObjectPosition));
+      if (!causativeObjectMatches) {
+        return { authorized: false, blockReason: "classical-lesson25.3-causative-object-identity-or-realization-binding-failed" };
+      }
+      return {
+        authorized: true,
+        blockReason: "",
+        sourceFrame,
+        operationFrame,
+        participantTransformFrame,
+        finalTypedVncSlotFrame,
+        objectRequest,
+        objectPosition,
+        causativeObjectRequest,
+        causativeObjectPosition,
+        environment
+      };
+    }
+    function validateSentenceLesson253SourcePrincipal(profile = null, principalValidation = {}, principalVncFrame = null, sourcePrincipalVncFrame = null) {
+      const sourcePrincipalProfileId = String(profile?.sourcePrincipalProfileId || profile?.profileId || "");
+      const sourcePrincipalProfile = getClassicalNahuatlLesson253SupplementationProfile(sourcePrincipalProfileId);
+      if (!sourcePrincipalProfile) {
+        return { authorized: false, blockReason: "classical-lesson25.3-known-source-principal-profile-required" };
+      }
+      const distinctSourcePrincipalRequired = sourcePrincipalProfile.profileId !== profile?.profileId;
+      const selectedSourcePrincipalVncFrame = sourcePrincipalVncFrame
+        || (!distinctSourcePrincipalRequired ? principalVncFrame : null);
+      if (!selectedSourcePrincipalVncFrame) {
+        return { authorized: false, blockReason: "classical-lesson25.3-typed-source-principal-required" };
+      }
+      const sourcePrincipalValidation = validateSentenceLesson253Principal(
+        sourcePrincipalProfile,
+        selectedSourcePrincipalVncFrame,
+        sourcePrincipalProfile.principalObjectId
+      );
+      if (!sourcePrincipalValidation.authorized) {
+        return {
+          authorized: false,
+          blockReason: sourcePrincipalValidation.blockReason === "classical-lesson25.3-canonical-derived-vnc-principal-required"
+            ? "classical-lesson25.3-canonical-source-principal-required"
+            : "classical-lesson25.3-source-principal-profile-mismatch"
+        };
+      }
+      const sourceAndFinalRelationMatches = sourcePrincipalValidation.sourceFrame?.kind === principalValidation.sourceFrame?.kind
+        && sourcePrincipalValidation.sourceFrame?.stem === principalValidation.sourceFrame?.stem
+        && String(sourcePrincipalValidation.sourceFrame?.voice || "") === String(principalValidation.sourceFrame?.voice || "")
+        && selectedSourcePrincipalVncFrame.targetStem === principalVncFrame?.targetStem
+        && selectedSourcePrincipalVncFrame.targetSubject === principalVncFrame?.targetSubject
+        && areSentenceLesson2516ValuesEqual(selectedSourcePrincipalVncFrame.targetObjectRequests, principalVncFrame?.targetObjectRequests);
+      if (!sourceAndFinalRelationMatches) {
+        return { authorized: false, blockReason: "classical-lesson25.3-source-and-final-principal-relation-mismatch" };
+      }
+      const sourcePrincipalDistinctFromFinal = selectedSourcePrincipalVncFrame.canonicalSignature !== principalVncFrame?.canonicalSignature;
+      if (distinctSourcePrincipalRequired !== sourcePrincipalDistinctFromFinal) {
+        return { authorized: false, blockReason: distinctSourcePrincipalRequired
+          ? "classical-lesson25.3-distinct-source-principal-required"
+          : "classical-lesson25.3-unlicensed-distinct-source-principal" };
+      }
+      return {
+        authorized: true,
+        blockReason: "",
+        sourcePrincipalProfile,
+        sourcePrincipalVncFrame: selectedSourcePrincipalVncFrame,
+        sourcePrincipalValidation,
+        sourcePrincipalDistinctFromFinal
+      };
+    }
+    function buildSentenceLesson253ExpectedAdjunct(profile = null) {
+      if (profile?.adjunctProfileId === "nehmatcanemiliztli-absolutive-nnc" && typeof targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame("nehmatcānēmiliz", {
+          subject: "3sg",
+          nounClass: "tli",
+          animacy: "nonanimate"
+        });
+      }
+      if (profile?.adjunctProfileId === "teocuicatl-absolutive-nnc" && typeof targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame("teōcuīca", {
+          subject: "3sg",
+          nounClass: "tl",
+          animacy: "nonanimate"
+        });
+      }
+      if (profile?.adjunctProfileId === "cuicatl-absolutive-nnc" && typeof targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame === "function") {
+        return targetObject.buildClassicalNahuatlLesson12AbsolutiveNncFrame("cuīca", {
+          subject: "3sg",
+          nounClass: "tl",
+          animacy: "nonanimate"
+        });
+      }
+      return null;
+    }
+    function buildSentenceLesson253LowerLayerFrame() {
+      return {
+        ...buildSentenceLesson2516LowerLayerFrame(),
+        kind: "classical-nahuatl-lesson25.3-lower-supplementation-layer-frame",
+        sourceSection: "Andrews §25.3",
+        selectedReferenceMode: "shared-referent-source-object-not-included-referent"
+      };
+    }
+    function buildSentenceLesson253PrincipalStemReadingFrame(profile = null, principalValidation = {}, causativeObjectReading = "") {
+      if (!profile?.principalStemReadingProfileId) {
+        return null;
+      }
+      const readingOptions = Array.isArray(profile.principalCausativeObjectReadingOptions)
+        ? Array.from(profile.principalCausativeObjectReadingOptions)
+        : [];
+      const normalizedReading = normalizeSentenceLesson253CausativeObjectReading(causativeObjectReading);
+      const citationSlots = [{
+        slotId: "causative-object",
+        grammaticalCategory: "mainline-reflexive-reciprocative-object",
+        citationCarrier: "m-o",
+        finiteCarrier: principalValidation.causativeObjectPosition?.carrier || "",
+        boundObjectId: principalValidation.causativeObjectRequest?.objectId || ""
+      }, {
+        slotId: "retained-source-object",
+        grammaticalCategory: "projective-nonhuman-object",
+        citationCarrier: "tla",
+        finiteCarrier: principalValidation.objectPosition?.carrier || "",
+        boundObjectId: principalValidation.objectRequest?.objectId || ""
+      }, {
+        slotId: "derived-predicate",
+        grammaticalCategory: "type-two-causative-verbstem",
+        citationCarrier: profile.principalTargetStem,
+        finiteCarrier: principalValidation.finalTypedVncSlotFrame?.slots?.predicate?.stem || "",
+        boundObjectId: ""
+      }];
+      const canonicalSourceReading = `${citationSlots[0].citationCarrier}+${citationSlots[1].citationCarrier}-(${citationSlots[2].citationCarrier})`;
+      return freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-principal-stem-reading-frame",
+        version: 1,
+        sourceSection: profile.sourceSection,
+        profileId: profile.principalStemReadingProfileId,
+        derivationType: "causative",
+        sourceStem: principalValidation.sourceFrame?.stem || "",
+        targetStem: profile.principalTargetStem,
+        targetSubject: profile.principalTargetSubject,
+        mood: profile.principalMood,
+        tense: profile.principalTense,
+        causativeReferentRelation: principalValidation.participantTransformFrame?.causativeReferentRelation || "",
+        causativeObjectReadingOptions: readingOptions,
+        selectedCausativeObjectReading: normalizedReading,
+        reflexiveReadingAvailable: readingOptions.includes("reflexive"),
+        reciprocativeReadingAvailable: readingOptions.includes("reciprocative"),
+        readingSelectionTyped: readingOptions.includes(normalizedReading),
+        citationSlots,
+        canonicalSourceReading,
+        sourceSpecificProjectiveObjectRequired: true,
+        typedPrincipalSemanticIdentity: principalValidation.finalTypedVncSlotFrame?.semanticIdentity || "",
+        typedFrameAuthority: true,
+        formulaStringAuthority: false,
+        surfaceStringAuthority: false
+      });
+    }
+    function buildSentenceLesson253TypedSurfaceRealizationFrame(profile = null, principalValidation = {}, adjunctNncSlotFrame = null) {
+      const principalWord = typeof targetObject.realizeClassicalNahuatlLesson25TypedVncWord === "function"
+        ? targetObject.realizeClassicalNahuatlLesson25TypedVncWord(principalValidation.finalTypedVncSlotFrame)
+        : "";
+      const adjunctSentenceFrame = typeof targetObject.buildClassicalNahuatlNncSentenceSurfaceFrame === "function"
+        ? targetObject.buildClassicalNahuatlNncSentenceSurfaceFrame(adjunctNncSlotFrame, {
+          sentenceType: "assertion",
+          polarity: "positive"
+        })
+        : null;
+      const adjunctWord = adjunctSentenceFrame?.authorizationStatus === "authorized"
+        && adjunctSentenceFrame.typedSlotAuthority === true
+        && adjunctSentenceFrame.formulaStringAuthority === false
+        ? String(adjunctSentenceFrame.nuclearSurface || "")
+        : "";
+      const authorized = Boolean(principalWord && adjunctWord);
+      return freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-typed-surface-realization-frame",
+        authorizationStatus: authorized ? "authorized" : "blocked",
+        blockReason: authorized ? "" : !principalWord
+          ? "classical-lesson25.3-typed-principal-surface-unavailable"
+          : "classical-lesson25.3-typed-adjunct-surface-unavailable",
+        principalWord,
+        adjunctWord,
+        principalTypedSemanticIdentity: principalValidation.finalTypedVncSlotFrame?.semanticIdentity || "",
+        adjunctTypedSemanticIdentity: adjunctNncSlotFrame?.semanticIdentity || "",
+        principalMatchesCanvasWitness: principalWord === profile?.surfaceForms?.principalVnc,
+        adjunctMatchesCanvasWitness: adjunctWord === profile?.surfaceForms?.adjunctNnc,
+        realizationAuthority: "typed-vnc-and-nnc-slot-realizers",
+        canvasWitnessStringsAuthorize: false,
+        surfaceStringAuthority: false
+      });
+    }
+    function buildSentenceLesson253SourceDecompositionFrame(profile = null, sourcePrincipalResolution = {}, adjunctNncSlotFrame = null, typedSurfaceRealizationFrame = null, principalVncFrame = null) {
+      const sourcePrincipalValidation = sourcePrincipalResolution.sourcePrincipalValidation || {};
+      const sourcePrincipalVncFrame = sourcePrincipalResolution.sourcePrincipalVncFrame || null;
+      const principalWord = typeof targetObject.realizeClassicalNahuatlLesson25TypedVncWord === "function"
+        ? targetObject.realizeClassicalNahuatlLesson25TypedVncWord(sourcePrincipalValidation.finalTypedVncSlotFrame)
+        : "";
+      const adjunctWord = String(typedSurfaceRealizationFrame?.adjunctWord || "");
+      const principalSentenceSurface = principalWord
+        ? `${principalWord.charAt(0).toUpperCase()}${principalWord.slice(1)}.`
+        : "";
+      const adjunctSentenceSurface = adjunctWord
+        ? `${adjunctWord.charAt(0).toUpperCase()}${adjunctWord.slice(1)}.`
+        : "";
+      const authorized = Boolean(principalSentenceSurface && adjunctSentenceSurface);
+      const sourcePrincipalSurfaceFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-source-principal-surface-frame",
+        authorizationStatus: authorized ? "authorized" : "blocked",
+        blockReason: authorized ? "" : "classical-lesson25.3-typed-source-principal-surface-unavailable",
+        profileId: sourcePrincipalResolution.sourcePrincipalProfile?.profileId || "",
+        word: principalWord,
+        sentenceSurface: principalSentenceSurface,
+        typedSemanticIdentity: sourcePrincipalValidation.finalTypedVncSlotFrame?.semanticIdentity || "",
+        canonicalVncSignature: sourcePrincipalVncFrame?.canonicalSignature || "",
+        realizationAuthority: "typed-vnc-slot-realizer",
+        canvasWitnessStringsAuthorize: false,
+        surfaceStringAuthority: false
+      });
+      const adjunctSurfaceFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-source-adjunct-surface-frame",
+        authorizationStatus: authorized ? "authorized" : "blocked",
+        blockReason: authorized ? "" : "classical-lesson25.3-typed-source-adjunct-surface-unavailable",
+        word: adjunctWord,
+        sentenceSurface: adjunctSentenceSurface,
+        typedSemanticIdentity: adjunctNncSlotFrame?.semanticIdentity || "",
+        realizationAuthority: "typed-nnc-slot-realizer",
+        canvasWitnessStringsAuthorize: false,
+        surfaceStringAuthority: false
+      });
+      return freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-source-decomposition-frame",
+        sourceSection: profile?.sourceSection || "",
+        authorizationStatus: authorized ? "authorized" : "blocked",
+        blockReason: authorized ? "" : sourcePrincipalSurfaceFrame.blockReason || adjunctSurfaceFrame.blockReason,
+        sourcePrincipalProfileId: sourcePrincipalSurfaceFrame.profileId,
+        sourcePrincipalVncCanonicalSignature: sourcePrincipalSurfaceFrame.canonicalVncSignature,
+        finalPrincipalVncCanonicalSignature: principalVncFrame?.canonicalSignature || "",
+        sourcePrincipalDistinctFromFinal: sourcePrincipalResolution.sourcePrincipalDistinctFromFinal === true,
+        sourcePrincipalSurfaceFrame,
+        adjunctSurfaceFrame,
+        compositionBoundary: "+",
+        surfaceRealization: authorized ? `${principalSentenceSurface} + ${adjunctSentenceSurface}` : "",
+        realizationAuthority: "typed-source-vnc-plus-typed-adjunct-nnc-decomposition",
+        canvasWitnessStringsAuthorize: false,
+        surfaceStringAuthority: false
+      });
+    }
+    function buildSentenceLesson253LinearizationFrame(profile = null, principalValidation = {}, adjunctNncSlotFrame = null, typedSurfaceRealizationFrame = null, principalStemReadingFrame = null) {
+      const tokenByRole = {
+        adjunctor: {
+          kind: "classical-nahuatl-sentence-adjunctor-token",
+          role: "adjunctor",
+          form: "in",
+          sourceSection: "Andrews §18.3",
+          formulaSlot: false
+        },
+        "adjunct-nnc": {
+          kind: "classical-nahuatl-sentence-nuclear-clause-token",
+          role: "supplementary-object",
+          unitKind: "NNC",
+          form: typedSurfaceRealizationFrame?.adjunctWord || "",
+          typedSemanticIdentity: adjunctNncSlotFrame.semanticIdentity,
+          realizationAuthority: "typed-nnc-slot-realizer"
+        },
+        "principal-vnc": {
+          kind: "classical-nahuatl-sentence-nuclear-clause-token",
+          role: "principal",
+          unitKind: "VNC",
+          form: typedSurfaceRealizationFrame?.principalWord || "",
+          typedSemanticIdentity: principalValidation.finalTypedVncSlotFrame.semanticIdentity,
+          principalStemReadingFrame,
+          realizationAuthority: "typed-vnc-slot-realizer"
+        }
+      };
+      const tokens = profile.constituentOrder.map(role => freezeSentenceLesson2516Value({ ...tokenByRole[role] }));
+      const unpunctuatedSurface = tokens.map(token => token.form).join(" ");
+      const surfaceRealization = `${unpunctuatedSurface.charAt(0).toUpperCase()}${unpunctuatedSurface.slice(1)}.`;
+      return freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-supplementation-linearization-frame",
+        sourceSection: profile.sourceSection,
+        constituentOrder: Array.from(profile.constituentOrder),
+        adjunctor: "in",
+        adjunctorTypedAsSentenceToken: true,
+        tokens,
+        surfaceRealization,
+        surfaceStringAuthority: false,
+        realizationAuthority: "andrews-lesson25.3-typed-vnc-plus-nnc-composition"
+      });
+    }
+    function buildBlockedClassicalNahuatlLesson253SupplementationFrame({
+      profileId = "",
+      principalVncFrame = null,
+      sourcePrincipalVncFrame = null,
+      adjunctNncFrame = null,
+      blockReason = "classical-lesson25.3-supplementation-not-authorized",
+      requestedSurfaceArtifactDiscarded = false,
+      requestedCausativeObjectReading = ""
+    } = {}) {
+      return Object.freeze({
+        kind: "classical-nahuatl-lesson25.3-supplementation-frame",
+        version: CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION,
+        lesson: "Andrews Lesson 25",
+        section: "25.3",
+        sourceAuthority: "Andrews Canvas",
+        authorizationStatus: "blocked",
+        blockReason,
+        profileId: String(profileId || ""),
+        principalVncFrame,
+        sourcePrincipalVncFrame,
+        sourceDecompositionFrame: null,
+        principalObjectBindingFrame: null,
+        principalStemReadingFrame: null,
+        adjunctNncFrame,
+        adjunctNncSlotFrame: null,
+        referenceUnificationFrame: null,
+        lowerLayerFrame: null,
+        typedSurfaceRealizationFrame: null,
+        linearizationFrame: null,
+        proofFrame: null,
+        selectedOutputLogicFrame: null,
+        surfaceRealization: "",
+        requestedSurfaceArtifactDiscarded: requestedSurfaceArtifactDiscarded === true,
+        requestedCausativeObjectReading: String(requestedCausativeObjectReading || ""),
+        typedFrameAuthority: true,
+        grammarGenerationAllowed: false,
+        formulaOutputAllowed: false,
+        surfaceGenerationAllowed: false,
+        formulaArtifactAuthority: false,
+        surfaceArtifactAuthority: false,
+        surfaceStringAuthority: false,
+        callerSuppliedSurfaceAccepted: false,
+        nawatPipilSystem: "not-used",
+        nawatPipilOrthographyBridge: "not-applied",
+        canonicalSignature: ""
+      });
+    }
+    function getSentenceLesson253SupplementationAuthoritativeProjection(frame = {}) {
+      return {
+        kind: frame.kind,
+        version: frame.version,
+        lesson: frame.lesson,
+        section: frame.section,
+        sourceAuthority: frame.sourceAuthority,
+        authorizationStatus: frame.authorizationStatus,
+        blockReason: frame.blockReason,
+        profileId: frame.profileId,
+        principalCanonicalSignature: frame.principalVncFrame?.canonicalSignature || "",
+        principalTypedSemanticIdentity: getSentenceLesson2516FinalTypedVncSlotFrame(frame.principalVncFrame)?.semanticIdentity || "",
+        sourcePrincipalCanonicalSignature: frame.sourcePrincipalVncFrame?.canonicalSignature || "",
+        sourcePrincipalTypedSemanticIdentity: getSentenceLesson2516FinalTypedVncSlotFrame(frame.sourcePrincipalVncFrame)?.semanticIdentity || "",
+        sourceDecompositionFrame: frame.sourceDecompositionFrame,
+        principalObjectBindingFrame: frame.principalObjectBindingFrame,
+        principalStemReadingFrame: frame.principalStemReadingFrame,
+        adjunctFrameKind: frame.adjunctNncFrame?.kind || "",
+        adjunctNncSlotFrame: frame.adjunctNncSlotFrame,
+        referenceUnificationFrame: frame.referenceUnificationFrame,
+        lowerLayerFrame: frame.lowerLayerFrame,
+        typedSurfaceRealizationFrame: frame.typedSurfaceRealizationFrame,
+        linearizationFrame: frame.linearizationFrame,
+        proofFrame: frame.proofFrame,
+        selectedOutputLogicFrame: frame.selectedOutputLogicFrame,
+        surfaceRealization: frame.surfaceRealization,
+        typedFrameAuthority: frame.typedFrameAuthority,
+        grammarGenerationAllowed: frame.grammarGenerationAllowed,
+        formulaOutputAllowed: frame.formulaOutputAllowed,
+        surfaceGenerationAllowed: frame.surfaceGenerationAllowed,
+        formulaArtifactAuthority: frame.formulaArtifactAuthority,
+        surfaceArtifactAuthority: frame.surfaceArtifactAuthority,
+        surfaceStringAuthority: frame.surfaceStringAuthority,
+        callerSuppliedSurfaceAccepted: frame.callerSuppliedSurfaceAccepted,
+        nawatPipilSystem: frame.nawatPipilSystem,
+        nawatPipilOrthographyBridge: frame.nawatPipilOrthographyBridge
+      };
+    }
+    function buildClassicalNahuatlLesson253SupplementationFrame(principalVncFrame = null, adjunctNncFrame = null, {
+      profileId = "",
+      sourcePrincipalVncFrame = null,
+      principalObjectId = "",
+      principalReferenceId = "",
+      adjunctReferenceId = "",
+      causativeObjectReading = "",
+      surfaceArtifact = "",
+      surfaceRealization = ""
+    } = {}) {
+      const requestedSurfaceArtifactDiscarded = Boolean(String(surfaceArtifact || "").trim() || String(surfaceRealization || "").trim());
+      const profile = getClassicalNahuatlLesson253SupplementationProfile(profileId);
+      const block = blockReason => buildBlockedClassicalNahuatlLesson253SupplementationFrame({
+        profileId,
+        principalVncFrame,
+        sourcePrincipalVncFrame,
+        adjunctNncFrame,
+        blockReason,
+        requestedSurfaceArtifactDiscarded,
+        requestedCausativeObjectReading: causativeObjectReading
+      });
+      if (!profile) {
+        return block("classical-lesson25.3-known-supplementation-profile-required");
+      }
+      const requestedCausativeObjectReading = String(causativeObjectReading || "").trim();
+      const normalizedCausativeObjectReading = normalizeSentenceLesson253CausativeObjectReading(requestedCausativeObjectReading);
+      const causativeObjectReadingOptions = Array.isArray(profile.principalCausativeObjectReadingOptions)
+        ? Array.from(profile.principalCausativeObjectReadingOptions)
+        : [];
+      if (causativeObjectReadingOptions.length && !requestedCausativeObjectReading) {
+        return block("classical-lesson25.3-typed-reflexive-reciprocative-reading-required");
+      }
+      if (requestedCausativeObjectReading && !normalizedCausativeObjectReading) {
+        return block("classical-lesson25.3-reflexive-reciprocative-reading-not-recognized");
+      }
+      if (normalizedCausativeObjectReading && !causativeObjectReadingOptions.includes(normalizedCausativeObjectReading)) {
+        return block("classical-lesson25.3-reflexive-reciprocative-reading-not-applicable");
+      }
+      const principalValidation = validateSentenceLesson253Principal(profile, principalVncFrame, principalObjectId);
+      if (!principalValidation.authorized) {
+        return block(principalValidation.blockReason);
+      }
+      const sourcePrincipalResolution = validateSentenceLesson253SourcePrincipal(
+        profile,
+        principalValidation,
+        principalVncFrame,
+        sourcePrincipalVncFrame
+      );
+      if (!sourcePrincipalResolution.authorized) {
+        return block(sourcePrincipalResolution.blockReason);
+      }
+      const adjunctEnvelope = getSentenceLesson2516TypedNncEnvelope(adjunctNncFrame);
+      if (!adjunctEnvelope.authorized) {
+        return block("classical-lesson25.3-authorized-typed-nnc-adjunct-required");
+      }
+      const principalFeatures = getSentenceLesson2516PersonNumberFeatures(principalValidation.objectRequest.objectPerson);
+      const adjunctSubject = adjunctEnvelope.nncSlotFrame.slots?.subject?.subject || "";
+      const adjunctFeatures = getSentenceLesson2516PersonNumberFeatures(adjunctSubject);
+      if (!principalFeatures || !adjunctFeatures || principalFeatures.person !== adjunctFeatures.person) {
+        return block("classical-lesson25.3-person-unification-failed");
+      }
+      if (principalFeatures.number !== adjunctFeatures.number || adjunctEnvelope.nncSlotFrame.subjectNumber !== adjunctFeatures.number) {
+        return block("classical-lesson25.3-number-unification-failed");
+      }
+      const normalizedPrincipalReferenceId = normalizeSentenceLesson2516ReferenceId(principalReferenceId);
+      const normalizedAdjunctReferenceId = normalizeSentenceLesson2516ReferenceId(adjunctReferenceId);
+      if (!normalizedPrincipalReferenceId || !normalizedAdjunctReferenceId) {
+        return block("classical-lesson25.3-typed-reference-identities-required");
+      }
+      if (normalizedPrincipalReferenceId !== normalizedAdjunctReferenceId) {
+        return block("classical-lesson25.3-reference-identity-mismatch");
+      }
+      const expectedAdjunct = buildSentenceLesson253ExpectedAdjunct(profile);
+      const expectedAdjunctEnvelope = getSentenceLesson2516TypedNncEnvelope(expectedAdjunct);
+      const exactAdjunctProfile = expectedAdjunctEnvelope.authorized
+        && adjunctSubject === profile.adjunctSubject
+        && adjunctEnvelope.nncSlotFrame.semanticIdentity === profile.adjunctTypedSemanticIdentity
+        && areSentenceLesson2516ValuesEqual(adjunctNncFrame, expectedAdjunct);
+      if (!exactAdjunctProfile) {
+        return block("classical-lesson25.3-canonical-profile-nnc-adjunct-required");
+      }
+      const principalStemReadingFrame = buildSentenceLesson253PrincipalStemReadingFrame(
+        profile,
+        principalValidation,
+        normalizedCausativeObjectReading
+      );
+      if (profile.principalStemReadingProfileId && (!principalStemReadingFrame
+        || principalStemReadingFrame.readingSelectionTyped !== true
+        || principalStemReadingFrame.citationSlots?.[0]?.boundObjectId !== principalValidation.causativeObjectRequest?.objectId
+        || principalStemReadingFrame.citationSlots?.[1]?.boundObjectId !== principalValidation.objectRequest?.objectId
+        || principalStemReadingFrame.citationSlots?.[2]?.finiteCarrier !== principalValidation.finalTypedVncSlotFrame?.slots?.predicate?.stem)) {
+        return block("classical-lesson25.3-canonical-principal-stem-reading-required");
+      }
+      const typedSurfaceRealizationFrame = buildSentenceLesson253TypedSurfaceRealizationFrame(
+        profile,
+        principalValidation,
+        adjunctEnvelope.nncSlotFrame
+      );
+      if (typedSurfaceRealizationFrame.authorizationStatus !== "authorized") {
+        return block(typedSurfaceRealizationFrame.blockReason);
+      }
+      const sourceDecompositionFrame = buildSentenceLesson253SourceDecompositionFrame(
+        profile,
+        sourcePrincipalResolution,
+        adjunctEnvelope.nncSlotFrame,
+        typedSurfaceRealizationFrame,
+        principalVncFrame
+      );
+      if (sourceDecompositionFrame.authorizationStatus !== "authorized") {
+        return block(sourceDecompositionFrame.blockReason);
+      }
+      const principalObjectBindingFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-principal-object-binding-frame",
+        objectId: principalValidation.objectRequest.objectId,
+        objectKind: principalValidation.objectRequest.objectKind,
+        objectPerson: principalValidation.objectRequest.objectPerson,
+        governor: principalValidation.objectRequest.governor,
+        derivationalLevel: principalValidation.objectRequest.derivationalLevel,
+        sounded: principalValidation.objectPosition.sounded,
+        carrier: principalValidation.objectPosition.carrier,
+        prominence: principalValidation.objectPosition.prominence,
+        principalTypedSemanticIdentity: principalValidation.finalTypedVncSlotFrame.semanticIdentity,
+        bindingAuthority: "canonical-derived-vnc-source-object-request-plus-position"
+      });
+      const referenceUnificationFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-reference-unification-frame",
+        relationKind: profile.relationKind,
+        principalReferenceId: normalizedPrincipalReferenceId,
+        adjunctReferenceId: normalizedAdjunctReferenceId,
+        person: principalFeatures.person,
+        number: principalFeatures.number,
+        principalPersonCategory: principalFeatures.category,
+        adjunctSubjectCategory: adjunctFeatures.category,
+        personUnified: true,
+        numberUnified: true,
+        referenceUnified: true,
+        includedReferentReading: false,
+        causativeObjectReading: normalizedCausativeObjectReading,
+        causativeObjectReadingTyped: causativeObjectReadingOptions.length
+          ? causativeObjectReadingOptions.includes(normalizedCausativeObjectReading)
+          : false
+      });
+      const lowerLayerFrame = freezeSentenceLesson2516Value(buildSentenceLesson253LowerLayerFrame());
+      const linearizationFrame = buildSentenceLesson253LinearizationFrame(
+        profile,
+        principalValidation,
+        adjunctEnvelope.nncSlotFrame,
+        typedSurfaceRealizationFrame,
+        principalStemReadingFrame
+      );
+      const proofFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-supplementation-proof-frame",
+        sourceSection: profile.sourceSection,
+        authorizationStatus: "authorized",
+        premises: [{
+          layer: "canonical-derived-causative-vnc-principal",
+          passed: true,
+          canonicalSignature: principalVncFrame.canonicalSignature,
+          sourceFrameKind: principalValidation.sourceFrame.kind,
+          targetStem: principalVncFrame.targetStem
+        }, {
+          layer: "canonical-lower-source-principal-vnc",
+          passed: true,
+          canonicalSignature: sourcePrincipalResolution.sourcePrincipalVncFrame.canonicalSignature,
+          profileId: sourcePrincipalResolution.sourcePrincipalProfile.profileId,
+          typedSemanticIdentity: sourcePrincipalResolution.sourcePrincipalValidation.finalTypedVncSlotFrame.semanticIdentity,
+          distinctFromFinal: sourcePrincipalResolution.sourcePrincipalDistinctFromFinal
+        }, {
+          layer: "canonical-typed-nnc-adjunct",
+          passed: true,
+          semanticIdentity: adjunctEnvelope.nncSlotFrame.semanticIdentity
+        }, {
+          layer: "typed-source-object-binding",
+          passed: true,
+          objectId: principalObjectBindingFrame.objectId,
+          sounded: principalObjectBindingFrame.sounded,
+          carrier: principalObjectBindingFrame.carrier
+        }, {
+          layer: "typed-reflexive-reciprocative-principal-reading",
+          passed: !profile.principalStemReadingProfileId || principalStemReadingFrame?.readingSelectionTyped === true,
+          canonicalSourceReading: principalStemReadingFrame?.canonicalSourceReading || "",
+          selectedCausativeObjectReading: principalStemReadingFrame?.selectedCausativeObjectReading || ""
+        }, {
+          layer: "person-number-reference-unification",
+          passed: true,
+          referenceId: normalizedPrincipalReferenceId
+        }, {
+          layer: "typed-in-linearization",
+          passed: true,
+          constituentOrder: Array.from(profile.constituentOrder)
+        }, {
+          layer: "typed-vnc-and-nnc-surface-realization",
+          passed: typedSurfaceRealizationFrame.authorizationStatus === "authorized",
+          realizationAuthority: typedSurfaceRealizationFrame.realizationAuthority,
+          canvasWitnessStringsAuthorize: false
+        }],
+        conclusion: {
+          authorized: true,
+          profileId: profile.profileId,
+          surfaceRealization: linearizationFrame.surfaceRealization,
+          typedCompositionAuthority: true,
+          surfaceStringAuthority: false
+        }
+      });
+      const selectedOutputLogicFrame = freezeSentenceLesson2516Value({
+        kind: "classical-nahuatl-lesson25.3-selected-output-logic-frame",
+        authorizationStatus: "authorized",
+        selectedProfileId: profile.profileId,
+        selectedSourceDecompositionFrame: sourceDecompositionFrame,
+        selectedPrincipalStemReadingFrame: principalStemReadingFrame,
+        selectedSurfaceTokens: linearizationFrame.tokens,
+        selectedSurfaceRealization: linearizationFrame.surfaceRealization,
+        selectedOutputAuthority: "typed-lesson25.3-composition",
+        surfaceStringAuthority: false
+      });
+      const frame = {
+        kind: "classical-nahuatl-lesson25.3-supplementation-frame",
+        version: CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION,
+        lesson: "Andrews Lesson 25",
+        section: "25.3",
+        sourceAuthority: "Andrews Canvas",
+        authorizationStatus: "authorized",
+        blockReason: "",
+        profileId: profile.profileId,
+        principalVncFrame,
+        sourcePrincipalVncFrame: sourcePrincipalResolution.sourcePrincipalVncFrame,
+        sourceDecompositionFrame,
+        principalObjectBindingFrame,
+        principalStemReadingFrame,
+        adjunctNncFrame,
+        adjunctNncSlotFrame: adjunctEnvelope.nncSlotFrame,
+        referenceUnificationFrame,
+        lowerLayerFrame,
+        typedSurfaceRealizationFrame,
+        linearizationFrame,
+        proofFrame,
+        selectedOutputLogicFrame,
+        surfaceRealization: linearizationFrame.surfaceRealization,
+        requestedSurfaceArtifactDiscarded,
+        typedFrameAuthority: true,
+        grammarGenerationAllowed: true,
+        formulaOutputAllowed: false,
+        surfaceGenerationAllowed: true,
+        formulaArtifactAuthority: false,
+        surfaceArtifactAuthority: true,
+        surfaceStringAuthority: false,
+        callerSuppliedSurfaceAccepted: false,
+        nawatPipilSystem: "not-used",
+        nawatPipilOrthographyBridge: "not-applied",
+        canonicalSignature: ""
+      };
+      frame.canonicalSignature = signSentenceLesson253Value(getSentenceLesson253SupplementationAuthoritativeProjection(frame));
+      return Object.freeze(frame);
+    }
+    function isClassicalNahuatlLesson253SupplementationFrame(frame = null) {
+      if (!frame
+        || frame.kind !== "classical-nahuatl-lesson25.3-supplementation-frame"
+        || frame.version !== CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION
+        || frame.authorizationStatus !== "authorized"
+        || frame.typedFrameAuthority !== true
+        || frame.grammarGenerationAllowed !== true
+        || frame.formulaOutputAllowed !== false
+        || frame.surfaceGenerationAllowed !== true
+        || frame.formulaArtifactAuthority !== false
+        || frame.surfaceArtifactAuthority !== true
+        || frame.surfaceStringAuthority !== false
+        || frame.callerSuppliedSurfaceAccepted !== false) {
+        return false;
+      }
+      const rebuilt = buildClassicalNahuatlLesson253SupplementationFrame(frame.principalVncFrame, frame.adjunctNncFrame, {
+        profileId: frame.profileId,
+        sourcePrincipalVncFrame: frame.sourcePrincipalVncFrame,
+        principalObjectId: frame.principalObjectBindingFrame?.objectId || "",
+        principalReferenceId: frame.referenceUnificationFrame?.principalReferenceId || "",
+        adjunctReferenceId: frame.referenceUnificationFrame?.adjunctReferenceId || "",
+        causativeObjectReading: frame.principalStemReadingFrame?.selectedCausativeObjectReading || ""
+      });
+      const projection = getSentenceLesson253SupplementationAuthoritativeProjection(frame);
+      const rebuiltProjection = getSentenceLesson253SupplementationAuthoritativeProjection(rebuilt);
+      return rebuilt.authorizationStatus === "authorized"
+        && frame.canonicalSignature === rebuilt.canonicalSignature
+        && frame.canonicalSignature === signSentenceLesson253Value(projection)
+        && areSentenceLesson2516ValuesEqual(projection, rebuiltProjection);
+    }
     function buildSentenceOperatorSlot({
       slot = "",
       value = "",
@@ -2202,6 +3762,26 @@ export function createSentenceApi(targetObject = globalThis) {
         enumerable: true,
         get() { return SENTENCE_LESSON19_REMAINING_GAPS; },
     });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_VERSION; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_PROFILES", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_LESSON25_16_SUPPLEMENTATION_PROFILES; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_VERSION; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_PROFILES", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_LESSON25_3_SUPPLEMENTATION_PROFILES; },
+    });
     api.attachSentenceGrammarContract = attachSentenceGrammarContract;
     api.normalizeSentenceEnum = normalizeSentenceEnum;
     api.normalizeSentencePolarity = normalizeSentencePolarity;
@@ -2265,6 +3845,12 @@ export function createSentenceApi(targetObject = globalThis) {
     api.getSentenceLesson19SubsectionInventory = getSentenceLesson19SubsectionInventory;
     api.getSentenceLesson19RemainingGaps = getSentenceLesson19RemainingGaps;
     api.buildSentenceLesson19PursuitFrame = buildSentenceLesson19PursuitFrame;
+    api.getClassicalNahuatlLesson2516SupplementationProfileInventory = getClassicalNahuatlLesson2516SupplementationProfileInventory;
+    api.buildClassicalNahuatlLesson2516SupplementationFrame = buildClassicalNahuatlLesson2516SupplementationFrame;
+    api.isClassicalNahuatlLesson2516SupplementationFrame = isClassicalNahuatlLesson2516SupplementationFrame;
+    api.getClassicalNahuatlLesson253SupplementationProfileInventory = getClassicalNahuatlLesson253SupplementationProfileInventory;
+    api.buildClassicalNahuatlLesson253SupplementationFrame = buildClassicalNahuatlLesson253SupplementationFrame;
+    api.isClassicalNahuatlLesson253SupplementationFrame = isClassicalNahuatlLesson253SupplementationFrame;
     api.buildSentenceOperatorSlot = buildSentenceOperatorSlot;
     api.buildSentenceLayerMetadata = buildSentenceLayerMetadata;
     api.buildBasicSentenceBoundaryMetadata = buildBasicSentenceBoundaryMetadata;

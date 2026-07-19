@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/vnc/vnc.js.
+// Canonical modern ESM module.
 
 export function createVncApi(targetObject = globalThis) {
     const VNC_LESSON5_VALIDATION_REFS = Object.freeze(["src/tests/vnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
@@ -447,7 +447,7 @@ export function createVncApi(targetObject = globalThis) {
       requirementEs: "En tercera persona, val2 manifiesta numero: cero singular e in/im plural.",
       shotStatus: "hit-edit",
       missProbeEs: "nikpiya muestra ki-0 en vez de k-0, kipiya muestra k-0 en vez de ki-0, o kin no expone k-in.",
-      changedFiles: Object.freeze(["docs/ANDREWS_TRAJECTORY.md", "docs/GRAMMAR_SPEC.md", "src/core/generation/engine.js", "src/core/generation/engine.mjs", "src/core/generation/morphology_engine.js", "src/core/generation/morphology_engine.mjs", "src/core/orthography/orthography.js", "src/core/orthography/orthography.mjs", "src/core/vnc/vnc.js", "src/core/vnc/vnc.mjs", "src/tests/vnc.test.js"])
+      changedFiles: Object.freeze(["docs/ANDREWS_TRAJECTORY.md", "docs/GRAMMAR_SPEC.md", "src/core/generation/engine.mjs", "src/core/generation/morphology_engine.mjs", "src/core/orthography/orthography.mjs", "src/core/vnc/vnc.mjs", "src/tests/vnc.test.js"])
     }), Object.freeze({
       andrewsRef: "Andrews Lesson 6.4.2b",
       requirementEs: "En no tercera persona, val2 expresa caso objetivo.",
@@ -459,7 +459,7 @@ export function createVncApi(targetObject = globalThis) {
       requirementEs: "El paradigma proyectivo especifico se muestra como dyads Nawat directos.",
       shotStatus: "hit-edit",
       missProbeEs: "Los prefijos generan, pero faltan n-ech, t-ech, m-etz, m-etz-in, ki-0/k-0 o k-in en la formula, o nikpiya no acopla superficie k con formula k-0.",
-      changedFiles: Object.freeze(["docs/ANDREWS_TRAJECTORY.md", "docs/GRAMMAR_SPEC.md", "src/core/generation/engine.js", "src/core/generation/engine.mjs", "src/core/generation/morphology_engine.js", "src/core/generation/morphology_engine.mjs", "src/core/orthography/orthography.js", "src/core/orthography/orthography.mjs", "src/core/vnc/vnc.js", "src/core/vnc/vnc.mjs", "src/tests/vnc.test.js"])
+      changedFiles: Object.freeze(["docs/ANDREWS_TRAJECTORY.md", "docs/GRAMMAR_SPEC.md", "src/core/generation/engine.mjs", "src/core/generation/morphology_engine.mjs", "src/core/orthography/orthography.mjs", "src/core/vnc/vnc.mjs", "src/tests/vnc.test.js"])
     }), Object.freeze({
       andrewsRef: "Andrews Lesson 6.6",
       requirementEs: "El reflexivo principal es diadico y refleja persona/numero del sujeto.",
@@ -779,9 +779,9 @@ export function createVncApi(targetObject = globalThis) {
       implementationState: "implemented-adapted"
     })]);
 
-    // Shared agreement combo validation extracted to src/core/agreement/combo_validation.js
-    // Shared morphology support extracted to src/core/generation/morphology_support.js
-    // Shared morphology engine extracted to src/core/generation/morphology_engine.js
+    // Shared agreement combo validation extracted to src/core/agreement/combo_validation.mjs
+    // Shared morphology support extracted to src/core/generation/morphology_support.mjs
+    // Shared morphology engine extracted to src/core/generation/morphology_engine.mjs
 
     function cloneVncLesson5Array(value) {
       return Array.isArray(value) ? value.map(entry => cloneVncLesson5Record(entry)) : value;

@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/nnc/nnc.js.
+ * Tests for src/core/nnc/nnc.mjs.
  * These cover verb-derived nominal outputs plus the explicit nominal nuclear clause API.
  */
 

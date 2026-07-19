@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/valency.js.
+// Canonical modern ESM module.
 
 export function createGenerationValencyModule(targetObject = globalThis) {
     const GENERATION_VALENCY_OBJECT_SLOT_GATE_DIAGNOSTIC_ID = "generation-valency-object-slot-frame-unfixed";

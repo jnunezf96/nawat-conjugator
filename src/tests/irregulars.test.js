@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/irregulars/irregulars.js
+ * Tests for src/core/irregulars/irregulars.mjs
  * Covers: suppletive stem getters, dropFinalVowel, isIntransitiveOnlySuppletiveId.
  */
 

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-authority-initial-defaults",
+  "status": "complete",
+  "incentive": {
+    "id": "one-authoritative-initial-vnc-selection",
+    "statement": "The visible Authority defaults and every no-input runtime fallback must agree on 1sg subject, 3sg object, and indicative present.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate the shell, runtime fallback, and focused verification change without altering grammar eligibility.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Fresh Direct, Causative, and Applicative Authority flows begin from the same main VNC subject, object, and tense defaults while preserving distinct embedded participant choices.",
+  "responsibilities": [
+    {
+      "id": "ui-shell",
+      "statement": "Expose the requested selected options in the canonical Classical Authority shell.",
+      "paths": ["src/ui/shell/classical_shell.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Set the visible main subject, main object, applicative imported object, and tense initial options."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-defaults",
+      "statement": "Use the same defaults in state capture, option contracts, availability reset, receipts, and result-only projections.",
+      "paths": ["src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Remove competing no-input fallbacks without changing explicit selections or grammar gates."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove shell/runtime agreement and explicit-selection preservation with focused tests and browser evidence.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Cover initial defaults and retained user overrides across the three derivation modes."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target and focused evidence without starting full readiness.",
+      "paths": [
+        "docs/CURRENT_TARGET.md",
+        "docs/CODEX_BOARD.md",
+        "docs/shared_actions/active/classical-authority-initial-defaults.json"
+      ],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep the product-default change separate from grammar authorization and handoff readiness."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [{
+    "id": "preterit-and-second-person-object-initial-defaults",
+    "status": "complete",
+    "removalEvidence": "Shell selections and every no-input runtime fallback now use present and 3sg; 1sg was retained as the main subject default."
+  }],
+  "evidence": [
+    {
+      "id": "focused-ui-tests",
+      "result": "Main UI and causative relation UI passed 393/393 assertions, including default agreement and explicit-selection preservation."
+    },
+    {
+      "id": "fresh-origin-browser-proof",
+      "result": "Direct opened at 1sg, 3sg, present; Causative retained main 1sg and present with separate embedded 3sg; Applicative showed imported 3sg with main 1sg and present."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "focused-tests-and-browser-green",
+    "nextLessonEntryPoint": "Select the next explicit implementation target; full readiness belongs to formal handoff."
+  }
+}

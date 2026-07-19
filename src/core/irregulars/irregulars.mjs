@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/irregulars/irregulars.js.
+// Canonical modern ESM module.
 
 export function createIrregularsApi(targetObject = globalThis) {
     const IRREGULARS_LESSON11_VALIDATION_REFS = Object.freeze(["src/tests/irregulars.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);

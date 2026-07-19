@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/agreement/agreement.js
+ * Tests for src/core/agreement/agreement.mjs
  * Covers: getPers1Pers2Info, getObj1PersonInfo,
  *         isPers1Obj1SamePersonAcrossNumber, isPers1Obj1Reflexivo.
  */

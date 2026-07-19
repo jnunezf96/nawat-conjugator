@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/generation/morphology_support.js
+ * Tests for src/core/generation/morphology_support.mjs
  * Covers: tense suffix rules, directional support, patientivo possession
  * adjustment, and small morphology utilities.
  */

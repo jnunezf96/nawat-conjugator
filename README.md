@@ -6,7 +6,13 @@ A browser-based conjugation engine for Nawat (Pipil), a Uto-Aztecan language of 
 
 ## Running the app
 
-Open `index.html` in a browser. No build step, no server required. All data files are loaded via `fetch` from the `data/` directory, so a local file server is needed if the browser blocks local XHR (e.g. `python3 -m http.server 8080`).
+Serve the repository and open the public index in a modern browser:
+
+```sh
+python3 -m http.server 8080
+```
+
+Then visit `http://127.0.0.1:8080/`. There is no build step. The app uses native ES modules and `fetch`, so `file://` loading and old classic browsers are not supported.
 
 ---
 
@@ -124,7 +130,7 @@ All linguistic data lives in `data/`. The engine loads it at startup; all `data/
 
 ## Implementation status
 
-Based on the 58-lesson curriculum in `src/lessons/registry.js`:
+Based on the 58-lesson curriculum in `src/lessons/registry.mjs`:
 
 | Status | Count |
 |---|---|
@@ -143,7 +149,7 @@ Not yet mapped: natural/required possession, pronominal NNCs, supplementation/to
 
 ## Architecture
 
-The engine is organized as global-scope modules loaded in dependency order. No `type="module"` — each file declares functions and variables directly on the global object. This keeps the current global runtime contract for the `pret_universal_*.js` files and the Node.js `vm_harness.js` test runner.
+The application has one modern ESM delivery path. `index.html` loads `src/browser/main.mjs`; that entry bootstraps the declared installer graph in `src/runtime/create_runtime.mjs`. Each canonical module installs its capability into an isolated runtime object, and the browser or Node adapter exposes that completed runtime to its consumer. There is no classic browser lane, generated JS/MJS mirror, or ordered script-tag manifest.
 
 ```
 data/               JSON + CSV linguistic data (single source of truth)
@@ -159,17 +165,19 @@ src/
     nnc/            NNC generation, nominalization
     derivation/     Causative, applicative, passive, impersonal
   ui/               DOM-dependent code
-    state.js        Toggle state, mode accessors, preterit bridge
+    state.mjs       Toggle state, mode accessors, preterit bridge
     composer/       Interactive verb builder
     panels/         Tab/panel navigation
     rendering/      Conjugation table DOM rendering
     export/         CSV export
     i18n/           Spanish/Nawat label switching
-    events.js       All event listeners and init wiring
+    events/         Event listeners and initialization wiring
   lessons/          Curriculum metadata (58-lesson registry)
   appendices/       Appendix reference descriptors (A–G)
   tests/            Unit test suites
-script.js           Configuration, data loading, remaining runtime state
+  runtime/          Canonical module installer manifest
+  browser/          Public browser entry
+  node/             Headless ESM runtime adapter
 ```
 
 ### Dependency direction
@@ -186,19 +194,11 @@ core/preterit, core/vnc, core/nnc, core/derivation
 ui/*
 ```
 
-No core module may call into `ui/`. Cross-file calls resolve at runtime via global scope — safe inside function bodies, not safe at top-level initializer time.
+No core module may call into `ui/`. Cross-module capabilities are declared by the canonical installer graph and installed before browser initialization.
 
 ### Load order
 
-`index.html` loads files with `defer` in this order:
-
-1. `src/core/phonology` → `agreement` → `irregulars` → `output` → `parsing`
-2. `src/core/vnc/allomorphy` → `nnc` → `vnc`
-3. `src/core/preterit/context` → `engine`
-4. `src/ui/i18n` → `panels` → `export` → `state` → `rendering` → `composer`
-5. `script.js`
-6. `src/lessons/registry` → `src/appendices/registry`
-7. `src/ui/events.js`
+`index.html` contains one local script entry: `src/browser/main.mjs`. Runtime installation order is explicit in `RUNTIME_INSTALLERS` in `src/runtime/create_runtime.mjs`. Every declared module must have an installer; the runtime manifest gate fails closed on missing, duplicate, classic, or generated entries.
 
 ---
 
@@ -248,12 +248,13 @@ var _codaReKw = null;
 ```sh
 npm run check:data       # grammar data consistency guard for data/*.json and lexicon CSVs
 npm test                  # all unit suites (src/tests/)
-npm run test:morphology   # morphology audit via vm_harness
+npm run test:morphology   # focused morphology audit
 npm run test:regression   # intransitive-i causative regression
+npm run verify:readiness  # manifest, alignment, full ESM tests, audits, browser smoke
 ```
 
 `npm test` runs `check:data` first, then the headless unit suites. The data check keeps tense IDs, labels, display groups, rule references, phonology references, person/object options, and lexicon CSV shape synchronized as the grammar data grows.
 
 Known grammar-data exceptions live in `scripts/grammar_data_allowlist.json`. Current duplicate lexicon keys, cross-file lexicon overlaps, separator rows, and missing lexicon references must stay listed there. Any new unlisted exception fails `check:data`; if an exception is cleaned up, remove it from the allowlist in the same change.
 
-Tests run headlessly via `scripts/lib/vm_harness.js`, which loads the full module stack into a Node.js VM context with a fake DOM. UI modules that depend only on DOM stubs are included; modules that require live browser APIs are excluded.
+Tests run headlessly through the same canonical ESM installer graph as the browser, using `src/node/runtime.mjs` with a small fake DOM. Runtime delivery checks prove the public index has one module entry and that tests never execute a classic implementation lane. Readiness also runs a real-browser smoke check against the served public index.

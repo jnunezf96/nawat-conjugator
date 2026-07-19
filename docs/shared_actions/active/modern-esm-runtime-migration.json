@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "id": "modern-esm-runtime-migration",
+  "status": "complete",
+  "incentive": {
+    "id": "one-authoritative-modern-runtime",
+    "statement": "Preserve Andrews authority and complete behavioral proof while reducing delivery and verification to one modern ESM runtime.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "modernization-coordinator",
+    "responsibility": "Observe migration deviations, add temporary support without transferring primary responsibility, and close every obsolete classic path.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Lessons after 22 extend one canonical ESM application without generated classic mirrors, ordered script tags, or duplicated runtime suites.",
+  "responsibilities": [
+    {
+      "id": "runtime-delivery",
+      "statement": "Deliver every authorized grammar capability through one declared modern ESM installer graph.",
+      "paths": ["src/", "script.js", "index.html", "index.module.html"],
+      "primaryActor": "modern-runtime",
+      "actors": [
+        {
+          "actorId": "modern-runtime",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Own the canonical module graph, installation order, application bootstrap, and fail-closed capability checks."
+        },
+        {
+          "actorId": "classic-cutover-support",
+          "kind": "supporting",
+          "status": "retired",
+          "addedBy": "modernization-coordinator",
+          "triggerFinding": "Correct cross-runtime parity work was multiplying source files, ordered globals, tests, and maintenance actions.",
+          "contribution": "Promote verified modules to canonical sources and remove the superseded classic delivery lane.",
+          "alignmentEvidence": "One index module, one installer manifest, zero generated-wrapper headers, and zero production classic sources.",
+          "exitCondition": "The modern runtime passes full, audit, manifest, and live-browser proof without a compatibility lane."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove the single modern runtime and the grammar contracts it installs without rebuilding a second runtime.",
+      "paths": ["scripts/", "src/tests/", "package.json", "package-lock.json"],
+      "primaryActor": "modern-verification",
+      "actors": [
+        {
+          "actorId": "modern-verification",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Own ESM tests, audits, manifest checks, readiness gates, and live-browser smoke proof."
+        },
+        {
+          "actorId": "harness-migration-support",
+          "kind": "supporting",
+          "status": "retired",
+          "addedBy": "modernization-coordinator",
+          "triggerFinding": "Maintenance scripts still depended on synchronous classic VM loading after the browser cutover.",
+          "contribution": "Move script callers onto the same module harness used by the authoritative test runtime.",
+          "alignmentEvidence": "Repository scans find no runtime consumers of deleted classic source paths.",
+          "exitCondition": "All readiness and maintenance commands execute through ESM imports."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep policy, baseline metrics, current target, and closure evidence consistent with the approved modern-browser scope.",
+      "paths": ["AGENTS.md", "README.md", "config/", "docs/"],
+      "primaryActor": "modernization-coordinator",
+      "actors": [
+        {
+          "actorId": "modernization-coordinator",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Own scope, actor assignments, deviation gates, documentation, and final closure."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [
+    {
+      "id": "classic-runtime-cutover",
+      "neededBy": ["runtime-delivery", "verification"],
+      "providedBy": "classic-cutover-support",
+      "status": "complete"
+    },
+    {
+      "id": "esm-maintenance-harness",
+      "neededBy": ["verification"],
+      "providedBy": "harness-migration-support",
+      "status": "complete"
+    }
+  ],
+  "retirements": [
+    {
+      "id": "classic-browser-and-vm-runtime",
+      "status": "complete",
+      "removalEvidence": "The 72 superseded classic runtime sources, ordered classic entry, alternate HTML entry, and classic VM execution lane are removed; the public page and all verification use the canonical ESM installer graph."
+    },
+    {
+      "id": "generated-module-wrapper-system",
+      "status": "complete",
+      "removalEvidence": "All generated-wrapper headers are gone; the three wrapper-generation files and wrapper-parity test are removed; canonical modules are tested directly."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "approved-source-retirement",
+      "result": "Removed all 72 approved classic runtime sources and all 3 approved wrapper-generation files; their verified .mjs counterparts are canonical."
+    },
+    {
+      "id": "single-runtime-manifest",
+      "result": "Runtime manifest alignment passes with 1 browser entry, 72 canonical modules, and 72 fail-closed installers."
+    },
+    {
+      "id": "full-esm-suite",
+      "result": "The canonical ESM runtime passes 3327 of 3327 tests across 53 suites."
+    },
+    {
+      "id": "canvas-authority-audits",
+      "result": "Lesson 20 passes every authority matrix, and the Lessons 20-22 Canvas audit passes all 39 formulas with 22 of 22 engine-derived nonactive matches and zero mismatches."
+    },
+    {
+      "id": "automated-browser-smoke",
+      "result": "Headless Chrome loads one module and zero classic scripts in direct-import mode; passive chihua is authorized as #ni-0(chihua-lo)0+0-0# with typed-frame authority true and formula-string authority false."
+    },
+    {
+      "id": "independent-in-app-browser",
+      "result": "The in-app browser loads one module and zero classic scripts, visibly authorizes passive chihua as #ti-0(chīhua-lō)0+c-0# / Tichīhualōc., and emits no warning or error."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "nextLessonEntryPoint": "src/application/classical/vnc_application.mjs:evaluateClassicalNahuatlVncApplication"
+  }
+}

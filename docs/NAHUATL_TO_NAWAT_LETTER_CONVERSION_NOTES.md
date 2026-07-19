@@ -163,14 +163,14 @@ formula-source spellings in `docs/ANDREWS_FORMULA_INVENTORY.md`.
 | `m-eh` | `m-et` |
 | `0-h` | `0-t` |
 | `st = ne` | `ne` |
-| `st = te` | `te` |
+| `st = tē` | `te` |
 | `st = tla` | `ta` |
 | `n-o ~ n-□` | `n-u ~ n-□` |
 | `t-o ~ t-□` | `t-u ~ t-□` |
 | `m-o ~ m-□` | `m-u ~ m-□` |
 | `am-o ~ am-□` | `anm-u ~ anm-□` |
-| `i-0` | `i-0` |
-| `i-m ~ i-n ...` | `i-n ~ i-nh` |
+| `ī-0` | `i-0` |
+| `ī-m ~ i-n ...` | `i-n ~ i-nh` |
 
 ### Subject-Person Slot Analogues
 
@@ -446,13 +446,13 @@ operation and the project realizes the surface in Nawat letters:
 
 ## Current Engine Hooks
 
-- `src/core/orthography/orthography.js` exposes
+- `src/core/orthography/orthography.mjs` exposes
   `convertClassicalLettersToNawat()` and `getClassicalLettersAsNawat()`.
 - `src/tests/orthography.test.js` locks the current conversion examples:
   `z/liz -> s/lis`, `lo-hua -> lu-wa`, `hua-lo -> wa-lu`,
   `(xochi)-tl -> (shuchi)-t`, `c-ti-ya -> k-ti-ya`, and
   `cihuatl -> siwat`.
-- Denominal route contracts in `src/ui/state.js` keep both the Classical
+- Denominal route contracts in `src/ui/state.mjs` keep both the Classical
   spelling and the Nawat rule spelling, for example `classicalSuffix: "tla"`
   with `suffix: "ta"`.
 

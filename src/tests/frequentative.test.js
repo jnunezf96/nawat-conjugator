@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/derivation/frequentative/frequentative.js
+ * Tests for src/core/derivation/frequentative/frequentative.mjs
  */
 
 const { createSuite } = require("./runner");

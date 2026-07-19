@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/ui/state.js — Toggle Lock functions.
+ * Tests for src/ui/state.mjs — Toggle Lock functions.
  * Covers: isToggleLockEnabled, getToggleLockStateKey,
  *         getToggleStateValue, setToggleStateValue,
  *         clearToggleLockValueState, clearAllToggleStateMaps,
@@ -610,6 +610,21 @@ function run(ctx) {
             "ordinaryNncPossessor",
             "ordinaryNncNounClass",
             "ordinaryNncAnimacy",
+            "classicalNncEnabled",
+            "classicalNncSubject",
+            "classicalNncType",
+            "classicalNncState",
+            "classicalNncClass",
+            "classicalNncPossessor",
+            "classicalNncUseShape",
+            "classicalNncSubclass",
+            "classicalNncStemRelation",
+            "classicalNncNumberForm",
+            "classicalNncOutputScope",
+            "classicalNncReferent",
+            "classicalNncQuantitiveMatrix",
+            "classicalNncQuantitiveMatrixForm",
+            "classicalNncQuantitivePredicatePluralization",
         ].every((fieldKey) => entradaUrlFieldKeys.includes(fieldKey)),
         true
     );
@@ -680,6 +695,71 @@ function run(ctx) {
             },
         }
     );
+    const originalLanguageProfileGetter = ctx.getActiveLanguageProfileMode;
+    const originalUiDensityGetter = ctx.getActiveUiDensityMode;
+    const originalClassListContains = ctx.document.body.classList.contains;
+    const originalGetClientRects = ctx.document.body.getClientRects;
+    const originalVerbComposerState = { ...ctx.VerbComposerState };
+    const originalVerbInputValue = ctx.document.getElementById("verb").value;
+    try {
+        ctx.getActiveLanguageProfileMode = () => ctx.LANGUAGE_PROFILE_MODE.classicalNahuatl;
+        ctx.document.body.classList.contains = (className) => className === "is-language-classical";
+        ctx.document.body.getClientRects = () => [{ width: 1, height: 1 }];
+        ctx.getActiveUiDensityMode = () => ctx.UI_DENSITY_MODE.simple;
+        s.eq(
+            "Classical entrada stem normalization preserves macrons",
+            {
+                macronStem: ctx.normalizeComposerStem("zōmā"),
+                boundedStem: ctx.normalizeComposerStem("pa-tla"),
+                wrappedStem: ctx.normalizeComposerStem("-(zōmā)"),
+            },
+            {
+                macronStem: "zōmā",
+                boundedStem: "patla",
+                wrappedStem: "zōmā",
+            }
+        );
+        const staleClassicalRoute = ctx.parseEntradaUrlSegmentString("#entrada/v1/verb/-(z%C5%8Dm%C4%81)/tr/transitive/b-stem/zm");
+        ctx.applyEntradaUrlStateSnapshot(staleClassicalRoute, {
+            triggerGenerate: false,
+            immediateRefresh: false,
+        });
+        s.eq(
+            "Classical entrada input stem outranks stale ASCII b-stem route cache",
+            {
+                transitivity: ctx.VerbComposerState.transitivity,
+                slotBStem: ctx.VerbComposerState.slotBStem,
+                visibleInput: ctx.document.getElementById("verb").value,
+                serialized: ctx.buildComposerModeBundle(ctx.VerbComposerState, "").regexValue,
+            },
+            {
+                transitivity: "transitive",
+                slotBStem: "zōmā",
+                visibleInput: "-(zōmā)",
+                serialized: "-(zōmā)",
+            }
+        );
+        ctx.getActiveLanguageProfileMode = () => ctx.LANGUAGE_PROFILE_MODE.nawatPipil;
+        ctx.document.body.classList.contains = (className) => className === "is-language-nawat-pipil";
+        s.eq(
+            "Nawat/Pipil composer stem normalization remains ASCII-only",
+            {
+                macronStem: ctx.normalizeComposerStem("zōmā"),
+                boundedStem: ctx.normalizeComposerStem("pa-tla"),
+            },
+            {
+                macronStem: "zm",
+                boundedStem: "patla",
+            }
+        );
+    } finally {
+        ctx.getActiveLanguageProfileMode = originalLanguageProfileGetter;
+        ctx.getActiveUiDensityMode = originalUiDensityGetter;
+        ctx.document.body.classList.contains = originalClassListContains;
+        ctx.document.body.getClientRects = originalGetClientRects;
+        Object.assign(ctx.VerbComposerState, originalVerbComposerState);
+        ctx.document.getElementById("verb").value = originalVerbInputValue;
+    }
     const ordinaryEntrada = ctx.parseEntradaUrlSegmentString(ctx.buildEntradaUrlSegmentString({
         input: "(siwa)t",
         board: "ordinary-nnc",
@@ -718,6 +798,90 @@ function run(ctx) {
                 nounClass: "t",
                 animacy: "animate",
             },
+        }
+    );
+    const classicalNncEntrada = ctx.parseEntradaUrlSegmentString(ctx.buildEntradaUrlSegmentString({
+        input: "(toma)",
+        board: "ordinary-nnc",
+        ordinaryNnc: { enabled: true },
+        classicalNnc: {
+            active: true,
+            subject: "1pl",
+            type: "ordinary",
+            statePolicy: "never-possessive",
+            state: "possessive",
+            possessorCompatibility: "relational-tla",
+            thirdPluralPossessorOptions: "n",
+            thirdPluralPossessorSt2: "n",
+            constituentAmbiguityKind: "front-o",
+            constituentAlternativeStem: "mī",
+            constituentAnalysisId: "alternative-typed-slots",
+            possessiveFormation: "suppletive",
+            lesson15TargetStem: "tlāca",
+            suppletiveConnector: "uh",
+            secondaryPossessorCarrier: "tē",
+            possessorReduplication: true,
+            nounClass: "tl",
+            possessor: "3pl",
+            useShape: "truncated-a-supportive-i",
+            subclass: "tl-2c",
+            stemRelation: "affinity",
+            numberForm: "m-eh",
+            outputScope: "paradigm",
+            referent: "metaphorical",
+            quantitiveMatrix: "quich",
+            quantitiveMatrixForm: "qui-ch",
+            quantitivePredicatePluralization: "plain-qui-ch",
+            clausePosition: "noninitial",
+            doubledFirstPlural: true,
+            dependentClauseIntroducedByIn: true,
+            specialHumanUse: true,
+        },
+    }));
+    s.eq(
+        "entrada URL keeps Classical NNC Authority separate from the Nawat ordinary-NNC mirror",
+        {
+            hasClassicalSegments: ["cn-subj", "cn-state-policy", "cn-state", "cn-poss-compat", "cn-3pl-options", "cn-3pl-form", "cn-ambiguity", "cn-alt-stem", "cn-analysis", "cn-formation", "cn-l15-stem", "cn-l15-connector", "cn-l15-carrier", "cn-l15-redup", "cn-class", "cn-subclass", "cn-relation", "cn-number", "cn-output", "cn-position", "cn-l16-double", "cn-l16-in", "cn-l16-human", "cn-l16-matrix-form", "cn-l16-predicate-plural"]
+                .every((segment) => ctx.buildEntradaUrlSegmentString(classicalNncEntrada).includes(`/${segment}/`)),
+            classicalNnc: classicalNncEntrada.classicalNnc,
+            nawatNounClass: classicalNncEntrada.ordinaryNnc.nounClass,
+        },
+        {
+            hasClassicalSegments: true,
+            classicalNnc: {
+                active: true,
+                subject: "1pl",
+                type: "ordinary",
+                statePolicy: "never-possessive",
+                state: "possessive",
+                possessorCompatibility: "relational-tla",
+                thirdPluralPossessorOptions: "n",
+                thirdPluralPossessorSt2: "n",
+                constituentAmbiguityKind: "front-o",
+                constituentAlternativeStem: "mī",
+                constituentAnalysisId: "alternative-typed-slots",
+                possessiveFormation: "suppletive",
+                lesson15TargetStem: "tlāca",
+                suppletiveConnector: "uh",
+                secondaryPossessorCarrier: "tē",
+                possessorReduplication: true,
+                nounClass: "tl",
+                possessor: "3pl",
+                useShape: "truncated-a-supportive-i",
+                subclass: "tl-2c",
+                stemRelation: "affinity",
+                numberForm: "m-eh",
+                outputScope: "paradigm",
+                referent: "metaphorical",
+                quantitiveMatrix: "quich",
+                quantitiveMatrixForm: "qui-ch",
+                quantitivePredicatePluralization: "plain-qui-ch",
+                clausePosition: "noninitial",
+                doubledFirstPlural: true,
+                dependentClauseIntroducedByIn: true,
+                specialHumanUse: true,
+            },
+            nawatNounClass: "",
         }
     );
     setOrdinaryNncGenerationState({ subjectKey: "3sg", subjectPrefix: "", subjectSuffix: "", animacy: "inanimate" });
@@ -8829,6 +8993,94 @@ function run(ctx) {
                 targetInput: "(pusukwi)",
                 tense: "presente",
                 enumerableGrammarFrame: false,
+            },
+        }
+    );
+    s.eq(
+        "Lessons 54-55 Andrews contract route target input consumes typed frames before display fields",
+        (() => {
+            const route = findAndrewsContractRoute("54.2.2-inceptive-stative-hui", "hui");
+            const poisonedRoute = {
+                ...route,
+                targetInputValue: "(poison)",
+                targetInput: "(poison)",
+                targetVerbStem: "poison",
+                result: "poison",
+                surface: "poison",
+                formulaEcho: "#poison#",
+            };
+            const poisonedRequest = ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(poisonedRoute, {
+                tense: "presente",
+            });
+            const missingOperationRoute = {
+                ...route,
+                targetInputOperationFrame: null,
+            };
+            const contradictoryOperationRoute = {
+                ...route,
+                targetInputOperationFrame: {
+                    ...route.targetInputOperationFrame,
+                    targetFrame: {
+                        ...route.targetInputOperationFrame.targetFrame,
+                        targetInput: "(poison)",
+                    },
+                },
+            };
+            return {
+                frameKinds: {
+                    source: route?.targetInputSourceFrame?.kind || "",
+                    operation: route?.targetInputOperationFrame?.operationId || "",
+                    target: route?.targetInputOperationFrame?.targetFrame?.kind || "",
+                },
+                poisonedTargetInput: ctx.getNawatDenominalAndrewsRouteTargetInputFromFrames(poisonedRoute),
+                poisonedRequest: {
+                    input: poisonedRequest?.posicionesFormula?.tronco || "",
+                    targetContractInput: poisonedRequest?.denominalAndrewsContractRoute?.frames?.routeContract?.targetContract?.targetInput || "",
+                    targetFrameInput: poisonedRequest?.denominalAndrewsContractRoute?.targetInputOperationFrame?.targetFrame?.targetInput || "",
+                },
+                missingOperation: {
+                    mismatch: ctx.getNawatDenominalAndrewsRouteTargetInputFrameMismatch({
+                        sourceFrame: route.targetInputSourceFrame,
+                        operationFrame: null,
+                    }),
+                    request: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(missingOperationRoute, {
+                        tense: "presente",
+                    }),
+                    activeContext: ctx.setActiveNawatDenominalAndrewsContractRouteContext(missingOperationRoute, null),
+                },
+                contradictoryOperation: {
+                    mismatch: ctx.getNawatDenominalAndrewsRouteTargetInputFrameMismatch({
+                        sourceFrame: route.targetInputSourceFrame,
+                        operationFrame: contradictoryOperationRoute.targetInputOperationFrame,
+                    }),
+                    request: ctx.buildNawatDenominalAndrewsContractRouteGenerateWordRequest(contradictoryOperationRoute, {
+                        tense: "presente",
+                    }),
+                    activeContext: ctx.setActiveNawatDenominalAndrewsContractRouteContext(contradictoryOperationRoute, null),
+                },
+            };
+        })(),
+        {
+            frameKinds: {
+                source: "nawat-denominal-andrews-route-target-input-source-frame",
+                operation: "andrews-denominal-contract-route-target-input-realization",
+                target: "nawat-denominal-andrews-route-target-input-target-frame",
+            },
+            poisonedTargetInput: "(pusukwi)",
+            poisonedRequest: {
+                input: "(pusukwi)",
+                targetContractInput: "(pusukwi)",
+                targetFrameInput: "(pusukwi)",
+            },
+            missingOperation: {
+                mismatch: "operation-frame-required",
+                request: null,
+                activeContext: null,
+            },
+            contradictoryOperation: {
+                mismatch: "contradictory-target-frame",
+                request: null,
+                activeContext: null,
             },
         }
     );

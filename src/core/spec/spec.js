@@ -1,5 +1,6 @@
 // core/spec/spec.js
 // CanonicalVerbSpec shape and buildVerbMetaFromCanonicalSpec.
-// Already implemented inside script.js (buildCanonicalVerbSpecFromMovingTargetParsed,
+// Implemented by the canonical ESM runtime in src/core/parsing/parsing.mjs
+// (buildCanonicalVerbSpecFromMovingTargetParsed,
 // buildCanonicalVerbSpecFromComposerSemantic, buildVerbMetaFromCanonicalSpec).
-// Status: placeholder — to be extracted from script.js
+// Status: non-runtime historical placeholder; do not add new implementation here.

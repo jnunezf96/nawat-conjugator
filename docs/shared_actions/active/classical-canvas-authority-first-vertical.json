@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-canvas-authority-first-vertical",
+  "status": "complete",
+  "incentive": {
+    "id": "single-canvas-derived-typed-identity",
+    "statement": "Preserve Andrews and Canvas authority, typed source and target structure, hostile proof, single-runtime integrity, and the 3,474/3,496 stabilization baseline while cutting one Lesson 25.3 route over to a single shared typed identity.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Keep the first miqui route narrow, require every consumer to share one typed identity, and prevent fixes to the other known failures from entering this slice.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Canvas section 25.3 produces one canonical miqui to mic-tiā choice frame consumed unchanged by inventory, operation, application, presentation, and focused tests.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Compile the Canvas 25.3 rule and exact example into one spelling-independent typed derivation choice.",
+      "paths": ["scripts/classical_lessons24_25_canvas_catalog.js", "src/core/classical/vnc_derivation_evaluator.mjs", "src/core/grammar/contract_registry.mjs"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{"actorId": "classical-derivation-engine", "kind": "primary", "status": "active", "contribution": "Own the canonical choice identity, formation, realization, eligibility, and validation."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Carry the exact canonical choice frame without rebuilding identity or spelling.",
+      "paths": ["src/application/classical/vnc_application.mjs"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId": "classical-application-boundary", "kind": "primary", "status": "active", "contribution": "Prove selected-choice reference and signature continuity."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Render the canonical choice identity and realization without reconstructing grammar.",
+      "paths": ["src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-presentation",
+      "actors": [{"actorId": "classical-presentation", "kind": "primary", "status": "active", "contribution": "Consume choice-frame fields only."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Replace downstream miqui spelling copies with canonical identity continuity and hostile target proof.",
+      "paths": ["src/tests/classical_lessons24_26.test.js", "src/tests/classical_vnc_application.test.js", "src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{"actorId": "verification", "kind": "primary", "status": "active", "contribution": "Keep scope to the first route and report the focused assertion delta."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-canvas-derivation-choice-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {"id": "miqui-canvas-surface-overlay-as-second-identity", "status": "complete"},
+    {"id": "miqui-downstream-mic-tia-expectations", "status": "complete"},
+    {"id": "miqui-target-stem-selection-as-identity", "status": "complete"}
+  ],
+  "evidence": [
+    {"kind": "focused-suite", "result": "classical_lessons24_26 13/24; one baseline assertion resolved"},
+    {"kind": "focused-suite", "result": "grammar_contract_registry 43/43"},
+    {"kind": "focused-suite", "result": "ui 381/385; exact four baseline failures retained"},
+    {"kind": "vertical-probe", "result": "authorized and canonical; one object identity across inventory, operation, control, result, and explanation; forged target rejected"}
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "focused-vertical-proof-passed",
+    "nextLessonEntryPoint": "Expand only after the miqui choice identity is continuous across every focused consumer."
+  }
+}

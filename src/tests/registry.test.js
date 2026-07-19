@@ -42,32 +42,26 @@ function byId(items) {
     }, {});
 }
 
-function run() {
+function run(ctx = {}) {
     const s = createSuite("registry");
 
-    const lessonRegistry = loadRegistryConst("src/lessons/registry.js", "LESSON_REGISTRY");
-    const lessonRegistryMjs = loadRegistryConst("src/lessons/registry.mjs", "LESSON_REGISTRY");
-    const trajectoryRedirectActions = loadRegistryConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
-    const trajectoryRedirectActionsMjs = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
-    const trajectoryGroups = loadRegistryConst("src/lessons/registry.js", "ANDREWS_TRAJECTORY_GROUPS");
-    const trajectoryGroupsMjs = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_GROUPS");
-    const planPursuitAimStatuses = loadRegistryConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
-    const planPursuitAimStatusesMjs = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
-    const planPursuitArrowResults = loadRegistryConst("src/lessons/registry.js", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
-    const planPursuitArrowResultsMjs = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
-    const appendixRegistry = loadRegistryConst("src/appendices/registry.js", "APPENDIX_REGISTRY");
-    const appendixRegistryMjs = loadRegistryConst("src/appendices/registry.mjs", "APPENDIX_REGISTRY");
-    const curriculumGroups = loadRegistryConst("src/ui/curriculum/curriculum.js", "CURRICULUM_BOOK_GROUPS");
-    const curriculumArchitectureNote = loadRegistryConst("src/ui/curriculum/curriculum.js", "CURRICULUM_ARCHITECTURE_NOTE");
-    const getCurriculumMissingCategory = loadRegistryConst("src/ui/curriculum/curriculum.js", "getCurriculumMissingCategory");
-    const curriculumSource = fs.readFileSync(path.join(ROOT, "src/ui/curriculum/curriculum.js"), "utf8");
+    const lessonRegistry = loadRegistryConst("src/lessons/registry.mjs", "LESSON_REGISTRY");
+    const trajectoryRedirectActions = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_REDIRECT_ACTIONS");
+    const trajectoryGroups = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_TRAJECTORY_GROUPS");
+    const planPursuitAimStatuses = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_AIM_STATUSES");
+    const planPursuitArrowResults = loadRegistryConst("src/lessons/registry.mjs", "ANDREWS_PLAN_PURSUIT_ARROW_RESULTS");
+    const appendixRegistry = loadRegistryConst("src/appendices/registry.mjs", "APPENDIX_REGISTRY");
+    const curriculumGroups = ctx.CURRICULUM_BOOK_GROUPS;
+    const curriculumArchitectureNote = ctx.CURRICULUM_ARCHITECTURE_NOTE;
+    const getCurriculumMissingCategory = ctx.getCurriculumMissingCategory;
+    const curriculumSource = fs.readFileSync(path.join(ROOT, "src/ui/curriculum/curriculum.mjs"), "utf8");
 
-    s.eq("lesson registry js/mjs payloads match", lessonRegistryMjs, lessonRegistry);
-    s.eq("Andrews trajectory redirect action constants match", trajectoryRedirectActionsMjs, trajectoryRedirectActions);
-    s.eq("Andrews trajectory group constants match", trajectoryGroupsMjs, trajectoryGroups);
-    s.eq("Plan/Pursue aim status constants match", planPursuitAimStatusesMjs, planPursuitAimStatuses);
-    s.eq("Plan/Pursue arrow result constants match", planPursuitArrowResultsMjs, planPursuitArrowResults);
-    s.eq("appendix registry js/mjs payloads match", appendixRegistryMjs, appendixRegistry);
+    s.ok("lesson registry has one canonical ESM payload", Array.isArray(lessonRegistry) && lessonRegistry.length > 0);
+    s.ok("Andrews trajectory redirect actions load from canonical ESM", Array.isArray(trajectoryRedirectActions));
+    s.ok("Andrews trajectory groups load from canonical ESM", Array.isArray(trajectoryGroups));
+    s.ok("Plan/Pursue aim statuses load from canonical ESM", Array.isArray(planPursuitAimStatuses));
+    s.ok("Plan/Pursue arrow results load from canonical ESM", Array.isArray(planPursuitArrowResults));
+    s.ok("appendix registry has one canonical ESM payload", Array.isArray(appendixRegistry) && appendixRegistry.length > 0);
     s.eq("Andrews redirect actions are the fixed governance vocabulary", trajectoryRedirectActions, [
         "keep",
         "rename-visible-ui",

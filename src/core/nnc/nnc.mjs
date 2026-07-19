@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/nnc/nnc.js.
+// Canonical modern ESM module.
 
 export function createNncApi(targetObject = globalThis) {
     const ORDINARY_NNC_STATE = Object.freeze({

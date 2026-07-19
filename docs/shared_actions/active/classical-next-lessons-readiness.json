@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-next-lessons-readiness",
+  "status": "complete",
+  "supersededBy": "modern-esm-runtime-migration",
+  "incentive": {
+    "id": "andrews-authority-with-durable-proof",
+    "statement": "Preserve Andrews authority, typed structural generation, hostile proof, runtime parity, and live verification.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Detect action misalignment, add support actors without transferring accountability, coordinate closure, and route product-policy decisions to the boss.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "The next Classical lesson can enter through a registered shared application boundary; the migrated Lesson 20-22 single-voice action has no renderer-owned grammar orchestration or fallback authority.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Produce and validate Andrews-authorized typed grammar frames.",
+      "paths": ["src/core/classical/", "src/core/grammar/", "docs/CLASSICAL_"],
+      "primaryActor": "classical-grammar-engine",
+      "actors": [
+        {
+          "actorId": "classical-grammar-engine",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Keep nonactive, ordered-voice, and object-cluster decisions inside typed grammar contracts."
+        },
+        {
+          "actorId": "contract-catalog-support",
+          "kind": "supporting",
+          "status": "retired",
+          "addedBy": "stabilization-manager",
+          "triggerFinding": "Typed authority was producing undeclared local contract kinds.",
+          "contribution": "Provide registered contract definitions and explicit capability requirements.",
+          "alignmentEvidence": "Migrated application frames validate through the shared catalog.",
+          "exitCondition": "Future lesson contracts can register and validate without a local catalog workaround."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Translate normalized user intent into one ordered grammar request and validated application result.",
+      "paths": ["src/application/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [
+        {
+          "actorId": "classical-application-boundary",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Own capability selection, operation ordering, and the immutable result consumed by presentation."
+        },
+        {
+          "actorId": "migration-support",
+          "kind": "supporting",
+          "status": "retired",
+          "addedBy": "stabilization-manager",
+          "triggerFinding": "Rendering and audits independently reconstructed the same voice action.",
+          "contribution": "Migrate callers to the application boundary and identify obsolete orchestration for deletion.",
+          "alignmentEvidence": "Production rendering has one application call and no direct migrated voice constructors.",
+          "exitCondition": "All production callers use the boundary and the obsolete orchestration is deleted."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Expose genuine user choices and render completed application results without authorizing grammar.",
+      "paths": ["src/ui/", "index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [
+        {
+          "actorId": "classical-presentation",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Consume control and result frames and preserve the current visible behavior."
+        },
+        {
+          "actorId": "application-adapter-support",
+          "kind": "supporting",
+          "status": "retired",
+          "addedBy": "stabilization-manager",
+          "triggerFinding": "The presentation actor lacked a supported application result and called grammar APIs directly.",
+          "contribution": "Supply the view-facing adapter while leaving grammar authority in the engine.",
+          "alignmentEvidence": "Renderer-owned grammar-construction metrics decrease and hostile UI tests remain green.",
+          "exitCondition": "The presentation responsibility can consume the stable application contract directly."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Preserve the historical parity proof; current delivery is superseded by the single modern ESM runtime action.",
+      "paths": ["src/bootstrap/", "src/runtime/", "src/node/", "scripts/check_runtime_manifest.js", "scripts/lib/runtime_manifest_check.js", "scripts/lib/vm_harness.js", "src/tests/module_runtime_integrity.test.js", "package.json"],
+      "primaryActor": "runtime-delivery",
+      "actors": [
+        {
+          "actorId": "runtime-delivery",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Recorded exact former parity before the approved modern ESM cutover."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Independently prove grammar, hostile, application, UI, runtime, and browser behavior.",
+      "paths": ["src/tests/", "scripts/audit_classical_", "scripts/browser_runtime_checks.js"],
+      "primaryActor": "verification",
+      "actors": [
+        {
+          "actorId": "verification",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Maintain focused and full proof without becoming grammar authority."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the active target, shared actor assignments, decisions, and closure conditions current.",
+      "paths": ["AGENTS.md", "docs/CODEX_BOARD.md", "docs/CURRENT_TARGET.md", "docs/shared_actions/", "config/shared_action_alignment", "scripts/audit_shared_action_alignment.js", "scripts/lib/shared_action_observer.js"],
+      "primaryActor": "stabilization-manager",
+      "actors": [
+        {
+          "actorId": "stabilization-manager",
+          "kind": "primary",
+          "status": "active",
+          "contribution": "Coordinate the shared action until all responsibilities and retirements close."
+        }
+      ],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [
+    {
+      "id": "contract-catalog",
+      "neededBy": ["grammar-authority", "application-orchestration"],
+      "providedBy": "contract-catalog-support",
+      "status": "complete"
+    },
+    {
+      "id": "voice-application-boundary",
+      "neededBy": ["application-orchestration", "presentation"],
+      "providedBy": "classical-application-boundary",
+      "status": "complete"
+    }
+  ],
+  "contracts": [
+    {
+      "contractKind": "classical-nahuatl-vnc-application-request",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    },
+    {
+      "contractKind": "classical-nahuatl-vnc-application-control-frame",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    },
+    {
+      "contractKind": "classical-nahuatl-vnc-application-result-frame",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    },
+    {
+      "contractKind": "classical-nahuatl-vnc-application-frame",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    },
+    {
+      "contractKind": "classical-nahuatl-vnc-application-service",
+      "version": 1,
+      "catalog": "src/core/grammar/contract_registry.mjs"
+    }
+  ],
+  "retirements": [
+    {
+      "id": "renderer-owned-single-voice-orchestration",
+      "status": "complete",
+      "removalEvidence": "No migrated Lesson 20-22 voice constructor remains in production rendering."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "renderer-single-voice-cutover",
+      "result": "Production rendering calls evaluateClassicalNahuatlVncApplication once and contains none of the five migrated Lesson 20-22 constructors."
+    },
+    {
+      "id": "renderer-metric-improvement",
+      "result": "Direct Classical construction calls decreased from 44 to 38 and optional Classical dependencies decreased from 37 to 31."
+    },
+    {
+      "id": "runtime-delivery",
+      "result": "Runtime manifests align at 72 index scripts, 70 browser scripts, 70 ESM modules, and 62 VM scripts; 65 generated wrappers are synchronized."
+    },
+    {
+      "id": "canvas-parity",
+      "result": "The Lessons 20-22 Canvas audit remains exact at 39 of 39 cases after the cutover."
+    },
+    {
+      "id": "full-runtime-suites",
+      "result": "The full classic and native-module suites each pass 3323 of 3323 tests across 53 suites."
+    },
+    {
+      "id": "live-classic-browser",
+      "result": "The live classic page authorizes passive chihua and renders #ti-0(chihua-lo)0+0-0#; the corrected registry and application assets emit no warning or error."
+    }
+  ],
+  "exceptions": [
+    {
+      "id": "grandfather-current-dirty-baseline",
+      "authorizedBy": "boss",
+      "scope": "Existing completed Lesson 20-23 and ordered-voice work in the dirty worktree.",
+      "status": "closed",
+      "expirationCondition": "The stabilization baseline is recorded after the shared application cutover.",
+      "removalEvidence": "Alignment baseline and next-lesson entry contract are green."
+    }
+  ],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "nextLessonEntryPoint": "src/application/classical/vnc_application.mjs:evaluateClassicalNahuatlVncApplication"
+  }
+}

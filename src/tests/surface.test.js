@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/output/surface.js
+ * Tests for src/core/output/surface.mjs
  * Covers: buildSurfaceChainState, getSurfaceChainSegmentValue, cloneSurfaceChainState,
  *         joinSurfaceChain, realizeSurfaceChain, endsWithAny.
  */

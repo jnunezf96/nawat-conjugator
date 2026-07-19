@@ -2,11 +2,10 @@
 
 const fs = require("fs");
 const path = require("path");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
 
-const scriptPath = path.join(ROOT, "script.js");
 const constantsPath = path.join(ROOT, "data", "static_constants.json");
 const phonologyPath = path.join(ROOT, "data", "static_phonology.json");
 const derivRulesPath = path.join(ROOT, "data", "static_derivational_rules.json");
@@ -83,8 +82,8 @@ function getCandidateVerbs(derivRules = {}) {
   return merged.filter((verb) => WIWA_SUFFIXES.some((suffix) => verb.endsWith(suffix)) && toSplitForm(verb));
 }
 
-try {
-  const { context } = createVmContext({ rootDir: ROOT, scriptPath });
+async function main() {
+  const { context } = await createModuleRuntime({ rootDir: ROOT });
 
   const constants = JSON.parse(fs.readFileSync(constantsPath, "utf8"));
   const phonology = JSON.parse(fs.readFileSync(phonologyPath, "utf8"));
@@ -160,9 +159,11 @@ try {
   };
 
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
-  process.exit(mismatches.length ? 1 : 0);
-} catch (error) {
+  process.exitCode = mismatches.length ? 1 : 0;
+}
+
+main().catch((error) => {
   const message = error && error.stack ? error.stack : String(error);
   process.stderr.write(`${message}\n`);
-  process.exit(1);
-}
+  process.exitCode = 1;
+});

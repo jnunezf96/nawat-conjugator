@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/vnc/allomorphy.js.
+// Canonical modern ESM module.
 
 export function createVncAllomorphyModule(targetObject = globalThis) {
     function normalizeVncAllomorphyContractSurfaceValue(value = "") {
@@ -2225,38 +2225,194 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         boundPrefix
       };
     }
-
-    // Strip the directional prefix and any bound/fusion prefixes from a rule base so
-    // that phonological rules operate on the bare verb root.
-    function stripNonactiveRuleBasePrefixes(base, verbMeta) {
-      if (!verbMeta || !base) {
-        return base;
-      }
-      let result = String(base);
-      if (verbMeta.directionalPrefix && result.startsWith(verbMeta.directionalPrefix)) {
-        result = result.slice(verbMeta.directionalPrefix.length);
+    function normalizeNonactiveRuleBasePrefixList(prefixes = []) {
+      return (Array.isArray(prefixes) ? prefixes : []).map(prefix => normalizeRuleBase(String(prefix || "").trim().toLowerCase())).filter(Boolean);
+    }
+    function getNonactiveRuleBasePrefixListFromMeta(verbMeta = null) {
+      if (!verbMeta || typeof verbMeta !== "object") {
+        return [];
       }
       const fusionPrefixes = Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [];
       const boundPrefixes = Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : [];
-      const allPrefixes = fusionPrefixes.length ? [...fusionPrefixes, ...boundPrefixes.filter(p => !fusionPrefixes.includes(p))] : boundPrefixes;
-      return allPrefixes.length ? stripLeadingPrefixes(result, allPrefixes) : result;
+      return normalizeNonactiveRuleBasePrefixList(fusionPrefixes.length ? [...fusionPrefixes, ...boundPrefixes.filter(p => !fusionPrefixes.includes(p))] : boundPrefixes);
+    }
+    function hasNonactiveRuleBasePrefixes(verbMeta = null) {
+      if (!verbMeta || typeof verbMeta !== "object") {
+        return false;
+      }
+      return Boolean(normalizeRuleBase(String(verbMeta.directionalPrefix || "").trim().toLowerCase()) || getNonactiveRuleBasePrefixListFromMeta(verbMeta).length);
+    }
+    function buildNonactiveRuleBasePrefixStripSourceFrame({
+      ruleBase = "",
+      directionalPrefix = "",
+      fusionPrefixes = [],
+      boundPrefixes = []
+    } = {}) {
+      const normalizedRuleBase = normalizeRuleBase(String(ruleBase || "").trim().toLowerCase());
+      const normalizedDirectionalPrefix = normalizeRuleBase(String(directionalPrefix || "").trim().toLowerCase());
+      const normalizedFusionPrefixes = normalizeNonactiveRuleBasePrefixList(fusionPrefixes);
+      const normalizedBoundPrefixes = normalizeNonactiveRuleBasePrefixList(boundPrefixes);
+      const orderedPrefixes = normalizedFusionPrefixes.length ? [...normalizedFusionPrefixes, ...normalizedBoundPrefixes.filter(prefix => !normalizedFusionPrefixes.includes(prefix))] : normalizedBoundPrefixes;
+      if (!normalizedRuleBase || !normalizedDirectionalPrefix && !orderedPrefixes.length) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "nonactive-rule-base-prefix-strip-source-frame",
+        version: 1,
+        routeFamily: "nonactive-rule-base",
+        operationFamily: "strip-prefixes",
+        ruleBaseFrame: Object.freeze({
+          role: "rule-base",
+          text: normalizedRuleBase
+        }),
+        directionalPrefixFrame: Object.freeze({
+          role: "directional-prefix",
+          text: normalizedDirectionalPrefix
+        }),
+        fusionPrefixFrames: Object.freeze(normalizedFusionPrefixes.map(prefix => Object.freeze({
+          role: "fusion-prefix",
+          text: prefix
+        }))),
+        boundPrefixFrames: Object.freeze(normalizedBoundPrefixes.map(prefix => Object.freeze({
+          role: "bound-prefix",
+          text: prefix
+        }))),
+        orderedPrefixFrames: Object.freeze(orderedPrefixes.map(prefix => Object.freeze({
+          role: "ordered-prefix",
+          text: prefix
+        }))),
+        sourceSignature: [normalizedRuleBase, normalizedDirectionalPrefix, normalizedFusionPrefixes.join("+"), normalizedBoundPrefixes.join("+"), orderedPrefixes.join("+")].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function buildNonactiveRuleBasePrefixStripSourceFrameFromMeta(ruleBase = "", verbMeta = null) {
+      if (!verbMeta || typeof verbMeta !== "object") {
+        return null;
+      }
+      return buildNonactiveRuleBasePrefixStripSourceFrame({
+        ruleBase,
+        directionalPrefix: verbMeta.directionalPrefix || "",
+        fusionPrefixes: Array.isArray(verbMeta.fusionPrefixes) ? verbMeta.fusionPrefixes : [],
+        boundPrefixes: Array.isArray(verbMeta.boundPrefixes) ? verbMeta.boundPrefixes : []
+      });
+    }
+    function deriveNonactiveRuleBasePrefixStripTarget(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-rule-base-prefix-strip-source-frame") {
+        return "";
+      }
+      let result = sourceFrame.ruleBaseFrame?.text || "";
+      const directionalPrefix = sourceFrame.directionalPrefixFrame?.text || "";
+      if (directionalPrefix && result.startsWith(directionalPrefix)) {
+        result = result.slice(directionalPrefix.length);
+      }
+      (Array.isArray(sourceFrame.orderedPrefixFrames) ? sourceFrame.orderedPrefixFrames : []).forEach(prefixFrame => {
+        const prefix = prefixFrame?.text || "";
+        if (prefix && result.startsWith(prefix)) {
+          result = result.slice(prefix.length);
+        }
+      });
+      return result;
+    }
+    function buildNonactiveRuleBasePrefixStripOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-rule-base-prefix-strip-source-frame") {
+        return null;
+      }
+      const targetRuleBase = deriveNonactiveRuleBasePrefixStripTarget(sourceFrame);
+      if (!targetRuleBase) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-nonactive-rule-base-prefix-strip",
+        routeFamily: "nonactive-rule-base",
+        routeStage: "resolve-rule-base",
+        operationApplied: "strip-directional-fusion-bound-prefixes",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "nonactive-rule-base-prefix-strip-target-frame",
+          targetRuleBase
+        }),
+        targetSignature: [sourceFrame.sourceSignature, targetRuleBase].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getNonactiveRuleBasePrefixStripFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null,
+      requestRuleBase = ""
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "nonactive-rule-base-prefix-strip-source-frame") {
+        return "source-frame-required";
+      }
+      const normalizedRequestRuleBase = normalizeRuleBase(String(requestRuleBase || "").trim().toLowerCase());
+      if (normalizedRequestRuleBase && normalizedRequestRuleBase !== sourceFrame.ruleBaseFrame?.text) {
+        return "contradictory-source-frame";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-nonactive-rule-base-prefix-strip" || operationFrame.routeFamily !== "nonactive-rule-base" || operationFrame.routeStage !== "resolve-rule-base" || operationFrame.operationApplied !== "strip-directional-fusion-bound-prefixes" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const targetRuleBase = deriveNonactiveRuleBasePrefixStripTarget(sourceFrame);
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "nonactive-rule-base-prefix-strip-target-frame" || operationFrame.targetFrame.targetRuleBase !== targetRuleBase || operationFrame.targetSignature !== `${sourceFrame.sourceSignature}|${targetRuleBase}`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+
+    // Strip the directional prefix and any bound/fusion prefixes from a rule base so
+    // that phonological rules operate on the bare verb root.
+    function stripNonactiveRuleBasePrefixes(base, verbMeta, {
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!verbMeta || !base) {
+        return base;
+      }
+      if (!hasNonactiveRuleBasePrefixes(verbMeta)) {
+        return normalizeRuleBase(String(base || "").trim().toLowerCase());
+      }
+      if (getNonactiveRuleBasePrefixStripFrameMismatch({
+        sourceFrame,
+        operationFrame,
+        requestRuleBase: base
+      })) {
+        return "";
+      }
+      return operationFrame.targetFrame.targetRuleBase || "";
+    }
+    function stripNonactiveRuleBasePrefixesFromSourceFrame(base, verbMeta) {
+      if (!hasNonactiveRuleBasePrefixes(verbMeta)) {
+        return normalizeRuleBase(String(base || "").trim().toLowerCase());
+      }
+      const sourceFrame = buildNonactiveRuleBasePrefixStripSourceFrameFromMeta(base, verbMeta);
+      const operationFrame = buildNonactiveRuleBasePrefixStripOperationFrame(sourceFrame);
+      return stripNonactiveRuleBasePrefixes(base, verbMeta, {
+        sourceFrame,
+        operationFrame
+      });
     }
     function resolveNonactiveRuleBase(source, verbMeta) {
       if (!source || !verbMeta) {
         return source;
       }
+      const hasRuleBasePrefixes = hasNonactiveRuleBasePrefixes(verbMeta);
       // Structural path: same model buildNonactiveRuleSourceContext uses internally.
       const structuralModel = targetObject.buildDerivationSourceModel(verbMeta, verbMeta?.sourceRawVerb || verbMeta?.verb || source, verbMeta?.analysisVerb || source);
       const structuralMatrixBase = normalizeRuleBase(structuralModel?.matrixBase || "");
       if (structuralMatrixBase) {
-        return structuralMatrixBase;
+        return hasRuleBasePrefixes ? normalizeRuleBase(stripNonactiveRuleBasePrefixesFromSourceFrame(structuralMatrixBase, verbMeta) || "") : structuralMatrixBase;
       }
       const canonicalRuleBase = verbMeta.canonicalRuleBase || verbMeta.canonical && verbMeta.canonical.ruleBase || "";
       if (canonicalRuleBase) {
-        return canonicalRuleBase;
+        return hasRuleBasePrefixes ? normalizeRuleBase(stripNonactiveRuleBasePrefixesFromSourceFrame(canonicalRuleBase, verbMeta) || "") : canonicalRuleBase;
       }
       const base = getDerivationRuleBase(source, verbMeta);
-      const stripped = stripNonactiveRuleBasePrefixes(base, verbMeta);
+      const stripped = stripNonactiveRuleBasePrefixesFromSourceFrame(base, verbMeta);
+      if (hasRuleBasePrefixes) {
+        return normalizeRuleBase(stripped || "");
+      }
       return normalizeRuleBase(stripped || source) || stripped || source;
     }
     function shouldForceAllNonactiveOptions() {
@@ -11036,7 +11192,8 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
       return candidates;
     }
     function getCurrentRegexOuterLexicalPrefix(rawValue = "") {
-      const model = targetObject.buildCurrentRegexDerivationSourceModel(rawValue);
+      const parseTree = targetObject.buildCurrentRegexDerivationSourceParseTree(rawValue);
+      const model = targetObject.buildCurrentRegexDerivationSourceModelFromParseTree(parseTree);
       if (!model || !Array.isArray(model.outerPieces)) {
         return "";
       }
@@ -13030,6 +13187,7 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     }
     function buildNonactiveRuleSourceContext(verb, analysisVerb, options = {}) {
       const verbMeta = options.nonactiveVerbMeta || options.verbMeta || options.parsedVerb || null;
+      const hasRuleBasePrefixes = hasNonactiveRuleBasePrefixes(verbMeta);
       const nonactiveSourceChain = options.nonactiveSourceChain && typeof options.nonactiveSourceChain === "object" ? options.nonactiveSourceChain : verbMeta ? targetObject.buildNonactiveSourceChain(verbMeta, verb, analysisVerb) : null;
       const sourceModel = nonactiveSourceChain?.model || null;
       const fallbackRuleBase = (() => {
@@ -13051,10 +13209,14 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
         }
         return normalizeRuleBase(verb || analysisVerb || "");
       })();
-      const matrixBase = normalizeDerivationStemValue(options.matrixBase || options.exactBaseVerb || verbMeta?.exactBaseVerb || sourceModel?.matrixBase || nonactiveSourceChain?.baseVerb || fallbackRuleBase);
-      const sourceStem = normalizeDerivationStemValue(options.sourceStem || matrixBase || fallbackRuleBase || verb || analysisVerb);
-      const analysisStem = normalizeDerivationStemValue(options.analysisStem || matrixBase || analysisVerb || verb || fallbackRuleBase);
-      const ruleBase = normalizeRuleBase(options.ruleBase || options.canonicalRuleBase || matrixBase || normalizeRuleBase(stripNonactiveRuleBasePrefixes(getDerivationRuleBase(fallbackRuleBase || verb || analysisVerb || "", verbMeta), verbMeta)) || sourceStem);
+      const fallbackDerivedRuleBase = getDerivationRuleBase(fallbackRuleBase || verb || analysisVerb || "", verbMeta);
+      const sourceModelRuleBase = normalizeRuleBase(sourceModel?.matrixBase || nonactiveSourceChain?.baseVerb || "");
+      const prefixStrippedSourceModelRuleBase = hasRuleBasePrefixes && sourceModelRuleBase ? stripNonactiveRuleBasePrefixesFromSourceFrame(sourceModelRuleBase, verbMeta) : sourceModelRuleBase;
+      const prefixStrippedFallbackRuleBase = hasRuleBasePrefixes ? stripNonactiveRuleBasePrefixesFromSourceFrame(fallbackDerivedRuleBase, verbMeta) : normalizeRuleBase(fallbackDerivedRuleBase || "");
+      const matrixBase = normalizeDerivationStemValue(options.matrixBase || options.exactBaseVerb || verbMeta?.exactBaseVerb || prefixStrippedSourceModelRuleBase || prefixStrippedFallbackRuleBase || (hasRuleBasePrefixes ? "" : fallbackRuleBase));
+      const sourceStem = normalizeDerivationStemValue(options.sourceStem || matrixBase || (hasRuleBasePrefixes ? "" : fallbackRuleBase) || (hasRuleBasePrefixes ? "" : verb) || (hasRuleBasePrefixes ? "" : analysisVerb));
+      const analysisStem = normalizeDerivationStemValue(options.analysisStem || matrixBase || (hasRuleBasePrefixes ? "" : analysisVerb) || (hasRuleBasePrefixes ? "" : verb) || (hasRuleBasePrefixes ? "" : fallbackRuleBase));
+      const ruleBase = normalizeRuleBase((hasRuleBasePrefixes ? "" : options.ruleBase) || (hasRuleBasePrefixes ? "" : options.canonicalRuleBase) || matrixBase || normalizeRuleBase(prefixStrippedFallbackRuleBase) || (hasRuleBasePrefixes ? "" : sourceStem));
       const supportiveLetter = targetObject.normalizeSupportiveMarkerValue(options.optionalSupportiveLetter || nonactiveSourceChain?.supportiveMarker || verbMeta?.optionalSupportiveLetter || (verbMeta?.hasOptionalSupportiveI === true ? "i" : ""));
       const realizationPolicy = verbMeta?.hasNonspecificValence ? {
         ...targetObject.FULL_SOURCE_CHAIN_REALIZATION_POLICY,
@@ -13811,7 +13973,16 @@ export function createVncAllomorphyModule(targetObject = globalThis) {
     api.getCanonicalRuleBaseFromOptions = getCanonicalRuleBaseFromOptions;
     api.getDerivationRuleBase = getDerivationRuleBase;
     api.buildDerivationRuleBaseOptions = buildDerivationRuleBaseOptions;
+    api.normalizeNonactiveRuleBasePrefixList = normalizeNonactiveRuleBasePrefixList;
+    api.getNonactiveRuleBasePrefixListFromMeta = getNonactiveRuleBasePrefixListFromMeta;
+    api.hasNonactiveRuleBasePrefixes = hasNonactiveRuleBasePrefixes;
+    api.buildNonactiveRuleBasePrefixStripSourceFrame = buildNonactiveRuleBasePrefixStripSourceFrame;
+    api.buildNonactiveRuleBasePrefixStripSourceFrameFromMeta = buildNonactiveRuleBasePrefixStripSourceFrameFromMeta;
+    api.deriveNonactiveRuleBasePrefixStripTarget = deriveNonactiveRuleBasePrefixStripTarget;
+    api.buildNonactiveRuleBasePrefixStripOperationFrame = buildNonactiveRuleBasePrefixStripOperationFrame;
+    api.getNonactiveRuleBasePrefixStripFrameMismatch = getNonactiveRuleBasePrefixStripFrameMismatch;
     api.stripNonactiveRuleBasePrefixes = stripNonactiveRuleBasePrefixes;
+    api.stripNonactiveRuleBasePrefixesFromSourceFrame = stripNonactiveRuleBasePrefixesFromSourceFrame;
     api.resolveNonactiveRuleBase = resolveNonactiveRuleBase;
     api.shouldForceAllNonactiveOptions = shouldForceAllNonactiveOptions;
     Object.defineProperty(api, "MORPH_STEM_SPEC_KIND", {

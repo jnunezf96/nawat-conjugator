@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/generation/runtime_support.js.
+// Canonical modern ESM module.
 
 export function createGenerationRuntimeSupportApi(targetObject = globalThis) {
     const GENERATE_RUNTIME_NO_OUTPUT_MESSAGE = "La generacion no produjo una forma.";

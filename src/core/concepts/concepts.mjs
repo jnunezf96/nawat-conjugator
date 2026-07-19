@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/concepts/concepts.js.
+// Canonical modern ESM module.
 
 export function createConceptsApi(targetObject = globalThis) {
     const CONCEPT_REGISTRY_VERSION = 1;

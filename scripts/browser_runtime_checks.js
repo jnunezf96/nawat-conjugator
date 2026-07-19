@@ -1059,7 +1059,9 @@
         cases.forEach((testCase) => {
             const normalizedInput = normalizeAuditValue(testCase.input);
             const parsed = parseVerbInput(normalizedInput);
-            const fullModel = buildCurrentRegexDerivationSourceModel(normalizedInput);
+            const fullModel = buildCurrentRegexDerivationSourceModelFromParseTree(
+                buildCurrentRegexDerivationSourceParseTree(normalizedInput)
+            );
             const fallbackModel = buildFallbackDerivationSourceModel(parsed, parsed?.verb || "", parsed?.analysisVerb || "");
             const fullShape = buildOperationFinderModelShape(fullModel);
             const fallbackShape = buildOperationFinderModelShape(fallbackModel);
@@ -1485,7 +1487,9 @@
                     testCase.templateSuffix
                 );
                 const parsed = parseVerbInput(bundle.regexValue);
-                const model = buildCurrentRegexDerivationSourceModel(bundle.regexValue);
+                const model = buildCurrentRegexDerivationSourceModelFromParseTree(
+                    buildCurrentRegexDerivationSourceParseTree(bundle.regexValue)
+                );
                 collector.equal(`${testCase.label} canonical stem`, parsed?.exactBaseVerb || "", expectedCanonicalStem);
                 collector.equal(`${testCase.label} source model matrix`, model?.matrixBase || "", expectedCanonicalStem);
                 collector.equal(`${testCase.label} transitivity`, model?.transitivity || "", testCase.transitivity);
@@ -1584,7 +1588,9 @@
         getOperationStableExpanseDerivationCases().forEach((testCase) => {
             const generatedResult = evaluateNominalDerivationCase(testCase);
             collector.equal(`${testCase.label} output`, String(generatedResult || ""), testCase.expected);
-            const sourceModel = buildCurrentRegexDerivationSourceModel(testCase.input);
+            const sourceModel = buildCurrentRegexDerivationSourceModelFromParseTree(
+                buildCurrentRegexDerivationSourceParseTree(testCase.input)
+            );
             derivationRecords.push({
                 label: testCase.label,
                 input: testCase.input,

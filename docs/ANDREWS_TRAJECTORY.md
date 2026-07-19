@@ -61,7 +61,7 @@ The completion report for each run must list every inspected subsection and sub-
 
 ## Registry Contract
 
-`src/lessons/registry.js` and `src/lessons/registry.mjs` carry the machine-readable trajectory for each lesson. Each trajectory records:
+`src/lessons/registry.mjs` and `src/lessons/registry.mjs` carry the machine-readable trajectory for each lesson. Each trajectory records:
 
 - `pdfRefs`: direct Andrews lesson or subsection references.
 - `directive`: the Andrews grammar rule that directs the implementation.

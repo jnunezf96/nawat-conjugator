@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/derivation/nonactive.js.
+// Canonical modern ESM module.
 
 export function createNonactiveDerivationApi(targetObject = globalThis) {
     function getPrimaryNonactiveSelectionStem(entry) {

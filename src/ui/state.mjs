@@ -1,4 +1,4 @@
-// Native wrapper generated from src/ui/state.js.
+// Canonical modern ESM module.
 
 export function createUiStateModule(targetObject = globalThis) {
     function getSubjectPersonSelections() {
@@ -14739,8 +14739,9 @@ export function createUiStateModule(targetObject = globalThis) {
       }
       const resolvedDiagnostics = Array.isArray(diagnostics) ? diagnostics : [...(Array.isArray(record.diagnostics) ? record.diagnostics : []), ...(Array.isArray(record.routeDiagnostics) ? record.routeDiagnostics : [])];
       const resolvedSourceStem = normalizeNawatDenominalContractSourceStem(sourceStem || record.sourceStem || record.source?.sourceStem || "");
-      const resolvedTargetStem = String(targetStem || record.targetVerbStem || record.targetInputValue || record.targetInput || "").trim();
-      const resolvedTargetInput = String(targetInput || record.targetInput || record.targetInputValue || record.targetVerbStem || "").trim();
+      const resolvedTargetStem = String(targetStem || record.targetVerbStem || "").trim();
+      const framedTargetInput = getNawatDenominalAndrewsRouteTargetInputFromFrames(record);
+      const resolvedTargetInput = String(targetInput || framedTargetInput || "").trim();
       const resolvedSourceEvidence = sourceEvidence && typeof sourceEvidence === "object" ? sourceEvidence : record.sourceEvidence && typeof record.sourceEvidence === "object" ? record.sourceEvidence : null;
       const suffixFrame = {
         classicalSuffixSequence: String(record.classicalSuffixSequence || "").trim(),
@@ -14780,6 +14781,8 @@ export function createUiStateModule(targetObject = globalThis) {
           targetInput: resolvedTargetInput,
           targetStemClass: record.targetStemClass || "",
           generationAllowed,
+          targetInputSourceFrame: record.targetInputSourceFrame || null,
+          targetInputOperationFrame: record.targetInputOperationFrame || null,
           finiteGenerationRequiresExplicitRequest: record.finiteGenerationRequiresExplicitRequest === true,
           finiteGenerationRequiresTargetTense: record.finiteGenerationRequiresTargetTense === true,
           finiteGenerationRequiresObjectPrefix: record.finiteGenerationRequiresObjectPrefix === true,
@@ -14846,6 +14849,140 @@ export function createUiStateModule(targetObject = globalThis) {
       }
       return wrapNawatRouteInputValue(target);
     }
+    function buildNawatDenominalAndrewsRouteTargetInputSegmentFrame(role = "", value = "") {
+      return Object.freeze({
+        kind: "nawat-denominal-andrews-route-target-input-segment-frame",
+        role: String(role || ""),
+        text: String(value || "").trim()
+      });
+    }
+    function buildNawatDenominalAndrewsRouteTargetInputSourceFrame({
+      sourceStem = "",
+      targetVerbStem = "",
+      suffix = null,
+      template = null,
+      contractId = "",
+      routeTemplateId = "",
+      executableRuleId = ""
+    } = {}) {
+      const normalizedSourceStem = normalizeNawatDenominalContractSourceStem(sourceStem);
+      const normalizedTargetVerbStem = String(targetVerbStem || "").trim();
+      if (!normalizedSourceStem || !normalizedTargetVerbStem) {
+        return null;
+      }
+      const targetValency = String(template?.targetValency || "").trim();
+      const segmentedPrefix = String(template?.segmentedPrefix || "").trim();
+      const segmentedSuffix = String(template?.segmentedSuffix || "").trim();
+      const nawatSurfaceSuffix = String(suffix?.nawatSurfaceSuffix || "").trim();
+      const classicalSuffixSequence = String(suffix?.classicalSuffixSequence || "").trim();
+      const nawatRuleSuffix = String(suffix?.nawatRuleSuffix || "").trim();
+      return Object.freeze({
+        kind: "nawat-denominal-andrews-route-target-input-source-frame",
+        version: 1,
+        routeFamily: "denominal-andrews-contract",
+        operationFamily: "target-input-realization",
+        contractId: String(contractId || "").trim(),
+        routeTemplateId: String(routeTemplateId || "").trim(),
+        executableRuleId: String(executableRuleId || "").trim(),
+        sourceStemFrame: buildNawatDenominalAndrewsRouteTargetInputSegmentFrame("source-stem", normalizedSourceStem),
+        targetVerbStemFrame: buildNawatDenominalAndrewsRouteTargetInputSegmentFrame("target-verbstem", normalizedTargetVerbStem),
+        suffixFrame: Object.freeze({
+          kind: "nawat-denominal-andrews-route-target-input-suffix-frame",
+          classicalSuffixSequence,
+          nawatRuleSuffix,
+          nawatSurfaceSuffix,
+          orthographyConversion: suffix?.orthographyConversion || null
+        }),
+        templateFrame: Object.freeze({
+          kind: "nawat-denominal-andrews-route-target-input-template-frame",
+          targetValency,
+          segmentedPrefix,
+          segmentedSuffix
+        }),
+        sourceSignature: [String(contractId || "").trim(), String(routeTemplateId || "").trim(), String(executableRuleId || "").trim(), normalizedSourceStem, normalizedTargetVerbStem, targetValency, segmentedPrefix, segmentedSuffix, classicalSuffixSequence, nawatRuleSuffix, nawatSurfaceSuffix].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function deriveNawatDenominalAndrewsRouteTargetInputFromSourceFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nawat-denominal-andrews-route-target-input-source-frame") {
+        return "";
+      }
+      const stem = sourceFrame.sourceStemFrame?.text || "";
+      const target = sourceFrame.targetVerbStemFrame?.text || "";
+      const targetValency = sourceFrame.templateFrame?.targetValency || "";
+      const segmentedPrefix = sourceFrame.templateFrame?.segmentedPrefix || "";
+      const segmentedSuffix = sourceFrame.templateFrame?.segmentedSuffix || "";
+      const suffix = sourceFrame.suffixFrame || {};
+      if (segmentedPrefix && segmentedSuffix) {
+        const nawatSegmentedPrefix = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(segmentedPrefix, {
+          source: "Andrews denominal segmented source suffix"
+        })?.output || segmentedPrefix : segmentedPrefix;
+        const nawatSegmentedSuffix = typeof targetObject.convertClassicalLettersToNawat === "function" ? targetObject.convertClassicalLettersToNawat(segmentedSuffix, {
+          source: "Andrews denominal segmented target suffix"
+        })?.output || segmentedSuffix : segmentedSuffix;
+        return `(${stem}${String(nawatSegmentedPrefix || "").replace(/-/g, "")})-(${String(nawatSegmentedSuffix || "").replace(/-/g, "")})`;
+      }
+      if (targetValency !== "intransitive" && stem && suffix.nawatSurfaceSuffix) {
+        return `(${stem})-(${suffix.nawatSurfaceSuffix})`;
+      }
+      return wrapNawatRouteInputValue(target);
+    }
+    function buildNawatDenominalAndrewsRouteTargetInputOperationFrame(sourceFrame = null) {
+      if (!sourceFrame || sourceFrame.kind !== "nawat-denominal-andrews-route-target-input-source-frame") {
+        return null;
+      }
+      const targetInput = deriveNawatDenominalAndrewsRouteTargetInputFromSourceFrame(sourceFrame);
+      if (!targetInput) {
+        return null;
+      }
+      return Object.freeze({
+        kind: "andrews-typed-operation-frame",
+        operationId: "andrews-denominal-contract-route-target-input-realization",
+        routeFamily: "denominal-andrews-contract",
+        routeStage: "realize-target-input",
+        operationApplied: "realize-target-input-from-denominal-route-frame",
+        sourceFrameKind: sourceFrame.kind,
+        sourceSignature: sourceFrame.sourceSignature,
+        targetFrame: Object.freeze({
+          kind: "nawat-denominal-andrews-route-target-input-target-frame",
+          targetInput,
+          targetVerbStem: sourceFrame.targetVerbStemFrame?.text || "",
+          targetValency: sourceFrame.templateFrame?.targetValency || ""
+        }),
+        targetSignature: [sourceFrame.sourceSignature, targetInput].join("|"),
+        consumesRenderedInput: false,
+        displayStringsAuthorizeGrammar: false
+      });
+    }
+    function getNawatDenominalAndrewsRouteTargetInputFrameMismatch({
+      sourceFrame = null,
+      operationFrame = null
+    } = {}) {
+      if (!sourceFrame || sourceFrame.kind !== "nawat-denominal-andrews-route-target-input-source-frame") {
+        return "source-frame-required";
+      }
+      if (!operationFrame || operationFrame.kind !== "andrews-typed-operation-frame" || operationFrame.operationId !== "andrews-denominal-contract-route-target-input-realization" || operationFrame.routeFamily !== "denominal-andrews-contract" || operationFrame.routeStage !== "realize-target-input" || operationFrame.operationApplied !== "realize-target-input-from-denominal-route-frame" || operationFrame.sourceFrameKind !== sourceFrame.kind || operationFrame.sourceSignature !== sourceFrame.sourceSignature || operationFrame.consumesRenderedInput !== false || operationFrame.displayStringsAuthorizeGrammar !== false) {
+        return "operation-frame-required";
+      }
+      const targetInput = deriveNawatDenominalAndrewsRouteTargetInputFromSourceFrame(sourceFrame);
+      const targetVerbStem = sourceFrame.targetVerbStemFrame?.text || "";
+      if (!operationFrame.targetFrame || operationFrame.targetFrame.kind !== "nawat-denominal-andrews-route-target-input-target-frame" || operationFrame.targetFrame.targetInput !== targetInput || operationFrame.targetFrame.targetVerbStem !== targetVerbStem || operationFrame.targetSignature !== `${sourceFrame.sourceSignature}|${targetInput}`) {
+        return "contradictory-target-frame";
+      }
+      return "";
+    }
+    function getNawatDenominalAndrewsRouteTargetInputFromFrames(route = null) {
+      const sourceFrame = route?.targetInputSourceFrame || null;
+      const operationFrame = route?.targetInputOperationFrame || null;
+      if (getNawatDenominalAndrewsRouteTargetInputFrameMismatch({
+        sourceFrame,
+        operationFrame
+      })) {
+        return "";
+      }
+      return operationFrame.targetFrame.targetInput || "";
+    }
     function buildNawatDenominalAndrewsContractRoute(contract = null, template = null, {
       sourceStem = "",
       sourceEvidence = null,
@@ -14891,12 +15028,32 @@ export function createUiStateModule(targetObject = globalThis) {
       const sourceContextPending = sourceRequirement.finiteGenerationRequiresSourceContext === true;
       const routeTargetBlocked = executableRuleBlocked && !(sourceContextPending && !hasResolvedSourceContext);
       const routeTargetVerbStem = routeTargetBlocked ? "" : executableRuleResult?.targetVerbStem || targetVerbStem;
-      const targetInputValue = routeTargetVerbStem ? formatNawatDenominalAndrewsContractTargetInput({
+      const targetInputSourceFrame = routeTargetVerbStem ? buildNawatDenominalAndrewsRouteTargetInputSourceFrame({
+        sourceStem: normalizedSourceStem,
+        targetVerbStem: routeTargetVerbStem,
+        suffix,
+        template,
+        contractId: contract.id,
+        routeTemplateId: template.id || "",
+        executableRuleId: executableRuleContract?.id || ""
+      }) : null;
+      const targetInputOperationFrame = buildNawatDenominalAndrewsRouteTargetInputOperationFrame(targetInputSourceFrame);
+      const targetInputValue = getNawatDenominalAndrewsRouteTargetInputFromFrames({
+        targetInputSourceFrame,
+        targetInputOperationFrame
+      });
+      if (routeTargetVerbStem && !targetInputValue) {
+        return null;
+      }
+      const legacyTargetInputValue = routeTargetVerbStem ? formatNawatDenominalAndrewsContractTargetInput({
         sourceStem: normalizedSourceStem,
         targetVerbStem: routeTargetVerbStem,
         suffix,
         template
       }) : "";
+      if (routeTargetVerbStem && legacyTargetInputValue && legacyTargetInputValue !== targetInputValue) {
+        return null;
+      }
       const objectSlotExpected = isNawatDenominalAndrewsContractRouteObjectSlotExpected({
         targetValency: template.targetValency || contract.valency || ""
       });
@@ -14942,6 +15099,8 @@ export function createUiStateModule(targetObject = globalThis) {
         targetVerbStem: routeTargetVerbStem,
         targetInputValue,
         targetInput: targetInputValue,
+        targetInputSourceFrame,
+        targetInputOperationFrame,
         orthographyConversion: suffix.orthographyConversion,
         currentRouteFamilies: contract.currentRouteFamilies,
         currentRouteIds: contract.currentRouteIds,
@@ -15053,7 +15212,7 @@ export function createUiStateModule(targetObject = globalThis) {
       silent = true,
       skipValidation = false
     } = {}) {
-      const targetInput = String(route?.targetInputValue || route?.targetInput || route?.targetVerbStem || "").trim();
+      const targetInput = getNawatDenominalAndrewsRouteTargetInputFromFrames(route);
       const requestedTense = String(targetTense || tense || "").trim();
       if (!route || !targetInput || !requestedTense) {
         return null;
@@ -15107,6 +15266,8 @@ export function createUiStateModule(targetObject = globalThis) {
           attestedMinoritySourceFinalLetters: Array.isArray(route.attestedMinoritySourceFinalLetters) ? route.attestedMinoritySourceFinalLetters : Array.isArray(route.boundaries?.attestedMinoritySourceFinalLetters) ? route.boundaries.attestedMinoritySourceFinalLetters : [],
           classicalSourceFinalPattern: route.classicalSourceFinalPattern || route.boundaries?.classicalSourceFinalPattern || null,
           targetInput,
+          targetInputSourceFrame: route.targetInputSourceFrame || null,
+          targetInputOperationFrame: route.targetInputOperationFrame || null,
           targetVerbStem: route.targetVerbStem || "",
           targetValency: route.targetValency || "",
           targetStemClass: route.targetStemClass || "",
@@ -15238,6 +15399,8 @@ export function createUiStateModule(targetObject = globalThis) {
         classicalSourceFinalPattern: request.denominalAndrewsContractRoute.classicalSourceFinalPattern,
         sourceRequirement: request.denominalAndrewsContractRoute.sourceRequirement,
         targetInput: request.denominalAndrewsContractRoute.targetInput,
+        targetInputSourceFrame: request.denominalAndrewsContractRoute.targetInputSourceFrame || null,
+        targetInputOperationFrame: request.denominalAndrewsContractRoute.targetInputOperationFrame || null,
         targetVerbStem: request.denominalAndrewsContractRoute.targetVerbStem,
         targetStemClass: request.denominalAndrewsContractRoute.targetStemClass,
         targetStemClassRule: request.denominalAndrewsContractRoute.targetStemClassRule,
@@ -15309,13 +15472,18 @@ export function createUiStateModule(targetObject = globalThis) {
     }
     let activeNawatDenominalAndrewsContractRouteContext = null;
     function getNawatDenominalAndrewsRouteComparableInputs(context = null) {
-      const targetInput = String(context?.targetInput || "").trim();
-      const targetVerbStem = String(context?.targetVerbStem || "").trim();
+      const targetInput = getNawatDenominalAndrewsRouteTargetInputFromFrames(context?.route);
+      const targetVerbStem = String(context?.route?.targetInputOperationFrame?.targetFrame?.targetVerbStem || "").trim();
       return [targetInput, targetVerbStem ? wrapNawatRouteInputValue(targetVerbStem) : "", targetVerbStem].filter(Boolean);
     }
     function setActiveNawatDenominalAndrewsContractRouteContext(route = null, request = null) {
       const contractRoute = request?.denominalAndrewsContractRoute || route;
       if (!contractRoute || typeof contractRoute !== "object") {
+        activeNawatDenominalAndrewsContractRouteContext = null;
+        return null;
+      }
+      const targetInput = getNawatDenominalAndrewsRouteTargetInputFromFrames(contractRoute);
+      if (!targetInput) {
         activeNawatDenominalAndrewsContractRouteContext = null;
         return null;
       }
@@ -15328,8 +15496,10 @@ export function createUiStateModule(targetObject = globalThis) {
         routeTemplateId: contractRoute.routeTemplateId || "",
         executableRuleId: contractRoute.executableRuleId || "",
         sourceStem: contractRoute.sourceStem || "",
-        targetInput: contractRoute.targetInput || "",
-        targetVerbStem: contractRoute.targetVerbStem || "",
+        targetInput,
+        targetVerbStem: contractRoute.targetInputOperationFrame?.targetFrame?.targetVerbStem || "",
+        targetInputSourceFrame: contractRoute.targetInputSourceFrame || null,
+        targetInputOperationFrame: contractRoute.targetInputOperationFrame || null,
         tense: contractRoute.tense || "",
         objectPrefix: contractRoute.objectPrefix || "",
         route: contractRoute,
@@ -20007,6 +20177,12 @@ export function createUiStateModule(targetObject = globalThis) {
     api.buildNawatDenominalAndrewsRouteDiagnostics = buildNawatDenominalAndrewsRouteDiagnostics;
     api.attachNawatDenominalAndrewsContractGrammarFrame = attachNawatDenominalAndrewsContractGrammarFrame;
     api.formatNawatDenominalAndrewsContractTargetInput = formatNawatDenominalAndrewsContractTargetInput;
+    api.buildNawatDenominalAndrewsRouteTargetInputSegmentFrame = buildNawatDenominalAndrewsRouteTargetInputSegmentFrame;
+    api.buildNawatDenominalAndrewsRouteTargetInputSourceFrame = buildNawatDenominalAndrewsRouteTargetInputSourceFrame;
+    api.deriveNawatDenominalAndrewsRouteTargetInputFromSourceFrame = deriveNawatDenominalAndrewsRouteTargetInputFromSourceFrame;
+    api.buildNawatDenominalAndrewsRouteTargetInputOperationFrame = buildNawatDenominalAndrewsRouteTargetInputOperationFrame;
+    api.getNawatDenominalAndrewsRouteTargetInputFrameMismatch = getNawatDenominalAndrewsRouteTargetInputFrameMismatch;
+    api.getNawatDenominalAndrewsRouteTargetInputFromFrames = getNawatDenominalAndrewsRouteTargetInputFromFrames;
     api.buildNawatDenominalAndrewsContractRoute = buildNawatDenominalAndrewsContractRoute;
     api.buildNawatDenominalAndrewsContractRouteGenerateWordRequest = buildNawatDenominalAndrewsContractRouteGenerateWordRequest;
     api.executeNawatDenominalAndrewsContractRoute = executeNawatDenominalAndrewsContractRoute;

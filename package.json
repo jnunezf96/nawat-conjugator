@@ -3,16 +3,31 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "audit:alignment": "node scripts/audit_shared_action_alignment.js",
+    "audit:lesson20": "node scripts/audit_classical_lesson20_nonactive_examples.js",
+    "audit:lessons20-22": "node scripts/audit_classical_lessons20_22_canvas_examples.js --summary",
+    "audit:lessons24-25:complete-examples": "node scripts/audit_classical_lessons24_25_complete_examples.js --summary",
+    "audit:lessons24-26:witnesses": "node scripts/audit_classical_lessons24_26_canvas_examples.js --summary",
+    "audit:lessons24-26:productive": "node scripts/audit_classical_lessons24_26_productive_rules.js --summary",
+    "audit:lesson26:complete-examples": "node scripts/audit_classical_lesson26_complete_examples.js --summary",
+    "audit:karttunen-derivations": "node scripts/audit_classical_karttunen_1992_derivation_evidence.js --summary",
+    "infer:karttunen-causative-boundaries": "node scripts/infer_classical_karttunen_1992_causative_boundaries.js",
+    "organize:karttunen-lessons24-26": "node scripts/organize_classical_karttunen_1992_lessons25_26_types.js",
+    "organize:karttunen-lessons25-26": "node scripts/organize_classical_karttunen_1992_lessons25_26_types.js",
     "check:data": "node scripts/check_grammar_data.js",
+    "check:runtime-manifest": "node scripts/check_runtime_manifest.js",
+    "smoke:browser": "node scripts/smoke_modern_browser.mjs",
     "test": "npm run check:data && node scripts/run_tests.js",
-    "test:module": "node scripts/run_tests.js --runtime=module",
     "test:morphology": "node scripts/operation_apply_morphology_audit.js",
-    "test:regression": "node scripts/run_intransitive_i_causative_regression.js"
-  },
-  "devDependencies": {
-    "@babel/generator": "^7.29.1",
-    "@babel/parser": "^7.29.2",
-    "@babel/traverse": "^7.29.0",
-    "@babel/types": "^7.29.0"
+    "test:regression": "node scripts/run_intransitive_i_causative_regression.js",
+    "verify:foundation": "npm run check:runtime-manifest && npm run audit:alignment && npm test",
+    "verify:canvas:lessons20-22": "npm run audit:lesson20 && npm run audit:lessons20-22",
+    "verify:canvas:lessons24-26": "npm run audit:lessons24-25:complete-examples && npm run audit:lessons24-26:witnesses && npm run audit:lessons24-26:productive && npm run audit:lesson26:complete-examples",
+    "verify:canvas": "npm run verify:canvas:lessons20-22 && npm run verify:canvas:lessons24-26",
+    "verify:evidence": "npm run audit:karttunen-derivations",
+    "verify:delivery": "npm run smoke:browser",
+    "verify:readiness": "node scripts/verify_readiness.mjs",
+    "verify:readiness:fresh": "node scripts/verify_readiness.mjs --fresh",
+    "verify:readiness:status": "node scripts/verify_readiness.mjs --status"
   }
 }

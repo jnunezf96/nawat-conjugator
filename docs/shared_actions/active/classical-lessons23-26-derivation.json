@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-lessons23-26-derivation",
+  "status": "complete",
+  "incentive": {
+    "id": "andrews-authority-with-typed-derived-structure",
+    "statement": "Preserve Andrews authority, typed source and target structure, hostile proof, single-runtime integrity, and live browser verification while adding causative and applicative generation.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Detect misalignment, add supporting actors without transferring accountability, coordinate closure, and route product-policy decisions to the boss.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Any typed, structurally analyzable source receives every productive Andrews Lesson 24-26 causative or applicative candidate licensed by its class, valence, final shape, nonactive history, and object depth; reviewed raw Karttunen 1992 causative, applicative, and nonactive correspondences may annotate coincident generated candidates as hyphen-insensitive, quantity-preserving lexical attestations but never authorize, construct, suppress, or select a route.",
+  "responsibilities": [
+    {
+      "id": "grammar-authority",
+      "statement": "Produce Andrews-authorized derivation options, source-operation-target frames, participant transforms, and derived VNC machinery.",
+      "paths": ["src/core/classical/", "src/core/grammar/", "src/core/vnc/allomorphy.mjs", "docs/CLASSICAL_", "docs/GRAMMAR_SPEC.md", "docs/ANDREWS_TRAJECTORY.md"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{
+        "actorId": "classical-derivation-engine",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Own the productive typed Lesson 24-26 candidate rules, exact lexical overlays, reused Lesson 23 object contract, and non-authorizing raw Karttunen evidence attachment after Lesson 20 or Lessons 24-26 candidate generation."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-orchestration",
+      "statement": "Normalize derivational intent, reject unsupported source profiles, and order source analysis, exact licensed derivation, then optional voice through one validated result.",
+      "paths": ["src/application/"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{
+        "actorId": "classical-application-boundary",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Own productive inventory selection, operation ordering, ambiguity handling, fail-closed result assembly, and distinct projection of the pre-causative nonactive bridge versus any later passive or impersonal nonactive formation."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "presentation",
+      "statement": "Expose genuine causative and applicative choices, render only the completed application result, and visualize its canonical Canvas and Andrews derivation projection without constructing grammar.",
+      "paths": ["src/ui/", "index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [{
+        "actorId": "classical-presentation",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Consume the validated application envelope, admit its application-owned explanation projection, and render formation, participant, scope, higher-layer, Canvas, and Karttunen evidence views without constructing grammar."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-delivery",
+      "statement": "Install each new capability once in the canonical modern ESM graph.",
+      "paths": ["src/runtime/", "src/node/", "src/bootstrap/", "scripts/check_runtime_manifest.js", "scripts/lib/runtime_manifest_check.js"],
+      "primaryActor": "runtime-delivery",
+      "actors": [{
+        "actorId": "runtime-delivery",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Keep one installer manifest and reject duplicate runtime lanes."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Independently prove grammar, hostile, application, UI, runtime, audit, and browser behavior.",
+      "paths": ["src/tests/", "scripts/audit_classical_", "scripts/browser_runtime_checks.js", "scripts/smoke_modern_browser.mjs", "package.json"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Maintain focused and full proof, including raw source-to-derivative direction, quantity-preserving hyphen-insensitive matching, no-license neutrality, and hostile evidence rejection, without becoming grammar authority."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Keep the active target, shared assignments, evidence tags, alignment policy, and board current.",
+      "paths": ["AGENTS.md", "docs/CODEX_BOARD.md", "docs/CURRENT_TARGET.md", "docs/shared_actions/", "docs/CLASSICAL_TRANSCRIPTION_RULE_TAGS.json", "config/", "scripts/audit_shared_action_alignment.js", "scripts/lib/shared_action_observer.js"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Coordinate the shared action and record closure evidence."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [
+    {"contractKind": "classical-nahuatl-vnc-derivation-option-inventory", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derivation-operation-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"},
+    {"contractKind": "classical-nahuatl-vnc-derived-machinery-frame", "version": 1, "catalog": "src/core/grammar/contract_registry.mjs"}
+  ],
+  "retirements": [
+    {
+      "id": "four-exact-derivation-route-whitelist",
+      "status": "complete",
+      "removalEvidence": "The productive 14-family audit derives unlisted causative and applicative sources from typed class, valence, segmentation, final shape, Lesson 20 formation, and signed history; exact witnesses and negatives only refine those categories."
+    },
+    {
+      "id": "application-future-intent-object-request-block",
+      "status": "complete",
+      "removalEvidence": "Normalized typed source object requests execute through the shared application boundary."
+    },
+    {
+      "id": "classical-forward-derivation-diagnostic-authority-gap",
+      "status": "complete",
+      "removalEvidence": "Classical output consumes the new typed derivation operation and never a Nawat stem pool or display-only forwardDerivationFrame."
+    }
+  ],
+  "evidence": [
+    {
+      "id": "productive-causative-and-applicative-routes",
+      "result": "The engine derives productive Lesson 24 type-one, Lesson 25 type-two, and Lesson 26 applicative candidate sets for unlisted typed sources. Exact tomi, tēmi, chihua, xeloa, final-o choices, the pil-i-hui negative, and the documented Lesson 26 occasional pa-tla and tla-zo-h-tla tl-to-t correspondences remain boundary-insensitive overlays rather than a lexical permission list. Lexical-key-equivalent exact and productive xeloa targets collapse to one user choice even under extra internal segmentation."
+    },
+    {
+      "id": "typed-participant-and-object-depth",
+      "result": "Derived machinery consumes canonically rebuilt typed source frames and reuses Lesson 23 ordering for zero-, one-, and two-object sources. A productive two-object source can reach the Andrews three-object ceiling; duplicate object ids and a fourth object fail closed."
+    },
+    {
+      "id": "hostile-authority-proof",
+      "result": "String-only, contradictory, forged-signature, caller-target, formula, surface, result, unavailable-capability, mixed-source, mixed-active, mixed-selected, mismatched final-slot, duplicate-object, participant-transform, lower-source, derivation-label, voice-selection, nested-control, blocked-authority, typed-envelope, and explanation-projection poison cannot authorize or survive into an admitted derivation explanation. Canonical voice clusters also fail when their target stem, promoted subject, or target tense does not match the validated voice context."
+    },
+    {
+      "id": "canvas-andrews-explanation-projection",
+      "result": "The canonical application envelope owns a deep-frozen, display-only projection of formation steps, source and target VNC profiles, participant history, Andrews scope, later finalization, reference dimensions, and Canvas evidence. The renderer validates that envelope before admission and the projection declares all grammar, formula-string, surface-string, and display-text authority false."
+    },
+    {
+      "id": "raw-karttunen-three-operation-overlay",
+      "result": "The supplied raw Karttunen column was conservatively audited as 1,779 unique explicit source-to-derivative relations: 695 applicatives, 276 causatives, and 808 nonactives. Runtime evidence contains only 837 exact quantity-preserving intersections with current Andrews outputs (452 applicatives, 88 causatives, and 297 nonactives), plus one no-license hostile fixture. Matching ignores hyphens and whitespace but not vowel quantity; normalized Traducción is never consulted."
+    },
+    {
+      "id": "canvas-formula-audit",
+      "result": "The Lessons 24-26 Canvas audit passes all 4 exact formulas with 4 typed operations, zero missing evidence tokens, and zero mismatches."
+    },
+    {
+      "id": "single-runtime-readiness",
+      "result": "The canonical ESM runtime passes 3369 of 3369 tests across 54 suites; the runtime manifest aligns at 1 browser entry and 73 of 73 modules/installers; the Lessons 20-22 audit passes 39 of 39, the Lessons 24-26 witness audit passes 4 of 4, all 14 productive families pass, the raw Karttunen evidence audit passes, alignment is green, and the approved direct-import browser smoke passes with typed authority."
+    },
+    {
+      "id": "browser-finalizer-proof",
+      "result": "Fresh-origin in-app proof accepts unlisted miqui and namaca. It presents mic-a, miqui-a, and mic-tia, authorizes selected mic-tia as #ni-0+c-0(mic-tih)0+⎕-0# / Nicmictih., automatically derives namaqui-lia as #ni-0+m-itz+0-0(namaqui-lih)0+⎕-0# / Nimitznamaquilih., displays both productive Canvas/Andrews explanations, and reports no warning or error. Fresh raw-evidence proof renders selected applicative CĀHU(A) → CĀHUILIĀ for entered cā-hua and generated cā-hui-liā, then a clean mayāna causative run renders separate selected-causative MAYĀN(A) → MAYĀNALTIĀ and Lesson 20 bridge MAYĀN(A) → MAYĀNALŌ rows. Every live lexical row has authority none and zero controls; the distinct later-voice path is also proven by canonical application and UI tests."
+    }
+  ],
+  "exceptions": [],
+  "closure": {
+    "remainingOldCallers": 0,
+    "oldAuthorityRemoved": true,
+    "verificationStatus": "complete",
+    "nextLessonEntryPoint": "src/application/classical/vnc_application.mjs:evaluateClassicalNahuatlVncApplication"
+  }
+}

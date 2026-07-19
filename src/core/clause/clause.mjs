@@ -1,4 +1,4 @@
-// Native wrapper generated from src/core/clause/clause.js.
+// Canonical modern ESM module.
 
 export function createClauseModule(targetObject = globalThis) {
     const NUCLEAR_CLAUSE_SHELL_VERSION = 1;

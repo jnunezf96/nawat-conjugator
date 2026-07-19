@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { createVmContext } = require("./lib/vm_harness");
+const { createModuleRuntime } = require("./lib/module_runtime");
 
 const ROOT = path.resolve(__dirname, "..");
 
@@ -107,15 +107,17 @@ function runRegression(context) {
   };
 }
 
-try {
-  const { context } = createVmContext({ rootDir: ROOT });
+async function main() {
+  const { context } = await createModuleRuntime({ rootDir: ROOT });
   applyStaticData(context);
 
   const summary = runRegression(context);
   process.stdout.write(`${JSON.stringify(summary, null, 2)}\n`);
-  process.exit(summary.failed ? 1 : 0);
-} catch (error) {
+  process.exitCode = summary.failed ? 1 : 0;
+}
+
+main().catch((error) => {
   const message = error && error.stack ? error.stack : String(error);
   process.stderr.write(`${message}\n`);
-  process.exit(1);
-}
+  process.exitCode = 1;
+});

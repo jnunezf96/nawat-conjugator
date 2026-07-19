@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * Tests for src/core/phonology/phonology.js
+ * Tests for src/core/phonology/phonology.mjs
  */
 
 const { createSuite } = require("./runner");

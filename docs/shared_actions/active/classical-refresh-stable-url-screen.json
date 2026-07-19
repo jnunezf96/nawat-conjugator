@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-refresh-stable-url-screen",
+  "status": "active",
+  "incentive": {
+    "id": "refresh-stable-navigation",
+    "statement": "A shareable entrada URL must restore its entered source, Source/Authority/Result screen, and Direct/Causative/Applicative derivative type.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate URL serialization, panel restoration, and focused proof.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Refreshing an entrada URL preserves the named source on the same active screen and derivative type while legacy URLs retain Source and Direct defaults.",
+  "responsibilities": [
+    {
+      "id": "url-panel-state",
+      "statement": "Extend the canonical entrada URL snapshot with the active panel and derivative type, restore both through their existing state setters, and synchronously flush derivative changes before an immediate refresh can race URL persistence.",
+      "paths": ["src/ui/composer/composer.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Serialize panel and derivative identity, restore both, and reuse their canonical change events."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove panel and derivative URL round-trip, legacy fallback, and refresh restoration wiring.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Add focused hostile URL-state assertions and run changed-path checks."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded target and closure evidence.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-refresh-stable-url-screen.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Keep navigation persistence separate from grammar authority."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [{
+    "id": "refresh-always-opens-source",
+    "status": "complete",
+    "removalEvidence": "Focused URL round-trip proof and live browser reloads retain the named entry on its screen and Causative derivative type; legacy URLs default to Source and Direct."
+  }],
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+      "detail": "Module UI filters passed 398/398 assertions, including Causative and Applicative URL round-trips, legacy Direct fallback, and synchronous derivative-click URL wiring; syntax checks and git diff --check passed."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+      "detail": "From name-only URLs, live Causative and Applicative clicks wrote their derivative segments synchronously; immediate reloads retained (chōca), screen/formula, and each active derivative control with zero warning/error logs."
+    },
+    {
+      "kind": "alignment",
+      "status": "pending-external-cleanup",
+      "detail": "Architecture metrics stayed at baseline; the gate remains open for pre-existing board-size debt and unrelated dirty paths and PDF artifacts outside this action."
+    }
+  ],
+  "exceptions": []
+}
