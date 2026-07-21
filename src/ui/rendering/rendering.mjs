@@ -154,9 +154,6 @@ export function createUiRenderingApi(targetObject = globalThis) {
         onlyTense,
         tense
       });
-      if (!targetObject.isThreeColumnPanelLayout() && verb) {
-        targetObject.setLeftPanelStackMode("output");
-      }
     }
     function isClassicalNahuatlMachineryActive() {
       if (typeof targetObject.getActiveLanguageProfileMode !== "function") {

@@ -67,7 +67,7 @@ import { installUiExportGlobals } from "../ui/export/export.mjs";
 import { installUiI18nGlobals } from "../ui/i18n/i18n.mjs";
 import { installUiEventsGlobals } from "../ui/events/events.mjs";
 import { installUiPanelsGlobals } from "../ui/panels/panels.mjs";
-import { installUiRenderingGlobals } from "../ui/rendering/rendering.mjs";
+import { installUiRenderingGlobals } from "../ui/rendering/rendering.mjs?v=20260721-panel-navigation-boundary-001";
 import { installUiStateGlobals } from "../ui/state.mjs";
 import { installCurriculumGlobals } from "../ui/curriculum/curriculum.mjs";
 import { installClassicalShellGlobals } from "../ui/shell/classical_shell.mjs";
