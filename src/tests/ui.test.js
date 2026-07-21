@@ -42,6 +42,7 @@ function run(ctx = {}) {
     const nncNames = fs.readFileSync(path.resolve(__dirname, "..", "core", "nnc", "names", "names.js"), "utf8");
     const analysis = fs.readFileSync(path.resolve(__dirname, "..", "core", "analysis", "analysis.js"), "utf8");
     const panels = fs.readFileSync(path.resolve(__dirname, "..", "ui", "panels", "panels.js"), "utf8");
+    const panelsModule = fs.readFileSync(path.resolve(__dirname, "..", "ui", "panels", "panels.mjs"), "utf8");
     const curriculum = fs.readFileSync(path.resolve(__dirname, "..", "ui", "curriculum", "curriculum.js"), "utf8");
     const tabsStart = html.indexOf('id="verb-entry-board-tabs"');
     const tabsEnd = html.indexOf('<div class="verb-block__utility-actions"', tabsStart);
@@ -63,6 +64,27 @@ function run(ctx = {}) {
     const entradaComposerCss = entradaComposerCssStart >= 0 && entradaComposerCssEnd > entradaComposerCssStart
         ? css.slice(entradaComposerCssStart, entradaComposerCssEnd)
         : "";
+
+    s.ok(
+        "the public website exposes only the Classical Nahuatl profile",
+        html.includes('<body class="is-language-classical">')
+            && !html.includes('class="language-profile-control"')
+            && !html.includes('id="language-profile-nawat-pipil"')
+            && !html.includes('data-language-profile="nawat-pipil"')
+            && !html.includes('>Nawat/Pipil<')
+            && !html.includes('class="interface-language-control"')
+            && !html.includes('aria-label="Use Nawat interface labels"')
+            && html.includes('data-classical-nahuatl-tab-authority="andrews-transcription"')
+            && html.includes('data-classical-nahuatl-orthography-policy="transcription-direct"')
+    );
+    s.ok(
+        "saved or hostile profile requests remain locked to Classical Nahuatl",
+        /function normalizeLanguageProfileMode[\s\S]{0,180}return classicalMode;/.test(panelsModule)
+            && /function getStoredLanguageProfileMode[\s\S]{0,120}return getDefaultLanguageProfileMode\(\);/.test(panelsModule)
+            && /function applyLanguageProfileMode[\s\S]{0,180}const nextMode = getDefaultLanguageProfileMode\(\);/.test(panelsModule)
+            && panelsModule.includes('body.classList.remove("is-language-nawat-pipil")')
+            && panelsModule.includes('body.classList.add("is-language-classical")')
+    );
 
     s.ok(
         "ordinary NNC S control lives in the composer entry board tabs",

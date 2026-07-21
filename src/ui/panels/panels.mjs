@@ -300,34 +300,16 @@ export function createUiPanelsContext(targetObject = globalThis) {
     }
     function normalizeLanguageProfileMode(mode = "") {
       const classicalMode = LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-      const nawatPipilMode = LANGUAGE_PROFILE_MODE?.nawatPipil || "nawat-pipil";
-      if (mode === classicalMode) {
-        return classicalMode;
-      }
-      return nawatPipilMode;
+      return classicalMode;
     }
     function getActiveLanguageProfileMode() {
-      if (targetObject.document.body?.classList.contains("is-language-classical")) {
-        return LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-      }
-      return LANGUAGE_PROFILE_MODE?.nawatPipil || "nawat-pipil";
+      return LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
     }
     function getDefaultLanguageProfileMode() {
       return LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
     }
     function getStoredLanguageProfileMode() {
-      try {
-        if (!targetObject.window.localStorage) {
-          return "";
-        }
-        const generation = targetObject.localStorage.getItem(LANGUAGE_PROFILE_STORAGE_GENERATION_KEY);
-        if (generation !== LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION) {
-          return "";
-        }
-        return normalizeLanguageProfileMode(targetObject.localStorage.getItem(targetObject.LANGUAGE_PROFILE_STORAGE_KEY) || "");
-      } catch {
-        return "";
-      }
+      return getDefaultLanguageProfileMode();
     }
     function getClassicalNahuatlTabAuthorityFrame(mode = getActiveLanguageProfileMode()) {
       const normalizedMode = normalizeLanguageProfileMode(mode);
@@ -616,12 +598,12 @@ export function createUiPanelsContext(targetObject = globalThis) {
     function applyLanguageProfileMode(mode = "", {
       persist = true
     } = {}) {
-      const nextMode = normalizeLanguageProfileMode(mode);
+      const nextMode = getDefaultLanguageProfileMode();
       const previousMode = getActiveLanguageProfileMode();
       const body = targetObject.document.body;
       if (body) {
-        body.classList.toggle("is-language-nawat-pipil", nextMode === (LANGUAGE_PROFILE_MODE?.nawatPipil || "nawat-pipil"));
-        body.classList.toggle("is-language-classical", nextMode === (LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl"));
+        body.classList.remove("is-language-nawat-pipil");
+        body.classList.add("is-language-classical");
       }
       const classicalAuthorityFrame = applyClassicalNahuatlTabAuthorityDataset(body, nextMode);
       getLanguageProfileButtons().forEach(button => {
