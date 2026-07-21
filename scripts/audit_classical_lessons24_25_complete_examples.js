@@ -454,13 +454,42 @@ function buildCanvasCitationSource(context, example, sourceStem, verbClass) {
     };
 }
 
+function buildCanvasCitationSourceVariants(context, example, sourceStem, verbClass) {
+    const active = buildCanvasCitationSource(context, example, sourceStem, verbClass);
+    const variants = [active];
+    // Andrews 24.8 derives a nonspecific causative object from an impersonal
+    // source VNC. Do not simulate that route with a caller-selected object
+    // kind on an active source.
+    if (active.sourceValence === "intransitive") {
+        const impersonalSource = buildTypedVncSource(context, {
+            sourceStem,
+            verbClass,
+            sourceObjectCount: 0,
+            sourceObjectKinds: [],
+            sourceVoice: "impersonal",
+            sourceNonactiveStem: "",
+            sourceSubject: "3sg",
+            sourceSpecificObjectPerson: "",
+        });
+        if (impersonalSource && context.isClassicalNahuatlVncDerivationSourceMachineryFrame(impersonalSource)) {
+            variants.push({
+                source: impersonalSource,
+                sourceValence: "intransitive",
+                sourceObjectRequests: [],
+            });
+        }
+    }
+    return variants;
+}
+
 function enumerateCanvasStemCitationRelations(context, example, derivationType = "causative") {
     const candidates = [];
     const attempts = [];
     for (const sourceStem of sourceCandidates(example)) {
         for (const verbClass of ["A", "B", "C", "D"]) {
             try {
-                const sourceBundle = buildCanvasCitationSource(context, example, sourceStem, verbClass);
+                const sourceBundles = buildCanvasCitationSourceVariants(context, example, sourceStem, verbClass);
+                for (const sourceBundle of sourceBundles) {
                 const { source, sourceValence, sourceObjectRequests } = sourceBundle;
                 const inventory = context.getClassicalNahuatlVncDerivationOptionInventory(source, { derivationType });
                 const inventoryCanonical = inventory.authorizationStatus === "authorized";
@@ -507,6 +536,7 @@ function enumerateCanvasStemCitationRelations(context, example, derivationType =
                         projection: possibility,
                         authorized: true,
                     });
+                }
                 }
             } catch (error) {
                 attempts.push({ sourceStem, verbClass, error: error.message });

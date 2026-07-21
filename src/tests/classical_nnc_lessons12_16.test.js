@@ -630,6 +630,26 @@ function run(ctx = {}) {
             contradictoryReason: "selected-class-contradicts-canvas-form-constraint",
         }
     );
+    s.eq(
+        "Lesson 14 class aliases normalize spelling but cannot manufacture selection provenance",
+        ["ti", "li", "null"].map((nounClass) => {
+            const stem = nounClass === "ti" ? "cihuā" : "cal";
+            const frame = ctx.buildClassicalNahuatlLesson14NounstemSourceFrame(stem, {
+                state: "absolutive",
+                nounClass,
+            });
+            return {
+                nounClass: frame.nounClass,
+                status: frame.authorizationStatus,
+                reason: frame.blockReason,
+            };
+        }),
+        [
+            { nounClass: "tl", status: "blocked", reason: "class-must-be-user-selected-or-supplied-by-external-lexical-record" },
+            { nounClass: "tli", status: "blocked", reason: "class-must-be-user-selected-or-supplied-by-external-lexical-record" },
+            { nounClass: "zero", status: "blocked", reason: "class-must-be-user-selected-or-supplied-by-external-lexical-record" },
+        ]
+    );
 
     s.eq(
         "Lesson 14 selects restricted versus general use and deletes only a tagged ephemeral vowel",

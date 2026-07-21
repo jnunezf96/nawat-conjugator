@@ -8020,6 +8020,77 @@ function run(ctx) {
         }
     );
 
+    s.eq(
+        "ordinary NNC noun-class contract keeps Nawat and Classical profiles distinct",
+        {
+            nawat: ctx.ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.nawat.values,
+            classical: ctx.ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.classical.values,
+            nawatTi: ctx.normalizeOrdinaryNncNounClassForProfile("ti", "nawat"),
+            classicalTi: ctx.normalizeOrdinaryNncNounClassForProfile("ti", "classical"),
+            bridge: ctx.ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.classical.values.map((value) => (
+                ctx.projectOrdinaryNncNounClass(value, { from: "classical", to: "nawat" })
+            )),
+        },
+        {
+            nawat: ["t", "ti", "in", "zero"],
+            classical: ["tl", "tli", "in", "zero"],
+            nawatTi: "ti",
+            classicalTi: "tl",
+            bridge: ["t", "ti", "in", "zero"],
+        }
+    );
+    s.eq(
+        "ordinary NNC noun-class inventory audit rejects a poisoned carrier",
+        [
+            ctx.buildOrdinaryNncNounClassControlInventoryValidationFrame({
+                nawatValues: ["t", "ti", "in", "zero"],
+                classicalValues: ["tl", "tli", "in", "zero"],
+                classicalLedgerValues: ["tl", "tli", "in", "zero"],
+            }),
+            ctx.buildOrdinaryNncNounClassControlInventoryValidationFrame({
+                nawatValues: ["t", "ti", "fabricated", "zero"],
+                classicalValues: ["tl", "tli", "in", "zero"],
+                classicalLedgerValues: ["tl", "tli", "in", "zero"],
+            }),
+        ].map((frame) => [frame.authorizationStatus, frame.nawatMatches, frame.classicalMatches, frame.classicalLedgerMatches]),
+        [
+            ["authorized", true, true, true],
+            ["blocked", false, true, true],
+        ]
+    );
+    s.eq(
+        "invalid explicit ordinary NNC class cannot inherit zero or fixture authority",
+        [
+            ctx.generateOrdinaryNncParadigm({ stem: "nemi", nounClass: "fabricated" }),
+            ctx.generateOrdinaryNncParadigm({ stem: "mistun", nounClass: "fabricated" }),
+        ].map((result) => ({
+            supported: result.supported,
+            result: result.result,
+            nounClass: result.nounClass,
+            diagnosticIds: result.diagnostics.map((entry) => entry.id),
+        })),
+        [
+            { supported: false, result: "", nounClass: "fabricated", diagnosticIds: ["ordinary-nnc-noun-class-not-recognized"] },
+            { supported: false, result: "", nounClass: "fabricated", diagnosticIds: ["ordinary-nnc-noun-class-not-recognized"] },
+        ]
+    );
+    s.eq(
+        "manually written ordinary NNC formula cannot manufacture zero-class authority",
+        (() => {
+            const result = ctx.generateOrdinaryNncParadigm({ stem: "(nemi)" });
+            return {
+                supported: result.supported,
+                result: result.result,
+                diagnosticIds: result.diagnostics.map((entry) => entry.id),
+            };
+        })(),
+        {
+            supported: false,
+            result: "",
+            diagnosticIds: ["ordinary-nnc-legacy-formula-string-blocked"],
+        }
+    );
+
     return s;
 }
 

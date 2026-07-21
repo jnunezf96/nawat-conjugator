@@ -1,5 +1,5 @@
-import { installClassicalNahuatlVncApplicationGlobals } from "../application/classical/vnc_application.mjs";
-import { installScriptRuntimeGlobals } from "../bootstrap/script_runtime.mjs?v=20260721-classical-public-runtime-001";
+import { installClassicalNahuatlVncApplicationGlobals } from "../application/classical/vnc_application.mjs?v=20260721-classical-public-runtime-002";
+import { installScriptRuntimeGlobals } from "../bootstrap/script_runtime.mjs?v=20260721-classical-public-runtime-002";
 import { installAnalysisGlobals } from "../core/analysis/analysis.mjs";
 import { installAgreementGlobals } from "../core/agreement/agreement.mjs";
 import { installAgreementDisplayGlobals } from "../core/agreement/display.mjs";
@@ -11,14 +11,14 @@ import { installClassicalNahuatlProfileWallGlobals } from "../core/classical/pro
 import { installClassicalNahuatlSourceStemInventoryGlobals } from "../core/classical/source_stem_inventory.mjs";
 import { installClassicalNahuatlLesson2OrthographyGlobals } from "../core/classical/lesson2_orthography.mjs";
 import { installClassicalNahuatlLesson3ParticlesGlobals } from "../core/classical/lesson3_particles.mjs";
-import { installClassicalNahuatlLesson4NuclearClauseGlobals } from "../core/classical/lesson4_nuclear_clause.mjs";
-import { installClassicalNahuatlNncLayerEvaluatorGlobals } from "../core/classical/nnc_layer_evaluator.mjs";
-import { installClassicalNahuatlVncLayerEvaluatorGlobals } from "../core/classical/vnc_layer_evaluator.mjs";
+import { installClassicalNahuatlLesson4NuclearClauseGlobals } from "../core/classical/lesson4_nuclear_clause.mjs?v=20260719-source-transitivity-contract-051";
+import { installClassicalNahuatlNncLayerEvaluatorGlobals } from "../core/classical/nnc_layer_evaluator.mjs?v=20260719-nnc-noun-class-contract-052";
+import { installClassicalNahuatlVncLayerEvaluatorGlobals } from "../core/classical/vnc_layer_evaluator.mjs?v=20260719-voice-contract-050";
 import { installClassicalNahuatlLesson5VncSubjectTenseGlobals } from "../core/classical/lesson5_vnc_subject_tense.mjs";
 import { installClassicalNahuatlLesson6TransitiveVncObjectGlobals } from "../core/classical/lesson6_transitive_vnc_object.mjs";
-import { installClassicalNahuatlLesson11IrregularVncGlobals } from "../core/classical/lesson11_irregular_vnc.mjs";
+import { installClassicalNahuatlLesson11IrregularVncGlobals } from "../core/classical/lesson11_irregular_vnc.mjs?v=20260719-voice-contract-050";
 import { installClassicalNahuatlLesson7VerbstemClassesGlobals } from "../core/classical/lesson7_verbstem_classes.mjs";
-import { installClassicalNahuatlVncDerivationEvaluatorGlobals } from "../core/classical/vnc_derivation_evaluator.mjs";
+import { installClassicalNahuatlVncDerivationEvaluatorGlobals } from "../core/classical/vnc_derivation_evaluator.mjs?v=20260719-derivation-type-contract-049";
 import { installClassicalNahuatlLesson25LaterLayersGlobals } from "../core/classical/lesson25_later_layers.mjs";
 import { installClauseGlobals } from "../core/clause/clause.mjs";
 import { installComplementClauseGlobals } from "../core/clause/complement/complement.mjs";
@@ -26,16 +26,16 @@ import { installConjunctionClauseGlobals } from "../core/clause/conjunction/conj
 import { installAdjectivalModificationGlobals } from "../core/clause/modification/modification.mjs";
 import { installComparisonGlobals } from "../core/comparison/comparison.mjs";
 import { installConceptsGlobals } from "../core/concepts/concepts.mjs";
-import { installDerivationSourceModelGlobals } from "../core/derivation/source_model.mjs";
+import { installDerivationSourceModelGlobals } from "../core/derivation/source_model.mjs?v=20260719-nnc-noun-class-contract-052";
 import { installFrequentativeGlobals } from "../core/derivation/frequentative/frequentative.mjs";
 import { installForwardDerivationRuntimeGlobals } from "../core/derivation/forward_runtime.mjs";
 import { installNonactiveDerivationGlobals } from "../core/derivation/nonactive.mjs";
-import { installGrammarContractRegistryGlobals } from "../core/grammar/contract_registry.mjs";
+import { installGrammarContractRegistryGlobals } from "../core/grammar/contract_registry.mjs?v=20260719-output-scope-contract-053";
 import { installGrammarFrameGlobals } from "../core/grammar/frame.mjs";
 import { installMorphologySupportGlobals } from "../core/generation/morphology_support.mjs";
 import { installGenerationEngineGlobals } from "../core/generation/engine.mjs";
 import { installMorphologyEngineGlobals } from "../core/generation/morphology_engine.mjs";
-import { installGenerationValencyGlobals } from "../core/generation/valency.mjs";
+import { installGenerationValencyGlobals } from "../core/generation/valency.mjs?v=20260719-source-transitivity-contract-051";
 import { installGenerationRequestGlobals } from "../core/generation/request.mjs";
 import { installGenerationRuntimeSupportGlobals } from "../core/generation/runtime_support.mjs";
 import { installIrregularGlobals } from "../core/irregulars/irregulars.mjs";
@@ -44,14 +44,15 @@ import { installNncCompoundGlobals } from "../core/nnc/compound/compound.mjs";
 import { installPersonalNameNncGlobals } from "../core/nnc/names/names.mjs";
 import { installNominalizationBoundaryGlobals } from "../core/nnc/nominalization/nominalization.mjs";
 import { installNumeralNncGlobals } from "../core/nnc/numerals/numerals.mjs";
-import { installNncGlobals } from "../core/nnc/nnc.mjs";
+import { installNncGlobals } from "../core/nnc/nnc.mjs?v=20260719-nnc-noun-class-contract-052";
 import { installPlaceGentilicNncGlobals } from "../core/nnc/place_gentilic/place_gentilic.mjs";
 import { installRelationalNncGlobals } from "../core/nnc/relational/relational.mjs";
 import { installOrthographyGlobals } from "../core/orthography/orthography.mjs";
 import { installParticlesGlobals } from "../core/particles/particles.mjs";
 import { installOutputSurfaceGlobals } from "../core/output/surface.mjs";
 import { installOutputProvenanceGlobals } from "../core/output/provenance.mjs";
-import { installParsingGlobals } from "../core/parsing/parsing.mjs?v=20260721-classical-public-runtime-001";
+import { installClassicalResultOutputScopeGlobals } from "../core/output/scope.mjs?v=20260719-output-scope-contract-053";
+import { installParsingGlobals } from "../core/parsing/parsing.mjs?v=20260721-classical-public-runtime-002";
 import { installSentenceGlobals } from "../core/sentence/sentence.mjs";
 import { installPhonologyGlobals } from "../core/phonology/phonology.mjs";
 import { installPreteritContextGlobals } from "../core/preterit/context.mjs";
@@ -61,16 +62,16 @@ import { installSearchRuntimeGlobals } from "../core/search/runtime.mjs?v=202607
 import { installAllomorphyGlobals } from "../core/vnc/allomorphy.mjs";
 import { installHonorificPejorativeGlobals } from "../core/vnc/honorific_pejorative/honorific_pejorative.mjs";
 import { installPurposiveGlobals } from "../core/vnc/purposive/purposive.mjs";
-import { installVncFacadeGlobals } from "../core/vnc/vnc.mjs";
-import { installUiComposerGlobals } from "../ui/composer/composer.mjs?v=20260721-classical-public-runtime-001";
+import { installVncFacadeGlobals } from "../core/vnc/vnc.mjs?v=20260721-classical-public-runtime-002";
+import { installUiComposerGlobals } from "../ui/composer/composer.mjs?v=20260721-classical-public-runtime-002";
 import { installUiExportGlobals } from "../ui/export/export.mjs";
-import { installUiI18nGlobals } from "../ui/i18n/i18n.mjs?v=20260721-classical-public-runtime-001";
-import { installUiEventsGlobals } from "../ui/events/events.mjs?v=20260721-classical-public-runtime-001";
-import { installUiPanelsGlobals } from "../ui/panels/panels.mjs?v=20260721-classical-public-runtime-001";
-import { installUiRenderingGlobals } from "../ui/rendering/rendering.mjs?v=20260721-classical-public-runtime-001";
-import { installUiStateGlobals } from "../ui/state.mjs?v=20260721-classical-public-runtime-001";
+import { installUiI18nGlobals } from "../ui/i18n/i18n.mjs";
+import { installUiEventsGlobals } from "../ui/events/events.mjs";
+import { installUiPanelsGlobals } from "../ui/panels/panels.mjs";
+import { installUiRenderingGlobals } from "../ui/rendering/rendering.mjs?v=20260721-classical-public-runtime-002";
+import { installUiStateGlobals } from "../ui/state.mjs?v=20260721-classical-public-runtime-002";
 import { installCurriculumGlobals } from "../ui/curriculum/curriculum.mjs";
-import { installClassicalShellGlobals } from "../ui/shell/classical_shell.mjs";
+import { installClassicalShellGlobals } from "../ui/shell/classical_shell.mjs?v=20260721-classical-public-runtime-002";
 import { installLessonRegistryGlobals } from "../lessons/registry.mjs";
 import { installAppendixRegistryGlobals } from "../appendices/registry.mjs";
 
@@ -120,6 +121,7 @@ export const RUNTIME_INSTALLERS = new Map([
     ["src/core/nnc/names/names.mjs", installPersonalNameNncGlobals],
     ["src/core/output/surface.mjs", installOutputSurfaceGlobals],
     ["src/core/output/provenance.mjs", installOutputProvenanceGlobals],
+    ["src/core/output/scope.mjs", installClassicalResultOutputScopeGlobals],
     ["src/core/parsing/parsing.mjs", installParsingGlobals],
     ["src/core/preterit/context.mjs", installPreteritContextGlobals],
     ["src/core/preterit/engine.mjs", installPreteritEngineGlobals],

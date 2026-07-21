@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-vnc-derivation-type-contract",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-derivation-intent-fails-closed",
+    "statement": "Direct, Causative, and Applicative must share one recognized-input contract, while source-specific Andrews authorization remains typed and an unknown derivation can never authorize a Direct result.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Consolidate the derivation-type protocol boundary without flattening contextual Andrews operation rules or unrelated derivation taxonomies.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "One core derivation-type vocabulary now governs engine recognition, application intent, general UI state, URL restoration, shell/Canvas parity, and hostile verification; unknown application, surface, and URL input fails closed.",
+  "responsibilities": [
+    {
+      "id": "grammar-contract",
+      "statement": "Own the canonical derivation-type vocabulary, recognition frame, control parity audit, and source-specific contextual authorization boundary.",
+      "paths": ["src/core/classical/vnc_derivation_evaluator.mjs", "src/core/grammar/contract_registry.mjs"],
+      "primaryActor": "classical-derivation-engine",
+      "actors": [{
+        "actorId": "classical-derivation-engine",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Exposed the canonical Direct/Causative/Applicative contract and registered its vocabulary, selection, and non-authorizing parity frames."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-gate",
+      "statement": "Retain unrecognized derivation intent diagnostically and block before a safe Direct layout fallback can become generated authority.",
+      "paths": ["src/application/classical/vnc_application.mjs"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{
+        "actorId": "classical-application-boundary",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Reused the core vocabulary and added the missing fail-closed application branch for unknown derivation intent."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "ui-url-boundary",
+      "statement": "Make surface normalization, general UI state, shell/Canvas records, and URL restoration consume or validate against the canonical contract.",
+      "paths": ["src/ui/composer/composer.mjs", "src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Derived DERIVATION_TYPE and URL/surface recognition from the core contract, blocked invalid URL application, and validated live button-to-Canvas-tag parity."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-verification",
+      "statement": "Deliver the changed module graph together and prove valid, invalid, restored, and poisoned derivation inputs.",
+      "paths": ["index.html", "src/browser/main.mjs", "src/bootstrap/bootstrap.mjs", "src/runtime/create_runtime.mjs", "src/tests/classical_vnc_application.test.js", "src/tests/classical_lesson11_application_continuity.test.js", "src/tests/grammar_contract_registry.test.js", "src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Added unknown-application, unknown-surface, shell/ledger poison, and unknown-URL proof; delivered entry 049 and completed live verification."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded slice and report the remaining comparison risks without claiming unrelated worktree paths.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-vnc-derivation-type-contract.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Recorded scope, evidence, contextual exclusions, and the required end-of-job risk reminder."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [{
+    "id": "classical-vnc-derivation-type-contract",
+    "status": "active",
+    "owner": "classical-derivation-engine",
+    "consumers": ["classical-application-boundary", "classical-ui", "classical-url-state", "verification"],
+    "invariant": "Only Direct, Causative, or Applicative can enter contextual Andrews authorization; safe layout fallbacks and evidence metadata never authorize an unrecognized request."
+  }],
+  "retirements": [{
+    "id": "unknown-derivation-normalized-to-authorized-direct",
+    "status": "complete",
+    "removalEvidence": "Application, surface, and URL hostile tests block fabricated derivation input, and live invalid URL restoration leaves the source unapplied with no formula."
+  }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Unknown derivation intent can no longer become an authorized Direct result, and repeated shell, renderer, URL, and test vocabularies no longer decide membership."
+  },
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+      "detail": "Application passed 31/31; Lesson 11 plus continuity passed 24/24; matched UI passed 407/407; grammar-contract registry passed 43/43; syntax, runtime manifest 75/75, JSON, and diff checks passed."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+      "detail": "Entry 049 reported authorized direct|causative|applicative button/Canvas parity; valid nemi Direct generated #ni-0(nemi)0+0-0#; fabricated URL derivation left Source unapplied, status blocked, formula empty, and logs clean."
+    },
+    {
+      "kind": "alignment",
+      "status": "passed-with-inherited-coordination-debt",
+      "detail": "All architecture metrics matched baseline, including unregistered contracts 200 versus 200. The command remains red for inherited live-board size and cross-action dirty-worktree overlap; no path attributable to this slice is uncovered within its own manifest."
+    }
+  ],
+  "exceptions": []
+}

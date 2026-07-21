@@ -1,5 +1,7 @@
 // Canonical modern ESM module.
 
+import { CLASSICAL_RESULT_OUTPUT_SCOPES } from "../output/scope.mjs?v=20260719-output-scope-contract-053";
+
 export function createGrammarContractRegistryModule(targetObject = globalThis) {
     var GRAMMAR_CONTRACT_REGISTRY_VERSION = 1;
     var GRAMMAR_CONTRACT_REGISTRY_STATE = new WeakMap();
@@ -334,6 +336,377 @@ export function createGrammarContractRegistryModule(targetObject = globalThis) {
       });
     }
     var DEFAULT_GRAMMAR_CONTRACT_DEFINITIONS = Object.freeze([Object.freeze({
+      contractKind: "ordinary-nnc-noun-class-vocabulary",
+      version: 1,
+      authorityRole: "canonical-profile-aware-ordinary-nnc-noun-class-vocabulary",
+      producer: "ordinary-nnc-engine",
+      consumers: ["ordinary-nnc-state", "ordinary-nnc-presentation", "classical-nnc-engine", "classical-url-state", "classical-verification"],
+      description: "Distinct ordered Nawat and Classical ordinary-NNC noun-class vocabularies with profile-specific aliases and an explicit orthographic bridge.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: frame?.profiles?.nawat?.values?.join("|") === "t|ti|in|zero" && frame?.profiles?.classical?.values?.join("|") === "tl|tli|in|zero",
+        diagnostic: "ordinary-nnc-noun-class-profile-vocabularies-invalid"
+      }, {
+        ok: frame?.nawatToClassical?.t === "tl" && frame?.nawatToClassical?.ti === "tli" && frame?.classicalToNawat?.tl === "t" && frame?.classicalToNawat?.tli === "ti",
+        diagnostic: "ordinary-nnc-noun-class-profile-bridge-invalid"
+      }, {
+        ok: frame?.profiles?.nawat?.aliases?.ti === "ti" && frame?.profiles?.classical?.aliases?.ti === "tl",
+        diagnostic: "ordinary-nnc-noun-class-profile-alias-separation-invalid"
+      }, {
+        ok: frame?.manuallyWrittenFormulaAuthority === false,
+        diagnostic: "ordinary-nnc-manual-formula-authority-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "ordinary-nnc-noun-class-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-profile-aware-noun-class-control-parity-audit",
+      producer: "ordinary-nnc-presentation",
+      consumers: ["ordinary-nnc-presentation", "classical-presentation", "classical-verification"],
+      description: "An exact parity audit of active Nawat Result controls and Classical shell and Canvas records against their distinct profiles.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "ordinary-nnc-noun-class-control-inventory-status-invalid"
+      }, {
+        ok: Array.isArray(frame?.expectedNawatValues) && Array.isArray(frame?.expectedClassicalValues) && Array.isArray(frame?.nawatValues) && Array.isArray(frame?.classicalValues) && Array.isArray(frame?.classicalLedgerValues),
+        diagnostic: "ordinary-nnc-noun-class-control-inventory-values-required"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.nawatMatches === true && frame?.classicalMatches === true && frame?.classicalLedgerMatches === true,
+        diagnostic: "authorized-ordinary-nnc-noun-class-control-inventory-invalid"
+      }, {
+        ok: frame?.controlsAndLedgerAreNotGrammarAuthority === true,
+        diagnostic: "ordinary-nnc-noun-class-control-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "ordinary-nnc-noun-class-selection-frame",
+      version: 1,
+      authorityRole: "typed-profile-aware-ordinary-nnc-noun-class-recognition",
+      producer: "ordinary-nnc-engine",
+      consumers: ["ordinary-nnc-engine", "ordinary-nnc-state", "ordinary-nnc-presentation", "classical-url-state", "classical-verification"],
+      description: "A typed selection that distinguishes absent, recognized, and invalid explicit class intent without granting raw formula strings authority.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked", "absent"].includes(frame?.authorizationStatus),
+        diagnostic: "ordinary-nnc-noun-class-selection-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.recognized === true && Boolean(frame?.normalizedValue),
+        diagnostic: "authorized-ordinary-nnc-noun-class-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || frame?.inputProvided === true && Boolean(frame?.requestedValue) && Boolean(frame?.blockReason) && frame?.normalizedValue === "",
+        diagnostic: "blocked-ordinary-nnc-noun-class-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "absent" || frame?.inputProvided === false,
+        diagnostic: "absent-ordinary-nnc-noun-class-selection-invalid"
+      }, {
+        ok: frame?.rawFormulaStringAuthority === false,
+        diagnostic: "ordinary-nnc-noun-class-selection-raw-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-semantic-input-vocabulary",
+      version: 1,
+      authorityRole: "canonical-semantic-vnc-input-vocabulary",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-lesson11-engine", "classical-presentation", "classical-verification"],
+      description: "The Andrews-authorized semantic VNC mood and tense vocabulary, kept distinct from morphological fillers.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: Array.isArray(frame?.moods) && frame.moods.length > 0 && Array.isArray(frame?.tenses) && frame.tenses.length > 0,
+        diagnostic: "semantic-vnc-vocabulary-moods-and-tenses-required"
+      }, {
+        ok: frame?.tensesByMood && frame.moods?.every(mood => Array.isArray(frame.tensesByMood[mood]) && frame.tensesByMood[mood].every(tense => frame.tenses.includes(tense))),
+        diagnostic: "semantic-vnc-vocabulary-mood-mapping-invalid"
+      }, {
+        ok: frame?.morphologicalFillersAreSeparate === true,
+        diagnostic: "semantic-vnc-vocabulary-morphological-separation-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-semantic-selection-frame",
+      version: 1,
+      authorityRole: "typed-semantic-vnc-selection-authorization",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-lesson11-engine", "classical-vnc-application-boundary", "classical-presentation", "classical-verification"],
+      description: "A fail-closed semantic mood and tense selection validated before lexeme-specific realization.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "semantic-vnc-selection-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || Boolean(frame?.mood && frame?.semanticTense && frame?.moodTenses?.includes(frame.semanticTense) && frame?.allowedSemanticTenses?.includes(frame.semanticTense)),
+        diagnostic: "authorized-semantic-vnc-selection-mood-and-tense-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || Boolean(frame?.blockReason),
+        diagnostic: "blocked-semantic-vnc-selection-reason-required"
+      }, {
+        ok: frame?.semanticTenseIsNotMorphologicalFiller === true,
+        diagnostic: "semantic-vnc-selection-morphological-separation-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-semantic-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-semantic-control-parity-audit",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-presentation", "classical-verification"],
+      description: "A parity audit proving shell controls and Canvas ledger tags reproduce the canonical semantic vocabulary without becoming grammar authority.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "semantic-vnc-control-inventory-status-invalid"
+      }, {
+        ok: Array.isArray(frame?.moodValues) && Array.isArray(frame?.tenseValues) && Array.isArray(frame?.expectedMoodValues) && Array.isArray(frame?.expectedTenseValues),
+        diagnostic: "semantic-vnc-control-inventory-values-required"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.moodInventoryMatches === true && frame?.tenseInventoryMatches === true && frame?.duplicateMoodValues?.length === 0 && frame?.duplicateTenseValues?.length === 0 && frame?.mismatchedAuthorityOptions?.length === 0,
+        diagnostic: "authorized-semantic-vnc-control-inventory-parity-invalid"
+      }, {
+        ok: frame?.shellAndLedgerAreNotGrammarAuthority === true,
+        diagnostic: "semantic-vnc-control-inventory-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "generation-source-transitivity-vocabulary",
+      version: 1,
+      authorityRole: "canonical-source-topology-vocabulary",
+      producer: "generation-valency-engine",
+      consumers: ["classical-lesson4", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "The ordered intransitive, transitive, and bitransitive source topology with A/B/C slots and vi/vt/vb aliases, separate from Canvas Valence authority.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: Array.isArray(frame?.sourceTransitivities) && frame.sourceTransitivities.join("|") === "intransitive|transitive|bitransitive",
+        diagnostic: "source-transitivity-vocabulary-invalid"
+      }, {
+        ok: frame?.aliases?.vi === "intransitive" && frame?.aliases?.vt === "transitive" && frame?.aliases?.vb === "bitransitive",
+        diagnostic: "source-transitivity-aliases-invalid"
+      }, {
+        ok: frame?.sourceSlotByTransitivity?.intransitive === "a" && frame?.sourceSlotByTransitivity?.transitive === "b" && frame?.sourceSlotByTransitivity?.bitransitive === "c",
+        diagnostic: "source-transitivity-slot-topology-invalid"
+      }, {
+        ok: frame?.structuralTopologyIsNotCanvasValenceAuthority === true,
+        diagnostic: "source-transitivity-canvas-valence-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "generation-source-transitivity-selection-frame",
+      version: 1,
+      authorityRole: "typed-source-topology-recognition",
+      producer: "generation-valency-engine",
+      consumers: ["classical-lesson4", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "A recognition frame that distinguishes absent structural input from valid and invalid explicit source transitivity.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked", "not-applicable"].includes(frame?.authorizationStatus),
+        diagnostic: "source-transitivity-selection-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.recognized === true && ["a", "b", "c"].includes(frame?.sourceSlotKey),
+        diagnostic: "authorized-source-transitivity-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || frame?.explicit === true && Boolean(frame?.blockReason) && frame?.sourceTransitivity === "" && frame?.sourceSlotKey === "",
+        diagnostic: "blocked-source-transitivity-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "not-applicable" || frame?.explicit === false && frame?.sourceTransitivity === "" && frame?.sourceSlotKey === "",
+        diagnostic: "absent-source-transitivity-selection-invalid"
+      }, {
+        ok: frame?.structuralTopologyIsNotCanvasValenceAuthority === true,
+        diagnostic: "source-transitivity-selection-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "generation-source-transitivity-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-source-topology-control-parity-audit",
+      producer: "classical-composer",
+      consumers: ["classical-presentation", "classical-verification"],
+      description: "An exact parity audit of three visible tab groups, the hidden state select, and A/B/C slot shells without granting those controls Canvas Valence authority.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked", "not-applicable"].includes(frame?.authorizationStatus),
+        diagnostic: "source-transitivity-control-inventory-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus === "not-applicable" || Array.isArray(frame?.expectedValues) && Array.isArray(frame?.visibleGroupValues) && Array.isArray(frame?.hiddenSelectValues) && Array.isArray(frame?.slotShellValues),
+        diagnostic: "source-transitivity-control-inventory-values-required"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.inventoryMatches === true && frame?.hiddenSelectMatches === true && frame?.visibleGroupsMatch === true && frame?.slotShellsMatch === true,
+        diagnostic: "authorized-source-transitivity-control-inventory-invalid"
+      }, {
+        ok: frame?.structuralControlsAreNotCanvasValenceAuthority === true,
+        diagnostic: "source-transitivity-control-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-derivation-type-vocabulary",
+      version: 1,
+      authorityRole: "canonical-vnc-derivation-type-vocabulary",
+      producer: "classical-vnc-derivation-evaluator",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "The shared Direct, Causative, and Applicative protocol vocabulary whose contextual authorization remains with the typed Andrews derivation evaluator.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: Array.isArray(frame?.derivationTypes) && frame.derivationTypes.length === 3 && frame.derivationTypes.includes(frame?.directType),
+        diagnostic: "vnc-derivation-type-vocabulary-invalid"
+      }, {
+        ok: Array.isArray(frame?.derivedTypes) && frame.derivedTypes.every(type => frame.derivationTypes.includes(type) && type !== frame.directType),
+        diagnostic: "vnc-derived-type-subset-invalid"
+      }, {
+        ok: frame?.contextualAuthorizationRemainsTyped === true,
+        diagnostic: "vnc-derivation-contextual-authorization-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-derivation-type-selection-frame",
+      version: 1,
+      authorityRole: "typed-vnc-derivation-type-recognition",
+      producer: "classical-vnc-derivation-evaluator",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "A fail-closed recognition frame for derivation type before typed source-specific causative or applicative authorization.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "vnc-derivation-type-selection-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.allowedDerivationTypes?.includes(frame?.derivationType),
+        diagnostic: "authorized-vnc-derivation-type-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || Boolean(frame?.blockReason) && frame?.derivationType === "",
+        diagnostic: "blocked-vnc-derivation-type-selection-invalid"
+      }, {
+        ok: frame?.contextualAuthorizationRemainsTyped === true,
+        diagnostic: "vnc-derivation-type-selection-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-derivation-type-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-vnc-derivation-control-parity-audit",
+      producer: "classical-vnc-derivation-evaluator",
+      consumers: ["classical-presentation", "classical-verification"],
+      description: "A parity audit of canonical derivation types, shell button values, and their Canvas evidence tags without granting grammar authority to the shell or ledger.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "vnc-derivation-control-inventory-status-invalid"
+      }, {
+        ok: Array.isArray(frame?.values) && Array.isArray(frame?.expectedValues),
+        diagnostic: "vnc-derivation-control-inventory-values-required"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.inventoryMatches === true && frame?.duplicateValues?.length === 0 && frame?.mismatchedAuthorityOptions?.length === 0,
+        diagnostic: "authorized-vnc-derivation-control-inventory-parity-invalid"
+      }, {
+        ok: frame?.shellAndLedgerAreNotGrammarAuthority === true,
+        diagnostic: "vnc-derivation-control-inventory-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-voice-vocabulary",
+      version: 1,
+      authorityRole: "canonical-vnc-voice-vocabulary",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "The ordered target-voice inventory and intentional causative source-voice subset, separate from higher ordered voice-layer operations.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: Array.isArray(frame?.targetVoices) && frame.targetVoices.length === 5 && Array.isArray(frame?.causativeSourceVoices) && frame.causativeSourceVoices.length === 3,
+        diagnostic: "vnc-voice-vocabulary-invalid"
+      }, {
+        ok: frame?.causativeSourceVoiceIsContextualSubset === true && frame.causativeSourceVoices.every(voice => frame.targetVoices.includes(voice)),
+        diagnostic: "vnc-causative-source-voice-subset-invalid"
+      }, {
+        ok: frame?.higherVoiceLayersAreSeparate === true,
+        diagnostic: "vnc-higher-voice-layer-separation-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-voice-selection-frame",
+      version: 1,
+      authorityRole: "typed-vnc-voice-recognition",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-verification"],
+      description: "A fail-closed target or causative-source voice recognition frame whose contextual availability remains application-derived.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["target", "causative-source"].includes(frame?.role) && ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "vnc-voice-selection-role-or-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.allowedVoices?.includes(frame?.voice),
+        diagnostic: "authorized-vnc-voice-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || Boolean(frame?.blockReason) && frame?.voice === "",
+        diagnostic: "blocked-vnc-voice-selection-invalid"
+      }, {
+        ok: frame?.contextualAvailabilityRemainsApplicationDerived === true,
+        diagnostic: "vnc-voice-contextual-availability-boundary-required"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-nahuatl-vnc-voice-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-vnc-voice-control-parity-audit",
+      producer: "classical-vnc-layer-evaluator",
+      consumers: ["classical-presentation", "classical-url-state", "classical-verification"],
+      description: "A parity audit of ordered target/source voice controls and Canvas evidence tags, preserving entrada v1 positional meaning without granting UI authority.",
+      requiredCapabilities: ["classical-vnc-derivation-evaluator"],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "vnc-voice-control-inventory-status-invalid"
+      }, {
+        ok: Array.isArray(frame?.targetValues) && Array.isArray(frame?.sourceValues) && Array.isArray(frame?.expectedTargetValues) && Array.isArray(frame?.expectedSourceValues),
+        diagnostic: "vnc-voice-control-inventory-values-required"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.targetInventoryMatches === true && frame?.sourceInventoryMatches === true && frame?.duplicateTargetValues?.length === 0 && frame?.duplicateSourceValues?.length === 0 && frame?.mismatchedAuthorityOptions?.length === 0,
+        diagnostic: "authorized-vnc-voice-control-inventory-parity-invalid"
+      }, {
+        ok: frame?.shellAndLedgerAreNotGrammarAuthority === true,
+        diagnostic: "vnc-voice-control-inventory-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-result-output-scope-vocabulary",
+      version: 1,
+      authorityRole: "canonical-result-projection-vocabulary",
+      producer: "classical-output-scope-contract",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "The shared ordered single/paradigm Result vocabulary whose NNC and VNC paradigm builders remain role-specific.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: Array.isArray(frame?.outputScopes)
+          && frame.outputScopes.length === CLASSICAL_RESULT_OUTPUT_SCOPES.length
+          && frame.outputScopes.every((scope, index) => scope === CLASSICAL_RESULT_OUTPUT_SCOPES[index]),
+        diagnostic: "classical-result-output-scope-vocabulary-invalid"
+      }, {
+        ok: frame?.absentDefaultsToSingle === true && frame?.invalidExplicitInputBlocks === true,
+        diagnostic: "classical-result-output-scope-default-or-block-boundary-invalid"
+      }, {
+        ok: frame?.roleSpecificParadigmBuildersRemainSeparate === true && frame?.shellCanvasAndUrlAreNotGrammarAuthority === true,
+        diagnostic: "classical-result-output-scope-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-result-output-scope-selection-frame",
+      version: 1,
+      authorityRole: "typed-result-projection-scope-recognition",
+      producer: "classical-output-scope-contract",
+      consumers: ["classical-vnc-application-boundary", "classical-presentation", "classical-url-state", "classical-verification"],
+      description: "A typed scope frame that defaults absent intent to single and blocks malformed explicit intent.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["nnc", "vnc", ""].includes(frame?.role) && ["authorized", "blocked"].includes(frame?.authorizationStatus),
+        diagnostic: "classical-result-output-scope-selection-role-or-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || CLASSICAL_RESULT_OUTPUT_SCOPES.includes(frame?.outputScope),
+        diagnostic: "authorized-classical-result-output-scope-selection-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "blocked" || frame?.explicit === true && frame?.outputScope === "" && Boolean(frame?.blockReason),
+        diagnostic: "blocked-classical-result-output-scope-selection-invalid"
+      }, {
+        ok: frame?.presentationScopeCannotAuthorizeGrammar === true && frame?.roleSpecificParadigmBuildersRemainSeparate === true,
+        diagnostic: "classical-result-output-scope-selection-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
+      contractKind: "classical-result-output-scope-control-inventory-validation-frame",
+      version: 1,
+      authorityRole: "non-authorizing-result-scope-control-parity-audit",
+      producer: "classical-presentation",
+      consumers: ["classical-verification"],
+      description: "An exact ordered shell and Canvas-ledger parity audit for NNC and VNC Result scope controls.",
+      requiredCapabilities: [],
+      validator: frame => buildGrammarContractValidationResult([{
+        ok: ["authorized", "blocked", "not-applicable"].includes(frame?.authorizationStatus),
+        diagnostic: "classical-result-output-scope-control-inventory-status-invalid"
+      }, {
+        ok: frame?.authorizationStatus !== "authorized" || frame?.shellMatches === true && frame?.ledgerMatches === true && frame?.duplicateShellKeys?.length === 0 && frame?.duplicateLedgerKeys?.length === 0,
+        diagnostic: "authorized-classical-result-output-scope-control-inventory-invalid"
+      }, {
+        ok: frame?.shellCanvasAndUrlAreNotGrammarAuthority === true && frame?.roleSpecificParadigmBuildersRemainSeparate === true,
+        diagnostic: "classical-result-output-scope-control-inventory-authority-boundary-invalid"
+      }])
+    }), Object.freeze({
       contractKind: "classical-nahuatl-vnc-application-request",
       version: 1,
       authorityRole: "normalized-user-intent",
@@ -347,6 +720,10 @@ export function createGrammarContractRegistryModule(targetObject = globalThis) {
       }, {
         ok: typeof frame?.voice === "string",
         diagnostic: "application-request-selected-voice-required"
+      }, {
+        ok: frame?.outputScopeSelectionFrame?.kind === "classical-result-output-scope-selection-frame"
+          && frame?.requestedOutputScopeRecognized === (frame.outputScopeSelectionFrame.authorizationStatus === "authorized"),
+        diagnostic: "application-request-output-scope-selection-frame-required"
       }, {
         ok: frame?.callerSuppliedDerivedAuthorityAllowed === false,
         diagnostic: "application-request-caller-authority-must-be-disabled"

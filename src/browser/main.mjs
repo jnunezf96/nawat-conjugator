@@ -1,4 +1,4 @@
-import { bootstrapBrowserApp } from "../bootstrap/bootstrap.mjs?v=20260721-classical-public-runtime-001";
+import { bootstrapBrowserApp } from "../bootstrap/bootstrap.mjs?v=20260721-classical-public-runtime-002";
 
 const bootstrapPromise = bootstrapBrowserApp();
 

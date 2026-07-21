@@ -1864,11 +1864,9 @@ export function createDerivationSourceModelContext(targetObject = globalThis) {
       };
     }
     function normalizeOrdinaryNounOwnerhoodNounClass(nounClass = "") {
-      const normalized = String(nounClass || "").trim().toLowerCase();
-      if (normalized === "0" || normalized === "ø") {
-        return "zero";
-      }
-      return ["t", "ti", "in", "zero"].includes(normalized) ? normalized : "";
+      return typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+        ? targetObject.normalizeOrdinaryNncNounClassForProfile(nounClass, "nawat")
+        : "";
     }
     function resolveOrdinaryNounOwnerhoodMatrixSpec(matrixRoot = "") {
       const normalizedRoot = String(matrixRoot || "").trim().toLowerCase();
@@ -2247,8 +2245,8 @@ export function createDerivationSourceModelContext(targetObject = globalThis) {
       if (!normalizedStem) {
         return "";
       }
-      const normalizedClass = String(nounClass || "").trim();
-      const connector = ["t", "ti", "in"].includes(normalizedClass) ? normalizedClass : "";
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass);
+      const connector = normalizedClass === "zero" ? "" : normalizedClass;
       return `(${normalizedStem})${connector}`;
     }
     function buildNominalCompoundOrdinaryNncRequest({
@@ -2264,7 +2262,7 @@ export function createDerivationSourceModelContext(targetObject = globalThis) {
       if (!normalizedStem) {
         return null;
       }
-      const normalizedClass = String(nounClass || "zero").trim() || "zero";
+      const normalizedClass = normalizeOrdinaryNounOwnerhoodNounClass(nounClass || "zero") || "zero";
       const normalizedAnimacy = String(animacy || "inanimate").trim() || "inanimate";
       return {
         stem: normalizedStem,

@@ -15,6 +15,47 @@ export function createNncApi(targetObject = globalThis) {
       ordinary: "ordinary",
       organic: "organic"
     });
+    const ORDINARY_NNC_NOUN_CLASS_CONTRACT = Object.freeze({
+      kind: "ordinary-nnc-noun-class-vocabulary",
+      version: 1,
+      profiles: Object.freeze({
+        nawat: Object.freeze({
+          id: "nawat",
+          values: Object.freeze(["t", "ti", "in", "zero"]),
+          aliases: Object.freeze({
+            t: "t",
+            ti: "ti",
+            in: "in",
+            zero: "zero",
+            "0": "zero",
+            "ø": "zero"
+          }),
+          displayLabels: Object.freeze({ t: "t", ti: "ti", in: "in", zero: "Ø" })
+        }),
+        classical: Object.freeze({
+          id: "classical",
+          values: Object.freeze(["tl", "tli", "in", "zero"]),
+          aliases: Object.freeze({
+            tl: "tl",
+            ti: "tl",
+            tli: "tli",
+            tliclass: "tli",
+            li: "tli",
+            in: "in",
+            inclass: "in",
+            zero: "zero",
+            "0": "zero",
+            "ø": "zero",
+            null: "zero"
+          }),
+          displayLabels: Object.freeze({ tl: "tl", tli: "tli / li", in: "in", zero: "0" })
+        })
+      }),
+      classicalToNawat: Object.freeze({ tl: "t", tli: "ti", in: "in", zero: "zero" }),
+      nawatToClassical: Object.freeze({ t: "tl", ti: "tli", in: "in", zero: "zero" }),
+      contextualExclusions: Object.freeze(["class-form-guidance", "tl-tli-subclass", "number-dyad", "surface-allomorph", "pronominal-nnc-category", "lexical-fixture-authority"]),
+      manuallyWrittenFormulaAuthority: false
+    });
     const ORDINARY_NNC_DIAGNOSTIC_IDS = Object.freeze({
       unsupportedStem: "ordinary-nnc-unsupported-stem",
       unsupportedState: "ordinary-nnc-unsupported-state",
@@ -23,6 +64,7 @@ export function createNncApi(targetObject = globalThis) {
       unsupportedNumber: "ordinary-nnc-unsupported-number",
       unsupportedPluralType: "ordinary-nnc-unsupported-plural-type",
       unsupportedSubject: "ordinary-nnc-unsupported-subject",
+      unsupportedNounClass: "ordinary-nnc-noun-class-not-recognized",
       nounClassMismatch: "ordinary-nnc-noun-class-mismatch",
       classStemIncompatible: "ordinary-nnc-class-stem-incompatible",
       legacyFormulaStringBlocked: "ordinary-nnc-legacy-formula-string-blocked",
@@ -37,6 +79,89 @@ export function createNncApi(targetObject = globalThis) {
       possessiveStateMonadicContradictoryFrame: "possessive-state-nnc-monadic-contradictory-frame",
       resultTextMissingTypedOperationFrame: "ordinary-nnc-result-text-missing-typed-operation-frame"
     });
+    function normalizeOrdinaryNncNounClassForProfile(value = "", profile = "nawat") {
+      const profileContract = ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles[String(profile || "nawat").trim().toLowerCase()];
+      if (!profileContract) {
+        return "";
+      }
+      const normalized = normalizeOrdinaryNncText(value).replace(/[\s_-]/gu, "");
+      return profileContract.aliases[normalized] || "";
+    }
+    function buildOrdinaryNncNounClassSelectionFrame(value = "", {
+      profile = "nawat",
+      explicit = null,
+      provenance = ""
+    } = {}) {
+      const requestedValue = String(value ?? "").trim();
+      const inputProvided = explicit === null ? Boolean(requestedValue) : explicit === true;
+      const normalizedValue = normalizeOrdinaryNncNounClassForProfile(requestedValue, profile);
+      const recognized = Boolean(normalizedValue);
+      const authorizationStatus = !inputProvided ? "absent" : recognized ? "authorized" : "blocked";
+      return Object.freeze({
+        kind: "ordinary-nnc-noun-class-selection-frame",
+        version: 1,
+        profile: String(profile || "nawat").trim().toLowerCase(),
+        requestedValue,
+        normalizedValue,
+        recognized,
+        inputProvided,
+        provenance: String(provenance || ""),
+        authorizationStatus,
+        blockReason: authorizationStatus === "blocked" ? "ordinary-nnc-noun-class-not-recognized" : "",
+        rawFormulaStringAuthority: false
+      });
+    }
+    function projectOrdinaryNncNounClass(value = "", {
+      from = "nawat",
+      to = "classical"
+    } = {}) {
+      const normalized = normalizeOrdinaryNncNounClassForProfile(value, from);
+      if (!normalized) {
+        return "";
+      }
+      if (from === to) {
+        return normalized;
+      }
+      if (from === "nawat" && to === "classical") {
+        return ORDINARY_NNC_NOUN_CLASS_CONTRACT.nawatToClassical[normalized] || "";
+      }
+      if (from === "classical" && to === "nawat") {
+        return ORDINARY_NNC_NOUN_CLASS_CONTRACT.classicalToNawat[normalized] || "";
+      }
+      return "";
+    }
+    function buildOrdinaryNncNounClassControlInventoryValidationFrame({
+      nawatValues = [],
+      classicalValues = [],
+      classicalLedgerValues = []
+    } = {}) {
+      const expectedNawatValues = Array.from(ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.nawat.values);
+      const expectedClassicalValues = Array.from(ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.classical.values);
+      const normalizeList = values => Array.isArray(values) ? values.map(value => String(value || "").trim()).filter(Boolean) : [];
+      const actualNawatValues = normalizeList(nawatValues);
+      const actualClassicalValues = normalizeList(classicalValues);
+      const actualClassicalLedgerValues = normalizeList(classicalLedgerValues);
+      const same = (left, right) => left.length === right.length && left.every((value, index) => value === right[index]);
+      const nawatMatches = same(actualNawatValues, expectedNawatValues);
+      const classicalMatches = same(actualClassicalValues, expectedClassicalValues);
+      const classicalLedgerMatches = same(actualClassicalLedgerValues, expectedClassicalValues);
+      const authorizationStatus = nawatMatches && classicalMatches && classicalLedgerMatches ? "authorized" : "blocked";
+      return Object.freeze({
+        kind: "ordinary-nnc-noun-class-control-inventory-validation-frame",
+        version: 1,
+        authorizationStatus,
+        blockReason: authorizationStatus === "blocked" ? "ordinary-nnc-noun-class-control-inventory-mismatch" : "",
+        expectedNawatValues: Object.freeze(expectedNawatValues),
+        expectedClassicalValues: Object.freeze(expectedClassicalValues),
+        nawatValues: Object.freeze(actualNawatValues),
+        classicalValues: Object.freeze(actualClassicalValues),
+        classicalLedgerValues: Object.freeze(actualClassicalLedgerValues),
+        nawatMatches,
+        classicalMatches,
+        classicalLedgerMatches,
+        controlsAndLedgerAreNotGrammarAuthority: true
+      });
+    }
     const NNC_LESSON12_VALIDATION_REFS = Object.freeze(["src/tests/nnc.test.js", "src/tests/registry.test.js", "docs/GRAMMAR_SPEC.md"]);
     const NNC_LESSON12_PDF_REFS = Object.freeze(["Andrews Lesson 12.1", "Andrews Lesson 12.2", "Andrews Lesson 12.3", "Andrews Lesson 12.4", "Andrews Lesson 12.5", "Andrews Lesson 12.6", "Andrews Lesson 12.7"]);
     const NNC_LESSON12_FORMULA_CONTRAST_FRAME = Object.freeze({
@@ -510,7 +635,7 @@ export function createNncApi(targetObject = globalThis) {
       inAndZeroNotNumerous: true,
       alternativeClassMembershipPossible: true,
       supportiveInitialVowelMayHaveVariantWithoutVowel: true,
-      currentEngineClasses: Object.freeze(["t", "ti", "in", "zero"]),
+      currentEngineClasses: ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.nawat.values,
       currentEngineBoundary: "class/stem-final compatibility is enforced; lexical class membership and alternatives remain source-gated",
       generationAllowed: false
     });
@@ -1816,7 +1941,7 @@ export function createNncApi(targetObject = globalThis) {
         possessiveSingularCommonFrame,
         constituentAnalysisFrame,
         currentEngineBoundary: {
-          currentNawatClasses: ["t", "ti", "in", "zero"],
+          currentNawatClasses: Array.from(ORDINARY_NNC_NOUN_CLASS_CONTRACT.profiles.nawat.values),
           classStemCompatibilityEnforced: true,
           completeLexicalClassInventory: false,
           completeUseStemAlternation: false,
@@ -4776,11 +4901,7 @@ export function createNncApi(targetObject = globalThis) {
       };
     }
     function normalizeOrdinaryNncNum1Num2Class(nounClass = "") {
-      const normalized = normalizeOrdinaryNncText(nounClass);
-      if (normalized === "0" || normalized === "ø" || normalized === "zero") {
-        return "zero";
-      }
-      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+      return normalizeOrdinaryNncNounClassForProfile(nounClass, "nawat");
     }
     function formatOrdinaryNncNum1Num2Class(nounClass = "") {
       const normalized = normalizeOrdinaryNncNum1Num2Class(nounClass);
@@ -4791,7 +4912,7 @@ export function createNncApi(targetObject = globalThis) {
       if (normalized === "zero") {
         return "";
       }
-      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+      return normalized;
     }
     function formatOrdinaryNncFormulaDyadSegment(value = "") {
       const normalized = String(value || "").trim();
@@ -5701,7 +5822,13 @@ export function createNncApi(targetObject = globalThis) {
       const structuralNounClass = getOrdinaryNncRequestFormulaSlotNounClass(requestFormulaSlots);
       const plainStem = normalizeOrdinaryNncText(stem).replace(/[()#]/g, "");
       const normalizedStem = structuralStem || (hasLegacyFormulaString ? "" : plainStem);
-      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || structuralNounClass || "");
+      const rawRequestedNounClass = nounClass || structuralNounClass || "";
+      const nounClassSelectionFrame = buildOrdinaryNncNounClassSelectionFrame(rawRequestedNounClass, {
+        profile: "nawat",
+        explicit: Boolean(String(rawRequestedNounClass || "").trim()),
+        provenance: nounClass ? "request" : structuralNounClass ? "andrews-formula-slots" : "absent"
+      });
+      const requestedNounClass = nounClassSelectionFrame.normalizedValue;
       let resolvedSubject = resolveOrdinaryNncSubject(subject);
       const resolvedPossessor = resolveOrdinaryNncPossessor(possessor, possessivePrefix);
       const normalizedState = normalizeOrdinaryNncState(state, resolvedPossessor);
@@ -5709,6 +5836,19 @@ export function createNncApi(targetObject = globalThis) {
       const normalizedPluralType = normalizeOrdinaryNncPluralType(pluralType);
       const normalizedPossessionKind = normalizeOrdinaryNncPossessionKind(possessionKind || stateCase || possessionType);
       const legacyConflictsWithSlots = Boolean(hasLegacyFormulaString && legacyFormulaInput && requestFormulaSlots && (structuralStem && legacyFormulaInput.stem && structuralStem !== legacyFormulaInput.stem || structuralNounClass && legacyFormulaInput.nounClass && structuralNounClass !== legacyFormulaInput.nounClass));
+      if (nounClassSelectionFrame.authorizationStatus === "blocked") {
+        return buildOrdinaryNncUnsupportedResult({
+          stem: normalizedStem || plainStem,
+          state: normalizedState,
+          number: normalizedNumber,
+          pluralType: normalizedNumber === "plural" ? normalizedPluralType : "",
+          subject: resolvedSubject,
+          possessor: resolvedPossessor?.unsupported ? null : resolvedPossessor,
+          nounClass: nounClassSelectionFrame.requestedValue,
+          animacy,
+          diagnostic: buildOrdinaryNncDiagnostic(ORDINARY_NNC_DIAGNOSTIC_IDS.unsupportedNounClass, `Ordinary NNC noun class "${nounClassSelectionFrame.requestedValue}" is not recognized for the Nawat profile.`)
+        });
+      }
       if (hasLegacyFormulaString && !requestFormulaSlots || legacyConflictsWithSlots) {
         const diagnosticId = legacyConflictsWithSlots ? ORDINARY_NNC_DIAGNOSTIC_IDS.legacyFormulaStringConflictsWithSlots : ORDINARY_NNC_DIAGNOSTIC_IDS.legacyFormulaStringBlocked;
         const diagnosticMessage = legacyConflictsWithSlots ? "Ordinary NNC generation rejected a formula-looking string because it conflicts with the supplied Andrews formula slots." : "Ordinary NNC generation no longer lets formula-looking strings authorize or infer grammar; pass Andrews formula slots or a route contract instead.";
@@ -6483,8 +6623,25 @@ export function createNncApi(targetObject = globalThis) {
     } = {}) {
       const analogueInput = parseOrdinaryNncPredicateFormulaInput(stem);
       const hasLegacyFormulaString = isOrdinaryNncLegacyFormulaString(stem);
-      const requestedNounClass = normalizeOrdinaryNncNum1Num2Class(nounClass || analogueInput?.nounClass || "");
+      const rawRequestedNounClass = nounClass || analogueInput?.nounClass || "";
+      const nounClassSelectionFrame = buildOrdinaryNncNounClassSelectionFrame(rawRequestedNounClass, {
+        profile: "nawat",
+        explicit: Boolean(String(rawRequestedNounClass || "").trim()),
+        provenance: nounClass ? "paradigm-set-request" : analogueInput?.nounClass ? "diagnostic-formula-input" : "absent"
+      });
+      const requestedNounClass = nounClassSelectionFrame.normalizedValue;
       const normalizedStem = analogueInput?.stem || (hasLegacyFormulaString ? "" : normalizeOrdinaryNncText(stem).replace(/[()]/g, ""));
+      if (nounClassSelectionFrame.authorizationStatus === "blocked") {
+        const directResult = generateOrdinaryNncParadigm({ stem, nounClass: rawRequestedNounClass, animacy });
+        return buildOrdinaryNncParadigmSetResult({
+          supported: false,
+          stem: normalizedStem,
+          nounClass: nounClassSelectionFrame.requestedValue,
+          entries: [],
+          diagnostics: directResult.diagnostics || [],
+          source: null
+        });
+      }
       const fixture = findOrdinaryNncFixture(normalizedStem) || buildOrdinaryNncOpenStemFixture(normalizedStem, {
         nounClass: requestedNounClass,
         animacy
@@ -9785,6 +9942,15 @@ export function createNncApi(targetObject = globalThis) {
     api.normalizeOrdinaryNncNum1Num2Class = normalizeOrdinaryNncNum1Num2Class;
     api.formatOrdinaryNncNum1Num2Class = formatOrdinaryNncNum1Num2Class;
     api.getOrdinaryNncNum1Num2Surface = getOrdinaryNncNum1Num2Surface;
+    api.normalizeOrdinaryNncNounClassForProfile = normalizeOrdinaryNncNounClassForProfile;
+    api.buildOrdinaryNncNounClassSelectionFrame = buildOrdinaryNncNounClassSelectionFrame;
+    api.projectOrdinaryNncNounClass = projectOrdinaryNncNounClass;
+    api.buildOrdinaryNncNounClassControlInventoryValidationFrame = buildOrdinaryNncNounClassControlInventoryValidationFrame;
+    Object.defineProperty(api, "ORDINARY_NNC_NOUN_CLASS_CONTRACT", {
+      configurable: true,
+      enumerable: true,
+      get() { return ORDINARY_NNC_NOUN_CLASS_CONTRACT; }
+    });
     api.formatOrdinaryNncFormulaDyadSegment = formatOrdinaryNncFormulaDyadSegment;
     api.buildOrdinaryNncNum1Num2Dyad = buildOrdinaryNncNum1Num2Dyad;
     api.parseOrdinaryNncPredicateFormulaInput = parseOrdinaryNncPredicateFormulaInput;

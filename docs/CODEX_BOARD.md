@@ -22,6 +22,153 @@
 - Classical lesson layering rule: lower Canvas lessons authorize identity, allowed variants, witnesses, and provisional VNC/NNC outputs; higher Canvas lessons authorize environment, placement, scope, sentence force, and final boundary conditions. Selected output is final only after the highest active Canvas layer for the requested surface has been applied.
 - Prefer small, tested patches over broad redesign.
 - Do not make ordinary NNC generation automatic unless the user explicitly changes that contract.
+- At the end of every bounded job, report whether all main findings from the active comparison have been risk-averted. If not, name the remaining findings and do not imply full closure.
+
+## Completed Phase: Canonical Classical Result Output-Scope Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Established one typed ordered `single|paradigm` Result vocabulary with separate exact NNC and VNC control/tag records.
+- Preserved distinct paradigm semantics: NNC state/subject/possessor/relation/number enumeration and VNC valence/subject/mood/tense enumeration with its active-only voice gate.
+- Distinguished absent scope from malformed explicit scope across application, rendering, state, and URL restoration; malformed values no longer inherit `single`, stale DOM, or a less restrictive voice path.
+- Added literal VNC `/vnc-output/` persistence for both Direct and derived routes while retaining the old positional capsule as non-authorizing compatibility input.
+- Derived Result shell and Canvas inventory proof from the contract; contextual sentence, particle, person, directional, and role-specific dimension inventories remain separate.
+
+Validation:
+
+- VNC passed `214/214`; NNC `458/458`; state `413/413`; UI `413/413`; registry `43/43`; derivation `224/224`; orthography `41/41`; runtime `9/9`.
+- Runtime manifest passed with one browser entry and `76/76` modules/installers; syntax and residual-duplicate scans passed.
+- Live entry `053` restored VNC and NNC paradigm URLs, kept the inactive role at `single`, rejected fabricated VNC scope to the clean default, and logged no warnings/errors. Populated VNC generation remains covered by focused tests because the full paradigm exceeded the in-app verification tab's resource boundary.
+- Alignment architecture metrics matched baseline exactly. The repository command remains red for the inherited 607-line live board and cross-action dirty-worktree overlap; the shared-action manifest therefore remains active pending external coordination, without an output-scope-attributable regression.
+- Main-finding risk status: all six comparison findings are risk-averted. Contextual sentence modes, Lesson 9 particles/modifiers, person inventories, directionals, and role-specific paradigm dimensions remain intentionally separate.
+
+## Completed Phase: Canonical Ordinary-NNC Noun-Class Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Established one profile-aware typed contract for Nawat `t|ti|in|zero`, Classical `tl|tli|in|zero`, their profile-specific aliases, and the exact spelling bridge `tl→t`, `tli→ti`, `in→in`, `zero→zero`.
+- Preserved the context-sensitive distinction that `ti` is canonical Nawat `ti` but a Classical alias for `tl`; retained `li` as a Classical alias/allomorph of `tli`, not a fifth class.
+- Distinguished absent class intent from malformed explicit intent. Unknown direct, fixture-backed, or restored `/s-class/` and `/cn-class/` input now fails closed instead of inheriting zero, `tl`, or a fixture class.
+- Removed the dormant duplicate composer class selector and derived the active Result selector, Classical normalization, state, URL handling, and inventory validation from the contract.
+- Kept manual parenthesized source text available, but stopped its suffix from manufacturing noun-class provenance. Generation requires a separately typed class selection or lexical fixture authority.
+- Preserved contextual Classical form guidance, subclasses, number dyads, surface allomorphs, pronominal NNC categories, and fixture authority as separate concerns.
+
+Validation:
+
+- Ordinary and Classical NNC passed `458/458`; state `411/411`; UI `411/411`; derivation `224/224`; Classical VNC application `32/32`; orthography `41/41`; grammar registry `43/43`; runtime `9/9`.
+- Runtime manifest remained one browser entry and `75/75` modules/installers; syntax, JSON, and diff checks passed.
+- Live entry `052` showed exact Nawat `t/ti/in/zero` and separate Classical `tl/tli/in/zero` controls and Canvas tags. `(nemi)` selected no noun class by itself; an explicit typed class and animacy remained a separate valid authorization path.
+- A forged `/s-class/fabricated` URL created no fabricated control or fallback class. Alignment architecture metrics matched baseline exactly; the command remains red for inherited board-size and cross-action worktree overlap, with no noun-class-attributable regression.
+- Main-finding risk status: tense/mood, derivation type, voice, source transitivity, and ordinary NNC noun class are risk-averted. Output-scope duplication remains open.
+
+## Completed Phase: Canonical Source-Transitivity Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Established one generation-valency contract for ordered Intransitive/Transitive/Bitransitive source topology, A/B/C slot identity, and the `vi/vt/vb` aliases.
+- Preserved the intentional distinction between non-authorizing structural source topology, the six-value Canvas Valence authority, and Lesson 4's binary intransitive/transitive formula grouping.
+- Replaced composer URL and renderer handwritten recognition with the typed contract.
+- Closed invalid override fallthrough, malformed `/tr/` restoration, composer invalid-to-slot-A serialization, and Lesson 4 invalid-to-intransitive authorization.
+- Kept the hidden select as a compatibility mirror: recognized values can reflect state, but poisoned hidden DOM cannot authorize or block grammar.
+
+Validation:
+
+- UI passed `411/411`; state/orthography/inline composer passed `462/462`; VNC passed `213/213`; application/registry passed `75/75`.
+- Runtime manifest remained one browser entry and `75/75` modules/installers; syntax, manifest JSON, and diff checks passed.
+- Lessons 20–22 retained its existing unrelated wording failure at `29/30`.
+- Live entry `051` proved exact shell/select/slot parity, bitransitive slot-C restoration independent of intransitive Canvas Valence, forged-URL fail-closed behavior, and clean logs.
+- Alignment architecture metrics matched baseline exactly. The command remains red for inherited board-size and cross-action worktree overlap, with no source-transitivity-attributable architecture regression.
+- Main-finding risk status: tense/mood, derivation type, voice, and source transitivity are risk-averted. Ordinary NNC noun class and output-scope duplication remain open.
+
+## Completed Phase: Canonical VNC Voice Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Established one core five-value target-voice vocabulary and retained the intentional three-value causative source-voice subset.
+- Replaced application and renderer handwritten recognition with typed voice selection frames.
+- Closed the paths where unknown target or source voice was marked rejected but still authorized Active output.
+- Validated exact ordered shell options against their Canvas records, preserving entrada v1 positional meaning without making UI or ledger metadata authoritative.
+- Preserved typed contextual allowed-voice inventories, source-before-target ordering, general Nawat voice mode, and ordered higher voice-layer operations as distinct concerns.
+
+Validation:
+
+- Application passed `32/32`; Lesson 11 plus continuity passed `26/26`; matched UI passed `409/409`; grammar-contract registry passed `43/43`.
+- Runtime manifest remained one browser entry and `75/75` modules/installers; syntax and focused hostile checks passed.
+- Lessons 20–22 retained its existing unrelated wording failure at `29/30`.
+- Live entry `050` reported authorized five/three voice parity, valid Active output for `(nemi)`, and clean logs.
+- Alignment architecture metrics matched baseline exactly. The command remains red for inherited board-size and cross-action worktree overlap, with no voice-attributable architecture regression.
+- Main-finding risk status: tense/mood, derivation type, and voice are risk-averted. Source transitivity, ordinary NNC noun class, and output-scope duplication remain open.
+
+## Completed Phase: Canonical VNC Derivation-Type Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Made the core Andrews derivation evaluator's Direct/Causative/Applicative vocabulary the shared recognized-input contract for application, general UI state, renderer state, URL restoration, shell/Canvas parity, and tests.
+- Closed the application hole where an unknown requested derivation was marked unrecognized but still normalized to an authorized Direct formula.
+- Retained the unknown request in a typed blocked frame; Direct is now only a safe layout fallback and cannot supply formula, surface, machinery, or applied typed frames for that request.
+- Made invalid derivation URL snapshots fail before applying their source or derivative capsule, instead of actively restoring Direct.
+- Validated actual shell button values and their Canvas tag records one-to-one. The shell and ledger remain non-authorizing evidence carriers.
+- Preserved contextual distinctions: Causative and Applicative still require typed source-specific inventories; derived-only subsets remain contextual; Karttunen operation and Lesson 23 governor taxonomies were not merged.
+
+Validation:
+
+- VNC application passed `31/31`; Lesson 11 plus continuity passed `24/24`; matched UI passed `407/407`; grammar-contract registry passed `43/43`.
+- Runtime manifest remained one entry and `75/75` modules/installers; syntax, manifest JSON, and diff checks passed.
+- Live entry `049` reported authorized `direct|causative|applicative` shell/Canvas parity. Valid `(nemi)` Direct produced `#ni-0(nemi)0+0-0#`; a fabricated derivation URL left Source unapplied, status blocked, formula empty, and warning/error logs empty.
+- Alignment architecture metrics matched baseline, including registered-contract coverage. The command remains red for inherited board-size and cross-action worktree overlap, with no attributable architecture regression.
+- Main-finding risk status: tense/mood and derivation type are risk-averted. Voice, source transitivity, ordinary NNC noun class, and output-scope duplication remain open.
+
+## Completed Phase: Canonical VNC Semantic Mood/Tense Contract
+
+Date: 2026-07-19
+
+Decision:
+
+- Established one typed VNC semantic input contract for the three moods, nine recognized semantic tense tokens, and their Canvas mood-compatible subsets. Semantic `general-past` remains distinct from the lower `distant-past` morphological realization.
+- Made the UI mood/tense normalizers and mood option contracts consume the canonical contract instead of maintaining independent arrays.
+- Replaced the self-referential nine-token test with a comparison of the actual shell values and option tags against the canonical vocabulary and Canvas option ledger; a poisoned shell value fails the validator.
+- Enforced recognized mood, recognized tense, mood compatibility, and indicative Lesson 11 lexeme availability in the engine. Direct application and restored/injected state retain invalid requests in blocked typed frames and cannot inherit safe layout fallbacks as generated output.
+- Extended cache versioning through the changed bootstrap/runtime child-module graph so the browser cannot mix the new renderer with a stale VNC contract module.
+
+Validation:
+
+- Lesson 11 and continuity passed `22/22`; VNC application passed `30/30`; matched UI suites passed `405/405`; grammar-contract registry passed `43/43`.
+- Runtime manifest remained aligned at one browser entry and `75/75` modules/installers; syntax and diff checks passed.
+- Lessons 20–22 remained `29/30`; its sole failure is the existing concurrent wording mismatch for generated source formation.
+- Live entry `048` reported canonical shell inventory status `authorized`, exact 3-mood/9-tense parity, `#0-0(nen)ca+0-0#` / `Nenca.` for 3sg `(nemi)` general past, and zero warning/error logs.
+- Alignment architecture metrics matched baseline, including registered-contract coverage. The command remains red only for inherited board size and cross-action dirty-worktree overlap; this action adds no unexplained architecture regression.
+- Main-finding risk status: tense/mood duplication and engine authorization are risk-averted. Derivation type, voice, source transitivity, ordinary NNC noun class, and output-scope duplication remain open because the user selected Option 2 rather than the broader protocol audit.
+
+## Completed Phase: Lesson 11 Selected-Output Continuity
+
+Date: 2026-07-19
+
+Decision:
+
+- Traced live `(nemi)` general past from the Authority selector through surface normalization, application, selected Result, and finite surface.
+- Found the first bypass before typed application: `general-past` existed in the shell, mood-bound contract, Lesson 11 plan, and engine, but was absent from `normalizeClassicalRuleLogicSurfaceTense()`, which silently substituted `present`.
+- Added `general-past` to the shared surface-state tense vocabulary and verified parity for all nine visible tense tokens.
+- Preserved the existing typed engine/application route: semantic general past maps to morphological distant past, selects `(nen)`, and realizes 3sg `#0-0(nen)ca+0-0#` / `Nenca.`.
+- Audited sibling Lesson 11 routes (`mani`, `ih-ca`, and suppletive `ye`) plus the existing higher-voice general-past checks; no second typed-stem bypass was found.
+- Bumped the single module entry to `046` so the repaired normalizer cannot be hidden by the previously loaded child-module graph.
+
+Validation:
+
+- Lesson 11 plus continuity: `19/19`; VNC application: `30/30`; matched UI suites: `402/402`.
+- Syntax, runtime manifest (`1` browser entry, `75` modules/installers), and `git diff --check` passed.
+- Live 3sg `(nemi)` general past displayed `Nenca.` and `#0-0(nen)ca+0-0#`; browser warning/error logs were empty.
+- Lessons 20–22 retained all general-past higher-voice checks; its one unrelated failure is the concurrent generated-formation wording expectation.
+- Alignment architecture metrics stayed at baseline; the remaining gate failures are inherited board-size and overlapping unrelated dirty-action scope.
 
 ## Completed Phase: Refresh-stable URL Screen and Derivative Type
 

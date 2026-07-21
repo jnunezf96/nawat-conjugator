@@ -1,5 +1,28 @@
 // Canonical modern ESM module.
 
+import {
+  validateClassicalNahuatlVncVoiceControlInventory,
+  validateClassicalNahuatlVncVoiceSelection,
+  getClassicalNahuatlVncSemanticTensesForMood,
+  normalizeClassicalNahuatlVncSemanticMood,
+  normalizeClassicalNahuatlVncSemanticTense,
+  validateClassicalNahuatlVncSemanticControlInventory,
+  validateClassicalNahuatlVncSemanticSelection,
+} from "../../core/classical/vnc_layer_evaluator.mjs?v=20260719-voice-contract-050";
+import {
+  validateClassicalNahuatlVncDerivationTypeControlInventory,
+  validateClassicalNahuatlVncDerivationTypeSelection,
+} from "../../core/classical/vnc_derivation_evaluator.mjs?v=20260719-derivation-type-contract-049";
+import {
+  normalizeGenerationSourceTransitivity,
+  validateGenerationSourceTransitivitySelection,
+} from "../../core/generation/valency.mjs?v=20260719-source-transitivity-contract-051";
+import {
+  CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS,
+  buildClassicalResultOutputScopeSelectionFrame,
+  validateClassicalResultOutputScopeControlInventory,
+} from "../../core/output/scope.mjs?v=20260719-output-scope-contract-053";
+
 export function createUiRenderingApi(targetObject = globalThis) {
     var ActiveNawatDenominalAndrewsContractRouteRenderContext = null;
     var ActiveClassicalRuleLogicSurfaceFrame = null;
@@ -1001,12 +1024,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
       };
     }
     function normalizeClassicalRuleLogicSurfaceMood(value = "", fallback = "indicative") {
-      const normalized = String(value || "").trim().toLowerCase().replace(/[\s_]/gu, "-");
-      return ["indicative", "optative", "admonitive"].includes(normalized) ? normalized : fallback;
+      return normalizeClassicalNahuatlVncSemanticMood(value) || normalizeClassicalNahuatlVncSemanticMood(fallback) || "indicative";
     }
     function normalizeClassicalRuleLogicSurfaceTense(value = "", fallback = "present") {
-      const normalized = String(value || "").trim().toLowerCase().replace(/[\s_]/gu, "-");
-      return ["present", "preterit", "future", "distant-past", "customary-present", "imperfect", "nonpast", "past"].includes(normalized) ? normalized : fallback;
+      return normalizeClassicalNahuatlVncSemanticTense(value) || normalizeClassicalNahuatlVncSemanticTense(fallback) || "present";
     }
     function parseClassicalRuleLogicSurfaceObjectSelection(value = "") {
       const [rawKind = "", rawPerson = ""] = String(value || "").split(":");
@@ -1016,44 +1037,47 @@ export function createUiRenderingApi(targetObject = globalThis) {
       };
     }
     function normalizeClassicalRuleLogicSourceTransitivity(value = "") {
-      const normalized = String(value || "").trim().toLowerCase();
-      if (normalized === "vi") {
-        return "intransitive";
-      }
-      if (normalized === "vt") {
-        return "transitive";
-      }
-      if (normalized === "vb") {
-        return "bitransitive";
-      }
-      return ["intransitive", "transitive", "bitransitive"].includes(normalized) ? normalized : "";
+      return normalizeGenerationSourceTransitivity(value);
     }
-    function getClassicalRuleLogicSourceTransitivityFromHash() {
+    function getClassicalRuleLogicSourceTransitivitySelectionFromHash() {
       if (typeof targetObject.window === "undefined" || !targetObject.window.location) {
-        return "";
+        return validateGenerationSourceTransitivitySelection("");
       }
       const match = String(targetObject.window.location.hash || "").match(/\/tr\/([^/]+)/u);
-      return normalizeClassicalRuleLogicSourceTransitivity(match?.[1] || "");
+      return validateGenerationSourceTransitivitySelection(match?.[1] || "");
     }
-    function getClassicalRuleLogicSourceTransitivity(overrides = {}) {
-      const explicit = normalizeClassicalRuleLogicSourceTransitivity(overrides.sourceTransitivity || overrides.transitivity || "");
-      if (explicit) {
-        return explicit;
+    function getClassicalRuleLogicSourceTransitivityFromHash() {
+      return getClassicalRuleLogicSourceTransitivitySelectionFromHash().sourceTransitivity;
+    }
+    function getClassicalRuleLogicSourceTransitivitySelectionFrame(overrides = {}) {
+      const hasExplicitSourceTransitivity = Object.prototype.hasOwnProperty.call(overrides, "sourceTransitivity") || Object.prototype.hasOwnProperty.call(overrides, "transitivity");
+      if (hasExplicitSourceTransitivity) {
+        return validateGenerationSourceTransitivitySelection(Object.prototype.hasOwnProperty.call(overrides, "sourceTransitivity") ? overrides.sourceTransitivity : overrides.transitivity);
       }
-      const hashTransitivity = getClassicalRuleLogicSourceTransitivityFromHash();
-      if (hashTransitivity) {
-        return hashTransitivity;
+      const hashSelectionFrame = getClassicalRuleLogicSourceTransitivitySelectionFromHash();
+      if (hashSelectionFrame.explicit) {
+        return hashSelectionFrame;
       }
       const composerState = typeof targetObject.VerbComposerState === "object" && targetObject.VerbComposerState ? targetObject.VerbComposerState : {};
-      const stateTransitivity = normalizeClassicalRuleLogicSourceTransitivity(composerState.transitivity || "");
-      if (stateTransitivity) {
-        return stateTransitivity;
+      const stateSelectionFrame = validateGenerationSourceTransitivitySelection(composerState.transitivity || "");
+      if (stateSelectionFrame.explicit) {
+        return stateSelectionFrame;
       }
       const transitivitySelect = typeof targetObject.document !== "undefined" ? targetObject.document.getElementById("composer-transitivity") : null;
-      return normalizeClassicalRuleLogicSourceTransitivity(transitivitySelect?.value || "");
+      const hiddenControlSelectionFrame = validateGenerationSourceTransitivitySelection(transitivitySelect?.value || "");
+      return hiddenControlSelectionFrame.authorizationStatus === "authorized"
+        ? hiddenControlSelectionFrame
+        : validateGenerationSourceTransitivitySelection("");
+    }
+    function getClassicalRuleLogicSourceTransitivity(overrides = {}) {
+      return getClassicalRuleLogicSourceTransitivitySelectionFrame(overrides).sourceTransitivity;
     }
     function getClassicalRuleLogicSurfaceSourceSlotKey(sourceTransitivity = "") {
-      const normalized = normalizeClassicalRuleLogicSourceTransitivity(sourceTransitivity);
+      const selectionFrame = validateGenerationSourceTransitivitySelection(sourceTransitivity);
+      if (selectionFrame.authorizationStatus === "blocked") {
+        return "";
+      }
+      const normalized = selectionFrame.sourceTransitivity;
       if (normalized === "bitransitive") {
         return "c";
       }
@@ -1404,7 +1428,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         });
         return {
           mood,
-          tenseValues: ["nonpast", "past", "future", "preterit"],
+          tenseValues: getClassicalNahuatlVncSemanticTensesForMood("optative"),
           tenseFallback: "nonpast",
           introductoryParticleValues,
           introductoryParticleFallback,
@@ -1426,7 +1450,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const negative = polarity === "negative";
         return {
           mood,
-          tenseValues: ["nonpast"],
+          tenseValues: getClassicalNahuatlVncSemanticTensesForMood("admonitive"),
           tenseFallback: "nonpast",
           introductoryParticleValues: ["mā"],
           introductoryParticleFallback: "mā",
@@ -1445,7 +1469,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }
       return {
         mood,
-        tenseValues: ["present", "preterit", "future", "distant-past", "general-past", "customary-present", "imperfect"],
+        tenseValues: getClassicalNahuatlVncSemanticTensesForMood("indicative"),
         tenseFallback: "present",
         introductoryParticleValues: ["none"],
         introductoryParticleFallback: "none",
@@ -1579,23 +1603,23 @@ export function createUiRenderingApi(targetObject = globalThis) {
       transcriptionLineStart: 4505,
       transcriptionLineEnd: 4515,
       exactWitness: "A nounstem implies an animate or nonanimate subject referent."
-    }), ...[["single", "cn-option-nnc-output-single", "renders the one Authority selection"], ["paradigm", "cn-option-nnc-output-paradigm", "enumerates all Canvas-authorized selections for the fixed Source analysis"]].map(([value, tagId, outputBehavior]) => Object.freeze({
-      tagId,
-      controlId: "classical-rule-logic-nnc-output-scope",
-      value,
+    }), ...CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.nnc.options.map(option => Object.freeze({
+      tagId: option.tagId,
+      controlId: CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.nnc.controlId,
+      value: option.value,
       canvasStatus: "authorized",
-      applicability: `${value} NNC Result scope`,
-      outputBehavior,
+      applicability: `${option.value} NNC Result scope`,
+      outputBehavior: option.value === "single" ? "renders the one Authority selection" : "enumerates all Canvas-authorized selections for the fixed Source analysis",
       transcriptionLineStart: 4379,
       transcriptionLineEnd: 5761,
       exactWitness: "The NNC paradigms in Lessons 12-16 supply the authorized forms for one fixed predicate stem."
-    })), ...[["single", "cn-option-vnc-output-single", "renders the one Authority selection"], ["paradigm", "cn-option-vnc-output-paradigm", "enumerates the Canvas subject, mood, and tense paradigm for the fixed verbal predicate"]].map(([value, tagId, outputBehavior]) => Object.freeze({
-      tagId,
-      controlId: "classical-rule-logic-vnc-output-scope",
-      value,
+    })), ...CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.vnc.options.map(option => Object.freeze({
+      tagId: option.tagId,
+      controlId: CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.vnc.controlId,
+      value: option.value,
       canvasStatus: "authorized",
-      applicability: `${value} VNC Result scope`,
-      outputBehavior,
+      applicability: `${option.value} VNC Result scope`,
+      outputBehavior: option.value === "single" ? "renders the one Authority selection" : "enumerates the Canvas subject, mood, and tense paradigm for the fixed verbal predicate",
       transcriptionLineStart: 26029,
       transcriptionLineEnd: 26139,
       exactWitness: "The paradigms add the subject pronouns to the verbal predicates to create the full array of VNCs formed on each stem class."
@@ -2227,6 +2251,121 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const normalizedValue = String(value || "").trim();
       return CLASSICAL_RULE_LOGIC_AUTHORITY_OPTION_TAGS.find(tag => tag.controlId === normalizedControlId && tag.value === normalizedValue) || null;
     }
+    function getClassicalResultOutputScopeControlInventoryFrame() {
+      if (typeof targetObject.document === "undefined") {
+        return Object.freeze({
+          kind: "classical-result-output-scope-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+          shellCanvasAndUrlAreNotGrammarAuthority: true,
+          roleSpecificParadigmBuildersRemainSeparate: true,
+        });
+      }
+      const shellRecords = ["nnc", "vnc"].flatMap(role => {
+        const contract = CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS[role];
+        const control = targetObject.document.getElementById(contract.controlId);
+        return Array.from(control?.options || []).map(option => ({
+          controlId: contract.controlId,
+          value: String(option.value || ""),
+          tagId: String(option.dataset?.classicalAuthorityOptionTag || ""),
+        }));
+      });
+      if (!shellRecords.length) {
+        return Object.freeze({
+          kind: "classical-result-output-scope-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+          shellCanvasAndUrlAreNotGrammarAuthority: true,
+          roleSpecificParadigmBuildersRemainSeparate: true,
+        });
+      }
+      const outputScopeControlIds = new Set(Object.values(CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS).map(contract => contract.controlId));
+      const ledgerRecords = CLASSICAL_RULE_LOGIC_AUTHORITY_OPTION_TAGS
+        .filter(record => outputScopeControlIds.has(record.controlId))
+        .map(record => ({ controlId: record.controlId, value: record.value, tagId: record.tagId }));
+      return validateClassicalResultOutputScopeControlInventory({ shellRecords, ledgerRecords });
+    }
+    function getClassicalRuleLogicSemanticControlInventoryFrame() {
+      if (typeof targetObject.document === "undefined") {
+        return {
+          kind: "classical-nahuatl-vnc-semantic-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      const moodControl = targetObject.document.getElementById("classical-rule-logic-mood");
+      const tenseControl = targetObject.document.getElementById("classical-rule-logic-tense");
+      if (!moodControl || !tenseControl) {
+        return {
+          kind: "classical-nahuatl-vnc-semantic-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      const readOptions = id => {
+        const control = targetObject.document.getElementById(id);
+        return Array.from(control?.options || []).map(option => ({
+          value: String(option.value || ""),
+          tagId: String(option.dataset?.classicalAuthorityOptionTag || ""),
+        }));
+      };
+      return validateClassicalNahuatlVncSemanticControlInventory({
+        moodOptions: readOptions("classical-rule-logic-mood"),
+        tenseOptions: readOptions("classical-rule-logic-tense"),
+        authorityOptionTags: getClassicalRuleLogicAuthorityOptionTags(),
+      });
+    }
+    function getClassicalRuleLogicDerivationTypeControlInventoryFrame() {
+      if (typeof targetObject.document === "undefined") {
+        return {
+          kind: "classical-nahuatl-vnc-derivation-type-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      const buttons = Array.from(targetObject.document.querySelectorAll?.("[data-derivation-type]") || []);
+      if (!buttons.length) {
+        return {
+          kind: "classical-nahuatl-vnc-derivation-type-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      return validateClassicalNahuatlVncDerivationTypeControlInventory({
+        options: buttons.map(button => ({
+          value: String(button.getAttribute?.("data-derivation-type") || ""),
+          tagId: String(button.dataset?.classicalAuthorityOptionTag || button.getAttribute?.("data-classical-authority-option-tag") || ""),
+        })),
+        authorityOptionTags: getClassicalRuleLogicAuthorityOptionTags(),
+      });
+    }
+    function getClassicalRuleLogicVoiceControlInventoryFrame() {
+      if (typeof targetObject.document === "undefined") {
+        return {
+          kind: "classical-nahuatl-vnc-voice-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      const readOptions = id => Array.from(targetObject.document.getElementById(id)?.options || []).map(option => ({
+        value: String(option.value || ""),
+        tagId: String(option.dataset?.classicalAuthorityOptionTag || ""),
+      }));
+      const targetVoiceOptions = readOptions("classical-rule-logic-vnc-voice");
+      const causativeSourceVoiceOptions = readOptions("classical-rule-logic-causative-source-voice");
+      if (!targetVoiceOptions.length || !causativeSourceVoiceOptions.length) {
+        return {
+          kind: "classical-nahuatl-vnc-voice-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+        };
+      }
+      return validateClassicalNahuatlVncVoiceControlInventory({
+        targetVoiceOptions,
+        causativeSourceVoiceOptions,
+        authorityOptionTags: getClassicalRuleLogicAuthorityOptionTags(),
+      });
+    }
     function canClassicalRuleLogicUseTlaFusionForState(state = {}) {
       return state?.basalUnit === "vnc" && isClassicalRuleLogicTlaFusionSourceValence(state?.valence);
     }
@@ -2298,20 +2437,75 @@ export function createUiRenderingApi(targetObject = globalThis) {
         legacyReferent: metaphoricalUse ? "metaphorical" : animacy
       };
     }
+    function getClassicalResultOutputScopeSelectionFrameForState(role = "", basalUnit = "", overrides = {}) {
+      if (role !== basalUnit) {
+        return buildClassicalResultOutputScopeSelectionFrame("", {
+          role,
+          explicit: false,
+          provenance: "inactive-basal-unit"
+        });
+      }
+      const propertyName = role === "nnc" ? "nncOutputScope" : "vncOutputScope";
+      const framePropertyName = `${propertyName}SelectionFrame`;
+      const retainedFrame = overrides[framePropertyName]?.kind === "classical-result-output-scope-selection-frame"
+        ? overrides[framePropertyName]
+        : null;
+      if (retainedFrame) {
+        return buildClassicalResultOutputScopeSelectionFrame(retainedFrame.requestedValue, {
+          role,
+          explicit: retainedFrame.explicit,
+          provenance: retainedFrame.provenance || "retained-selection-frame"
+        });
+      }
+      if (Object.prototype.hasOwnProperty.call(overrides, propertyName)) {
+        return buildClassicalResultOutputScopeSelectionFrame(overrides[propertyName], {
+          role,
+          explicit: true,
+          provenance: "surface-override"
+        });
+      }
+      const controlId = CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS[role]?.controlId || "";
+      const control = typeof targetObject.document !== "undefined" ? targetObject.document.getElementById(controlId) : null;
+      const contractValues = CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS[role]?.options?.map(option => option.value) || [];
+      const controlValues = Array.from(control?.options || []).map(option => String(option?.value || ""));
+      const trustedControl = Boolean(control && String(control.id || "") === controlId && controlValues.length === contractValues.length && controlValues.every((value, index) => value === contractValues[index]));
+      if (!trustedControl || control.disabled === true) {
+        return buildClassicalResultOutputScopeSelectionFrame("", {
+          role,
+          explicit: false,
+          provenance: control?.disabled === true ? "disabled-control-ignored" : control ? "unvalidated-control-ignored" : "control-absent"
+        });
+      }
+      return buildClassicalResultOutputScopeSelectionFrame(control.value, {
+        role,
+        explicit: Boolean(String(control.value ?? "").trim()),
+        provenance: "result-control"
+      });
+    }
     function getClassicalRuleLogicSurfaceState(overrides = {}) {
       const explicitSourceValue = normalizeClassicalNahuatlMachinerySourceValue(overrides.stem || overrides.verb || "");
       const sourceValue = explicitSourceValue || getClassicalNahuatlLesson4MachinerySource("");
       const basalUnit = normalizeClassicalBasalUnitForRendering(overrides.basalUnit || getClassicalBasalUnitFromSurfaceForRendering("vnc"));
       const legacyMoodTense = parseClassicalRuleLogicSurfaceMoodTense(overrides.moodTense || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-mood-tense", "indicative:present"));
-      const selectedMood = normalizeClassicalRuleLogicSurfaceMood(overrides.mood || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-mood", legacyMoodTense.mood), legacyMoodTense.mood);
-      const selectedTense = normalizeClassicalRuleLogicSurfaceTense(overrides.tense || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-tense", legacyMoodTense.tense), legacyMoodTense.tense);
+      const requestedSemanticMood = String(overrides.mood || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-mood", legacyMoodTense.mood));
+      const requestedSemanticTense = String(overrides.tense || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-tense", legacyMoodTense.tense));
+      const semanticSelectionFrame = validateClassicalNahuatlVncSemanticSelection({
+        mood: requestedSemanticMood,
+        tense: requestedSemanticTense,
+      });
+      const semanticControlInventoryFrame = getClassicalRuleLogicSemanticControlInventoryFrame();
+      const selectedMood = semanticSelectionFrame.mood || normalizeClassicalRuleLogicSurfaceMood("", legacyMoodTense.mood);
+      const selectedTense = semanticSelectionFrame.semanticTense || normalizeClassicalRuleLogicSurfaceTense("", legacyMoodTense.tense);
       const objectSelection = parseClassicalRuleLogicSurfaceObjectSelection(overrides.objectSelection || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-object", "specific-projective:3sg"));
       const activeDerivationType = typeof targetObject.getActiveDerivationType === "function" ? targetObject.getActiveDerivationType() : "direct";
       const requestedDerivation = basalUnit === "vnc" ? String(overrides.derivationType || overrides.requestedDerivation || activeDerivationType || "direct").trim().toLowerCase() : "direct";
-      const derivationType = ["direct", "causative", "applicative"].includes(requestedDerivation) ? requestedDerivation : "direct";
+      const derivationTypeSelectionFrame = validateClassicalNahuatlVncDerivationTypeSelection(requestedDerivation);
+      const derivationType = derivationTypeSelectionFrame.derivationType || "direct";
+      const derivationTypeControlInventoryFrame = getClassicalRuleLogicDerivationTypeControlInventoryFrame();
       const requestedDerivationOptionId = String(overrides.derivationOptionId || overrides.selectedDerivationOptionId || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-derivation-option", "") || "").trim();
       const requestedSourceVoice = String(overrides.sourceVoice || overrides.causativeSourceVoice || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-causative-source-voice", "active") || "active").trim();
-      let sourceVoice = ["active", "passive", "impersonal"].includes(requestedSourceVoice) ? requestedSourceVoice : "active";
+      const sourceVoiceSelectionFrame = validateClassicalNahuatlVncVoiceSelection(requestedSourceVoice, "causative-source");
+      let sourceVoice = sourceVoiceSelectionFrame.voice || "active";
       const requestedSourceNonactiveOptionId = String(overrides.sourceNonactiveOptionId || overrides.causativeSourceNonactiveOptionId || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-causative-source-nonactive", "") || "").trim();
       const causativeSourceSubject = String(overrides.sourceSubject || overrides.causativeSourceSubject || overrides.embeddedSubject || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-causative-source-subject", "3sg") || "3sg").trim();
       const requestedCausativeObjectKind = "";
@@ -2323,12 +2517,23 @@ export function createUiRenderingApi(targetObject = globalThis) {
         : getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-causative-specific-shuntline-realization", "silent") || "silent").trim();
       const applicativeObjectSelection = parseClassicalRuleLogicSurfaceObjectSelection(overrides.applicativeObjectSelection || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-applicative-object", "specific-projective:3sg"));
       const lesson = normalizeClassicalRuleLogicSurfaceLesson(overrides.lesson || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-lesson", "7"));
-      const sourceTransitivity = getClassicalRuleLogicSourceTransitivity(overrides);
-      const sourceParts = getClassicalRuleLogicSurfaceSourceParts(overrides, sourceTransitivity, sourceValue);
+      const sourceTransitivitySelectionFrame = basalUnit === "vnc"
+        ? getClassicalRuleLogicSourceTransitivitySelectionFrame(overrides)
+        : validateGenerationSourceTransitivitySelection("");
+      const requestedSourceTransitivity = sourceTransitivitySelectionFrame.requestedSourceTransitivity;
+      const sourceTransitivity = sourceTransitivitySelectionFrame.sourceTransitivity;
+      const sourceTransitivityControlInventoryFrame = typeof targetObject.getComposerSourceTransitivityControlInventoryFrame === "function"
+        ? targetObject.getComposerSourceTransitivityControlInventoryFrame()
+        : null;
+      const sourceParts = basalUnit === "vnc" && sourceTransitivitySelectionFrame.authorizationStatus === "blocked"
+        ? { sourceEmbedStem: "", sourceMatrixStem: "", sourcePartsSource: "blocked-source-transitivity" }
+        : getClassicalRuleLogicSurfaceSourceParts(overrides, sourceTransitivity, sourceValue);
       const requestedValence = String(overrides.valence || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-valence", "intransitive") || "intransitive").trim();
       const valence = requestedValence || "intransitive";
       const requestedVncVoice = String(overrides.vncVoice || overrides.voice || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-vnc-voice", "active") || "active").trim();
-      let vncVoice = ["active", "passive", "impersonal", "inherent-impersonal", "tla-impersonal"].includes(requestedVncVoice) ? requestedVncVoice : "active";
+      const targetVoiceSelectionFrame = validateClassicalNahuatlVncVoiceSelection(requestedVncVoice, "target");
+      const voiceControlInventoryFrame = getClassicalRuleLogicVoiceControlInventoryFrame();
+      let vncVoice = targetVoiceSelectionFrame.voice || "active";
       const requestedNonactiveOptionId = String(overrides.nonactiveOptionId || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-nonactive-family", "") || "").trim();
       const requestedVoiceLayer2Operation = String(overrides.voiceLayer2Operation || overrides.voiceLayer2 || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-voice-layer-2", "") || "").trim();
       const requestedVoiceLayer3Operation = String(overrides.voiceLayer3Operation || overrides.voiceLayer3 || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-voice-layer-3", "") || "").trim();
@@ -2442,8 +2647,13 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const requestedNncUseShape = String(overrides.nncUseShape || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-nnc-use-shape", "base") || "base").trim();
       const requestedNncSubclass = String(overrides.nncSubclass || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-nnc-subclass", "tl-1a") || "tl-1a").trim();
       const nncNumberForm = String(overrides.nncNumberForm || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-nnc-number-form", "t-in") || "t-in").trim();
-      const nncOutputScope = String(overrides.nncOutputScope || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-nnc-output-scope", "single") || "single").trim() === "paradigm" ? "paradigm" : "single";
-      const vncOutputScope = String(overrides.vncOutputScope || getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-vnc-output-scope", "single") || "single").trim() === "paradigm" ? "paradigm" : "single";
+      const nncOutputScopeSelectionFrame = getClassicalResultOutputScopeSelectionFrameForState("nnc", basalUnit, overrides);
+      const vncOutputScopeSelectionFrame = getClassicalResultOutputScopeSelectionFrameForState("vnc", basalUnit, overrides);
+      const outputScopeControlInventoryFrame = getClassicalResultOutputScopeControlInventoryFrame();
+      const requestedNncOutputScope = nncOutputScopeSelectionFrame.requestedValue;
+      const requestedVncOutputScope = vncOutputScopeSelectionFrame.requestedValue;
+      const nncOutputScope = nncOutputScopeSelectionFrame.outputScope;
+      const vncOutputScope = vncOutputScopeSelectionFrame.outputScope;
       if (vncOutputScope === "paradigm") {
         vncVoice = "active";
       }
@@ -2505,7 +2715,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
         basalUnit,
         lesson: basalUnit === "particle" ? "3" : basalUnit === "nnc" ? "4" : lesson,
         stem: sourceValue,
+        requestedSourceTransitivity,
         sourceTransitivity,
+        sourceTransitivitySelectionFrame,
+        sourceTransitivityControlInventoryFrame,
         sourceEmbedStem: sourceParts.sourceEmbedStem,
         sourceMatrixStem: sourceParts.sourceMatrixStem,
         sourcePartsSource: sourceParts.sourcePartsSource,
@@ -2549,8 +2762,13 @@ export function createUiRenderingApi(targetObject = globalThis) {
         nncSubclass,
         nncClassBoundSelectionContract,
         nncNumberForm,
+        requestedNncOutputScope,
         nncOutputScope,
+        nncOutputScopeSelectionFrame,
+        requestedVncOutputScope,
         vncOutputScope,
+        vncOutputScopeSelectionFrame,
+        outputScopeControlInventoryFrame,
         nncReferent,
         nncAnimacy,
         nncMetaphoricalUse,
@@ -2565,12 +2783,15 @@ export function createUiRenderingApi(targetObject = globalThis) {
         nncSpecialHumanUse,
         requestedDerivation,
         derivationType,
+        derivationTypeSelectionFrame,
+        derivationTypeControlInventoryFrame,
         requestedDerivationOptionId,
         derivationOptionInventory,
         derivationSelectorRequired,
         selectedDerivationOptionId,
         requestedSourceVoice,
         sourceVoice,
+        sourceVoiceSelectionFrame,
         allowedSourceVoices,
         requestedSourceNonactiveOptionId,
         sourceNonactiveOptionInventory,
@@ -2617,6 +2838,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
         nonactiveStemRecord,
         inherentImpersonalRecord,
         tlaImpersonalStemRecord,
+        requestedVncVoice,
+        targetVoiceSelectionFrame,
+        voiceControlInventoryFrame,
         sourceValenceConflict: false,
         objectKind: String(overrides.objectKind || objectSelection.objectKind || "specific-projective").trim(),
         objectPerson: String(overrides.objectPerson || objectSelection.objectPerson || "3sg").trim(),
@@ -2646,6 +2870,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
         sentenceAntecessive: overrides.sentenceAntecessive === true || overrides.admonitiveAntecessive === true || overrides.admonitiveAntecessiveRequested === true,
         hostileSentenceFormulaSlots: Array.isArray(overrides.hostileSentenceFormulaSlots) ? overrides.hostileSentenceFormulaSlots : [],
         moodBoundOptionContract: moodBoundSelections,
+        requestedSemanticMood: semanticSelectionFrame.requestedMood,
+        requestedSemanticTense: semanticSelectionFrame.requestedSemanticTense,
+        semanticSelectionFrame,
+        semanticControlInventoryFrame,
         tlaFusionRequested: overrides.tlaFusion != null ? Boolean(overrides.tlaFusion) : getClassicalRuleLogicSurfaceControlValue("classical-rule-logic-tla-fusion", "false") === "true"
       };
       const tlaFusionAvailable = canClassicalRuleLogicUseTlaFusionForState(provisionalState);
@@ -2762,28 +2990,35 @@ export function createUiRenderingApi(targetObject = globalThis) {
       };
     }
     function buildClassicalRuleLogicVncApplicationRequest(state = {}) {
+      const semanticSelectionBlocked = state.semanticSelectionFrame?.authorizationStatus === "blocked";
+      const derivationTypeSelectionBlocked = state.derivationTypeSelectionFrame?.authorizationStatus === "blocked";
+      const sourceVoiceSelectionBlocked = state.sourceVoiceSelectionFrame?.authorizationStatus === "blocked";
+      const targetVoiceSelectionBlocked = state.targetVoiceSelectionFrame?.authorizationStatus === "blocked";
       return {
         sourceStem: state.stem,
         subject: state.subject,
-        mood: state.mood,
-        tense: state.tense,
+        mood: semanticSelectionBlocked ? state.requestedSemanticMood : state.mood,
+        tense: semanticSelectionBlocked ? state.requestedSemanticTense : state.tense,
         verbClass: state.verbClass,
         sourceValence: state.valence,
         objectKind: getClassicalRuleLogicSurfaceLesson7ObjectKind(state),
         objectPerson: state.objectPerson,
-        requestedDerivation: state.derivationType,
-        derivationType: state.derivationType,
+        requestedDerivation: derivationTypeSelectionBlocked ? state.requestedDerivation : state.derivationType,
+        derivationType: derivationTypeSelectionBlocked ? state.requestedDerivation : state.derivationType,
         derivationOptionId: state.requestedDerivationOptionId,
-        sourceVoice: state.derivationType === "causative" ? state.sourceVoice : "active",
+        sourceVoice: state.derivationType === "causative" ? sourceVoiceSelectionBlocked ? state.requestedSourceVoice : state.sourceVoice : "active",
         sourceNonactiveOptionId: state.derivationType === "causative" && (state.sourceVoice === "passive" || state.sourceVoice === "impersonal") ? state.requestedSourceNonactiveOptionId : "",
         sourceSubject: state.causativeSourceSubject,
         causativeReferentRelation: state.causativeReferentRelationChoiceEligible === true ? state.causativeReferentRelation : "",
         causativeSpecificShuntlineRealization: state.causativeSpecificShuntlineChoiceEligible === true ? state.causativeSpecificShuntlineRealization : "",
         applicativeObjectKind: state.applicativeObjectKind,
         applicativeObjectPerson: state.applicativeObjectPerson,
-        requestedVoice: state.vncVoice,
+        requestedVoice: targetVoiceSelectionBlocked ? state.requestedVncVoice : state.vncVoice,
         nonactiveOptionId: state.requestedNonactiveOptionId,
-        outputScope: state.vncOutputScope,
+        outputScope: state.vncOutputScopeSelectionFrame?.authorizationStatus === "blocked"
+          ? state.requestedVncOutputScope
+          : state.vncOutputScope,
+        outputScopeSelectionFrame: state.vncOutputScopeSelectionFrame,
         tlaFusion: state.tlaFusion === true,
         incorporatedAdverb: state.incorporatedAdverb,
         adverbPosition: state.adverbPosition,
@@ -5234,8 +5469,21 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const state = getClassicalRuleLogicSurfaceState(overrides);
       const machineryFrame = buildClassicalRuleLogicSurfaceMachineryFrame(state);
       const nncThirdPluralPossessorVariantFrames = [];
-      const authorizationStatus = getClassicalRuleLogicSurfaceStatus(machineryFrame);
-      const blockReason = authorizationStatus === "authorized" ? "" : machineryFrame?.blockReason || machineryFrame?.proofFrame?.conclusion?.blockReason || "classical-selected-output-not-authorized";
+      const semanticSelectionBlocked = state.basalUnit === "vnc" && state.semanticSelectionFrame?.authorizationStatus === "blocked";
+      const sourceTransitivitySelectionBlocked = state.basalUnit === "vnc" && state.sourceTransitivitySelectionFrame?.authorizationStatus === "blocked";
+      const outputScopeSelectionFrame = state.basalUnit === "nnc" ? state.nncOutputScopeSelectionFrame : state.vncOutputScopeSelectionFrame;
+      const outputScopeSelectionBlocked = outputScopeSelectionFrame?.authorizationStatus === "blocked";
+      const machineryAuthorizationStatus = getClassicalRuleLogicSurfaceStatus(machineryFrame);
+      const authorizationStatus = semanticSelectionBlocked || sourceTransitivitySelectionBlocked || outputScopeSelectionBlocked ? "blocked" : machineryAuthorizationStatus;
+      const blockReason = authorizationStatus === "authorized"
+        ? ""
+        : semanticSelectionBlocked
+          ? state.semanticSelectionFrame.blockReason
+          : sourceTransitivitySelectionBlocked
+            ? state.sourceTransitivitySelectionFrame.blockReason
+            : outputScopeSelectionBlocked
+              ? outputScopeSelectionFrame.blockReason
+              : machineryFrame?.blockReason || machineryFrame?.proofFrame?.conclusion?.blockReason || "classical-selected-output-not-authorized";
       const lesson11ParadigmPlan = machineryFrame?.lesson11ParadigmPlan || null;
       const selectedOutputFillers = machineryFrame?.selectedOutputLogicFrame?.outputFillers || {};
       const lesson11ParadigmRelationFrame = selectedOutputFillers.lesson11ParadigmRelationFrame || lesson11ParadigmPlan?.paradigmRelationFrame || null;
@@ -5458,10 +5706,11 @@ export function createUiRenderingApi(targetObject = globalThis) {
         grammarGenerationAllowed: false,
         surfaceGenerationAllowed: false
       };
-      visibleSurfaceFrame.nncParadigmFrame = basalMeta.unit === "nnc" && state.nncOutputScope === "paradigm" && overrides.suppressNncParadigm !== true ? buildClassicalNncParadigmFrame(state) : null;
-      visibleSurfaceFrame.nncSingleFormDisplayFrame = basalMeta.unit === "nnc" && state.nncOutputScope !== "paradigm" ? buildClassicalNncSingleFormDisplayFrame(visibleSurfaceFrame) : null;
-      visibleSurfaceFrame.vncSingleFormDisplayFrame = basalMeta.unit === "vnc" && state.vncOutputScope !== "paradigm" ? buildClassicalVncSingleFormDisplayFrame(visibleSurfaceFrame) : null;
-      visibleSurfaceFrame.vncParadigmFrame = basalMeta.unit === "vnc" && state.vncOutputScope === "paradigm" && overrides.suppressVncParadigm !== true ? buildClassicalVncParadigmFrame(state, {
+      const outputScopeAuthorized = outputScopeSelectionFrame?.authorizationStatus === "authorized";
+      visibleSurfaceFrame.nncParadigmFrame = outputScopeAuthorized && basalMeta.unit === "nnc" && state.nncOutputScope === "paradigm" && overrides.suppressNncParadigm !== true ? buildClassicalNncParadigmFrame(state) : null;
+      visibleSurfaceFrame.nncSingleFormDisplayFrame = outputScopeAuthorized && basalMeta.unit === "nnc" && state.nncOutputScope === "single" ? buildClassicalNncSingleFormDisplayFrame(visibleSurfaceFrame) : null;
+      visibleSurfaceFrame.vncSingleFormDisplayFrame = outputScopeAuthorized && basalMeta.unit === "vnc" && state.vncOutputScope === "single" ? buildClassicalVncSingleFormDisplayFrame(visibleSurfaceFrame) : null;
+      visibleSurfaceFrame.vncParadigmFrame = outputScopeAuthorized && basalMeta.unit === "vnc" && state.vncOutputScope === "paradigm" && overrides.suppressVncParadigm !== true ? buildClassicalVncParadigmFrame(state, {
         manifestOnly: true
       }) : null;
       return visibleSurfaceFrame;
@@ -6469,12 +6718,36 @@ export function createUiRenderingApi(targetObject = globalThis) {
       applyClassicalRuleLogicSelectOptionAvailability("classical-rule-logic-prefix-stack", contract.prefixStackValues, contract.prefixStackFallback);
       applyClassicalRuleLogicSelectOptionAvailability("classical-rule-logic-sentence-surface", contract.sentenceSurfaceValues, contract.sentenceSurfaceFallback);
       applyClassicalRuleLogicSelectOptionAvailability("classical-rule-logic-polarity", contract.polarityValues, contract.polarityFallback);
+      const semanticControlInventoryFrame = getClassicalRuleLogicSemanticControlInventoryFrame();
+      const derivationTypeControlInventoryFrame = getClassicalRuleLogicDerivationTypeControlInventoryFrame();
+      const voiceControlInventoryFrame = getClassicalRuleLogicVoiceControlInventoryFrame();
+      const outputScopeControlInventoryFrame = getClassicalResultOutputScopeControlInventoryFrame();
       const controls = targetObject.document.getElementById("classical-rule-logic-controls");
       if (controls?.dataset) {
         controls.dataset.classicalCanvasMoodOptionRule = contract.canvasRule || "";
         controls.dataset.classicalCanvasMoodOptionMood = contract.mood || "";
+        controls.dataset.classicalSemanticControlInventoryStatus = semanticControlInventoryFrame.authorizationStatus || "";
+        controls.dataset.classicalSemanticControlInventoryReason = semanticControlInventoryFrame.blockReason || "";
+        controls.dataset.classicalSemanticMoodVocabulary = (semanticControlInventoryFrame.expectedMoodValues || []).join("|");
+        controls.dataset.classicalSemanticTenseVocabulary = (semanticControlInventoryFrame.expectedTenseValues || []).join("|");
+        controls.dataset.classicalDerivationTypeControlInventoryStatus = derivationTypeControlInventoryFrame.authorizationStatus || "";
+        controls.dataset.classicalDerivationTypeControlInventoryReason = derivationTypeControlInventoryFrame.blockReason || "";
+        controls.dataset.classicalDerivationTypeVocabulary = (derivationTypeControlInventoryFrame.expectedValues || []).join("|");
+        controls.dataset.classicalVoiceControlInventoryStatus = voiceControlInventoryFrame.authorizationStatus || "";
+        controls.dataset.classicalVoiceControlInventoryReason = voiceControlInventoryFrame.blockReason || "";
+        controls.dataset.classicalTargetVoiceVocabulary = (voiceControlInventoryFrame.expectedTargetValues || []).join("|");
+        controls.dataset.classicalCausativeSourceVoiceVocabulary = (voiceControlInventoryFrame.expectedSourceValues || []).join("|");
+        controls.dataset.classicalOutputScopeControlInventoryStatus = outputScopeControlInventoryFrame.authorizationStatus || "";
+        controls.dataset.classicalOutputScopeControlInventoryReason = outputScopeControlInventoryFrame.blockReason || "";
+        controls.dataset.classicalOutputScopeVocabulary = "single|paradigm";
       }
-      return contract;
+      return {
+        ...contract,
+        semanticControlInventoryFrame,
+        derivationTypeControlInventoryFrame,
+        voiceControlInventoryFrame,
+        outputScopeControlInventoryFrame
+      };
     }
     function syncClassicalRuleLogicLesson11TenseOptions(surfaceFrame = null, moodContract = null) {
       if (typeof targetObject.document === "undefined" || surfaceFrame?.state?.mood !== "indicative") {
@@ -6984,6 +7257,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
         controls.dataset.classicalAuthorityLessonNumberAuthority = String(capabilityFrame?.lessonNumberAuthority === true);
         controls.dataset.classicalRuleLogicNuclearClauseKind = surfaceFrame.nuclearClauseKind || "";
         controls.dataset.classicalSourceTransitivity = sourceTransitivity || "";
+        controls.dataset.classicalSourceTransitivitySelectionStatus = surfaceFrame.state?.sourceTransitivitySelectionFrame?.authorizationStatus || "";
+        controls.dataset.classicalSourceTransitivitySelectionReason = surfaceFrame.state?.sourceTransitivitySelectionFrame?.blockReason || "";
+        controls.dataset.classicalSourceTransitivityInventoryStatus = surfaceFrame.state?.sourceTransitivityControlInventoryFrame?.authorizationStatus || "";
         controls.dataset.classicalSourceValenceConflict = "false";
         controls.dataset.classicalCausativeSourceVoice = sourceVoice;
         controls.dataset.classicalLaterTargetVoice = vncVoice;
@@ -9372,8 +9648,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
       block.dataset.classicalNahuatlSelectedOutputLogic = surfaceFrame.selectedOutputLogicKind;
       block.dataset.classicalBasalUnit = surfaceFrame.basalUnit;
       block.dataset.classicalNahuatlNuclearClauseKind = surfaceFrame.nuclearClauseKind;
-      block.dataset.classicalNncOutputScope = surfaceFrame.state?.nncOutputScope || "single";
-      block.dataset.classicalVncOutputScope = surfaceFrame.state?.vncOutputScope || "single";
+      block.dataset.classicalNncOutputScope = surfaceFrame.state?.nncOutputScope || "";
+      block.dataset.classicalVncOutputScope = surfaceFrame.state?.vncOutputScope || "";
       block.dataset.classicalNahuatlPanelModel = surfaceFrame.wholeCanvasPanelFrame?.model || "";
       block.dataset.classicalNahuatlPanel1Role = surfaceFrame.wholeCanvasPanelFrame?.sourcePanel?.panelRole || "";
       block.dataset.classicalNahuatlPanel2Role = surfaceFrame.wholeCanvasPanelFrame?.authorityPanel?.panelRole || "";
@@ -16775,6 +17051,23 @@ export function createUiRenderingApi(targetObject = globalThis) {
         });
       });
     }
+    function getOrdinaryNncNounClassControlInventoryValidationFrame() {
+      const nawatValues = typeof targetObject.document !== "undefined"
+        ? Array.from(targetObject.document.querySelectorAll(".tense-block--ordinary-nnc-controls [data-ordinary-nnc-class]"), element => element.dataset.ordinaryNncClass || "")
+        : [];
+      const classicalControl = typeof targetObject.document !== "undefined"
+        ? targetObject.document.getElementById("classical-rule-logic-nnc-class")
+        : null;
+      const classicalValues = classicalControl
+        ? Array.from(classicalControl.options || [], option => String(option.value || ""))
+        : [];
+      const classicalLedgerValues = CLASSICAL_RULE_LOGIC_AUTHORITY_OPTION_TAGS
+        .filter(tag => tag.controlId === "classical-rule-logic-nnc-class")
+        .map(tag => tag.value);
+      return typeof targetObject.buildOrdinaryNncNounClassControlInventoryValidationFrame === "function"
+        ? targetObject.buildOrdinaryNncNounClassControlInventoryValidationFrame({ nawatValues, classicalValues, classicalLedgerValues })
+        : null;
+    }
     function renderOrdinaryNncConjugations({
       stem,
       containerId = "all-tense-conjugations"
@@ -16785,6 +17078,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }
       const isNawat = targetObject.getIsNawat();
       const analogueInput = typeof targetObject.parseOrdinaryNncGenerationAnalogueInput === "function" ? targetObject.parseOrdinaryNncGenerationAnalogueInput(stem) : null;
+      const manuallyWrittenFormulaInput = Boolean(analogueInput);
       const normalizedStem = analogueInput?.stem || String(stem || "").trim();
       const {
         objSection,
@@ -16797,14 +17091,12 @@ export function createUiRenderingApi(targetObject = globalThis) {
         numbers: ["singular"]
       }) : null;
       const normalizeOrdinaryNncUiNounClass = (value = "") => {
-        const normalized = String(value || "").trim().toLowerCase();
-        if (normalized === "0" || normalized === "ø" || normalized === "zero") {
-          return "zero";
-        }
-        return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+        return typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+          ? targetObject.normalizeOrdinaryNncNounClassForProfile(value, "nawat")
+          : "";
       };
       const fixtureNounClass = normalizeOrdinaryNncUiNounClass(fixtureProbe?.fixture?.nounClass || "");
-      const activeNounClass = normalizeOrdinaryNncUiNounClass(analogueInput?.nounClass || state.nounClass || fixtureNounClass);
+      const activeNounClass = normalizeOrdinaryNncUiNounClass(state.nounClass || fixtureNounClass);
       const requestNounClass = fixtureProbe ? "" : activeNounClass;
       const fixtureAnimacy = fixtureProbe?.fixture?.animacy || "";
       const selectedAnimacy = fixtureAnimacy || (state.animacy === "animate" || state.animacy === "inanimate" ? state.animacy : "");
@@ -16841,7 +17133,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         candidatePossessor = state.possessor,
         candidateSubject = null
       } = {}) => {
-        if (!normalizedStem || !fixtureProbe && !requestNounClass || !fixtureProbe && !selectedAnimacy || typeof targetObject.buildOrdinaryNncGenerateWordRequest !== "function" || typeof targetObject.executeGenerateWordRequest !== "function") {
+        if (manuallyWrittenFormulaInput || !normalizedStem || !fixtureProbe && !requestNounClass || !fixtureProbe && !selectedAnimacy || typeof targetObject.buildOrdinaryNncGenerateWordRequest !== "function" || typeof targetObject.executeGenerateWordRequest !== "function") {
           return null;
         }
         const subjectSource = candidateSubject || {
@@ -16925,24 +17217,19 @@ export function createUiRenderingApi(targetObject = globalThis) {
       controlsTitle.appendChild(controlsLabel);
       const controls = targetObject.document.createElement("div");
       controls.className = "tense-block__controls tense-block__controls--stacked";
+      const nounClassTitles = {
+        t: "conector t: (...V)t",
+        ti: "conector ti: (...C)ti",
+        in: "conector in: (...C)in",
+        zero: "conector Ø: (...C/V)"
+      };
+      const nawatNounClassProfile = targetObject.ORDINARY_NNC_NOUN_CLASS_CONTRACT?.profiles?.nawat;
       const nounClassToggle = buildToggleControl({
-        options: [{
-          id: "t",
-          label: "t",
-          title: "conector t: (...V)t"
-        }, {
-          id: "ti",
-          label: "ti",
-          title: "conector ti: (...C)ti"
-        }, {
-          id: "in",
-          label: "in",
-          title: "conector in: (...C)in"
-        }, {
-          id: "zero",
-          label: "Ø",
-          title: "conector Ø: (...C/V)"
-        }].map(entry => ({
+        options: Array.from(nawatNounClassProfile?.values || []).map(id => ({
+          id,
+          label: nawatNounClassProfile?.displayLabels?.[id] || id,
+          title: nounClassTitles[id] || id
+        })).map(entry => ({
           ...entry,
           title: fixtureNounClass && entry.id !== fixtureNounClass ? `${entry.title}; ficha registrada: ${getOrdinaryNncNounClassLabel(fixtureNounClass)}` : entry.title
         })),
@@ -16959,6 +17246,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
       });
       nounClassToggle.toggle.dataset.toggleType = "meta";
       nounClassToggle.toggle.dataset.toggleSlot = "num1-num2";
+      nounClassToggle.buttons.forEach((button, id) => {
+        button.dataset.ordinaryNncClass = id;
+      });
       controls.appendChild(nounClassToggle.toggle);
       const hasFixtureAnimacy = Boolean(fixtureAnimacy);
       const animacyToggle = buildToggleControl({
@@ -26479,6 +26769,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.parseClassicalRuleLogicSurfaceObjectSelection = parseClassicalRuleLogicSurfaceObjectSelection;
     api.normalizeClassicalRuleLogicSourceTransitivity = normalizeClassicalRuleLogicSourceTransitivity;
     api.getClassicalRuleLogicSourceTransitivityFromHash = getClassicalRuleLogicSourceTransitivityFromHash;
+    api.getClassicalRuleLogicSourceTransitivitySelectionFromHash = getClassicalRuleLogicSourceTransitivitySelectionFromHash;
+    api.getClassicalRuleLogicSourceTransitivitySelectionFrame = getClassicalRuleLogicSourceTransitivitySelectionFrame;
     api.getClassicalRuleLogicSourceTransitivity = getClassicalRuleLogicSourceTransitivity;
     api.getClassicalRuleLogicSurfaceSourceSlotKey = getClassicalRuleLogicSurfaceSourceSlotKey;
     api.getClassicalRuleLogicSurfaceSourceParts = getClassicalRuleLogicSurfaceSourceParts;
@@ -26517,6 +26809,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
     });
     api.getClassicalRuleLogicAuthorityOptionTags = getClassicalRuleLogicAuthorityOptionTags;
     api.getClassicalRuleLogicAuthorityOptionTag = getClassicalRuleLogicAuthorityOptionTag;
+    api.getClassicalResultOutputScopeControlInventoryFrame = getClassicalResultOutputScopeControlInventoryFrame;
+    api.getClassicalRuleLogicSemanticControlInventoryFrame = getClassicalRuleLogicSemanticControlInventoryFrame;
+    api.getClassicalRuleLogicDerivationTypeControlInventoryFrame = getClassicalRuleLogicDerivationTypeControlInventoryFrame;
+    api.getClassicalRuleLogicVoiceControlInventoryFrame = getClassicalRuleLogicVoiceControlInventoryFrame;
     api.canClassicalRuleLogicUseTlaFusionForState = canClassicalRuleLogicUseTlaFusionForState;
     api.getClassicalRuleLogicCanvasClassSelection = getClassicalRuleLogicCanvasClassSelection;
     api.parseClassicalNncSubjectCategories = parseClassicalNncSubjectCategories;
@@ -27064,6 +27360,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
     api.appendParticleModeRow = appendParticleModeRow;
     api.renderParticleModeConjugations = renderParticleModeConjugations;
     api.renderOrdinaryNncConjugations = renderOrdinaryNncConjugations;
+    api.getOrdinaryNncNounClassControlInventoryValidationFrame = getOrdinaryNncNounClassControlInventoryValidationFrame;
     api.renderActiveConjugations = renderActiveConjugations;
     api.renderNonactiveConjugationRows = renderNonactiveConjugationRows;
     api.splitConjugationSurfaceText = splitConjugationSurfaceText;

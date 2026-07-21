@@ -88,7 +88,7 @@ function run() {
     const browserEntrySource = fs.readFileSync(path.join(ROOT, "src", "browser", "main.mjs"), "utf8");
     s.ok(
         "the browser entry delegates to the ESM bootstrap and publishes its readiness promise",
-        browserEntrySource.includes('from "../bootstrap/bootstrap.mjs"')
+        browserEntrySource.includes('from "../bootstrap/bootstrap.mjs?v=')
             && browserEntrySource.includes("__NAWAT_MODULE_BOOTSTRAP_PROMISE__")
     );
 

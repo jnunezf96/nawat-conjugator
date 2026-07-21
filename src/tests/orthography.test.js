@@ -2735,6 +2735,57 @@ function run(ctx) {
         }
     );
 
+    const forgedLesson4Transitivity = ctx.buildClassicalNahuatlLesson4NuclearClauseFrame("cochi", {
+        nuclearClauseKind: "vnc",
+        tenseMode: "verbo",
+        transitivity: "fabricated",
+    });
+    s.eq(
+        "Classical Lesson 4 cannot authorize an intransitive VNC from unknown source transitivity",
+        {
+            status: forgedLesson4Transitivity.proofFrame?.authorizationStatus,
+            selectionStatus: forgedLesson4Transitivity.selectionFrame?.sourceTransitivitySelectionFrame?.authorizationStatus,
+            reason: forgedLesson4Transitivity.selectedFormulaReason,
+            selectedFormulaId: forgedLesson4Transitivity.selectedFormulaId,
+            formula: forgedLesson4Transitivity.formulaRealization,
+            formulaOutputAllowed: forgedLesson4Transitivity.formulaOutputAllowed,
+            blocksInput: forgedLesson4Transitivity.blocksInput,
+            stage3Formula: forgedLesson4Transitivity.stageFrames?.[2]?.formula,
+        },
+        {
+            status: "blocked",
+            selectionStatus: "blocked",
+            reason: "generation-source-transitivity-not-recognized",
+            selectedFormulaId: "",
+            formula: "",
+            formulaOutputAllowed: false,
+            blocksInput: true,
+            stage3Formula: "",
+        }
+    );
+    s.eq(
+        "Classical Lesson 4 projects valid bitransitive source topology to its dyadic transitive formula group",
+        (() => {
+            const frame = ctx.buildClassicalNahuatlLesson4NuclearClauseFrame("maca", {
+                nuclearClauseKind: "vnc",
+                tenseMode: "verbo",
+                transitivity: "vb",
+            });
+            return {
+                status: frame.proofFrame?.authorizationStatus,
+                transitivity: frame.selectionFrame?.transitivity,
+                slot: frame.selectionFrame?.sourceTransitivitySelectionFrame?.sourceSlotKey,
+                formulaId: frame.selectedFormulaId,
+            };
+        })(),
+        {
+            status: "authorized",
+            transitivity: "bitransitive",
+            slot: "c",
+            formulaId: "vnc-valence-dyadic",
+        }
+    );
+
     return s;
 }
 

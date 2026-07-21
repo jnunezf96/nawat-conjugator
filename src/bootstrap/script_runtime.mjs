@@ -1170,7 +1170,6 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
     var UI_DENSITY_ADVANCED_TENSES = new Set(["presente-habitual", "imperfecto", "pasado-remoto"]);
 
     // === Runtime State ===
-    var OriginalLabels = {};
     var VerbInputState = {
       lastNonSearchValue: ""
     };
@@ -1315,6 +1314,8 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       subjectKey: "3sg",
       possessor: "",
       nounClass: "",
+      requestedNounClass: "",
+      nounClassSelectionFrame: null,
       animacy: ""
     };
     var TenseTabsState = {
@@ -2313,12 +2314,6 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         enumerable: true,
         get() { return UI_DENSITY_ADVANCED_TENSES; },
         set(value) { UI_DENSITY_ADVANCED_TENSES = value; },
-    });
-    Object.defineProperty(api, "OriginalLabels", {
-        configurable: true,
-        enumerable: true,
-        get() { return OriginalLabels; },
-        set(value) { OriginalLabels = value; },
     });
     Object.defineProperty(api, "VerbInputState", {
         configurable: true,

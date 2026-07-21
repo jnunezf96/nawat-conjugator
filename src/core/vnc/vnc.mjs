@@ -1127,18 +1127,18 @@ export function createVncApi(targetObject = globalThis) {
     }
     function getAdjectivalNncFunctionEntryNounClass(connectorSlot = null) {
       const slot = connectorSlot && typeof connectorSlot === "object" ? connectorSlot : {};
-      const nounClass = String(slot.nounClass || "").trim().toLowerCase();
-      if (nounClass === "0" || nounClass === "ø" || nounClass === "zero") {
-        return "zero";
-      }
-      if (["t", "ti", "in"].includes(nounClass)) {
+      const normalizeNounClass = value => typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+        ? targetObject.normalizeOrdinaryNncNounClassForProfile(value, "nawat")
+        : "";
+      const nounClass = normalizeNounClass(slot.nounClass || "");
+      if (nounClass) {
         return nounClass;
       }
       const connector = String(slot.connector || slot.surface || "").trim().toLowerCase();
       if (!connector || connector === "ø") {
         return "zero";
       }
-      return ["t", "ti", "in"].includes(connector) ? connector : "";
+      return normalizeNounClass(connector);
     }
     function resolveAdjectivalNncFunctionOverrideFromInput(troncoControl = null) {
       const currentSurface = String(troncoControl?.value || "").trim();

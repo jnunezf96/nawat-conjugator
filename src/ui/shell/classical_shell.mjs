@@ -1,6 +1,11 @@
 // Canonical modern ESM module.
 
+import { CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS } from "../../core/output/scope.mjs?v=20260719-output-scope-contract-053";
+
 export function createClassicalShellModule(targetObject = globalThis) {
+    function renderClassicalResultOutputScopeOptions(role = "") {
+      return (CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS[role]?.options || []).map((option, index) => `                    <option value="${option.value}" data-classical-authority-option-tag="${option.tagId}"${index === 0 ? " selected" : ""}>${option.label}</option>`).join("\n");
+    }
     function ClassicalPanelTabs() {
       return `          <div class="panel-stack-tabs" role="tablist" aria-label="Andrews stages">
                 <button
@@ -2318,15 +2323,13 @@ export function createClassicalShellModule(targetObject = globalThis) {
                 <label class="classical-rule-control" data-classical-result-scope-control="nnc" hidden>
                   <span class="classical-rule-control__label">Output scope</span>
                   <select id="classical-rule-logic-nnc-output-scope" data-classical-rule-logic-control="nnc-output-scope">
-                    <option value="single" data-classical-authority-option-tag="cn-option-nnc-output-single" selected>single form</option>
-                    <option value="paradigm" data-classical-authority-option-tag="cn-option-nnc-output-paradigm">full paradigm</option>
+${renderClassicalResultOutputScopeOptions("nnc")}
                   </select>
                 </label>
                 <label class="classical-rule-control" data-classical-result-scope-control="vnc" hidden>
                   <span class="classical-rule-control__label">Output scope</span>
                   <select id="classical-rule-logic-vnc-output-scope" data-classical-rule-logic-control="vnc-output-scope">
-                    <option value="single" data-classical-authority-option-tag="cn-option-vnc-output-single" selected>single form</option>
-                    <option value="paradigm" data-classical-authority-option-tag="cn-option-vnc-output-paradigm">full paradigm</option>
+${renderClassicalResultOutputScopeOptions("vnc")}
                   </select>
                 </label>
               </div>

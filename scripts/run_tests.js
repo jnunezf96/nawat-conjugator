@@ -89,10 +89,6 @@ function applyStaticData(context) {
 }
 
 async function main() {
-    const context = await buildRuntimeContext();
-    context.__TEST_RUNTIME_MODE__ = runtimeMode;
-    applyStaticData(context);
-
     const testDir = path.join(ROOT, "src", "tests");
     const testFiles = fs.readdirSync(testDir)
         .filter(f => f.endsWith(".test.js"))
@@ -105,6 +101,12 @@ async function main() {
 
     const suites = [];
     for (const file of testFiles) {
+        // Each suite receives a fresh canonical runtime. UI and grammar tests
+        // deliberately mutate controls and registries while probing hostile
+        // state; sharing one runtime made later suites depend on filename order.
+        const context = await buildRuntimeContext();
+        context.__TEST_RUNTIME_MODE__ = runtimeMode;
+        applyStaticData(context);
         const mod = require(path.join(testDir, file));
         if (typeof mod.run === "function") {
             process.stdout.write(`[RUN] ${file} (${runtimeMode})\n`);

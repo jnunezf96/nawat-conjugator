@@ -565,6 +565,7 @@ return {
         fs.readFileSync(path.resolve(__dirname, "..", ...segments), "utf8")
     );
     const composer = readCanonicalModule("ui", "composer", "composer.mjs");
+    const i18n = readCanonicalModule("ui", "i18n", "i18n.mjs");
     const generationEngine = readCanonicalModule("core", "generation", "engine.mjs");
     const events = readCanonicalModule("ui", "events", "events.mjs");
     const exportUi = readCanonicalModule("ui", "export", "export.mjs");
@@ -869,8 +870,8 @@ return {
     );
     s.ok(
         "index.html is a modern-module Source Authority Result shell",
-        indexHtml.includes('style.css?v=20260719-source-authority-minimal-086')
-            && indexHtml.includes('src/browser/main.mjs?v=20260719-source-authority-minimal-044')
+        indexHtml.includes('style.css?v=20260719-interface-language-removed-088')
+            && indexHtml.includes('src/browser/main.mjs?v=20260719-output-scope-contract-053')
             && moduleEntryPaths.length === 1
             && moduleEntryPaths[0] === "src/browser/main.mjs"
             && classicEntryPaths.length === 0
@@ -888,6 +889,8 @@ return {
             && !indexHtml.includes('aria-label="Use Nawat interface labels"')
             && !css.includes(".interface-language-control")
             && !events.includes("initLanguageSwitch")
+            && !i18n.includes("changeLanguage")
+            && !i18n.includes('getElementById("language")')
             && !composer.includes('getElementById("language")')
             && !indexHtml.includes('id="classical-rule-logic-controls"')
             && !indexHtml.includes('id="all-tense-conjugations"')
@@ -8697,7 +8700,7 @@ return {
             && !html.includes('data-andrews-formula-role="route-board"')
             && html.includes('id="output-journey-strip"')
             && html.includes('data-andrews-output-role="route-journey"')
-            && html.includes("style.css?v=20260719-source-authority-minimal-086")
+            && html.includes("style.css?v=20260719-interface-language-removed-088")
             && browserRuntimeHas("src/ui/shell/classical_shell.mjs")
             && browserRuntimeHas("src/core/nnc/nominalization/nominalization.mjs")
             && browserRuntimeHas("src/core/classical/profile_wall.mjs")
@@ -10425,7 +10428,8 @@ return {
             && composer.includes("buildComposerOrdinaryNncInputBundle")
             && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
             && composer.includes('const regexValue = stem')
-            && composer.includes('formatComposerOrdinaryNncAnalogueInput({ stem, nounClass: "" })')
+            && composer.includes("const regexValue = stem ? formatComposerOrdinaryNncAnalogueInput({")
+            && composer.includes('nounClass: ""')
             && composer.includes('selectionRequired: ""')
             && !composer.includes('selectionRequired = !nounClass')
             && !composer.includes('"ordinary-nnc-animacy"')
@@ -10447,24 +10451,26 @@ return {
             && !composer.includes("bloqueado por ficha: conector")
             && composer.includes('const currentStem = currentAnalogue?.stem || getComposerActiveStemValue()')
             && composer.includes('setComposerActiveSlotStem(normalizeComposerStem(currentStem))')
-            && composer.includes("syncEntradaUrlSegmentsFromCurrentState({ replace: true })")
-            && composer.includes("function syncComposerOrdinaryNncClassTabActiveState")
-            && composer.includes("syncComposerOrdinaryNncClassTabActiveState(nextPatch.nounClass)")
-            && composer.includes("window.setTimeout(() => {")
-            && composer.includes('const rawInputValue = document.getElementById("verb")?.value || ""')
-            && composer.includes('uiState.nounClass || parsedFallback?.nounClass || ""')
+            && composer.includes("syncEntradaUrlSegmentsFromCurrentState({")
+            && composer.includes("replace: true")
+            && !composer.includes("function renderComposerOrdinaryNncClassTabs")
+            && !composer.includes("api.renderComposerOrdinaryNncClassTabs")
+            && composer.includes('const nounClass = normalizeComposerOrdinaryNncNounClass(uiState.nounClass || "")')
+            && !composer.includes('parsedNnc?.nounClass || uiState.nounClass')
+            && composer.includes('normalizeOrdinaryNncNounClassForProfile(value, "nawat")')
+            && rendering.includes("ORDINARY_NNC_NOUN_CLASS_CONTRACT?.profiles?.nawat")
             && rendering.includes('visibleLabel: "Conector num1-num2"')
             && rendering.includes('visibleLabel: "Animacidad"')
-            && rendering.includes('setOrdinaryNncGenerationState({ nounClass: id || "zero" })')
+            && rendering.includes('nounClass: id || "zero"')
             && rendering.includes('animacy: id')
             && !composer.includes("Animacidad fija")
             && !composer.includes('disabled: animacyIsFixed')
             && !composer.includes("bloqueado por ficha: animado")
             && !composer.includes("bloqueado por ficha: inanimado")
-            && rendering.includes('title: "conector t: (...V)t"')
-            && rendering.includes('title: "conector ti: (...C)ti"')
-            && rendering.includes('title: "conector in: (...C)in"')
-            && rendering.includes('title: "conector Ø: (...C/V)"')
+            && rendering.includes('t: "conector t: (...V)t"')
+            && rendering.includes('ti: "conector ti: (...C)ti"')
+            && rendering.includes('in: "conector in: (...C)in"')
+            && rendering.includes('zero: "conector Ø: (...C/V)"')
             && rendering.includes("Selecciona un conector de número para saber su salida.")
             && rendering.includes("Selecciona una animacidad para saber su salida.")
             && rendering.includes("Selecciona una transitividad para saber su salida.")
@@ -10510,7 +10516,7 @@ return {
             && composer.includes("function buildEntradaUrlSegmentString")
             && composer.includes("function parseEntradaUrlSegmentString")
             && composer.includes("function initEntradaUrlSegments")
-            && composer.includes('target.closest("#container-inputs, #classical-authority-panel")')
+            && composer.includes('target.closest("#container-inputs, #classical-authority-panel, #classical-result-panel")')
             && composer.includes('"ordinaryNncNounClass"')
             && composer.includes('"classicalNncSubclass"')
             && composer.includes('"slotATemplateTiCausativeClass"')
@@ -10545,7 +10551,13 @@ return {
                     derivationType: "direct",
                     derivedVnc: "11.42",
                 });
+                const directParadigm = ctx.buildEntradaUrlHash({
+                    input: "(chōca)",
+                    derivationType: "direct",
+                    vncOutputScope: "paradigm",
+                });
                 const malformedCapsule = ctx.parseEntradaUrlSegmentString("#entrada/v1/derivation/causative/v/zz.42.bad.11.42");
+                const unknownDerivation = ctx.parseEntradaUrlSegmentString("#entrada/v1/derivation/fabricated/v/11.42");
                 return {
                     resultSegment: resultHash.includes("/screen/output"),
                     resultPanel: ctx.parseEntradaUrlSegmentString(resultHash)?.panel || "",
@@ -10560,7 +10572,14 @@ return {
                         && !applicativeHash.includes("classical-rule-logic"),
                     applicativeCapsuleRoundTrip: ctx.parseEntradaUrlSegmentString(applicativeHash)?.derivedVnc || "",
                     directOmitsStaleCapsule: !directWithStaleCapsule.includes("/v/"),
+                    directParadigmSegment: directParadigm.includes("/vnc-output/paradigm"),
+                    directParadigmRoundTrip: ctx.parseEntradaUrlSegmentString(directParadigm)?.vncOutputScope || "",
                     malformedCapsuleFailsClosed: malformedCapsule?.derivedVnc || "",
+                    unknownDerivationType: unknownDerivation?.derivationType || "",
+                    unknownDerivationStatus: unknownDerivation?.derivationTypeValidationFrame?.authorizationStatus || "",
+                    unknownDerivationReason: unknownDerivation?.derivationTypeValidationFrame?.blockReason || "",
+                    unknownDerivationCannotApply: composer.includes('normalized.derivationTypeValidationFrame?.authorizationStatus === "blocked"')
+                        && composer.includes("return false;"),
                     legacyDerivationType: legacySnapshot?.derivationType || "",
                     restoreUsesPanelSetter: composer.includes('targetObject.setLeftPanelStackMode(normalized.panel)'),
                     restoreUsesDerivationSetter: composer.includes('targetObject.setActiveDerivationType(normalized.derivationType)'),
@@ -10572,6 +10591,8 @@ return {
                     derivationClicksSyncImmediately: composer.includes('(event?.type === "click" || event?.type === "change" || event?.type === "input") && isEntradaUrlImmediateSyncEventTarget(target)')
                         && composer.includes('target.closest("[data-derivation-type]")')
                         && composer.includes('syncEntradaUrlSegmentsFromCurrentState({\n            replace: true\n          });'),
+                    resultScopeChangesSyncImmediately: composer.includes('target.closest("[data-classical-result-scope-control]")')
+                        && composer.includes('#container-inputs, #classical-authority-panel, #classical-result-panel'),
                     derivedSelectionsCapturedBeforeRerender: composer.includes('target.closest("[data-classical-rule-logic-control]")')
                         && composer.includes('targetObject.document.addEventListener("input", handleEntradaMutation, true)')
                         && composer.includes('targetObject.document.addEventListener("change", handleEntradaMutation, true)'),
@@ -10592,13 +10613,20 @@ return {
             applicativeCapsuleIsCompact: true,
             applicativeCapsuleRoundTrip: "11.42.52.62.82.91.b4.e1.n1.s1",
             directOmitsStaleCapsule: true,
+            directParadigmSegment: true,
+            directParadigmRoundTrip: "paradigm",
             malformedCapsuleFailsClosed: "11.42",
+            unknownDerivationType: "",
+            unknownDerivationStatus: "blocked",
+            unknownDerivationReason: "classical-vnc-derivation-type-not-recognized",
+            unknownDerivationCannotApply: true,
             legacyDerivationType: "direct",
             restoreUsesPanelSetter: true,
             restoreUsesDerivationSetter: true,
             restoreRebuildsDynamicChoices: true,
             derivedControlChangesSyncImmediately: true,
             derivationClicksSyncImmediately: true,
+            resultScopeChangesSyncImmediately: true,
             derivedSelectionsCapturedBeforeRerender: true,
             panelChangesSyncUrl: true,
         }
@@ -19418,10 +19446,8 @@ return {
             && extractClassicalShellTemplate("ClassicalResultPanel").includes('id="classical-rule-logic-vnc-output-scope"')
             && !extractClassicalShellTemplate("ClassicalAuthorityPanel").includes('id="classical-rule-logic-nnc-output-scope"')
             && !extractClassicalShellTemplate("ClassicalAuthorityPanel").includes('id="classical-rule-logic-vnc-output-scope"')
-            && classicalShell.includes('value="single" data-classical-authority-option-tag="cn-option-nnc-output-single"')
-            && classicalShell.includes('value="paradigm" data-classical-authority-option-tag="cn-option-nnc-output-paradigm"')
-            && classicalShell.includes('value="single" data-classical-authority-option-tag="cn-option-vnc-output-single"')
-            && classicalShell.includes('value="paradigm" data-classical-authority-option-tag="cn-option-vnc-output-paradigm"')
+            && classicalShell.includes('renderClassicalResultOutputScopeOptions("nnc")')
+            && classicalShell.includes('renderClassicalResultOutputScopeOptions("vnc")')
             && rendering.includes("data-classical-result-scope-control")
             && css.includes("#classical-result-panel .classical-result-scope-controls")
             && rendering.includes('function buildClassicalNncParadigmDisplayFrame(rows = [], currentPossessor = "")')
@@ -19449,6 +19475,118 @@ return {
             && css.includes('.classical-rule-surface__paradigm-reference')
             && css.includes('.classical-rule-surface__paradigm-group-summary')
             && css.includes('.classical-rule-surface__paradigm-table-scroll')
+    );
+    s.eq(
+        "Result shell and Canvas ledger match the typed output-scope contract in exact role order",
+        typeof ctx.ClassicalResultPanel === "function"
+            && typeof ctx.validateClassicalResultOutputScopeControlInventory === "function"
+            ? (() => {
+                const markup = ctx.ClassicalResultPanel();
+                const shellRecords = ["nnc", "vnc"].flatMap((role) => {
+                    const contract = ctx.CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS[role];
+                    const selectMatch = markup.match(new RegExp(`<select id="${contract.controlId}"[^>]*>([\\s\\S]*?)<\\/select>`, "u"));
+                    return Array.from((selectMatch?.[1] || "").matchAll(/<option value="([^"]+)" data-classical-authority-option-tag="([^"]+)"/gu))
+                        .map((match) => ({ controlId: contract.controlId, value: match[1], tagId: match[2] }));
+                });
+                const controlIds = new Set(Object.values(ctx.CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS).map((contract) => contract.controlId));
+                const ledgerRecords = ctx.getClassicalRuleLogicAuthorityOptionTags()
+                    .filter((record) => controlIds.has(record.controlId))
+                    .map((record) => ({ controlId: record.controlId, value: record.value, tagId: record.tagId }));
+                const exact = ctx.validateClassicalResultOutputScopeControlInventory({ shellRecords, ledgerRecords });
+                const poisoned = ctx.validateClassicalResultOutputScopeControlInventory({
+                    shellRecords: shellRecords.map((record, index) => index === 1 ? { ...record, value: "fabricated" } : record),
+                    ledgerRecords,
+                });
+                return {
+                    vocabulary: ctx.CLASSICAL_RESULT_OUTPUT_SCOPES,
+                    shell: shellRecords.map((record) => [record.controlId, record.value, record.tagId]),
+                    exact: exact.authorizationStatus,
+                    poisoned: poisoned.authorizationStatus,
+                    nncDimensions: ctx.CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.nnc.paradigmDimensions,
+                    vncDimensions: ctx.CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.vnc.paradigmDimensions,
+                    vncActiveOnly: ctx.CLASSICAL_RESULT_OUTPUT_SCOPE_CONTROL_CONTRACTS.vnc.paradigmRequiresActiveVoice,
+                };
+            })()
+            : "output-scope-contract-not-loaded",
+        {
+            vocabulary: ["single", "paradigm"],
+            shell: [
+                ["classical-rule-logic-nnc-output-scope", "single", "cn-option-nnc-output-single"],
+                ["classical-rule-logic-nnc-output-scope", "paradigm", "cn-option-nnc-output-paradigm"],
+                ["classical-rule-logic-vnc-output-scope", "single", "cn-option-vnc-output-single"],
+                ["classical-rule-logic-vnc-output-scope", "paradigm", "cn-option-vnc-output-paradigm"],
+            ],
+            exact: "authorized",
+            poisoned: "blocked",
+            nncDimensions: ["state", "subject", "possessor", "stem-relation", "number-form"],
+            vncDimensions: ["valence", "subject", "mood", "tense"],
+            vncActiveOnly: true,
+        }
+    );
+    s.eq(
+        "Malformed explicit Result scope blocks role projection instead of inheriting single or the inactive control",
+        typeof ctx.buildClassicalRuleLogicSurfaceFrame === "function"
+            ? (() => {
+                const nnc = ctx.buildClassicalRuleLogicSurfaceFrame({
+                    basalUnit: "nnc",
+                    stem: "cal",
+                    nncNounClass: "tli",
+                    nncOutputScope: "fabricated",
+                });
+                const vnc = ctx.buildClassicalRuleLogicSurfaceFrame({
+                    basalUnit: "vnc",
+                    stem: "nemi",
+                    lesson: "7",
+                    valence: "intransitive",
+                    lesson11Construction: "none",
+                    mood: "indicative",
+                    tense: "present",
+                    vncOutputScope: "fabricated",
+                    nncOutputScope: "paradigm",
+                });
+                const empty = ctx.buildClassicalRuleLogicSurfaceFrame({
+                    basalUnit: "vnc",
+                    stem: "nemi",
+                    lesson: "7",
+                    valence: "intransitive",
+                    lesson11Construction: "none",
+                    mood: "indicative",
+                    tense: "present",
+                    vncOutputScope: "",
+                });
+                return {
+                    nnc: {
+                        status: nnc.authorizationStatus,
+                        reason: nnc.blockReason,
+                        scope: nnc.state.nncOutputScope,
+                        scopeStatus: nnc.state.nncOutputScopeSelectionFrame.authorizationStatus,
+                        single: nnc.nncSingleFormDisplayFrame,
+                        paradigm: nnc.nncParadigmFrame,
+                    },
+                    vnc: {
+                        status: vnc.authorizationStatus,
+                        reason: vnc.blockReason,
+                        scope: vnc.state.vncOutputScope,
+                        scopeStatus: vnc.state.vncOutputScopeSelectionFrame.authorizationStatus,
+                        inactiveNncScope: vnc.state.nncOutputScope,
+                        appStatus: vnc.state.vncApplicationFrame.authorizationStatus,
+                        formula: vnc.selectedFormula,
+                        single: vnc.vncSingleFormDisplayFrame,
+                        paradigm: vnc.vncParadigmFrame,
+                    },
+                    empty: {
+                        status: empty.authorizationStatus,
+                        reason: empty.blockReason,
+                        scopeStatus: empty.state.vncOutputScopeSelectionFrame.authorizationStatus,
+                    },
+                };
+            })()
+            : "surface-builder-not-loaded",
+        {
+            nnc: { status: "blocked", reason: "classical-result-output-scope-not-recognized", scope: "", scopeStatus: "blocked", single: null, paradigm: null },
+            vnc: { status: "blocked", reason: "classical-result-output-scope-not-recognized", scope: "", scopeStatus: "blocked", inactiveNncScope: "single", appStatus: "blocked", formula: "", single: null, paradigm: null },
+            empty: { status: "blocked", reason: "classical-result-output-scope-not-recognized", scopeStatus: "blocked" },
+        }
     );
     s.ok(
         "Smith frames are the typed output-visual authority without becoming grammar authority",
@@ -21818,6 +21956,142 @@ return {
                 shellControl: true,
                 staticTypedRouting: true,
             }
+    );
+
+    const sourceTransitivityValues = ["intransitive", "transitive", "bitransitive"];
+    const visibleSourceTransitivityValues = Array.from(
+        classicalShell.matchAll(/data-composer-transitivity="([^"]+)"/gu),
+        (match) => match[1]
+    );
+    const visibleSourceTransitivityGroups = [0, 1, 2].map((groupIndex) => (
+        visibleSourceTransitivityValues.slice(groupIndex * 3, groupIndex * 3 + 3)
+    ));
+    const hiddenSourceTransitivitySelect = classicalShell.match(
+        /id="composer-transitivity"[\s\S]*?<\/select>/u
+    )?.[0] || "";
+    const hiddenSourceTransitivityValues = Array.from(
+        hiddenSourceTransitivitySelect.matchAll(/<option value="([^"]*)"/gu),
+        (match) => match[1]
+    ).filter(Boolean);
+    const sourceTransitivitySlotShellValues = Array.from(
+        classicalShell.matchAll(/data-composer-slot-shell="([^"]+)"/gu),
+        (match) => match[1]
+    );
+    s.eq(
+        "Source transitivity derives all shell groups, hidden state, and A/B/C topology from one contract",
+        typeof ctx.validateGenerationSourceTransitivityControlInventory === "function"
+            ? (() => {
+                const frame = ctx.validateGenerationSourceTransitivityControlInventory({
+                    hiddenSelectValues: hiddenSourceTransitivityValues,
+                    visibleGroupValues: visibleSourceTransitivityGroups,
+                    slotShellValues: sourceTransitivitySlotShellValues,
+                });
+                const poisoned = ctx.validateGenerationSourceTransitivityControlInventory({
+                    hiddenSelectValues: hiddenSourceTransitivityValues,
+                    visibleGroupValues: visibleSourceTransitivityGroups.map((group, index) => (
+                        index === 1 ? [group[0], "fabricated", group[2]] : group
+                    )),
+                    slotShellValues: sourceTransitivitySlotShellValues,
+                });
+                return {
+                    vocabulary: ctx.GENERATION_SOURCE_TRANSITIVITY_ORDER,
+                    slots: ctx.GENERATION_SOURCE_SLOT_BY_TRANSITIVITY,
+                    status: frame.authorizationStatus,
+                    visibleGroupsMatch: frame.visibleGroupsMatch,
+                    hiddenSelectMatches: frame.hiddenSelectMatches,
+                    slotShellsMatch: frame.slotShellsMatch,
+                    poisonedStatus: poisoned.authorizationStatus,
+                    poisonedReason: poisoned.blockReason,
+                };
+            })()
+            : "missing",
+        {
+            vocabulary: sourceTransitivityValues,
+            slots: { intransitive: "a", transitive: "b", bitransitive: "c" },
+            status: "authorized",
+            visibleGroupsMatch: true,
+            hiddenSelectMatches: true,
+            slotShellsMatch: true,
+            poisonedStatus: "blocked",
+            poisonedReason: "generation-source-transitivity-control-inventory-mismatch",
+        }
+    );
+    s.eq(
+        "Invalid explicit source transitivity cannot fall through to stale state or slot A",
+        typeof ctx.getClassicalRuleLogicSourceTransitivitySelectionFrame === "function"
+            ? (() => {
+                const previousWindow = ctx.window;
+                const previousComposerState = ctx.VerbComposerState;
+                ctx.window = { location: { hash: "#entrada/v1/verb/(nemi)/tr/transitive" } };
+                ctx.VerbComposerState = { transitivity: "bitransitive" };
+                try {
+                    const selection = ctx.getClassicalRuleLogicSourceTransitivitySelectionFrame({
+                        sourceTransitivity: "fabricated",
+                    });
+                    const frame = ctx.buildClassicalRuleLogicSurfaceFrame({
+                        basalUnit: "vnc",
+                        lesson: "7",
+                        stem: "nemi",
+                        sourceTransitivity: "fabricated",
+                        valence: "intransitive",
+                        subject: "1sg",
+                        mood: "indicative",
+                        tense: "present",
+                    });
+                    const composerSemantic = ctx.buildComposerSemanticState({
+                        transitivity: "fabricated",
+                        slotAStem: "forged",
+                    });
+                    const independentCanvasValence = ctx.buildClassicalRuleLogicSurfaceFrame({
+                        basalUnit: "vnc",
+                        lesson: "7",
+                        stem: "nemi",
+                        sourceTransitivity: "bitransitive",
+                        valence: "intransitive",
+                        subject: "1sg",
+                        mood: "indicative",
+                        tense: "present",
+                    });
+                    return {
+                        requested: selection.requestedSourceTransitivity,
+                        status: selection.authorizationStatus,
+                        normalized: selection.sourceTransitivity,
+                        slot: ctx.getClassicalRuleLogicSurfaceSourceSlotKey("fabricated"),
+                        surfaceStatus: frame.authorizationStatus,
+                        surfaceReason: frame.blockReason,
+                        formula: frame.selectedFormula,
+                        sourceEmbedStem: frame.state?.sourceEmbedStem,
+                        sourceMatrixStem: frame.state?.sourceMatrixStem,
+                        composerSemanticStatus: composerSemantic.sourceTransitivitySelectionFrame?.authorizationStatus,
+                        composerSemanticSerialized: ctx.serializeComposerSemanticToRegexInput(composerSemantic),
+                        independentCanvasStatus: independentCanvasValence.authorizationStatus,
+                        independentSourceTransitivity: independentCanvasValence.state?.sourceTransitivity,
+                        independentCanvasValence: independentCanvasValence.state?.valence,
+                        independentFormula: independentCanvasValence.selectedFormula,
+                    };
+                } finally {
+                    ctx.window = previousWindow;
+                    ctx.VerbComposerState = previousComposerState;
+                }
+            })()
+            : "missing",
+        {
+            requested: "fabricated",
+            status: "blocked",
+            normalized: "",
+            slot: "",
+            surfaceStatus: "blocked",
+            surfaceReason: "generation-source-transitivity-not-recognized",
+            formula: "",
+            sourceEmbedStem: "",
+            sourceMatrixStem: "",
+            composerSemanticStatus: "blocked",
+            composerSemanticSerialized: "",
+            independentCanvasStatus: "authorized",
+            independentSourceTransitivity: "bitransitive",
+            independentCanvasValence: "intransitive",
+            independentFormula: "#ni-0(nemi)0+0-0#",
+        }
     );
 
     return s;

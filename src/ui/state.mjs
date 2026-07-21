@@ -17624,14 +17624,9 @@ export function createUiStateModule(targetObject = globalThis) {
       return "";
     }
     function normalizeOrdinaryNncGenerationNounClass(value = "") {
-      const normalized = String(value || "").trim().toLowerCase();
-      if (!normalized) {
-        return "";
-      }
-      if (normalized === "0" || normalized === "ø" || normalized === "zero") {
-        return "zero";
-      }
-      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+      return typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+        ? targetObject.normalizeOrdinaryNncNounClassForProfile(value, "nawat")
+        : "";
     }
     function parseOrdinaryNncGenerationAnalogueInput(value = "") {
       const raw = String(value || "").trim().toLowerCase();
@@ -17716,7 +17711,7 @@ export function createUiStateModule(targetObject = globalThis) {
         subjectSuffix: targetObject.OrdinaryNncGenerationState.subjectSuffix,
         subjectKey: targetObject.OrdinaryNncGenerationState.subjectKey
       });
-      return {
+      const state = {
         enabled: targetObject.OrdinaryNncGenerationState.enabled === true,
         state: normalizeOrdinaryNncGenerationStateValue(targetObject.OrdinaryNncGenerationState.state),
         number: normalizeOrdinaryNncGenerationNumber(targetObject.OrdinaryNncGenerationState.number),
@@ -17728,6 +17723,17 @@ export function createUiStateModule(targetObject = globalThis) {
         nounClass: normalizeOrdinaryNncGenerationNounClass(targetObject.OrdinaryNncGenerationState.nounClass),
         animacy: normalizeOrdinaryNncGenerationAnimacy(targetObject.OrdinaryNncGenerationState.animacy)
       };
+      Object.defineProperties(state, {
+        requestedNounClass: {
+          configurable: true,
+          value: String(targetObject.OrdinaryNncGenerationState.requestedNounClass || "")
+        },
+        nounClassSelectionFrame: {
+          configurable: true,
+          value: targetObject.OrdinaryNncGenerationState.nounClassSelectionFrame || null
+        }
+      });
+      return state;
     }
     function isOrdinaryNncGenerationModeEnabled() {
       return getOrdinaryNncGenerationState().enabled;
@@ -17752,7 +17758,16 @@ export function createUiStateModule(targetObject = globalThis) {
       targetObject.OrdinaryNncGenerationState.subjectKey = subject.subjectKey;
       targetObject.OrdinaryNncGenerationState.possessor = possessor;
       if (Object.prototype.hasOwnProperty.call(source, "nounClass")) {
-        targetObject.OrdinaryNncGenerationState.nounClass = normalizeOrdinaryNncGenerationNounClass(source.nounClass);
+        const nounClassSelectionFrame = typeof targetObject.buildOrdinaryNncNounClassSelectionFrame === "function"
+          ? targetObject.buildOrdinaryNncNounClassSelectionFrame(source.nounClass, {
+            profile: "nawat",
+            explicit: Boolean(String(source.nounClass ?? "").trim()),
+            provenance: "ordinary-nnc-ui-state"
+          })
+          : null;
+        targetObject.OrdinaryNncGenerationState.nounClass = nounClassSelectionFrame?.normalizedValue || normalizeOrdinaryNncGenerationNounClass(source.nounClass);
+        targetObject.OrdinaryNncGenerationState.requestedNounClass = nounClassSelectionFrame?.requestedValue || "";
+        targetObject.OrdinaryNncGenerationState.nounClassSelectionFrame = nounClassSelectionFrame;
       }
       if (Object.prototype.hasOwnProperty.call(source, "animacy")) {
         targetObject.OrdinaryNncGenerationState.animacy = normalizeOrdinaryNncGenerationAnimacy(source.animacy);
@@ -17789,7 +17804,11 @@ export function createUiStateModule(targetObject = globalThis) {
       const resolvedNumber = normalizeOrdinaryNncGenerationNumber(number ?? uiState.number);
       const resolvedPluralType = normalizeOrdinaryNncGenerationPluralType(pluralType ?? uiState.pluralType);
       const resolvedAnimacy = normalizeOrdinaryNncGenerationAnimacy(animacy ?? uiState.animacy);
-      const nounClassSource = nounClass === null || nounClass === undefined ? analogueInput?.nounClass ?? uiState.nounClass : nounClass;
+      const nounClassSource = nounClass === null || nounClass === undefined
+        ? uiState.nounClassSelectionFrame?.authorizationStatus === "blocked"
+          ? uiState.requestedNounClass
+          : uiState.nounClass
+        : nounClass;
       const resolvedNounClass = normalizeOrdinaryNncGenerationNounClass(nounClassSource);
       const resolvedPossessor = normalizeOrdinaryNncGenerationPossessor(possessor ?? uiState.possessor, resolvedState);
       const resolvedSubject = explicit ? normalizeOrdinaryNncGenerationSubject({
@@ -17800,7 +17819,10 @@ export function createUiStateModule(targetObject = globalThis) {
         subjectPrefix: subjectPrefix ?? "",
         subjectSuffix: subjectSuffix ?? ""
       });
-      const normalizedStem = analogueInput?.stem || String(stem || "").trim();
+      // Parenthesized formula text remains diagnostic input. It must reach the
+      // engine unchanged so the typed formula-slot gate can reject it instead of
+      // being repackaged here as an authoritative stem plus zero noun class.
+      const normalizedStem = String(stem || "").trim();
       const resolvedOutputSet = String(outputSet || "").trim();
       const formulaTense = explicit ? "ordinary-nnc" : getCurrentResolvedConjugationSelectionState({
         tenseMode: getActiveTenseMode()
@@ -17821,7 +17843,7 @@ export function createUiStateModule(targetObject = globalThis) {
           subjectSuffix: resolvedSubject.subjectSuffix,
           subjectKey: resolvedSubject.subjectKey,
           possessor: resolvedPossessor,
-          nounClass: resolvedNounClass,
+          nounClass: resolvedNounClass || String(nounClassSource || "").trim(),
           animacy: resolvedAnimacy,
           ...(resolvedOutputSet ? {
             outputSet: resolvedOutputSet

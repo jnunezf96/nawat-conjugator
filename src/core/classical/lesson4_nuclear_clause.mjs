@@ -1,5 +1,10 @@
 // Canonical modern ESM module.
 
+import {
+  normalizeGenerationSourceTransitivity,
+  validateGenerationSourceTransitivitySelection,
+} from "../generation/valency.mjs?v=20260719-source-transitivity-contract-051";
+
 export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = globalThis) {
     const CLASSICAL_NAHUATL_LESSON4_NUCLEAR_CLAUSE_VERSION = 1;
     const CLASSICAL_NAHUATL_LESSON4_PROFILE_ID = "classical-nahuatl";
@@ -187,11 +192,7 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
       return String(value == null ? "" : value).trim().toLowerCase();
     }
     function normalizeClassicalNahuatlLesson4Transitivity(value = "") {
-      const normalized = String(value == null ? "" : value).trim().toLowerCase();
-      if (normalized === "transitive" || normalized === "bitransitive" || normalized === "intransitive") {
-        return normalized;
-      }
-      return "";
+      return normalizeGenerationSourceTransitivity(value);
     }
     function normalizeClassicalNahuatlLesson4EntryBoard(value = "") {
       return String(value == null ? "" : value).trim().toLowerCase();
@@ -259,12 +260,23 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
       }
       const explicitKind = String(options.nuclearClauseKind || options.clauseKind || "").trim().toLowerCase();
       const tenseMode = normalizeClassicalNahuatlLesson4TenseMode(options.tenseMode || options.mode || "");
-      const transitivity = normalizeClassicalNahuatlLesson4Transitivity(options.transitivity || "");
+      const sourceTransitivitySelectionFrame = validateGenerationSourceTransitivitySelection(options.transitivity || "");
+      const transitivity = sourceTransitivitySelectionFrame.sourceTransitivity;
       const entryBoard = normalizeClassicalNahuatlLesson4EntryBoard(options.entryBoard || "");
       const stateSlot = String(options.stateSlot || options.statePosition || "").trim().toLowerCase();
       const valenceSlot = String(options.valenceSlot || options.valencePosition || "").trim().toLowerCase();
       const wantsNnc = explicitKind === "nominal-nuclear-clause" || explicitKind === "nnc" || tenseMode === "sustantivo" || tenseMode === "noun" || entryBoard === "ordinary-nnc";
-      if (!wantsNnc && (explicitKind === "verbal-nuclear-clause" || explicitKind === "vnc" || tenseMode === "verbo" || tenseMode === "verb" || transitivity)) {
+      const wantsVnc = !wantsNnc && (explicitKind === "verbal-nuclear-clause" || explicitKind === "vnc" || tenseMode === "verbo" || tenseMode === "verb" || sourceTransitivitySelectionFrame.explicit);
+      if (wantsVnc && sourceTransitivitySelectionFrame.authorizationStatus === "blocked") {
+        return {
+          formulaId: "",
+          reason: sourceTransitivitySelectionFrame.blockReason,
+          inferredNuclearClauseKind: "verbal-nuclear-clause",
+          authorizationStatus: "blocked",
+          sourceTransitivitySelectionFrame,
+        };
+      }
+      if (wantsVnc) {
         if (valenceSlot === "monadic") {
           return {
             formulaId: "vnc-valence-monadic",
@@ -591,8 +603,8 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
           lessonNumber: 4,
           title: "Nuclear Clauses",
           layer: "nuclear-clause-formulas",
-          status: "active",
-          statusLabel: selectedFormulaFrame?.nuclearClauseKind === "verbal-nuclear-clause" ? "Active VNC" : "Active NNC",
+          status: selectedFormulaFrame ? "active" : "blocked",
+          statusLabel: selectedFormulaFrame?.nuclearClauseKind === "verbal-nuclear-clause" ? "Active VNC" : selectedFormulaFrame ? "Active NNC" : "Blocked formula selection",
           currentRole: selectedFormulaFrame?.formulaRealization || selectedFormulaFrame?.formula || "",
           visibleInClassicalMachinery: true
         }]
@@ -614,7 +626,9 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
       const formulaFrames = buildClassicalNahuatlLesson4FormulaFrames(normalizedStem);
       const selectionResolution = resolveClassicalNahuatlLesson4FormulaId(options);
       const selectedFormulaId = selectionResolution.formulaId;
-      const selectedFormulaFrame = formulaFrames.find(frame => frame.id === selectedFormulaId) || formulaFrames.find(frame => frame.id === "nnc-state-vacant") || null;
+      const selectedFormulaFrame = selectionResolution.authorizationStatus === "blocked"
+        ? null
+        : formulaFrames.find(frame => frame.id === selectedFormulaId) || formulaFrames.find(frame => frame.id === "nnc-state-vacant") || null;
       const predicateFrame = buildClassicalNahuatlLesson4PredicateFrame(input, {
         predicateKind: selectedFormulaFrame?.predicateKind || "nominal-predicate"
       });
@@ -622,6 +636,7 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
         kind: "classical-nahuatl-lesson4-selection-frame",
         tenseMode: normalizeClassicalNahuatlLesson4TenseMode(options.tenseMode || options.mode || ""),
         transitivity: normalizeClassicalNahuatlLesson4Transitivity(options.transitivity || ""),
+        sourceTransitivitySelectionFrame: selectionResolution.sourceTransitivitySelectionFrame || validateGenerationSourceTransitivitySelection(options.transitivity || ""),
         entryBoard: normalizeClassicalNahuatlLesson4EntryBoard(options.entryBoard || ""),
         stateSlot: String(options.stateSlot || options.statePosition || "").trim().toLowerCase(),
         valenceSlot: String(options.valenceSlot || options.valencePosition || "").trim().toLowerCase(),
@@ -667,13 +682,13 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
         orthographyFrame,
         lesson3Frame,
         predicateFrame,
-        selectedNuclearClauseKind: selectedFormulaFrame?.nuclearClauseKind || "nominal-nuclear-clause",
+        selectedNuclearClauseKind: selectedFormulaFrame?.nuclearClauseKind || "",
         selectedFormulaId: selectedFormulaFrame?.id || "",
         selectedFormulaFrame,
         selectedFormulaReason: selectionResolution.reason,
-        selectedFormulaLabel: selectedFormulaFrame?.nuclearClauseKind === "verbal-nuclear-clause" ? "Selected VNC formula" : "Selected NNC formula",
-        formulaTemplate: selectedFormulaFrame?.formula || "#pers1-pers2(STEM)num1-num2#",
-        formulaRealization: selectedFormulaFrame?.formulaRealization || realizeClassicalNahuatlLesson4Formula("#pers1-pers2(STEM)num1-num2#", normalizedStem),
+        selectedFormulaLabel: selectedFormulaFrame?.nuclearClauseKind === "verbal-nuclear-clause" ? "Selected VNC formula" : selectedFormulaFrame ? "Selected NNC formula" : "Blocked formula selection",
+        formulaTemplate: selectedFormulaFrame?.formula || "",
+        formulaRealization: selectedFormulaFrame?.formulaRealization || "",
         legalWitnessTagIds: proofFrame.legalWitnessTagIds,
         formulaPositionRuleRefs: getClassicalNahuatlLesson4FormulaPositionRules(),
         personalPronounFrame,
@@ -698,8 +713,8 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
         }, {
           id: "lesson4-stage3",
           label: "Stage 3",
-          formula: selectedFormulaFrame?.formula || "#pers1-pers2(STEM)num1-num2#",
-          structure: selectedFormulaFrame?.id || "subpositions-and-vacant-state-nnc",
+          formula: selectedFormulaFrame?.formula || "",
+          structure: selectedFormulaFrame?.id || "blocked-formula-selection",
           legalWitnessTagId: "cn-l4-vnc-nnc-selection"
         }],
         subjectFrame: {
@@ -731,9 +746,9 @@ export function createClassicalNahuatlLesson4NuclearClauseApi(targetObject = glo
         oldNawatPipilConjugatorAuthority: profileWallFrame?.oldNawatPipilConjugatorAuthority || "not-authority-for-classical-lane",
         nawatPipilGrammarAuthorityForClassical: profileWallFrame?.nawatPipilGrammarAuthorityForClassical || "not-authority-for-classical-lane",
         grammarGenerationAllowed: false,
-        formulaOutputAllowed: true,
+        formulaOutputAllowed: proofFrame.authorizationStatus === "authorized",
         surfaceGenerationAllowed: false,
-        blocksInput: false,
+        blocksInput: selectionResolution.authorizationStatus === "blocked",
         diagnostics,
         authorityNote: CLASSICAL_NAHUATL_LESSON4_AUTHORITY_NOTE
       };

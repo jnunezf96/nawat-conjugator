@@ -56,6 +56,150 @@ function run(ctx = {}) {
     } = ctx;
 
     s.eq(
+        "Unknown derivation intent is retained diagnostically and cannot authorize a Direct result",
+        (() => {
+            const frame = createClassicalNahuatlVncApplication(ctx).evaluate({
+                sourceStem: "nemi",
+                verbClass: "B",
+                sourceValence: "intransitive",
+                subject: "3sg",
+                requestedDerivation: "fabricated-derivation",
+                requestedVoice: "active",
+            });
+            return {
+                status: frame.authorizationStatus,
+                reason: frame.blockReason,
+                requested: frame.normalizedRequest.requestedDerivation,
+                safeLayoutType: frame.normalizedRequest.derivationType,
+                recognized: frame.normalizedRequest.requestedDerivationRecognized,
+                selectionStatus: frame.normalizedRequest.derivationTypeSelectionFrame.authorizationStatus,
+                accepted: frame.controlFrame.requestedDerivationAccepted,
+                formula: frame.resultFrame.formulaRealization,
+                surface: frame.resultFrame.surfaceRealization,
+                selected: frame.resultFrame.selectedMachineryFrame,
+            };
+        })(),
+        {
+            status: "blocked",
+            reason: "classical-vnc-derivation-type-not-recognized",
+            requested: "fabricated-derivation",
+            safeLayoutType: "direct",
+            recognized: false,
+            selectionStatus: "blocked",
+            accepted: false,
+            formula: "",
+            surface: "",
+            selected: null,
+        }
+    );
+
+    s.eq(
+        "Unknown target and causative-source voice intents cannot authorize Active results",
+        (() => {
+            const application = createClassicalNahuatlVncApplication(ctx);
+            const summarize = frame => ({
+                status: frame.authorizationStatus,
+                reason: frame.blockReason,
+                requestedTarget: frame.normalizedRequest.requestedVoice,
+                targetRecognized: frame.normalizedRequest.requestedVoiceRecognized,
+                targetSelectionStatus: frame.normalizedRequest.targetVoiceSelectionFrame.authorizationStatus,
+                requestedSource: frame.normalizedRequest.requestedSourceVoice,
+                sourceRecognized: frame.normalizedRequest.requestedSourceVoiceRecognized,
+                sourceSelectionStatus: frame.normalizedRequest.sourceVoiceSelectionFrame.authorizationStatus,
+                selectedTarget: frame.controlFrame.selectedVoice,
+                selectedSource: frame.controlFrame.selectedSourceVoice,
+                formula: frame.resultFrame.formulaRealization,
+                surface: frame.resultFrame.surfaceRealization,
+            });
+            return {
+                target: summarize(application.evaluate({
+                    sourceStem: "nemi",
+                    verbClass: "B",
+                    sourceValence: "intransitive",
+                    requestedVoice: "fabricated-target-voice",
+                })),
+                source: summarize(application.evaluate({
+                    sourceStem: "nemi",
+                    verbClass: "B",
+                    sourceValence: "intransitive",
+                    sourceVoice: "fabricated-source-voice",
+                    requestedVoice: "active",
+                })),
+            };
+        })(),
+        {
+            target: {
+                status: "blocked",
+                reason: "classical-vnc-target-voice-not-recognized",
+                requestedTarget: "fabricated-target-voice",
+                targetRecognized: false,
+                targetSelectionStatus: "blocked",
+                requestedSource: "active",
+                sourceRecognized: true,
+                sourceSelectionStatus: "authorized",
+                selectedTarget: "active",
+                selectedSource: "active",
+                formula: "",
+                surface: "",
+            },
+            source: {
+                status: "blocked",
+                reason: "classical-vnc-causative-source-voice-not-recognized",
+                requestedTarget: "active",
+                targetRecognized: true,
+                targetSelectionStatus: "authorized",
+                requestedSource: "fabricated-source-voice",
+                sourceRecognized: false,
+                sourceSelectionStatus: "blocked",
+                selectedTarget: "active",
+                selectedSource: "active",
+                formula: "",
+                surface: "",
+            },
+        }
+    );
+
+    s.eq(
+        "Malformed explicit output scope cannot become a permissive single-form VNC request",
+        (() => {
+            const application = createClassicalNahuatlVncApplication(ctx);
+            const request = {
+                sourceStem: "chihua",
+                verbClass: "A",
+                sourceValence: "specific-projective",
+                subject: "2pl",
+                objectPerson: "1sg",
+                requestedVoice: "passive",
+            };
+            const absent = application.evaluate(request);
+            const single = application.evaluate({ ...request, outputScope: "single" });
+            const paradigm = application.evaluate({ ...request, outputScope: "paradigm" });
+            const malformed = application.evaluate({ ...request, outputScope: "fabricated-scope" });
+            const summarize = frame => ({
+                status: frame.authorizationStatus,
+                reason: frame.blockReason,
+                requested: frame.normalizedRequest.requestedOutputScope,
+                scope: frame.normalizedRequest.outputScope,
+                scopeStatus: frame.normalizedRequest.outputScopeSelectionFrame.authorizationStatus,
+                selectedVoice: frame.controlFrame.selectedVoice,
+                formulaPresent: Boolean(frame.resultFrame.formulaRealization),
+            });
+            return {
+                absent: summarize(absent),
+                single: summarize(single),
+                paradigm: summarize(paradigm),
+                malformed: summarize(malformed),
+            };
+        })(),
+        {
+            absent: { status: "authorized", reason: "", requested: "", scope: "single", scopeStatus: "authorized", selectedVoice: "passive", formulaPresent: true },
+            single: { status: "authorized", reason: "", requested: "single", scope: "single", scopeStatus: "authorized", selectedVoice: "passive", formulaPresent: true },
+            paradigm: { status: "authorized", reason: "", requested: "paradigm", scope: "paradigm", scopeStatus: "authorized", selectedVoice: "active", formulaPresent: true },
+            malformed: { status: "blocked", reason: "classical-result-output-scope-not-recognized", requested: "fabricated-scope", scope: "", scopeStatus: "blocked", selectedVoice: "passive", formulaPresent: false },
+        }
+    );
+
+    s.eq(
         "Source constitution projects the typed Andrews cual-ā-ni analysis before derivation",
         (() => {
             const projection = buildClassicalNahuatlVncSourceConstitutionProjection({

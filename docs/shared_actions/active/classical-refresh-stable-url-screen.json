@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "classical-refresh-stable-url-screen",
-  "status": "active",
+  "status": "complete",
   "incentive": {
     "id": "refresh-stable-navigation",
     "statement": "A shareable entrada URL must restore its entered source, Source/Authority/Result screen, Direct/Causative/Applicative derivative type, and valid Causative/Applicative Authority selections.",
@@ -62,6 +62,10 @@
     "status": "complete",
     "removalEvidence": "Focused URL round-trip proof and live browser reloads retain the named entry on its screen and Causative derivative type; legacy URLs default to Source and Direct."
   }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Refresh no longer unconditionally resets a valid entrada snapshot to Source and Direct; the canonical URL restoration path owns screen, derivative, and derived Authority state."
+  },
   "evidence": [
     {
       "kind": "focused-tests",

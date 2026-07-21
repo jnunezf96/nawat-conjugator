@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-source-transitivity-contract",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-source-transitivity-fails-closed",
+    "statement": "General source topology must use one ordered three-value contract, preserve the separate Canvas Valence authority, and never turn unknown structural input into slot A or an authorized intransitive VNC.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Consolidate source-transitivity recognition and shell/URL parity without merging structural A/B/C topology with Canvas Valence or binary Lesson 4 formula grouping.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "One generation-valency contract owns intransitive/transitive/bitransitive order, A/B/C topology, and vi/vt/vb aliases; invalid explicit or restored input remains blocked and cannot authorize or select a fallback source slot.",
+  "responsibilities": [
+    {
+      "id": "grammar-contract",
+      "statement": "Own the ordered vocabulary, aliases, typed recognition, structural slot mapping, and binary Canvas formula projection.",
+      "paths": ["src/core/generation/valency.mjs", "src/core/grammar/contract_registry.mjs", "src/core/classical/lesson4_nuclear_clause.mjs"],
+      "primaryActor": "generation-valency-engine",
+      "actors": [{"actorId":"generation-valency-engine","kind":"primary","status":"complete","contribution":"Defined the neutral source-topology contract and removed invalid-to-intransitive Lesson 4 authorization."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-ui-boundary",
+      "statement": "Consume typed source-transitivity frames in composer, URL restoration, and rendering without falling through invalid explicit intent.",
+      "paths": ["src/ui/composer/composer.mjs", "src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{"actorId":"classical-ui","kind":"primary","status":"complete","contribution":"Derived UI constants and aliases from the core contract, retained invalid diagnostics, and blocked malformed URL application."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "shell-runtime-verification",
+      "statement": "Prove all three visible groups, hidden select, A/B/C slot identity, URL aliases, hostile input, runtime graph, and live refresh behavior.",
+      "paths": ["src/ui/shell/classical_shell.mjs", "src/tests/ui.test.js", "src/tests/state.test.js", "src/tests/orthography.test.js", "src/tests/grammar_contract_registry.test.js", "src/runtime/create_runtime.mjs", "src/bootstrap/bootstrap.mjs", "src/browser/main.mjs", "index.html"],
+      "primaryActor": "verification",
+      "actors": [{"actorId":"verification","kind":"primary","status":"complete","contribution":"Added exact parity and hostile tests, cache-busted the changed graph, and verified browser restore behavior."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded comparison, intentional exclusions, validation evidence, and remaining main findings.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-source-transitivity-contract.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId":"stabilization-manager","kind":"primary","status":"complete","contribution":"Maintained the shared-action boundary and handoff reminder."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [{
+    "id": "generation-source-transitivity-contract",
+    "status": "active",
+    "owner": "generation-valency-engine",
+    "consumers": ["classical-lesson4", "classical-ui", "entrada-url", "verification"],
+    "invariant": "Absent is distinct from invalid; only recognized source transitivity selects A/B/C, aliases normalize canonically, and Canvas Valence remains the independent grammar-authorizing choice."
+  }],
+  "retirements": [{
+    "id": "unknown-source-transitivity-falls-to-intransitive-slot-a",
+    "status": "complete",
+    "removalEvidence": "Hostile URL, renderer, composer-semantic, and Lesson 4 tests now retain invalid intent as blocked, select no A/B/C slot, and produce no formula or serialized source."
+  }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Independent handwritten recognition and invalid-to-intransitive slot-A fallback no longer decide source topology; the typed generation-valency contract is canonical."
+  },
+  "evidence": [
+    "Focused proof passed: UI 411/411; state, orthography, and inline composer 462/462; VNC 213/213; application plus grammar-contract registry 75/75.",
+    "Exact parity proof compares all three visible transitivity groups, the hidden state select, and A/B/C slot shells against the core order; a poisoned group blocks the inventory frame.",
+    "Hostile proof rejects malformed /tr/fabricated restoration, invalid explicit renderer input, invalid composer semantics, and invalid Lesson 4 VNC selection without formula or slot fallback.",
+    "Live browser entry 051 restored bitransitive slot C while Canvas Valence remained independently intransitive; forged transitivity selected no tab, consumed no source slot, produced no formula, and emitted no warning or error logs.",
+    "Runtime manifest remained one browser entry with 75 modules and 75 installers; syntax, JSON parsing, and diff checks passed. Lessons 20 through 22 retained only its pre-existing unrelated wording failure at 29/30.",
+    "Alignment architecture metrics matched baseline exactly: responsibility actor 0/0, renderer construction 38/38, optional renderer dependency 0/0, registered-contract coverage 200/200, and browser scripts 1/1. Remaining failures are inherited board size and cross-action dirty-worktree overlap."
+  ],
+  "exceptions": []
+}

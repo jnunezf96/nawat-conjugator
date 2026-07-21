@@ -6,6 +6,239 @@ import {
   isClassicalNahuatlKarttunen1992EvidenceMatchSet,
 } from "./karttunen_1992_derivation_evidence.mjs";
 
+export const CLASSICAL_NAHUATL_VNC_TARGET_VOICES = Object.freeze([
+  "active",
+  "passive",
+  "impersonal",
+  "inherent-impersonal",
+  "tla-impersonal",
+]);
+export const CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES = Object.freeze([
+  "active",
+  "passive",
+  "impersonal",
+]);
+
+export function normalizeClassicalNahuatlVncVoice(value = "", role = "target") {
+  const normalized = String(value == null ? "" : value).trim().toLowerCase();
+  const vocabulary = role === "causative-source"
+    ? CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES
+    : CLASSICAL_NAHUATL_VNC_TARGET_VOICES;
+  return vocabulary.includes(normalized) ? normalized : "";
+}
+
+export function getClassicalNahuatlVncVoiceVocabulary() {
+  return {
+    kind: "classical-nahuatl-vnc-voice-vocabulary",
+    version: 1,
+    targetVoices: [...CLASSICAL_NAHUATL_VNC_TARGET_VOICES],
+    causativeSourceVoices: [...CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES],
+    causativeSourceVoiceIsContextualSubset: CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES.every(voice => CLASSICAL_NAHUATL_VNC_TARGET_VOICES.includes(voice)),
+    higherVoiceLayersAreSeparate: true,
+    authority: "Andrews Lessons 20-22 and Lesson 25 Canvas voice operations",
+  };
+}
+
+export function validateClassicalNahuatlVncVoiceSelection(value = "", role = "target") {
+  const normalizedRole = role === "causative-source" ? "causative-source" : "target";
+  const requestedVoice = String(value == null ? "" : value).trim().toLowerCase();
+  const voice = normalizeClassicalNahuatlVncVoice(requestedVoice, normalizedRole);
+  return {
+    kind: "classical-nahuatl-vnc-voice-selection-frame",
+    version: 1,
+    role: normalizedRole,
+    requestedVoice,
+    voice,
+    allowedVoices: [...(normalizedRole === "causative-source" ? CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES : CLASSICAL_NAHUATL_VNC_TARGET_VOICES)],
+    authorizationStatus: voice ? "authorized" : "blocked",
+    blockReason: voice ? "" : normalizedRole === "causative-source" ? "classical-vnc-causative-source-voice-not-recognized" : "classical-vnc-target-voice-not-recognized",
+    contextualAvailabilityRemainsApplicationDerived: true,
+  };
+}
+
+export function validateClassicalNahuatlVncVoiceControlInventory({
+  targetVoiceOptions = [],
+  causativeSourceVoiceOptions = [],
+  authorityOptionTags = [],
+} = {}) {
+  const normalizeOption = option => typeof option === "string"
+    ? { value: String(option), tagId: "" }
+    : { value: String(option?.value || ""), tagId: String(option?.tagId || "") };
+  const targetOptions = Array.isArray(targetVoiceOptions) ? targetVoiceOptions.map(normalizeOption) : [];
+  const sourceOptions = Array.isArray(causativeSourceVoiceOptions) ? causativeSourceVoiceOptions.map(normalizeOption) : [];
+  const targetValues = targetOptions.map(option => option.value);
+  const sourceValues = sourceOptions.map(option => option.value);
+  const expectedTargetValues = [...CLASSICAL_NAHUATL_VNC_TARGET_VOICES];
+  const expectedSourceValues = [...CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES];
+  const records = Array.isArray(authorityOptionTags) ? authorityOptionTags : [];
+  const taggedOptions = [
+    ...targetOptions.map(option => ({ ...option, controlId: "classical-rule-logic-vnc-voice" })),
+    ...sourceOptions.map(option => ({ ...option, controlId: "classical-rule-logic-causative-source-voice" })),
+  ];
+  const mismatchedAuthorityOptions = taggedOptions.filter(option => {
+    const record = records.find(candidate => String(candidate?.tagId || "") === option.tagId);
+    return !record || String(record.controlId || "") !== option.controlId || String(record.value || "") !== option.value;
+  }).map(option => `${option.controlId}:${option.value}:${option.tagId || "<untagged>"}`);
+  const duplicateTargetValues = targetValues.filter((value, index, all) => all.indexOf(value) !== index);
+  const duplicateSourceValues = sourceValues.filter((value, index, all) => all.indexOf(value) !== index);
+  const targetInventoryMatches = targetValues.length === expectedTargetValues.length && targetValues.every((value, index) => value === expectedTargetValues[index]);
+  const sourceInventoryMatches = sourceValues.length === expectedSourceValues.length && sourceValues.every((value, index) => value === expectedSourceValues[index]);
+  const authorized = targetInventoryMatches && sourceInventoryMatches && !duplicateTargetValues.length && !duplicateSourceValues.length && !mismatchedAuthorityOptions.length;
+  return {
+    kind: "classical-nahuatl-vnc-voice-control-inventory-validation-frame",
+    version: 1,
+    authorizationStatus: authorized ? "authorized" : "blocked",
+    blockReason: authorized ? "" : "classical-vnc-voice-control-inventory-mismatch",
+    targetValues,
+    sourceValues,
+    expectedTargetValues,
+    expectedSourceValues,
+    targetInventoryMatches,
+    sourceInventoryMatches,
+    duplicateTargetValues: Array.from(new Set(duplicateTargetValues)),
+    duplicateSourceValues: Array.from(new Set(duplicateSourceValues)),
+    mismatchedAuthorityOptions,
+    shellAndLedgerAreNotGrammarAuthority: true,
+  };
+}
+
+export const CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS = Object.freeze([
+  "indicative",
+  "optative",
+  "admonitive",
+]);
+export const CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES_BY_MOOD = Object.freeze({
+  indicative: Object.freeze(["present", "preterit", "future", "distant-past", "general-past", "customary-present", "imperfect"]),
+  optative: Object.freeze(["nonpast", "past", "future", "preterit"]),
+  admonitive: Object.freeze(["nonpast"]),
+});
+export const CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES = Object.freeze([
+  "present",
+  "preterit",
+  "future",
+  "distant-past",
+  "general-past",
+  "customary-present",
+  "imperfect",
+  "nonpast",
+  "past",
+]);
+
+export function normalizeClassicalNahuatlVncSemanticInputToken(value = "") {
+  return String(value || "").trim().toLowerCase().replace(/[\s_]/gu, "-");
+}
+
+export function normalizeClassicalNahuatlVncSemanticMood(value = "") {
+  const normalized = normalizeClassicalNahuatlVncSemanticInputToken(value);
+  return CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS.includes(normalized) ? normalized : "";
+}
+
+export function normalizeClassicalNahuatlVncSemanticTense(value = "") {
+  const normalized = normalizeClassicalNahuatlVncSemanticInputToken(value);
+  return CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES.includes(normalized) ? normalized : "";
+}
+
+export function getClassicalNahuatlVncSemanticTensesForMood(mood = "") {
+  const normalizedMood = normalizeClassicalNahuatlVncSemanticMood(mood);
+  return [...(CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES_BY_MOOD[normalizedMood] || [])];
+}
+
+export function getClassicalNahuatlVncSemanticInputVocabulary() {
+  return {
+    kind: "classical-nahuatl-vnc-semantic-input-vocabulary",
+    version: 1,
+    moods: [...CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS],
+    tenses: [...CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES],
+    tensesByMood: Object.fromEntries(CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS.map(mood => [mood, getClassicalNahuatlVncSemanticTensesForMood(mood)])),
+    authority: "Andrews Canvas semantic VNC categories",
+    morphologicalFillersAreSeparate: true,
+  };
+}
+
+export function validateClassicalNahuatlVncSemanticSelection({
+  mood = "",
+  tense = "",
+  allowedSemanticTenses = null,
+  enforceMoodCompatibility = true,
+} = {}) {
+  const requestedMood = normalizeClassicalNahuatlVncSemanticInputToken(mood);
+  const requestedSemanticTense = normalizeClassicalNahuatlVncSemanticInputToken(tense);
+  const normalizedMood = normalizeClassicalNahuatlVncSemanticMood(requestedMood);
+  const normalizedSemanticTense = normalizeClassicalNahuatlVncSemanticTense(requestedSemanticTense);
+  const moodTenses = getClassicalNahuatlVncSemanticTensesForMood(normalizedMood);
+  const contextualTenses = Array.isArray(allowedSemanticTenses)
+    ? Array.from(new Set(allowedSemanticTenses.map(normalizeClassicalNahuatlVncSemanticTense).filter(Boolean)))
+    : moodTenses;
+  let blockReason = "";
+  if (!normalizedMood) {
+    blockReason = "vnc-semantic-mood-not-recognized";
+  } else if (!normalizedSemanticTense) {
+    blockReason = "vnc-semantic-tense-not-recognized";
+  } else if (enforceMoodCompatibility && !moodTenses.includes(normalizedSemanticTense)) {
+    blockReason = "vnc-semantic-tense-not-authorized-for-mood";
+  } else if (Array.isArray(allowedSemanticTenses) && !contextualTenses.includes(normalizedSemanticTense)) {
+    blockReason = "vnc-semantic-tense-not-authorized-for-selected-verbstem";
+  }
+  return {
+    kind: "classical-nahuatl-vnc-semantic-selection-frame",
+    version: 1,
+    requestedMood,
+    requestedSemanticTense,
+    mood: normalizedMood,
+    semanticTense: normalizedSemanticTense,
+    moodTenses,
+    allowedSemanticTenses: contextualTenses,
+    moodCompatibilityEnforced: enforceMoodCompatibility === true,
+    authorizationStatus: blockReason ? "blocked" : "authorized",
+    blockReason,
+    semanticTenseIsNotMorphologicalFiller: true,
+  };
+}
+
+export function validateClassicalNahuatlVncSemanticControlInventory({
+  moodOptions = [],
+  tenseOptions = [],
+  authorityOptionTags = [],
+} = {}) {
+  const normalizeOption = option => typeof option === "string"
+    ? { value: String(option), tagId: "" }
+    : { value: String(option?.value || ""), tagId: String(option?.tagId || "") };
+  const normalizedMoodOptions = Array.isArray(moodOptions) ? moodOptions.map(normalizeOption) : [];
+  const normalizedTenseOptions = Array.isArray(tenseOptions) ? tenseOptions.map(normalizeOption) : [];
+  const moodValues = normalizedMoodOptions.map(option => option.value);
+  const tenseValues = normalizedTenseOptions.map(option => option.value);
+  const expectedMoodValues = [...CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS];
+  const expectedTenseValues = [...CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES];
+  const records = Array.isArray(authorityOptionTags) ? authorityOptionTags : [];
+  const mismatchedAuthorityOptions = [...normalizedMoodOptions.map(option => ({ ...option, controlId: "classical-rule-logic-mood" })), ...normalizedTenseOptions.map(option => ({ ...option, controlId: "classical-rule-logic-tense" }))]
+    .filter(option => {
+      const record = records.find(candidate => String(candidate?.tagId || "") === option.tagId);
+      return !record || String(record.controlId || "") !== option.controlId || String(record.value || "") !== option.value;
+    })
+    .map(option => `${option.controlId}:${option.value}:${option.tagId || "<untagged>"}`);
+  const moodInventoryMatches = moodValues.length === expectedMoodValues.length && moodValues.every((value, index) => value === expectedMoodValues[index]);
+  const tenseInventoryMatches = tenseValues.length === expectedTenseValues.length && tenseValues.every((value, index) => value === expectedTenseValues[index]);
+  const duplicateMoodValues = moodValues.filter((value, index, all) => all.indexOf(value) !== index);
+  const duplicateTenseValues = tenseValues.filter((value, index, all) => all.indexOf(value) !== index);
+  const authorized = moodInventoryMatches && tenseInventoryMatches && !duplicateMoodValues.length && !duplicateTenseValues.length && !mismatchedAuthorityOptions.length;
+  return {
+    kind: "classical-nahuatl-vnc-semantic-control-inventory-validation-frame",
+    version: 1,
+    authorizationStatus: authorized ? "authorized" : "blocked",
+    blockReason: authorized ? "" : "vnc-semantic-control-inventory-does-not-match-canonical-contract",
+    moodValues,
+    tenseValues,
+    expectedMoodValues,
+    expectedTenseValues,
+    moodInventoryMatches,
+    tenseInventoryMatches,
+    duplicateMoodValues: Array.from(new Set(duplicateMoodValues)),
+    duplicateTenseValues: Array.from(new Set(duplicateTenseValues)),
+    mismatchedAuthorityOptions,
+    shellAndLedgerAreNotGrammarAuthority: true,
+  };
+}
+
 export function createClassicalNahuatlVncLayerEvaluatorApi(targetObject = globalThis) {
     const CLASSICAL_NAHUATL_VNC_SLOT_FRAME_VERSION = 1;
     const CLASSICAL_NAHUATL_VNC_SLOT_SOURCE_DOCUMENT = "ANDREWS_TRANSCRIPTION_CANVAS.md";
@@ -4828,6 +5061,21 @@ export function createClassicalNahuatlVncLayerEvaluatorApi(targetObject = global
         return null;
       }
       Object.assign(globalTarget, {
+        CLASSICAL_NAHUATL_VNC_TARGET_VOICES,
+        CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES,
+        normalizeClassicalNahuatlVncVoice,
+        getClassicalNahuatlVncVoiceVocabulary,
+        validateClassicalNahuatlVncVoiceSelection,
+        validateClassicalNahuatlVncVoiceControlInventory,
+        CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS,
+        CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES,
+        CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES_BY_MOOD,
+        normalizeClassicalNahuatlVncSemanticMood,
+        normalizeClassicalNahuatlVncSemanticTense,
+        getClassicalNahuatlVncSemanticTensesForMood,
+        getClassicalNahuatlVncSemanticInputVocabulary,
+        validateClassicalNahuatlVncSemanticSelection,
+        validateClassicalNahuatlVncSemanticControlInventory,
         buildClassicalNahuatlVncSlotFrame,
         isClassicalNahuatlVncSlotFrame,
         renderClassicalNahuatlVncSlotFrameFormula,
@@ -5095,6 +5343,41 @@ export function createClassicalNahuatlVncLayerEvaluatorApi(targetObject = global
     api.buildClassicalNahuatlCanvasLayerEvaluationFrame = buildClassicalNahuatlCanvasLayerEvaluationFrame;
     api.getClassicalNahuatlAuthorityCapabilityFrame = getClassicalNahuatlAuthorityCapabilityFrame;
     api.validateClassicalNahuatlAuthorityOptionLedger = validateClassicalNahuatlAuthorityOptionLedger;
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_VNC_TARGET_VOICES", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_VNC_TARGET_VOICES; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_VNC_CAUSATIVE_SOURCE_VOICES; },
+    });
+    api.normalizeClassicalNahuatlVncVoice = normalizeClassicalNahuatlVncVoice;
+    api.getClassicalNahuatlVncVoiceVocabulary = getClassicalNahuatlVncVoiceVocabulary;
+    api.validateClassicalNahuatlVncVoiceSelection = validateClassicalNahuatlVncVoiceSelection;
+    api.validateClassicalNahuatlVncVoiceControlInventory = validateClassicalNahuatlVncVoiceControlInventory;
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_VNC_SEMANTIC_MOODS; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES; },
+    });
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES_BY_MOOD", {
+        configurable: true,
+        enumerable: true,
+        get() { return CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES_BY_MOOD; },
+    });
+    api.normalizeClassicalNahuatlVncSemanticMood = normalizeClassicalNahuatlVncSemanticMood;
+    api.normalizeClassicalNahuatlVncSemanticTense = normalizeClassicalNahuatlVncSemanticTense;
+    api.getClassicalNahuatlVncSemanticTensesForMood = getClassicalNahuatlVncSemanticTensesForMood;
+    api.getClassicalNahuatlVncSemanticInputVocabulary = getClassicalNahuatlVncSemanticInputVocabulary;
+    api.validateClassicalNahuatlVncSemanticSelection = validateClassicalNahuatlVncSemanticSelection;
+    api.validateClassicalNahuatlVncSemanticControlInventory = validateClassicalNahuatlVncSemanticControlInventory;
     api.installClassicalNahuatlVncLayerEvaluatorClassicGlobals = installClassicalNahuatlVncLayerEvaluatorClassicGlobals;
     return api;
 }

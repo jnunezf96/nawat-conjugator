@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "id": "ordinary-nnc-noun-class-contract",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-profile-aware-noun-class-fails-closed",
+    "statement": "Ordinary NNC noun class must use one profile-aware typed contract, keep Nawat and Classical spellings distinct, and never let raw formula strings or invalid explicit input manufacture class authority.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Consolidate noun-class recognition, orthographic projection, UI and URL parity, and hostile authorization proof without merging contextual class guidance, subclasses, number dyads, or pronominal NNC categories.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "One core contract owns the ordered Nawat and Classical ordinary-NNC vocabularies, profile-specific aliases, and exact bridge; absent, recognized, and invalid intent remain distinct, and raw manually written formula strings are diagnostic-only.",
+  "responsibilities": [
+    {
+      "id": "grammar-contract",
+      "statement": "Own both profile vocabularies, aliases, typed selection frames, orthographic bridge, and engine fail-closed behavior.",
+      "paths": ["src/core/nnc/nnc.mjs", "src/core/classical/nnc_layer_evaluator.mjs", "src/core/derivation/source_model.mjs", "src/core/vnc/vnc.mjs", "src/core/grammar/contract_registry.mjs"],
+      "primaryActor": "ordinary-nnc-engine",
+      "actors": [{"actorId":"ordinary-nnc-engine","kind":"primary","status":"complete","contribution":"Implemented the profile-aware contract and removed invalid or string-derived class authorization."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-ui-boundary",
+      "statement": "Derive state, active Result controls, composer handling, profile bridge, and URL restoration from typed class frames.",
+      "paths": ["src/ui/state.mjs", "src/ui/composer/composer.mjs", "src/ui/rendering/rendering.mjs", "src/ui/shell/classical_shell.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{"actorId":"classical-ui","kind":"primary","status":"complete","contribution":"Removed duplicate carriers, kept manual source text non-authorizing, and blocked malformed restored intent."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-verification",
+      "statement": "Prove canonical and alias parity, Nawat and Classical separation, malformed direct and URL input blocking, manual-string non-authorization, fixture independence, and live UI behavior.",
+      "paths": ["src/tests/nnc.test.js", "src/tests/state.test.js", "src/tests/ui.test.js", "src/tests/classical_nnc_lessons12_16.test.js", "src/tests/grammar_contract_registry.test.js", "src/tests/runtime_delivery_checks.test.js", "src/runtime/create_runtime.mjs", "src/bootstrap/bootstrap.mjs", "src/bootstrap/script_runtime.mjs", "src/browser/main.mjs", "index.html"],
+      "primaryActor": "verification",
+      "actors": [{"actorId":"verification","kind":"primary","status":"complete","contribution":"Added hostile cross-layer tests, exact inventory checks, cache-busted runtime proof, and live browser verification."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded comparison, exclusions, proof, and remaining main finding.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/ordinary-nnc-noun-class-contract.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId":"stabilization-manager","kind":"primary","status":"complete","contribution":"Maintained the shared-action boundary and final risk reminder."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [{
+    "id": "ordinary-nnc-noun-class-contract",
+    "status": "active",
+    "owner": "ordinary-nnc-engine",
+    "consumers": ["ordinary-nnc-state", "ordinary-nnc-result", "classical-nnc", "entrada-url", "verification"],
+    "invariant": "Nawat and Classical class tokens normalize only in their declared profile; typed lexical fixtures may fill absence but never override invalid explicit intent; raw formula strings cannot supply class provenance."
+  }],
+  "retirements": [{
+    "id": "raw-or-invalid-noun-class-authorizes-fallback",
+    "status": "complete",
+    "removalEvidence": "Direct engine tests reject unknown class intent for open stems and fixtures; state tests reject forged s-class and cn-class restoration; manual formula text no longer supplies class state; browser entry 052 showed no default class, exact profile controls, and retained typed state against a forged class URL."
+  }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Triplicated class recognition, invalid-to-default authorization, and raw-formula class provenance no longer decide ordinary NNC generation."
+  },
+  "evidence": [
+    "Focused proof passed: ordinary and Classical NNC suites 458/458, state 411/411, UI 411/411, derivation 224/224, Classical VNC application 32/32, orthography 41/41, grammar registry 43/43, and runtime 9/9.",
+    "Runtime manifest remained one browser entry with 75 modules and 75 installers; syntax, JSON, and diff checks passed.",
+    "Live entry 052 exposed Nawat t/ti/in/zero and Classical tl/tli/in/zero with all four Canvas option tags; a manual parenthesized stem selected no class by itself, and explicit typed class plus animacy remained the separate authorization path.",
+    "The forged /s-class/fabricated URL created no fabricated control and retained the prior typed t selection; the live browser loaded the 052 entry module.",
+    "Alignment architecture metrics matched baseline exactly. The repository-wide command remains red on inherited board size and cross-action dirty-worktree overlap, with no noun-class-attributable metric regression."
+  ],
+  "exceptions": []
+}

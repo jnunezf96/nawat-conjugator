@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "classical-source-authority-minimal-surface",
-  "status": "active",
+  "status": "complete",
   "incentive": {
     "id": "minimal-source-authority-reading-path",
     "statement": "Source and Authority must be scannable as one Andrews-grounded Source to Authority path while the existing typed grammar state remains canonical.",
@@ -82,6 +82,10 @@
       "removalEvidence": "Direct, Causative, and Applicative browser checks all report Clause settings and Sentence settings closed by default while their canonical controls remain present."
     }
   ],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "The redundant source machine mirror and expanded-by-default later settings no longer compete with the canonical typed Source-to-Authority path."
+  },
   "evidence": [
     {
       "kind": "focused-tests",

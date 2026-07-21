@@ -1,5 +1,22 @@
 // Canonical modern ESM module.
 
+import {
+  CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES,
+  normalizeClassicalNahuatlVncDerivationType,
+  validateClassicalNahuatlVncDerivationTypeSelection,
+} from "../../core/classical/vnc_derivation_evaluator.mjs?v=20260719-derivation-type-contract-049";
+import {
+  GENERATION_SOURCE_TRANSITIVITY,
+  GENERATION_SOURCE_TRANSITIVITY_ORDER,
+  GENERATION_SOURCE_SLOT_BY_TRANSITIVITY,
+  normalizeGenerationSourceTransitivity,
+  validateGenerationSourceTransitivitySelection,
+  validateGenerationSourceTransitivityControlInventory,
+} from "../../core/generation/valency.mjs?v=20260719-source-transitivity-contract-051";
+import {
+  buildClassicalResultOutputScopeSelectionFrame,
+} from "../../core/output/scope.mjs?v=20260719-output-scope-contract-053";
+
 export function createUiComposerRuntime(targetObject = globalThis) {
     // === Verb Composer ===
     function getComposerSlotKeyForTransitivity(transitivity) {
@@ -7,6 +24,26 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     }
     function isComposerTransitivitySelected(state = VerbComposerState) {
       return COMPOSER_TRANSITIVITY_ORDER.includes(String(state?.transitivity || ""));
+    }
+    function getComposerSourceTransitivityControlInventoryFrame() {
+      const documentObject = typeof targetObject.document !== "undefined" ? targetObject.document : null;
+      if (!documentObject || typeof documentObject.querySelectorAll !== "function") {
+        return Object.freeze({
+          kind: "generation-source-transitivity-control-inventory-validation-frame",
+          authorizationStatus: "not-applicable",
+          blockReason: "",
+          structuralControlsAreNotCanvasValenceAuthority: true,
+        });
+      }
+      const hiddenSelect = documentObject.getElementById?.("composer-transitivity") || null;
+      const hiddenSelectValues = Array.from(hiddenSelect?.options || [], option => String(option?.value || "")).filter(Boolean);
+      const visibleGroupValues = Array.from(documentObject.querySelectorAll(".verb-composer__slot-tabs--transitivity"), group => Array.from(group.querySelectorAll?.("[data-composer-transitivity]") || [], button => String(button.getAttribute?.("data-composer-transitivity") || "")));
+      const slotShellValues = Array.from(documentObject.querySelectorAll("[data-composer-slot-shell]"), shell => String(shell.getAttribute?.("data-composer-slot-shell") || ""));
+      return validateGenerationSourceTransitivityControlInventory({
+        hiddenSelectValues,
+        visibleGroupValues,
+        slotShellValues,
+      });
     }
     function getComposerSlotConfig(slotKey) {
       return COMPOSER_SLOT_CONFIG[slotKey] || COMPOSER_SLOT_CONFIG.a;
@@ -1221,92 +1258,6 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         nounClass: normalizeComposerOrdinaryNncNounClass(fixture.nounClass || "") || "",
         animacy: fixture.animacy === "animate" ? "animate" : "inanimate"
       };
-    }
-    function renderComposerOrdinaryNncClassTabs(stagePanel, {
-      active = false,
-      activeClass = "",
-      fixtureNounClass = ""
-    } = {}) {
-      if (!stagePanel) {
-        return;
-      }
-      let classTabs = targetObject.document.getElementById("composer-ordinary-nnc-class-tabs");
-      if (!active) {
-        classTabs?.remove();
-        return;
-      }
-      if (!classTabs) {
-        classTabs = targetObject.document.createElement("div");
-        classTabs.id = "composer-ordinary-nnc-class-tabs";
-        classTabs.className = "verb-composer__slot-tabs verb-composer__ordinary-nnc-class-tabs";
-        classTabs.setAttribute("role", "tablist");
-      }
-      const fixedClass = normalizeComposerOrdinaryNncNounClass(fixtureNounClass || "") || "";
-      const displayedClass = normalizeComposerOrdinaryNncNounClass(activeClass || "") || fixedClass;
-      if (fixedClass) {
-        classTabs.dataset.fixtureNounClass = fixedClass;
-      } else {
-        delete classTabs.dataset.fixtureNounClass;
-      }
-      classTabs.setAttribute("aria-label", "Num1-num2 connector of the nominal clause");
-      classTabs.innerHTML = "";
-      const labelEl = targetObject.document.createElement("span");
-      labelEl.className = "verb-composer__slot-tabs-label";
-      labelEl.setAttribute("aria-hidden", "true");
-      labelEl.textContent = "Num1-num2 connector";
-      classTabs.appendChild(labelEl);
-      [{
-        id: "t",
-        label: "t",
-        title: "clase t: (...V)t"
-      }, {
-        id: "ti",
-        label: "ti",
-        title: "clase ti: (...C)ti"
-      }, {
-        id: "in",
-        label: "in",
-        title: "clase in: (...C)in"
-      }, {
-        id: "zero",
-        label: "Ø",
-        title: "clase Ø: (...C/V)"
-      }].forEach((entry, index) => {
-        const button = targetObject.document.createElement("button");
-        button.type = "button";
-        button.className = "verb-composer__slot-transitivity verb-composer__slot-tab";
-        button.dataset.ordinaryNncClass = entry.id;
-        button.setAttribute("role", "tab");
-        button.setAttribute("aria-label", `Class ${entry.label}`);
-        button.title = entry.title;
-        button.textContent = entry.label;
-        const isFixtureAlternative = Boolean(fixedClass && entry.id !== fixedClass);
-        const isActive = entry.id === displayedClass;
-        if (isFixtureAlternative) {
-          button.dataset.fixtureAlternative = "true";
-          button.dataset.fixtureNounClass = fixedClass;
-          button.title = `${entry.title}; registered card: connector ${fixedClass === "zero" ? "Ø" : fixedClass}`;
-          button.classList.add("is-fixture-alternative");
-        }
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-selected", String(isActive));
-        button.setAttribute("aria-pressed", String(isActive));
-        button.tabIndex = isActive || !displayedClass && index === 0 ? 0 : -1;
-        button.addEventListener("click", () => {
-          if (button.disabled) {
-            return;
-          }
-          setComposerOrdinaryNncState({
-            nounClass: entry.id || "zero"
-          });
-        });
-        classTabs.appendChild(button);
-      });
-      const slotTabs = Array.from(stagePanel.children).find(child => child.classList && child.classList.contains("verb-composer__slot-tabs") && child.id !== classTabs.id) || null;
-      const insertionPoint = slotTabs?.nextSibling || stagePanel.firstElementChild?.nextSibling || null;
-      if (classTabs.parentElement !== stagePanel) {
-        stagePanel.insertBefore(classTabs, insertionPoint);
-      }
     }
     function renderComposerOrdinaryNncDigitalControls() {
       const stagePanel = targetObject.document.getElementById("composer-slot-stage");
@@ -5388,7 +5339,24 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       return normalizedEmbed;
     }
     function buildComposerSemanticState(state = {}) {
-      const transitivity = state.transitivity === COMPOSER_TRANSITIVITY.transitive || state.transitivity === COMPOSER_TRANSITIVITY.bitransitive ? state.transitivity : COMPOSER_TRANSITIVITY.intransitive;
+      const sourceTransitivitySelectionFrame = validateGenerationSourceTransitivitySelection(state.transitivity || "");
+      if (sourceTransitivitySelectionFrame.authorizationStatus === "blocked") {
+        return {
+          transitivity: "",
+          sourceTransitivitySelectionFrame,
+          blocked: true,
+          blockReason: sourceTransitivitySelectionFrame.blockReason,
+          slots: {},
+          valence: {},
+          matrix: {
+            stem: "",
+            regexStem: "",
+            realizedStemBase: "",
+            hasStem: false,
+          },
+        };
+      }
+      const transitivity = sourceTransitivitySelectionFrame.sourceTransitivity || COMPOSER_TRANSITIVITY.intransitive;
       const slotAStem = normalizeComposerStem(state.slotAStem || "");
       const slotAEmbed = getComposerSlotEmbedForRegex("a", state.slotAEmbed || "");
       const slotBStem = normalizeComposerStem(state.slotBStem || "");
@@ -5448,6 +5416,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const supportiveMarker = targetObject.normalizeSupportiveMarkerValue(state.supportiveMarker || "");
       const semanticState = {
         transitivity,
+        sourceTransitivitySelectionFrame,
         supportiveMarker,
         directional: {
           prefix: directionalPrefix
@@ -5512,6 +5481,9 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       return semanticState;
     }
     function serializeComposerSemanticToRegexInput(semantic = {}) {
+      if (semantic?.sourceTransitivitySelectionFrame?.authorizationStatus === "blocked" || semantic?.blocked === true) {
+        return "";
+      }
       const transitivity = semantic?.transitivity || COMPOSER_TRANSITIVITY.intransitive;
       const supportiveMarker = targetObject.normalizeSupportiveMarkerValue(semantic?.supportiveMarker || "");
       const tiClassSuffix = semantic?.ti?.classSuffix || "";
@@ -5553,28 +5525,12 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (typeof targetObject.parseOrdinaryNncGenerationAnalogueInput === "function") {
         return targetObject.parseOrdinaryNncGenerationAnalogueInput(value);
       }
-      const raw = String(value || "").trim().toLowerCase();
-      const match = raw.match(/^\(\s*([^()]+?)\s*\)\s*(ti|in|t|0|ø|zero)?$/i);
-      if (!match) {
-        return null;
-      }
-      const stem = normalizeComposerStem(match[1] || "");
-      if (!stem) {
-        return null;
-      }
-      const nounClass = normalizeComposerOrdinaryNncNounClass(match[2] || "zero") || "zero";
-      return {
-        stem,
-        nounClass,
-        connector: nounClass === "zero" ? "" : nounClass
-      };
+      return null;
     }
     function normalizeComposerOrdinaryNncNounClass(value = "") {
-      const normalized = String(value || "").trim().toLowerCase();
-      if (normalized === "0" || normalized === "ø" || normalized === "zero") {
-        return "zero";
-      }
-      return ["t", "ti", "in"].includes(normalized) ? normalized : "";
+      return typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+        ? targetObject.normalizeOrdinaryNncNounClassForProfile(value, "nawat")
+        : "";
     }
     function getComposerOrdinaryNncConnectorSurface(nounClass = "") {
       const normalized = normalizeComposerOrdinaryNncNounClass(nounClass);
@@ -5590,11 +5546,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           nounClass
         });
       }
-      const normalizedStem = normalizeComposerStem(stem || "");
-      if (!normalizedStem) {
-        return "";
-      }
-      return `(${normalizedStem})${getComposerOrdinaryNncConnectorSurface(nounClass)}`;
+      return "";
     }
     function stripComposerOrdinaryNncConnectorFromStem(stem = "", nounClass = "") {
       const normalizedStem = normalizeComposerStem(stem || "");
@@ -5694,6 +5646,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         panel: "inputs",
         derivationType: "direct",
         derivedVnc: "",
+        vncOutputScope: "single",
         transitivity: "",
         valenceIntransitive: "",
         valence: "",
@@ -5788,8 +5741,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       return "inputs";
     }
     function normalizeEntradaUrlDerivationType(value = "") {
-      const normalized = String(value || "").trim().toLowerCase();
-      return ["direct", "causative", "applicative"].includes(normalized) ? normalized : "direct";
+      const requested = String(value || "").trim();
+      return normalizeClassicalNahuatlVncDerivationType(requested) || (requested ? "" : "direct");
     }
     function normalizeEntradaUrlBoolean(value = false) {
       if (value === true) {
@@ -5799,17 +5752,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
     }
     function normalizeEntradaUrlTransitivity(value = "") {
-      const normalized = String(value || "").trim().toLowerCase();
-      if (normalized === "vi") {
-        return COMPOSER_TRANSITIVITY.intransitive;
-      }
-      if (normalized === "vt") {
-        return COMPOSER_TRANSITIVITY.transitive;
-      }
-      if (normalized === "vb") {
-        return COMPOSER_TRANSITIVITY.bitransitive;
-      }
-      return COMPOSER_TRANSITIVITY_ORDER.includes(normalized) ? normalized : "";
+      return normalizeGenerationSourceTransitivity(value);
     }
     function normalizeEntradaUrlSerialType(value = "") {
       const normalized = String(value || "").trim().toLowerCase();
@@ -5831,9 +5774,35 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       next.input = targetObject.serializeRegexInputValue(read(["input"], "")) || String(read(["input"], "") || "").trim();
       next.board = normalizeEntradaUrlBoard(read(["board"], ""));
       next.panel = normalizeEntradaUrlPanel(read(["panel"], ""));
-      next.derivationType = normalizeEntradaUrlDerivationType(read(["derivationType"], ""));
+      const retainedDerivationTypeValidationFrame = source.derivationTypeValidationFrame?.kind === "classical-nahuatl-vnc-derivation-type-selection-frame"
+        ? source.derivationTypeValidationFrame
+        : null;
+      const requestedDerivationType = retainedDerivationTypeValidationFrame?.requestedDerivationType || String(read(["derivationType"], "") || "").trim() || "direct";
+      next.derivationTypeValidationFrame = validateClassicalNahuatlVncDerivationTypeSelection(requestedDerivationType);
+      next.derivationType = next.derivationTypeValidationFrame.derivationType;
       next.derivedVnc = normalizeEntradaUrlDerivedVncCapsule(read(["derivedVnc"], ""));
-      next.transitivity = normalizeEntradaUrlTransitivity(read(["transitivity"], ""));
+      const retainedVncOutputScopeSelectionFrame = source.vncOutputScopeSelectionFrame?.kind === "classical-result-output-scope-selection-frame"
+        ? source.vncOutputScopeSelectionFrame
+        : null;
+      const requestedVncOutputScope = retainedVncOutputScopeSelectionFrame?.requestedValue ?? String(read(["vncOutputScope"], "") || "").trim();
+      const vncOutputScopeExplicit = retainedVncOutputScopeSelectionFrame?.explicit === true
+        || (Array.isArray(source.presentFields) ? source.presentFields.includes("vncOutputScope") : Object.prototype.hasOwnProperty.call(source, "vncOutputScope"));
+      const vncOutputScopeSelectionFrame = buildClassicalResultOutputScopeSelectionFrame(requestedVncOutputScope, {
+        role: "vnc",
+        explicit: vncOutputScopeExplicit,
+        provenance: "entrada-url-vnc-output"
+      });
+      next.vncOutputScope = vncOutputScopeSelectionFrame.outputScope;
+      Object.defineProperty(next, "vncOutputScopeSelectionFrame", {
+        configurable: true,
+        value: vncOutputScopeSelectionFrame
+      });
+      const retainedSourceTransitivitySelectionFrame = source.sourceTransitivitySelectionFrame?.kind === "generation-source-transitivity-selection-frame"
+        ? source.sourceTransitivitySelectionFrame
+        : null;
+      const requestedSourceTransitivity = retainedSourceTransitivitySelectionFrame?.requestedSourceTransitivity || String(read(["transitivity"], "") || "").trim();
+      next.sourceTransitivitySelectionFrame = validateGenerationSourceTransitivitySelection(requestedSourceTransitivity);
+      next.transitivity = next.sourceTransitivitySelectionFrame.sourceTransitivity;
       next.valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(read(["valenceIntransitive"], ""));
       next.valence = normalizeComposerSecondaryValenceSurfaceToken(read(["valence"], ""));
       next.valenceSecondary = normalizeComposerValenceToken(read(["valenceSecondary"], ""));
@@ -5856,7 +5825,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const ordinarySource = source.ordinaryNnc && typeof source.ordinaryNnc === "object" ? source.ordinaryNnc : {};
       const ordinaryState = {
         ...next.ordinaryNnc,
-        ...ordinarySource
+        ...ordinarySource,
+        nounClassSelectionFrame: ordinarySource.nounClassSelectionFrame || next.ordinaryNnc.nounClassSelectionFrame || null
       };
       const ordinarySubject = typeof targetObject.normalizeOrdinaryNncGenerationSubject === "function" ? targetObject.normalizeOrdinaryNncGenerationSubject({
         subjectPrefix: ordinaryState.pers1,
@@ -5875,18 +5845,26 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       next.ordinaryNnc.pers2 = ordinarySubject.subjectSuffix;
       next.ordinaryNnc.subjectKey = ordinarySubject.subjectKey;
       next.ordinaryNnc.possessor = typeof targetObject.normalizeOrdinaryNncGenerationPossessor === "function" ? targetObject.normalizeOrdinaryNncGenerationPossessor(ordinaryState.possessor, next.ordinaryNnc.state) : String(ordinaryState.possessor || "");
-      next.ordinaryNnc.nounClass = typeof targetObject.normalizeOrdinaryNncGenerationNounClass === "function" ? targetObject.normalizeOrdinaryNncGenerationNounClass(ordinaryState.nounClass) : normalizeComposerOrdinaryNncNounClass(ordinaryState.nounClass);
+      const ordinaryNncNounClassRequest = ordinaryState.nounClassSelectionFrame?.authorizationStatus === "blocked"
+        ? ordinaryState.nounClassSelectionFrame.requestedValue
+        : ordinaryState.nounClass;
+      const ordinaryNncNounClassSelectionFrame = typeof targetObject.buildOrdinaryNncNounClassSelectionFrame === "function"
+        ? targetObject.buildOrdinaryNncNounClassSelectionFrame(ordinaryNncNounClassRequest, {
+          profile: "nawat",
+          explicit: ordinaryState.nounClassSelectionFrame?.authorizationStatus === "blocked" || Boolean(String(ordinaryNncNounClassRequest ?? "").trim()),
+          provenance: "entrada-url-s-class"
+        })
+        : null;
+      next.ordinaryNnc.nounClass = ordinaryNncNounClassSelectionFrame?.normalizedValue || "";
+      Object.defineProperty(next.ordinaryNnc, "nounClassSelectionFrame", {
+        configurable: true,
+        value: ordinaryNncNounClassSelectionFrame
+      });
       next.ordinaryNnc.animacy = typeof targetObject.normalizeOrdinaryNncGenerationAnimacy === "function" ? targetObject.normalizeOrdinaryNncGenerationAnimacy(ordinaryState.animacy) : ["animate", "inanimate"].includes(String(ordinaryState.animacy || "")) ? ordinaryState.animacy : "";
       const classicalSource = source.classicalNnc && typeof source.classicalNnc === "object" ? source.classicalNnc : {};
       const normalizeChoice = (value, allowedValues, fallback) => {
         const normalized = String(value || "").trim();
         return allowedValues.includes(normalized) ? normalized : fallback;
-      };
-      const oldClassToClassical = {
-        t: "tl",
-        ti: "tli",
-        in: "in",
-        zero: "zero"
       };
       const oldAnimacyToReferent = {
         animate: "animate",
@@ -5908,13 +5886,45 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       next.classicalNnc.suppletiveConnector = normalizeChoice(classicalSource.suppletiveConnector, ["class-governed", "uh", "hui", "0", "⎕"], "class-governed");
       next.classicalNnc.secondaryPossessorCarrier = normalizeChoice(classicalSource.secondaryPossessorCarrier, ["tē", "ti", "t"], "tē");
       next.classicalNnc.possessorReduplication = normalizeEntradaUrlBoolean(classicalSource.possessorReduplication);
-      next.classicalNnc.nounClass = normalizeChoice(classicalSource.nounClass || oldClassToClassical[next.ordinaryNnc.nounClass], ["tl", "tli", "in", "zero"], "tl");
+      const projectedClassicalNounClass = typeof targetObject.projectOrdinaryNncNounClass === "function"
+        ? targetObject.projectOrdinaryNncNounClass(next.ordinaryNnc.nounClass, { from: "nawat", to: "classical" })
+        : "";
+      const requestedClassicalNounClass = classicalSource.nounClassSelectionFrame?.authorizationStatus === "blocked"
+        ? classicalSource.nounClassSelectionFrame.requestedValue
+        : classicalSource.nounClass || projectedClassicalNounClass;
+      const classicalNncNounClassSelectionFrame = typeof targetObject.buildOrdinaryNncNounClassSelectionFrame === "function"
+        ? targetObject.buildOrdinaryNncNounClassSelectionFrame(requestedClassicalNounClass, {
+          profile: "classical",
+          explicit: classicalSource.nounClassSelectionFrame?.authorizationStatus === "blocked" || Boolean(String(classicalSource.nounClass ?? "").trim()),
+          provenance: classicalSource.nounClass ? "entrada-url-cn-class" : projectedClassicalNounClass ? "nawat-profile-projection" : "absent"
+        })
+        : null;
+      next.classicalNnc.nounClass = classicalNncNounClassSelectionFrame?.normalizedValue || "tl";
+      Object.defineProperty(next.classicalNnc, "nounClassSelectionFrame", {
+        configurable: true,
+        value: classicalNncNounClassSelectionFrame
+      });
       next.classicalNnc.possessor = normalizeChoice(classicalSource.possessor, ["reciprocal", "te", "tla", "1sg", "2sg", "3sg", "1pl", "2pl", "3pl"], "3sg");
       next.classicalNnc.useShape = normalizeChoice(classicalSource.useShape, ["base", "truncated-a", "truncated-i", "truncated-a-supportive-i"], "base");
       next.classicalNnc.subclass = normalizeChoice(classicalSource.subclass, ["tl-1a", "tl-1b", "tl-2a", "tl-2b", "tl-2c", "tli-1", "tli-2"], "tl-1a");
       next.classicalNnc.stemRelation = normalizeChoice(classicalSource.stemRelation, ["plain", "affinity", "distributive-varietal"], "plain");
       next.classicalNnc.numberForm = normalizeChoice(classicalSource.numberForm, ["sounded", "t-in", "m-eh", "0-h", "silent-silent"], "t-in");
-      next.classicalNnc.outputScope = normalizeChoice(classicalSource.outputScope, ["single", "paradigm"], "single");
+      const retainedNncOutputScopeSelectionFrame = classicalSource.outputScopeSelectionFrame?.kind === "classical-result-output-scope-selection-frame"
+        ? classicalSource.outputScopeSelectionFrame
+        : null;
+      const requestedNncOutputScope = retainedNncOutputScopeSelectionFrame?.requestedValue ?? String(classicalSource.outputScope ?? "").trim();
+      const nncOutputScopeExplicit = retainedNncOutputScopeSelectionFrame?.explicit === true
+        || (Array.isArray(source.presentFields) ? source.presentFields.includes("classicalNncOutputScope") : Object.prototype.hasOwnProperty.call(classicalSource, "outputScope"));
+      const nncOutputScopeSelectionFrame = buildClassicalResultOutputScopeSelectionFrame(requestedNncOutputScope, {
+        role: "nnc",
+        explicit: nncOutputScopeExplicit,
+        provenance: "entrada-url-cn-output"
+      });
+      next.classicalNnc.outputScope = nncOutputScopeSelectionFrame.outputScope;
+      Object.defineProperty(next.classicalNnc, "outputScopeSelectionFrame", {
+        configurable: true,
+        value: nncOutputScopeSelectionFrame
+      });
       next.classicalNnc.referent = normalizeChoice(classicalSource.referent || oldAnimacyToReferent[next.ordinaryNnc.animacy], ["animate", "nonanimate", "metaphorical"], "animate");
       next.classicalNnc.quantitiveMatrix = normalizeChoice(classicalSource.quantitiveMatrix, ["quich", "qui", "chi"], "qui");
       next.classicalNnc.quantitiveMatrixForm = normalizeChoice(classicalSource.quantitiveMatrixForm, ["qui-ch", "quī", "quih", "qui", "c", "chī", "chih", "chi", "ch"], "quī");
@@ -6015,6 +6025,9 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           ? targetObject.getActiveDerivationType()
           : "direct",
         derivedVnc: buildEntradaUrlDerivedVncCapsule(),
+        vncOutputScope: typeof getClassicalBasalUnitFromRuntime === "function" && getClassicalBasalUnitFromRuntime() === "vnc"
+          ? targetObject.document.getElementById("classical-rule-logic-vnc-output-scope")?.value ?? "single"
+          : "single",
         transitivity: VerbComposerState.transitivity || "",
         valenceIntransitive: VerbComposerState.valenceIntransitive || "",
         valence: VerbComposerState.valence || "",
@@ -6061,7 +6074,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           subclass: targetObject.document.getElementById("classical-rule-logic-nnc-subclass")?.value || "tl-1a",
           stemRelation: targetObject.document.getElementById("classical-rule-logic-nnc-stem-relation")?.value || "plain",
           numberForm: targetObject.document.getElementById("classical-rule-logic-nnc-number-form")?.value || "t-in",
-          outputScope: targetObject.document.getElementById("classical-rule-logic-nnc-output-scope")?.value || "single",
+          outputScope: targetObject.document.getElementById("classical-rule-logic-nnc-output-scope")?.value ?? "single",
           referent: targetObject.document.getElementById("classical-rule-logic-nnc-referent")?.value || "animate",
           quantitiveMatrix: targetObject.document.getElementById("classical-rule-logic-nnc-quantitive-matrix")?.value || "qui",
           quantitiveMatrixForm: targetObject.document.getElementById("classical-rule-logic-nnc-quantitive-matrix-form")?.value || "quī",
@@ -6194,10 +6207,17 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         return false;
       }
       const selections = getEntradaUrlDerivedVncCapsuleSelections(snapshot.derivedVnc || "");
-      if (!selections.length) {
-        return false;
-      }
+      const outputScopeSpecIndex = ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS.findIndex(spec => spec.id === "classical-rule-logic-vnc-output-scope");
+      const outputScopeSpec = ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS[outputScopeSpecIndex];
+      const outputScopeControl = outputScopeSpec ? targetObject.document.getElementById(outputScopeSpec.id) : null;
       let appliedAny = false;
+      if (outputScopeControl && outputScopeControl.value !== outputScopeSpec.defaultValue) {
+        outputScopeControl.value = outputScopeSpec.defaultValue;
+        appliedAny = true;
+      }
+      if (!selections.length) {
+        return appliedAny;
+      }
       let previousSignature = "";
       for (let pass = 0; pass < 5; pass += 1) {
         selections.forEach(({ controlIndex, selectedIndex }) => {
@@ -6384,6 +6404,24 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         return false;
       }
       const normalized = normalizeEntradaUrlStateSnapshot(snapshot);
+      if (hasEntradaUrlExplicitField(normalized, "derivationType") && normalized.derivationTypeValidationFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
+      if (hasEntradaUrlExplicitField(normalized, "transitivity") && normalized.sourceTransitivitySelectionFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
+      if (hasEntradaUrlExplicitField(normalized, "ordinaryNncNounClass") && normalized.ordinaryNnc?.nounClassSelectionFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
+      if (hasEntradaUrlExplicitField(normalized, "classicalNncClass") && normalized.classicalNnc?.nounClassSelectionFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
+      if (hasEntradaUrlExplicitField(normalized, "classicalNncOutputScope") && normalized.classicalNnc?.outputScopeSelectionFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
+      if (hasEntradaUrlExplicitField(normalized, "vncOutputScope") && normalized.vncOutputScopeSelectionFrame?.authorizationStatus === "blocked") {
+        return false;
+      }
       const triggerGenerate = options.triggerGenerate !== false;
       const immediateRefresh = options.immediateRefresh === true;
       const verbEl = typeof targetObject.document !== "undefined" ? targetObject.document.getElementById("verb") : null;
@@ -6487,6 +6525,13 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           immediateRefresh
         });
         applyEntradaUrlDerivedVncStateToControls(normalized);
+        if (hasEntradaUrlExplicitField(normalized, "vncOutputScope")) {
+          const vncOutputScopeControl = targetObject.document.getElementById("classical-rule-logic-vnc-output-scope");
+          if (vncOutputScopeControl && vncOutputScopeControl.value !== normalized.vncOutputScope) {
+            vncOutputScopeControl.value = normalized.vncOutputScope;
+            targetObject.renderClassicalRuleLogicSurfaceBlock?.();
+          }
+        }
         if (!triggerGenerate && verbEl && normalized.input && !verbEl.value) {
           verbEl.value = normalized.input;
           verbEl.dataset.prevValue = normalized.input;
@@ -6554,13 +6599,16 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (!target || typeof target.closest !== "function") {
         return false;
       }
-      return Boolean(target.closest("#container-inputs, #classical-authority-panel"));
+      return Boolean(target.closest("#container-inputs, #classical-authority-panel, #classical-result-panel"));
     }
     function isEntradaUrlImmediateSyncEventTarget(target = null) {
       if (!target || typeof target.closest !== "function") {
         return false;
       }
       if (target.closest("[data-derivation-type]")) {
+        return true;
+      }
+      if (target.closest("[data-classical-result-scope-control]")) {
         return true;
       }
       const derivationType = typeof targetObject.getActiveDerivationType === "function" ? targetObject.getActiveDerivationType() : "direct";
@@ -6996,7 +7044,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (ordinaryNncActive) {
         const parsedNnc = parseComposerOrdinaryNncAnalogueInput(rawValue);
         const uiState = typeof targetObject.getOrdinaryNncGenerationState === "function" ? targetObject.getOrdinaryNncGenerationState() : {};
-        const nounClass = normalizeComposerOrdinaryNncNounClass(parsedNnc?.nounClass || uiState.nounClass || "");
+        const nounClass = normalizeComposerOrdinaryNncNounClass(uiState.nounClass || "");
         const stem = stripComposerOrdinaryNncConnectorFromStem(parsedNnc?.stem || normalizeComposerStem(baseValue.replace(/[()]/g, "")), nounClass);
         VerbComposerState.transitivity = "";
         VerbComposerState.valenceIntransitive = "";
@@ -7017,11 +7065,6 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         VerbComposerState.syllableMode = getComposerStemSyllableCount(stem) === 1 ? COMPOSER_SYLLABLE_MODE.monosyllable : COMPOSER_SYLLABLE_MODE.multisyllable;
         VerbComposerState.sourceBase = stem;
         VerbComposerState.stemManualOverride = true;
-        if (typeof targetObject.setOrdinaryNncGenerationState === "function") {
-          targetObject.setOrdinaryNncGenerationState({
-            nounClass
-          });
-        }
         return;
       }
       if (!baseValue) {
@@ -13673,11 +13716,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       composer: "composer",
       regex: "regex"
     };
-    var COMPOSER_TRANSITIVITY = {
-      intransitive: "intransitive",
-      transitive: "transitive",
-      bitransitive: "bitransitive"
-    };
+    var COMPOSER_TRANSITIVITY = GENERATION_SOURCE_TRANSITIVITY;
     var COMPOSER_ENTRY_BOARD = {
       general: "general",
       nounToVerb: "noun-to-verb"
@@ -13715,7 +13754,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     var AUTOFILL_ALIAS_SALT = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
     var COMPOSER_ESC_DOUBLE_CLEAR_WINDOW_MS = 450;
     var COMPOSER_SPACE_DOUBLE_READY_WINDOW_MS = 450;
-    var COMPOSER_TRANSITIVITY_ORDER = [COMPOSER_TRANSITIVITY.intransitive, COMPOSER_TRANSITIVITY.transitive, COMPOSER_TRANSITIVITY.bitransitive];
+    var COMPOSER_TRANSITIVITY_ORDER = GENERATION_SOURCE_TRANSITIVITY_ORDER;
     var ALT_SHORTCUT_DEFINITIONS = Object.freeze([{
       id: "mode-verb",
       key: "v",
@@ -14250,13 +14289,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       }
     };
     var COMPOSER_SLOT_KEYS = ["a", "b", "c"];
-    var COMPOSER_SLOT_KEY_BY_TRANSITIVITY = COMPOSER_SLOT_KEYS.reduce((acc, slotKey) => {
-      const config = COMPOSER_SLOT_CONFIG[slotKey];
-      if (config?.transitivity) {
-        acc[config.transitivity] = slotKey;
-      }
-      return acc;
-    }, {});
+    var COMPOSER_SLOT_KEY_BY_TRANSITIVITY = GENERATION_SOURCE_SLOT_BY_TRANSITIVITY;
     var ENTRADA_URL_SEGMENT_PREFIX = "entrada";
     var ENTRADA_URL_SEGMENT_VERSION = "v1";
     // Positional option indexes keep the share URL short. New controls append to
@@ -14318,6 +14351,11 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       path: ["derivedVnc"],
       defaultValue: "",
       derivedVncOnly: true
+    }, {
+      key: "vncOutputScope",
+      segment: "vnc-output",
+      path: ["vncOutputScope"],
+      defaultValue: "single"
     }, {
       key: "transitivity",
       segment: "tr",
@@ -14886,11 +14924,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     var STATIC_DERIVATIONAL_RULES_PATH = RUNTIME_PATHS.STATIC_DERIVATIONAL_RULES_PATH || "data/static_derivational_rules.json";
     var STATIC_VALENCE_NEUTRAL_PATH = RUNTIME_PATHS.STATIC_VALENCE_NEUTRAL_PATH || "data/static_valence_neutral.json";
     var TENSE_DESCRIPTIONS = {};
-    var DERIVATION_TYPE = {
-      direct: "direct",
-      causative: "causative",
-      applicative: "applicative"
-    };
+    var DERIVATION_TYPE = Object.fromEntries(CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES.map(type => [type, type]));
     var mergeLabelMap = (base, override) => override && typeof override === "object" ? {
       ...base,
       ...override
@@ -14955,6 +14989,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     api.isComposerEmbedTextboxVisibleForSlot = isComposerEmbedTextboxVisibleForSlot;
     api.scheduleComposerSlotChipVisibilitySync = scheduleComposerSlotChipVisibilitySync;
     api.syncComposerSlotChipVisibility = syncComposerSlotChipVisibility;
+    api.getComposerSourceTransitivityControlInventoryFrame = getComposerSourceTransitivityControlInventoryFrame;
     api.syncComposerTransitivitySlotButtons = syncComposerTransitivitySlotButtons;
     api.getComposerTransitivityTabsLabel = getComposerTransitivityTabsLabel;
     api.syncComposerSlotTabsLabel = syncComposerSlotTabsLabel;
@@ -14974,7 +15009,6 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     api.setComposerOrdinaryNncState = setComposerOrdinaryNncState;
     api.appendComposerOrdinaryNncChipGroup = appendComposerOrdinaryNncChipGroup;
     api.getComposerOrdinaryNncFixtureMetadata = getComposerOrdinaryNncFixtureMetadata;
-    api.renderComposerOrdinaryNncClassTabs = renderComposerOrdinaryNncClassTabs;
     api.renderComposerOrdinaryNncDigitalControls = renderComposerOrdinaryNncDigitalControls;
     api.transposeComposerSlotTextboxes = transposeComposerSlotTextboxes;
     api.carryComposerEmbedVisibilityAcrossTransitivity = carryComposerEmbedVisibilityAcrossTransitivity;

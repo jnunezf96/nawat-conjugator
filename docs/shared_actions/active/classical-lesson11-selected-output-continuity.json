@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "classical-lesson11-selected-output-continuity",
-  "status": "active",
+  "status": "complete",
   "incentive": {
     "id": "lesson11-typed-stem-finalizes-selected-output",
     "statement": "A Lesson 11 typed paradigm decision must remain authoritative through application, higher voice layers, selected Result, and finite surface generation; the entered source stem must never replace the selected paradigm member.",
@@ -13,20 +13,20 @@
     "mayAddSupportingActors": true,
     "mayChangeIncentive": false
   },
-  "outcome": "General-past nemi selects typed nen through every active and higher-voice Result path, with hostile coverage proving source strings and nearby regular stems cannot replace or acquire Lesson 11 paradigm members.",
+  "outcome": "General-past nemi selects typed nen through every active and higher-voice Result path; one typed semantic mood/tense contract owns recognized values and mood compatibility; shell, ledger, normalizer, direct application, restored state, and Lesson 11 lexeme gates cannot diverge or silently authorize fabricated input.",
   "responsibilities": [
     {
       "id": "grammar-continuity",
-      "statement": "Preserve the final typed Lesson 11 predicate stem and morphological environment whenever a later VNC layer consumes an earlier authorized frame.",
-      "paths": ["src/core/classical/lesson7_verbstem_classes.mjs", "src/core/classical/vnc_layer_evaluator.mjs"],
+      "statement": "Preserve the final typed Lesson 11 predicate stem and morphological environment whenever a later VNC layer consumes an earlier authorized frame, and enforce one typed semantic mood/tense vocabulary before Lesson 11 contextual authorization.",
+      "paths": ["src/core/classical/lesson7_verbstem_classes.mjs", "src/core/classical/vnc_layer_evaluator.mjs", "src/core/classical/lesson11_irregular_vnc.mjs"],
       "primaryActor": "classical-derivation-engine",
       "actors": [{
         "actorId": "classical-derivation-engine",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Make typed frame continuity, not source spelling, decide the later selected predicate."
+        "status": "complete",
+        "contribution": "Preserved the selected Lesson 11 member and added a typed semantic vocabulary plus fail-closed recognition, mood compatibility, and indicative lexeme-cell enforcement."
       }],
-      "alignmentStatus": "pending"
+      "alignmentStatus": "aligned"
     },
     {
       "id": "application-continuity",
@@ -36,23 +36,36 @@
       "actors": [{
         "actorId": "classical-application-boundary",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Carry the canonical typed target across direct, derived, and voice-layer application paths."
+        "status": "complete",
+        "contribution": "Verified direct application selects nen and that the existing higher-voice general-past checks retain their typed morphological environment."
       }],
-      "alignmentStatus": "pending"
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "surface-state-boundary",
+      "statement": "Consume the typed semantic mood/tense vocabulary, validate actual shell and Canvas-ledger values, and retain invalid restored requests as blocked typed state rather than authorizing a fallback.",
+      "paths": ["src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Replaced handwritten normalizer and mood inventories with the canonical semantic contract; added actual shell/ledger inventory validation and blocked-state continuity for restored invalid requests."
+      }],
+      "alignmentStatus": "aligned"
     },
     {
       "id": "verification",
       "statement": "Prove active nemi general past, sibling Lesson 11 stem changes, higher voice composition, hostile nearby stems, selected Result, and browser surface continuity.",
-      "paths": ["src/tests/classical_lesson11.test.js", "src/tests/classical_lessons20_22.test.js", "src/tests/classical_vnc_application.test.js", "src/tests/ui.test.js"],
+      "paths": ["src/tests/classical_lesson11.test.js", "src/tests/classical_lesson11_application_continuity.test.js", "src/tests/classical_lessons20_22.test.js", "src/tests/classical_vnc_application.test.js", "src/tests/grammar_contract_registry.test.js", "src/tests/ui.test.js", "src/core/grammar/contract_registry.mjs", "src/browser/main.mjs", "src/bootstrap/bootstrap.mjs", "src/runtime/create_runtime.mjs", "index.html"],
       "primaryActor": "verification",
       "actors": [{
         "actorId": "verification",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Audit every consumer of the affected target path and add hostile regression coverage."
+        "status": "complete",
+        "contribution": "Proved actual shell/ledger/contract parity, poisoned-inventory rejection, invalid engine/application/restored-state rejection, four Lesson 11 sibling routes, higher-voice compatibility, and the valid 3sg result."
       }],
-      "alignmentStatus": "pending"
+      "alignmentStatus": "aligned"
     },
     {
       "id": "coordination",
@@ -62,19 +75,50 @@
       "actors": [{
         "actorId": "stabilization-manager",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Keep the repair bounded to typed selected-output continuity."
+        "status": "complete",
+        "contribution": "Recorded the normalizer bypass, cache-busted delivery, focused evidence, and unrelated alignment debt."
       }],
-      "alignmentStatus": "pending"
+      "alignmentStatus": "aligned"
     }
   ],
   "support": [],
-  "contracts": [],
+  "contracts": [{
+    "id": "classical-vnc-semantic-mood-tense-contract",
+    "status": "active",
+    "owner": "classical-derivation-engine",
+    "consumers": ["classical-ui", "classical-lesson11-engine", "classical-application-boundary", "verification"],
+    "invariant": "Recognized semantic input, mood compatibility, and contextual Lesson 11 availability are typed and fail closed; semantic tense remains distinct from morphological realization."
+  }],
   "retirements": [{
     "id": "source-stem-rebuild-after-lesson11-selection",
-    "status": "pending",
-    "removalEvidence": "Pending traced fix and hostile proof."
+    "status": "complete",
+    "removalEvidence": "The shared tense normalizer now preserves general-past; selected Result receives the application frame with typed nen, and cache-versioned entry 048 delivers the canonical contract and repaired module graph together."
   }],
-  "evidence": [],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "The entered source stem can no longer replace the selected Lesson 11 typed paradigm member, and fabricated semantic mood or tense input cannot authorize a fallback result."
+  },
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+      "detail": "Lesson 11 plus continuity passed 22/22; application passed 30/30; matched UI suites passed 405/405; grammar-contract registry passed 43/43; syntax, runtime manifest 75/75, and diff checks passed."
+    },
+    {
+      "kind": "higher-voice-audit",
+      "status": "passed-with-unrelated-suite-failure",
+      "detail": "The Lessons 20-22 suite retained all general-past higher-voice formula checks; its sole 29/30 failure is an unrelated pre-existing generated-formation wording expectation in the concurrent presentation work."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+      "detail": "Cache-versioned entry and child graph 048 reported authorized shell/ledger semantic inventory parity and produced #0-0(nen)ca+0-0# and Nenca. for 3sg (nemi) general past with zero warning or error logs."
+    },
+    {
+      "kind": "alignment",
+      "status": "pending-external-cleanup",
+      "detail": "Architecture metrics remained exactly at baseline; the gate is red for the inherited live-board expansion and overlapping unrelated active-action paths."
+    }
+  ],
   "exceptions": []
 }

@@ -1,5 +1,101 @@
 // Canonical modern ESM module.
 
+export const GENERATION_SOURCE_TRANSITIVITY = Object.freeze({
+  intransitive: "intransitive",
+  transitive: "transitive",
+  bitransitive: "bitransitive",
+});
+
+export const GENERATION_SOURCE_TRANSITIVITY_ORDER = Object.freeze([
+  GENERATION_SOURCE_TRANSITIVITY.intransitive,
+  GENERATION_SOURCE_TRANSITIVITY.transitive,
+  GENERATION_SOURCE_TRANSITIVITY.bitransitive,
+]);
+
+export const GENERATION_SOURCE_TRANSITIVITY_ALIASES = Object.freeze({
+  vi: GENERATION_SOURCE_TRANSITIVITY.intransitive,
+  vt: GENERATION_SOURCE_TRANSITIVITY.transitive,
+  vb: GENERATION_SOURCE_TRANSITIVITY.bitransitive,
+});
+
+export const GENERATION_SOURCE_SLOT_BY_TRANSITIVITY = Object.freeze({
+  [GENERATION_SOURCE_TRANSITIVITY.intransitive]: "a",
+  [GENERATION_SOURCE_TRANSITIVITY.transitive]: "b",
+  [GENERATION_SOURCE_TRANSITIVITY.bitransitive]: "c",
+});
+
+export function normalizeGenerationSourceTransitivity(value = "", { allowAliases = true } = {}) {
+  const normalized = String(value == null ? "" : value).trim().toLowerCase();
+  if (GENERATION_SOURCE_TRANSITIVITY_ORDER.includes(normalized)) {
+    return normalized;
+  }
+  return allowAliases ? GENERATION_SOURCE_TRANSITIVITY_ALIASES[normalized] || "" : "";
+}
+
+export function getGenerationSourceTransitivityVocabulary() {
+  return Object.freeze({
+    kind: "generation-source-transitivity-vocabulary",
+    sourceTransitivities: GENERATION_SOURCE_TRANSITIVITY_ORDER,
+    aliases: GENERATION_SOURCE_TRANSITIVITY_ALIASES,
+    sourceSlotByTransitivity: GENERATION_SOURCE_SLOT_BY_TRANSITIVITY,
+    canvasFormulaGroups: Object.freeze(["intransitive", "transitive"]),
+    canvasFormulaGroupBySourceTransitivity: Object.freeze({
+      intransitive: "intransitive",
+      transitive: "transitive",
+      bitransitive: "transitive",
+    }),
+    structuralTopologyIsNotCanvasValenceAuthority: true,
+  });
+}
+
+export function validateGenerationSourceTransitivitySelection(value = "", options = {}) {
+  const requestedSourceTransitivity = String(value == null ? "" : value).trim().toLowerCase();
+  const explicit = requestedSourceTransitivity !== "";
+  const sourceTransitivity = normalizeGenerationSourceTransitivity(requestedSourceTransitivity, options);
+  const recognized = sourceTransitivity !== "";
+  return Object.freeze({
+    kind: "generation-source-transitivity-selection-frame",
+    requestedSourceTransitivity,
+    sourceTransitivity,
+    sourceSlotKey: recognized ? GENERATION_SOURCE_SLOT_BY_TRANSITIVITY[sourceTransitivity] : "",
+    explicit,
+    recognized,
+    authorizationStatus: !explicit ? "not-applicable" : recognized ? "authorized" : "blocked",
+    blockReason: explicit && !recognized ? "generation-source-transitivity-not-recognized" : "",
+    structuralTopologyIsNotCanvasValenceAuthority: true,
+  });
+}
+
+export function validateGenerationSourceTransitivityControlInventory({
+  hiddenSelectValues = [],
+  visibleGroupValues = [],
+  slotShellValues = [],
+} = {}) {
+  const expectedValues = Array.from(GENERATION_SOURCE_TRANSITIVITY_ORDER);
+  const normalizedHiddenSelectValues = Array.from(hiddenSelectValues, value => String(value || ""));
+  const normalizedVisibleGroups = Array.from(visibleGroupValues, group => Array.from(group || [], value => String(value || "")));
+  const normalizedSlotShellValues = Array.from(slotShellValues, value => String(value || ""));
+  const exact = values => values.length === expectedValues.length && values.every((value, index) => value === expectedValues[index]);
+  const hiddenSelectMatches = exact(normalizedHiddenSelectValues);
+  const visibleGroupsMatch = normalizedVisibleGroups.length === 3 && normalizedVisibleGroups.every(exact);
+  const slotShellsMatch = exact(normalizedSlotShellValues);
+  const inventoryMatches = hiddenSelectMatches && visibleGroupsMatch && slotShellsMatch;
+  return Object.freeze({
+    kind: "generation-source-transitivity-control-inventory-validation-frame",
+    expectedValues: Object.freeze(expectedValues),
+    hiddenSelectValues: Object.freeze(normalizedHiddenSelectValues),
+    visibleGroupValues: Object.freeze(normalizedVisibleGroups.map(group => Object.freeze(group))),
+    slotShellValues: Object.freeze(normalizedSlotShellValues),
+    hiddenSelectMatches,
+    visibleGroupsMatch,
+    slotShellsMatch,
+    inventoryMatches,
+    authorizationStatus: inventoryMatches ? "authorized" : "blocked",
+    blockReason: inventoryMatches ? "" : "generation-source-transitivity-control-inventory-mismatch",
+    structuralControlsAreNotCanvasValenceAuthority: true,
+  });
+}
+
 export function createGenerationValencyModule(targetObject = globalThis) {
     const GENERATION_VALENCY_OBJECT_SLOT_GATE_DIAGNOSTIC_ID = "generation-valency-object-slot-frame-unfixed";
     const GENERATION_VALENCY_OBJECT_SLOT_GATE_ROUTE_STAGE = "generation-valency-object-slot-gate";
@@ -2416,6 +2512,30 @@ export function createGenerationValencyModule(targetObject = globalThis) {
     api.resetPers1Pers2ForNominalTiempos = resetPers1Pers2ForNominalTiempos;
     api.applyPassiveImpersonalSlotOverrides = applyPassiveImpersonalSlotOverrides;
     api.applyReflexivoAutoSwitch = applyReflexivoAutoSwitch;
+    Object.defineProperty(api, "GENERATION_SOURCE_TRANSITIVITY", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATION_SOURCE_TRANSITIVITY; },
+    });
+    Object.defineProperty(api, "GENERATION_SOURCE_TRANSITIVITY_ORDER", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATION_SOURCE_TRANSITIVITY_ORDER; },
+    });
+    Object.defineProperty(api, "GENERATION_SOURCE_TRANSITIVITY_ALIASES", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATION_SOURCE_TRANSITIVITY_ALIASES; },
+    });
+    Object.defineProperty(api, "GENERATION_SOURCE_SLOT_BY_TRANSITIVITY", {
+        configurable: true,
+        enumerable: true,
+        get() { return GENERATION_SOURCE_SLOT_BY_TRANSITIVITY; },
+    });
+    api.normalizeGenerationSourceTransitivity = normalizeGenerationSourceTransitivity;
+    api.getGenerationSourceTransitivityVocabulary = getGenerationSourceTransitivityVocabulary;
+    api.validateGenerationSourceTransitivitySelection = validateGenerationSourceTransitivitySelection;
+    api.validateGenerationSourceTransitivityControlInventory = validateGenerationSourceTransitivityControlInventory;
     return api;
 }
 

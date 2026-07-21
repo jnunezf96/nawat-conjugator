@@ -1,6 +1,6 @@
 import { installRuntimeBridge } from "./runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
-import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs?v=20260721-classical-public-runtime-001";
+import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs?v=20260721-classical-public-runtime-002";
 
 let browserBootstrapPromise = null;
 

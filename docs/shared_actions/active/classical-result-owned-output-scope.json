@@ -1,95 +1,118 @@
 {
   "schemaVersion": 1,
   "id": "classical-result-owned-output-scope",
-  "status": "active",
+  "status": "complete",
   "incentive": {
     "id": "result-owned-output-presentation",
-    "statement": "A choice between one result and a full result paradigm belongs to the Result surface while typed application state remains the sole generation authority.",
+    "statement": "A choice between one result and a full result paradigm belongs to the Result surface, uses one typed vocabulary, and cannot let malformed or hidden state alter application authorization.",
     "unchanged": true
   },
   "coordinator": {
     "actorId": "stabilization-manager",
-    "responsibility": "Coordinate shell ownership, canonical state continuity, focused proof, and alignment.",
+    "responsibility": "Coordinate the typed scope contract, shell and Canvas parity, application authorization, URL continuity, focused proof, and alignment.",
     "mayAddSupportingActors": true,
     "mayChangeIncentive": false
   },
-  "outcome": "Both NNC and VNC output-scope controls are presented in #3 Result and are absent from #2 Authority; the route is compact and source-faithful, rendering only Canvas witnesses and Andrews structure while keeping non-source engine proof internal and visually linking Andrews participant carriers.",
+  "outcome": "Both NNC and VNC use one fail-closed single/paradigm selection contract while retaining separate paradigm dimensions, Result ownership, and Canvas/Andrews-only visible evidence.",
   "responsibilities": [
     {
       "id": "result-shell",
-      "statement": "Relocate the existing canonical controls into the Result panel and style their result-owned presentation, including a compact default-collapsed Built from receipt.",
+      "statement": "Keep the canonical controls in Result and derive their exact ordered values and tags from the typed output-scope contract.",
       "paths": ["src/ui/shell/classical_shell.mjs", "style.css", "index.html"],
       "primaryActor": "classical-ui",
       "actors": [{
         "actorId": "classical-ui",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Move presentation ownership without duplicating control IDs or state, and collapse provenance visually without deleting it."
+        "status": "complete",
+        "contribution": "Preserve Result ownership and replace handwritten scope inventories with contract-derived shell records."
       }],
       "alignmentStatus": "aligned"
     },
     {
       "id": "state-continuity",
-      "statement": "Keep the relocated NNC control in the existing availability synchronization, preserve both typed output-scope consumers, and project a compact Canvas/Andrews-only derivation view with application-owned participant-to-formula display segments, including the discontinuous subject pers1-pers2 and num1-num2 dyads plus every typed mainline and shuntline object carrier, while leaving non-source proof internal.",
-      "paths": ["src/application/classical/vnc_application.mjs", "src/ui/rendering/rendering.mjs"],
+      "statement": "Make VNC application and NNC/VNC Result projection consume recognized typed scope frames; invalid explicit or hidden state must not authorize output.",
+      "paths": ["src/core/output/scope.mjs", "src/core/grammar/contract_registry.mjs", "src/application/classical/vnc_application.mjs", "src/ui/rendering/rendering.mjs"],
       "primaryActor": "classical-application",
       "actors": [{
         "actorId": "classical-application",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Retain canonical selection and visibility behavior after DOM relocation; remove non-Canvas/Andrews metadata only from the visible derivation projection; project typed participant carrier spans so the renderer does not infer participant grammar."
+        "status": "complete",
+        "contribution": "Centralize scope recognition and preserve the distinct NNC and VNC enumeration and authorization rules."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "url-continuity",
+      "statement": "Persist literal canonical scope for NNC and Direct/derived VNC, while retaining compatibility with the existing derived positional capsule and rejecting malformed explicit values.",
+      "paths": ["src/ui/composer/composer.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Close Direct-VNC persistence loss and stale malformed-capsule behavior without reinterpreting existing entrada/v1 capsule positions."
       }],
       "alignmentStatus": "aligned"
     },
     {
       "id": "verification",
-      "statement": "Prove Result ownership, Authority absence, both clause-kind options, compact derivation and Built from disclosures, and focused runtime behavior.",
-      "paths": ["src/tests/ui.test.js", "src/tests/classical_vnc_application.test.js"],
+      "statement": "Prove exact inventory parity, invalid-scope blocking, active-only VNC paradigm behavior, hostile URL restoration, and live refresh continuity.",
+      "paths": ["src/tests/ui.test.js", "src/tests/state.test.js", "src/tests/classical_vnc_application.test.js", "src/tests/grammar_contract_registry.test.js", "src/tests/runtime_delivery_checks.test.js", "src/runtime/create_runtime.mjs", "src/bootstrap/bootstrap.mjs", "src/browser/main.mjs"],
       "primaryActor": "verification",
       "actors": [{
         "actorId": "verification",
         "kind": "primary",
-        "status": "active",
-        "contribution": "Add hostile shell-ownership assertions and run focused checks."
+        "status": "complete",
+        "contribution": "Add hostile cross-layer authorization, stale-state, persistence, and parity checks."
       }],
       "alignmentStatus": "aligned"
     },
     {
       "id": "coordination",
       "statement": "Record the bounded target and closure evidence.",
-      "paths": ["docs/CURRENT_TARGET.md", "docs/shared_actions/active/classical-result-owned-output-scope.json"],
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-result-owned-output-scope.json"],
       "primaryActor": "stabilization-manager",
       "actors": [{
         "actorId": "stabilization-manager",
         "kind": "primary",
-        "status": "active",
+        "status": "complete",
         "contribution": "Keep UI ownership separate from grammar authorization."
       }],
       "alignmentStatus": "aligned"
     }
   ],
   "support": [],
-  "contracts": [],
+  "contracts": [{
+    "id": "classical-result-output-scope-contract",
+    "status": "complete",
+    "owner": "classical-application",
+    "consumers": ["vnc-application", "nnc-result", "vnc-result", "result-shell", "canvas-ledger", "entrada-url"],
+    "invariant": "Absent scope defaults to single; recognized single or paradigm is retained; malformed explicit scope is blocked and cannot inherit hidden DOM or alter grammar authorization."
+  }],
   "retirements": [{
     "id": "authority-owned-output-scope-presentation",
     "status": "complete",
     "removalEvidence": "Focused shell assertions and fresh browser proof show the VNC scope control in #3 Result and absent from #2 Authority; the same shell contract covers NNC."
   }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Handwritten scope vocabularies, authority-panel ownership, malformed fallback authorization, hidden-DOM inheritance, and VNC URL scope loss are removed from the deciding path."
+  },
   "evidence": [
     {
       "kind": "focused-tests",
       "status": "passed",
-      "detail": "Filtered module runs passed classical_vnc_application.test.js 25/25 with explicit discontinuous subject-dyad and exhaustive mainline/shuntline object-link assertions, classical_causative_relation_ui.test.js 6/6, and ui.test.js 392/392; syntax checks and git diff --check passed."
+      "detail": "Focused runs passed VNC 214/214, NNC 458/458, state 413/413, UI 413/413, registry 43/43, derivation 224/224, orthography 41/41, and runtime 9/9; syntax and residual-duplicate scans passed."
     },
     {
       "kind": "browser",
       "status": "passed",
-      "detail": "Fresh localhost delivery loaded the Canvas/Andrews-only cache key and participant-link stylesheet, exposed six participant-link rules, preserved Result-owned output scope, and reported zero warning/error logs."
+      "detail": "Fresh localhost entry 053 restored VNC and NNC paradigm URLs, retained single on the inactive role, rejected a fabricated VNC scope to the clean default URL and single, and reported zero warning/error logs. Populated VNC full-paradigm generation remains covered by focused tests because it exceeded the in-app verification tab resource boundary."
     },
     {
       "kind": "alignment",
       "status": "pending-external-cleanup",
-      "detail": "Architecture metrics stayed at baseline, but unrelated dirty board, source-picker/runtime, shared-action, and PDF audit paths are outside this assignment's actor coverage."
+      "detail": "Architecture metrics stayed at baseline: responsibility/actor 0, renderer construction 38, optional renderer dependency 0, registered-contract coverage 200, and browser scripts 1. The repository gate remains red for the inherited 607-line live board and cross-action dirty-worktree overlap, not for an output-scope-attributable regression."
     }
   ],
   "exceptions": []

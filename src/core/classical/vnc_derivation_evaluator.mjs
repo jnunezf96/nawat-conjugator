@@ -6,11 +6,75 @@ import {
 } from "./karttunen_1992_derivation_evidence.mjs";
 import CLASSICAL_NAHUATL_CANVAS_DERIVATION_AUTHORITY from "./canvas_lessons24_26_derivation_authority.json" with { type: "json" };
 
+export const CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES = Object.freeze(["direct", "causative", "applicative"]);
+
+export function normalizeClassicalNahuatlVncDerivationType(value = "") {
+  const normalized = String(value == null ? "" : value).trim().toLowerCase();
+  return CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES.includes(normalized) ? normalized : "";
+}
+
+export function getClassicalNahuatlVncDerivationTypeVocabulary() {
+  return {
+    kind: "classical-nahuatl-vnc-derivation-type-vocabulary",
+    version: 1,
+    derivationTypes: [...CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES],
+    directType: "direct",
+    derivedTypes: CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES.filter(type => type !== "direct"),
+    authority: "Andrews Lessons 24-26 Canvas derivational operations",
+    contextualAuthorizationRemainsTyped: true,
+  };
+}
+
+export function validateClassicalNahuatlVncDerivationTypeSelection(value = "") {
+  const requestedDerivationType = String(value == null ? "" : value).trim().toLowerCase();
+  const derivationType = normalizeClassicalNahuatlVncDerivationType(requestedDerivationType);
+  return {
+    kind: "classical-nahuatl-vnc-derivation-type-selection-frame",
+    version: 1,
+    requestedDerivationType,
+    derivationType,
+    allowedDerivationTypes: [...CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES],
+    authorizationStatus: derivationType ? "authorized" : "blocked",
+    blockReason: derivationType ? "" : "classical-vnc-derivation-type-not-recognized",
+    contextualAuthorizationRemainsTyped: true,
+  };
+}
+
+export function validateClassicalNahuatlVncDerivationTypeControlInventory({
+  options = [],
+  authorityOptionTags = [],
+} = {}) {
+  const normalizedOptions = Array.isArray(options) ? options.map(option => typeof option === "string"
+    ? { value: String(option), tagId: "" }
+    : { value: String(option?.value || ""), tagId: String(option?.tagId || "") }) : [];
+  const values = normalizedOptions.map(option => option.value);
+  const expectedValues = [...CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES];
+  const records = Array.isArray(authorityOptionTags) ? authorityOptionTags : [];
+  const mismatchedAuthorityOptions = normalizedOptions.filter(option => {
+    const record = records.find(candidate => String(candidate?.tagId || "") === option.tagId);
+    return !record || String(record.controlId || "") !== "classical-derivation-type" || String(record.value || "") !== option.value;
+  }).map(option => `classical-derivation-type:${option.value}:${option.tagId || "<untagged>"}`);
+  const duplicateValues = values.filter((value, index, all) => all.indexOf(value) !== index);
+  const inventoryMatches = values.length === expectedValues.length && values.every((value, index) => value === expectedValues[index]);
+  const authorized = inventoryMatches && !duplicateValues.length && !mismatchedAuthorityOptions.length;
+  return {
+    kind: "classical-nahuatl-vnc-derivation-type-control-inventory-validation-frame",
+    version: 1,
+    authorizationStatus: authorized ? "authorized" : "blocked",
+    blockReason: authorized ? "" : "classical-vnc-derivation-type-control-inventory-mismatch",
+    values,
+    expectedValues,
+    inventoryMatches,
+    duplicateValues: Array.from(new Set(duplicateValues)),
+    mismatchedAuthorityOptions,
+    shellAndLedgerAreNotGrammarAuthority: true,
+  };
+}
+
 export function createClassicalNahuatlVncDerivationEvaluatorApi(targetObject = globalThis) {
     const CLASSICAL_NAHUATL_VNC_DERIVATION_VERSION = 1;
     const CLASSICAL_NAHUATL_CANVAS_DERIVATION_CHOICE_KIND = "classical-nahuatl-canvas-derivation-choice-frame";
     const CLASSICAL_NAHUATL_VNC_DERIVATION_MAX_VALIDATION_DEPTH = 12;
-    const CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES = Object.freeze(["direct", "causative", "applicative"]);
     const CLASSICAL_NAHUATL_VNC_DERIVATION_OBJECT_KINDS = Object.freeze(["specific-projective", "reflexive", "nonspecific-human", "nonspecific-nonhuman"]);
     const CLASSICAL_NAHUATL_VNC_DERIVATION_PERSONS = Object.freeze(["1sg", "2sg", "3sg", "1pl", "2pl", "3pl"]);
     const CLASSICAL_NAHUATL_VNC_DERIVATION_BASE_SOURCE_KINDS = Object.freeze([
@@ -4494,6 +4558,10 @@ export function createClassicalNahuatlVncDerivationEvaluatorApi(targetObject = g
       CLASSICAL_NAHUATL_VNC_DERIVATION_VERSION,
       CLASSICAL_NAHUATL_CANVAS_DERIVATION_CHOICE_KIND,
       CLASSICAL_NAHUATL_VNC_DERIVATION_TYPES,
+      normalizeClassicalNahuatlVncDerivationType,
+      getClassicalNahuatlVncDerivationTypeVocabulary,
+      validateClassicalNahuatlVncDerivationTypeSelection,
+      validateClassicalNahuatlVncDerivationTypeControlInventory,
       getClassicalNahuatlKarttunen1992DerivationEvidenceInventory,
       getClassicalNahuatlKarttunen1992DerivationEvidenceMatches,
       isClassicalNahuatlCanvasDerivationChoiceFrame,

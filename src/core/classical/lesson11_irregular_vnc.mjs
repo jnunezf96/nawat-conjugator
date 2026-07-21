@@ -1,5 +1,10 @@
 // Canonical modern ESM module.
 
+import {
+  CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES,
+  validateClassicalNahuatlVncSemanticSelection,
+} from "./vnc_layer_evaluator.mjs?v=20260719-voice-contract-050";
+
 export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = globalThis) {
     const CLASSICAL_NAHUATL_LESSON11_VERSION = 1;
     const CLASSICAL_NAHUATL_LESSON11_SOURCE_DOCUMENT = "ANDREWS_TRANSCRIPTION_CANVAS.md";
@@ -803,8 +808,15 @@ export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = glo
       const sourceStem = normalizeClassicalNahuatlLesson11Stem(stem);
       const identity = getClassicalNahuatlLesson11LexemeIdentity(sourceStem, options);
       const paradigmRelationFrame = getClassicalNahuatlLesson11ParadigmRelationFrame(identity, options);
-      const requestedMood = String(options.requestedMood || options.mood || "indicative");
-      const requestedSemanticTense = String(options.requestedSemanticTense || options.semanticTense || options.tense || "present");
+      const requestedMoodInput = String(options.requestedMood || options.mood || "indicative");
+      const requestedSemanticTenseInput = String(options.requestedSemanticTense || options.semanticTense || options.tense || "present");
+      const semanticSelectionFrame = validateClassicalNahuatlVncSemanticSelection({
+        mood: requestedMoodInput,
+        tense: requestedSemanticTenseInput,
+        enforceMoodCompatibility: false,
+      });
+      const requestedMood = semanticSelectionFrame.mood || semanticSelectionFrame.requestedMood;
+      const requestedSemanticTense = semanticSelectionFrame.semanticTense || semanticSelectionFrame.requestedSemanticTense;
       const subjectNumber = getClassicalNahuatlLesson11SubjectNumber(options.subject);
       const actions = [];
       const alternatives = [];
@@ -834,7 +846,44 @@ export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = glo
       const authorizedSentenceRoles = ["statement"];
       const supersededLowerRuleIds = [];
       const ordinarySemanticTenses = ["present", "preterit", "future", "distant-past", "customary-present", "imperfect"];
+      const regularSemanticTenses = requestedMood === "indicative"
+        ? ordinarySemanticTenses
+        : [...CLASSICAL_NAHUATL_VNC_SEMANTIC_TENSES];
+      if (semanticSelectionFrame.authorizationStatus !== "authorized") {
+        return {
+          kind: "classical-nahuatl-lesson11-paradigm-plan",
+          version: CLASSICAL_NAHUATL_LESSON11_VERSION,
+          lesson: "Andrews Lesson 11",
+          sourceAuthority: "Andrews transcription",
+          sourceDocument: CLASSICAL_NAHUATL_LESSON11_SOURCE_DOCUMENT,
+          sourceStem,
+          paradigmRelationFrame,
+          identity: cloneClassicalNahuatlLesson11Value(identity),
+          lexemeId: identity?.lexemeId || "",
+          irregularityKind: identity?.kind || "",
+          applies: Boolean(identity),
+          requestedMood,
+          requestedSemanticTense,
+          morphologicalMood,
+          morphologicalTense,
+          authorizationStatus: "blocked",
+          available: false,
+          blockReason: semanticSelectionFrame.blockReason,
+          actions: [CLASSICAL_NAHUATL_LESSON11_ACTIONS.DISABLE_PARADIGM_CELL],
+          allowedSemanticTenses: semanticSelectionFrame.moodTenses,
+          semanticSelectionFrame,
+          regularSystemRemainsAuthority: !identity,
+          formulaStringsAreAuthority: false,
+        };
+      }
       if (!identity) {
+        const regularSemanticSelectionFrame = validateClassicalNahuatlVncSemanticSelection({
+          mood: requestedMood,
+          tense: requestedSemanticTense,
+          allowedSemanticTenses: regularSemanticTenses,
+          enforceMoodCompatibility: false,
+        });
+        const authorized = Boolean(sourceStem) && regularSemanticSelectionFrame.authorizationStatus === "authorized";
         return {
           kind: "classical-nahuatl-lesson11-paradigm-plan",
           version: CLASSICAL_NAHUATL_LESSON11_VERSION,
@@ -849,10 +898,11 @@ export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = glo
           requestedSemanticTense,
           morphologicalMood,
           morphologicalTense,
-          authorizationStatus: sourceStem ? "authorized" : "blocked",
-          blockReason: sourceStem ? "" : "missing-stem",
+          authorizationStatus: authorized ? "authorized" : "blocked",
+          blockReason: !sourceStem ? "missing-stem" : regularSemanticSelectionFrame.blockReason,
           actions,
-          allowedSemanticTenses: ordinarySemanticTenses,
+          allowedSemanticTenses: regularSemanticTenses,
+          semanticSelectionFrame: regularSemanticSelectionFrame,
           regularSystemRemainsAuthority: true
         };
       }
@@ -1029,19 +1079,29 @@ export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = glo
         actions.push(CLASSICAL_NAHUATL_LESSON11_ACTIONS.DISABLE_PARADIGM_CELL);
       }
       const ruleRefs = identity.ruleIds.map(getClassicalNahuatlLesson11Rule).filter(Boolean);
-      let allowedSemanticTenses = [...ordinarySemanticTenses];
+      let allowedSemanticTenses = [...regularSemanticTenses];
       if (identity.kind === "defective-preterit-as-present") allowedSemanticTenses = ["present"];
       if (identity.kind === "defective-compound-only") allowedSemanticTenses = ["present", "general-past"];
       if (identity.kind === "defective-alert-perfective-only") allowedSemanticTenses = requestedMood === "admonitive" ? ["nonpast"] : ["preterit", "distant-past"];
       if (["defective-construction-bound", "defective-nnc-cooperation"].includes(identity.kind)) allowedSemanticTenses = ["present"];
       if (["form-meaning-dislocation", "preterit-stem-exception", "regular-with-optional-past-reading"].includes(identity.kind)) {
-        allowedSemanticTenses.push("general-past");
+        if (requestedMood === "indicative") allowedSemanticTenses.push("general-past");
       }
       if (identity.kind === "suppletive" && identity.lexemeId === "be-suppletive") {
         allowedSemanticTenses = requestedMood === "indicative" ? ["present", "general-past", "customary-present", "imperfect", "future"] : requestedMood === "optative" ? ["nonpast", "past"] : ["nonpast"];
       }
       if (identity.kind === "suppletive" && ["go-suppletive", "come-suppletive"].includes(identity.lexemeId)) {
         allowedSemanticTenses = requestedMood === "indicative" ? ["present", "preterit", "future", "distant-past", "general-past", "customary-present", "imperfect"] : requestedMood === "optative" ? ["nonpast", "past"] : ["nonpast"];
+      }
+      const contextualSemanticSelectionFrame = validateClassicalNahuatlVncSemanticSelection({
+        mood: requestedMood,
+        tense: requestedSemanticTense,
+        allowedSemanticTenses: requestedMood === "indicative" ? allowedSemanticTenses : null,
+      });
+      if (contextualSemanticSelectionFrame.authorizationStatus !== "authorized") {
+        available = false;
+        if (!blockReason) blockReason = contextualSemanticSelectionFrame.blockReason;
+        actions.push(CLASSICAL_NAHUATL_LESSON11_ACTIONS.DISABLE_PARADIGM_CELL);
       }
       return {
         kind: "classical-nahuatl-lesson11-paradigm-plan",
@@ -1087,6 +1147,7 @@ export function createClassicalNahuatlLesson11IrregularVncApi(targetObject = glo
         blockReason,
         actions: Array.from(new Set(actions)),
         allowedSemanticTenses: Array.from(new Set(allowedSemanticTenses)),
+        semanticSelectionFrame: contextualSemanticSelectionFrame,
         ruleRefs: ruleRefs.map(rule => ({
           ...cloneClassicalNahuatlLesson11Value(rule),
           tagId: rule.id

@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-vnc-voice-contract",
+  "status": "complete",
+  "incentive": {
+    "id": "typed-voice-intent-fails-closed",
+    "statement": "Target voice and causative source voice must each use one ordered recognized-input contract, preserve their intentional role distinction, and never authorize Active output from an unknown request.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Consolidate voice protocol recognition and shell parity without merging contextual allowed voices, source versus target roles, general Nawat voice mode, or ordered higher voice operations.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "One core voice contract owns the ordered five-value target inventory and intentional three-value causative-source subset; application and surface requests fail closed on unknown values, while typed application-derived contextual inventories remain authoritative.",
+  "responsibilities": [
+    {
+      "id": "grammar-contract",
+      "statement": "Own target/source voice vocabularies, typed recognition, non-authorizing shell parity, and separation from higher voice-layer operations.",
+      "paths": ["src/core/classical/vnc_layer_evaluator.mjs", "src/core/grammar/contract_registry.mjs"],
+      "primaryActor": "classical-voice-engine",
+      "actors": [{"actorId":"classical-voice-engine","kind":"primary","status":"complete","contribution":"Defined and registered target/source voice vocabulary, selection, and parity contracts while retaining typed contextual voice gates."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "application-gate",
+      "statement": "Retain unknown target/source voice intent diagnostically and block before Active fallback can become generated authority.",
+      "paths": ["src/application/classical/vnc_application.mjs"],
+      "primaryActor": "classical-application-boundary",
+      "actors": [{"actorId":"classical-application-boundary","kind":"primary","status":"complete","contribution":"Reused the core voice contracts and blocked unknown target or source voice requests with empty results."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "ui-boundary",
+      "statement": "Consume typed voice recognition, validate actual ordered shell/Canvas values, and pass invalid raw intent to the application gate.",
+      "paths": ["src/ui/rendering/rendering.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{"actorId":"classical-ui","kind":"primary","status":"complete","contribution":"Removed handwritten renderer recognition, preserved invalid requests in blocked frames, and exposed ordered shell/Canvas parity diagnostics."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-verification",
+      "statement": "Deliver the voice contract atomically and prove valid, invalid, poisoned, and contextual source/target behavior.",
+      "paths": ["index.html", "src/browser/main.mjs", "src/bootstrap/bootstrap.mjs", "src/runtime/create_runtime.mjs", "src/core/classical/lesson11_irregular_vnc.mjs", "src/tests/classical_vnc_application.test.js", "src/tests/classical_lesson11_application_continuity.test.js", "src/tests/grammar_contract_registry.test.js", "src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{"actorId":"verification","kind":"primary","status":"complete","contribution":"Added unknown target/source application and surface proof, ordered shell/tag poison tests, cache entry 050, and live browser verification."}],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded voice slice and carry forward every unresolved comparison finding.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/CODEX_BOARD.md", "docs/shared_actions/active/classical-vnc-voice-contract.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{"actorId":"stabilization-manager","kind":"primary","status":"complete","contribution":"Recorded scope, contextual exclusions, evidence, and remaining-risk status."}],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [{
+    "id": "classical-vnc-voice-contract",
+    "status": "active",
+    "owner": "classical-voice-engine",
+    "consumers": ["classical-application-boundary", "classical-ui", "classical-url-state", "verification"],
+    "invariant": "Only recognized target/source voice values enter contextual application authorization; source and target roles remain separate, and shell order remains stable for entrada v1 positional restoration."
+  }],
+  "retirements": [{
+    "id": "unknown-voice-normalized-to-authorized-active",
+    "status": "complete",
+    "removalEvidence": "Unknown target/source application and renderer requests now return blocked frames with empty formula and surface, while valid Active remains authorized."
+  }],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "Unknown target or source voice can no longer normalize into authorized Active output, while the intentional role-specific voice subsets remain typed and separate."
+  },
+  "evidence": [
+    "Focused proof passed: VNC application 32/32, Lesson 11 plus continuity 26/26, matched UI 409/409, grammar-contract registry 43/43, and runtime manifest 75 modules plus 75 installers from one browser entry.",
+    "Hostile proof blocks fabricated target and causative-source voice requests before the Active layout fallback can authorize a formula or surface; poisoned shell values fail exact ordered Canvas parity.",
+    "Live browser entry 050 reported authorized five-value target and three-value source inventories, valid (nemi) Active formula #ni-0(nemi)0+0-0#, and no warning or error logs.",
+    "Alignment architecture metrics matched baseline exactly: responsibility actor 0/0, renderer construction 38/38, optional renderer dependency 0/0, registered-contract coverage 200/200, and browser scripts 1/1. The remaining hard-invariant failure is inherited board size and cross-action dirty-worktree overlap.",
+    "Lessons 20 through 22 remained 29/30 with only the pre-existing unrelated generated-source wording expectation failing; syntax, JSON parsing, and diff checks passed."
+  ],
+  "exceptions": []
+}

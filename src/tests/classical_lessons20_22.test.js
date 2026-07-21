@@ -1968,7 +1968,7 @@ function run(ctx = {}) {
             && !shell.includes('value="lō" data-classical-authority-option-tag="cn-option-nonactive-family-lo-long" selected')
             && rendering.includes('nonactiveInventory?.selectorRequired === true')
             && rendering.includes('nonactiveInventory.selectionRequired === true')
-            && rendering.includes('Choose a generated formation')
+            && shell.includes('Choose a generated formation')
             && rendering.includes('selectedOptionId || ""')
             && !rendering.includes('nonactiveInventory.defaultOptionId')
             && vncApplication.includes('dependencySource.deriveClassicalNahuatlLesson20NonactiveStemRecord(')

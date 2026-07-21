@@ -391,21 +391,9 @@ export function createClassicalNahuatlNncLayerEvaluatorApi(targetObject = global
       return aliases[key] || "";
     }
     function normalizeClassicalNahuatlNounClass(value = "") {
-      const key = normalizeClassicalNahuatlNncToken(value).toLowerCase().replace(/[\s_-]/gu, "");
-      const aliases = {
-        tl: "tl",
-        ti: "tl",
-        tliclass: "tli",
-        tli: "tli",
-        li: "tli",
-        in: "in",
-        inclass: "in",
-        zero: "zero",
-        "0": "zero",
-        "ø": "zero",
-        null: "zero"
-      };
-      return aliases[key] || "";
+      return typeof targetObject.normalizeOrdinaryNncNounClassForProfile === "function"
+        ? targetObject.normalizeOrdinaryNncNounClassForProfile(value, "classical")
+        : "";
     }
     function getClassicalNahuatlNncFirstSound(value = "") {
       const normalized = normalizeClassicalNahuatlNncToken(value).normalize("NFD").replace(/[\u0300-\u036f]/gu, "").toLowerCase();
@@ -650,7 +638,7 @@ export function createClassicalNahuatlNncLayerEvaluatorApi(targetObject = global
       const restrictedStem = normalizeClassicalNahuatlNncStem(restrictedUseStem);
       const state = normalizeClassicalNahuatlNncToken(options.state || "absolutive").toLowerCase();
       const nounClass = normalizeClassicalNahuatlNounClass(options.nounClass || options.class || "");
-      const classSelectionAuthority = normalizeClassicalNahuatlNncToken(options.classSelectionAuthority || (nounClass ? "user-selection" : "")).toLowerCase();
+      const classSelectionAuthority = normalizeClassicalNahuatlNncToken(options.classSelectionAuthority || "").toLowerCase();
       const classAuthorityAllowed = ["user-selection", "external-lexical-record"].includes(classSelectionAuthority);
       const useShape = normalizeClassicalNahuatlLesson14UseShape(options.generalUseShape || options.useShape || "base");
       const classGuidanceFrame = getClassicalNahuatlLesson14ClassFormGuidance(restrictedStem);

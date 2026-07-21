@@ -107,6 +107,8 @@ function run(ctx = {}) {
         registryApi.listGrammarContractDefinitions(registryApi.getDefaultGrammarContractRegistry())
             .map((definition) => definition.contractKind),
         [
+            "classical-nahuatl-canonical-source-stem-inventory-audit",
+            "classical-nahuatl-canonical-source-stem-record",
             "classical-nahuatl-canvas-derivation-choice-frame",
             "classical-nahuatl-lesson24-identical-vowel-coalescence-frame",
             "classical-nahuatl-lesson24-identical-vowel-coalescence-operation-frame",
@@ -138,9 +140,27 @@ function run(ctx = {}) {
             "classical-nahuatl-vnc-derivation-operation-frame",
             "classical-nahuatl-vnc-derivation-option-inventory",
             "classical-nahuatl-vnc-derivation-source-analysis",
+            "classical-nahuatl-vnc-derivation-type-control-inventory-validation-frame",
+            "classical-nahuatl-vnc-derivation-type-selection-frame",
+            "classical-nahuatl-vnc-derivation-type-vocabulary",
             "classical-nahuatl-vnc-derived-machinery-frame",
             "classical-nahuatl-vnc-exact-nonactive-bridge-frame",
             "classical-nahuatl-vnc-finite-surface-frame",
+            "classical-nahuatl-vnc-semantic-control-inventory-validation-frame",
+            "classical-nahuatl-vnc-semantic-input-vocabulary",
+            "classical-nahuatl-vnc-semantic-selection-frame",
+            "classical-nahuatl-vnc-voice-control-inventory-validation-frame",
+            "classical-nahuatl-vnc-voice-selection-frame",
+            "classical-nahuatl-vnc-voice-vocabulary",
+            "classical-result-output-scope-control-inventory-validation-frame",
+            "classical-result-output-scope-selection-frame",
+            "classical-result-output-scope-vocabulary",
+            "generation-source-transitivity-control-inventory-validation-frame",
+            "generation-source-transitivity-selection-frame",
+            "generation-source-transitivity-vocabulary",
+            "ordinary-nnc-noun-class-control-inventory-validation-frame",
+            "ordinary-nnc-noun-class-selection-frame",
+            "ordinary-nnc-noun-class-vocabulary",
         ]
     );
     s.eq(

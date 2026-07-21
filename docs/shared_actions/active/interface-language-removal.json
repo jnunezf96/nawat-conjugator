@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "id": "interface-language-removal",
+  "status": "complete",
+  "incentive": {
+    "id": "single-interface-language",
+    "statement": "The application must have one fixed interface copy path, with no interface-language control or runtime label-switching lane.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate shell, runtime, presentation, and focused verification removal without changing grammar-language profiles or Andrews authority.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "The Interface language control and its Nawat-label switching runtime are absent; the existing original interface copy is the sole presentation path.",
+  "responsibilities": [
+    {
+      "id": "shell-and-presentation",
+      "statement": "Remove the control markup and all dedicated responsive styling.",
+      "paths": ["index.html", "style.css"],
+      "primaryActor": "classical-presentation",
+      "actors": [{
+        "actorId": "classical-presentation",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Removed the Interface language checkbox, label, and dedicated layout rules."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "runtime-removal",
+      "statement": "Remove language-switch initialization, mutation, listeners, and state reads while preserving the fixed original label helpers used by rendering.",
+      "paths": ["src/ui/i18n/i18n.mjs", "src/ui/events/events.mjs", "src/ui/state.mjs", "src/ui/panels/panels.mjs", "src/ui/rendering/rendering.mjs", "src/ui/composer/composer.mjs", "src/bootstrap/script_runtime.mjs"],
+      "primaryActor": "ui-runtime",
+      "actors": [{
+        "actorId": "ui-runtime",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Deleted the switch API and listeners, removed its stored-label carrier, and fixed remaining rendering label selection to the original interface path."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove the control, styles, runtime switch functions, and DOM state reads are absent and the canonical runtime remains intact.",
+      "paths": ["src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Added hostile source assertions and completed focused UI, runtime-manifest, syntax, alignment, and browser checks."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record the bounded removal and its evidence without claiming unrelated active worktree changes.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/shared_actions/active/interface-language-removal.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Recorded the implementation boundary, retirement evidence, focused checks, browser proof, and external alignment blockers."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [
+    {
+      "id": "interface-language-checkbox",
+      "status": "complete",
+      "removalEvidence": "The shell, stylesheet, and accessibility label contain no Interface language control."
+    },
+    {
+      "id": "runtime-interface-label-switch",
+      "status": "complete",
+      "removalEvidence": "The canonical modules contain no language DOM lookup, changeLanguage API, initLanguageSwitch call, or OriginalLabels carrier."
+    }
+  ],
+  "closure": {
+    "oldAuthorityRemoved": true,
+    "detail": "The interface-language control, runtime switching API, listener, and stored label carrier are absent; one fixed interface-copy path remains."
+  },
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+      "detail": "Focused UI verification passed 402/402 across three matched suites; all changed modules passed node --check; runtime manifest remained aligned at 1 browser entry, 75 modules, and 75 installers; git diff --check passed."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+      "detail": "Fresh-origin proof loaded stylesheet interface-language-removed-088 and current module entry lesson11-result-continuity-046; the DOM contained zero interface-language controls, zero #language carriers, zero matching accessibility labels, zero visible Interface language labels, and zero warning/error logs."
+    },
+    {
+      "kind": "alignment",
+      "status": "pending-external-coordination",
+      "detail": "Architecture metrics remained at baseline and the browser runtime stayed singular. The gate remains red for the pre-existing live-board expansion and overlapping active-action coverage of unrelated dirty paths; this action records its own touched paths and actors."
+    }
+  ],
+  "exceptions": []
+}

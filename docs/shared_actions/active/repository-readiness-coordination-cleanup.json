@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "id": "repository-readiness-coordination-cleanup",
+  "status": "active",
+  "incentive": {
+    "id": "exact-integrated-handoff",
+    "statement": "Completed typed-authority migrations must close with truthful lifecycle records, a bounded live target, preserved historical evidence, and one complete exact-input readiness proof.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Reconcile lifecycle and historical coordination debt, then run the indivisible repository readiness handoff without changing the completed grammar incentives.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "Finished actions are truthfully closed, historical targets are preserved outside the live target, alignment is exact, and the integrated worktree passes the resumable readiness gate through browser delivery.",
+  "responsibilities": [
+    {
+      "id": "coordination-lifecycle",
+      "statement": "Reconcile completed action status and closure witnesses, preserve the historical target, and maintain the bounded current target and board handoff record.",
+      "paths": ["docs/"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Close only finished actions, retain their original responsibility assignments, and move accumulated historical detail out of the live target."
+      }],
+      "alignmentStatus": "active"
+    },
+    {
+      "id": "integrated-readiness",
+      "statement": "Verify the combined canonical ESM runtime, typed grammar and application paths, UI and URL consumers, audits, lexical evidence, and browser delivery without modifying their completed ownership boundaries.",
+      "paths": ["src/", "index.html", "style.css", "package.json", "scripts/", "config/"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "active",
+        "contribution": "Run alignment and the content-addressed readiness gate, diagnose any current-input failure, and repair only attributable stale consumers or integration defects."
+      }],
+      "alignmentStatus": "active"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [
+    {
+      "id": "finished-actions-left-active",
+      "status": "complete",
+      "removalEvidence": "Eight actions whose original actors, responsibilities, and retirements were already complete now carry complete lifecycle status and explicit old-authority-removal witnesses."
+    },
+    {
+      "id": "append-only-live-target-history",
+      "status": "complete",
+      "removalEvidence": "The full 2026-07-17 through 2026-07-19 target history is preserved in a dedicated history document while CURRENT_TARGET.md contains only the active handoff."
+    }
+  ],
+  "evidence": [],
+  "exceptions": []
+}

@@ -515,6 +515,14 @@ function run(ctx) {
         ["t", "ti", "in", "zero"]
     );
     s.eq(
+        "ordinary NNC UI request builder leaves manual formula text for the engine gate",
+        buildOrdinaryNncGenerateWordRequest({ stem: "(nemi)" }).options.override.ordinaryNnc,
+        {
+            ...buildOrdinaryNncGenerateWordRequest({ stem: "nemi" }).options.override.ordinaryNnc,
+            stem: "(nemi)",
+        }
+    );
+    s.eq(
         "ordinary NNC UI request builder carries an explicit Andrews p294 output set",
         buildOrdinaryNncGenerateWordRequest({
             stem: "pil",
@@ -542,7 +550,7 @@ function run(ctx) {
         ""
     );
     s.eq(
-        "ordinary NNC UI request builder accepts analogue entrada values",
+        "ordinary NNC UI request builder preserves analogue text for the engine gate",
         (() => {
             const request = buildOrdinaryNncGenerateWordRequest({
                 stem: "(siwa)t",
@@ -558,10 +566,10 @@ function run(ctx) {
             };
         })(),
         {
-            tronco: "siwa",
+            tronco: "(siwa)t",
             tiempo: "ordinary-nnc",
-            nounClass: "t",
-            stem: "siwa",
+            nounClass: "zero",
+            stem: "(siwa)t",
         }
     );
     s.eq(
@@ -596,6 +604,7 @@ function run(ctx) {
             "valenceSecondary",
             "directionalPrefix",
             "supportiveMarker",
+            "vncOutputScope",
             "slotASerialType",
             "slotATemplateSuffix",
             "slotATemplateSurface",
@@ -16013,6 +16022,116 @@ function run(ctx) {
             result: "tichijchipaknaj",
             surfaceForms: ["tichijchipaknaj"],
         }
+    );
+
+    const forgedTransitivitySnapshot = ctx.parseEntradaUrlSegmentString(
+        "#entrada/v1/verb/(nemi)/tr/fabricated/a-stem/forged"
+    );
+    const previousComposerTransitivity = ctx.VerbComposerState.transitivity;
+    ctx.VerbComposerState.transitivity = ctx.COMPOSER_TRANSITIVITY.transitive;
+    const forgedTransitivityApplied = ctx.applyEntradaUrlStateSnapshot(forgedTransitivitySnapshot, {
+        triggerGenerate: false,
+    });
+    s.eq(
+        "Entrada rejects forged source transitivity before slot A or prior state can be applied",
+        {
+            requested: forgedTransitivitySnapshot.sourceTransitivitySelectionFrame?.requestedSourceTransitivity,
+            status: forgedTransitivitySnapshot.sourceTransitivitySelectionFrame?.authorizationStatus,
+            normalized: forgedTransitivitySnapshot.transitivity,
+            sourceSlot: forgedTransitivitySnapshot.sourceTransitivitySelectionFrame?.sourceSlotKey,
+            applied: forgedTransitivityApplied,
+            retainedState: ctx.VerbComposerState.transitivity,
+        },
+        {
+            requested: "fabricated",
+            status: "blocked",
+            normalized: "",
+            sourceSlot: "",
+            applied: false,
+            retainedState: "transitive",
+        }
+    );
+    ctx.VerbComposerState.transitivity = previousComposerTransitivity;
+    s.eq(
+        "Entrada source-transitivity aliases normalize to canonical full tokens",
+        ["vi", "vt", "vb"].map((alias) => {
+            const snapshot = ctx.parseEntradaUrlSegmentString(`#entrada/v1/verb/(nemi)/tr/${alias}`);
+            return [snapshot.transitivity, snapshot.sourceTransitivitySelectionFrame?.sourceSlotKey];
+        }),
+        [["intransitive", "a"], ["transitive", "b"], ["bitransitive", "c"]]
+    );
+    const priorOrdinaryNounClass = ctx.getOrdinaryNncGenerationState().nounClass;
+    ctx.setOrdinaryNncGenerationState({ nounClass: "ti" });
+    const forgedOrdinaryClass = ctx.parseEntradaUrlSegmentString("#entrada/v1/board/ordinary-nnc/s-enabled/1/s-class/fabricated");
+    s.eq(
+        "Entrada rejects a forged Nawat noun class before prior state can be replaced",
+        {
+            requested: forgedOrdinaryClass.ordinaryNnc.nounClassSelectionFrame?.requestedValue,
+            status: forgedOrdinaryClass.ordinaryNnc.nounClassSelectionFrame?.authorizationStatus,
+            normalized: forgedOrdinaryClass.ordinaryNnc.nounClass,
+            applied: ctx.applyEntradaUrlStateSnapshot(forgedOrdinaryClass, { triggerGenerate: false }),
+            retainedState: ctx.getOrdinaryNncGenerationState().nounClass,
+        },
+        {
+            requested: "fabricated",
+            status: "blocked",
+            normalized: "",
+            applied: false,
+            retainedState: "ti",
+        }
+    );
+    ctx.setOrdinaryNncGenerationState({ nounClass: priorOrdinaryNounClass });
+    const forgedClassicalClass = ctx.parseEntradaUrlSegmentString("#entrada/v1/board/ordinary-nnc/s-enabled/1/cn/1/cn-class/fabricated");
+    s.eq(
+        "Entrada rejects a forged Classical noun class instead of restoring tl",
+        {
+            requested: forgedClassicalClass.classicalNnc.nounClassSelectionFrame?.requestedValue,
+            status: forgedClassicalClass.classicalNnc.nounClassSelectionFrame?.authorizationStatus,
+            layoutFallback: forgedClassicalClass.classicalNnc.nounClass,
+            applied: ctx.applyEntradaUrlStateSnapshot(forgedClassicalClass, { triggerGenerate: false }),
+        },
+        {
+            requested: "fabricated",
+            status: "blocked",
+            layoutFallback: "tl",
+            applied: false,
+        }
+    );
+    const forgedNncOutputScope = ctx.parseEntradaUrlSegmentString("#entrada/v1/board/ordinary-nnc/s-enabled/1/cn/1/cn-output/fabricated");
+    const forgedVncOutputScope = ctx.parseEntradaUrlSegmentString("#entrada/v1/verb/(nemi)/vnc-output/fabricated");
+    s.eq(
+        "Entrada retains malformed explicit NNC and VNC output scope as blocked",
+        {
+            nnc: {
+                requested: forgedNncOutputScope.classicalNnc.outputScopeSelectionFrame?.requestedValue,
+                normalized: forgedNncOutputScope.classicalNnc.outputScope,
+                status: forgedNncOutputScope.classicalNnc.outputScopeSelectionFrame?.authorizationStatus,
+                applied: ctx.applyEntradaUrlStateSnapshot(forgedNncOutputScope, { triggerGenerate: false }),
+            },
+            vnc: {
+                requested: forgedVncOutputScope.vncOutputScopeSelectionFrame?.requestedValue,
+                normalized: forgedVncOutputScope.vncOutputScope,
+                status: forgedVncOutputScope.vncOutputScopeSelectionFrame?.authorizationStatus,
+                applied: ctx.applyEntradaUrlStateSnapshot(forgedVncOutputScope, { triggerGenerate: false }),
+            },
+        },
+        {
+            nnc: { requested: "fabricated", normalized: "", status: "blocked", applied: false },
+            vnc: { requested: "fabricated", normalized: "", status: "blocked", applied: false },
+        }
+    );
+    s.eq(
+        "Direct VNC and Classical NNC paradigm scope round-trip through literal URL fields",
+        {
+            vnc: ctx.parseEntradaUrlSegmentString(ctx.buildEntradaUrlHash({ input: "(nemi)", vncOutputScope: "paradigm" }))?.vncOutputScope,
+            vncSegment: ctx.buildEntradaUrlHash({ input: "(nemi)", vncOutputScope: "paradigm" }).includes("/vnc-output/paradigm"),
+            nnc: ctx.parseEntradaUrlSegmentString(ctx.buildEntradaUrlHash({
+                board: "ordinary-nnc",
+                ordinaryNnc: { enabled: true },
+                classicalNnc: { active: true, outputScope: "paradigm" },
+            }))?.classicalNnc?.outputScope,
+        },
+        { vnc: "paradigm", vncSegment: true, nnc: "paradigm" }
     );
 
     return s;
