@@ -18235,6 +18235,10 @@ export function createUiStateModule(targetObject = globalThis) {
     var PANEL_STACK_SWIPE_MIN_AXIS_RATIO = 1.25;
     var PANEL_STACK_SWIPE_MAX_DURATION_MS = 700;
     var PANEL_STACK_SWIPE_VIEWPORT_EDGE_PX = 24;
+    var PANEL_STACK_SWIPE_VISUAL_LIMIT_PX = 144;
+    var PANEL_STACK_SWIPE_VISUAL_LIMIT_RATIO = 0.32;
+    var PANEL_STACK_SWIPE_EDGE_RESISTANCE = 0.22;
+    var PANEL_STACK_SWIPE_SNAP_DURATION_MS = 180;
     function normalizePanelStackMode(mode) {
       if (mode === "formula" || mode === "tense") {
         return "formula";
@@ -18287,6 +18291,20 @@ export function createUiStateModule(targetObject = globalThis) {
       }
       return deltaX < 0 ? 1 : -1;
     }
+    function getPanelStackSwipeVisualOffset({
+      deltaX = 0,
+      viewportWidth = 0,
+      canNavigate = true
+    } = {}) {
+      const width = Math.max(1, Number(viewportWidth) || 1);
+      const visualLimit = Math.min(
+        PANEL_STACK_SWIPE_VISUAL_LIMIT_PX,
+        Math.max(72, width * PANEL_STACK_SWIPE_VISUAL_LIMIT_RATIO)
+      );
+      const resistance = canNavigate ? 1 : PANEL_STACK_SWIPE_EDGE_RESISTANCE;
+      const resistedDelta = (Number(deltaX) || 0) * resistance;
+      return Math.round(Math.max(-visualLimit, Math.min(visualLimit, resistedDelta)));
+    }
     function isPanelStackSwipeExcludedTarget(target, root = null) {
       if (!target || typeof target.closest !== "function") {
         return true;
@@ -18314,9 +18332,35 @@ export function createUiStateModule(targetObject = globalThis) {
       root.dataset.panelStackSwipeBound = "true";
       root.dataset.panelStackSwipe = "enabled";
       let activeGesture = null;
-      const clearGesture = () => {
-        activeGesture = null;
+      let snapTimer = null;
+      const resetDragPresentation = ({ animate = false } = {}) => {
+        root.style.setProperty("--panel-stack-drag-x", "0px");
+        root.style.setProperty("--panel-stack-drag-progress", "0");
+        root.style.setProperty("--panel-stack-drag-scale", "1");
         root.classList.remove("is-panel-stack-swiping");
+        delete root.dataset.panelStackSwipeIntent;
+        if (snapTimer) {
+          targetObject.clearTimeout(snapTimer);
+          snapTimer = null;
+        }
+        root.classList.toggle("is-panel-stack-snapping-back", animate);
+        if (animate) {
+          snapTimer = targetObject.setTimeout(() => {
+            root.classList.remove("is-panel-stack-snapping-back");
+            root.style.removeProperty("--panel-stack-drag-x");
+            root.style.removeProperty("--panel-stack-drag-progress");
+            root.style.removeProperty("--panel-stack-drag-scale");
+            snapTimer = null;
+          }, PANEL_STACK_SWIPE_SNAP_DURATION_MS);
+          return;
+        }
+        root.style.removeProperty("--panel-stack-drag-x");
+        root.style.removeProperty("--panel-stack-drag-progress");
+        root.style.removeProperty("--panel-stack-drag-scale");
+      };
+      const clearGesture = ({ animate = false } = {}) => {
+        activeGesture = null;
+        resetDragPresentation({ animate });
       };
       root.addEventListener("pointerdown", event => {
         if (event.pointerType !== "touch" || event.isPrimary === false || isThreeColumnPanelLayout() || isPanelStackSwipeExcludedTarget(event.target, root)) {
@@ -18326,6 +18370,7 @@ export function createUiStateModule(targetObject = globalThis) {
         if (Number(event.clientX) <= PANEL_STACK_SWIPE_VIEWPORT_EDGE_PX || viewportWidth > 0 && Number(event.clientX) >= viewportWidth - PANEL_STACK_SWIPE_VIEWPORT_EDGE_PX) {
           return;
         }
+        resetDragPresentation();
         activeGesture = {
           pointerId: event.pointerId,
           startX: event.clientX,
@@ -18349,6 +18394,22 @@ export function createUiStateModule(targetObject = globalThis) {
         const deltaX = activeGesture.endX - activeGesture.startX;
         const deltaY = activeGesture.endY - activeGesture.startY;
         if (Math.abs(deltaX) > 12 && Math.abs(deltaX) > Math.abs(deltaY) * PANEL_STACK_SWIPE_MIN_AXIS_RATIO) {
+          const stackRoot = targetObject.document.querySelector(".panel-stack");
+          const activeMode = stackRoot?.getAttribute("data-active-pane") || "inputs";
+          const direction = deltaX < 0 ? 1 : -1;
+          const canNavigate = Boolean(getPanelStackSwipeTargetMode(activeMode, direction));
+          const visualOffset = getPanelStackSwipeVisualOffset({
+            deltaX,
+            viewportWidth: targetObject.window.innerWidth,
+            canNavigate
+          });
+          const progress = Math.min(1, Math.abs(deltaX) / PANEL_STACK_SWIPE_MIN_DISTANCE_PX);
+          root.style.setProperty("--panel-stack-drag-x", `${visualOffset}px`);
+          root.style.setProperty("--panel-stack-drag-progress", String(progress));
+          root.style.setProperty("--panel-stack-drag-scale", String(1 - progress * 0.012));
+          root.dataset.panelStackSwipeIntent = canNavigate
+            ? direction > 0 ? "next" : "previous"
+            : "blocked";
           root.classList.add("is-panel-stack-swiping");
           event.preventDefault();
         }
@@ -18365,30 +18426,32 @@ export function createUiStateModule(targetObject = globalThis) {
         if (typeof root.releasePointerCapture === "function" && root.hasPointerCapture?.(event.pointerId)) {
           root.releasePointerCapture(event.pointerId);
         }
-        clearGesture();
         const direction = resolvePanelStackSwipeDirection({
           ...gesture,
           durationMs: Date.now() - gesture.startedAt
         });
         if (!direction) {
+          clearGesture({ animate: true });
           return;
         }
         const stackRoot = targetObject.document.querySelector(".panel-stack");
         const activeMode = stackRoot?.getAttribute("data-active-pane") || "inputs";
         const targetMode = getPanelStackSwipeTargetMode(activeMode, direction);
         if (!targetMode) {
+          clearGesture({ animate: true });
           return;
         }
-        setLeftPanelStackMode(targetMode);
         root.dataset.panelStackLastNavigation = "swipe";
         root.dataset.panelStackSwipeDirection = direction > 0 ? "next" : "previous";
+        clearGesture();
+        setLeftPanelStackMode(targetMode);
         if (typeof targetObject.syncEntradaUrlSegmentsFromCurrentState === "function") {
           targetObject.syncEntradaUrlSegmentsFromCurrentState({
             replace: true
           });
         }
       });
-      root.addEventListener("pointercancel", clearGesture, {
+      root.addEventListener("pointercancel", () => clearGesture({ animate: true }), {
         passive: true
       });
       return true;
@@ -20503,6 +20566,7 @@ export function createUiStateModule(targetObject = globalThis) {
     api.getAdjacentPanelStackMode = getAdjacentPanelStackMode;
     api.getPanelStackSwipeTargetMode = getPanelStackSwipeTargetMode;
     api.resolvePanelStackSwipeDirection = resolvePanelStackSwipeDirection;
+    api.getPanelStackSwipeVisualOffset = getPanelStackSwipeVisualOffset;
     api.isPanelStackSwipeExcludedTarget = isPanelStackSwipeExcludedTarget;
     api.initPanelStackSwipeNavigation = initPanelStackSwipeNavigation;
     api.setLeftPanelStackMode = setLeftPanelStackMode;
