@@ -18449,6 +18449,16 @@ body.is-language-classical .verb-entry-board-tabs[data-classical-source-board-mi
 }
 
 @media (max-width: 1024px) {
+  body.is-language-classical [data-panel-stack-swipe="enabled"] {
+    touch-action: pan-y;
+    overscroll-behavior-x: contain;
+  }
+
+  body.is-language-classical [data-panel-stack-swipe="enabled"].is-panel-stack-swiping {
+    cursor: grabbing;
+    user-select: none;
+  }
+
   body.is-language-classical .panel-grid[data-andrews-layout="source-authority-authorized-result"] {
     grid-template-columns: minmax(0, 1fr);
     grid-template-areas:
