@@ -4,7 +4,7 @@
   "status": "active",
   "incentive": {
     "id": "refresh-stable-navigation",
-    "statement": "A shareable entrada URL must restore its entered source, Source/Authority/Result screen, and Direct/Causative/Applicative derivative type.",
+    "statement": "A shareable entrada URL must restore its entered source, Source/Authority/Result screen, Direct/Causative/Applicative derivative type, and valid Causative/Applicative Authority selections.",
     "unchanged": true
   },
   "coordinator": {
@@ -13,18 +13,18 @@
     "mayAddSupportingActors": true,
     "mayChangeIncentive": false
   },
-  "outcome": "Refreshing an entrada URL preserves the named source on the same active screen and derivative type while legacy URLs retain Source and Direct defaults.",
+  "outcome": "Refreshing an entrada URL preserves the named source on the same active screen, derivative type, and compactly encoded derived Authority state while legacy URLs retain Source and Direct defaults.",
   "responsibilities": [
     {
       "id": "url-panel-state",
-      "statement": "Extend the canonical entrada URL snapshot with the active panel and derivative type, restore both through their existing state setters, and synchronously flush derivative changes before an immediate refresh can race URL persistence.",
-      "paths": ["src/ui/composer/composer.mjs"],
+      "statement": "Extend the canonical entrada URL snapshot with the active panel, derivative type, and one compact non-default VNC Authority capsule; restore them through existing controls and setters, including dynamic generated choices, and synchronously flush changes before an immediate refresh can race URL persistence.",
+      "paths": ["src/ui/composer/composer.mjs", "index.html"],
       "primaryActor": "classical-ui",
       "actors": [{
         "actorId": "classical-ui",
         "kind": "primary",
         "status": "complete",
-        "contribution": "Serialize panel and derivative identity, restore both, and reuse their canonical change events."
+        "contribution": "Serialize panel and derivative identity plus compact derived Authority selections, restore them through canonical controls, and reuse their canonical change events."
       }],
       "alignmentStatus": "aligned"
     },
@@ -37,7 +37,7 @@
         "actorId": "verification",
         "kind": "primary",
         "status": "complete",
-        "contribution": "Add focused hostile URL-state assertions and run changed-path checks."
+        "contribution": "Add focused hostile URL-state assertions for static and generated derived selections and run changed-path checks."
       }],
       "alignmentStatus": "aligned"
     },
@@ -66,12 +66,12 @@
     {
       "kind": "focused-tests",
       "status": "passed",
-      "detail": "Module UI filters passed 398/398 assertions, including Causative and Applicative URL round-trips, legacy Direct fallback, and synchronous derivative-click URL wiring; syntax checks and git diff --check passed."
+      "detail": "Module UI filters passed 398/398 assertions, including compact derived-state round-trips, malformed capsule rejection, legacy Direct fallback, dynamic restoration wiring, and synchronous capture before rerender; syntax checks and git diff --check passed."
     },
     {
       "kind": "browser",
       "status": "passed",
-      "detail": "From name-only URLs, live Causative and Applicative clicks wrote their derivative segments synchronously; immediate reloads retained (chōca), screen/formula, and each active derivative control with zero warning/error logs."
+      "detail": "Fresh-origin Causative restored generated formation 4 plus embedded subject 2pl from v/40.54.84; Applicative restored generated formation 2 plus nonspecific-human imported object from v/40.52.b7. Both retained (chōca), screen/formula, and derivative identity with zero warning/error logs."
     },
     {
       "kind": "alignment",

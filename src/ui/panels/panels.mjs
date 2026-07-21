@@ -1052,7 +1052,7 @@ export function createUiPanelsContext(targetObject = globalThis) {
         }
         return activeElement.getAttribute("data-nonactive-suffix") || "";
       })();
-      const isNawat = Boolean(targetObject.document.getElementById("language")?.checked);
+      const isNawat = false;
       const tenseMode = targetObject.getActiveTenseMode();
       const isVerbMode = tenseMode === targetObject.TENSE_MODE.verbo;
       const shouldShowNonactiveTabs = isVerbMode;
@@ -10731,8 +10731,7 @@ export function createUiPanelsContext(targetObject = globalThis) {
       const outputUniversalContainer = targetObject.document.getElementById("output-universal-tabs");
       const outputControlsContainer = targetObject.document.getElementById("output-result-controls");
       const focusState = targetObject.captureTenseTabsFocusState(container) || targetObject.captureTenseTabsFocusState(outputUniversalContainer);
-      const languageSwitch = targetObject.document.getElementById("language");
-      const isNawat = languageSwitch && languageSwitch.checked;
+      const isNawat = false;
       targetObject.updateTenseModeTabs();
       const currentCombinedMode = targetObject.getCombinedMode();
       const isNonactiveMode = targetObject.getActiveTenseMode() === targetObject.TENSE_MODE.verbo && currentCombinedMode === targetObject.COMBINED_MODE.nonactive;

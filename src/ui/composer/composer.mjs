@@ -5693,6 +5693,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         board: COMPOSER_ENTRY_BOARD.general,
         panel: "inputs",
         derivationType: "direct",
+        derivedVnc: "",
         transitivity: "",
         valenceIntransitive: "",
         valence: "",
@@ -5831,6 +5832,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       next.board = normalizeEntradaUrlBoard(read(["board"], ""));
       next.panel = normalizeEntradaUrlPanel(read(["panel"], ""));
       next.derivationType = normalizeEntradaUrlDerivationType(read(["derivationType"], ""));
+      next.derivedVnc = normalizeEntradaUrlDerivedVncCapsule(read(["derivedVnc"], ""));
       next.transitivity = normalizeEntradaUrlTransitivity(read(["transitivity"], ""));
       next.valenceIntransitive = normalizeComposerSecondaryValenceSurfaceToken(read(["valenceIntransitive"], ""));
       next.valence = normalizeComposerSecondaryValenceSurfaceToken(read(["valence"], ""));
@@ -6012,6 +6014,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         derivationType: typeof targetObject.getActiveDerivationType === "function"
           ? targetObject.getActiveDerivationType()
           : "direct",
+        derivedVnc: buildEntradaUrlDerivedVncCapsule(),
         transitivity: VerbComposerState.transitivity || "",
         valenceIntransitive: VerbComposerState.valenceIntransitive || "",
         valence: VerbComposerState.valence || "",
@@ -6100,6 +6103,9 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (field.classicalNncOnly) {
         return snapshot?.ordinaryNnc?.enabled === true && snapshot?.classicalNnc?.active === true && value !== undefined && value !== null && !(String(value) === "" && String(defaultValue) === "");
       }
+      if (field.derivedVncOnly) {
+        return ["causative", "applicative"].includes(snapshot?.derivationType) && String(value || "") !== "";
+      }
       if (field.key === "classicalNncEnabled") {
         return value === true;
       }
@@ -6123,6 +6129,116 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       } catch (error) {
         return String(value || "");
       }
+    }
+    function normalizeEntradaUrlDerivedVncCapsule(value = "") {
+      const selectedIndexByControlIndex = new Map();
+      String(value || "").split(".").forEach(entry => {
+        if (!/^[0-9a-z][0-9a-z]+$/u.test(entry)) {
+          return;
+        }
+        const controlIndex = Number.parseInt(entry.slice(0, 1), 36);
+        const selectedIndex = Number.parseInt(entry.slice(1), 36);
+        if (!Number.isInteger(controlIndex) || controlIndex < 0 || controlIndex >= ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS.length || !Number.isInteger(selectedIndex) || selectedIndex < 0 || selectedIndex >= 36) {
+          return;
+        }
+        selectedIndexByControlIndex.set(controlIndex, selectedIndex);
+      });
+      return Array.from(selectedIndexByControlIndex.entries())
+        .sort((left, right) => left[0] - right[0])
+        .map(([controlIndex, selectedIndex]) => `${controlIndex.toString(36)}${selectedIndex.toString(36)}`)
+        .join(".");
+    }
+    function getEntradaUrlDerivedVncControlSelectedIndex(control = null, spec = {}) {
+      if (!control) {
+        return -1;
+      }
+      if (spec.type === "checkbox") {
+        return control.checked === true ? 1 : 0;
+      }
+      if (Array.isArray(spec.values)) {
+        return spec.values.indexOf(String(control.value || ""));
+      }
+      return Number.isInteger(control.selectedIndex) ? control.selectedIndex : -1;
+    }
+    function buildEntradaUrlDerivedVncCapsule() {
+      if (typeof targetObject.document === "undefined") {
+        return "";
+      }
+      const derivationType = typeof targetObject.getActiveDerivationType === "function" ? targetObject.getActiveDerivationType() : "direct";
+      if (!["causative", "applicative"].includes(derivationType)) {
+        return "";
+      }
+      return ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS.reduce((entries, spec, controlIndex) => {
+        const control = targetObject.document.getElementById(spec.id);
+        const selectedIndex = getEntradaUrlDerivedVncControlSelectedIndex(control, spec);
+        const defaultIndex = spec.type === "checkbox"
+          ? spec.defaultValue === true ? 1 : 0
+          : Array.isArray(spec.values)
+            ? spec.values.indexOf(spec.defaultValue)
+            : Array.from(control?.options || []).findIndex(option => option.value === spec.defaultValue);
+        if (selectedIndex < 0 || selectedIndex === defaultIndex) {
+          return entries;
+        }
+        entries.push(`${controlIndex.toString(36)}${selectedIndex.toString(36)}`);
+        return entries;
+      }, []).join(".");
+    }
+    function getEntradaUrlDerivedVncCapsuleSelections(capsule = "") {
+      return normalizeEntradaUrlDerivedVncCapsule(capsule).split(".").filter(Boolean).map(entry => ({
+        controlIndex: Number.parseInt(entry.slice(0, 1), 36),
+        selectedIndex: Number.parseInt(entry.slice(1), 36)
+      }));
+    }
+    function applyEntradaUrlDerivedVncStateToControls(snapshot = {}) {
+      if (typeof targetObject.document === "undefined" || !["causative", "applicative"].includes(snapshot?.derivationType)) {
+        return false;
+      }
+      const selections = getEntradaUrlDerivedVncCapsuleSelections(snapshot.derivedVnc || "");
+      if (!selections.length) {
+        return false;
+      }
+      let appliedAny = false;
+      let previousSignature = "";
+      for (let pass = 0; pass < 5; pass += 1) {
+        selections.forEach(({ controlIndex, selectedIndex }) => {
+          const spec = ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS[controlIndex];
+          const control = spec ? targetObject.document.getElementById(spec.id) : null;
+          if (!control) {
+            return;
+          }
+          if (spec.type === "checkbox") {
+            const checked = selectedIndex === 1;
+            if (control.checked !== checked) {
+              control.checked = checked;
+              appliedAny = true;
+            }
+            return;
+          }
+          const requestedValue = Array.isArray(spec.values)
+            ? spec.values[selectedIndex]
+            : control.options?.[selectedIndex]?.value;
+          if (requestedValue === undefined || requestedValue === null || !Array.from(control.options || []).some(option => option.value === requestedValue && option.disabled !== true)) {
+            return;
+          }
+          if (control.value !== requestedValue) {
+            control.value = requestedValue;
+            appliedAny = true;
+          }
+        });
+        const signature = selections.map(({ controlIndex }) => {
+          const spec = ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS[controlIndex];
+          const control = spec ? targetObject.document.getElementById(spec.id) : null;
+          return `${controlIndex}:${getEntradaUrlDerivedVncControlSelectedIndex(control, spec)}`;
+        }).join("|");
+        if (signature === previousSignature) {
+          break;
+        }
+        previousSignature = signature;
+        if (typeof targetObject.renderClassicalRuleLogicSurfaceBlock === "function") {
+          targetObject.renderClassicalRuleLogicSurfaceBlock();
+        }
+      }
+      return appliedAny;
     }
     function buildEntradaUrlSegmentString(snapshot = null) {
       const normalized = normalizeEntradaUrlStateSnapshot(snapshot || getCurrentEntradaUrlStateSnapshot());
@@ -6370,6 +6486,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           triggerGenerate,
           immediateRefresh
         });
+        applyEntradaUrlDerivedVncStateToControls(normalized);
         if (!triggerGenerate && verbEl && normalized.input && !verbEl.value) {
           verbEl.value = normalized.input;
           verbEl.dataset.prevValue = normalized.input;
@@ -6443,7 +6560,12 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (!target || typeof target.closest !== "function") {
         return false;
       }
-      return Boolean(target.closest("[data-derivation-type]"));
+      if (target.closest("[data-derivation-type]")) {
+        return true;
+      }
+      const derivationType = typeof targetObject.getActiveDerivationType === "function" ? targetObject.getActiveDerivationType() : "direct";
+      return ["causative", "applicative"].includes(derivationType)
+        && Boolean(target.closest("[data-classical-rule-logic-control]"));
     }
     function initEntradaUrlSegments() {
       if (typeof targetObject.document === "undefined" || typeof targetObject.window === "undefined") {
@@ -6460,7 +6582,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const handleEntradaMutation = event => {
         const target = event?.target || null;
         const isLiveTextEdit = event?.type === "input" && Boolean(target?.matches?.('input[type="text"], input[type="search"], textarea'));
-        if (event?.type === "click" && isEntradaUrlImmediateSyncEventTarget(target)) {
+        if ((event?.type === "click" || event?.type === "change" || event?.type === "input") && isEntradaUrlImmediateSyncEventTarget(target)) {
           if (EntradaUrlSegmentSyncTimer) {
             targetObject.window.clearTimeout(EntradaUrlSegmentSyncTimer);
             EntradaUrlSegmentSyncTimer = null;
@@ -6474,8 +6596,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           queueEntradaUrlSegmentSync();
         }
       };
-      targetObject.document.addEventListener("input", handleEntradaMutation);
-      targetObject.document.addEventListener("change", handleEntradaMutation);
+      // Capture derived Authority edits before their renderer listeners replace
+      // dynamic controls, so an immediate refresh cannot lose the new choice.
+      targetObject.document.addEventListener("input", handleEntradaMutation, true);
+      targetObject.document.addEventListener("change", handleEntradaMutation, true);
       targetObject.document.addEventListener("click", handleEntradaMutation);
       targetObject.document.addEventListener("app:panel-stack-changed", queueEntradaUrlSegmentSync);
       targetObject.window.addEventListener("hashchange", () => {
@@ -11569,7 +11693,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         modeButtons: Array.from(targetObject.document.querySelectorAll("button[data-classical-source-parts-kind]")),
         wholeInput: targetObject.document.getElementById("classical-source-whole"),
         embedInput: targetObject.document.getElementById("classical-source-embed"),
-        matrixInput: targetObject.document.getElementById("classical-source-matrix")
+        matrixInput: targetObject.document.getElementById("classical-source-matrix"),
+        internalMorphs: targetObject.document.getElementById("classical-source-internal-morphs")
       };
     }
     function getClassicalNncSourceGuideElements() {
@@ -11766,6 +11891,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (!root || !select || !sourceStem) {
         return false;
       }
+      const sourcePartsRoot = getClassicalSourcePartControlElements().root;
+      if (sourcePartsRoot?.dataset) {
+        delete sourcePartsRoot.dataset.classicalSourcePartsUserMode;
+      }
       const sourceMode = normalizeClassicalSourcePartsMode(selection.sourceMode);
       const compoundSelection = sourceMode === CLASSICAL_SOURCE_PARTS_MODE.embedMatrix;
       if (compoundSelection && (!selection.sourceEmbedStem || !selection.sourceMatrixStem)) {
@@ -11784,7 +11913,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const {
         wholeInput,
         embedInput,
-        matrixInput
+        matrixInput,
+        internalMorphs
       } = getClassicalSourcePartControlElements();
       const eventTarget = compoundSelection ? matrixInput : wholeInput;
       if (!eventTarget || compoundSelection && !embedInput) {
@@ -11841,7 +11971,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (!root || !select || !sourceStem) {
         return false;
       }
-      setClassicalSourcePartsMode(CLASSICAL_SOURCE_PARTS_MODE.wholeStem, {
+      setClassicalSourcePartsMode(CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes, {
         clearValues: true
       });
       const { wholeInput } = getClassicalSourcePartControlElements();
@@ -11867,6 +11997,21 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (starterPreset.object) {
         setClassicalAuthorityControlFromSourceSelection("classical-rule-logic-object", starterPreset.object);
       }
+      getClassicalSourcePartControlElements().modeButtons?.find(button => (
+        normalizeClassicalSourcePartsMode(button.getAttribute("data-classical-source-parts-kind") || "") === CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes
+      ))?.click?.();
+      targetObject.setTimeout?.(() => {
+        const currentSourceParts = getClassicalSourcePartControlElements();
+        const currentSelectedStem = normalizeClassicalFuenteSourcePartStem(getClassicalVncSourceGuideElements().select?.selectedOptions?.[0]?.dataset?.classicalVncSourceStem || "");
+        const currentUserMode = normalizeClassicalSourcePartsMode(currentSourceParts.root?.dataset?.classicalSourcePartsUserMode || "");
+        if (currentSelectedStem === sourceStem
+          && currentUserMode === CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes
+          && getClassicalSourcePartControlState().mode !== CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes) {
+          currentSourceParts.modeButtons?.find(button => (
+            normalizeClassicalSourcePartsMode(button.getAttribute("data-classical-source-parts-kind") || "") === CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes
+          ))?.click?.();
+        }
+      }, CLASSICAL_SOURCE_EVALUATION_DELAY_MS + 520);
       return true;
     }
     function getClassicalSourcePartControlState() {
@@ -11875,7 +12020,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         modeButtons,
         wholeInput,
         embedInput,
-        matrixInput
+        matrixInput,
+        internalMorphs
       } = getClassicalSourcePartControlElements();
       const activeButton = modeButtons.find(button => button.getAttribute("aria-pressed") === "true") || modeButtons.find(button => button.classList?.contains("is-active"));
       const mode = normalizeClassicalSourcePartsMode(activeButton?.getAttribute("data-classical-source-parts-kind") || modeHost?.dataset?.classicalSourcePartsMode || "whole-stem");
@@ -11901,7 +12047,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         modeButtons,
         wholeInput,
         embedInput,
-        matrixInput
+        matrixInput,
+        internalMorphs
       } = getClassicalSourcePartControlElements();
       if (root?.dataset) {
         root.dataset.classicalSourcePartsMode = normalizedMode;
@@ -11930,6 +12077,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           input.value = "";
         }
       });
+      if (internalMorphs) {
+        internalMorphs.hidden = normalizedMode !== CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes;
+        internalMorphs.setAttribute("aria-hidden", String(internalMorphs.hidden));
+      }
       const sourceInput = typeof targetObject.document !== "undefined" ? targetObject.document.getElementById("verb") : null;
       if (sourceInput) {
         sourceInput.readOnly = true;
@@ -12080,7 +12231,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (matrixInput && sourceMatrixStem) {
         matrixInput.value = sourceMatrixStem;
       }
-      setClassicalSourcePartsMode(sourceEmbedStem || sourceMatrixStem ? "embed-matrix" : "whole-stem");
+      const canonicalWholeStem = Boolean(sourceWholeStem && Array.from(getClassicalVncSourceGuideElements().select?.options || []).some(option => (
+        normalizeClassicalFuenteSourcePartStem(option.dataset?.classicalVncSourceStem || "") === sourceWholeStem
+      )));
+      setClassicalSourcePartsMode(sourceEmbedStem || sourceMatrixStem ? "embed-matrix" : canonicalWholeStem ? "internal-morphemes" : "whole-stem");
       syncClassicalBuiltSourceToVerbInput();
       root.dataset.classicalSourcePartsInitialized = "true";
     }
@@ -12179,6 +12333,8 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     function getClassicalSourceReadoutFrame(unit = "") {
       const activeUnit = normalizeClassicalBasalUnit(unit || getClassicalBasalUnitFromRuntime());
       const sourceInput = targetObject.document.getElementById("verb");
+      const sourceValenceControl = targetObject.document.getElementById("classical-rule-logic-valence");
+      const sourceClassControl = targetObject.document.getElementById("classical-rule-logic-class");
       const rawSourceValue = String(sourceInput?.value || "").trim() || "_";
       const sourceSelectionOptions = getClassicalSourceSelectionOptionsFromRuntime();
       const builtSourceFrame = getClassicalCanvasBuiltSourceFrame(rawSourceValue, sourceSelectionOptions);
@@ -12188,6 +12344,12 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const boundaryStem = boundaryFrame?.stem || "";
       const boundaryMorphs = Array.isArray(boundaryFrame?.internalMorphs) ? boundaryFrame.internalMorphs.join(" | ") : "";
       const boundaryRoles = sourceSelectionFrame?.selectedSourceKind === "embed-matrix" ? [sourceSelectionFrame.selectedEmbedStem || "", sourceSelectionFrame.selectedMatrixStem || ""].filter(Boolean).join(" | ") : boundaryFrame?.sourceReadoutRole || "";
+      const sourceConstitution = activeUnit === CLASSICAL_BASAL_UNIT.vnc && typeof targetObject.buildClassicalNahuatlVncSourceConstitutionProjection === "function" ? targetObject.buildClassicalNahuatlVncSourceConstitutionProjection({
+        sourceStem: sourceValue,
+        sourceValence: sourceValenceControl?.value || "intransitive",
+        verbClass: sourceClassControl?.value || "B",
+        derivationType: "direct"
+      }) : null;
       const machine = sourceSelectionFrame?.userSelectionContradictsCanvas === true ? "Canvas blocks user embed/matrix" : sourceSelectionFrame?.userSelectionCanvasPermitted === true ? "Canvas permits user embed/matrix" : sourceSelectionFrame?.selectedSourceKind === "embed-matrix" ? "Canvas selects embed + matrix" : sourceSelectionFrame?.selectedSourceKind === "internal-morphemes" ? "Canvas selects internal morphemes" : sourceSelectionFrame?.selectedSourceKind === "whole-stem" ? "Canvas selects whole stem" : boundaryFrame?.hyphenOnlyCannotPopulateEmbedMatrix === true ? "whole-stem boundary proof" : "authority pending in Authority";
       if (activeUnit === CLASSICAL_BASAL_UNIT.particle) {
         return {
@@ -12244,8 +12406,11 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         lineStart: boundaryFrame?.ruleRefs?.at?.(-1)?.lineStart ? String(boundaryFrame.ruleRefs.at(-1).lineStart) : "2326",
         lineEnd: boundaryFrame?.ruleRefs?.at?.(-1)?.lineEnd ? String(boundaryFrame.ruleRefs.at(-1).lineEnd) : "2339",
         stem: boundaryStem || builtSourceFrame.builtStem || sourceValue,
+        valence: String(sourceValenceControl?.selectedOptions?.[0]?.textContent || sourceValenceControl?.value || "intransitive").trim(),
+        stemClass: sourceClassControl?.value ? `Class ${sourceClassControl.value}` : "Class unresolved",
         morphs: boundaryMorphs || "_",
-        roles: boundaryRoles || builtSourceFrame.status || "one verbstem"
+        roles: boundaryRoles || builtSourceFrame.status || "one verbstem",
+        constitution: sourceConstitution
       };
     }
     function syncClassicalSourceReadout(unit = "") {
@@ -12269,21 +12434,104 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       readout.dataset.classicalSourceBuiltMode = frame.builtSource?.mode || builtSourceFrame?.mode || "";
       readout.dataset.transcriptionLineStart = frame.lineStart;
       readout.dataset.transcriptionLineEnd = frame.lineEnd;
+      readout.hidden = frame.unit === CLASSICAL_BASAL_UNIT.vnc;
+      readout.setAttribute("aria-hidden", String(readout.hidden));
       const sourceEl = targetObject.document.getElementById("classical-source-readout-value");
       const rankEl = targetObject.document.getElementById("classical-source-readout-rank");
+      const valenceEl = targetObject.document.getElementById("classical-source-readout-valence");
+      const classEl = targetObject.document.getElementById("classical-source-readout-class");
       const morphsEl = targetObject.document.getElementById("classical-source-readout-morphs");
       const rolesEl = targetObject.document.getElementById("classical-source-readout-roles");
+      const constitutionEl = targetObject.document.getElementById("classical-source-constitution");
+      const sourceIdentityEl = targetObject.document.getElementById("classical-source-identity-controls");
+      const internalMorphsEl = targetObject.document.getElementById("classical-source-internal-morphs");
+      const sourcePartsControls = getClassicalSourcePartControlElements();
+      const canonicalVncSourceSelected = targetObject.document.getElementById("classical-vnc-source-guide")?.dataset?.classicalVncSourceSelection === "canonical-stem";
+      if (frame.unit === CLASSICAL_BASAL_UNIT.vnc
+        && canonicalVncSourceSelected
+        && !sourcePartsControls.root?.dataset?.classicalSourcePartsUserMode
+        && getClassicalSourcePartControlState().mode !== CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes) {
+        setClassicalSourcePartsMode(CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes);
+      }
+      if (sourceIdentityEl) {
+        sourceIdentityEl.hidden = frame.unit !== CLASSICAL_BASAL_UNIT.vnc;
+        sourceIdentityEl.setAttribute("aria-hidden", String(sourceIdentityEl.hidden));
+      }
       if (sourceEl) {
         sourceEl.textContent = frame.sourceValue;
       }
       if (rankEl) {
         rankEl.textContent = frame.rank;
       }
+      if (valenceEl) {
+        valenceEl.textContent = frame.valence || "";
+        valenceEl.closest?.("[data-classical-source-readout-item]")?.toggleAttribute("hidden", frame.unit !== CLASSICAL_BASAL_UNIT.vnc);
+      }
+      if (classEl) {
+        classEl.textContent = frame.stemClass || "";
+        classEl.closest?.("[data-classical-source-readout-item]")?.toggleAttribute("hidden", frame.unit !== CLASSICAL_BASAL_UNIT.vnc);
+      }
       if (morphsEl) {
         morphsEl.textContent = frame.morphs;
       }
       if (rolesEl) {
-        rolesEl.textContent = frame.roles;
+        const constitutionParts = Array.isArray(frame.constitution?.parts) ? frame.constitution.parts : [];
+        constitutionEl?.toggleAttribute?.("hidden", frame.unit !== CLASSICAL_BASAL_UNIT.vnc || !constitutionParts.length);
+        rolesEl.replaceChildren?.();
+        if (constitutionParts.length && typeof targetObject.document.createElement === "function") {
+          const appendConstitutionJoin = (text, className) => {
+            const join = targetObject.document.createElement("span");
+            join.className = className;
+            join.textContent = text;
+            join.setAttribute("aria-hidden", "true");
+            rolesEl.appendChild(join);
+          };
+          constitutionParts.forEach((part, index) => {
+            if (index > 0) {
+              appendConstitutionJoin("+", "classical-source-constitution__plus");
+            }
+            const token = targetObject.document.createElement("span");
+            token.className = "classical-source-constitution__part";
+            token.dataset.classicalSourceConstitutionRole = part.role;
+            const segment = targetObject.document.createElement("span");
+            segment.className = "classical-source-constitution__segment";
+            segment.textContent = part.segment;
+            token.append(segment);
+            rolesEl.appendChild(token);
+            if (part.role === "stock formative") {
+              appendConstitutionJoin("→ stock", "classical-source-constitution__stage");
+            }
+          });
+          appendConstitutionJoin(`→ ${frame.stemClass} verbstem`, "classical-source-constitution__stage");
+          rolesEl.setAttribute("aria-label", constitutionParts.map(part => `${part.segment}, ${part.role}`).join("; "));
+        } else {
+          rolesEl.textContent = frame.roles;
+          rolesEl.removeAttribute?.("aria-label");
+        }
+        if (internalMorphsEl) {
+          internalMorphsEl.replaceChildren?.();
+          constitutionParts.forEach((part, index) => {
+            const field = targetObject.document.createElement("label");
+            field.className = "classical-source-internal-morphs__field";
+            field.dataset.classicalSourceInternalMorphIndex = String(index);
+            const label = targetObject.document.createElement("span");
+            label.className = "classical-source-parts__label";
+            label.textContent = part.role ? `${part.role.charAt(0).toUpperCase()}${part.role.slice(1)}` : "Morpheme";
+            const value = targetObject.document.createElement("span");
+            value.className = "classical-source-internal-morphs__value";
+            value.textContent = part.segment;
+            value.setAttribute("role", "textbox");
+            value.setAttribute("aria-readonly", "true");
+            value.setAttribute("aria-label", `${part.role}: ${part.segment}`);
+            field.append(label, value);
+            internalMorphsEl.appendChild(field);
+          });
+          const mode = getClassicalSourcePartControlState().mode;
+          internalMorphsEl.hidden = frame.unit !== CLASSICAL_BASAL_UNIT.vnc
+            || mode !== CLASSICAL_SOURCE_PARTS_MODE.internalMorphemes
+            || !constitutionParts.length;
+          internalMorphsEl.setAttribute("aria-hidden", String(internalMorphsEl.hidden));
+        }
       }
       return frame;
     }
@@ -12426,6 +12674,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       }
       syncClassicalSourcePartControlsFromRuntime();
       const {
+        root,
         modeButtons,
         wholeInput,
         embedInput,
@@ -12460,6 +12709,9 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       modeButtons.forEach(button => {
         button.addEventListener("click", () => {
           const mode = normalizeClassicalSourcePartsMode(button.getAttribute("data-classical-source-parts-kind") || "");
+          if (root?.dataset) {
+            root.dataset.classicalSourcePartsUserMode = mode;
+          }
           if (nncSourceExample) {
             nncSourceExample.value = "";
           }
@@ -12500,6 +12752,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       refreshClassicalRuleLogicSurfaceFromControl();
     }
     const CLASSICAL_CAUSATIVE_PARTICIPANT_CONTROL_REQUEST_KEYS = Object.freeze({
+      "classical-rule-logic-derivation-option": "derivationOptionId",
       "classical-rule-logic-causative-referent-relation": "causativeReferentRelation",
       "classical-rule-logic-causative-specific-shuntline-realization": "causativeSpecificShuntlineRealization"
     });
@@ -12513,7 +12766,15 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       if (!requestKey) {
         return {};
       }
+      if (requestKey === "derivationOptionId") {
+        return {
+          derivationOptionId: String(control?.value || "").trim()
+        };
+      }
       return Object.entries(CLASSICAL_CAUSATIVE_PARTICIPANT_CONTROL_REQUEST_KEYS).reduce((overrides, [controlId, participantRequestKey]) => {
+        if (participantRequestKey === "derivationOptionId") {
+          return overrides;
+        }
         const participantControl = controlId === control.id
           ? control
           : targetObject.document?.getElementById?.(controlId) || null;
@@ -12530,6 +12791,12 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       const rendered = targetObject.renderClassicalRuleLogicSurfaceBlock(
         getClassicalCausativeParticipantControlRequestOverrides(control)
       );
+      const derivationType = typeof targetObject.getActiveDerivationType === "function" ? targetObject.getActiveDerivationType() : "direct";
+      if (["causative", "applicative"].includes(derivationType)) {
+        syncEntradaUrlSegmentsFromCurrentState({
+          replace: true
+        });
+      }
       return rendered;
     }
     function handleClassicalCausativeParticipantControlChange(event = null) {
@@ -12663,8 +12930,19 @@ export function createUiComposerRuntime(targetObject = globalThis) {
             if (carrierControl) carrierControl.value = "tē";
           }
           refreshClassicalRuleLogicSurfaceFromControl(control);
+          if (control.closest?.("[data-classical-source-identity-controls]")) {
+            syncClassicalSourceReadout(CLASSICAL_BASAL_UNIT.vnc);
+          }
         });
-        control.addEventListener("input", () => refreshClassicalRuleLogicSurfaceFromControl(control));
+        control.addEventListener("input", () => {
+          if (control.tagName === "SELECT") {
+            return;
+          }
+          refreshClassicalRuleLogicSurfaceFromControl(control);
+          if (control.closest?.("[data-classical-source-identity-controls]")) {
+            syncClassicalSourceReadout(CLASSICAL_BASAL_UNIT.vnc);
+          }
+        });
       });
       targetObject.document.querySelectorAll("[data-classical-segment-control]").forEach(option => {
         if (CLASSICAL_CAUSATIVE_PARTICIPANT_CONTROL_REQUEST_KEYS[String(option.dataset?.classicalSegmentControl || "")]) {
@@ -12924,14 +13202,6 @@ export function createUiComposerRuntime(targetObject = globalThis) {
           clearComposerSlotEntryTarget();
         });
         verbEl.dataset.composerSlotRouterBound = "1";
-      }
-      const languageSwitch = targetObject.document.getElementById("language");
-      if (languageSwitch && languageSwitch.dataset.composerSlotTabsLabelBound !== "1") {
-        languageSwitch.addEventListener("change", () => {
-          syncComposerSlotTabsLabels();
-          syncComposerEntryBoardTabsLabel(targetObject.document.getElementById("verb-entry-board-tabs"));
-        });
-        languageSwitch.dataset.composerSlotTabsLabelBound = "1";
       }
       if (typeof targetObject.window !== "undefined" && typeof targetObject.window.addEventListener === "function") {
         targetObject.window.addEventListener("resize", () => {
@@ -13989,6 +14259,39 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     }, {});
     var ENTRADA_URL_SEGMENT_PREFIX = "entrada";
     var ENTRADA_URL_SEGMENT_VERSION = "v1";
+    // Positional option indexes keep the share URL short. New controls append to
+    // this list so existing entrada/v1 capsules retain their meaning.
+    var ENTRADA_URL_DERIVED_VNC_CONTROL_SPECS = Object.freeze([
+      { id: "classical-rule-logic-lesson", defaultValue: "7" },
+      { id: "classical-rule-logic-subject", defaultValue: "1sg" },
+      { id: "classical-rule-logic-mood", defaultValue: "indicative" },
+      { id: "classical-rule-logic-tense", defaultValue: "present" },
+      { id: "classical-rule-logic-class", defaultValue: "B" },
+      { id: "classical-rule-logic-derivation-option", defaultValue: "" },
+      { id: "classical-rule-logic-causative-source-voice", defaultValue: "active" },
+      { id: "classical-rule-logic-causative-source-nonactive", defaultValue: "" },
+      { id: "classical-rule-logic-causative-source-subject", defaultValue: "3sg" },
+      { id: "classical-rule-logic-causative-referent-relation", defaultValue: "" },
+      { id: "classical-rule-logic-causative-specific-shuntline-realization", defaultValue: "silent" },
+      { id: "classical-rule-logic-applicative-object", defaultValue: "specific-projective:3sg" },
+      { id: "classical-rule-logic-construction", defaultValue: "none" },
+      { id: "classical-rule-logic-lexical-reading", defaultValue: "unspecified" },
+      { id: "classical-rule-logic-vnc-voice", defaultValue: "active" },
+      { id: "classical-rule-logic-voice-layer-2", defaultValue: "" },
+      { id: "classical-rule-logic-voice-layer-3", defaultValue: "" },
+      { id: "classical-rule-logic-nonactive-family", defaultValue: "" },
+      { id: "classical-rule-logic-valence", defaultValue: "intransitive" },
+      { id: "classical-rule-logic-object", defaultValue: "specific-projective:3sg" },
+      { id: "classical-rule-logic-tla-fusion", defaultValue: false, type: "checkbox" },
+      { id: "classical-rule-logic-directional", defaultValue: "none" },
+      { id: "classical-rule-logic-prefix-stack", defaultValue: false, type: "checkbox" },
+      { id: "classical-rule-logic-polarity", defaultValue: "positive", values: ["positive", "negative"] },
+      { id: "classical-rule-logic-sentence-surface", defaultValue: "statement" },
+      { id: "classical-rule-logic-introductory-particle", defaultValue: "none" },
+      { id: "classical-rule-logic-preface-particle", defaultValue: "none" },
+      { id: "classical-rule-logic-introductory-modifier", defaultValue: "none" },
+      { id: "classical-rule-logic-vnc-output-scope", defaultValue: "single" }
+    ]);
     var ENTRADA_URL_SEGMENT_SCHEMA = Object.freeze([{
       key: "input",
       segment: "verb",
@@ -14009,6 +14312,12 @@ export function createUiComposerRuntime(targetObject = globalThis) {
       segment: "derivation",
       path: ["derivationType"],
       defaultValue: "direct"
+    }, {
+      key: "derivedVnc",
+      segment: "v",
+      path: ["derivedVnc"],
+      defaultValue: "",
+      derivedVncOnly: true
     }, {
       key: "transitivity",
       segment: "tr",
@@ -14901,6 +15210,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     api.shouldIncludeEntradaUrlSegmentField = shouldIncludeEntradaUrlSegmentField;
     api.encodeEntradaUrlSegmentValue = encodeEntradaUrlSegmentValue;
     api.decodeEntradaUrlSegmentValue = decodeEntradaUrlSegmentValue;
+    api.normalizeEntradaUrlDerivedVncCapsule = normalizeEntradaUrlDerivedVncCapsule;
+    api.buildEntradaUrlDerivedVncCapsule = buildEntradaUrlDerivedVncCapsule;
+    api.getEntradaUrlDerivedVncCapsuleSelections = getEntradaUrlDerivedVncCapsuleSelections;
+    api.applyEntradaUrlDerivedVncStateToControls = applyEntradaUrlDerivedVncStateToControls;
     api.buildEntradaUrlSegmentString = buildEntradaUrlSegmentString;
     api.parseEntradaUrlSegmentString = parseEntradaUrlSegmentString;
     api.buildEntradaUrlHash = buildEntradaUrlHash;

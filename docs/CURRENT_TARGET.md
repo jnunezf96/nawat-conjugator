@@ -1,5 +1,64 @@
 # Current Target
 
+## Lesson 11 selected-output continuity
+
+Date: 2026-07-19
+
+Status: Active diagnosis and repair.
+
+### Explicit implementation target
+
+1. Make `(nemi)` with the Lesson 11 general-past semantic choice realize the typed perfective member `(nen)` with distant-past morphology in selected Result and finite surface.
+2. Trace the first application or higher-layer consumer that replaces a typed Lesson 11 predicate with the entered source stem.
+3. Audit sibling Lesson 11 paradigm-member changes and later voice consumers through that same path.
+4. Add hostile coverage proving source/formula/display strings cannot authorize or overwrite a selected typed member and nearby regular stems cannot inherit one.
+
+### Shared action
+
+The machine-readable assignment is `docs/shared_actions/active/classical-lesson11-selected-output-continuity.json`.
+
+### Completion boundary
+
+The slice closes when the live app produces `(nen)ca` / `nenca` for 3sg general-past `(nemi)`, every sibling consumer of the bypass is audited or repaired, focused tests and browser proof pass, and alignment reports no attributable regression.
+
+## Minimal Source and Authority presentation
+
+Date: 2026-07-19
+
+Status: Implementation and focused proof complete. Alignment closure remains pending on unrelated shared-worktree scope.
+
+### Explicit implementation target
+
+1. Make #1 Source read as one compact identified VNC source: basal unit, canonical stem, typed source facts, and stem constitution.
+2. Make #2 Authority read derivation-first, with all canonical Direct, Causative, and Applicative controls preserved and later clause/sentence settings collapsed until requested.
+3. Remove redundant visual weight from runtime mirrors, headings, borders, gradients, explanatory metadata, and the generic VNC `classical-source-readout` without changing any typed grammar or state carrier.
+4. Preserve the existing Source-only and Authority contracts, URL restoration, control IDs, event wiring, and responsive behavior.
+5. Prove the focused shell/presentation contract and live behavior for `(cual-ā-ni)`.
+
+### Shared action
+
+The machine-readable assignment is `docs/shared_actions/active/classical-source-authority-minimal-surface.json`.
+
+### Completion boundary
+
+The slice closes when #1 and #2 match the approved minimal Source → Authority hierarchy, all existing buttons and canonical controls remain functional, focused UI tests pass, browser proof is clean at desktop and narrow widths, and alignment reports no regression attributable to this presentation-only action.
+
+### Completed outcome
+
+- #1 now owns the canonical editable Valence and Stem class controls beside the canonical verbstem. Their existing IDs and runtime state remain the single carriers; #2 no longer owns or mirrors them.
+- For the Canvas-witnessed `(cual-ā-ni)`, the live Source now matches the approved analysis explicitly: `cual` root + `ā` stock formative + `ni` stem formative. The application projects those roles from the canonical Lessons 24–25 source-analysis frame; the composer does not infer them from displayed hyphens.
+- The final matching pass follows the approved Source reading order: `Identified source verbcore` → canonical verbstem → Valence / Stem class → structure controls and fields → one compact typed constitution equation. The generic `classical-source-readout` is entirely absent from the VNC presentation and accessibility tree; its legacy state remains available only to the other source units.
+- The third matching pass gives editable Valence and Stem class the same compact two-field rhythm as the approved mockup; inactive Stem versus Embed / Matrix fields no longer occupy empty columns, and #2 no longer carries the redundant `Logic` heading.
+- The redundant readonly machine mirror is no longer visible. Particle/VNC/NNC and Stem/Internal morphs/Embed + matrix remain the same functional buttons.
+- #2 keeps Direct/Causative/Applicative first, removes decorative container weight, and begins both Clause settings and Sentence settings collapsed in every derivation mode.
+- Causative and Applicative expose one `Licensed formation` selector. The selected typed application projection supplies a compact source-basis → operation → result route and the participant transformation; Causative places Source subject → Causative object beside Source voice and New derived subject, while Applicative places Imported object → Mainline object. Later target voice remains inside collapsed Clause settings.
+- The exact §25.3 `(cual-ā-ni)` route displays its typed nonactive basis `cual-ā-n-ō`, the compact replacement `replace nonactive ō with ti + ā`, and the Class C target without deriving any of those facts from visible strings.
+- The cache-busted live surface keeps the compact Source and Authority rhythm while preserving the full-width Licensed formation, typed route, participant transformation, and collapsed Clause / Sentence disclosures.
+- Focused module UI verification passed `398/398`; focused VNC application verification passed `29/29`; syntax checks and `git diff --check` passed.
+- Fresh-origin desktop proof loaded stylesheet `081` and module entry `044`, displayed the exact `(cual-ā-ni)` Source equation `cual + ā → stock + ni → Class B verbstem`, and rendered the §25.3 route and participant cards with the generic VNC readout at `display: none`. The page had no horizontal overflow or warning/error logs.
+- The stalled live startup was repaired by restoring the missing `internalMorphs` and `root` Source-control bindings. Derived formation changes now carry their exact option ID into the typed render request and no select-input rerender can erase the pending change before `change` commits it.
+- Alignment architecture metrics remained at baseline. The gate still reports the pre-existing live-board expansion, overlapping active-action coverage, unrelated grammar/test changes, and bulk PDF artifacts outside this assignment.
+
 ## Refresh-stable URL screen and derivative type
 
 Date: 2026-07-18
@@ -13,6 +72,8 @@ Status: Implementation and focused proof complete. Alignment closure remains pen
 3. Keep the existing DOM panel state as the live UI carrier and avoid a second runtime lane.
 4. Preserve Direct, Causative, or Applicative derivative type in that same URL and restore it through the canonical derivation state.
 5. Write derivative-type changes synchronously so an immediate refresh cannot race the deferred general URL update and fall back to Direct.
+6. Preserve every active VNC Authority selection while Causative or Applicative is selected, including generated formation and dependent later-layer choices.
+7. Keep the URL bounded by storing only non-default selections in one compact, versioned derived-state capsule rather than adding one verbose path segment per control.
 
 ### Shared action
 
@@ -20,7 +81,7 @@ The machine-readable assignment is `docs/shared_actions/active/classical-refresh
 
 ### Completion boundary
 
-The slice closes when screen changes update the existing URL, derivative-type changes update it before the click returns, refresh restores the named entry on the same screen and derivative type, old URLs without either segment retain their defaults, focused UI tests pass, and alignment reports no regression attributable to this action.
+The slice closes when screen changes update the existing URL, derivative-type changes update it before the click returns, refresh restores the named entry on the same screen, derivative type, and all valid derived Authority selections, old URLs without those segments retain their defaults, focused UI tests pass, and alignment reports no regression attributable to this action.
 
 ### Completed outcome
 
@@ -33,6 +94,11 @@ The slice closes when screen changes update the existing URL, derivative-type ch
 - Live browser proof loaded `(chōca)` on Result, refreshed, and retained both `(chōca)` and Result with zero warning/error logs.
 - A second live proof loaded `(chōca)` on Authority with Causative, refreshed, and retained the name, screen, URL derivative segment, and active Causative control with zero warning/error logs.
 - Exact interaction proof started from a name-only URL, clicked Causative and Applicative separately, confirmed each derivative segment before the click workflow yielded, refreshed immediately, and retained the named source plus active derivative with clean logs.
+- Causative and Applicative Authority state now shares one compact `v` capsule of non-default positional option indexes; Direct and all-default derived state omit it.
+- Derived control input/change events are captured and serialized synchronously before dynamic rendering can replace their controls.
+- Restoration reapplies static prerequisites and then valid generated/dependent selections across bounded render passes; malformed positions and option indexes fail closed.
+- Fresh-origin Causative proof restored generated formation 4 and embedded subject 2pl from `v/40.54.84`; Applicative restored generated formation 2 and nonspecific-human imported object from `v/40.52.b7`.
+- Both restored URLs retained `(chōca)`, Authority, and the requested derivative with zero warning/error logs; focused module UI verification remained `398/398`.
 - Alignment architecture metrics remained at baseline. The gate still reports the pre-existing live-board expansion and unrelated dirty paths/PDF artifacts outside this assignment.
 
 ## Result-owned output scope
@@ -69,6 +135,9 @@ The slice closes when both scope selectors are physically owned by #3 Result, th
 - Equivalent readings of one decomposition now share a single compact equation instead of appearing as duplicate nested cards; the selected route and target sit directly below it, with the hyphen note reduced to a quiet footer.
 - The source analysis is embedded as a semantic `aside` inside the Identified source VNC card rather than interrupting the formation rail as a separate sibling; the surrounding source-to-result sequence therefore keeps one consistent card rhythm.
 - The completed causative card now carries its own application-projected Andrews morphology. For the §25.4 `lō` route it exposes source root/stem material, retained nonactive `l`, empty connective `ti`, and causative `ā`, together with the Canvas replacement explanation; the renderer does not infer these roles from the displayed target string.
+- Source morphology now uses the same compact equation/process/reference pattern and the same rail width as the derived card; the former reading chips, duplicated route effects, selected-target row, and expanded hyphen footer are no longer rendered. Applicative result cards use that same pattern and distinguish first-type `iā`, second-type empty `l`/`hu` plus applicative `iā`, and exceptional applicative `tiā` from the selected typed Canvas operation.
+- The Canvas-witnessed destockal source `(cual-ā-ni)` remains three typed parts in both compact routes: `cual` root + `ā` stock formative + `ni` stem formative. Its §25.3 causative projects retained `n` + connective `ti` + causative `ā`; its §26.4 applicative retains the full source before connective `l` + applicative `iā`.
+- The Authority derivation buttons now read only `Direct`, `Causative`, and `Applicative`; the redundant visible `rule-generated` subtitle is removed without changing typed generation authority or the generated-formation gate.
 - Identified source and Derived active VNC formulas now receive application-projected participant segments; matching Participant history rows and formula carriers share a stable four-color visual key without changing formula or grammar authority. The subject link is explicitly discontinuous: the complete `pers1-pers2` person dyad and complete `num1-num2` number dyad receive the same color on opposite sides of the predicate.
 - Derived active VNC participant linking is exhaustive: every typed object carrier, including mainline and silent shuntline objects, receives its own Participant history color; typed object identity is primary and carrier matching is only a bounded display fallback.
 - Focused application verification passed `25/25`, including explicit `pers1-pers2` / `num1-num2` subject-link assertions; focused UI verification passed `398/398`. Live localhost delivery loaded the new cache-busted stylesheet and all six participant-link rules with zero warning/error logs.

@@ -34,6 +34,9 @@ Decision:
 - Preserved non-default derivative types as `derivation/causative` or `derivation/applicative`; legacy URLs retain Direct, and restoration uses the canonical derivation setter and control synchronizer.
 - Closed the immediate-refresh race by synchronously flushing derivative clicks into the existing URL snapshot instead of waiting for the general deferred UI-state update.
 - Wired the canonical panel-change event back to the existing URL synchronizer, without adding a second navigation carrier.
+- Extended the same snapshot with one compact `v` capsule for non-default Causative and Applicative Authority selections. Positional option indexes keep URLs bounded while a fixed append-only control inventory preserves `entrada/v1` meaning.
+- Captured derived input/change events before dynamic controls rerender, and restored static prerequisites before generated formation, participant, nonactive, and later-layer choices.
+- Omitted the capsule for Direct and all-default derived state; malformed control positions and oversized option indexes fail closed.
 
 Validation:
 
@@ -41,6 +44,8 @@ Validation:
 - Live browser refresh retained `(chōca)` on Result and emitted no warning/error logs.
 - Live Causative refresh retained `(chōca)`, Authority, `/derivation/causative`, and the active Causative control with no warning/error logs.
 - Exact click-to-refresh proof passed for both Causative and Applicative from name-only URLs, with each segment present immediately and both controls retained after immediate reload.
+- Fresh-origin Causative proof restored generated formation 4 and embedded subject 2pl from `v/40.54.84`; Applicative restored generated formation 2 and nonspecific-human imported object from `v/40.52.b7`.
+- Both compact URLs reopened with `(chōca)`, Authority, the requested derivative, and the same selections; browser warning/error logs were empty.
 - Alignment architecture metrics stayed at baseline; the gate remains open only for pre-existing board-size debt and unrelated dirty paths/PDF artifacts outside this action.
 
 ## Completed Phase: Canonical VNC Source Starter Presets

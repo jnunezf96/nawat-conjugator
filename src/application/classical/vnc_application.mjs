@@ -1229,7 +1229,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         "destockal-hui-candidate": "Makes the Andrews destockal replacement or addition procedures available.",
         "fused-destockal-ni-exact": "Recovers the witnessed root, stock formative, and ni theme before replacement or addition.",
         "fused-destockal-hui-exact": "Recovers the witnessed root, stock formative, and hui theme before addition.",
-        "fused-destockal-final-i": "Identifies the final-i base used by the selected Type 1 formation.",
+        "fused-destockal-final-i": "Identifies the final-i base used by the available Type 1 formation.",
         "root-plus-ya": "Allows Andrews to replace ya, or remove it before adding liā.",
         "root-plus-ya-retentive-exception": "Selects the documented exception that retains y and replaces the source-final a.",
         "denominal-ti-candidate": "Allows liā to be added to the complete denominal ti stem.",
@@ -1288,6 +1288,55 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
       });
       return [...groups.values()];
     }
+    function buildClassicalNahuatlVncCompactSourceAnalysisDisplayProjection(groups = []) {
+      const group = groups.find(candidate => candidate.selectedForFormation === true) || groups[0] || null;
+      if (!group || !Array.isArray(group.parts) || !group.parts.length) return null;
+      const sections = Array.from(new Set(group.andrewsSections || []));
+      return {
+        label: "Andrews source-stem analysis",
+        parts: group.parts.map(part => ({ segment: part.segment, role: part.role })),
+        process: "The internal roles come from the typed Andrews source; entered hyphens only help reading.",
+        source: sections.length ? `Andrews §§${sections.join(", ")}` : "Andrews source morphology",
+        grammarAuthority: false
+      };
+    }
+    function buildClassicalNahuatlVncSourceConstitutionProjection(request = {}, dependencies = null) {
+      const dependencySource = dependencies && typeof dependencies === "object" ? dependencies : getClassicalNahuatlVncApplicationRuntimeTarget();
+      const normalizedRequest = normalizeClassicalNahuatlVncApplicationRequest(request);
+      if (!normalizedRequest.sourceStem
+        || typeof dependencySource?.buildClassicalNahuatlLesson7VerbstemClassFrame !== "function"
+        || typeof dependencySource?.buildClassicalNahuatlVncDerivationSourceAnalysisFrame !== "function"
+        || typeof dependencySource?.isClassicalNahuatlVncDerivationSourceAnalysisFrame !== "function") {
+        return null;
+      }
+      const sourceMachineryFrame = buildClassicalNahuatlVncApplicationSourceMachinery(dependencySource, normalizedRequest);
+      const sourceAnalysisFrame = dependencySource.buildClassicalNahuatlVncDerivationSourceAnalysisFrame(sourceMachineryFrame);
+      if (!dependencySource.isClassicalNahuatlVncDerivationSourceAnalysisFrame(sourceAnalysisFrame)) {
+        return null;
+      }
+      const rows = (sourceAnalysisFrame.analyses || []).map(analysis => ({
+        segments: analysis.segments || [],
+        andrewsSections: analysis.andrewsSections || [],
+        selectedForFormation: false,
+        display: buildClassicalNahuatlVncSourceAnalysisDisplayProjection(analysis)
+      }));
+      const compactDisplay = buildClassicalNahuatlVncCompactSourceAnalysisDisplayProjection(
+        groupClassicalNahuatlVncSourceAnalysisDisplayRows(rows)
+      );
+      if (!compactDisplay) return null;
+      return deepFreezeClassicalNahuatlVncApplicationValue({
+        frameRole: "classical-nahuatl-vnc-source-constitution-projection",
+        authorizationStatus: "authorized",
+        sourceStem: sourceAnalysisFrame.sourceStem,
+        sourceClass: sourceAnalysisFrame.sourceClass,
+        sourceValence: sourceAnalysisFrame.sourceValence,
+        label: compactDisplay.label,
+        parts: compactDisplay.parts,
+        process: compactDisplay.process,
+        source: compactDisplay.source,
+        grammarAuthority: false
+      });
+    }
     function buildClassicalNahuatlVncDerivedStemAnalysisDisplayProjection({
       selectedOption = {},
       derivationType = "",
@@ -1295,12 +1344,13 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
       bridgeRecord = null,
       targetStem = ""
     } = {}) {
-      if (normalizeClassicalNahuatlVncApplicationToken(derivationType) !== "causative") {
+      const normalizedDerivationType = normalizeClassicalNahuatlVncApplicationToken(derivationType);
+      if (!["causative", "applicative"].includes(normalizedDerivationType)) {
         return null;
       }
       const construction = selectedOption.targetConstruction || {};
       const subtype = normalizeClassicalNahuatlVncApplicationToken(selectedOption.derivationSubtype || selectedOption.subtype || "");
-      const addition = normalizeClassicalNahuatlVncApplicationStem(construction.add || selectedOption.suffix || "");
+      const addition = normalizeClassicalNahuatlVncApplicationStem(selectedOption.suffix || construction.add || "");
       const normalizedTarget = normalizeClassicalNahuatlVncApplicationStem(targetStem || selectedOption.targetStem || "");
       const selectedSourceGroup = sourceAnalysisDisplayGroups.find(group => group.selectedForFormation === true)
         || sourceAnalysisDisplayGroups[0]
@@ -1318,6 +1368,22 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
           ? sourceParts.map(part => ({ segment: part.segment, role: part.role }))
           : [{ segment: expectedBase, role: "typed source base" }]
       );
+      const copySourcePartsAfterFinalIRemoval = expectedBase => {
+        const finalPart = sourceParts.at(-1) || null;
+        const finalSegment = normalizeClassicalNahuatlVncApplicationStem(finalPart?.segment || "");
+        const retainedFinal = finalSegment.endsWith("i") ? finalSegment.slice(0, -1) : "";
+        const sourceAfterRemoval = [
+          ...sourceParts.slice(0, -1).map(part => part.segment),
+          retainedFinal
+        ].join("");
+        if (!retainedFinal || fold(sourceAfterRemoval) !== fold(expectedBase)) {
+          return copySourcePartsWhenExact(expectedBase);
+        }
+        return [
+          ...sourceParts.slice(0, -1).map(part => ({ segment: part.segment, role: part.role })),
+          { segment: retainedFinal, role: "retained stem-formative consonant" }
+        ];
+      };
       const sections = Array.from(new Set((selectedOption.evidenceSections || [selectedOption.andrewsSection]).filter(Boolean)));
       const suffixFamily = normalizeClassicalNahuatlVncApplicationToken(
         selectedOption.licensedLesson20SuffixFamily
@@ -1325,6 +1391,65 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         || bridgeRecord?.suffixFamily
         || ""
       );
+      if (normalizedDerivationType === "applicative" && subtype.startsWith("type-one") && fold(addition) === "iā" && targetBase) {
+        return {
+          label: "Andrews derived-stem analysis",
+          parts: [
+            ...copySourcePartsWhenExact(targetBase),
+            { segment: "iā", role: "applicative formative" }
+          ],
+          process: "The first-type route adds applicative iā to the typed replacive imperfective base.",
+          andrewsSections: sections,
+          source: "Andrews §26.2",
+          grammarAuthority: false
+        };
+      }
+      if (normalizedDerivationType === "applicative" && subtype.startsWith("type-two") && /liā$/u.test(fold(addition)) && targetBase) {
+        const prefix = addition.replace(/-?liā$/u, "");
+        return {
+          label: "Andrews derived-stem analysis",
+          parts: [
+            ...copySourcePartsWhenExact(targetBase),
+            ...prefix.split("-").filter(Boolean).map(segment => ({ segment, role: "replacive formation material" })),
+            { segment: "l", role: "empty connective" },
+            { segment: "iā", role: "applicative formative" }
+          ],
+          process: "The typed route forms the applicative base, then adds empty connective l plus applicative iā.",
+          andrewsSections: sections,
+          source: "Andrews §§26.3–26.8",
+          grammarAuthority: false
+        };
+      }
+      if (normalizedDerivationType === "applicative" && subtype.startsWith("type-two") && /huiā$/u.test(fold(addition)) && targetBase) {
+        const prefix = addition.replace(/-?huiā$/u, "");
+        return {
+          label: "Andrews derived-stem analysis",
+          parts: [
+            ...copySourcePartsWhenExact(targetBase),
+            ...prefix.split("-").filter(Boolean).map(segment => ({ segment, role: "replacive formation material" })),
+            { segment: "hu", role: "empty connective /w/" },
+            { segment: "iā", role: "applicative formative" }
+          ],
+          process: "The typed route forms the applicative base, then adds empty connective /w/ (written hu) plus applicative iā.",
+          andrewsSections: sections,
+          source: "Andrews §§26.3, 26.9–26.10",
+          grammarAuthority: false
+        };
+      }
+      if (normalizedDerivationType === "applicative" && fold(addition) === "tiā" && targetBase) {
+        return {
+          label: "Andrews derived-stem analysis",
+          parts: [
+            ...copySourcePartsWhenExact(targetBase),
+            { segment: "tiā", role: "exceptional applicative formative" }
+          ],
+          process: "The selected exceptional route uses tiā applicatively; its function comes from the typed Lesson 26 rule, not its surface resemblance to a causative.",
+          andrewsSections: sections,
+          source: "Andrews §26.11",
+          grammarAuthority: false
+        };
+      }
+      if (normalizedDerivationType === "applicative") return null;
       if (subtype === "type-two" && fold(addition) === "tiā" && targetBase) {
         if (suffixFamily === "lō" && /l$/u.test(targetBase)) {
           const sourceBase = targetBase.replace(/-?l$/u, "");
@@ -1345,7 +1470,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         return {
           label: "Andrews derived-stem analysis",
           parts: [
-            ...copySourcePartsWhenExact(targetBase),
+            ...copySourcePartsAfterFinalIRemoval(targetBase),
             { segment: "ti", role: "empty connective" },
             { segment: "ā", role: "causative formative" }
           ],
@@ -1448,6 +1573,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         display: buildClassicalNahuatlVncSourceAnalysisDisplayProjection(analysis)
       }));
       const sourceAnalysisDisplayGroups = groupClassicalNahuatlVncSourceAnalysisDisplayRows(sourceAnalysisRows);
+      const compactSourceAnalysis = buildClassicalNahuatlVncCompactSourceAnalysisDisplayProjection(sourceAnalysisDisplayGroups);
       const sourceAnalysisCategories = Array.from(new Set(sourceAnalysisRows.map(analysis => analysis.category)));
       const participantFrame = operationFrame.participantTransformFrame || {};
       const sourceTypedFrame = operationFrame.sourceTypedVncSlotFrame;
@@ -1647,6 +1773,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         analysisCategories: sourceAnalysisCategories,
         analyses: sourceAnalysisRows,
         analysisDisplayGroups: sourceAnalysisDisplayGroups,
+        compactDisplay: compactSourceAnalysis,
         selectedFormation: {
           targetStem: operationFrame.targetStem,
           procedureLabel: buildClassicalNahuatlVncDerivationProcedureProjection(selectedOption, derivationType).label
@@ -2439,6 +2566,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         isClassicalNahuatlVncApplicationResultFrame,
         isClassicalNahuatlVncApplicationFrame,
         buildClassicalNahuatlVncDerivationExplanationProjection,
+        buildClassicalNahuatlVncSourceConstitutionProjection,
         getClassicalNahuatlVncApplicationAllowedVoices,
         normalizeClassicalNahuatlVncApplicationRequest,
         buildClassicalNahuatlVncApplicationSourceVoiceMachinery,
@@ -2464,6 +2592,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
         isClassicalNahuatlVncApplicationResultFrame,
         isClassicalNahuatlVncApplicationFrame,
         buildClassicalNahuatlVncDerivationExplanationProjection,
+        buildClassicalNahuatlVncSourceConstitutionProjection,
         installClassicalNahuatlVncApplicationClassicGlobals
       };
     }
@@ -2538,6 +2667,7 @@ export function createClassicalNahuatlVncApplicationModule(targetObject = global
     api.isClassicalNahuatlVncApplicationResultFrame = isClassicalNahuatlVncApplicationResultFrame;
     api.isClassicalNahuatlVncApplicationFrame = isClassicalNahuatlVncApplicationFrame;
     api.buildClassicalNahuatlVncDerivationExplanationProjection = buildClassicalNahuatlVncDerivationExplanationProjection;
+    api.buildClassicalNahuatlVncSourceConstitutionProjection = buildClassicalNahuatlVncSourceConstitutionProjection;
     api.isClassicalNahuatlVncApplicationActiveFrameAuthorized = isClassicalNahuatlVncApplicationActiveFrameAuthorized;
     api.getClassicalNahuatlVncApplicationBlockReason = getClassicalNahuatlVncApplicationBlockReason;
     api.buildClassicalNahuatlVncApplicationFrame = buildClassicalNahuatlVncApplicationFrame;

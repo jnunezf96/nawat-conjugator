@@ -47,12 +47,47 @@ function run(ctx = {}) {
     const {
         CLASSICAL_NAHUATL_VNC_APPLICATION_REQUIRED_CAPABILITIES,
         buildClassicalNahuatlVncDerivationExplanationProjection,
+        buildClassicalNahuatlVncSourceConstitutionProjection,
         createClassicalNahuatlVncApplication,
         evaluateClassicalNahuatlVncApplication,
         getDefaultGrammarContractRegistry,
         getGrammarContractDefinition,
         inspectRegisteredGrammarContract,
     } = ctx;
+
+    s.eq(
+        "Source constitution projects the typed Andrews cual-ā-ni analysis before derivation",
+        (() => {
+            const projection = buildClassicalNahuatlVncSourceConstitutionProjection({
+                sourceStem: "(cual-ā-ni)",
+                sourceValence: "intransitive",
+                verbClass: "B",
+                derivationType: "direct",
+            }, ctx);
+            const unlicensedHyphens = buildClassicalNahuatlVncSourceConstitutionProjection({
+                sourceStem: "tom-a",
+                sourceValence: "intransitive",
+                verbClass: "B",
+                derivationType: "direct",
+            }, ctx);
+            return {
+                role: projection?.frameRole || "",
+                status: projection?.authorizationStatus || "",
+                stem: projection?.sourceStem || "",
+                parts: (projection?.parts || []).map(part => [part.segment, part.role]),
+                authority: projection?.grammarAuthority,
+                unlicensedHyphens,
+            };
+        })(),
+        {
+            role: "classical-nahuatl-vnc-source-constitution-projection",
+            status: "authorized",
+            stem: "cual-ā-ni",
+            parts: [["cual", "root"], ["ā", "stock formative"], ["ni", "stem formative"]],
+            authority: false,
+            unlicensedHyphens: null,
+        }
+    );
 
     s.eq(
         "The application service declares every grammar dependency and fails closed when any are absent",
@@ -222,6 +257,41 @@ function run(ctx = {}) {
             selectedKind: "classical-nahuatl-lesson7-verbstem-class-machinery-frame",
             selectedStatus: "authorized",
             appliedKinds: ["classical-nahuatl-vnc-derivation-source-analysis"],
+        }
+    );
+
+    s.eq(
+        "Direct application preserves the Lesson 11 typed paradigm member through selected Result",
+        (() => {
+            const application = createClassicalNahuatlVncApplication(ctx);
+            const generalPast = application.evaluate({
+                sourceStem: "(nemi)",
+                verbClass: "B",
+                sourceValence: "intransitive",
+                subject: "3sg",
+                mood: "indicative",
+                tense: "general-past",
+                derivationType: "direct",
+                requestedVoice: "active",
+            });
+            return {
+                status: generalPast.authorizationStatus,
+                source: generalPast.normalizedRequest.sourceStem,
+                selectedStem: generalPast.resultFrame.finalTypedVncSlotFrame?.slots?.predicate?.stem || "",
+                semanticTense: generalPast.resultFrame.sourceMachineryFrame?.lesson11ParadigmPlan?.requestedSemanticTense || "",
+                morphologicalTense: generalPast.resultFrame.sourceMachineryFrame?.lesson11ParadigmPlan?.morphologicalTense || "",
+                formula: generalPast.resultFrame.formulaRealization,
+                surface: generalPast.resultFrame.surfaceRealization,
+            };
+        })(),
+        {
+            status: "authorized",
+            source: "nemi",
+            selectedStem: "nen",
+            semanticTense: "general-past",
+            morphologicalTense: "distant-past",
+            formula: "#0-0(nen)ca+0-0#",
+            surface: "nenca",
         }
     );
 
@@ -1527,6 +1597,12 @@ function run(ctx = {}) {
                         readings: group.readings,
                         effects: group.formationEffects,
                     })),
+                    compact: formationStep?.compactDisplay ? {
+                        parts: formationStep.compactDisplay.parts.map(part => `${part.segment}:${part.role}`),
+                        process: formationStep.compactDisplay.process,
+                        source: formationStep.compactDisplay.source,
+                        grammarAuthority: formationStep.compactDisplay.grammarAuthority,
+                    } : null,
                     boundaryObserved: formationStep?.explicitBoundaryObserved,
                     userHyphensAuthority: formationStep?.userHyphensAuthority,
                     statement: formationStep?.authorityStatement,
@@ -1569,7 +1645,7 @@ function run(ctx = {}) {
                     {
                         label: "Fused final-i analysis",
                         parts: ["huā:root", "qui:stem formative"],
-                        effect: "Identifies the final-i base used by the selected Type 1 formation.",
+                        effect: "Identifies the final-i base used by the available Type 1 formation.",
                     },
                     {
                         label: "Type 1 consonant alternation",
@@ -1581,10 +1657,16 @@ function run(ctx = {}) {
                     parts: ["huā:root", "qui:stem formative"],
                     readings: ["Fused final-i analysis", "Type 1 consonant alternation"],
                     effects: [
-                        "Identifies the final-i base used by the selected Type 1 formation.",
+                        "Identifies the final-i base used by the available Type 1 formation.",
                         "Allows the documented consonant replacement before causative a.",
                     ],
                 }],
+                compact: {
+                    parts: ["huā:root", "qui:stem formative"],
+                    process: "The internal roles come from the typed Andrews source; entered hyphens only help reading.",
+                    source: "Andrews §§24.3.1.a, 24.5.9, 25.8",
+                    grammarAuthority: false,
+                },
                 boundaryObserved: false,
                 userHyphensAuthority: false,
                 statement: "User-authored hyphens are observations only; they never authorize source analysis.",
@@ -1653,6 +1735,119 @@ function run(ctx = {}) {
                 grammarAuthority: false,
             },
             frozen: true,
+        }
+    );
+
+    s.eq(
+        "The Lesson 26 applicative card receives the Canvas-authorized huiā internal analysis",
+        (() => {
+            const application = createClassicalNahuatlVncApplication(ctx);
+            const request = {
+                sourceStem: "xeloa",
+                verbClass: "C",
+                sourceValence: "specific-projective",
+                subject: "1sg",
+                objectPerson: "3sg",
+                requestedDerivation: "applicative",
+                applicativeObjectKind: "specific-projective",
+                applicativeObjectPerson: "2sg",
+                requestedVoice: "active",
+            };
+            const selection = selectApplicationDerivationOption(application, request, "xel-huiā");
+            const derived = application.evaluate({
+                ...request,
+                derivationOptionId: selection.option?.optionId || "missing-xeloa-applicative-option",
+            });
+            const step = derived.derivationExplanationProjection.formationSteps.find(item => item.stage === "completed-active-derivation");
+            return {
+                status: derived.authorizationStatus,
+                target: step?.stem,
+                analysis: {
+                    parts: step?.derivedStemAnalysis?.parts.map(part => `${part.segment}:${part.role}`),
+                    process: step?.derivedStemAnalysis?.process,
+                    source: step?.derivedStemAnalysis?.source,
+                    grammarAuthority: step?.derivedStemAnalysis?.grammarAuthority,
+                },
+                frozen: Object.isFrozen(step?.derivedStemAnalysis) && Object.isFrozen(step?.derivedStemAnalysis?.parts),
+            };
+        })(),
+        {
+            status: "authorized",
+            target: "xel-huiā",
+            analysis: {
+                parts: [
+                    "xel:typed source base",
+                    "hu:empty connective /w/",
+                    "iā:applicative formative",
+                ],
+                process: "The typed route forms the applicative base, then adds empty connective /w/ (written hu) plus applicative iā.",
+                source: "Andrews §§26.3, 26.9–26.10",
+                grammarAuthority: false,
+            },
+            frozen: true,
+        }
+    );
+
+    s.eq(
+        "cual-ā-ni preserves root, stock formative, and stem formative across compact causative and applicative cards",
+        (() => {
+            const application = createClassicalNahuatlVncApplication(ctx);
+            const summarize = (requestedDerivation, targetStem) => {
+                const request = {
+                    sourceStem: "cual-ā-ni",
+                    verbClass: "B",
+                    sourceValence: "intransitive",
+                    subject: "1sg",
+                    requestedDerivation,
+                    causativeObjectKind: "specific-projective",
+                    applicativeObjectKind: "specific-projective",
+                    applicativeObjectPerson: "3sg",
+                    requestedVoice: "active",
+                };
+                const selection = selectApplicationDerivationOption(application, request, targetStem);
+                const derived = application.evaluate({
+                    ...request,
+                    derivationOptionId: selection.option?.optionId || `missing-cualani-${requestedDerivation}-option`,
+                });
+                const source = derived.derivationExplanationProjection.formationSteps.find(item => item.stage === "source-analysis");
+                const result = derived.derivationExplanationProjection.formationSteps.find(item => item.stage === "completed-active-derivation");
+                return {
+                    status: derived.authorizationStatus,
+                    target: result?.stem,
+                    source: source?.compactDisplay?.parts.map(part => `${part.segment}:${part.role}`),
+                    result: result?.derivedStemAnalysis?.parts.map(part => `${part.segment}:${part.role}`),
+                };
+            };
+            return {
+                causative: summarize("causative", "cual-ā-n-tiā"),
+                applicative: summarize("applicative", "cual-ā-ni-liā"),
+            };
+        })(),
+        {
+            causative: {
+                status: "authorized",
+                target: "cual-ā-n-tiā",
+                source: ["cual:root", "ā:stock formative", "ni:stem formative"],
+                result: [
+                    "cual:root",
+                    "ā:stock formative",
+                    "n:retained stem-formative consonant",
+                    "ti:empty connective",
+                    "ā:causative formative",
+                ],
+            },
+            applicative: {
+                status: "authorized",
+                target: "cual-ā-ni-liā",
+                source: ["cual:root", "ā:stock formative", "ni:stem formative"],
+                result: [
+                    "cual:root",
+                    "ā:stock formative",
+                    "ni:stem formative",
+                    "l:empty connective",
+                    "iā:applicative formative",
+                ],
+            },
         }
     );
 

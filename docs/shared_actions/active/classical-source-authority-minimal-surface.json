@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "id": "classical-source-authority-minimal-surface",
+  "status": "active",
+  "incentive": {
+    "id": "minimal-source-authority-reading-path",
+    "statement": "Source and Authority must be scannable as one Andrews-grounded Source to Authority path while the existing typed grammar state remains canonical.",
+    "unchanged": true
+  },
+  "coordinator": {
+    "actorId": "stabilization-manager",
+    "responsibility": "Coordinate shell hierarchy, presentation-only synchronization, focused proof, and alignment without moving grammar construction into the renderer.",
+    "mayAddSupportingActors": true,
+    "mayChangeIncentive": false
+  },
+  "outcome": "#1 presents a compact identified source and #2 presents derivation first with clause and sentence settings progressively disclosed, without duplicating authority or changing canonical controls.",
+  "responsibilities": [
+    {
+      "id": "source-shell",
+      "statement": "Expose compact source facts and typed Andrews source constitution in the existing readout while preserving the canonical source inputs and buttons.",
+      "paths": ["src/application/classical/vnc_application.mjs", "src/ui/shell/classical_shell.mjs", "src/ui/composer/composer.mjs"],
+      "primaryActor": "classical-ui",
+      "actors": [{
+        "actorId": "classical-ui",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Reuse the existing readout and control state, projecting constitution from the canonical Lessons 24–25 source-analysis frame without creating another source or authority carrier."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "authority-presentation",
+      "statement": "Keep derivation controls primary and make later settings quiet by default without changing their IDs, availability, or typed state.",
+      "paths": ["src/ui/rendering/rendering.mjs", "style.css", "index.html"],
+      "primaryActor": "classical-presentation",
+      "actors": [{
+        "actorId": "classical-presentation",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Flatten visual hierarchy and preserve the current progressive organizer and canonical DOM controls."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "verification",
+      "statement": "Prove compact source facts, collapsed later settings, all derivation buttons, responsive layout, and unchanged interaction authority.",
+      "paths": ["src/tests/classical_vnc_application.test.js", "src/tests/ui.test.js"],
+      "primaryActor": "verification",
+      "actors": [{
+        "actorId": "verification",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Add focused structural assertions and run browser proof."
+      }],
+      "alignmentStatus": "aligned"
+    },
+    {
+      "id": "coordination",
+      "statement": "Record target, proof, and closure without claiming unrelated dirty worktree paths.",
+      "paths": ["docs/CURRENT_TARGET.md", "docs/shared_actions/active/classical-source-authority-minimal-surface.json"],
+      "primaryActor": "stabilization-manager",
+      "actors": [{
+        "actorId": "stabilization-manager",
+        "kind": "primary",
+        "status": "complete",
+        "contribution": "Keep this bounded as a presentation action."
+      }],
+      "alignmentStatus": "aligned"
+    }
+  ],
+  "support": [],
+  "contracts": [],
+  "retirements": [
+    {
+      "id": "redundant-source-machine-mirror-presentation",
+      "status": "complete",
+      "removalEvidence": "Fresh-origin browser proof reports display:none for the readonly machine mirror while the canonical picker and typed source readout remain visible."
+    },
+    {
+      "id": "expanded-later-settings-default",
+      "status": "complete",
+      "removalEvidence": "Direct, Causative, and Applicative browser checks all report Clause settings and Sentence settings closed by default while their canonical controls remain present."
+    }
+  ],
+  "evidence": [
+    {
+      "kind": "focused-tests",
+      "status": "passed",
+        "detail": "Module UI filters passed 398/398; VNC application passed 29/29; module syntax checks and git diff --check passed."
+    },
+    {
+      "kind": "browser",
+      "status": "passed",
+        "detail": "Fresh-origin (cual-ā-ni) proof measured Source at 359px and default Authority at 322px, confirmed both disclosures closed, confirmed required Causative and Applicative controls, found no narrow horizontal overflow, and reported zero warning/error logs. The third match refinement loaded stylesheet 077, preserved the approved Source order, gave read-only Valence / Stem class the compact two-field rhythm, hid inactive source fields, removed the redundant Authority Logic heading, and showed the typed cual root + ā stock formative + ni stem formative projection with no page overflow."
+    },
+    {
+      "kind": "alignment",
+      "status": "pending-external-cleanup",
+      "detail": "Architecture metrics stayed at baseline. The gate remains open for the pre-existing live-board expansion, overlapping active-action coverage, unrelated dirty grammar/test paths, and bulk PDF artifacts outside this assignment."
+    }
+  ],
+  "exceptions": []
+}

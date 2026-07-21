@@ -271,7 +271,7 @@ export function createUiStateModule(targetObject = globalThis) {
       return getLocalizedLabel(targetObject.VERB_BLOCK_LABELS[key], isNawat, fallback);
     }
     function getIsNawat() {
-      return Boolean(targetObject.document.getElementById("language")?.checked);
+      return false;
     }
     function getLocalizedDescription(entry, isNawat) {
       if (!entry) {

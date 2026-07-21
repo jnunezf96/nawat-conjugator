@@ -147,82 +147,6 @@ export function createUiI18nApi(targetObject = globalThis) {
       return null;
     }
 
-    // === Localization ===
-    function initLanguageSwitch() {
-      const languageSwitch = targetObject.document.getElementById("language");
-      if (!languageSwitch || languageSwitch.dataset.changeBound === "1") {
-        return;
-      }
-      languageSwitch.addEventListener("change", changeLanguage);
-      languageSwitch.dataset.changeBound = "1";
-    }
-
-    // Generate translated label
-    function changeLanguage() {
-      var languageSwitch = targetObject.document.getElementById("language");
-      var selectedLanguage = languageSwitch.checked ? "nawat" : "original";
-      var baseLabelElementIds = ["tutorial-title", "tutorial-trigger", "copyright-label", "panel-stack-tab-inputs", "panel-stack-tab-formula", "panel-stack-tab-output", "calc-nawat-mode-verb", "calc-nawat-mode-noun", "calc-nawat-mode-particle", "derivation-type-label", "ui-density-label", "ui-density-simple", "ui-density-advanced", "verb-source-scope-active", "verb-source-scope-nonactive", "verb-source-scope-both"];
-      var keyedLabelElementIds = Array.from(targetObject.document.querySelectorAll("[data-ui-label-key][id]")).map(element => element.id);
-      var labelElementIds = Array.from(new Set([...baseLabelElementIds, ...keyedLabelElementIds]));
-      var translations = {
-        "tutorial-title": "Shitajkwilu iwan majmachiyut",
-        "tutorial-trigger": "Machiyut",
-        "copyright-label": "Derechos de autor © 2026 Jaime Núñez",
-        "derivation-type-label": "Tapiwilis",
-        "ui-density-label": "Vista",
-        "ui-density-simple": "Básico",
-        "ui-density-advanced": "Avanzado",
-        "verb-source-scope-active": "Activo",
-        "verb-source-scope-nonactive": "No activo",
-        "verb-source-scope-both": "Todos"
-      };
-      if (selectedLanguage === "nawat") {
-        labelElementIds.forEach(function (elementId) {
-          var labelElement = targetObject.document.getElementById(elementId);
-          if (labelElement) {
-            var labelTarget = labelElement.querySelector("[data-ui-label-target]");
-            var currentLabelText = labelTarget ? labelTarget.textContent : labelElement.textContent;
-            // Store the original text
-            targetObject.OriginalLabels[elementId] = targetObject.OriginalLabels[elementId] || currentLabelText;
-            const labelKey = labelElement.dataset.uiLabelKey || elementId;
-            const localized = targetObject.getLocalizedLabel(targetObject.UI_LABELS[labelKey], true, translations[elementId] || currentLabelText);
-            const resolvedLabel = localized || translations[elementId] || targetObject.OriginalLabels[elementId] || currentLabelText || elementId;
-            // Replace with the translated text
-            if (labelTarget) {
-              labelTarget.textContent = resolvedLabel;
-            } else {
-              labelElement.textContent = resolvedLabel;
-            }
-          }
-        });
-      } else {
-        labelElementIds.forEach(function (elementId) {
-          var labelElement = targetObject.document.getElementById(elementId);
-          var labelTarget = labelElement ? labelElement.querySelector("[data-ui-label-target]") : null;
-          if (labelElement && targetObject.OriginalLabels[elementId]) {
-            // Restore the original text
-            if (labelTarget) {
-              labelTarget.textContent = targetObject.OriginalLabels[elementId];
-            } else {
-              labelElement.textContent = targetObject.OriginalLabels[elementId];
-            }
-          }
-        });
-      }
-      targetObject.updateVerbInputPlaceholder();
-      targetObject.renderKeyboardLegendEntries();
-      targetObject.renderTenseTabs();
-      targetObject.renderAllOutputs({
-        verb: targetObject.getVerbInputMeta().displayVerb,
-        objectPrefix: targetObject.getCurrentObjectPrefix(),
-        tense: targetObject.getCurrentResolvedConjugationSelectionState().tenseValue || targetObject.TENSE_ORDER[0] || "presente"
-      });
-      targetObject.renderVerbMirror();
-    }
-    if (typeof targetObject.window !== "undefined") {
-      targetObject.window.changeLanguage = changeLanguage;
-    }
-
     const api = {};
     api.getNonactivePersonSub = getNonactivePersonSub;
     api.getSubjectSelectionByAgreement = getSubjectSelectionByAgreement;
@@ -233,8 +157,6 @@ export function createUiI18nApi(targetObject = globalThis) {
     api.getNonactivePersonLabel = getNonactivePersonLabel;
     api.getNonactiveRowLabelModel = getNonactiveRowLabelModel;
     api.getNonactiveSlotPrefixes = getNonactiveSlotPrefixes;
-    api.initLanguageSwitch = initLanguageSwitch;
-    api.changeLanguage = changeLanguage;
     return api;
 }
 

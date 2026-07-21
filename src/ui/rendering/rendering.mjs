@@ -6048,7 +6048,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       "classical-rule-logic-mood": "Mood",
       "classical-rule-logic-tense": "Tense",
       "classical-rule-logic-class": "Class",
-      "classical-rule-logic-derivation-option": "Generated formation",
+      "classical-rule-logic-derivation-option": "Licensed formation",
       "classical-rule-logic-causative-source-voice": "Source voice",
       "classical-rule-logic-causative-source-nonactive": "Source nonactive formation",
       "classical-rule-logic-causative-source-subject": "Embedded subject",
@@ -6179,11 +6179,19 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const controlIds = getClassicalRuleLogicConflictControlIds(blockReason);
       if (!controlIds.length) return "Review Source and Authority";
       const labels = controlIds.map(controlId => CLASSICAL_RULE_LOGIC_REPAIR_CONTROL_LABELS[controlId] || "").filter(Boolean);
-      if (!labels.length) return "Fix in Authority";
+      if (!labels.length) return "Review Source and Authority";
+      const sourceControlIds = new Set(["classical-source-whole", "classical-rule-logic-class", "classical-rule-logic-valence"]);
+      const sourceLabels = controlIds.map((controlId, index) => sourceControlIds.has(controlId) ? labels[index] : "").filter(Boolean);
+      const authorityLabels = controlIds.map((controlId, index) => !sourceControlIds.has(controlId) ? labels[index] : "").filter(Boolean);
       if (controlIds[0] === "classical-source-whole") {
-        return labels.length > 1 ? `Enter ${labels[0]} or select ${labels.slice(1).join(" / ")} in Authority` : `Enter ${labels[0]}`;
+        const additionalSourceLabels = sourceLabels.slice(1);
+        if (additionalSourceLabels.length && authorityLabels.length) return `Enter ${labels[0]}, select ${additionalSourceLabels.join(" / ")} in Source, or select ${authorityLabels.join(" / ")} in Authority`;
+        if (additionalSourceLabels.length) return `Enter ${labels[0]} or select ${additionalSourceLabels.join(" / ")} in Source`;
+        return authorityLabels.length ? `Enter ${labels[0]} or select ${authorityLabels.join(" / ")} in Authority` : `Enter ${labels[0]}`;
       }
-      return `Select ${labels.join(" / ")} in Authority`;
+      if (sourceLabels.length && authorityLabels.length) return `Select ${sourceLabels.join(" / ")} in Source and ${authorityLabels.join(" / ")} in Authority`;
+      if (sourceLabels.length) return `Select ${sourceLabels.join(" / ")} in Source`;
+      return `Select ${authorityLabels.join(" / ")} in Authority`;
     }
     function focusClassicalRuleLogicConflictControl(blockReason = "") {
       if (typeof targetObject.document === "undefined") return false;
@@ -6539,8 +6547,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         "classical-rule-logic-subject": Object.freeze(["3common"]),
         "classical-rule-logic-sentence-surface": Object.freeze(["information-question", "wish"])
       }),
-      hideWhenInapplicableControlIds: Object.freeze(["classical-rule-logic-construction", "classical-rule-logic-lexical-reading", "classical-rule-logic-derivation-option", "classical-rule-logic-causative-source-voice", "classical-rule-logic-causative-source-nonactive", "classical-rule-logic-causative-source-subject", "classical-rule-logic-causative-referent-relation", "classical-rule-logic-causative-specific-shuntline-realization", "classical-rule-logic-applicative-object", "classical-rule-logic-voice-layer-2", "classical-rule-logic-voice-layer-3", "classical-rule-logic-nonactive-family"]),
-      hideDeterminateClass: true
+      hideWhenInapplicableControlIds: Object.freeze(["classical-rule-logic-construction", "classical-rule-logic-lexical-reading", "classical-rule-logic-derivation-option", "classical-rule-logic-causative-source-voice", "classical-rule-logic-causative-source-nonactive", "classical-rule-logic-causative-source-subject", "classical-rule-logic-causative-referent-relation", "classical-rule-logic-causative-specific-shuntline-realization", "classical-rule-logic-applicative-object", "classical-rule-logic-voice-layer-2", "classical-rule-logic-voice-layer-3", "classical-rule-logic-nonactive-family"])
     });
     function getClassicalVncAuthorityPresentationContract() {
       return CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT;
@@ -6606,7 +6613,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         organizer.dataset.classicalVncAuthorityOrganizer = "progressive-typed-decisions";
         organizer.setAttribute("aria-label", "Progressive VNC authority decisions");
         const primary = createStage("primary", "Primary VNC and derivation decisions");
-        const clause = createDisclosure("clause", "Clause settings", "scope · subject · valence · tense");
+        const clause = createDisclosure("clause", "Clause settings", "scope · subject · later voice · tense");
         const sentence = createDisclosure("sentence", "Sentence settings", "polarity · sentence force · particles");
         organizer.append(primary, clause.details, sentence.details);
         sourceGrid.appendChild(organizer);
@@ -6616,9 +6623,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
           const sentenceOwned = headingRole === "sentence" || orderRole.startsWith("sentence-");
           const primaryOwned = headingRole === "verbstem"
             || headingRole === "derivation"
-            || orderRole.startsWith("verbstem-")
-            || orderRole.startsWith("predicate-voice")
-            || orderRole === "predicate-nonactive-family";
+            || orderRole.startsWith("verbstem-");
           (sentenceOwned ? sentence.body : primaryOwned ? primary : clause.body).appendChild(node);
         });
         sourceGrid.dataset.classicalVncAuthorityPresentation = "progressive-primary-clause-sentence";
@@ -6641,7 +6646,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       presentation.organizer.dataset.classicalVncAuthorityMode = derivationType;
       const disclosureMode = String(presentation.organizer.dataset.classicalVncDisclosureMode || "");
       if (vncActive && disclosureMode !== derivationType) {
-        presentation.clause.open = derivationType === "direct" || derivationSourceAuthorized !== true;
+        presentation.clause.open = false;
         presentation.sentence.open = false;
         presentation.organizer.dataset.classicalVncDisclosureMode = derivationType;
       }
@@ -6651,7 +6656,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const meta = details.querySelector?.("[data-classical-vnc-authority-disclosure-meta]");
         if (meta) {
           const scope = details.dataset.classicalVncAuthorityDisclosure === "clause"
-            ? "scope · subject · valence · tense"
+            ? "scope · subject · later voice · tense"
             : "polarity · sentence force · particles";
           meta.textContent = visibleControls ? `${visibleControls} available · ${scope}` : scope;
         }
@@ -6661,6 +6666,116 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const visibleVerbstemDecisions = Array.from(presentation.primary.querySelectorAll?.('[data-classical-vnc-authority-order="verbstem-class"], [data-classical-vnc-authority-order="verbstem-construction"], [data-classical-vnc-authority-order="verbstem-reading"]') || []).some(node => !node.hidden);
         verbstemHeading.hidden = !vncActive || !visibleVerbstemDecisions;
         verbstemHeading.setAttribute("aria-hidden", String(verbstemHeading.hidden));
+      }
+      return true;
+    }
+    function syncClassicalVncAuthorityDerivationPreview(surfaceFrame = null, derivationType = "direct") {
+      const presentation = getClassicalVncAuthorityProgressivePresentation();
+      if (!presentation?.primary || !surfaceFrame) {
+        return false;
+      }
+      let preview = presentation.primary.querySelector?.("[data-classical-vnc-authority-preview]") || null;
+      if (!preview) {
+        preview = targetObject.document.createElement("section");
+        preview.className = "classical-vnc-authority-preview";
+        preview.dataset.classicalVncAuthorityPreview = "typed-application-projection";
+        preview.setAttribute("aria-live", "polite");
+        preview.hidden = true;
+        presentation.primary.appendChild(preview);
+      }
+      const clauseBody = presentation.clause?.querySelector?.('[data-classical-vnc-authority-stage="clause"]') || null;
+      const sourceSubjectControl = targetObject.document.getElementById("classical-rule-logic-causative-source-subject");
+      const sourceSubjectWrapper = sourceSubjectControl?.closest?.(".classical-rule-control") || null;
+      const applicativeObjectControl = targetObject.document.getElementById("classical-rule-logic-applicative-object");
+      const applicativeObjectWrapper = applicativeObjectControl?.closest?.(".classical-rule-control") || null;
+      const subjectControl = targetObject.document.getElementById("classical-rule-logic-subject");
+      const subjectWrapper = subjectControl?.closest?.(".classical-rule-control") || null;
+      const sourceVoiceWrapper = targetObject.document.getElementById("classical-rule-logic-causative-source-voice")?.closest?.(".classical-rule-control") || null;
+      if (sourceSubjectWrapper && sourceSubjectWrapper.closest?.("[data-classical-vnc-authority-preview]")) {
+        presentation.primary.appendChild(sourceSubjectWrapper);
+      }
+      if (applicativeObjectWrapper && applicativeObjectWrapper.closest?.("[data-classical-vnc-authority-preview]")) {
+        presentation.primary.appendChild(applicativeObjectWrapper);
+      }
+      if (subjectWrapper) {
+        const subjectLabel = subjectWrapper.querySelector?.(".classical-rule-control__label");
+        if (subjectLabel) subjectLabel.textContent = derivationType === "causative" ? "New derived subject" : "Subject";
+        (derivationType === "causative" ? presentation.primary : clauseBody)?.appendChild(subjectWrapper);
+      }
+      const projection = getClassicalVncDerivationExplanationRenderableProjection(surfaceFrame.state?.vncApplicationFrame || null);
+      const derivedMode = derivationType === "causative" || derivationType === "applicative";
+      const completedStep = projection?.formationSteps?.find?.(step => step.stage === "completed-active-derivation") || null;
+      if (!derivedMode || !projection || projection.derivationType !== derivationType || !completedStep) {
+        preview.hidden = true;
+        preview.setAttribute("aria-hidden", "true");
+        return false;
+      }
+      const completedIndex = projection.formationSteps.indexOf(completedStep);
+      const formationBasis = projection.formationSteps.slice(0, completedIndex).reverse().find(step => step.stage !== "source-analysis") || projection.formationSteps[0];
+      const route = targetObject.document.createElement("div");
+      route.className = "classical-vnc-authority-preview__route";
+      const appendRoutePiece = (tagName, className, text) => {
+        const node = targetObject.document.createElement(tagName);
+        node.className = className;
+        node.textContent = String(text || "");
+        route.appendChild(node);
+      };
+      const typedConstruction = projection.evidence?.targetConstruction || null;
+      const typedFormationBasisStem = typedConstruction?.nonactiveStem || formationBasis?.stem || projection.sourceProfile?.stem || "";
+      const typedOperation = String(typedConstruction?.operation || "");
+      const compactOperation = typedOperation.includes("replace")
+        ? `replace nonactive ${typedConstruction?.suffixFamily || "ending"} with ${typedConstruction?.add === "tiā" ? "ti + ā" : typedConstruction?.add || "the licensed formative"}`
+        : typedOperation.includes("add")
+          ? `add ${typedConstruction?.add || typedConstruction?.suffix || projection.derivationProcedure?.label || "the licensed formative"}`
+          : completedStep.derivedStemAnalysis?.process || projection.derivationProcedure?.label || "licensed derivation";
+      appendRoutePiece("code", "classical-vnc-authority-preview__stem", typedFormationBasisStem);
+      appendRoutePiece("span", "classical-vnc-authority-preview__arrow", "→");
+      appendRoutePiece("span", "classical-vnc-authority-preview__operation", compactOperation);
+      appendRoutePiece("span", "classical-vnc-authority-preview__arrow", "→");
+      appendRoutePiece("code", "classical-vnc-authority-preview__stem", `${completedStep.stem || projection.targetProfile?.stem || ""}${completedStep.verbClass ? ` · Class ${completedStep.verbClass}` : ""}`);
+      const participant = targetObject.document.createElement("div");
+      participant.className = "classical-vnc-authority-preview__participant";
+      const sourceCard = targetObject.document.createElement("div");
+      sourceCard.className = "classical-vnc-authority-preview__participant-card classical-vnc-authority-preview__participant-card--source";
+      const arrow = targetObject.document.createElement("span");
+      arrow.className = "classical-vnc-authority-preview__participant-arrow";
+      arrow.textContent = "→";
+      arrow.setAttribute("aria-hidden", "true");
+      const targetCard = targetObject.document.createElement("div");
+      targetCard.className = "classical-vnc-authority-preview__participant-card classical-vnc-authority-preview__participant-card--target";
+      const targetLabel = targetObject.document.createElement("span");
+      targetLabel.className = "classical-vnc-authority-preview__participant-label";
+      const targetValue = targetObject.document.createElement("span");
+      targetValue.className = "classical-vnc-authority-preview__participant-value";
+      if (derivationType === "causative" && sourceSubjectWrapper) {
+        const label = sourceSubjectWrapper.querySelector?.(".classical-rule-control__label");
+        if (label) label.textContent = "Source subject";
+        sourceCard.appendChild(sourceSubjectWrapper);
+        targetLabel.textContent = "Causative object";
+        const participantRow = projection.participantRows.find(row => String(row.transformation || "").includes("causative object")) || null;
+        targetValue.textContent = String(participantRow?.sourceRole || "").replace(/ source subject$/u, "") || "nonspecific";
+      } else if (derivationType === "applicative" && applicativeObjectWrapper) {
+        const label = applicativeObjectWrapper.querySelector?.(".classical-rule-control__label");
+        if (label) label.textContent = "Imported object";
+        sourceCard.appendChild(applicativeObjectWrapper);
+        targetLabel.textContent = "Mainline object";
+        const participantRow = projection.participantRows.find(row => String(row.transformation || "").includes("imported by the applicative")) || null;
+        targetValue.textContent = String(participantRow?.sourceRole || "").replace(/^new /u, "") || "imported object";
+      }
+      targetCard.append(targetLabel, targetValue);
+      participant.append(sourceCard, arrow, targetCard);
+      preview.replaceChildren(route, participant);
+      preview.hidden = false;
+      preview.setAttribute("aria-hidden", "false");
+      const derivationWrapper = targetObject.document.getElementById("classical-rule-logic-derivation-option")?.closest?.(".classical-rule-control") || null;
+      if (derivationWrapper?.parentElement === presentation.primary) {
+        derivationWrapper.after(preview);
+      }
+      if (sourceVoiceWrapper && derivationType === "causative") {
+        presentation.primary.appendChild(sourceVoiceWrapper);
+      }
+      if (subjectWrapper && derivationType === "causative") {
+        presentation.primary.appendChild(subjectWrapper);
       }
       return true;
     }
@@ -6745,7 +6860,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
           if (nonactiveInventory.selectionRequired === true) {
             const prompt = targetObject.document.createElement("option");
             prompt.value = "";
-            prompt.textContent = "Choose a generated formation";
+            prompt.textContent = "Choose a generated source formation";
             prompt.disabled = true;
             prompt.dataset.classicalAuthorityOptionStatus = "explicit-choice-required";
             generatedOptionNodes.unshift(prompt);
@@ -6797,14 +6912,18 @@ export function createUiRenderingApi(targetObject = globalThis) {
         const getOptionLabel = option => {
           const canvasChoice = option.canvasDerivationChoiceFrame || null;
           if (canvasChoice) {
-            return [canvasChoice.identity?.nomenclature, canvasChoice.targetRealization?.canonicalStem, canvasChoice.authority?.section ? `Andrews §${canvasChoice.authority.section}` : "", option.lexicalChoiceRequired === true ? "lexical choice" : ""].filter(Boolean).join(" · ");
+            const nomenclature = String(canvasChoice.identity?.nomenclature || "").replace(/\s+(?:causative|applicative)$/iu, "");
+            const typedOperation = String(option.targetConstruction?.operation || option.procedure || "");
+            const procedure = typedOperation.includes("replace") ? "nonactive replacement" : typedOperation.includes("add") ? "addition" : "licensed formation";
+            return [nomenclature, canvasChoice.targetRealization?.canonicalStem, procedure, canvasChoice.authority?.section ? `§${canvasChoice.authority.section}` : "", option.lexicalChoiceRequired === true ? "lexical choice" : ""].filter(Boolean).join(" · ");
           }
           const derivationName = String(canvasChoice?.identity?.operation || option.derivationType || derivationType || "").trim();
           const rawSubtype = String(canvasChoice?.identity?.nomenclature || option.derivationSubtype || option.formationType || option.operationType || "").trim();
           if (["causative", "applicative"].includes(derivationName) && rawSubtype) {
             const numberedSubtype = rawSubtype === "type-one" ? "Type 1" : rawSubtype === "type-two" ? "Type 2" : rawSubtype === "type-three" ? "Type 3" : rawSubtype.split("-").map((part, index) => index === 0 ? `${part.charAt(0).toUpperCase()}${part.slice(1)}` : part).join(" ");
-            const nomenclature = numberedSubtype.toLowerCase().includes(derivationName) ? numberedSubtype : `${numberedSubtype} ${derivationName}`;
-            return [nomenclature, canvasChoice?.targetRealization?.canonicalStem || option.targetStem || option.derivedStem, canvasChoice?.authority?.section ? `Andrews §${canvasChoice.authority.section}` : option.andrewsSection ? `Andrews §${option.andrewsSection}` : "", option.lexicalChoiceRequired === true ? "lexical choice" : ""].filter(Boolean).join(" · ");
+            const typedOperation = String(option.targetConstruction?.operation || option.procedure || "");
+            const procedure = typedOperation.includes("replace") ? "nonactive replacement" : typedOperation.includes("add") ? "addition" : "licensed formation";
+            return [numberedSubtype, canvasChoice?.targetRealization?.canonicalStem || option.targetStem || option.derivedStem, procedure, canvasChoice?.authority?.section ? `§${canvasChoice.authority.section}` : option.andrewsSection ? `§${option.andrewsSection}` : "", option.lexicalChoiceRequired === true ? "lexical choice" : ""].filter(Boolean).join(" · ");
           }
           return option.label || option.optionLabel || [option.formationType || option.operationType || option.optionId, option.targetStem || option.derivedStem].filter(Boolean).join(" → ");
         };
@@ -6834,7 +6953,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
           if (selectionRequired) {
             const prompt = targetObject.document.createElement("option");
             prompt.value = "";
-            prompt.textContent = "Choose a generated formation";
+            prompt.textContent = "Choose a licensed formation";
             prompt.disabled = true;
             prompt.dataset.classicalAuthorityOptionTag = "cn-option-vnc-derivation-generated-choice-required";
             prompt.dataset.classicalAuthorityOptionStatus = "explicit-choice-required";
@@ -6977,9 +7096,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
         if (!wrapper) {
           return;
         }
-        const engineDeterminedClass = id === "classical-rule-logic-class" && derivationType !== "direct" && CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT.hideDeterminateClass && (classSelectionContract?.dropdownLocked === true || Boolean(lesson11ClassOverride));
-        const hide = !controlVisibility[id] || engineDeterminedClass;
-        const conditionalAppearanceControl = engineDeterminedClass || CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT.hideWhenInapplicableControlIds.includes(id);
+        const hide = !controlVisibility[id];
+        const conditionalAppearanceControl = CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT.hideWhenInapplicableControlIds.includes(id);
         const visible = conditionalAppearanceControl ? !hide : vncActive && id !== "classical-rule-logic-lesson" || !hide;
         wrapper.hidden = !visible;
         wrapper.setAttribute("aria-hidden", String(!visible));
@@ -7214,6 +7332,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
           }
         });
       }
+      syncClassicalVncAuthorityDerivationPreview(surfaceFrame, derivationType);
       syncClassicalVncAuthorityProgressivePresentation({
         basalUnit,
         derivationType,
@@ -7925,11 +8044,8 @@ export function createUiRenderingApi(targetObject = globalThis) {
         controlId: "classical-rule-logic-tense",
         label: "Tense"
       }, {
-        controlId: "classical-rule-logic-class",
-        label: "Class"
-      }, {
         controlId: "classical-rule-logic-derivation-option",
-        label: "Generated formation"
+        label: "Licensed formation"
       }, {
         controlId: "classical-rule-logic-causative-source-voice",
         label: "Source voice"
@@ -7966,9 +8082,6 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }, {
         controlId: "classical-rule-logic-nonactive-family",
         label: "Nonactive formation"
-      }, {
-        controlId: "classical-rule-logic-valence",
-        label: "Valence"
       }, {
         controlId: "classical-rule-logic-object",
         label: "Object"
@@ -8930,6 +9043,35 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const formationRail = targetObject.document.createElement("div");
       formationRail.className = "classical-vnc-derivation-explainer__formation-rail";
       const sourceAnalysisProjection = projection.formationSteps.find(step => step.stage === "source-analysis") || null;
+      const appendCompactStemAnalysis = (card, analysis, side = "derived") => {
+        if (!Array.isArray(analysis?.parts) || !analysis.parts.length) return;
+        const analysisBand = targetObject.document.createElement("aside");
+        analysisBand.className = `classical-vnc-derivation-explainer__derived-analysis classical-vnc-derivation-explainer__${side}-analysis-band`;
+        if (side === "source") {
+          analysisBand.dataset.classicalVncSourceAnalysisVisible = "true";
+        } else {
+          analysisBand.dataset.classicalVncDerivedAnalysisVisible = "true";
+        }
+        analysisBand.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__step-label", analysis.label || "Andrews stem analysis"));
+        const partList = targetObject.document.createElement("div");
+        partList.className = "classical-vnc-derivation-explainer__derived-parts";
+        analysis.parts.forEach((part, partIndex) => {
+          if (partIndex > 0) partList.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__source-part-plus", "+"));
+          const partNode = targetObject.document.createElement("span");
+          partNode.className = "classical-vnc-derivation-explainer__source-part";
+          partNode.append(
+            createTextNode("code", "classical-vnc-derivation-explainer__source-part-form", part.segment),
+            createTextNode("span", "classical-vnc-derivation-explainer__source-part-role", part.role)
+          );
+          partList.appendChild(partNode);
+        });
+        analysisBand.append(
+          partList,
+          createTextNode("p", "classical-vnc-derivation-explainer__derived-analysis-process", analysis.process || ""),
+          createTextNode("span", "classical-vnc-derivation-explainer__analysis-meta", analysis.source || "Andrews morphology")
+        );
+        card.appendChild(analysisBand);
+      };
       projection.formationSteps.filter(step => step.stage !== "source-analysis").forEach((step, index) => {
         if (index > 0) {
           formationRail.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__formation-arrow", "→"));
@@ -8946,85 +9088,10 @@ export function createUiRenderingApi(targetObject = globalThis) {
         if (step.formula) {
           card.appendChild(createTextNode("code", "classical-vnc-derivation-explainer__step-formula", step.formula));
         }
-        if (step.stage === "completed-active-derivation" && Array.isArray(step.derivedStemAnalysis?.parts) && step.derivedStemAnalysis.parts.length) {
-          const derivedAnalysis = step.derivedStemAnalysis;
-          const analysisBand = targetObject.document.createElement("aside");
-          analysisBand.className = "classical-vnc-derivation-explainer__derived-analysis";
-          analysisBand.dataset.classicalVncDerivedAnalysisVisible = "true";
-          analysisBand.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__step-label", derivedAnalysis.label || "Andrews derived-stem analysis"));
-          const partList = targetObject.document.createElement("div");
-          partList.className = "classical-vnc-derivation-explainer__derived-parts";
-          derivedAnalysis.parts.forEach((part, partIndex) => {
-            if (partIndex > 0) partList.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__source-part-plus", "+"));
-            const partNode = targetObject.document.createElement("span");
-            partNode.className = "classical-vnc-derivation-explainer__source-part";
-            partNode.append(
-              createTextNode("code", "classical-vnc-derivation-explainer__source-part-form", part.segment),
-              createTextNode("span", "classical-vnc-derivation-explainer__source-part-role", part.role)
-            );
-            partList.appendChild(partNode);
-          });
-          analysisBand.append(
-            partList,
-            createTextNode("p", "classical-vnc-derivation-explainer__derived-analysis-process", derivedAnalysis.process || ""),
-            createTextNode("span", "classical-vnc-derivation-explainer__analysis-meta", derivedAnalysis.source || "Andrews derived morphology")
-          );
-          card.appendChild(analysisBand);
-        }
+        if (step.stage === "completed-active-derivation") appendCompactStemAnalysis(card, step.derivedStemAnalysis, "derived");
         if (step.stage === "source" && sourceAnalysisProjection) {
-          const analysisStep = sourceAnalysisProjection;
           card.classList.add("classical-vnc-derivation-explainer__formation-step--with-source-analysis");
-          const analysisBand = targetObject.document.createElement("aside");
-          analysisBand.className = "classical-vnc-derivation-explainer__source-analysis-band";
-          analysisBand.dataset.classicalVncSourceAnalysisVisible = "true";
-          analysisBand.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__step-label", analysisStep.label));
-          const sourceAnalysisLayout = targetObject.document.createElement("div");
-          sourceAnalysisLayout.className = "classical-vnc-derivation-explainer__source-analysis-layout";
-          const analysisGroups = Array.isArray(analysisStep.analysisDisplayGroups) ? analysisStep.analysisDisplayGroups : [];
-          if (analysisGroups.length) {
-            analysisGroups.forEach(group => {
-              const analysisRow = targetObject.document.createElement("section");
-              analysisRow.className = `classical-vnc-derivation-explainer__source-analysis-row${group.selectedForFormation === true ? " is-selected" : ""}`;
-              const partList = targetObject.document.createElement("div");
-              partList.className = "classical-vnc-derivation-explainer__source-parts";
-              (group.parts || []).forEach((part, partIndex) => {
-                if (partIndex > 0) partList.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__source-part-plus", "+"));
-                const partNode = targetObject.document.createElement("span");
-                partNode.className = "classical-vnc-derivation-explainer__source-part";
-                partNode.append(
-                  createTextNode("code", "classical-vnc-derivation-explainer__source-part-form", part.segment),
-                  createTextNode("span", "classical-vnc-derivation-explainer__source-part-role", part.role)
-                );
-                partList.appendChild(partNode);
-              });
-              const reading = targetObject.document.createElement("div");
-              reading.className = "classical-vnc-derivation-explainer__source-reading";
-              const readingLabels = targetObject.document.createElement("div");
-              readingLabels.className = "classical-vnc-derivation-explainer__source-reading-labels";
-              (group.readings || []).forEach(label => readingLabels.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__source-reading-label", label)));
-              reading.appendChild(readingLabels);
-              (group.formationEffects || []).forEach(effect => reading.appendChild(createTextNode("p", "classical-vnc-derivation-explainer__analysis-effect", effect)));
-              reading.appendChild(createTextNode("span", "classical-vnc-derivation-explainer__analysis-meta", (group.andrewsSections || []).length ? `Andrews §§${group.andrewsSections.join(", ")}` : "Andrews source morphology"));
-              analysisRow.append(partList, reading);
-              sourceAnalysisLayout.appendChild(analysisRow);
-            });
-          } else {
-            sourceAnalysisLayout.appendChild(createTextNode("p", "classical-vnc-derivation-explainer__analysis-empty", "No additional internal stock or theme split is required for this formation."));
-          }
-          const boundaryNote = targetObject.document.createElement("div");
-          boundaryNote.className = "classical-vnc-derivation-explainer__boundary-note";
-          boundaryNote.append(
-            createTextNode("span", "classical-vnc-derivation-explainer__boundary-observation", analysisStep.boundaryObservation || ""),
-            createTextNode("span", "classical-vnc-derivation-explainer__boundary-authority", "Hyphens help reading; the Andrews analysis authorizes the boundary.")
-          );
-          const selectedRoute = targetObject.document.createElement("div");
-          selectedRoute.className = "classical-vnc-derivation-explainer__source-selected-route";
-          selectedRoute.append(
-            createTextNode("span", "classical-vnc-derivation-explainer__source-selected-route-label", `Selected ${analysisStep.selectedFormation?.procedureLabel || "formation"}`),
-            createTextNode("code", "classical-vnc-derivation-explainer__source-selected-route-target", analysisStep.selectedFormation?.targetStem || "")
-          );
-          analysisBand.append(sourceAnalysisLayout, selectedRoute, boundaryNote);
-          card.appendChild(analysisBand);
+          appendCompactStemAnalysis(card, sourceAnalysisProjection.compactDisplay, "source");
         }
         formationRail.appendChild(card);
       });
@@ -12014,7 +12081,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
         tenseMode
       });
       const selectedTense = selectionState.tenseValue;
-      const isNawat = Boolean(targetObject.document.getElementById("language")?.checked);
+      const isNawat = false;
       if (tenseMode === targetObject.TENSE_MODE.particula) {
         entries.push({
           label: "Particles",
@@ -12395,7 +12462,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
     }
     function getNawatPatientivoBranchLabel(branchId = "") {
       const option = getNawatPatientivoBranchOption(branchId);
-      const isNawat = Boolean(targetObject.document.getElementById("language")?.checked);
+      const isNawat = false;
       return typeof targetObject.getPatientivoSourceTenseLabel === "function" ? targetObject.getPatientivoSourceTenseLabel(option.id, isNawat) : option.label;
     }
     function getNawatPatientivoBranchClassLabel(branchId = "") {
@@ -19936,8 +20003,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }
       const resolvedCombinedMode = combinedMode === targetObject.COMBINED_MODE.nonactive ? targetObject.COMBINED_MODE.nonactive : combinedMode === targetObject.COMBINED_MODE.active ? targetObject.COMBINED_MODE.active : targetObject.getCombinedMode();
       const isNonactiveMode = targetObject.getActiveTenseMode() === targetObject.TENSE_MODE.verbo && resolvedCombinedMode === targetObject.COMBINED_MODE.nonactive;
-      const languageSwitch = targetObject.document.getElementById("language");
-      const isNawat = languageSwitch && languageSwitch.checked;
+      const isNawat = false;
       const resolvedTenseValue = resolveVerbTenseValue({
         modeKey,
         tenseValue
@@ -20144,8 +20210,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       if (!container) {
         return;
       }
-      const languageSwitch = targetObject.document.getElementById("language");
-      const isNawat = languageSwitch && languageSwitch.checked;
+      const isNawat = false;
       const placeholderText = targetObject.getPlaceholderLabel("conjugations", isNawat, "Ingresa un verbo para ver las conjugaciones.");
       const allToggleLabel = targetObject.getToggleLabel("all", isNawat, "todos");
       const impersonalLabel = targetObject.getVerbBlockLabel("impersonal", isNawat, "impersonal");
@@ -20880,8 +20945,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       if (!container) {
         return null;
       }
-      const languageSwitch = targetObject.document.getElementById("language");
-      const isNawat = languageSwitch && languageSwitch.checked;
+      const isNawat = false;
       const tenseMode = targetObject.getActiveTenseMode();
       const combinedMode = targetObject.getCombinedMode();
       const sourceScope = targetObject.getVerbSourceScope();
@@ -26134,8 +26198,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       const evaluation = targetObject.buildConjugationEvaluationRecord({
         result
       });
-      const languageSwitch = targetObject.document.getElementById("language");
-      const isNawat = languageSwitch && languageSwitch.checked;
+      const isNawat = false;
       const frame = result?.adjectivalNncFunctionFrame || {};
       const {
         grid

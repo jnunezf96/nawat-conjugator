@@ -296,7 +296,7 @@ export function createClassicalShellModule(targetObject = globalThis) {
                       data-canvas-example-authority="not-authority"
                       aria-label="VNC canonical verbstems"
                     >
-                      <div class="classical-nnc-source-guide__heading">VNC source</div>
+                      <div class="classical-nnc-source-guide__heading">Identified source verbcore</div>
                       <label class="classical-nnc-source-guide__field">
                         <span class="classical-nnc-source-guide__label">Canonical verbstem</span>
                         <select
@@ -388,6 +388,39 @@ export function createClassicalShellModule(targetObject = globalThis) {
                       <p class="classical-nnc-source-guide__rule">Source contains the nounstem only. Subject, State, and number remain outside (STEM).</p>
                     </section>
                     <div
+                      class="classical-source-identity-controls"
+                      id="classical-source-identity-controls"
+                      data-classical-source-identity-controls="vnc"
+                      aria-label="Identified source properties"
+                    >
+                      <label class="classical-rule-control" data-classical-source-identity-control="valence">
+                        <span class="classical-rule-control__label">Valence</span>
+                        <select
+                          id="classical-rule-logic-valence"
+                          data-classical-rule-logic-control="valence"
+                        >
+                          <option value="intransitive" data-classical-authority-option-tag="cn-option-valence-intransitive" selected>intransitive · no source object</option>
+                          <option value="shuntline-reflexive" data-classical-authority-option-tag="cn-option-valence-shuntline-reflexive">va ne secondary reflexive/reciprocal</option>
+                          <option value="projective-human" data-classical-authority-option-tag="cn-option-valence-projective-human">va te nonspecific human projective</option>
+                          <option value="projective-nonhuman" data-classical-authority-option-tag="cn-option-valence-projective-nonhuman-tla">va tla nonspecific nonhuman projective</option>
+                          <option value="specific-projective" data-classical-authority-option-tag="cn-option-valence-specific-projective">va1-va2 specific projective</option>
+                          <option value="mainline-reflexive" data-classical-authority-option-tag="cn-option-valence-mainline-reflexive">va1-va2 mainline reflexive/reciprocal</option>
+                        </select>
+                      </label>
+                      <label class="classical-rule-control" data-classical-source-identity-control="class">
+                        <span class="classical-rule-control__label">Stem class</span>
+                        <select
+                          id="classical-rule-logic-class"
+                          data-classical-rule-logic-control="class"
+                        >
+                          <option value="A" data-classical-authority-option-tag="cn-option-class-a">A</option>
+                          <option value="B" data-classical-authority-option-tag="cn-option-class-b" selected>B</option>
+                          <option value="C" data-classical-authority-option-tag="cn-option-class-c">C</option>
+                          <option value="D" data-classical-authority-option-tag="cn-option-class-d">D</option>
+                        </select>
+                      </label>
+                    </div>
+                    <div
                       class="classical-source-parts"
                       id="classical-source-parts"
                       data-classical-source-parts="user-defined"
@@ -443,7 +476,7 @@ export function createClassicalShellModule(targetObject = globalThis) {
                             spellcheck="false"
                           />
                         </label>
-                        <label class="classical-source-parts__field">
+                        <label class="classical-source-parts__field classical-source-parts__field--embed">
                           <span class="classical-source-parts__label">Embed</span>
                           <input
                             type="text"
@@ -457,7 +490,7 @@ export function createClassicalShellModule(targetObject = globalThis) {
                             disabled
                           />
                         </label>
-                        <label class="classical-source-parts__field">
+                        <label class="classical-source-parts__field classical-source-parts__field--matrix">
                           <span class="classical-source-parts__label">Matrix</span>
                           <input
                             type="text"
@@ -472,6 +505,13 @@ export function createClassicalShellModule(targetObject = globalThis) {
                           />
                         </label>
                       </div>
+                      <div
+                        class="classical-source-internal-morphs"
+                        id="classical-source-internal-morphs"
+                        data-classical-source-internal-morphs="typed-andrews-analysis"
+                        aria-label="Typed internal morphemes"
+                        hidden
+                      ></div>
                     </div>
                     <div
                       class="classical-source-readout"
@@ -486,6 +526,8 @@ export function createClassicalShellModule(targetObject = globalThis) {
                       data-transcription-line-start="936"
                       data-transcription-line-end="1047"
                       data-exact-witness="Lower-ranked source first; particle and nuclear-clause rank must stay distinct."
+                      aria-hidden="true"
+                      hidden
                     >
                       <div class="classical-source-readout__item" data-classical-source-readout-item="source">
                         <span class="classical-source-readout__label">(STEM)</span>
@@ -495,14 +537,22 @@ export function createClassicalShellModule(targetObject = globalThis) {
                         <span class="classical-source-readout__label">Rank</span>
                         <span class="classical-source-readout__value" id="classical-source-readout-rank">VNC stem source</span>
                       </div>
+                      <div class="classical-source-readout__item" data-classical-source-readout-item="valence" data-classical-source-context="authority-read-only">
+                        <span class="classical-source-readout__label">Valence</span>
+                        <span class="classical-source-readout__value" id="classical-source-readout-valence">intransitive · no source object</span>
+                      </div>
+                      <div class="classical-source-readout__item" data-classical-source-readout-item="class" data-classical-source-context="authority-read-only">
+                        <span class="classical-source-readout__label">Stem class</span>
+                        <span class="classical-source-readout__value" id="classical-source-readout-class">Class B</span>
+                      </div>
                       <div class="classical-source-readout__item" data-classical-source-readout-item="morphs">
-                        <span class="classical-source-readout__label">Morphs</span>
+                        <span class="classical-source-readout__label">Stem</span>
                         <span class="classical-source-readout__value" id="classical-source-readout-morphs">_</span>
                       </div>
-                      <div class="classical-source-readout__item" data-classical-source-readout-item="roles">
-                        <span class="classical-source-readout__label">Structure</span>
-                        <span class="classical-source-readout__value" id="classical-source-readout-roles">one verbstem</span>
-                      </div>
+                    </div>
+                    <div class="classical-source-constitution" id="classical-source-constitution" data-classical-source-constitution="typed-andrews-analysis" hidden>
+                      <span class="classical-source-readout__label">Andrews constitution</span>
+                      <span class="classical-source-readout__value" id="classical-source-readout-roles">one verbstem</span>
                     </div>
                     <section
                       class="classical-nnc-source-analysis"
@@ -1739,25 +1789,13 @@ export function createClassicalShellModule(targetObject = globalThis) {
                           <option value="past" data-classical-authority-option-tag="cn-option-tense-past">past</option>
                         </select>
                       </label>
-                      <label class="classical-rule-control" data-classical-vnc-authority-order="verbstem-class">
-                        <span class="classical-rule-control__label">Class</span>
-                        <select
-                          id="classical-rule-logic-class"
-                          data-classical-rule-logic-control="class"
-                        >
-                          <option value="A" data-classical-authority-option-tag="cn-option-class-a">A</option>
-                          <option value="B" data-classical-authority-option-tag="cn-option-class-b" selected>B</option>
-                          <option value="C" data-classical-authority-option-tag="cn-option-class-c">C</option>
-                          <option value="D" data-classical-authority-option-tag="cn-option-class-d">D</option>
-                        </select>
-                      </label>
                       <label class="classical-rule-control" data-classical-vnc-authority-order="verbstem-derivation-option" data-classical-derivation-authority-control="formation" hidden aria-hidden="true">
-                        <span class="classical-rule-control__label">Generated formation</span>
+                        <span class="classical-rule-control__label">Licensed formation</span>
                         <select
                           id="classical-rule-logic-derivation-option"
                           data-classical-rule-logic-control="derivation-option"
                         >
-                          <option value="" data-classical-authority-option-tag="cn-option-vnc-derivation-generated-choice-required" data-classical-authority-option-status="engine-options-pending" selected>Choose a generated formation</option>
+                          <option value="" data-classical-authority-option-tag="cn-option-vnc-derivation-generated-choice-required" data-classical-authority-option-status="engine-options-pending" selected>Choose a licensed formation</option>
                         </select>
                       </label>
                       <label class="classical-rule-control" data-classical-vnc-authority-order="verbstem-causative-source-voice" hidden aria-hidden="true">
@@ -1896,20 +1934,6 @@ export function createClassicalShellModule(targetObject = globalThis) {
                           data-classical-rule-logic-control="nonactive-family"
                         >
                           <option value="" data-classical-authority-option-tag="cn-option-nonactive-generated-choice-required" data-classical-authority-option-status="explicit-choice-required" selected>Choose a generated formation</option>
-                        </select>
-                      </label>
-                      <label class="classical-rule-control" data-classical-vnc-authority-order="predicate-valence">
-                        <span class="classical-rule-control__label">Valence</span>
-                        <select
-                          id="classical-rule-logic-valence"
-                          data-classical-rule-logic-control="valence"
-                        >
-                          <option value="intransitive" data-classical-authority-option-tag="cn-option-valence-intransitive" selected>intransitive</option>
-                          <option value="shuntline-reflexive" data-classical-authority-option-tag="cn-option-valence-shuntline-reflexive">va ne secondary reflexive/reciprocal</option>
-                          <option value="projective-human" data-classical-authority-option-tag="cn-option-valence-projective-human">va te nonspecific human projective</option>
-                          <option value="projective-nonhuman" data-classical-authority-option-tag="cn-option-valence-projective-nonhuman-tla">va tla nonspecific nonhuman projective</option>
-                          <option value="specific-projective" data-classical-authority-option-tag="cn-option-valence-specific-projective">va1-va2 specific projective</option>
-                          <option value="mainline-reflexive" data-classical-authority-option-tag="cn-option-valence-mainline-reflexive">va1-va2 mainline reflexive/reciprocal</option>
                         </select>
                       </label>
                       <label class="classical-rule-control" data-classical-vnc-authority-order="predicate-object">

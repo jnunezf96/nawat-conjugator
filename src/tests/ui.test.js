@@ -122,8 +122,8 @@ function run(ctx = {}) {
                     ? ["classical-rule-logic-class"]
                     : [],
                 repairLabel: "Select Nonactive formation in Authority",
-                noRuleRepairLabel: "Enter Source stem or select Class / Valence in Authority",
-                classRepairLabel: "Select Class in Authority",
+                noRuleRepairLabel: "Enter Source stem or select Class / Valence in Source",
+                classRepairLabel: "Select Class in Source",
                 actionableResult: rendering.includes('"repair-blocked-selection"')
                     && rendering.includes("focusClassicalRuleLogicConflictControl(resultBlockReason)"),
                 supplementalRuleLogicPreserved: rendering.includes("nonactiveInventory.options"),
@@ -138,8 +138,8 @@ function run(ctx = {}) {
             causativeNoRule: ["classical-source-whole", "classical-rule-logic-class", "classical-rule-logic-valence"],
             classContradiction: ["classical-rule-logic-class"],
             repairLabel: "Select Nonactive formation in Authority",
-            noRuleRepairLabel: "Enter Source stem or select Class / Valence in Authority",
-            classRepairLabel: "Select Class in Authority",
+            noRuleRepairLabel: "Enter Source stem or select Class / Valence in Source",
+            classRepairLabel: "Select Class in Source",
             actionableResult: true,
             supplementalRuleLogicPreserved: true,
         }
@@ -869,8 +869,8 @@ return {
     );
     s.ok(
         "index.html is a modern-module Source Authority Result shell",
-        indexHtml.includes('style.css?v=20260719-source-analysis-070')
-            && indexHtml.includes('src/browser/main.mjs?v=20260719-source-analysis-024')
+        indexHtml.includes('style.css?v=20260719-source-authority-minimal-086')
+            && indexHtml.includes('src/browser/main.mjs?v=20260719-source-authority-minimal-044')
             && moduleEntryPaths.length === 1
             && moduleEntryPaths[0] === "src/browser/main.mjs"
             && classicEntryPaths.length === 0
@@ -883,8 +883,12 @@ return {
             && indexHtml.includes('id="classical-authority-panel"')
             && indexHtml.includes('id="classical-result-panel"')
             && indexHtml.includes('id="classical-modal-root"')
-            && indexHtml.includes('class="interface-language-control"')
-            && indexHtml.includes('aria-label="Use Nawat interface labels"')
+            && !indexHtml.includes('class="interface-language-control"')
+            && !indexHtml.includes('id="language"')
+            && !indexHtml.includes('aria-label="Use Nawat interface labels"')
+            && !css.includes(".interface-language-control")
+            && !events.includes("initLanguageSwitch")
+            && !composer.includes('getElementById("language")')
             && !indexHtml.includes('id="classical-rule-logic-controls"')
             && !indexHtml.includes('id="all-tense-conjugations"')
             && !indexHtml.includes('id="verb-entry-board-tabs"')
@@ -1160,10 +1164,15 @@ return {
             && sourcePanelHtml.includes('data-exact-witness="Nothing can exist at a higher rank without having passed through a requisite lower stage; except for particles, structural units at this rank are nuclear clauses."')
             && sourcePanelHtml.includes('id="classical-source-readout"')
             && sourcePanelHtml.includes('data-classical-source-readout="true"')
+            && sourcePanelHtml.includes('data-classical-source-authority="ANDREWS_TRANSCRIPTION_CANVAS.md"\n                      data-transcription-line-start="936"\n                      data-transcription-line-end="1047"\n                      data-exact-witness="Lower-ranked source first; particle and nuclear-clause rank must stay distinct."\n                      aria-hidden="true"\n                      hidden')
             && sourcePanelHtml.includes('id="classical-source-readout-value"')
             && sourcePanelHtml.includes('id="classical-source-readout-rank"')
+            && sourcePanelHtml.includes('id="classical-source-readout-valence"')
+            && sourcePanelHtml.includes('id="classical-source-readout-class"')
             && sourcePanelHtml.includes('id="classical-source-readout-morphs"')
             && sourcePanelHtml.includes('id="classical-source-readout-roles"')
+            && sourcePanelHtml.includes('id="classical-source-constitution"')
+            && sourcePanelHtml.includes('data-classical-source-constitution="typed-andrews-analysis"')
             && sourcePanelHtml.includes('id="classical-source-parts"')
             && sourcePanelHtml.includes('data-classical-source-parts="user-defined"')
             && !sourcePanelHtml.includes('class="verb-block__utility-actions"')
@@ -1176,8 +1185,13 @@ return {
             && !sourcePanelHtml.includes('data-classical-source-parts-kind="derived-source"')
             && sourcePanelHtml.includes('aria-label="Canvas stem structure"')
             && sourcePanelHtml.includes('<span class="classical-source-parts__label">Stem</span>')
+            && sourcePanelHtml.includes('classical-source-parts__field--embed')
+            && sourcePanelHtml.includes('classical-source-parts__field--matrix')
             && sourcePanelHtml.includes('<span class="classical-source-readout__label">(STEM)</span>')
-            && sourcePanelHtml.includes('<span class="classical-source-readout__label">Structure</span>')
+            && sourcePanelHtml.includes('>Identified source verbcore</div>')
+            && sourcePanelHtml.includes('<span class="classical-source-readout__label">Valence</span>')
+            && sourcePanelHtml.includes('<span class="classical-source-readout__label">Stem class</span>')
+            && sourcePanelHtml.includes('<span class="classical-source-readout__label">Andrews constitution</span>')
             && !composer.includes('sourceSentence: "source-sentence"')
             && !composer.includes('derivedSource: "derived-source"')
             && sourcePanelHtml.includes('id="classical-source-whole"')
@@ -1207,6 +1221,15 @@ return {
             && composer.includes("function getClassicalEntradaUrlSourceBoundaryRoleFrame")
             && composer.includes("hyphenOnlyCannotPopulateEmbedMatrix")
             && composer.includes("function syncClassicalSourceReadout")
+            && composer.includes("readout.hidden = frame.unit === CLASSICAL_BASAL_UNIT.vnc")
+            && composer.includes("matrixInput,\n        internalMorphs\n      } = getClassicalSourcePartControlElements();")
+            && composer.includes("syncClassicalSourcePartControlsFromRuntime();\n      const {\n        root,\n        modeButtons")
+            && composer.includes('control.addEventListener("input", () => {\n          if (control.tagName === "SELECT")')
+            && composer.includes('"classical-rule-logic-derivation-option": "derivationOptionId"')
+            && composer.includes('if (requestKey === "derivationOptionId")')
+            && composer.includes('appendConstitutionJoin(`→ ${frame.stemClass} verbstem`')
+            && composer.includes("buildClassicalNahuatlVncSourceConstitutionProjection")
+            && composer.includes("dataset.classicalSourceConstitutionRole")
             && composer.includes('rank: "particle source"')
             && composer.includes('rank: `NNC stem source · ${sourceKind}`')
             && composer.includes('rank: "VNC stem source"')
@@ -1223,6 +1246,13 @@ return {
             && css.includes("body.is-language-classical #classical-source-panel .verb-block__display")
             && css.includes("body.is-language-classical #classical-source-panel .classical-basal-unit-button__sub")
             && css.includes("body.is-language-classical #classical-source-panel .classical-source-readout__label::after")
+            && css.includes("body.is-language-classical #classical-source-panel .classical-source-constitution__part")
+            && css.includes('.classical-source-readout[data-classical-source-unit="vnc"] {')
+            && css.includes('.classical-source-constitution > .classical-source-readout__label')
+            && css.includes(".classical-source-constitution__stage")
+            && css.includes('.classical-source-readout[data-classical-source-unit="vnc"] [data-classical-source-readout-item="rank"]')
+            && css.includes('#classical-source-parts:has([data-classical-source-parts-mode="whole-stem"]) .classical-source-parts__field--embed')
+            && css.includes("body.is-language-classical #classical-authority-panel .calc-operator--classical-rule-logic > .calc-operator__label")
             && !css.includes("body.is-language-classical #classical-source-panel .classical-source-built")
             && css.includes('body.is-language-classical #classical-source-panel #verb[data-classical-source-mirror="runtime-only"]')
             && css.includes("body.is-language-classical .classical-source-parts__field--whole")
@@ -1820,17 +1850,19 @@ return {
     s.eq(
         "Classical Authority options carry Canvas option tags with runtime definitions",
         (() => {
+            const sourceIdentityControlsHtml = sourcePanelHtml.match(/<div\s+class="classical-source-identity-controls"[\s\S]*?<\/div>/u)?.[0] || "";
+            const sourceAndAuthorityControlsHtml = `${sourceIdentityControlsHtml}${classicalAuthorityControlsHtml}`;
             const optionTagMatches = Array.from(
-                classicalAuthorityControlsHtml.matchAll(/<option[^>]*data-classical-authority-option-tag="([^"]+)"/g)
+                sourceAndAuthorityControlsHtml.matchAll(/<option[^>]*data-classical-authority-option-tag="([^"]+)"/g)
             ).map((match) => match[1]);
             const checkboxTagMatches = Array.from(
-                classicalAuthorityControlsHtml.matchAll(/<input[^>]*data-classical-authority-option-tag="([^"]+)"/g)
+                sourceAndAuthorityControlsHtml.matchAll(/<input[^>]*data-classical-authority-option-tag="([^"]+)"/g)
             ).map((match) => match[1]);
             const semanticSwitchTagMatches = Array.from(
-                classicalAuthorityControlsHtml.matchAll(/data-classical-(?:checked|unchecked)-authority-option-tag="([^"]+)"/g)
+                sourceAndAuthorityControlsHtml.matchAll(/data-classical-(?:checked|unchecked)-authority-option-tag="([^"]+)"/g)
             ).map((match) => match[1]);
             const segmentedTagMatches = Array.from(
-                classicalAuthorityControlsHtml.matchAll(/<button[^>]*data-classical-authority-option-tag="([^"]+)"/g)
+                sourceAndAuthorityControlsHtml.matchAll(/<button[^>]*data-classical-authority-option-tag="([^"]+)"/g)
             ).map((match) => match[1]);
             const allTags = [
                 ...optionTagMatches,
@@ -1838,7 +1870,7 @@ return {
                 ...semanticSwitchTagMatches,
                 ...segmentedTagMatches,
             ];
-            const untaggedOptionCount = Array.from(classicalAuthorityControlsHtml.matchAll(/<option\b/g)).length
+            const untaggedOptionCount = Array.from(sourceAndAuthorityControlsHtml.matchAll(/<option\b/g)).length
                 - optionTagMatches.length;
             const duplicateTags = allTags.filter((tag, index) => allTags.indexOf(tag) !== index);
             const runtimeTagSet = typeof authorityOptionTagApi?.getClassicalRuleLogicAuthorityOptionTags === "function"
@@ -1960,7 +1992,8 @@ return {
             return {
                 directPresentation,
                 applicativePresentation,
-                classVisibleInDirectEvenWhenDeterminate: rendering.includes('id === "classical-rule-logic-class" && derivationType !== "direct"'),
+                classVisibleInDirectEvenWhenDeterminate: sourcePanelHtml.includes('id="classical-rule-logic-class"')
+                    && !rendering.includes("const engineDeterminedClass"),
                 generatedFormationVisibleForAnyApplicativeInventory: rendering.includes('derivationType === "applicative" || surfaceFrame.state?.derivationSelectorRequired === true || derivationSelectionRecoveryRequired'),
                 applicativeHeading: classicalAuthorityControlsHtml.includes('data-classical-vnc-authority-heading="derivation"')
                     && rendering.includes('heading.textContent = derivationType === "applicative" ? "Applicative"'),
@@ -1977,8 +2010,8 @@ return {
                     "order: 16;",
                     "order: 17;",
                 ].every((token) => css.includes(token)),
-                generatedFormationLabel: classicalAuthorityControlsHtml.includes('>Generated formation</span>')
-                    && rendering.includes('"classical-rule-logic-derivation-option": "Generated formation"'),
+                generatedFormationLabel: classicalAuthorityControlsHtml.includes('>Licensed formation</span>')
+                    && rendering.includes('"classical-rule-logic-derivation-option": "Licensed formation"'),
             };
         })(),
         {
@@ -8664,7 +8697,7 @@ return {
             && !html.includes('data-andrews-formula-role="route-board"')
             && html.includes('id="output-journey-strip"')
             && html.includes('data-andrews-output-role="route-journey"')
-            && html.includes("style.css?v=20260719-source-analysis-070")
+            && html.includes("style.css?v=20260719-source-authority-minimal-086")
             && browserRuntimeHas("src/ui/shell/classical_shell.mjs")
             && browserRuntimeHas("src/core/nnc/nominalization/nominalization.mjs")
             && browserRuntimeHas("src/core/classical/profile_wall.mjs")
@@ -10505,7 +10538,14 @@ return {
                 const applicativeHash = ctx.buildEntradaUrlHash({
                     input: "(chōca)",
                     derivationType: "applicative",
+                    derivedVnc: "11.42.52.62.82.91.b4.e1.n1.s1",
                 });
+                const directWithStaleCapsule = ctx.buildEntradaUrlHash({
+                    input: "(chōca)",
+                    derivationType: "direct",
+                    derivedVnc: "11.42",
+                });
+                const malformedCapsule = ctx.parseEntradaUrlSegmentString("#entrada/v1/derivation/causative/v/zz.42.bad.11.42");
                 return {
                     resultSegment: resultHash.includes("/screen/output"),
                     resultPanel: ctx.parseEntradaUrlSegmentString(resultHash)?.panel || "",
@@ -10516,12 +10556,25 @@ return {
                     causativeType: ctx.parseEntradaUrlSegmentString(causativeHash)?.derivationType || "",
                     applicativeSegment: applicativeHash.includes("/derivation/applicative"),
                     applicativeType: ctx.parseEntradaUrlSegmentString(applicativeHash)?.derivationType || "",
+                    applicativeCapsuleIsCompact: applicativeHash.includes("/v/11.42.52.62.82.91.b4.e1.n1.s1")
+                        && !applicativeHash.includes("classical-rule-logic"),
+                    applicativeCapsuleRoundTrip: ctx.parseEntradaUrlSegmentString(applicativeHash)?.derivedVnc || "",
+                    directOmitsStaleCapsule: !directWithStaleCapsule.includes("/v/"),
+                    malformedCapsuleFailsClosed: malformedCapsule?.derivedVnc || "",
                     legacyDerivationType: legacySnapshot?.derivationType || "",
                     restoreUsesPanelSetter: composer.includes('targetObject.setLeftPanelStackMode(normalized.panel)'),
                     restoreUsesDerivationSetter: composer.includes('targetObject.setActiveDerivationType(normalized.derivationType)'),
-                    derivationClicksSyncImmediately: composer.includes('event?.type === "click" && isEntradaUrlImmediateSyncEventTarget(target)')
+                    restoreRebuildsDynamicChoices: composer.includes("function applyEntradaUrlDerivedVncStateToControls")
+                        && composer.includes("for (let pass = 0; pass < 5; pass += 1)")
+                        && composer.includes("targetObject.renderClassicalRuleLogicSurfaceBlock();"),
+                    derivedControlChangesSyncImmediately: composer.includes('["causative", "applicative"].includes(derivationType)')
+                        && composer.includes("syncEntradaUrlSegmentsFromCurrentState({\n          replace: true\n        });"),
+                    derivationClicksSyncImmediately: composer.includes('(event?.type === "click" || event?.type === "change" || event?.type === "input") && isEntradaUrlImmediateSyncEventTarget(target)')
                         && composer.includes('target.closest("[data-derivation-type]")')
                         && composer.includes('syncEntradaUrlSegmentsFromCurrentState({\n            replace: true\n          });'),
+                    derivedSelectionsCapturedBeforeRerender: composer.includes('target.closest("[data-classical-rule-logic-control]")')
+                        && composer.includes('targetObject.document.addEventListener("input", handleEntradaMutation, true)')
+                        && composer.includes('targetObject.document.addEventListener("change", handleEntradaMutation, true)'),
                     panelChangesSyncUrl: composer.includes('addEventListener("app:panel-stack-changed", queueEntradaUrlSegmentSync)'),
                 };
             })()
@@ -10536,10 +10589,17 @@ return {
             causativeType: "causative",
             applicativeSegment: true,
             applicativeType: "applicative",
+            applicativeCapsuleIsCompact: true,
+            applicativeCapsuleRoundTrip: "11.42.52.62.82.91.b4.e1.n1.s1",
+            directOmitsStaleCapsule: true,
+            malformedCapsuleFailsClosed: "11.42",
             legacyDerivationType: "direct",
             restoreUsesPanelSetter: true,
             restoreUsesDerivationSetter: true,
+            restoreRebuildsDynamicChoices: true,
+            derivedControlChangesSyncImmediately: true,
             derivationClicksSyncImmediately: true,
+            derivedSelectionsCapturedBeforeRerender: true,
             panelChangesSyncUrl: true,
         }
     );
@@ -19230,7 +19290,13 @@ return {
             && rendering.includes('organizer.dataset.classicalVncAuthorityOrganizer = "progressive-typed-decisions"')
             && rendering.includes('createDisclosure("clause", "Clause settings"')
             && rendering.includes('createDisclosure("sentence", "Sentence settings"')
-            && rendering.includes('presentation.clause.open = derivationType === "direct" || derivationSourceAuthorized !== true')
+            && rendering.includes("presentation.clause.open = false")
+            && rendering.includes("function syncClassicalVncAuthorityDerivationPreview")
+            && rendering.includes('preview.dataset.classicalVncAuthorityPreview = "typed-application-projection"')
+            && rendering.includes("getClassicalVncDerivationExplanationRenderableProjection(surfaceFrame.state?.vncApplicationFrame")
+            && rendering.includes('subjectLabel.textContent = derivationType === "causative" ? "New derived subject" : "Subject"')
+            && rendering.includes('targetLabel.textContent = "Causative object"')
+            && rendering.includes('targetLabel.textContent = "Mainline object"')
             && rendering.includes('block.dataset.classicalResultPresentationOrder = "answer-authority-route-proof"')
             && rendering.includes("block.append(heading, paradigmSection, vncParadigmSection, ...resultFormatNodes, authorityReceipt")
             && rendering.includes('targetObject.document.createElement("details")')
@@ -19240,6 +19306,23 @@ return {
             && css.includes('.classical-authority-receipt:not([open]) > .classical-authority-receipt__items')
             && css.includes('grid-template-areas:\n    "derivation"\n    "logic"')
             && css.includes(".classical-vnc-authority-disclosure__summary")
+            && css.includes("Minimal Source -> Authority surface")
+            && css.includes("Reference-matched Source + Authority")
+            && css.includes("--source-authority-active: var(--classical-result-teal-soft)")
+            && css.includes('#classical-source-parts[data-classical-source-parts-mode="internal-morphemes"] .classical-source-parts__grid')
+            && css.includes("Final Source + Authority presentation wins after the shared Result theme")
+            && css.includes("background: var(--classical-shell-surface)")
+            && css.includes("border: var(--classical-shell-border)")
+            && css.includes("body.is-language-classical #container-header")
+            && css.includes("scrollbar-gutter: stable")
+            && css.includes(".classical-vnc-authority-disclosure__body")
+            && css.includes("max-width: 100%")
+            && css.includes("background: var(--calc-step-bg)")
+            && css.includes("@media (min-width: 1025px)")
+            && css.includes("#classical-source-panel .panel-block-title .panel-pane-nav-btn")
+            && css.includes("Keep #2's derivation chooser quieter")
+            && css.includes("body.is-language-classical.is-ui-simple #classical-authority-panel .calc-operator--derivation")
+            && css.includes("body.is-language-classical #classical-authority-panel .formula-controls-grid::after")
             && rendering.includes('createFormulaSpecificitySwitch("Linear format"')
             && rendering.includes('createFormulaSpecificitySwitch("Diagrammatic format"')
             && rendering.includes("predicateGroup.append(predicateMembers, predicateBrace, predicateRole)")
@@ -19296,18 +19379,21 @@ return {
             && vncApplication.includes('display: buildClassicalNahuatlVncSourceAnalysisDisplayProjection(analysis)')
             && vncApplication.includes('analysisDisplayGroups: sourceAnalysisDisplayGroups')
             && vncApplication.includes('buildClassicalNahuatlVncDerivedStemAnalysisDisplayProjection')
+            && vncApplication.includes('buildClassicalNahuatlVncCompactSourceAnalysisDisplayProjection')
             && vncApplication.includes('{ segment: "l", role: "retained nonactive formative" }')
             && vncApplication.includes('{ segment: "ti", role: "empty connective" }')
             && vncApplication.includes('{ segment: "ā", role: "causative formative" }')
+            && vncApplication.includes('{ segment: "l", role: "empty connective" }')
+            && vncApplication.includes('{ segment: "hu", role: "empty connective /w/" }')
+            && vncApplication.includes('{ segment: "iā", role: "applicative formative" }')
             && rendering.includes('analysisBand.dataset.classicalVncSourceAnalysisVisible = "true"')
             && rendering.includes('analysisBand.dataset.classicalVncDerivedAnalysisVisible = "true"')
             && rendering.includes('projection.formationSteps.filter(step => step.stage !== "source-analysis")')
             && rendering.includes('step.stage === "source" && sourceAnalysisProjection')
-            && rendering.includes('analysisStep.analysisDisplayGroups')
-            && rendering.includes('group.parts || []')
-            && rendering.includes('group.formationEffects || []')
-            && rendering.includes('analysisStep.boundaryObservation || ""')
-            && rendering.includes('"Hyphens help reading; the Andrews analysis authorizes the boundary."')
+            && rendering.includes('appendCompactStemAnalysis(card, sourceAnalysisProjection.compactDisplay, "source")')
+            && rendering.includes('appendCompactStemAnalysis(card, step.derivedStemAnalysis, "derived")')
+            && !rendering.includes('analysisStep.analysisDisplayGroups')
+            && !rendering.includes('group.formationEffects || []')
             && vncApplication.includes('appendSegment(`${subject.pers1 || ""}-${subject.pers2 || ""}`, subjectEntry)')
             && vncApplication.includes('appendSegment(`${number.num1 || ""}-${number.num2 || ""}`, subjectEntry)')
             && vncApplication.includes('entry.row?.[carrierKindKey] === "object"')
@@ -19315,11 +19401,13 @@ return {
             && css.includes(".classical-vnc-derivation-explainer__formula-participant")
             && css.includes(".classical-vnc-derivation-explainer__participant-tone--4")
             && css.includes(".classical-vnc-derivation-explainer__source-analysis-band")
+            && css.includes("flex: 0 1 110px")
             && css.includes(".classical-vnc-derivation-explainer__formation-step--with-source-analysis")
-            && css.includes(".classical-vnc-derivation-explainer__source-analysis-row")
+            && css.includes(".classical-vnc-derivation-explainer__formation-rail > .classical-vnc-derivation-explainer__formation-step")
+            && css.includes("flex: 1 1 0")
             && css.includes(".classical-vnc-derivation-explainer__derived-analysis")
+            && css.includes(".classical-vnc-derivation-explainer__derived-parts")
             && css.includes(".classical-vnc-derivation-explainer__source-part-role")
-            && css.includes(".classical-vnc-derivation-explainer__boundary-note")
     );
     s.ok(
         "#3 Result owns the legal NNC and VNC single-form or full-paradigm output scope",
@@ -20540,7 +20628,12 @@ return {
             && classicalShell.includes('data-classical-vnc-authority-heading="subject"')
             && classicalShell.includes('data-classical-vnc-authority-heading="predicate"')
             && classicalShell.includes('data-classical-vnc-authority-heading="sentence"')
-            && classicalShell.includes('data-classical-vnc-authority-order="predicate-valence"')
+            && sourcePanelHtml.includes('data-classical-source-identity-control="valence"')
+            && sourcePanelHtml.includes('id="classical-rule-logic-valence"')
+            && sourcePanelHtml.includes('data-classical-source-identity-control="class"')
+            && sourcePanelHtml.includes('id="classical-rule-logic-class"')
+            && !classicalAuthorityControlsHtml.includes('id="classical-rule-logic-valence"')
+            && !classicalAuthorityControlsHtml.includes('id="classical-rule-logic-class"')
             && classicalShell.includes('data-classical-vnc-authority-order="sentence-introductory"')
             && rendering.includes('document.querySelectorAll("[data-classical-vnc-authority-heading]")')
             && rendering.includes("const CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT = Object.freeze({")
@@ -20548,11 +20641,10 @@ return {
             && rendering.includes('"classical-rule-logic-sentence-surface": Object.freeze(["information-question", "wish"])')
             && rendering.includes('"classical-rule-logic-construction",')
             && rendering.includes('"classical-rule-logic-lexical-reading",')
-            && rendering.includes("hideDeterminateClass: true")
             && rendering.includes("function syncClassicalVncAuthorityOptionPresentation")
             && rendering.includes("option.hidden = removedFromVnc")
-            && rendering.includes("classSelectionContract?.dropdownLocked === true || Boolean(lesson11ClassOverride)")
-            && rendering.includes("const conditionalAppearanceControl = engineDeterminedClass")
+            && rendering.includes("wrapper.dataset.classicalCanvasClassLocked = String(classSelectionContract?.dropdownLocked === true)")
+            && rendering.includes("const conditionalAppearanceControl = CLASSICAL_VNC_AUTHORITY_PRESENTATION_CONTRACT.hideWhenInapplicableControlIds.includes(id)")
             && rendering.includes('const visible = conditionalAppearanceControl')
             && vncApplication.includes('function getClassicalNahuatlVncApplicationAllowedVoices({')
             && vncApplication.includes('"source-stem-required-before-derived-voice"')

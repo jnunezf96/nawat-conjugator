@@ -71,6 +71,12 @@ export function createClassicalNahuatlVncDerivationEvaluatorApi(targetObject = g
       canonicalSegments: Object.freeze(["huā", "qui"]),
       andrewsSections: Object.freeze(["24.3.1.a", "24.5.9", "25.8"])
     }), Object.freeze({
+      analysisId: "cn-l24-245-cualani-destockal",
+      sourceAliases: Object.freeze(["cual-ā-ni", "cualāni", "cual-a-ni", "cualani"]),
+      categories: Object.freeze(["destockal-ni-candidate", "fused-destockal-ni-exact"]),
+      canonicalSegments: Object.freeze(["cual", "ā", "ni"]),
+      andrewsSections: Object.freeze(["24.5", "25.3"])
+    }), Object.freeze({
       analysisId: "cn-l24-2432b-yocoya-retentive-exception",
       sourceAliases: Object.freeze(["yōco-ya", "yōcoya", "yoco-ya", "yocoya"]),
       categories: Object.freeze(["root-plus-ya", "root-plus-ya-retentive-exception"]),
@@ -1887,7 +1893,7 @@ export function createClassicalNahuatlVncDerivationEvaluatorApi(targetObject = g
           sourceAnalysisSelectionRequired: true
         });
       }
-      if (lexicalStem.length > 2 && lexicalStem.endsWith("ni")) {
+      if (lexicalStem.length > 2 && lexicalStem.endsWith("ni") && !exactWitness?.categories.includes("destockal-ni-candidate")) {
         addAnalysis({
           analysisId: `cn-l24-boundary-free-destockal-ni:${lexicalStem}`,
           category: "destockal-ni-candidate",
