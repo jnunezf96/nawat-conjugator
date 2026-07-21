@@ -1,4 +1,4 @@
-import { bootstrapBrowserApp } from "../bootstrap/bootstrap.mjs";
+import { bootstrapBrowserApp } from "../bootstrap/bootstrap.mjs?v=20260721-panel-navigation-boundary-001";
 
 const bootstrapPromise = bootstrapBrowserApp();
 

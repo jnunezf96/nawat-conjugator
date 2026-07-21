@@ -1,6 +1,6 @@
 import { installRuntimeBridge } from "./runtime_bridge.mjs";
 import { createRuntimeConfigSnapshot } from "./runtime_config.mjs";
-import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs";
+import { attachRuntimeBindings, createRuntimeInstance } from "../runtime/create_runtime.mjs?v=20260721-panel-navigation-boundary-001";
 
 let browserBootstrapPromise = null;
 
