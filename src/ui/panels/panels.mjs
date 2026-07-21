@@ -5,13 +5,7 @@ export function createUiPanelsContext(targetObject = globalThis) {
       simple: "simple",
       advanced: "advanced"
     });
-    var LANGUAGE_PROFILE_MODE = globalThis.LANGUAGE_PROFILE_MODE || Object.freeze({
-      nawatPipil: "nawat-pipil",
-      classicalNahuatl: "classical-nahuatl"
-    });
     var NonactiveSelectionContextSignature = "";
-    var LANGUAGE_PROFILE_STORAGE_GENERATION_KEY = "nawat_language_profile_mode_generation";
-    var LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION = "classical-lesson4-machinery-default-001";
     function getObjectCategory(prefix) {
       if (!prefix) {
         return "intransitive";
@@ -298,33 +292,18 @@ export function createUiPanelsContext(targetObject = globalThis) {
       }
       return UI_DENSITY_MODE.simple;
     }
-    function normalizeLanguageProfileMode(mode = "") {
-      const classicalMode = LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-      return classicalMode;
-    }
-    function getActiveLanguageProfileMode() {
-      return LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-    }
-    function getDefaultLanguageProfileMode() {
-      return LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-    }
-    function getStoredLanguageProfileMode() {
-      return getDefaultLanguageProfileMode();
-    }
-    function getClassicalNahuatlTabAuthorityFrame(mode = getActiveLanguageProfileMode()) {
-      const normalizedMode = normalizeLanguageProfileMode(mode);
-      const classicalMode = LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-      const wallFrame = typeof targetObject.buildClassicalNahuatlProfileWallFrame === "function" ? targetObject.buildClassicalNahuatlProfileWallFrame(normalizedMode) : null;
-      const active = wallFrame ? wallFrame.classicalLaneActive === true : normalizedMode === classicalMode;
+    function getClassicalNahuatlTabAuthorityFrame() {
+      const classicalMode = targetObject.CLASSICAL_NAHUATL_PUBLIC_RUNTIME?.profileId || "classical-nahuatl";
+      const wallFrame = typeof targetObject.buildClassicalNahuatlProfileWallFrame === "function" ? targetObject.buildClassicalNahuatlProfileWallFrame(classicalMode) : null;
       return {
         kind: "classical-nahuatl-tab-authority-frame",
         version: 1,
-        active,
+        active: true,
         tabMode: classicalMode,
-        activeMode: normalizedMode,
-        authorityScope: wallFrame?.authorityScope || "selected-language-profile",
+        activeMode: classicalMode,
+        authorityScope: "public-classical-runtime",
         profileWallKind: wallFrame?.kind || "",
-        separationMechanism: wallFrame?.separationMechanism || "profile-selection",
+        separationMechanism: "deployment-boundary",
         spellingInspection: wallFrame?.spellingInspection || "not-performed",
         sourceAuthority: wallFrame?.sourceAuthority || "Andrews transcription",
         grammarAuthority: wallFrame?.grammarAuthority || "Andrews transcription",
@@ -342,11 +321,11 @@ export function createUiPanelsContext(targetObject = globalThis) {
         mayInspectNawatPipilSpellingFromClassical: wallFrame?.mayInspectNawatPipilSpellingFromClassical === true,
         mayUseNawatPipilGrammarForClassical: wallFrame?.mayUseNawatPipilGrammarForClassical === true,
         mayUseOldConjugatorForClassical: wallFrame?.mayUseOldConjugatorForClassical === true,
-        classicalOutputImport: wallFrame?.classicalOutputImport || (active ? "authorized-within-classical-lane" : "inactive-outside-classical-lane")
+        classicalOutputImport: wallFrame?.classicalOutputImport || "authorized-within-classical-lane"
       };
     }
-    function applyClassicalNahuatlTabAuthorityDataset(root = targetObject.document.body, mode = getActiveLanguageProfileMode()) {
-      const frame = getClassicalNahuatlTabAuthorityFrame(mode);
+    function applyClassicalNahuatlTabAuthorityDataset(root = targetObject.document.body) {
+      const frame = getClassicalNahuatlTabAuthorityFrame();
       if (!root?.dataset) {
         return frame;
       }
@@ -383,9 +362,6 @@ export function createUiPanelsContext(targetObject = globalThis) {
     }
     function getUiDensityButtons() {
       return Array.from(targetObject.document.querySelectorAll("[data-ui-density]"));
-    }
-    function getLanguageProfileButtons() {
-      return Array.from(targetObject.document.querySelectorAll("[data-language-profile]"));
     }
     function getVerbSourceScopeButtons() {
       return Array.from(targetObject.document.querySelectorAll("[data-verb-source-scope]"));
@@ -595,59 +571,13 @@ export function createUiPanelsContext(targetObject = globalThis) {
         // Ignore storage failures.
       }
     }
-    function applyLanguageProfileMode(mode = "", {
-      persist = true
-    } = {}) {
-      const nextMode = getDefaultLanguageProfileMode();
-      const previousMode = getActiveLanguageProfileMode();
+    function initializeClassicalNahuatlPublicRuntime() {
       const body = targetObject.document.body;
       if (body) {
         body.classList.remove("is-language-nawat-pipil");
         body.classList.add("is-language-classical");
       }
-      const classicalAuthorityFrame = applyClassicalNahuatlTabAuthorityDataset(body, nextMode);
-      getLanguageProfileButtons().forEach(button => {
-        const buttonMode = normalizeLanguageProfileMode(button.getAttribute("data-language-profile") || "");
-        const isActive = buttonMode === nextMode;
-        button.classList.toggle("is-active", isActive);
-        button.setAttribute("aria-pressed", String(isActive));
-      });
-      targetObject.dispatchAppEvent("app:language-profile-changed", {
-        mode: nextMode,
-        previousMode,
-        classicalAuthorityFrame
-      });
-      if (previousMode !== nextMode && typeof targetObject.renderActiveConjugations === "function") {
-        const verbMeta = typeof targetObject.getVerbInputMeta === "function" ? targetObject.getVerbInputMeta() : {};
-        targetObject.renderActiveConjugations({
-          verb: verbMeta.displayVerb || "",
-          objectPrefix: typeof targetObject.getCurrentObjectPrefix === "function" ? targetObject.getCurrentObjectPrefix() : ""
-        });
-      }
-      if (!persist) {
-        return;
-      }
-      try {
-        if (targetObject.window.localStorage) {
-          targetObject.localStorage.setItem(targetObject.LANGUAGE_PROFILE_STORAGE_KEY, nextMode);
-          targetObject.localStorage.setItem(LANGUAGE_PROFILE_STORAGE_GENERATION_KEY, LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION);
-        }
-      } catch {
-        // Ignore storage failures.
-      }
-    }
-    function initLanguageProfileControl() {
-      const buttons = getLanguageProfileButtons();
-      const initialMode = getStoredLanguageProfileMode() || getDefaultLanguageProfileMode();
-      applyLanguageProfileMode(initialMode, {
-        persist: false
-      });
-      buttons.forEach(button => {
-        button.addEventListener("click", () => {
-          const mode = button.getAttribute("data-language-profile") || "";
-          applyLanguageProfileMode(mode);
-        });
-      });
+      return applyClassicalNahuatlTabAuthorityDataset(body);
     }
     function initUiDensityControl() {
       const buttons = getUiDensityButtons();
@@ -12480,29 +12410,11 @@ export function createUiPanelsContext(targetObject = globalThis) {
         get() { return UI_DENSITY_MODE; },
         set(value) { UI_DENSITY_MODE = value; },
     });
-    Object.defineProperty(api, "LANGUAGE_PROFILE_MODE", {
-        configurable: true,
-        enumerable: true,
-        get() { return LANGUAGE_PROFILE_MODE; },
-        set(value) { LANGUAGE_PROFILE_MODE = value; },
-    });
     Object.defineProperty(api, "NonactiveSelectionContextSignature", {
         configurable: true,
         enumerable: true,
         get() { return NonactiveSelectionContextSignature; },
         set(value) { NonactiveSelectionContextSignature = value; },
-    });
-    Object.defineProperty(api, "LANGUAGE_PROFILE_STORAGE_GENERATION_KEY", {
-        configurable: true,
-        enumerable: true,
-        get() { return LANGUAGE_PROFILE_STORAGE_GENERATION_KEY; },
-        set(value) { LANGUAGE_PROFILE_STORAGE_GENERATION_KEY = value; },
-    });
-    Object.defineProperty(api, "LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION", {
-        configurable: true,
-        enumerable: true,
-        get() { return LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION; },
-        set(value) { LANGUAGE_PROFILE_CLASSICAL_LESSON4_DEFAULT_GENERATION = value; },
     });
     api.getObjectCategory = getObjectCategory;
     api.getObjectValenceCategory = getObjectValenceCategory;
@@ -12527,15 +12439,10 @@ export function createUiPanelsContext(targetObject = globalThis) {
     api.initUiScaleControl = initUiScaleControl;
     api.normalizeUiDensityMode = normalizeUiDensityMode;
     api.getActiveUiDensityMode = getActiveUiDensityMode;
-    api.normalizeLanguageProfileMode = normalizeLanguageProfileMode;
-    api.getActiveLanguageProfileMode = getActiveLanguageProfileMode;
-    api.getDefaultLanguageProfileMode = getDefaultLanguageProfileMode;
-    api.getStoredLanguageProfileMode = getStoredLanguageProfileMode;
     api.getClassicalNahuatlTabAuthorityFrame = getClassicalNahuatlTabAuthorityFrame;
     api.applyClassicalNahuatlTabAuthorityDataset = applyClassicalNahuatlTabAuthorityDataset;
     api.filterTenseOrderForUiDensity = filterTenseOrderForUiDensity;
     api.getUiDensityButtons = getUiDensityButtons;
-    api.getLanguageProfileButtons = getLanguageProfileButtons;
     api.getVerbSourceScopeButtons = getVerbSourceScopeButtons;
     api.syncVerbSourceScopeControl = syncVerbSourceScopeControl;
     api.applyVerbSourceScope = applyVerbSourceScope;
@@ -12545,8 +12452,7 @@ export function createUiPanelsContext(targetObject = globalThis) {
     api.forceDirectDerivationForSimpleMode = forceDirectDerivationForSimpleMode;
     api.forceSimpleModeGrammarDefaults = forceSimpleModeGrammarDefaults;
     api.applyUiDensityMode = applyUiDensityMode;
-    api.applyLanguageProfileMode = applyLanguageProfileMode;
-    api.initLanguageProfileControl = initLanguageProfileControl;
+    api.initializeClassicalNahuatlPublicRuntime = initializeClassicalNahuatlPublicRuntime;
     api.initUiDensityControl = initUiDensityControl;
     api.initZoomFontLock = initZoomFontLock;
     api.registerEscapeOverlayHandler = registerEscapeOverlayHandler;

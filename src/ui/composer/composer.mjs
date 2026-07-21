@@ -4492,36 +4492,10 @@ export function createUiComposerRuntime(targetObject = globalThis) {
         targetObject.renderVerbMirror();
       }
     }
-    function getClassicalNahuatlComposerModeId() {
-      if (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" && targetObject.LANGUAGE_PROFILE_MODE?.classicalNahuatl) {
-        return targetObject.LANGUAGE_PROFILE_MODE.classicalNahuatl;
-      }
-      return "classical-nahuatl";
-    }
-    function getNawatPipilComposerModeId() {
-      if (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" && targetObject.LANGUAGE_PROFILE_MODE?.nawatPipil) {
-        return targetObject.LANGUAGE_PROFILE_MODE.nawatPipil;
-      }
-      return "nawat-pipil";
-    }
-    function getActiveComposerLanguageProfileMode() {
-      if (typeof targetObject.getActiveLanguageProfileMode === "function") {
-        return String(targetObject.getActiveLanguageProfileMode() || "");
-      }
-      if (typeof targetObject.document !== "undefined" && targetObject.document.body?.classList?.contains("is-language-classical")) {
-        return getClassicalNahuatlComposerModeId();
-      }
-      if (typeof targetObject.document !== "undefined" && targetObject.document.body?.classList?.contains("is-language-nawat-pipil")) {
-        return getNawatPipilComposerModeId();
-      }
-      return "";
-    }
     function isClassicalNahuatlComposerStemContext(value = "") {
-      const activeMode = getActiveComposerLanguageProfileMode();
-      if (activeMode) {
-        return activeMode === getClassicalNahuatlComposerModeId();
-      }
-      return /[āēīō]/iu.test(String(value || ""));
+      return typeof targetObject.isClassicalNahuatlPublicRuntime === "function"
+        ? targetObject.isClassicalNahuatlPublicRuntime()
+        : true;
     }
     function hasClassicalNahuatlComposerMacron(value = "") {
       return /[āēīō]/iu.test(String(value || ""));
@@ -14848,9 +14822,6 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     api.restoreComposerEntryBoardSlotAState = restoreComposerEntryBoardSlotAState;
     api.getVerbRegexPlaceholder = getVerbRegexPlaceholder;
     api.updateVerbInputPlaceholder = updateVerbInputPlaceholder;
-    api.getClassicalNahuatlComposerModeId = getClassicalNahuatlComposerModeId;
-    api.getNawatPipilComposerModeId = getNawatPipilComposerModeId;
-    api.getActiveComposerLanguageProfileMode = getActiveComposerLanguageProfileMode;
     api.isClassicalNahuatlComposerStemContext = isClassicalNahuatlComposerStemContext;
     api.hasClassicalNahuatlComposerMacron = hasClassicalNahuatlComposerMacron;
     api.normalizeClassicalNahuatlComposerStem = normalizeClassicalNahuatlComposerStem;

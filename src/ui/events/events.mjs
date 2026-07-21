@@ -241,7 +241,7 @@ export function createUiEventsApi(targetObject = globalThis) {
         targetObject.initZoomFontLock();
         targetObject.initUiScaleControl();
         targetObject.initUiDensityControl();
-        targetObject.initLanguageProfileControl();
+        targetObject.initializeClassicalNahuatlPublicRuntime();
         targetObject.initLanguageSwitch();
         if (typeof targetObject.initCurriculumMap === "function") {
           targetObject.initCurriculumMap();

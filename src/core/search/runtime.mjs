@@ -151,25 +151,13 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
       const info = getSearchQueryInfo(rawValue);
       return !!info;
     }
-    function getConjugationSearchClassicalProfileId(runtimeTarget = null) {
-      const profileMode = runtimeTarget?.LANGUAGE_PROFILE_MODE || (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" ? targetObject.LANGUAGE_PROFILE_MODE : null);
-      return profileMode?.classicalNahuatl ? profileMode.classicalNahuatl : "classical-nahuatl";
-    }
-    function getActiveConjugationSearchLanguageProfileMode(runtimeTarget = null) {
-      if (runtimeTarget && typeof runtimeTarget.getActiveLanguageProfileMode === "function") {
-        return runtimeTarget.getActiveLanguageProfileMode();
-      }
-      return typeof targetObject.getActiveLanguageProfileMode === "function" ? targetObject.getActiveLanguageProfileMode() : "";
-    }
     function hasClassicalNahuatlConjugationSearchLetters(value = "") {
       return /[āēīō]/iu.test(String(value || ""));
     }
     function isClassicalNahuatlConjugationSearchContext(value = "", runtimeTarget = null) {
-      const activeMode = getActiveConjugationSearchLanguageProfileMode(runtimeTarget);
-      if (activeMode) {
-        return activeMode === getConjugationSearchClassicalProfileId(runtimeTarget);
-      }
-      return hasClassicalNahuatlConjugationSearchLetters(value);
+      return typeof runtimeTarget?.isClassicalNahuatlPublicRuntime === "function"
+        ? runtimeTarget.isClassicalNahuatlPublicRuntime()
+        : true;
     }
     function normalizeClassicalNahuatlConjugationSearchText(value) {
       return String(value || "").toLowerCase().replace(/[^a-zāēīō]/gu, "");
@@ -680,8 +668,6 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     api.getOrdinaryNncSearchCandidateInfo = getOrdinaryNncSearchCandidateInfo;
     api.isOrdinaryNncSearchCandidate = isOrdinaryNncSearchCandidate;
     api.isSearchModeInput = isSearchModeInput;
-    api.getConjugationSearchClassicalProfileId = getConjugationSearchClassicalProfileId;
-    api.getActiveConjugationSearchLanguageProfileMode = getActiveConjugationSearchLanguageProfileMode;
     api.hasClassicalNahuatlConjugationSearchLetters = hasClassicalNahuatlConjugationSearchLetters;
     api.isClassicalNahuatlConjugationSearchContext = isClassicalNahuatlConjugationSearchContext;
     api.normalizeClassicalNahuatlConjugationSearchText = normalizeClassicalNahuatlConjugationSearchText;

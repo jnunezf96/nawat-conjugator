@@ -21,9 +21,9 @@ const indexHtml = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
 const browserMain = fs.readFileSync(path.join(projectRoot, "src", "browser", "main.mjs"), "utf8");
 const bootstrap = fs.readFileSync(path.join(projectRoot, "src", "bootstrap", "bootstrap.mjs"), "utf8");
 const createRuntime = fs.readFileSync(path.join(projectRoot, "src", "runtime", "create_runtime.mjs"), "utf8");
-const cacheBoundaryVersion = "20260721-panel-navigation-boundary-001";
+const cacheBoundaryVersion = "20260721-classical-public-runtime-001";
 
-assert.match(indexHtml, /main\.mjs\?v=20260721-panel-navigation-boundary-003/);
+assert.match(indexHtml, /main\.mjs\?v=20260721-classical-public-runtime-001/);
 assert.ok(browserMain.includes(`bootstrap.mjs?v=${cacheBoundaryVersion}`));
 assert.ok(bootstrap.includes(`create_runtime.mjs?v=${cacheBoundaryVersion}`));
 assert.ok(createRuntime.includes(`rendering.mjs?v=${cacheBoundaryVersion}`));

@@ -156,12 +156,9 @@ export function createUiRenderingApi(targetObject = globalThis) {
       });
     }
     function isClassicalNahuatlMachineryActive() {
-      if (typeof targetObject.getActiveLanguageProfileMode !== "function") {
-        return false;
-      }
-      const activeMode = targetObject.getActiveLanguageProfileMode();
-      const classicalMode = targetObject.LANGUAGE_PROFILE_MODE?.classicalNahuatl || "classical-nahuatl";
-      return targetObject.normalizeLanguageProfileMode(activeMode) === classicalMode;
+      return typeof targetObject.isClassicalNahuatlPublicRuntime === "function"
+        ? targetObject.isClassicalNahuatlPublicRuntime()
+        : true;
     }
     function normalizeClassicalNahuatlMachinerySourceValue(value = "") {
       let source = String(value || "").trim();

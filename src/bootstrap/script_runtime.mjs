@@ -1159,11 +1159,14 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
       advanced: "advanced"
     });
     var UI_DENSITY_STORAGE_KEY = "nawat_ui_density_mode";
-    var LANGUAGE_PROFILE_MODE = Object.freeze({
-      nawatPipil: "nawat-pipil",
-      classicalNahuatl: "classical-nahuatl"
+    var CLASSICAL_NAHUATL_PUBLIC_RUNTIME = Object.freeze({
+      profileId: "classical-nahuatl",
+      outputLanguage: "Classical Nahuatl",
+      active: true
     });
-    var LANGUAGE_PROFILE_STORAGE_KEY = "nawat_language_profile_mode";
+    function isClassicalNahuatlPublicRuntime() {
+      return CLASSICAL_NAHUATL_PUBLIC_RUNTIME.active === true;
+    }
     var UI_DENSITY_ADVANCED_TENSES = new Set(["presente-habitual", "imperfecto", "pasado-remoto"]);
 
     // === Runtime State ===
@@ -2299,18 +2302,12 @@ export function createScriptRuntimeApi(targetObject = globalThis) {
         get() { return UI_DENSITY_STORAGE_KEY; },
         set(value) { UI_DENSITY_STORAGE_KEY = value; },
     });
-    Object.defineProperty(api, "LANGUAGE_PROFILE_MODE", {
+    Object.defineProperty(api, "CLASSICAL_NAHUATL_PUBLIC_RUNTIME", {
         configurable: true,
         enumerable: true,
-        get() { return LANGUAGE_PROFILE_MODE; },
-        set(value) { LANGUAGE_PROFILE_MODE = value; },
+        get() { return CLASSICAL_NAHUATL_PUBLIC_RUNTIME; },
     });
-    Object.defineProperty(api, "LANGUAGE_PROFILE_STORAGE_KEY", {
-        configurable: true,
-        enumerable: true,
-        get() { return LANGUAGE_PROFILE_STORAGE_KEY; },
-        set(value) { LANGUAGE_PROFILE_STORAGE_KEY = value; },
-    });
+    api.isClassicalNahuatlPublicRuntime = isClassicalNahuatlPublicRuntime;
     Object.defineProperty(api, "UI_DENSITY_ADVANCED_TENSES", {
         configurable: true,
         enumerable: true,

@@ -18335,7 +18335,6 @@ export function createUiStateModule(targetObject = globalThis) {
       let snapTimer = null;
       const resetDragPresentation = ({ animate = false } = {}) => {
         root.style.setProperty("--panel-stack-drag-x", "0px");
-        root.style.setProperty("--panel-stack-drag-progress", "0");
         root.style.setProperty("--panel-stack-drag-scale", "1");
         root.classList.remove("is-panel-stack-swiping");
         delete root.dataset.panelStackSwipeIntent;
@@ -18348,14 +18347,12 @@ export function createUiStateModule(targetObject = globalThis) {
           snapTimer = targetObject.setTimeout(() => {
             root.classList.remove("is-panel-stack-snapping-back");
             root.style.removeProperty("--panel-stack-drag-x");
-            root.style.removeProperty("--panel-stack-drag-progress");
             root.style.removeProperty("--panel-stack-drag-scale");
             snapTimer = null;
           }, PANEL_STACK_SWIPE_SNAP_DURATION_MS);
           return;
         }
         root.style.removeProperty("--panel-stack-drag-x");
-        root.style.removeProperty("--panel-stack-drag-progress");
         root.style.removeProperty("--panel-stack-drag-scale");
       };
       const clearGesture = ({ animate = false } = {}) => {
@@ -18405,7 +18402,6 @@ export function createUiStateModule(targetObject = globalThis) {
           });
           const progress = Math.min(1, Math.abs(deltaX) / PANEL_STACK_SWIPE_MIN_DISTANCE_PX);
           root.style.setProperty("--panel-stack-drag-x", `${visualOffset}px`);
-          root.style.setProperty("--panel-stack-drag-progress", String(progress));
           root.style.setProperty("--panel-stack-drag-scale", String(1 - progress * 0.012));
           root.dataset.panelStackSwipeIntent = canNavigate
             ? direction > 0 ? "next" : "previous"

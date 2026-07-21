@@ -799,8 +799,7 @@ p {
   min-width: 0;
 }
 
-.ui-density-control,
-.language-profile-control {
+.ui-density-control {
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -820,13 +819,6 @@ p {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
   min-width: 188px;
-}
-
-.language-profile-buttons {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 4px;
-  min-width: 252px;
 }
 
 .ui-density-button {
@@ -11543,13 +11535,11 @@ input[type="submit"]:hover {
     justify-content: flex-start;
   }
 
-  .ui-density-control,
-  .language-profile-control {
+  .ui-density-control {
     flex: 1 1 180px;
   }
 
-  .ui-density-buttons,
-  .language-profile-buttons {
+  .ui-density-buttons {
     min-width: 0;
     width: 100%;
   }
@@ -14870,19 +14860,16 @@ input[type="submit"]:hover {
   }
 
   .ui-scale-control,
-  .ui-density-control,
-  .language-profile-control {
+  .ui-density-control {
     min-width: 0;
   }
 
-  .ui-density-control,
-  .language-profile-control {
+  .ui-density-control {
     grid-column: 1 / -1;
     width: 100%;
   }
 
-  .ui-density-buttons,
-  .language-profile-buttons {
+  .ui-density-buttons {
     min-width: 0;
   }
 
@@ -18464,7 +18451,6 @@ body.is-language-classical .verb-entry-board-tabs[data-classical-source-board-mi
 @media (max-width: 1024px) {
   body.is-language-classical [data-panel-stack-swipe="enabled"] {
     --panel-stack-drag-x: 0px;
-    --panel-stack-drag-progress: 0;
     --panel-stack-drag-scale: 1;
     touch-action: pan-y;
     overscroll-behavior-x: contain;
@@ -18613,21 +18599,6 @@ body.is-language-classical {
 
 body.is-language-classical.is-ui-simple #classical-authority-panel .calc-operators {
   display: grid !important;
-}
-
-.interface-language-control {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.interface-language-control__label {
-  color: var(--ink-soft);
-  font-size: var(--font-size-label);
-  font-weight: 760;
-  line-height: 1.15;
 }
 
 body.is-language-classical .panel-stack-tab {
@@ -18834,11 +18805,6 @@ body.is-language-classical .classical-rule-surface__disclosure[open] > .classica
 }
 
 @media (max-width: 720px) {
-  .interface-language-control {
-    grid-column: 1 / -1;
-    justify-self: stretch;
-  }
-
   body.is-language-classical .panel-stack-tabs {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));

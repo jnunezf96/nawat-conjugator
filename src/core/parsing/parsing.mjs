@@ -897,16 +897,9 @@ export function createParsingApi(targetObject = globalThis) {
         return true;
       }
       const runtimeTarget = getCurrentRegexRuntimeTarget();
-      const activeMode = typeof runtimeTarget?.getActiveLanguageProfileMode === "function" ? runtimeTarget.getActiveLanguageProfileMode() : typeof targetObject.getActiveLanguageProfileMode === "function" ? targetObject.getActiveLanguageProfileMode() : "";
-      const classicalMode = runtimeTarget?.LANGUAGE_PROFILE_MODE?.classicalNahuatl || (typeof targetObject.LANGUAGE_PROFILE_MODE !== "undefined" ? targetObject.LANGUAGE_PROFILE_MODE.classicalNahuatl : "") || "classical-nahuatl";
-      if (String(activeMode || "").trim().toLowerCase() === String(classicalMode || "").trim().toLowerCase()) {
-        return true;
-      }
-      const documentObject = runtimeTarget?.document || (typeof targetObject.document !== "undefined" ? targetObject.document : null);
-      if (documentObject?.body?.classList?.contains?.("is-language-classical")) {
-        return true;
-      }
-      return /[āēīō]/iu.test(String(value || ""));
+      return typeof runtimeTarget?.isClassicalNahuatlPublicRuntime === "function"
+        ? runtimeTarget.isClassicalNahuatlPublicRuntime()
+        : true;
     }
     function getClassicalNahuatlCurrentRegexBoundaryRoleFrame(coreText = "", options = {}) {
       if (!isClassicalNahuatlCurrentRegexBoundaryContext(coreText, options)) {
