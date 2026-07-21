@@ -1337,10 +1337,8 @@ export function createClassicalShellModule(targetObject = globalThis) {
                         data-derivation-type="causative"
                         data-classical-authority-option-tag="cn-option-vnc-derivation-causative"
                         aria-pressed="false"
-                        title="Rule-generated Lesson 24 type-one and Lesson 25 nonactive-based type-two causatives"
                       >
                         <span class="calc-operator-chip__main">Causative</span>
-                        <span class="calc-operator-chip__unit">rule-generated</span>
                       </button>
                       <button
                         type="button"
@@ -1348,10 +1346,8 @@ export function createClassicalShellModule(targetObject = globalThis) {
                         data-derivation-type="applicative"
                         data-classical-authority-option-tag="cn-option-vnc-derivation-applicative"
                         aria-pressed="false"
-                        title="Rule-generated Lesson 26 applicatives from typed class, valence, final shape, and derivational history"
                       >
                         <span class="calc-operator-chip__main">Applicative</span>
-                        <span class="calc-operator-chip__unit">rule-generated</span>
                       </button>
                     </div>
                   </section>

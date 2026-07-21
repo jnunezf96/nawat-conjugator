@@ -57,6 +57,10 @@ assert.ok(shell.includes('id="classical-vnc-source-stem"'));
 assert.ok(composer.includes("getClassicalVncSourceStemStarterPreset"));
 assert.ok(composer.includes("applyClassicalVncSourceStemSelection"));
 
+assert.ok(shell.includes('data-derivation-type="causative"'));
+assert.ok(shell.includes('data-derivation-type="applicative"'));
+assert.equal(shell.includes("rule-generated"), false);
+
 assert.match(composer, /key: "panel",[\s\S]{0,100}segment: "screen"/);
 assert.match(composer, /key: "derivationType",[\s\S]{0,100}segment: "derivation"/);
 assert.ok(composer.includes("targetObject.setLeftPanelStackMode(normalized.panel)"));
