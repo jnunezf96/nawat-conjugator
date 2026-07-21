@@ -90,6 +90,9 @@
   --glass-btn-bg-active: linear-gradient(180deg, #dff2ed, #cce8df);
   --glass-btn-shadow: none;
   --glass-btn-shadow-active: none;
+  --panel-tab-selected-bg: #13251f;
+  --panel-tab-selected-border: #13251f;
+  --panel-tab-selected-fg: #ffffff;
   --calc-screen-bg: linear-gradient(180deg, #ffffff, #f7faf6);
   --calc-screen-border: var(--edge);
   --calc-operator-bg: rgba(248, 250, 246, 0.94);
@@ -14327,11 +14330,21 @@ select,
   border-radius: var(--radius);
 }
 
-.panel-stack-tab.is-active {
-  background: #13251f;
-  border-color: #13251f;
-  color: #ffffff;
+.panel-stack-tab.is-active,
+.panel-stack-tab[aria-selected="true"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--panel-tab-selected-bg);
+  border-color: var(--panel-tab-selected-border);
+  color: var(--panel-tab-selected-fg);
+  -webkit-text-fill-color: var(--panel-tab-selected-fg);
   box-shadow: none;
+}
+
+.panel-stack-tab.is-active *,
+.panel-stack-tab[aria-selected="true"] * {
+  color: inherit;
+  -webkit-text-fill-color: inherit;
 }
 
 .panel {
