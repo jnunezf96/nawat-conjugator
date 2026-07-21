@@ -27,7 +27,7 @@ assert.ok(css.includes("--panel-tab-selected-fg: #ffffff;"));
 assert.ok(css.includes('.panel-stack-tab[aria-selected="true"]'));
 assert.ok(css.includes("-webkit-text-fill-color: var(--panel-tab-selected-fg);"));
 assert.ok(css.includes('.panel-stack-tab[aria-selected="true"] *'));
-assert.ok(html.includes("style.css?v=20260721-classical-public-runtime-001"));
+assert.ok(html.includes("style.css?v=20260721-classical-public-runtime-002"));
 assert.ok(contrastRatio("#13251f", "#ffffff") >= 4.5);
 
 console.log("Panel tab contrast tests passed.");

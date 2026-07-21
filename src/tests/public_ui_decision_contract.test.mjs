@@ -20,6 +20,15 @@ const footerStart = shell.indexOf("function ClassicalFooter", resultStart);
 assert.ok(authorityStart >= 0 && resultStart > authorityStart && footerStart > resultStart);
 const authorityPanel = shell.slice(authorityStart, resultStart);
 const resultPanel = shell.slice(resultStart, footerStart);
+const sourcePanel = shell.slice(shell.indexOf("function ClassicalSourcePanel"), authorityStart);
+
+for (const controlId of [
+  "classical-rule-logic-valence",
+  "classical-rule-logic-class"
+]) {
+  assert.equal(sourcePanel.includes(controlId), true, `${controlId} must remain in Source`);
+  assert.equal(authorityPanel.includes(controlId), false, `${controlId} must not return to Authority`);
+}
 
 for (const controlId of [
   "classical-rule-logic-nnc-output-scope",

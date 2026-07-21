@@ -75,26 +75,34 @@ function run(ctx = {}) {
     s.eq(
         "The delegated event path accepts participant changes and ignores unrelated controls",
         typeof ctx.handleClassicalCausativeParticipantControlChange === "function"
-            ? {
-                selected: ctx.handleClassicalCausativeParticipantControlChange({
-                    target: {
-                        id: "classical-rule-logic-causative-object-kind",
-                        value: "nonspecific-nonhuman",
-                    },
-                }),
-                lateRelation: ctx.handleClassicalCausativeParticipantControlChange({
-                    target: {
-                        id: "classical-rule-logic-causative-referent-relation",
-                        value: "distinct",
-                    },
-                }),
-                unrelated: ctx.handleClassicalCausativeParticipantControlChange({
-                    target: {
-                        id: "classical-rule-logic-subject",
-                        value: "2sg",
-                    },
-                }),
-            }
+            ? (() => {
+                const originalRenderClassicalRuleLogicSurfaceBlock = ctx.renderClassicalRuleLogicSurfaceBlock;
+                ctx.renderClassicalRuleLogicSurfaceBlock = () => null;
+                try {
+                    return {
+                        selected: ctx.handleClassicalCausativeParticipantControlChange({
+                            target: {
+                                id: "classical-rule-logic-causative-object-kind",
+                                value: "nonspecific-nonhuman",
+                            },
+                        }),
+                        lateRelation: ctx.handleClassicalCausativeParticipantControlChange({
+                            target: {
+                                id: "classical-rule-logic-causative-referent-relation",
+                                value: "distinct",
+                            },
+                        }),
+                        unrelated: ctx.handleClassicalCausativeParticipantControlChange({
+                            target: {
+                                id: "classical-rule-logic-subject",
+                                value: "2sg",
+                            },
+                        }),
+                    };
+                } finally {
+                    ctx.renderClassicalRuleLogicSurfaceBlock = originalRenderClassicalRuleLogicSurfaceBlock;
+                }
+            })()
             : null,
         {
             selected: false,
@@ -110,6 +118,8 @@ function run(ctx = {}) {
             && ctx.document
             ? (() => {
                 const originalGetElementById = ctx.document.getElementById;
+                const priorSurfaceFrame = ctx.ActiveClassicalRuleLogicSurfaceFrame;
+                const originalRenderClassicalRuleLogicSurfaceBlock = ctx.renderClassicalRuleLogicSurfaceBlock;
                 const controls = {
                     "classical-rule-logic-causative-referent-relation": {
                         id: "classical-rule-logic-causative-referent-relation",
@@ -121,6 +131,7 @@ function run(ctx = {}) {
                     },
                 };
                 ctx.document.getElementById = (id) => controls[id] || null;
+                ctx.renderClassicalRuleLogicSurfaceBlock = () => null;
                 try {
                     controls["classical-rule-logic-causative-referent-relation"].value = "distinct";
                     const relationRequest = ctx.getClassicalCausativeParticipantControlRequestOverrides(
@@ -147,6 +158,8 @@ function run(ctx = {}) {
                     };
                 } finally {
                     ctx.document.getElementById = originalGetElementById;
+                    ctx.ActiveClassicalRuleLogicSurfaceFrame = priorSurfaceFrame;
+                    ctx.renderClassicalRuleLogicSurfaceBlock = originalRenderClassicalRuleLogicSurfaceBlock;
                 }
             })()
             : null,
@@ -176,6 +189,8 @@ function run(ctx = {}) {
                     objectPerson: "3sg",
                     derivationType: "causative",
                     causativeSourceSubject: "3sg",
+                    causativeSourceVoice: "active",
+                    vncVoice: "active",
                     mood: "indicative",
                     tense: "present",
                     lesson11Construction: "none",
@@ -243,6 +258,8 @@ function run(ctx = {}) {
                     objectPerson: "3sg",
                     derivationType: "causative",
                     causativeSourceSubject: "3sg",
+                    causativeSourceVoice: "active",
+                    vncVoice: "active",
                     mood: "indicative",
                     tense: "present",
                     lesson11Construction: "none",
