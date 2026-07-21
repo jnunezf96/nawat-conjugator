@@ -17254,6 +17254,9 @@ body.is-language-classical .verb-entry-board-tabs[data-classical-source-board-mi
 
 @media (max-width: 1024px) {
   body.is-language-classical [data-panel-stack-swipe="enabled"] {
+    --panel-stack-drag-x: 0px;
+    --panel-stack-drag-progress: 0;
+    --panel-stack-drag-scale: 1;
     touch-action: pan-y;
     overscroll-behavior-x: contain;
   }
@@ -17261,6 +17264,30 @@ body.is-language-classical .verb-entry-board-tabs[data-classical-source-board-mi
   body.is-language-classical [data-panel-stack-swipe="enabled"].is-panel-stack-swiping {
     cursor: grabbing;
     user-select: none;
+  }
+
+  body.is-language-classical [data-panel-stack-swipe="enabled"].is-panel-stack-swiping [data-panel-stack-pane].is-active {
+    animation: none;
+    transform: translate3d(var(--panel-stack-drag-x), 0, 0)
+      scale(var(--panel-stack-drag-scale));
+    transition: none;
+  }
+
+  body.is-language-classical [data-panel-stack-swipe="enabled"].is-panel-stack-snapping-back [data-panel-stack-pane].is-active {
+    transform: translate3d(0, 0, 0) scale(1);
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  body.is-language-classical [data-panel-stack-swipe="enabled"][data-panel-stack-swipe-intent="blocked"] [data-panel-stack-pane].is-active {
+    filter: saturate(0.88);
+  }
+
+  body.is-language-classical [data-panel-stack-swipe-direction="next"] .panel-stack-pane.is-pane-entering {
+    animation-name: panel-stack-pane-enter-from-right;
+  }
+
+  body.is-language-classical [data-panel-stack-swipe-direction="previous"] .panel-stack-pane.is-pane-entering {
+    animation-name: panel-stack-pane-enter-from-left;
   }
 
   body.is-language-classical .panel-grid[data-andrews-layout="source-authority-authorized-result"] {
@@ -17289,6 +17316,30 @@ body.is-language-classical .verb-entry-board-tabs[data-classical-source-board-mi
   body.is-language-classical .panel-stack-tabs {
     display: flex;
     width: 100%;
+  }
+}
+
+@keyframes panel-stack-pane-enter-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes panel-stack-pane-enter-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 
