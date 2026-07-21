@@ -899,7 +899,7 @@ export function createParsingApi(targetObject = globalThis) {
       const runtimeTarget = getCurrentRegexRuntimeTarget();
       return typeof runtimeTarget?.isClassicalNahuatlPublicRuntime === "function"
         ? runtimeTarget.isClassicalNahuatlPublicRuntime()
-        : true;
+        : false;
     }
     function getClassicalNahuatlCurrentRegexBoundaryRoleFrame(coreText = "", options = {}) {
       if (!isClassicalNahuatlCurrentRegexBoundaryContext(coreText, options)) {

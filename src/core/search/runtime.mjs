@@ -157,7 +157,7 @@ export function createSearchRuntimeApi(targetObject = globalThis) {
     function isClassicalNahuatlConjugationSearchContext(value = "", runtimeTarget = null) {
       return typeof runtimeTarget?.isClassicalNahuatlPublicRuntime === "function"
         ? runtimeTarget.isClassicalNahuatlPublicRuntime()
-        : true;
+        : false;
     }
     function normalizeClassicalNahuatlConjugationSearchText(value) {
       return String(value || "").toLowerCase().replace(/[^a-zāēīō]/gu, "");

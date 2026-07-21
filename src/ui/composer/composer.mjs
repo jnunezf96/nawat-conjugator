@@ -4495,7 +4495,7 @@ export function createUiComposerRuntime(targetObject = globalThis) {
     function isClassicalNahuatlComposerStemContext(value = "") {
       return typeof targetObject.isClassicalNahuatlPublicRuntime === "function"
         ? targetObject.isClassicalNahuatlPublicRuntime()
-        : true;
+        : false;
     }
     function hasClassicalNahuatlComposerMacron(value = "") {
       return /[āēīō]/iu.test(String(value || ""));

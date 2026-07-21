@@ -158,7 +158,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
     function isClassicalNahuatlMachineryActive() {
       return typeof targetObject.isClassicalNahuatlPublicRuntime === "function"
         ? targetObject.isClassicalNahuatlPublicRuntime()
-        : true;
+        : false;
     }
     function normalizeClassicalNahuatlMachinerySourceValue(value = "") {
       let source = String(value || "").trim();
@@ -188,7 +188,7 @@ export function createUiRenderingApi(targetObject = globalThis) {
       }
     }
     function getClassicalNahuatlMachinerySourceFromHash() {
-      if (typeof targetObject.window === "undefined") {
+      if (typeof targetObject.window === "undefined" || !targetObject.window.location) {
         return "";
       }
       const hash = String(targetObject.window.location.hash || "");
